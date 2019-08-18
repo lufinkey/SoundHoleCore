@@ -1,0 +1,6 @@
+[submodule "external/async-cpp"]
+	path = external/async-cpp
+	url = git@github.com:lufinkey/async-cpp.git
+[submodule "external/data-cpp"]
+	path = external/data-cpp
+	url = git@github.com:lufinkey/data-cpp.git
