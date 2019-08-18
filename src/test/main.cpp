@@ -6,6 +6,8 @@
 //  Copyright © 2019 Luis Finke. All rights reserved.
 //
 
+#include <soundhole.hpp>
+
 int main(int argc, char* argv[]) {
 	return 0;
 }

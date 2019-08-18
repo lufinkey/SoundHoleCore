@@ -7,8 +7,52 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A517B8122309367B00897145 /* libAsyncCpp-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A564E005230918B50018787F /* libAsyncCpp-macOS.a */; };
+		A517B8132309367B00897145 /* libDataCpp-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A564E010230918C00018787F /* libDataCpp-macOS.a */; };
+		A517B82223093CC300897145 /* BandcampProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A517B82023093CC300897145 /* BandcampProvider.cpp */; };
+		A517B82323093CC300897145 /* BandcampProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A517B82123093CC300897145 /* BandcampProvider.hpp */; };
 		A564DFD7230916AE0018787F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A564DFD5230916A00018787F /* main.cpp */; };
+		A564E015230919820018787F /* MediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A564E013230919820018787F /* MediaProvider.cpp */; };
+		A564E016230919820018787F /* MediaProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A564E014230919820018787F /* MediaProvider.hpp */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A564E004230918B50018787F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A564DFFE230918B50018787F /* AsyncCpp.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A53E4E7B2304D166000BB7D8;
+			remoteInfo = "AsyncCpp-macOS";
+		};
+		A564E006230918B50018787F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A564DFFE230918B50018787F /* AsyncCpp.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A53E4E8C2304D250000BB7D8;
+			remoteInfo = "AsyncCpp-iOS";
+		};
+		A564E008230918B50018787F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A564DFFE230918B50018787F /* AsyncCpp.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A53E4EA32304D2E1000BB7D8;
+			remoteInfo = "AsyncCppTest-macOS";
+		};
+		A564E00F230918C00018787F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A564E00A230918C00018787F /* DataCpp.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A53E4EB223063BFC000BB7D8;
+			remoteInfo = "DataCpp-macOS";
+		};
+		A564E011230918C00018787F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A564E00A230918C00018787F /* DataCpp.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A53E4EC22306411F000BB7D8;
+			remoteInfo = "DataCppTest-macOS";
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		A564DFA8230914280018787F /* CopyFiles */ = {
@@ -23,9 +67,17 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A517B82023093CC300897145 /* BandcampProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampProvider.cpp; sourceTree = "<group>"; };
+		A517B82123093CC300897145 /* BandcampProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BandcampProvider.hpp; sourceTree = "<group>"; };
 		A564DFAA230914280018787F /* SoundHoleCoreTest-macOS */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "SoundHoleCoreTest-macOS"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A564DFB6230914680018787F /* libSoundHoleCore-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSoundHoleCore-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A564DFD5230916A00018787F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		A564DFFE230918B50018787F /* AsyncCpp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = AsyncCpp.xcodeproj; path = "../../../external/async-cpp/projects/xcode/AsyncCpp.xcodeproj"; sourceTree = "<group>"; };
+		A564E00A230918C00018787F /* DataCpp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DataCpp.xcodeproj; path = "../../../external/data-cpp/projects/xcode/DataCpp.xcodeproj"; sourceTree = "<group>"; };
+		A564E013230919820018787F /* MediaProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MediaProvider.cpp; sourceTree = "<group>"; };
+		A564E014230919820018787F /* MediaProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaProvider.hpp; sourceTree = "<group>"; };
+		A564E01F230920F90018787F /* soundhole.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = soundhole.hpp; sourceTree = "<group>"; };
+		A564E0212309289C0018787F /* external.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = external.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -33,6 +85,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A517B8122309367B00897145 /* libAsyncCpp-macOS.a in Frameworks */,
+				A517B8132309367B00897145 /* libDataCpp-macOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -68,6 +122,7 @@
 		A564DFB1230914380018787F /* src */ = {
 			isa = PBXGroup;
 			children = (
+				A564E01F230920F90018787F /* soundhole.hpp */,
 				A564DFD32309167D0018787F /* soundhole */,
 				A564DFD4230916870018787F /* test */,
 			);
@@ -78,6 +133,8 @@
 		A564DFBA230915EF0018787F /* external */ = {
 			isa = PBXGroup;
 			children = (
+				A564DFFE230918B50018787F /* AsyncCpp.xcodeproj */,
+				A564E00A230918C00018787F /* DataCpp.xcodeproj */,
 			);
 			path = external;
 			sourceTree = "<group>";
@@ -92,6 +149,7 @@
 		A564DFD32309167D0018787F /* soundhole */ = {
 			isa = PBXGroup;
 			children = (
+				A564E0212309289C0018787F /* external.hpp */,
 				A564DFD8230916F90018787F /* media */,
 				A564DFD9230917000018787F /* providers */,
 			);
@@ -116,8 +174,31 @@
 		A564DFD9230917000018787F /* providers */ = {
 			isa = PBXGroup;
 			children = (
+				A564E014230919820018787F /* MediaProvider.hpp */,
+				A564E013230919820018787F /* MediaProvider.cpp */,
+				A517B82123093CC300897145 /* BandcampProvider.hpp */,
+				A517B82023093CC300897145 /* BandcampProvider.cpp */,
 			);
 			path = providers;
+			sourceTree = "<group>";
+		};
+		A564DFFF230918B50018787F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A564E005230918B50018787F /* libAsyncCpp-macOS.a */,
+				A564E007230918B50018787F /* libAsyncCpp-iOS.a */,
+				A564E009230918B50018787F /* AsyncCppTest-macOS */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A564E00B230918C00018787F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A564E010230918C00018787F /* libDataCpp-macOS.a */,
+				A564E012230918C00018787F /* DataCppTest-macOS */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -127,6 +208,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A564E016230919820018787F /* MediaProvider.hpp in Headers */,
+				A517B82323093CC300897145 /* BandcampProvider.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -194,6 +277,16 @@
 			mainGroup = A564DF96230913F30018787F;
 			productRefGroup = A564DFA0230913F30018787F /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = A564DFFF230918B50018787F /* Products */;
+					ProjectRef = A564DFFE230918B50018787F /* AsyncCpp.xcodeproj */;
+				},
+				{
+					ProductGroup = A564E00B230918C00018787F /* Products */;
+					ProjectRef = A564E00A230918C00018787F /* DataCpp.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				A564DFB5230914680018787F /* SoundHoleCore-macOS */,
@@ -201,6 +294,44 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		A564E005230918B50018787F /* libAsyncCpp-macOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libAsyncCpp-macOS.a";
+			remoteRef = A564E004230918B50018787F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		A564E007230918B50018787F /* libAsyncCpp-iOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libAsyncCpp-iOS.a";
+			remoteRef = A564E006230918B50018787F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		A564E009230918B50018787F /* AsyncCppTest-macOS */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = "AsyncCppTest-macOS";
+			remoteRef = A564E008230918B50018787F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		A564E010230918C00018787F /* libDataCpp-macOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libDataCpp-macOS.a";
+			remoteRef = A564E00F230918C00018787F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		A564E012230918C00018787F /* DataCppTest-macOS */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = "DataCppTest-macOS";
+			remoteRef = A564E011230918C00018787F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
 		A564DFA6230914280018787F /* Sources */ = {
@@ -215,6 +346,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A517B82223093CC300897145 /* BandcampProvider.cpp in Sources */,
+				A564E015230919820018787F /* MediaProvider.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -337,6 +470,11 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = (
+					../../src,
+					"../../external/async-cpp/src",
+					"../../external/data-cpp/src",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -346,6 +484,11 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = (
+					../../src,
+					"../../external/async-cpp/src",
+					"../../external/data-cpp/src",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -357,8 +500,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = (
-					"../../external/async-cpp/src",
-					"../../external/data-cpp/src",
+					"$(PROJECT_DIR)/../../src",
+					"$(PROJECT_DIR)/../../external/async-cpp/src",
+					"$(PROJECT_DIR)/../../external/data-cpp/src",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -372,8 +516,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = (
-					"../../external/async-cpp/src",
-					"../../external/data-cpp/src",
+					"$(PROJECT_DIR)/../../src",
+					"$(PROJECT_DIR)/../../external/async-cpp/src",
+					"$(PROJECT_DIR)/../../external/data-cpp/src",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
