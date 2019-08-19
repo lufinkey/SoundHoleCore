@@ -11,6 +11,8 @@
 		A517B8132309367B00897145 /* libDataCpp-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A564E010230918C00018787F /* libDataCpp-macOS.a */; };
 		A517B82223093CC300897145 /* BandcampProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A517B82023093CC300897145 /* BandcampProvider.cpp */; };
 		A517B82323093CC300897145 /* BandcampProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A517B82123093CC300897145 /* BandcampProvider.hpp */; };
+		A517B82623093E1800897145 /* MediaItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A517B82423093E1800897145 /* MediaItem.cpp */; };
+		A517B82723093E1800897145 /* MediaItem.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A517B82523093E1800897145 /* MediaItem.hpp */; };
 		A564DFD7230916AE0018787F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A564DFD5230916A00018787F /* main.cpp */; };
 		A564E015230919820018787F /* MediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A564E013230919820018787F /* MediaProvider.cpp */; };
 		A564E016230919820018787F /* MediaProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A564E014230919820018787F /* MediaProvider.hpp */; };
@@ -69,6 +71,8 @@
 /* Begin PBXFileReference section */
 		A517B82023093CC300897145 /* BandcampProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampProvider.cpp; sourceTree = "<group>"; };
 		A517B82123093CC300897145 /* BandcampProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BandcampProvider.hpp; sourceTree = "<group>"; };
+		A517B82423093E1800897145 /* MediaItem.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MediaItem.cpp; sourceTree = "<group>"; };
+		A517B82523093E1800897145 /* MediaItem.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaItem.hpp; sourceTree = "<group>"; };
 		A564DFAA230914280018787F /* SoundHoleCoreTest-macOS */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "SoundHoleCoreTest-macOS"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A564DFB6230914680018787F /* libSoundHoleCore-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSoundHoleCore-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A564DFD5230916A00018787F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -167,6 +171,8 @@
 		A564DFD8230916F90018787F /* media */ = {
 			isa = PBXGroup;
 			children = (
+				A517B82523093E1800897145 /* MediaItem.hpp */,
+				A517B82423093E1800897145 /* MediaItem.cpp */,
 			);
 			path = media;
 			sourceTree = "<group>";
@@ -210,6 +216,7 @@
 			files = (
 				A564E016230919820018787F /* MediaProvider.hpp in Headers */,
 				A517B82323093CC300897145 /* BandcampProvider.hpp in Headers */,
+				A517B82723093E1800897145 /* MediaItem.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -348,6 +355,7 @@
 			files = (
 				A517B82223093CC300897145 /* BandcampProvider.cpp in Sources */,
 				A564E015230919820018787F /* MediaProvider.cpp in Sources */,
+				A517B82623093E1800897145 /* MediaItem.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -503,6 +511,7 @@
 					"$(PROJECT_DIR)/../../src",
 					"$(PROJECT_DIR)/../../external/async-cpp/src",
 					"$(PROJECT_DIR)/../../external/data-cpp/src",
+					"$(PROJECT_DIR)/../../external/JsonCpp/include",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -519,6 +528,7 @@
 					"$(PROJECT_DIR)/../../src",
 					"$(PROJECT_DIR)/../../external/async-cpp/src",
 					"$(PROJECT_DIR)/../../external/data-cpp/src",
+					"$(PROJECT_DIR)/../../external/JsonCpp/include",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

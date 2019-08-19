@@ -1,6 +1,6 @@
 //
 //  BandcampProvider.hpp
-//  SoundHoleCore-macOS
+//  SoundHoleCore
 //
 //  Created by Luis Finke on 8/18/19.
 //  Copyright © 2019 Luis Finke. All rights reserved.
@@ -15,5 +15,15 @@ namespace sh {
 	public:
 		virtual String getName() const override;
 		virtual String getDisplayName() const override;
+		
+		
+		struct SearchOptions {
+			size_t page;
+		};
+		struct SearchResults {
+			size_t page;
+			LinkedList<std::unique_ptr<MediaItem*>> items;
+		};
+		virtual Promise<SearchResults> search(String text, SearchOptions options) const;
 	};
 }

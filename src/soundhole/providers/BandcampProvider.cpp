@@ -1,6 +1,6 @@
 //
 //  BandcampProvider.cpp
-//  SoundHoleCore-macOS
+//  SoundHoleCore
 //
 //  Created by Luis Finke on 8/18/19.
 //  Copyright © 2019 Luis Finke. All rights reserved.
@@ -15,5 +15,10 @@ namespace sh {
 	
 	String BandcampProvider::getDisplayName() const {
 		return "Bandcamp";
+	}
+	
+	Promise<BandcampProvider::SearchResults> BandcampProvider::search(String text, SearchOptions options) const {
+		// TODO implement search
+		return Promise::resolve(SearchResults{ .page = 0 });
 	}
 }
