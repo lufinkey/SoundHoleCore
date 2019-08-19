@@ -4,3 +4,9 @@
 [submodule "external/data-cpp"]
 	path = external/data-cpp
 	url = git@github.com:lufinkey/data-cpp.git
+[submodule "external/json11"]
+	path = external/json11
+	url = git@github.com:dropbox/json11.git
+[submodule "external/cpp-httplib"]
+	path = external/cpp-httplib
+	url = git@github.com:yhirose/cpp-httplib.git

@@ -16,6 +16,8 @@
 		A564DFD7230916AE0018787F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A564DFD5230916A00018787F /* main.cpp */; };
 		A564E015230919820018787F /* MediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A564E013230919820018787F /* MediaProvider.cpp */; };
 		A564E016230919820018787F /* MediaProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A564E014230919820018787F /* MediaProvider.hpp */; };
+		A58B31E9230A597F00E80ECB /* json11.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58B31C0230A593C00E80ECB /* json11.cpp */; };
+		A58B31EA230A59B700E80ECB /* libSoundHoleCore-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A564DFB6230914680018787F /* libSoundHoleCore-macOS.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -82,6 +84,9 @@
 		A564E014230919820018787F /* MediaProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaProvider.hpp; sourceTree = "<group>"; };
 		A564E01F230920F90018787F /* soundhole.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = soundhole.hpp; sourceTree = "<group>"; };
 		A564E0212309289C0018787F /* external.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = external.hpp; sourceTree = "<group>"; };
+		A58B31BD230A593C00E80ECB /* json11.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json11.hpp; sourceTree = "<group>"; };
+		A58B31C0230A593C00E80ECB /* json11.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = json11.cpp; sourceTree = "<group>"; };
+		A58B31C3230A596100E80ECB /* httplib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = httplib.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,6 +94,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A58B31EA230A59B700E80ECB /* libSoundHoleCore-macOS.a in Frameworks */,
 				A517B8122309367B00897145 /* libAsyncCpp-macOS.a in Frameworks */,
 				A517B8132309367B00897145 /* libDataCpp-macOS.a in Frameworks */,
 			);
@@ -139,6 +145,8 @@
 			children = (
 				A564DFFE230918B50018787F /* AsyncCpp.xcodeproj */,
 				A564E00A230918C00018787F /* DataCpp.xcodeproj */,
+				A58B31C2230A596100E80ECB /* cpp-httplib */,
+				A58B31B8230A593C00E80ECB /* json11 */,
 			);
 			path = external;
 			sourceTree = "<group>";
@@ -205,6 +213,25 @@
 				A564E012230918C00018787F /* DataCppTest-macOS */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A58B31B8230A593C00E80ECB /* json11 */ = {
+			isa = PBXGroup;
+			children = (
+				A58B31BD230A593C00E80ECB /* json11.hpp */,
+				A58B31C0230A593C00E80ECB /* json11.cpp */,
+			);
+			name = json11;
+			path = ../../../external/json11;
+			sourceTree = "<group>";
+		};
+		A58B31C2230A596100E80ECB /* cpp-httplib */ = {
+			isa = PBXGroup;
+			children = (
+				A58B31C3230A596100E80ECB /* httplib.h */,
+			);
+			name = "cpp-httplib";
+			path = "../../../external/cpp-httplib";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -346,6 +373,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A564DFD7230916AE0018787F /* main.cpp in Sources */,
+				A58B31E9230A597F00E80ECB /* json11.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
