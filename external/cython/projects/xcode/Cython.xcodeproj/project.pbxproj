@@ -43,7 +43,7 @@
 				A58B3226230F87EB00E80ECB /* build.sh */,
 				A58B324423107A8000E80ECB /* clean.sh */,
 				A58B3227230F87F200E80ECB /* setup.py */,
-				A58B3220230F879A00E80ECB /* src */,
+				A58B3220230F879A00E80ECB /* lib */,
 				A58B3212230F875B00E80ECB /* Products */,
 				A58B322A230F88C700E80ECB /* Frameworks */,
 			);
@@ -57,7 +57,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A58B3220230F879A00E80ECB /* src */ = {
+		A58B3220230F879A00E80ECB /* lib */ = {
 			isa = PBXGroup;
 			children = (
 				A58B323F2310772300E80ECB /* __init__.py */,
@@ -68,8 +68,8 @@
 				A58B3222230F879A00E80ECB /* YoutubeDL.cpp */,
 				A58B3223230F879A00E80ECB /* YoutubeDL.h */,
 			);
-			name = src;
-			path = ../../src;
+			name = lib;
+			path = ../../lib;
 			sourceTree = "<group>";
 		};
 		A58B322A230F88C700E80ECB /* Frameworks */ = {

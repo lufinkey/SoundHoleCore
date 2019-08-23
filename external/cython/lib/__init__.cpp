@@ -4,12 +4,12 @@
 {
     "distutils": {
         "language": "c++",
-        "name": "src.__init__",
+        "name": "lib.__init__",
         "sources": [
-            "src/__init__.pyx"
+            "lib/__init__.pyx"
         ]
     },
-    "module_name": "src.__init__"
+    "module_name": "lib.__init__"
 }
 END: Cython Metadata */
 
@@ -617,8 +617,8 @@ static CYTHON_INLINE float __PYX_NAN() {
   #endif
 #endif
 
-#define __PYX_HAVE__src____init__
-#define __PYX_HAVE_API__src____init__
+#define __PYX_HAVE__lib____init__
+#define __PYX_HAVE_API__lib____init__
 /* Early includes */
 #ifdef _OPENMP
 #include <omp.h>
@@ -828,7 +828,7 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "src/__init__.pyx",
+  "lib/__init__.pyx",
 };
 
 /*--- Type declarations ---*/
@@ -1034,14 +1034,14 @@ static int __Pyx_check_binary_version(void);
 static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
 
-/* Module declarations from 'src.__init__' */
-#define __Pyx_MODULE_NAME "src.__init__"
-extern int __pyx_module_is_main_src____init__;
-int __pyx_module_is_main_src____init__ = 0;
+/* Module declarations from 'lib.__init__' */
+#define __Pyx_MODULE_NAME "lib.__init__"
+extern int __pyx_module_is_main_lib____init__;
+int __pyx_module_is_main_lib____init__ = 0;
 
-/* Implementation of 'src.__init__' */
+/* Implementation of 'lib.__init__' */
 static const char __pyx_k_any[] = "any";
-static const char __pyx_k_src[] = "src";
+static const char __pyx_k_lib[] = "lib";
 static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_name[] = "__name__";
 static const char __pyx_k_test[] = "__test__";
@@ -1053,9 +1053,9 @@ static PyObject *__pyx_n_s_YoutubeDL;
 static PyObject *__pyx_n_s_any;
 static PyObject *__pyx_n_s_cline_in_traceback;
 static PyObject *__pyx_n_s_import;
+static PyObject *__pyx_n_u_lib;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_name;
-static PyObject *__pyx_n_u_src;
 static PyObject *__pyx_n_s_stdany;
 static PyObject *__pyx_n_s_test;
 /* Late includes */
@@ -1067,17 +1067,17 @@ static PyMethodDef __pyx_methods[] = {
 #if PY_MAJOR_VERSION >= 3
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 static PyObject* __pyx_pymod_create(PyObject *spec, PyModuleDef *def); /*proto*/
-static int __pyx_pymod_exec_src(PyObject* module); /*proto*/
+static int __pyx_pymod_exec_lib(PyObject* module); /*proto*/
 static PyModuleDef_Slot __pyx_moduledef_slots[] = {
   {Py_mod_create, (void*)__pyx_pymod_create},
-  {Py_mod_exec, (void*)__pyx_pymod_exec_src},
+  {Py_mod_exec, (void*)__pyx_pymod_exec_lib},
   {0, NULL}
 };
 #endif
 
 static struct PyModuleDef __pyx_moduledef = {
     PyModuleDef_HEAD_INIT,
-    "src",
+    "lib",
     0, /* m_doc */
   #if CYTHON_PEP489_MULTI_PHASE_INIT
     0, /* m_size */
@@ -1110,9 +1110,9 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_any, __pyx_k_any, sizeof(__pyx_k_any), 0, 0, 1, 1},
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
+  {&__pyx_n_u_lib, __pyx_k_lib, sizeof(__pyx_k_lib), 0, 1, 0, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_name, __pyx_k_name, sizeof(__pyx_k_name), 0, 0, 1, 1},
-  {&__pyx_n_u_src, __pyx_k_src, sizeof(__pyx_k_src), 0, 1, 0, 1},
   {&__pyx_n_s_stdany, __pyx_k_stdany, sizeof(__pyx_k_stdany), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
   {0, 0, 0, 0, 0, 0, 0}
@@ -1216,11 +1216,11 @@ static int __Pyx_modinit_function_import_code(void) {
 
 
 #if PY_MAJOR_VERSION < 3
-__Pyx_PyMODINIT_FUNC initsrc(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC initsrc(void)
+__Pyx_PyMODINIT_FUNC initlib(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC initlib(void)
 #else
-__Pyx_PyMODINIT_FUNC PyInit_src(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC PyInit_src(void)
+__Pyx_PyMODINIT_FUNC PyInit_lib(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC PyInit_lib(void)
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 {
   return PyModuleDef_Init(&__pyx_moduledef);
@@ -1287,7 +1287,7 @@ bad:
 }
 
 
-static CYTHON_SMALL_CODE int __pyx_pymod_exec_src(PyObject *__pyx_pyinit_module)
+static CYTHON_SMALL_CODE int __pyx_pymod_exec_lib(PyObject *__pyx_pyinit_module)
 #endif
 #endif
 {
@@ -1297,7 +1297,7 @@ static CYTHON_SMALL_CODE int __pyx_pymod_exec_src(PyObject *__pyx_pyinit_module)
   #if CYTHON_PEP489_MULTI_PHASE_INIT
   if (__pyx_m) {
     if (__pyx_m == __pyx_pyinit_module) return 0;
-    PyErr_SetString(PyExc_RuntimeError, "Module 'src' has already been imported. Re-initialisation is not supported.");
+    PyErr_SetString(PyExc_RuntimeError, "Module 'lib' has already been imported. Re-initialisation is not supported.");
     return -1;
   }
   #elif PY_MAJOR_VERSION >= 3
@@ -1312,7 +1312,7 @@ if (!__Pyx_RefNanny) {
       Py_FatalError("failed to import 'refnanny' module");
 }
 #endif
-  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_src(void)", 0);
+  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_lib(void)", 0);
   if (__Pyx_check_binary_version() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #ifdef __Pxy_PyFrame_Initialize_Offsets
   __Pxy_PyFrame_Initialize_Offsets();
@@ -1351,7 +1351,7 @@ if (!__Pyx_RefNanny) {
   Py_INCREF(__pyx_m);
   #else
   #if PY_MAJOR_VERSION < 3
-  __pyx_m = Py_InitModule4("src", __pyx_methods, 0, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
+  __pyx_m = Py_InitModule4("lib", __pyx_methods, 0, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
   #else
   __pyx_m = PyModule_Create(&__pyx_moduledef);
   #endif
@@ -1369,17 +1369,17 @@ if (!__Pyx_RefNanny) {
   #if PY_MAJOR_VERSION < 3 && (__PYX_DEFAULT_STRING_ENCODING_IS_ASCII || __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT)
   if (__Pyx_init_sys_getdefaultencoding_params() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
-  if (__pyx_module_is_main_src____init__) {
+  if (__pyx_module_is_main_lib____init__) {
     if (PyObject_SetAttr(__pyx_m, __pyx_n_s_name, __pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   }
   if (!CYTHON_PEP489_MULTI_PHASE_INIT) {
-    if (unlikely(__Pyx_SetPackagePathFromImportLib(NULL, __pyx_n_u_src) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
+    if (unlikely(__Pyx_SetPackagePathFromImportLib(NULL, __pyx_n_u_lib) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
   }
   #if PY_MAJOR_VERSION >= 3
   {
     PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) __PYX_ERR(0, 1, __pyx_L1_error)
-    if (!PyDict_GetItemString(modules, "src")) {
-      if (unlikely(PyDict_SetItemString(modules, "src", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
+    if (!PyDict_GetItemString(modules, "lib")) {
+      if (unlikely(PyDict_SetItemString(modules, "lib", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
     }
   }
   #endif
@@ -1400,7 +1400,7 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_patch_abc() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
 
-  /* "src/__init__.pyx":3
+  /* "lib/__init__.pyx":3
  * # distutils: language=c++
  * 
  * from .stdany import any             # <<<<<<<<<<<<<<
@@ -1420,7 +1420,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "src/__init__.pyx":4
+  /* "lib/__init__.pyx":4
  * 
  * from .stdany import any
  * from .YoutubeDL import YoutubeDL             # <<<<<<<<<<<<<<
@@ -1439,7 +1439,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "src/__init__.pyx":1
+  /* "lib/__init__.pyx":1
  * # distutils: language=c++             # <<<<<<<<<<<<<<
  * 
  * from .stdany import any
@@ -1457,11 +1457,11 @@ if (!__Pyx_RefNanny) {
   __Pyx_XDECREF(__pyx_t_2);
   if (__pyx_m) {
     if (__pyx_d) {
-      __Pyx_AddTraceback("init src.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("init lib.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
     }
     Py_CLEAR(__pyx_m);
   } else if (!PyErr_Occurred()) {
-    PyErr_SetString(PyExc_ImportError, "init src.__init__");
+    PyErr_SetString(PyExc_ImportError, "init lib.__init__");
   }
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();

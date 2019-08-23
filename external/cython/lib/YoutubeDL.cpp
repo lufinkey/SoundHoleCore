@@ -5,12 +5,12 @@
     "distutils": {
         "depends": [],
         "language": "c++",
-        "name": "src.YoutubeDL",
+        "name": "lib.YoutubeDL",
         "sources": [
-            "src/YoutubeDL.pyx"
+            "lib/YoutubeDL.pyx"
         ]
     },
-    "module_name": "src.YoutubeDL"
+    "module_name": "lib.YoutubeDL"
 }
 END: Cython Metadata */
 
@@ -618,8 +618,8 @@ static CYTHON_INLINE float __PYX_NAN() {
   #endif
 #endif
 
-#define __PYX_HAVE__src__YoutubeDL
-#define __PYX_HAVE_API__src__YoutubeDL
+#define __PYX_HAVE__lib__YoutubeDL
+#define __PYX_HAVE_API__lib__YoutubeDL
 /* Early includes */
 #include <string.h>
 #include "ios"
@@ -838,14 +838,14 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "src/YoutubeDL.pyx",
+  "lib/YoutubeDL.pyx",
   "stringsource",
 };
 
 /*--- Type declarations ---*/
 struct YoutubeDL;
 
-/* "src/YoutubeDL.pyx":10
+/* "lib/YoutubeDL.pyx":10
  * cdef map[string,any] Map
  * 
  * cdef public class YoutubeDL [object YoutubeDL, type YoutubeDLType]:             # <<<<<<<<<<<<<<
@@ -1205,17 +1205,17 @@ static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
 /* Module declarations from 'libcpp' */
 
-/* Module declarations from 'src.stdany' */
+/* Module declarations from 'lib.stdany' */
 
-/* Module declarations from 'src.YoutubeDL' */
-static PyTypeObject *__pyx_ptype_3src_9YoutubeDL_YoutubeDL = 0;
-static std::map<std::string,std::any>  __pyx_v_3src_9YoutubeDL_Map;
-static PyObject *__pyx_f_3src_9YoutubeDL___pyx_unpickle_YoutubeDL__set_state(struct YoutubeDL *, PyObject *); /*proto*/
-#define __Pyx_MODULE_NAME "src.YoutubeDL"
-extern int __pyx_module_is_main_src__YoutubeDL;
-int __pyx_module_is_main_src__YoutubeDL = 0;
+/* Module declarations from 'lib.YoutubeDL' */
+static PyTypeObject *__pyx_ptype_3lib_9YoutubeDL_YoutubeDL = 0;
+static std::map<std::string,std::any>  __pyx_v_3lib_9YoutubeDL_Map;
+static PyObject *__pyx_f_3lib_9YoutubeDL___pyx_unpickle_YoutubeDL__set_state(struct YoutubeDL *, PyObject *); /*proto*/
+#define __Pyx_MODULE_NAME "lib.YoutubeDL"
+extern int __pyx_module_is_main_lib__YoutubeDL;
+int __pyx_module_is_main_lib__YoutubeDL = 0;
 
-/* Implementation of 'src.YoutubeDL' */
+/* Implementation of 'lib.YoutubeDL' */
 static const char __pyx_k_new[] = "__new__";
 static const char __pyx_k_dict[] = "__dict__";
 static const char __pyx_k_main[] = "__main__";
@@ -1238,8 +1238,8 @@ static const char __pyx_k_youtube_dl[] = "youtube_dl";
 static const char __pyx_k_PickleError[] = "PickleError";
 static const char __pyx_k_pyx_checksum[] = "__pyx_checksum";
 static const char __pyx_k_stringsource[] = "stringsource";
+static const char __pyx_k_lib_YoutubeDL[] = "lib.YoutubeDL";
 static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
-static const char __pyx_k_src_YoutubeDL[] = "src.YoutubeDL";
 static const char __pyx_k_pyx_PickleError[] = "__pyx_PickleError";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
@@ -1252,6 +1252,7 @@ static PyObject *__pyx_n_s_cline_in_traceback;
 static PyObject *__pyx_n_s_dict;
 static PyObject *__pyx_n_s_getstate;
 static PyObject *__pyx_n_s_import;
+static PyObject *__pyx_n_s_lib_YoutubeDL;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_name;
 static PyObject *__pyx_n_s_new;
@@ -1268,23 +1269,22 @@ static PyObject *__pyx_n_s_reduce_cython;
 static PyObject *__pyx_n_s_reduce_ex;
 static PyObject *__pyx_n_s_setstate;
 static PyObject *__pyx_n_s_setstate_cython;
-static PyObject *__pyx_n_s_src_YoutubeDL;
 static PyObject *__pyx_kp_s_stringsource;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_n_s_update;
 static PyObject *__pyx_n_s_youtube_dl;
 static PyObject *__pyx_n_s_ytdl;
-static int __pyx_pf_3src_9YoutubeDL_9YoutubeDL___init__(CYTHON_UNUSED struct YoutubeDL *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_params); /* proto */
-static PyObject *__pyx_pf_3src_9YoutubeDL_9YoutubeDL_2__reduce_cython__(struct YoutubeDL *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_3src_9YoutubeDL_9YoutubeDL_4__setstate_cython__(struct YoutubeDL *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_pf_3src_9YoutubeDL___pyx_unpickle_YoutubeDL(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_tp_new_3src_9YoutubeDL_YoutubeDL(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static int __pyx_pf_3lib_9YoutubeDL_9YoutubeDL___init__(CYTHON_UNUSED struct YoutubeDL *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_params); /* proto */
+static PyObject *__pyx_pf_3lib_9YoutubeDL_9YoutubeDL_2__reduce_cython__(struct YoutubeDL *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_3lib_9YoutubeDL_9YoutubeDL_4__setstate_cython__(struct YoutubeDL *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_3lib_9YoutubeDL___pyx_unpickle_YoutubeDL(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_tp_new_3lib_9YoutubeDL_YoutubeDL(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_int_222419149;
 static PyObject *__pyx_tuple_;
 static PyObject *__pyx_codeobj__2;
 /* Late includes */
 
-/* "src/YoutubeDL.pyx":13
+/* "lib/YoutubeDL.pyx":13
  * 	ytdl = None
  * 
  * 	def __init__(self, params: Map):             # <<<<<<<<<<<<<<
@@ -1293,8 +1293,8 @@ static PyObject *__pyx_codeobj__2;
  */
 
 /* Python wrapper */
-static int __pyx_pw_3src_9YoutubeDL_9YoutubeDL_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_3src_9YoutubeDL_9YoutubeDL_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_3lib_9YoutubeDL_9YoutubeDL_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_3lib_9YoutubeDL_9YoutubeDL_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   CYTHON_UNUSED PyObject *__pyx_v_params = 0;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
@@ -1331,18 +1331,18 @@ static int __pyx_pw_3src_9YoutubeDL_9YoutubeDL_1__init__(PyObject *__pyx_v_self,
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__init__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 13, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("src.YoutubeDL.YoutubeDL.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("lib.YoutubeDL.YoutubeDL.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_3src_9YoutubeDL_9YoutubeDL___init__(((struct YoutubeDL *)__pyx_v_self), __pyx_v_params);
+  __pyx_r = __pyx_pf_3lib_9YoutubeDL_9YoutubeDL___init__(((struct YoutubeDL *)__pyx_v_self), __pyx_v_params);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_3src_9YoutubeDL_9YoutubeDL___init__(CYTHON_UNUSED struct YoutubeDL *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_params) {
+static int __pyx_pf_3lib_9YoutubeDL_9YoutubeDL___init__(CYTHON_UNUSED struct YoutubeDL *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_params) {
   PyObject *__pyx_v_ytdl_params = NULL;
   CYTHON_UNUSED PyObject *__pyx_v_ytdl = NULL;
   int __pyx_r;
@@ -1352,7 +1352,7 @@ static int __pyx_pf_3src_9YoutubeDL_9YoutubeDL___init__(CYTHON_UNUSED struct You
   PyObject *__pyx_t_3 = NULL;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "src/YoutubeDL.pyx":14
+  /* "lib/YoutubeDL.pyx":14
  * 
  * 	def __init__(self, params: Map):
  * 		ytdl_params = {}             # <<<<<<<<<<<<<<
@@ -1363,7 +1363,7 @@ static int __pyx_pf_3src_9YoutubeDL_9YoutubeDL___init__(CYTHON_UNUSED struct You
   __pyx_v_ytdl_params = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "src/YoutubeDL.pyx":15
+  /* "lib/YoutubeDL.pyx":15
  * 	def __init__(self, params: Map):
  * 		ytdl_params = {}
  * 		ytdl = youtube_dl.YoutubeDL(ytdl_params)             # <<<<<<<<<<<<<<
@@ -1391,7 +1391,7 @@ static int __pyx_pf_3src_9YoutubeDL_9YoutubeDL___init__(CYTHON_UNUSED struct You
   __pyx_v_ytdl = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "src/YoutubeDL.pyx":13
+  /* "lib/YoutubeDL.pyx":13
  * 	ytdl = None
  * 
  * 	def __init__(self, params: Map):             # <<<<<<<<<<<<<<
@@ -1406,7 +1406,7 @@ static int __pyx_pf_3src_9YoutubeDL_9YoutubeDL___init__(CYTHON_UNUSED struct You
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("src.YoutubeDL.YoutubeDL.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("lib.YoutubeDL.YoutubeDL.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_ytdl_params);
@@ -1422,19 +1422,19 @@ static int __pyx_pf_3src_9YoutubeDL_9YoutubeDL___init__(CYTHON_UNUSED struct You
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_3src_9YoutubeDL_9YoutubeDL_3__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_3src_9YoutubeDL_9YoutubeDL_3__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_3lib_9YoutubeDL_9YoutubeDL_3__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_3lib_9YoutubeDL_9YoutubeDL_3__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_3src_9YoutubeDL_9YoutubeDL_2__reduce_cython__(((struct YoutubeDL *)__pyx_v_self));
+  __pyx_r = __pyx_pf_3lib_9YoutubeDL_9YoutubeDL_2__reduce_cython__(((struct YoutubeDL *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_3src_9YoutubeDL_9YoutubeDL_2__reduce_cython__(struct YoutubeDL *__pyx_v_self) {
+static PyObject *__pyx_pf_3lib_9YoutubeDL_9YoutubeDL_2__reduce_cython__(struct YoutubeDL *__pyx_v_self) {
   PyObject *__pyx_v_state = 0;
   PyObject *__pyx_v__dict = 0;
   int __pyx_v_use_setstate;
@@ -1630,7 +1630,7 @@ static PyObject *__pyx_pf_3src_9YoutubeDL_9YoutubeDL_2__reduce_cython__(struct Y
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("src.YoutubeDL.YoutubeDL.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("lib.YoutubeDL.YoutubeDL.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_state);
@@ -1648,19 +1648,19 @@ static PyObject *__pyx_pf_3src_9YoutubeDL_9YoutubeDL_2__reduce_cython__(struct Y
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_3src_9YoutubeDL_9YoutubeDL_5__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_3src_9YoutubeDL_9YoutubeDL_5__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_3lib_9YoutubeDL_9YoutubeDL_5__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_3lib_9YoutubeDL_9YoutubeDL_5__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_3src_9YoutubeDL_9YoutubeDL_4__setstate_cython__(((struct YoutubeDL *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_3lib_9YoutubeDL_9YoutubeDL_4__setstate_cython__(((struct YoutubeDL *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_3src_9YoutubeDL_9YoutubeDL_4__setstate_cython__(struct YoutubeDL *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_3lib_9YoutubeDL_9YoutubeDL_4__setstate_cython__(struct YoutubeDL *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -1672,7 +1672,7 @@ static PyObject *__pyx_pf_3src_9YoutubeDL_9YoutubeDL_4__setstate_cython__(struct
  *     __pyx_unpickle_YoutubeDL__set_state(self, __pyx_state)             # <<<<<<<<<<<<<<
  */
   if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 17, __pyx_L1_error)
-  __pyx_t_1 = __pyx_f_3src_9YoutubeDL___pyx_unpickle_YoutubeDL__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_3lib_9YoutubeDL___pyx_unpickle_YoutubeDL__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
@@ -1688,7 +1688,7 @@ static PyObject *__pyx_pf_3src_9YoutubeDL_9YoutubeDL_4__setstate_cython__(struct
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("src.YoutubeDL.YoutubeDL.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("lib.YoutubeDL.YoutubeDL.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -1703,9 +1703,9 @@ static PyObject *__pyx_pf_3src_9YoutubeDL_9YoutubeDL_4__setstate_cython__(struct
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_3src_9YoutubeDL_1__pyx_unpickle_YoutubeDL(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_3src_9YoutubeDL_1__pyx_unpickle_YoutubeDL = {"__pyx_unpickle_YoutubeDL", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_3src_9YoutubeDL_1__pyx_unpickle_YoutubeDL, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_3src_9YoutubeDL_1__pyx_unpickle_YoutubeDL(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_3lib_9YoutubeDL_1__pyx_unpickle_YoutubeDL(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_3lib_9YoutubeDL_1__pyx_unpickle_YoutubeDL = {"__pyx_unpickle_YoutubeDL", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_3lib_9YoutubeDL_1__pyx_unpickle_YoutubeDL, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_3lib_9YoutubeDL_1__pyx_unpickle_YoutubeDL(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v___pyx_type = 0;
   long __pyx_v___pyx_checksum;
   PyObject *__pyx_v___pyx_state = 0;
@@ -1764,18 +1764,18 @@ static PyObject *__pyx_pw_3src_9YoutubeDL_1__pyx_unpickle_YoutubeDL(PyObject *__
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__pyx_unpickle_YoutubeDL", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 1, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("src.YoutubeDL.__pyx_unpickle_YoutubeDL", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("lib.YoutubeDL.__pyx_unpickle_YoutubeDL", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_3src_9YoutubeDL___pyx_unpickle_YoutubeDL(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
+  __pyx_r = __pyx_pf_3lib_9YoutubeDL___pyx_unpickle_YoutubeDL(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_3src_9YoutubeDL___pyx_unpickle_YoutubeDL(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_3lib_9YoutubeDL___pyx_unpickle_YoutubeDL(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_v___pyx_PickleError = 0;
   PyObject *__pyx_v___pyx_result = 0;
   PyObject *__pyx_r = NULL;
@@ -1869,7 +1869,7 @@ static PyObject *__pyx_pf_3src_9YoutubeDL___pyx_unpickle_YoutubeDL(CYTHON_UNUSED
  *     if __pyx_state is not None:
  *         __pyx_unpickle_YoutubeDL__set_state(<YoutubeDL> __pyx_result, __pyx_state)
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_3src_9YoutubeDL_YoutubeDL), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_3lib_9YoutubeDL_YoutubeDL), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -1908,7 +1908,7 @@ static PyObject *__pyx_pf_3src_9YoutubeDL___pyx_unpickle_YoutubeDL(CYTHON_UNUSED
  * cdef __pyx_unpickle_YoutubeDL__set_state(YoutubeDL __pyx_result, tuple __pyx_state):
  */
     if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 9, __pyx_L1_error)
-    __pyx_t_3 = __pyx_f_3src_9YoutubeDL___pyx_unpickle_YoutubeDL__set_state(((struct YoutubeDL *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
+    __pyx_t_3 = __pyx_f_3lib_9YoutubeDL___pyx_unpickle_YoutubeDL__set_state(((struct YoutubeDL *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
@@ -1945,7 +1945,7 @@ static PyObject *__pyx_pf_3src_9YoutubeDL___pyx_unpickle_YoutubeDL(CYTHON_UNUSED
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("src.YoutubeDL.__pyx_unpickle_YoutubeDL", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("lib.YoutubeDL.__pyx_unpickle_YoutubeDL", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v___pyx_PickleError);
@@ -1963,7 +1963,7 @@ static PyObject *__pyx_pf_3src_9YoutubeDL___pyx_unpickle_YoutubeDL(CYTHON_UNUSED
  *         __pyx_result.__dict__.update(__pyx_state[0])
  */
 
-static PyObject *__pyx_f_3src_9YoutubeDL___pyx_unpickle_YoutubeDL__set_state(struct YoutubeDL *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_f_3lib_9YoutubeDL___pyx_unpickle_YoutubeDL__set_state(struct YoutubeDL *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
@@ -2057,7 +2057,7 @@ static PyObject *__pyx_f_3src_9YoutubeDL___pyx_unpickle_YoutubeDL__set_state(str
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_8);
-  __Pyx_AddTraceback("src.YoutubeDL.__pyx_unpickle_YoutubeDL__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("lib.YoutubeDL.__pyx_unpickle_YoutubeDL__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -2065,7 +2065,7 @@ static PyObject *__pyx_f_3src_9YoutubeDL___pyx_unpickle_YoutubeDL__set_state(str
   return __pyx_r;
 }
 
-static PyObject *__pyx_tp_new_3src_9YoutubeDL_YoutubeDL(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+static PyObject *__pyx_tp_new_3lib_9YoutubeDL_YoutubeDL(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
   PyObject *o;
   if (likely((t->tp_flags & Py_TPFLAGS_IS_ABSTRACT) == 0)) {
     o = (*t->tp_alloc)(t, 0);
@@ -2076,7 +2076,7 @@ static PyObject *__pyx_tp_new_3src_9YoutubeDL_YoutubeDL(PyTypeObject *t, CYTHON_
   return o;
 }
 
-static void __pyx_tp_dealloc_3src_9YoutubeDL_YoutubeDL(PyObject *o) {
+static void __pyx_tp_dealloc_3lib_9YoutubeDL_YoutubeDL(PyObject *o) {
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && (!PyType_IS_GC(Py_TYPE(o)) || !_PyGC_FINALIZED(o))) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -2085,18 +2085,18 @@ static void __pyx_tp_dealloc_3src_9YoutubeDL_YoutubeDL(PyObject *o) {
   (*Py_TYPE(o)->tp_free)(o);
 }
 
-static PyMethodDef __pyx_methods_3src_9YoutubeDL_YoutubeDL[] = {
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_3src_9YoutubeDL_9YoutubeDL_3__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_3src_9YoutubeDL_9YoutubeDL_5__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_3lib_9YoutubeDL_YoutubeDL[] = {
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_3lib_9YoutubeDL_9YoutubeDL_3__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_3lib_9YoutubeDL_9YoutubeDL_5__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
 DL_EXPORT(PyTypeObject) YoutubeDLType = {
   PyVarObject_HEAD_INIT(0, 0)
-  "src.YoutubeDL.YoutubeDL", /*tp_name*/
+  "lib.YoutubeDL.YoutubeDL", /*tp_name*/
   sizeof(struct YoutubeDL), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_3src_9YoutubeDL_YoutubeDL, /*tp_dealloc*/
+  __pyx_tp_dealloc_3lib_9YoutubeDL_YoutubeDL, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -2124,7 +2124,7 @@ DL_EXPORT(PyTypeObject) YoutubeDLType = {
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_3src_9YoutubeDL_YoutubeDL, /*tp_methods*/
+  __pyx_methods_3lib_9YoutubeDL_YoutubeDL, /*tp_methods*/
   0, /*tp_members*/
   0, /*tp_getset*/
   0, /*tp_base*/
@@ -2132,9 +2132,9 @@ DL_EXPORT(PyTypeObject) YoutubeDLType = {
   0, /*tp_descr_get*/
   0, /*tp_descr_set*/
   0, /*tp_dictoffset*/
-  __pyx_pw_3src_9YoutubeDL_9YoutubeDL_1__init__, /*tp_init*/
+  __pyx_pw_3lib_9YoutubeDL_9YoutubeDL_1__init__, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_3src_9YoutubeDL_YoutubeDL, /*tp_new*/
+  __pyx_tp_new_3lib_9YoutubeDL_YoutubeDL, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -2205,6 +2205,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_dict, __pyx_k_dict, sizeof(__pyx_k_dict), 0, 0, 1, 1},
   {&__pyx_n_s_getstate, __pyx_k_getstate, sizeof(__pyx_k_getstate), 0, 0, 1, 1},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
+  {&__pyx_n_s_lib_YoutubeDL, __pyx_k_lib_YoutubeDL, sizeof(__pyx_k_lib_YoutubeDL), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_name, __pyx_k_name, sizeof(__pyx_k_name), 0, 0, 1, 1},
   {&__pyx_n_s_new, __pyx_k_new, sizeof(__pyx_k_new), 0, 0, 1, 1},
@@ -2221,7 +2222,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_reduce_ex, __pyx_k_reduce_ex, sizeof(__pyx_k_reduce_ex), 0, 0, 1, 1},
   {&__pyx_n_s_setstate, __pyx_k_setstate, sizeof(__pyx_k_setstate), 0, 0, 1, 1},
   {&__pyx_n_s_setstate_cython, __pyx_k_setstate_cython, sizeof(__pyx_k_setstate_cython), 0, 0, 1, 1},
-  {&__pyx_n_s_src_YoutubeDL, __pyx_k_src_YoutubeDL, sizeof(__pyx_k_src_YoutubeDL), 0, 0, 1, 1},
   {&__pyx_kp_s_stringsource, __pyx_k_stringsource, sizeof(__pyx_k_stringsource), 0, 0, 1, 0},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
   {&__pyx_n_s_update, __pyx_k_update, sizeof(__pyx_k_update), 0, 0, 1, 1},
@@ -2306,7 +2306,7 @@ static int __Pyx_modinit_type_init_code(void) {
   }
   if (PyObject_SetAttr(__pyx_m, __pyx_n_s_YoutubeDL, (PyObject *)&YoutubeDLType) < 0) __PYX_ERR(0, 10, __pyx_L1_error)
   if (__Pyx_setup_reduce((PyObject*)&YoutubeDLType) < 0) __PYX_ERR(0, 10, __pyx_L1_error)
-  __pyx_ptype_3src_9YoutubeDL_YoutubeDL = &YoutubeDLType;
+  __pyx_ptype_3lib_9YoutubeDL_YoutubeDL = &YoutubeDLType;
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -2507,14 +2507,14 @@ if (!__Pyx_RefNanny) {
   #if PY_MAJOR_VERSION < 3 && (__PYX_DEFAULT_STRING_ENCODING_IS_ASCII || __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT)
   if (__Pyx_init_sys_getdefaultencoding_params() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
-  if (__pyx_module_is_main_src__YoutubeDL) {
+  if (__pyx_module_is_main_lib__YoutubeDL) {
     if (PyObject_SetAttr(__pyx_m, __pyx_n_s_name, __pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   }
   #if PY_MAJOR_VERSION >= 3
   {
     PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) __PYX_ERR(0, 1, __pyx_L1_error)
-    if (!PyDict_GetItemString(modules, "src.YoutubeDL")) {
-      if (unlikely(PyDict_SetItemString(modules, "src.YoutubeDL", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
+    if (!PyDict_GetItemString(modules, "lib.YoutubeDL")) {
+      if (unlikely(PyDict_SetItemString(modules, "lib.YoutubeDL", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
     }
   }
   #endif
@@ -2535,7 +2535,7 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_patch_abc() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
 
-  /* "src/YoutubeDL.pyx":3
+  /* "lib/YoutubeDL.pyx":3
  * # distutils: language=c++
  * 
  * import youtube_dl             # <<<<<<<<<<<<<<
@@ -2547,27 +2547,27 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_youtube_dl, __pyx_t_1) < 0) __PYX_ERR(0, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "src/YoutubeDL.pyx":11
+  /* "lib/YoutubeDL.pyx":11
  * 
  * cdef public class YoutubeDL [object YoutubeDL, type YoutubeDLType]:
  * 	ytdl = None             # <<<<<<<<<<<<<<
  * 
  * 	def __init__(self, params: Map):
  */
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_3src_9YoutubeDL_YoutubeDL->tp_dict, __pyx_n_s_ytdl, Py_None) < 0) __PYX_ERR(0, 11, __pyx_L1_error)
-  PyType_Modified(__pyx_ptype_3src_9YoutubeDL_YoutubeDL);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_3lib_9YoutubeDL_YoutubeDL->tp_dict, __pyx_n_s_ytdl, Py_None) < 0) __PYX_ERR(0, 11, __pyx_L1_error)
+  PyType_Modified(__pyx_ptype_3lib_9YoutubeDL_YoutubeDL);
 
   /* "(tree fragment)":1
  * def __pyx_unpickle_YoutubeDL(__pyx_type, long __pyx_checksum, __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_PickleError
  *     cdef object __pyx_result
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_3src_9YoutubeDL_1__pyx_unpickle_YoutubeDL, NULL, __pyx_n_s_src_YoutubeDL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_3lib_9YoutubeDL_1__pyx_unpickle_YoutubeDL, NULL, __pyx_n_s_lib_YoutubeDL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_pyx_unpickle_YoutubeDL, __pyx_t_1) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "src/YoutubeDL.pyx":1
+  /* "lib/YoutubeDL.pyx":1
  * # distutils: language=c++             # <<<<<<<<<<<<<<
  * 
  * import youtube_dl
@@ -2584,11 +2584,11 @@ if (!__Pyx_RefNanny) {
   __Pyx_XDECREF(__pyx_t_1);
   if (__pyx_m) {
     if (__pyx_d) {
-      __Pyx_AddTraceback("init src.YoutubeDL", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("init lib.YoutubeDL", __pyx_clineno, __pyx_lineno, __pyx_filename);
     }
     Py_CLEAR(__pyx_m);
   } else if (!PyErr_Occurred()) {
-    PyErr_SetString(PyExc_ImportError, "init src.YoutubeDL");
+    PyErr_SetString(PyExc_ImportError, "init lib.YoutubeDL");
   }
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
