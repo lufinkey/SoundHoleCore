@@ -5,11 +5,11 @@
 
 struct YoutubeDL;
 
-/* "lib/YoutubeDL.pyx":10
- * cdef map[string,any] Map
+/* "lib/YoutubeDL.pyx":8
+ * from .stdany cimport any
  * 
  * cdef public class YoutubeDL [object YoutubeDL, type YoutubeDLType]:             # <<<<<<<<<<<<<<
- * 	ytdl = None
+ * 	api = None
  * 
  */
 struct YoutubeDL {
@@ -31,6 +31,9 @@ struct YoutubeDL {
 #endif
 
 __PYX_EXTERN_C DL_IMPORT(PyTypeObject) YoutubeDLType;
+
+__PYX_EXTERN_C struct YoutubeDL *YoutubeDL_create(PyObject *);
+__PYX_EXTERN_C struct YoutubeDL *YoutubeDL_getInfo(struct YoutubeDL *, std::string);
 
 #endif /* !__PYX_HAVE_API__lib__YoutubeDL */
 

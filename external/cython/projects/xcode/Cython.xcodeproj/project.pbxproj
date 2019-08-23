@@ -65,8 +65,8 @@
 				A58B32412310772A00E80ECB /* stdany.pxd */,
 				A58B3221230F879A00E80ECB /* YoutubeDL.pyx */,
 				A58B3242231079D700E80ECB /* __init__.cpp */,
-				A58B3222230F879A00E80ECB /* YoutubeDL.cpp */,
 				A58B3223230F879A00E80ECB /* YoutubeDL.h */,
+				A58B3222230F879A00E80ECB /* YoutubeDL.cpp */,
 			);
 			name = lib;
 			path = ../../lib;
@@ -151,16 +151,16 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"$(PROJECT_DIR)/../../src/YoutubeDL.pyx",
-				"$(PROJECT_DIR)/../../src/stdany.pxd",
-				"$(PROJECT_DIR)/../../src/__init__.pyx",
+				"$(PROJECT_DIR)/../../lib/YoutubeDL.pyx",
+				"$(PROJECT_DIR)/../../lib/stdany.pxd",
+				"$(PROJECT_DIR)/../../lib/__init__.pyx",
 			);
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(PROJECT_DIR)/../../src/YoutubeDL.h",
-				"$(PROJECT_DIR)/../../src/YoutubeDL.cpp",
-				"$(PROJECT_DIR)/../../src/__init__.cpp",
+				"$(PROJECT_DIR)/../../lib/YoutubeDL.h",
+				"$(PROJECT_DIR)/../../lib/YoutubeDL.cpp",
+				"$(PROJECT_DIR)/../../lib/__init__.cpp",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

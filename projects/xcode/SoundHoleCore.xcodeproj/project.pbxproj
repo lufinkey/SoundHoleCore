@@ -19,6 +19,8 @@
 		A58B31E9230A597F00E80ECB /* json11.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58B31C0230A593C00E80ECB /* json11.cpp */; };
 		A58B31EA230A59B700E80ECB /* libSoundHoleCore-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A564DFB6230914680018787F /* libSoundHoleCore-macOS.a */; };
 		A58B323E230F96EC00E80ECB /* libCython.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A58B323D230F96BF00E80ECB /* libCython.a */; };
+		A58B325523109A2C00E80ECB /* YoutubeProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A58B324E23109A2C00E80ECB /* YoutubeProvider.hpp */; };
+		A58B325723109A3000E80ECB /* YoutubeProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58B325623109A3000E80ECB /* YoutubeProvider.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -97,6 +99,8 @@
 		A58B31C3230A596100E80ECB /* httplib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = httplib.h; sourceTree = "<group>"; };
 		A58B3202230F817A00E80ECB /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = System/Library/Frameworks/Python.framework; sourceTree = SDKROOT; };
 		A58B3238230F96BF00E80ECB /* Cython.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Cython.xcodeproj; path = ../../../external/cython/projects/xcode/Cython.xcodeproj; sourceTree = "<group>"; };
+		A58B324E23109A2C00E80ECB /* YoutubeProvider.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = YoutubeProvider.hpp; sourceTree = "<group>"; };
+		A58B325623109A3000E80ECB /* YoutubeProvider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = YoutubeProvider.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -205,6 +209,8 @@
 				A564E013230919820018787F /* MediaProvider.cpp */,
 				A517B82123093CC300897145 /* BandcampProvider.hpp */,
 				A517B82023093CC300897145 /* BandcampProvider.cpp */,
+				A58B324E23109A2C00E80ECB /* YoutubeProvider.hpp */,
+				A58B325623109A3000E80ECB /* YoutubeProvider.cpp */,
 			);
 			path = providers;
 			sourceTree = "<group>";
@@ -263,6 +269,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A564E016230919820018787F /* MediaProvider.hpp in Headers */,
+				A58B325523109A2C00E80ECB /* YoutubeProvider.hpp in Headers */,
 				A517B82323093CC300897145 /* BandcampProvider.hpp in Headers */,
 				A517B82723093E1800897145 /* MediaItem.hpp in Headers */,
 			);
@@ -413,6 +420,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A58B325723109A3000E80ECB /* YoutubeProvider.cpp in Sources */,
 				A517B82223093CC300897145 /* BandcampProvider.cpp in Sources */,
 				A564E015230919820018787F /* MediaProvider.cpp in Sources */,
 				A517B82623093E1800897145 /* MediaItem.cpp in Sources */,
@@ -539,9 +547,11 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_STYLE = Automatic;
 				HEADER_SEARCH_PATHS = (
-					../../src,
-					"../../external/async-cpp/src",
-					"../../external/data-cpp/src",
+					"$(PROJECT_DIR)/../../src",
+					"$(PROJECT_DIR)/../../external/async-cpp/src",
+					"$(PROJECT_DIR)/../../external/data-cpp/src",
+					"$(PROJECT_DIR)/../../external/json11",
+					"$(PROJECT_DIR)/../../external/cython/lib",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -553,9 +563,11 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_STYLE = Automatic;
 				HEADER_SEARCH_PATHS = (
-					../../src,
-					"../../external/async-cpp/src",
-					"../../external/data-cpp/src",
+					"$(PROJECT_DIR)/../../src",
+					"$(PROJECT_DIR)/../../external/async-cpp/src",
+					"$(PROJECT_DIR)/../../external/data-cpp/src",
+					"$(PROJECT_DIR)/../../external/json11",
+					"$(PROJECT_DIR)/../../external/cython/lib",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -571,7 +583,8 @@
 					"$(PROJECT_DIR)/../../src",
 					"$(PROJECT_DIR)/../../external/async-cpp/src",
 					"$(PROJECT_DIR)/../../external/data-cpp/src",
-					"$(PROJECT_DIR)/../../external/JsonCpp/include",
+					"$(PROJECT_DIR)/../../external/json11",
+					"$(PROJECT_DIR)/../../external/cython/lib",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -588,7 +601,8 @@
 					"$(PROJECT_DIR)/../../src",
 					"$(PROJECT_DIR)/../../external/async-cpp/src",
 					"$(PROJECT_DIR)/../../external/data-cpp/src",
-					"$(PROJECT_DIR)/../../external/JsonCpp/include",
+					"$(PROJECT_DIR)/../../external/json11",
+					"$(PROJECT_DIR)/../../external/cython/lib",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
