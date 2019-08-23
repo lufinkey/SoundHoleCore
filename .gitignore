@@ -49,4 +49,4 @@ xcshareddata
 #External Libraries
 /external/cython/build
 /external/cython/prefix
-/external/cython/*.so
+/external/cython/**/*.so

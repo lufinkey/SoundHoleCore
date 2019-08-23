@@ -3,17 +3,7 @@
 import youtube_dl
 from libcpp.string cimport string
 from libcpp.map cimport map
-from libcpp cimport bool
-
-cdef extern from "<any>" namespace "std" nogil:
-	cdef cppclass any:
-		any()
-		any(const any&)
-		
-		void reset()
-		bool has_value()
-
-	cdef T any_cast[T](...) except +
+from .stdany cimport any
 
 cdef map[string,any] Map
 

@@ -17,7 +17,6 @@ namespace sh {
 		virtual String getName() const override;
 		virtual String getDisplayName() const override;
 		
-		
 		struct SearchOptions {
 			size_t page;
 		};

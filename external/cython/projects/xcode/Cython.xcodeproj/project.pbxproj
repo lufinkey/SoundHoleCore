@@ -9,16 +9,21 @@
 /* Begin PBXBuildFile section */
 		A58B3224230F879A00E80ECB /* YoutubeDL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58B3222230F879A00E80ECB /* YoutubeDL.cpp */; };
 		A58B3225230F879A00E80ECB /* YoutubeDL.h in Headers */ = {isa = PBXBuildFile; fileRef = A58B3223230F879A00E80ECB /* YoutubeDL.h */; };
+		A58B3243231079D700E80ECB /* __init__.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58B3242231079D700E80ECB /* __init__.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		A58B3211230F875B00E80ECB /* libCython.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libCython.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		A58B3221230F879A00E80ECB /* YoutubeDL.pyx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = YoutubeDL.pyx; sourceTree = "<group>"; };
+		A58B3221230F879A00E80ECB /* YoutubeDL.pyx */ = {isa = PBXFileReference; explicitFileType = text.script.python; fileEncoding = 4; path = YoutubeDL.pyx; sourceTree = "<group>"; };
 		A58B3222230F879A00E80ECB /* YoutubeDL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = YoutubeDL.cpp; sourceTree = "<group>"; };
 		A58B3223230F879A00E80ECB /* YoutubeDL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YoutubeDL.h; sourceTree = "<group>"; };
 		A58B3226230F87EB00E80ECB /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = build.sh; path = ../../build.sh; sourceTree = "<group>"; };
 		A58B3227230F87F200E80ECB /* setup.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = setup.py; path = ../../setup.py; sourceTree = "<group>"; };
-		A58B322B230F88C700E80ECB /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = System/Library/Frameworks/Python.framework; sourceTree = SDKROOT; };
+		A58B323F2310772300E80ECB /* __init__.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = __init__.py; sourceTree = "<group>"; };
+		A58B32402310772300E80ECB /* __init__.pyx */ = {isa = PBXFileReference; explicitFileType = text.script.python; path = __init__.pyx; sourceTree = "<group>"; };
+		A58B32412310772A00E80ECB /* stdany.pxd */ = {isa = PBXFileReference; explicitFileType = text.script.python; path = stdany.pxd; sourceTree = "<group>"; };
+		A58B3242231079D700E80ECB /* __init__.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = __init__.cpp; sourceTree = "<group>"; };
+		A58B324423107A8000E80ECB /* clean.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = clean.sh; path = ../../clean.sh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -36,6 +41,7 @@
 			isa = PBXGroup;
 			children = (
 				A58B3226230F87EB00E80ECB /* build.sh */,
+				A58B324423107A8000E80ECB /* clean.sh */,
 				A58B3227230F87F200E80ECB /* setup.py */,
 				A58B3220230F879A00E80ECB /* src */,
 				A58B3212230F875B00E80ECB /* Products */,
@@ -54,7 +60,11 @@
 		A58B3220230F879A00E80ECB /* src */ = {
 			isa = PBXGroup;
 			children = (
+				A58B323F2310772300E80ECB /* __init__.py */,
+				A58B32402310772300E80ECB /* __init__.pyx */,
+				A58B32412310772A00E80ECB /* stdany.pxd */,
 				A58B3221230F879A00E80ECB /* YoutubeDL.pyx */,
+				A58B3242231079D700E80ECB /* __init__.cpp */,
 				A58B3222230F879A00E80ECB /* YoutubeDL.cpp */,
 				A58B3223230F879A00E80ECB /* YoutubeDL.h */,
 			);
@@ -65,7 +75,6 @@
 		A58B322A230F88C700E80ECB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				A58B322B230F88C700E80ECB /* Python.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -88,7 +97,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A58B3215230F875B00E80ECB /* Build configuration list for PBXNativeTarget "Cython" */;
 			buildPhases = (
-				A58B3229230F888000E80ECB /* ShellScript */,
+				A58B324523107C0800E80ECB /* ShellScript */,
 				A58B320D230F875B00E80ECB /* Headers */,
 				A58B320E230F875B00E80ECB /* Sources */,
 				A58B320F230F875B00E80ECB /* Frameworks */,
@@ -134,7 +143,7 @@
 /* End PBXProject section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		A58B3229230F888000E80ECB /* ShellScript */ = {
+		A58B324523107C0800E80ECB /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -142,12 +151,16 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(PROJECT_DIR)/../../src/YoutubeDL.pyx",
+				"$(PROJECT_DIR)/../../src/stdany.pxd",
+				"$(PROJECT_DIR)/../../src/__init__.pyx",
 			);
 			outputFileListPaths = (
 			);
 			outputPaths = (
 				"$(PROJECT_DIR)/../../src/YoutubeDL.h",
 				"$(PROJECT_DIR)/../../src/YoutubeDL.cpp",
+				"$(PROJECT_DIR)/../../src/__init__.cpp",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -161,6 +174,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A58B3224230F879A00E80ECB /* YoutubeDL.cpp in Sources */,
+				A58B3243231079D700E80ECB /* __init__.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -7,7 +7,11 @@ cd "$base_dir"
 # install cython
 mkdir -p "prefix"
 YTDL_PREFIX_PATH="$PWD/prefix"
-pip3 install --install-option="--prefix=$YTDL_PREFIX_PATH" --ignore-installed Cython youtube-dl
-
-# build youtube dl
-PYTHONPATH="$YTDL_PREFIX_PATH" python3 setup.py build_ext --inplace
+if [ -n "$(which pip3)" ]
+then
+	pip3 install --install-option="--prefix=$YTDL_PREFIX_PATH" Cython youtube-dl
+	PYTHONPATH="$YTDL_PREFIX_PATH" python3 setup.py build_ext
+else
+	pip install --install-option="--prefix=$YTDL_PREFIX_PATH" Cython youtube-dl
+	PYTHONPATH="$YTDL_PREFIX_PATH" python setup.py build_ext
+fi

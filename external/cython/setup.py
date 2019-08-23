@@ -5,6 +5,7 @@ import os
 
 os.environ['CFLAGS'] = '-O3 -Wall -std=c++17'
 setup(
+	name = "YoutubeDL",
 	ext_modules = cythonize(
 		"src/*.pyx"
 	)
