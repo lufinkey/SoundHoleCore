@@ -19,6 +19,6 @@ namespace sh {
 	
 	Promise<BandcampProvider::SearchResults> BandcampProvider::search(String text, SearchOptions options) const {
 		// TODO implement search
-		return Promise::resolve(SearchResults{ .page = 0 });
+		return Promise<SearchResults>::resolve(SearchResults{ .page = 0 });
 	}
 }

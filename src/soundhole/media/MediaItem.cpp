@@ -14,6 +14,10 @@ namespace sh {
 		//
 	}
 	
+	MediaItem::~MediaItem() {
+		//
+	}
+	
 	MediaProvider* MediaItem::getProvider() const {
 		return provider;
 	}

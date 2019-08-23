@@ -16,6 +16,7 @@ namespace sh {
 	class MediaItem {
 	public:
 		MediaItem(MediaProvider* provider);
+		virtual ~MediaItem();
 		
 		virtual String getType() const = 0;
 		

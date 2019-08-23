@@ -17,10 +17,8 @@
 
 #Xcode
 .DS_Store
-/projects/xcode*/*.xcodeproj/*.xcworkspace
-/projects/xcode*/*.xcodeproj/xcuserdata
-/projects/xcode*/*.xcworkspace/xcshareddata
-/projects/xcode*/*.xcworkspace/xcuserdata
+xcuserdata
+xcshareddata
 /projects/xcode*/Build
 /projects/xcode*/DerivedData
 
@@ -47,3 +45,8 @@
 /projects/codelite/test/Makefile
 /projects/codelite/test/*.txt
 /projects/codelite/test/*.mk
+
+#External Libraries
+/external/cython/build
+/external/cython/prefix
+/external/cython/*.so

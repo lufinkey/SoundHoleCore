@@ -18,6 +18,7 @@
 		A564E016230919820018787F /* MediaProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A564E014230919820018787F /* MediaProvider.hpp */; };
 		A58B31E9230A597F00E80ECB /* json11.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58B31C0230A593C00E80ECB /* json11.cpp */; };
 		A58B31EA230A59B700E80ECB /* libSoundHoleCore-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A564DFB6230914680018787F /* libSoundHoleCore-macOS.a */; };
+		A58B3228230F881100E80ECB /* libCython.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A58B321F230F878300E80ECB /* libCython.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +57,13 @@
 			remoteGlobalIDString = A53E4EC22306411F000BB7D8;
 			remoteInfo = "DataCppTest-macOS";
 		};
+		A58B321E230F878300E80ECB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A58B321A230F878300E80ECB /* Cython.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A58B3211230F875B00E80ECB;
+			remoteInfo = Cython;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -87,6 +95,8 @@
 		A58B31BD230A593C00E80ECB /* json11.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json11.hpp; sourceTree = "<group>"; };
 		A58B31C0230A593C00E80ECB /* json11.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = json11.cpp; sourceTree = "<group>"; };
 		A58B31C3230A596100E80ECB /* httplib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = httplib.h; sourceTree = "<group>"; };
+		A58B3202230F817A00E80ECB /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = System/Library/Frameworks/Python.framework; sourceTree = SDKROOT; };
+		A58B321A230F878300E80ECB /* Cython.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Cython.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +107,7 @@
 				A58B31EA230A59B700E80ECB /* libSoundHoleCore-macOS.a in Frameworks */,
 				A517B8122309367B00897145 /* libAsyncCpp-macOS.a in Frameworks */,
 				A517B8132309367B00897145 /* libDataCpp-macOS.a in Frameworks */,
+				A58B3228230F881100E80ECB /* libCython.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -147,6 +158,7 @@
 				A564E00A230918C00018787F /* DataCpp.xcodeproj */,
 				A58B31C2230A596100E80ECB /* cpp-httplib */,
 				A58B31B8230A593C00E80ECB /* json11 */,
+				A58B31ED230F794600E80ECB /* cython */,
 			);
 			path = external;
 			sourceTree = "<group>";
@@ -154,6 +166,7 @@
 		A564DFD02309166F0018787F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A58B3202230F817A00E80ECB /* Python.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -232,6 +245,39 @@
 			);
 			name = "cpp-httplib";
 			path = "../../../external/cpp-httplib";
+			sourceTree = "<group>";
+		};
+		A58B31ED230F794600E80ECB /* cython */ = {
+			isa = PBXGroup;
+			children = (
+				A58B3218230F878300E80ECB /* projects */,
+			);
+			name = cython;
+			path = ../../../external/cython;
+			sourceTree = "<group>";
+		};
+		A58B3218230F878300E80ECB /* projects */ = {
+			isa = PBXGroup;
+			children = (
+				A58B3219230F878300E80ECB /* xcode */,
+			);
+			path = projects;
+			sourceTree = "<group>";
+		};
+		A58B3219230F878300E80ECB /* xcode */ = {
+			isa = PBXGroup;
+			children = (
+				A58B321A230F878300E80ECB /* Cython.xcodeproj */,
+			);
+			path = xcode;
+			sourceTree = "<group>";
+		};
+		A58B321B230F878300E80ECB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A58B321F230F878300E80ECB /* libCython.a */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -317,6 +363,10 @@
 					ProjectRef = A564DFFE230918B50018787F /* AsyncCpp.xcodeproj */;
 				},
 				{
+					ProductGroup = A58B321B230F878300E80ECB /* Products */;
+					ProjectRef = A58B321A230F878300E80ECB /* Cython.xcodeproj */;
+				},
+				{
 					ProductGroup = A564E00B230918C00018787F /* Products */;
 					ProjectRef = A564E00A230918C00018787F /* DataCpp.xcodeproj */;
 				},
@@ -363,6 +413,13 @@
 			fileType = "compiled.mach-o.executable";
 			path = "DataCppTest-macOS";
 			remoteRef = A564E011230918C00018787F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		A58B321F230F878300E80ECB /* libCython.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libCython.a;
+			remoteRef = A58B321E230F878300E80ECB /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */

@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <memory>
 #include <soundhole/providers/MediaProvider.hpp>
 
 namespace sh {
@@ -22,7 +23,7 @@ namespace sh {
 		};
 		struct SearchResults {
 			size_t page;
-			LinkedList<std::unique_ptr<MediaItem*>> items;
+			LinkedList<std::shared_ptr<MediaItem*>> items;
 		};
 		virtual Promise<SearchResults> search(String text, SearchOptions options) const;
 	};
