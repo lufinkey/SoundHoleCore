@@ -18,9 +18,23 @@
 		A564E016230919820018787F /* MediaProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A564E014230919820018787F /* MediaProvider.hpp */; };
 		A58B31E9230A597F00E80ECB /* json11.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58B31C0230A593C00E80ECB /* json11.cpp */; };
 		A58B31EA230A59B700E80ECB /* libSoundHoleCore-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A564DFB6230914680018787F /* libSoundHoleCore-macOS.a */; };
-		A58B323E230F96EC00E80ECB /* libCython.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A58B323D230F96BF00E80ECB /* libCython.a */; };
 		A58B325523109A2C00E80ECB /* YoutubeProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A58B324E23109A2C00E80ECB /* YoutubeProvider.hpp */; };
 		A58B325723109A3000E80ECB /* YoutubeProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58B325623109A3000E80ECB /* YoutubeProvider.cpp */; };
+		A58B327B2310B09900E80ECB /* libCython-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A58B327A2310B09300E80ECB /* libCython-macOS.a */; };
+		A58B32A12310B1BD00E80ECB /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A58B32A02310B1BD00E80ECB /* AppDelegate.m */; };
+		A58B32A42310B1BD00E80ECB /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A58B32A32310B1BD00E80ECB /* ViewController.m */; };
+		A58B32A72310B1BD00E80ECB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A58B32A52310B1BD00E80ECB /* Main.storyboard */; };
+		A58B32A92310B1BF00E80ECB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A58B32A82310B1BF00E80ECB /* Assets.xcassets */; };
+		A58B32AC2310B1BF00E80ECB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A58B32AA2310B1BF00E80ECB /* LaunchScreen.storyboard */; };
+		A58B32AF2310B1BF00E80ECB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A58B32AE2310B1BF00E80ECB /* main.m */; };
+		A58B32B42310B25E00E80ECB /* libSoundHoleCore-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A58B32902310B18400E80ECB /* libSoundHoleCore-iOS.a */; };
+		A58B32B52310B25E00E80ECB /* libAsyncCpp-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A564E007230918B50018787F /* libAsyncCpp-iOS.a */; };
+		A58B32B62310B25E00E80ECB /* libDataCpp-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A58B328B2310B15300E80ECB /* libDataCpp-iOS.a */; };
+		A58B32B72310B26E00E80ECB /* libCython-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A58B32782310B09300E80ECB /* libCython-iOS.a */; };
+		A58B32C52310B3B000E80ECB /* MediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A564E013230919820018787F /* MediaProvider.cpp */; };
+		A58B32C62310B3B300E80ECB /* BandcampProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A517B82023093CC300897145 /* BandcampProvider.cpp */; };
+		A58B32C72310B3B500E80ECB /* YoutubeProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58B325623109A3000E80ECB /* YoutubeProvider.cpp */; };
+		A58B32C82310B3B900E80ECB /* MediaItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A517B82423093E1800897145 /* MediaItem.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,12 +73,26 @@
 			remoteGlobalIDString = A53E4EC22306411F000BB7D8;
 			remoteInfo = "DataCppTest-macOS";
 		};
-		A58B323C230F96BF00E80ECB /* PBXContainerItemProxy */ = {
+		A58B32772310B09300E80ECB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A58B3238230F96BF00E80ECB /* Cython.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = A58B3211230F875B00E80ECB;
-			remoteInfo = Cython;
+			remoteGlobalIDString = A58B325C2310AF5600E80ECB;
+			remoteInfo = "Cython-iOS";
+		};
+		A58B32792310B09300E80ECB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A58B3238230F96BF00E80ECB /* Cython.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A58B326C2310B04900E80ECB;
+			remoteInfo = "Cython-macOS";
+		};
+		A58B328A2310B15300E80ECB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A564E00A230918C00018787F /* DataCpp.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A58B32802310B0DF00E80ECB;
+			remoteInfo = "DataCpp-iOS";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -77,6 +105,15 @@
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 1;
+		};
+		A58B328E2310B18400E80ECB /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -101,6 +138,18 @@
 		A58B3238230F96BF00E80ECB /* Cython.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Cython.xcodeproj; path = ../../../external/cython/projects/xcode/Cython.xcodeproj; sourceTree = "<group>"; };
 		A58B324E23109A2C00E80ECB /* YoutubeProvider.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = YoutubeProvider.hpp; sourceTree = "<group>"; };
 		A58B325623109A3000E80ECB /* YoutubeProvider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = YoutubeProvider.cpp; sourceTree = "<group>"; };
+		A58B32902310B18400E80ECB /* libSoundHoleCore-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSoundHoleCore-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A58B329D2310B1BC00E80ECB /* SoundHoleCoreTest-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SoundHoleCoreTest-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A58B329F2310B1BD00E80ECB /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		A58B32A02310B1BD00E80ECB /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		A58B32A22310B1BD00E80ECB /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		A58B32A32310B1BD00E80ECB /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		A58B32A62310B1BD00E80ECB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		A58B32A82310B1BF00E80ECB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A58B32AB2310B1BF00E80ECB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		A58B32AD2310B1BF00E80ECB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A58B32AE2310B1BF00E80ECB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		A5A9F7102310BCC200EA2AB5 /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = ../../../../../../Library/Frameworks/Python.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,7 +167,25 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A58B323E230F96EC00E80ECB /* libCython.a in Frameworks */,
+				A58B327B2310B09900E80ECB /* libCython-macOS.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A58B328D2310B18400E80ECB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A58B32B72310B26E00E80ECB /* libCython-iOS.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A58B329A2310B1BC00E80ECB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A58B32B42310B25E00E80ECB /* libSoundHoleCore-iOS.a in Frameworks */,
+				A58B32B52310B25E00E80ECB /* libAsyncCpp-iOS.a in Frameworks */,
+				A58B32B62310B25E00E80ECB /* libDataCpp-iOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -140,6 +207,8 @@
 			children = (
 				A564DFAA230914280018787F /* SoundHoleCoreTest-macOS */,
 				A564DFB6230914680018787F /* libSoundHoleCore-macOS.a */,
+				A58B32902310B18400E80ECB /* libSoundHoleCore-iOS.a */,
+				A58B329D2310B1BC00E80ECB /* SoundHoleCoreTest-iOS.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -170,6 +239,7 @@
 		A564DFD02309166F0018787F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A5A9F7102310BCC200EA2AB5 /* Python.framework */,
 				A58B3202230F817A00E80ECB /* Python.framework */,
 			);
 			name = Frameworks;
@@ -188,7 +258,8 @@
 		A564DFD4230916870018787F /* test */ = {
 			isa = PBXGroup;
 			children = (
-				A564DFD5230916A00018787F /* main.cpp */,
+				A58B32B32310B1E200E80ECB /* desktop */,
+				A58B329E2310B1BD00E80ECB /* iOS */,
 			);
 			path = test;
 			sourceTree = "<group>";
@@ -230,6 +301,7 @@
 			children = (
 				A564E010230918C00018787F /* libDataCpp-macOS.a */,
 				A564E012230918C00018787F /* DataCppTest-macOS */,
+				A58B328B2310B15300E80ECB /* libDataCpp-iOS.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -256,9 +328,34 @@
 		A58B3239230F96BF00E80ECB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A58B323D230F96BF00E80ECB /* libCython.a */,
+				A58B32782310B09300E80ECB /* libCython-iOS.a */,
+				A58B327A2310B09300E80ECB /* libCython-macOS.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A58B329E2310B1BD00E80ECB /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				A58B32AE2310B1BF00E80ECB /* main.m */,
+				A58B329F2310B1BD00E80ECB /* AppDelegate.h */,
+				A58B32A02310B1BD00E80ECB /* AppDelegate.m */,
+				A58B32A22310B1BD00E80ECB /* ViewController.h */,
+				A58B32A32310B1BD00E80ECB /* ViewController.m */,
+				A58B32A52310B1BD00E80ECB /* Main.storyboard */,
+				A58B32A82310B1BF00E80ECB /* Assets.xcassets */,
+				A58B32AA2310B1BF00E80ECB /* LaunchScreen.storyboard */,
+				A58B32AD2310B1BF00E80ECB /* Info.plist */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		A58B32B32310B1E200E80ECB /* desktop */ = {
+			isa = PBXGroup;
+			children = (
+				A564DFD5230916A00018787F /* main.cpp */,
+			);
+			path = desktop;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -312,6 +409,40 @@
 			productReference = A564DFB6230914680018787F /* libSoundHoleCore-macOS.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		A58B328F2310B18400E80ECB /* SoundHoleCore-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A58B32962310B18400E80ECB /* Build configuration list for PBXNativeTarget "SoundHoleCore-iOS" */;
+			buildPhases = (
+				A58B328C2310B18400E80ECB /* Sources */,
+				A58B328D2310B18400E80ECB /* Frameworks */,
+				A58B328E2310B18400E80ECB /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SoundHoleCore-iOS";
+			productName = "SoundHoleCore-iOS";
+			productReference = A58B32902310B18400E80ECB /* libSoundHoleCore-iOS.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		A58B329C2310B1BC00E80ECB /* SoundHoleCoreTest-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A58B32B02310B1BF00E80ECB /* Build configuration list for PBXNativeTarget "SoundHoleCoreTest-iOS" */;
+			buildPhases = (
+				A58B32992310B1BC00E80ECB /* Sources */,
+				A58B329A2310B1BC00E80ECB /* Frameworks */,
+				A58B329B2310B1BC00E80ECB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SoundHoleCoreTest-iOS";
+			productName = "SoundHoleCoreTest-iOS";
+			productReference = A58B329D2310B1BC00E80ECB /* SoundHoleCoreTest-iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -327,6 +458,12 @@
 					A564DFB5230914680018787F = {
 						CreatedOnToolsVersion = 10.3;
 					};
+					A58B328F2310B18400E80ECB = {
+						CreatedOnToolsVersion = 10.3;
+					};
+					A58B329C2310B1BC00E80ECB = {
+						CreatedOnToolsVersion = 10.3;
+					};
 				};
 			};
 			buildConfigurationList = A564DF9A230913F30018787F /* Build configuration list for PBXProject "SoundHoleCore" */;
@@ -335,6 +472,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = A564DF96230913F30018787F;
 			productRefGroup = A564DFA0230913F30018787F /* Products */;
@@ -357,6 +495,8 @@
 			targets = (
 				A564DFB5230914680018787F /* SoundHoleCore-macOS */,
 				A564DFA9230914280018787F /* SoundHoleCoreTest-macOS */,
+				A58B328F2310B18400E80ECB /* SoundHoleCore-iOS */,
+				A58B329C2310B1BC00E80ECB /* SoundHoleCoreTest-iOS */,
 			);
 		};
 /* End PBXProject section */
@@ -397,14 +537,41 @@
 			remoteRef = A564E011230918C00018787F /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		A58B323D230F96BF00E80ECB /* libCython.a */ = {
+		A58B32782310B09300E80ECB /* libCython-iOS.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = libCython.a;
-			remoteRef = A58B323C230F96BF00E80ECB /* PBXContainerItemProxy */;
+			path = "libCython-iOS.a";
+			remoteRef = A58B32772310B09300E80ECB /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		A58B327A2310B09300E80ECB /* libCython-macOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libCython-macOS.a";
+			remoteRef = A58B32792310B09300E80ECB /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		A58B328B2310B15300E80ECB /* libDataCpp-iOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libDataCpp-iOS.a";
+			remoteRef = A58B328A2310B15300E80ECB /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A58B329B2310B1BC00E80ECB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A58B32AC2310B1BF00E80ECB /* LaunchScreen.storyboard in Resources */,
+				A58B32A92310B1BF00E80ECB /* Assets.xcassets in Resources */,
+				A58B32A72310B1BD00E80ECB /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		A564DFA6230914280018787F /* Sources */ = {
@@ -427,7 +594,47 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A58B328C2310B18400E80ECB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A58B32C62310B3B300E80ECB /* BandcampProvider.cpp in Sources */,
+				A58B32C82310B3B900E80ECB /* MediaItem.cpp in Sources */,
+				A58B32C52310B3B000E80ECB /* MediaProvider.cpp in Sources */,
+				A58B32C72310B3B500E80ECB /* YoutubeProvider.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A58B32992310B1BC00E80ECB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A58B32A42310B1BD00E80ECB /* ViewController.m in Sources */,
+				A58B32AF2310B1BF00E80ECB /* main.m in Sources */,
+				A58B32A12310B1BD00E80ECB /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		A58B32A52310B1BD00E80ECB /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A58B32A62310B1BD00E80ECB /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		A58B32AA2310B1BF00E80ECB /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A58B32AB2310B1BF00E80ECB /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		A564DFA1230913F30018787F /* Debug */ = {
@@ -436,7 +643,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -481,6 +688,13 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/../../src",
+					"$(PROJECT_DIR)/../../external/async-cpp/src",
+					"$(PROJECT_DIR)/../../external/data-cpp/src",
+					"$(PROJECT_DIR)/../../external/json11",
+					"$(PROJECT_DIR)/../../external/cython/lib",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -495,7 +709,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -534,6 +748,13 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/../../src",
+					"$(PROJECT_DIR)/../../external/async-cpp/src",
+					"$(PROJECT_DIR)/../../external/data-cpp/src",
+					"$(PROJECT_DIR)/../../external/json11",
+					"$(PROJECT_DIR)/../../external/cython/lib",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -546,13 +767,6 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_STYLE = Automatic;
-				HEADER_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/../../src",
-					"$(PROJECT_DIR)/../../external/async-cpp/src",
-					"$(PROJECT_DIR)/../../external/data-cpp/src",
-					"$(PROJECT_DIR)/../../external/json11",
-					"$(PROJECT_DIR)/../../external/cython/lib",
-				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -562,13 +776,6 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_STYLE = Automatic;
-				HEADER_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/../../src",
-					"$(PROJECT_DIR)/../../external/async-cpp/src",
-					"$(PROJECT_DIR)/../../external/data-cpp/src",
-					"$(PROJECT_DIR)/../../external/json11",
-					"$(PROJECT_DIR)/../../external/cython/lib",
-				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -579,13 +786,6 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_STYLE = Automatic;
 				EXECUTABLE_PREFIX = lib;
-				HEADER_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/../../src",
-					"$(PROJECT_DIR)/../../external/async-cpp/src",
-					"$(PROJECT_DIR)/../../external/data-cpp/src",
-					"$(PROJECT_DIR)/../../external/json11",
-					"$(PROJECT_DIR)/../../external/cython/lib",
-				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -597,15 +797,88 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_STYLE = Automatic;
 				EXECUTABLE_PREFIX = lib;
-				HEADER_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/../../src",
-					"$(PROJECT_DIR)/../../external/async-cpp/src",
-					"$(PROJECT_DIR)/../../external/data-cpp/src",
-					"$(PROJECT_DIR)/../../external/json11",
-					"$(PROJECT_DIR)/../../external/cython/lib",
-				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		A58B32972310B18400E80ECB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A58B32982310B18400E80ECB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A58B32B12310B1BF00E80ECB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
+				INFOPLIST_FILE = "$(SRCROOT)/../../src/test/iOS/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.lufinkey.SoundHoleCoreTest-iOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A58B32B22310B1BF00E80ECB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
+				INFOPLIST_FILE = "$(SRCROOT)/../../src/test/iOS/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.lufinkey.SoundHoleCoreTest-iOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
@@ -635,6 +908,24 @@
 			buildConfigurations = (
 				A564DFB8230914680018787F /* Debug */,
 				A564DFB9230914680018787F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A58B32962310B18400E80ECB /* Build configuration list for PBXNativeTarget "SoundHoleCore-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A58B32972310B18400E80ECB /* Debug */,
+				A58B32982310B18400E80ECB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A58B32B02310B1BF00E80ECB /* Build configuration list for PBXNativeTarget "SoundHoleCoreTest-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A58B32B12310B1BF00E80ECB /* Debug */,
+				A58B32B22310B1BF00E80ECB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

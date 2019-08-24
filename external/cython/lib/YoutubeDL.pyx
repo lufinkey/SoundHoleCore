@@ -5,14 +5,11 @@ from libcpp.string cimport string
 from libcpp.map cimport map
 from .stdany cimport any
 
-cdef public class YoutubeDL [object YoutubeDL, type YoutubeDLType]:
-	api = None
+cdef public api class YoutubeDL [object YoutubeDL, type YoutubeDLType]:
+	ytdl = None
 
 	def __init__(self, params):
-		self.api = youtube_dl.YoutubeDL(params)
+		self.ytdl = youtube_dl.YoutubeDL(params)
 
-cdef public YoutubeDL YoutubeDL_create(params):
-	return YoutubeDL(params)
-
-cdef public YoutubeDL YoutubeDL_getInfo(ytdl: YoutubeDL, video: string):
-	return ytdl.api.extract_info(video, download=False)
+	cdef public api getInfo(self, video: string):
+		return self.ytdl.extract_info(video, download=False)

@@ -8,12 +8,13 @@ struct YoutubeDL;
 /* "lib/YoutubeDL.pyx":8
  * from .stdany cimport any
  * 
- * cdef public class YoutubeDL [object YoutubeDL, type YoutubeDLType]:             # <<<<<<<<<<<<<<
- * 	api = None
+ * cdef public api class YoutubeDL [object YoutubeDL, type YoutubeDLType]:             # <<<<<<<<<<<<<<
+ * 	ytdl = None
  * 
  */
 struct YoutubeDL {
   PyObject_HEAD
+  struct __pyx_vtabstruct_3lib_9YoutubeDL_YoutubeDL *__pyx_vtab;
 };
 
 #ifndef __PYX_HAVE_API__lib__YoutubeDL
@@ -31,9 +32,6 @@ struct YoutubeDL {
 #endif
 
 __PYX_EXTERN_C DL_IMPORT(PyTypeObject) YoutubeDLType;
-
-__PYX_EXTERN_C struct YoutubeDL *YoutubeDL_create(PyObject *);
-__PYX_EXTERN_C struct YoutubeDL *YoutubeDL_getInfo(struct YoutubeDL *, std::string);
 
 #endif /* !__PYX_HAVE_API__lib__YoutubeDL */
 
