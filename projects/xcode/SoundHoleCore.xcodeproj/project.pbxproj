@@ -13,6 +13,8 @@
 		A517B82323093CC300897145 /* BandcampProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A517B82123093CC300897145 /* BandcampProvider.hpp */; };
 		A517B82623093E1800897145 /* MediaItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A517B82423093E1800897145 /* MediaItem.cpp */; };
 		A517B82723093E1800897145 /* MediaItem.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A517B82523093E1800897145 /* MediaItem.hpp */; };
+		A5224A362315E8AC0006D213 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5224A352315E8AC0006D213 /* Foundation.framework */; };
+		A5224A382315E8B30006D213 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5224A372315E8B30006D213 /* UIKit.framework */; };
 		A564DFD7230916AE0018787F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A564DFD5230916A00018787F /* main.cpp */; };
 		A564E015230919820018787F /* MediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A564E013230919820018787F /* MediaProvider.cpp */; };
 		A564E016230919820018787F /* MediaProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A564E014230919820018787F /* MediaProvider.hpp */; };
@@ -20,17 +22,15 @@
 		A58B31EA230A59B700E80ECB /* libSoundHoleCore-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A564DFB6230914680018787F /* libSoundHoleCore-macOS.a */; };
 		A58B325523109A2C00E80ECB /* YoutubeProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A58B324E23109A2C00E80ECB /* YoutubeProvider.hpp */; };
 		A58B325723109A3000E80ECB /* YoutubeProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58B325623109A3000E80ECB /* YoutubeProvider.cpp */; };
-		A58B327B2310B09900E80ECB /* libCython-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A58B327A2310B09300E80ECB /* libCython-macOS.a */; };
-		A58B32A12310B1BD00E80ECB /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A58B32A02310B1BD00E80ECB /* AppDelegate.m */; };
-		A58B32A42310B1BD00E80ECB /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A58B32A32310B1BD00E80ECB /* ViewController.m */; };
+		A58B32A12310B1BD00E80ECB /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = A58B32A02310B1BD00E80ECB /* AppDelegate.mm */; };
+		A58B32A42310B1BD00E80ECB /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A58B32A32310B1BD00E80ECB /* ViewController.mm */; };
 		A58B32A72310B1BD00E80ECB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A58B32A52310B1BD00E80ECB /* Main.storyboard */; };
 		A58B32A92310B1BF00E80ECB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A58B32A82310B1BF00E80ECB /* Assets.xcassets */; };
 		A58B32AC2310B1BF00E80ECB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A58B32AA2310B1BF00E80ECB /* LaunchScreen.storyboard */; };
-		A58B32AF2310B1BF00E80ECB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A58B32AE2310B1BF00E80ECB /* main.m */; };
+		A58B32AF2310B1BF00E80ECB /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = A58B32AE2310B1BF00E80ECB /* main.mm */; };
 		A58B32B42310B25E00E80ECB /* libSoundHoleCore-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A58B32902310B18400E80ECB /* libSoundHoleCore-iOS.a */; };
 		A58B32B52310B25E00E80ECB /* libAsyncCpp-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A564E007230918B50018787F /* libAsyncCpp-iOS.a */; };
 		A58B32B62310B25E00E80ECB /* libDataCpp-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A58B328B2310B15300E80ECB /* libDataCpp-iOS.a */; };
-		A58B32B72310B26E00E80ECB /* libCython-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A58B32782310B09300E80ECB /* libCython-iOS.a */; };
 		A58B32C52310B3B000E80ECB /* MediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A564E013230919820018787F /* MediaProvider.cpp */; };
 		A58B32C62310B3B300E80ECB /* BandcampProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A517B82023093CC300897145 /* BandcampProvider.cpp */; };
 		A58B32C72310B3B500E80ECB /* YoutubeProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58B325623109A3000E80ECB /* YoutubeProvider.cpp */; };
@@ -73,20 +73,6 @@
 			remoteGlobalIDString = A53E4EC22306411F000BB7D8;
 			remoteInfo = "DataCppTest-macOS";
 		};
-		A58B32772310B09300E80ECB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = A58B3238230F96BF00E80ECB /* Cython.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = A58B325C2310AF5600E80ECB;
-			remoteInfo = "Cython-iOS";
-		};
-		A58B32792310B09300E80ECB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = A58B3238230F96BF00E80ECB /* Cython.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = A58B326C2310B04900E80ECB;
-			remoteInfo = "Cython-macOS";
-		};
 		A58B328A2310B15300E80ECB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A564E00A230918C00018787F /* DataCpp.xcodeproj */;
@@ -122,6 +108,8 @@
 		A517B82123093CC300897145 /* BandcampProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BandcampProvider.hpp; sourceTree = "<group>"; };
 		A517B82423093E1800897145 /* MediaItem.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MediaItem.cpp; sourceTree = "<group>"; };
 		A517B82523093E1800897145 /* MediaItem.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaItem.hpp; sourceTree = "<group>"; };
+		A5224A352315E8AC0006D213 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.4.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		A5224A372315E8B30006D213 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.4.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		A564DFAA230914280018787F /* SoundHoleCoreTest-macOS */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "SoundHoleCoreTest-macOS"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A564DFB6230914680018787F /* libSoundHoleCore-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSoundHoleCore-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A564DFD5230916A00018787F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -135,20 +123,19 @@
 		A58B31C0230A593C00E80ECB /* json11.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = json11.cpp; sourceTree = "<group>"; };
 		A58B31C3230A596100E80ECB /* httplib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = httplib.h; sourceTree = "<group>"; };
 		A58B3202230F817A00E80ECB /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = System/Library/Frameworks/Python.framework; sourceTree = SDKROOT; };
-		A58B3238230F96BF00E80ECB /* Cython.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Cython.xcodeproj; path = ../../../external/cython/projects/xcode/Cython.xcodeproj; sourceTree = "<group>"; };
 		A58B324E23109A2C00E80ECB /* YoutubeProvider.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = YoutubeProvider.hpp; sourceTree = "<group>"; };
 		A58B325623109A3000E80ECB /* YoutubeProvider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = YoutubeProvider.cpp; sourceTree = "<group>"; };
 		A58B32902310B18400E80ECB /* libSoundHoleCore-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSoundHoleCore-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A58B329D2310B1BC00E80ECB /* SoundHoleCoreTest-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SoundHoleCoreTest-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A58B329F2310B1BD00E80ECB /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		A58B32A02310B1BD00E80ECB /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		A58B32A02310B1BD00E80ECB /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
 		A58B32A22310B1BD00E80ECB /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		A58B32A32310B1BD00E80ECB /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		A58B32A32310B1BD00E80ECB /* ViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
 		A58B32A62310B1BD00E80ECB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		A58B32A82310B1BF00E80ECB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A58B32AB2310B1BF00E80ECB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		A58B32AD2310B1BF00E80ECB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A58B32AE2310B1BF00E80ECB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		A58B32AE2310B1BF00E80ECB /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		A5A9F7102310BCC200EA2AB5 /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = ../../../../../../Library/Frameworks/Python.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -167,7 +154,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A58B327B2310B09900E80ECB /* libCython-macOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -175,7 +161,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A58B32B72310B26E00E80ECB /* libCython-iOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -183,6 +168,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A5224A382315E8B30006D213 /* UIKit.framework in Frameworks */,
+				A5224A362315E8AC0006D213 /* Foundation.framework in Frameworks */,
 				A58B32B42310B25E00E80ECB /* libSoundHoleCore-iOS.a in Frameworks */,
 				A58B32B52310B25E00E80ECB /* libAsyncCpp-iOS.a in Frameworks */,
 				A58B32B62310B25E00E80ECB /* libDataCpp-iOS.a in Frameworks */,
@@ -229,7 +216,6 @@
 			children = (
 				A564DFFE230918B50018787F /* AsyncCpp.xcodeproj */,
 				A564E00A230918C00018787F /* DataCpp.xcodeproj */,
-				A58B3238230F96BF00E80ECB /* Cython.xcodeproj */,
 				A58B31C2230A596100E80ECB /* cpp-httplib */,
 				A58B31B8230A593C00E80ECB /* json11 */,
 			);
@@ -239,6 +225,8 @@
 		A564DFD02309166F0018787F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A5224A372315E8B30006D213 /* UIKit.framework */,
+				A5224A352315E8AC0006D213 /* Foundation.framework */,
 				A5A9F7102310BCC200EA2AB5 /* Python.framework */,
 				A58B3202230F817A00E80ECB /* Python.framework */,
 			);
@@ -325,23 +313,14 @@
 			path = "../../../external/cpp-httplib";
 			sourceTree = "<group>";
 		};
-		A58B3239230F96BF00E80ECB /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				A58B32782310B09300E80ECB /* libCython-iOS.a */,
-				A58B327A2310B09300E80ECB /* libCython-macOS.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		A58B329E2310B1BD00E80ECB /* iOS */ = {
 			isa = PBXGroup;
 			children = (
-				A58B32AE2310B1BF00E80ECB /* main.m */,
+				A58B32AE2310B1BF00E80ECB /* main.mm */,
 				A58B329F2310B1BD00E80ECB /* AppDelegate.h */,
-				A58B32A02310B1BD00E80ECB /* AppDelegate.m */,
+				A58B32A02310B1BD00E80ECB /* AppDelegate.mm */,
 				A58B32A22310B1BD00E80ECB /* ViewController.h */,
-				A58B32A32310B1BD00E80ECB /* ViewController.m */,
+				A58B32A32310B1BD00E80ECB /* ViewController.mm */,
 				A58B32A52310B1BD00E80ECB /* Main.storyboard */,
 				A58B32A82310B1BF00E80ECB /* Assets.xcassets */,
 				A58B32AA2310B1BF00E80ECB /* LaunchScreen.storyboard */,
@@ -483,10 +462,6 @@
 					ProjectRef = A564DFFE230918B50018787F /* AsyncCpp.xcodeproj */;
 				},
 				{
-					ProductGroup = A58B3239230F96BF00E80ECB /* Products */;
-					ProjectRef = A58B3238230F96BF00E80ECB /* Cython.xcodeproj */;
-				},
-				{
 					ProductGroup = A564E00B230918C00018787F /* Products */;
 					ProjectRef = A564E00A230918C00018787F /* DataCpp.xcodeproj */;
 				},
@@ -535,20 +510,6 @@
 			fileType = "compiled.mach-o.executable";
 			path = "DataCppTest-macOS";
 			remoteRef = A564E011230918C00018787F /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		A58B32782310B09300E80ECB /* libCython-iOS.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "libCython-iOS.a";
-			remoteRef = A58B32772310B09300E80ECB /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		A58B327A2310B09300E80ECB /* libCython-macOS.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "libCython-macOS.a";
-			remoteRef = A58B32792310B09300E80ECB /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		A58B328B2310B15300E80ECB /* libDataCpp-iOS.a */ = {
@@ -609,9 +570,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A58B32A42310B1BD00E80ECB /* ViewController.m in Sources */,
-				A58B32AF2310B1BF00E80ECB /* main.m in Sources */,
-				A58B32A12310B1BD00E80ECB /* AppDelegate.m in Sources */,
+				A58B32A42310B1BD00E80ECB /* ViewController.mm in Sources */,
+				A58B32AF2310B1BF00E80ECB /* main.mm in Sources */,
+				A58B32A12310B1BD00E80ECB /* AppDelegate.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

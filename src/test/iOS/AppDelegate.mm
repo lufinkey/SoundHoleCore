@@ -1,5 +1,5 @@
 //
-//  AppDelegate.m
+//  AppDelegate.mm
 //  SoundHoleCoreTest-iOS
 //
 //  Created by Luis Finke on 8/23/19.

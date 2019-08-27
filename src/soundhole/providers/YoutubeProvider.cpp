@@ -7,8 +7,6 @@
 //
 
 #include "YoutubeProvider.hpp"
-#include <Python/Python.h>
-#include "YoutubeDL.h"
 
 namespace sh {
 	YoutubeProvider::YoutubeProvider() {

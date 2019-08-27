@@ -10,8 +10,6 @@
 
 #include <soundhole/providers/MediaProvider.hpp>
 
-struct YoutubeDL;
-
 namespace sh {
 	class YoutubeProvider: public MediaProvider {
 	public:
@@ -19,8 +17,5 @@ namespace sh {
 		
 		virtual String getName() const override;
 		virtual String getDisplayName() const override;
-		
-	private:
-		YoutubeDL* ytdl;
 	};
 }
