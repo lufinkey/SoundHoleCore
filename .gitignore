@@ -21,6 +21,7 @@ xcuserdata
 xcshareddata
 /projects/xcode*/Build
 /projects/xcode*/DerivedData
+/projects/xcode*/Pods
 
 #Code::Blocks
 /projects/codeblocks/*.layout
