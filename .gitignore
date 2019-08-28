@@ -17,8 +17,11 @@
 
 #Xcode
 .DS_Store
-xcuserdata
-xcshareddata
+/**/*.xcodeproj/*.xcworkspace
+/**/*.xcodeproj/xcuserdata
+/**/*.xcodeproj/xcshareddata
+/**/*.xcworkspace/xcshareddata
+/**/*.xcworkspace/xcuserdata
 /projects/xcode*/Build
 /projects/xcode*/DerivedData
 /projects/xcode*/Pods
