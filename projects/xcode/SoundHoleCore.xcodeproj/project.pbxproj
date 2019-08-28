@@ -20,8 +20,6 @@
 		A585E66F2315FC2E00810584 /* libDataCpp-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A585E66D2315FC1E00810584 /* libDataCpp-iOS.a */; };
 		A585E6702315FC3E00810584 /* libAsyncCpp-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A521E0272315FBB500390084 /* libAsyncCpp-macOS.a */; };
 		A585E6712315FC3E00810584 /* libDataCpp-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A585E6692315FC1E00810584 /* libDataCpp-macOS.a */; };
-		A585E6D023160EA300810584 /* libmetacall-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A585E6CF23160EA300810584 /* libmetacall-macOS.a */; };
-		A585E6D123160EAB00810584 /* libmetacall-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A585E6902315FDA500810584 /* libmetacall-iOS.a */; };
 		A58B31E9230A597F00E80ECB /* json11.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58B31C0230A593C00E80ECB /* json11.cpp */; };
 		A58B31EA230A59B700E80ECB /* libSoundHoleCore-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A564DFB6230914680018787F /* libSoundHoleCore-macOS.a */; };
 		A58B325523109A2C00E80ECB /* YoutubeProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A58B324E23109A2C00E80ECB /* YoutubeProvider.hpp */; };
@@ -37,6 +35,8 @@
 		A58B32C62310B3B300E80ECB /* BandcampProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A517B82023093CC300897145 /* BandcampProvider.cpp */; };
 		A58B32C72310B3B500E80ECB /* YoutubeProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58B325623109A3000E80ECB /* YoutubeProvider.cpp */; };
 		A58B32C82310B3B900E80ECB /* MediaItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A517B82423093E1800897145 /* MediaItem.cpp */; };
+		A5BF2A672316534A0048125B /* libmetacall-core-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A570D72F23164DBF00BA7F28 /* libmetacall-core-macOS.a */; };
+		A5BF2A68231653540048125B /* libmetacall-core-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A570D72D23164DBF00BA7F28 /* libmetacall-core-iOS.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +61,20 @@
 			remoteGlobalIDString = A53E4EA32304D2E1000BB7D8;
 			remoteInfo = "AsyncCppTest-macOS";
 		};
+		A570D72C23164DBF00BA7F28 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A585E68B2315FDA500810584 /* metacall-core.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A585E67F2315FD7500810584;
+			remoteInfo = "metacall-core-iOS";
+		};
+		A570D72E23164DBF00BA7F28 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A585E68B2315FDA500810584 /* metacall-core.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A585E6C823160E2C00810584;
+			remoteInfo = "metacall-core-macOS";
+		};
 		A585E6682315FC1E00810584 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A564E00A230918C00018787F /* DataCpp.xcodeproj */;
@@ -81,20 +95,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = A58B32802310B0DF00E80ECB;
 			remoteInfo = "DataCpp-iOS";
-		};
-		A585E68F2315FDA500810584 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = A585E68B2315FDA500810584 /* metacall.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = A585E67F2315FD7500810584;
-			remoteInfo = metacall;
-		};
-		A585E6CE23160EA300810584 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = A585E68B2315FDA500810584 /* metacall.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = A585E6C823160E2C00810584;
-			remoteInfo = "metacall-macOS";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -136,7 +136,7 @@
 		A564E014230919820018787F /* MediaProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaProvider.hpp; sourceTree = "<group>"; };
 		A564E01F230920F90018787F /* soundhole.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = soundhole.hpp; sourceTree = "<group>"; };
 		A564E0212309289C0018787F /* external.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = external.hpp; sourceTree = "<group>"; };
-		A585E68B2315FDA500810584 /* metacall.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = metacall.xcodeproj; path = metacall/projects/xcode/metacall.xcodeproj; sourceTree = "<group>"; };
+		A585E68B2315FDA500810584 /* metacall-core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "metacall-core.xcodeproj"; path = "metacall/projects/xcode/metacall-core.xcodeproj"; sourceTree = "<group>"; };
 		A58B31BD230A593C00E80ECB /* json11.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json11.hpp; sourceTree = "<group>"; };
 		A58B31C0230A593C00E80ECB /* json11.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = json11.cpp; sourceTree = "<group>"; };
 		A58B31C3230A596100E80ECB /* httplib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = httplib.h; sourceTree = "<group>"; };
@@ -155,6 +155,8 @@
 		A58B32AD2310B1BF00E80ECB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A58B32AE2310B1BF00E80ECB /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		A5A9F7102310BCC200EA2AB5 /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = ../../../../../../Library/Frameworks/Python.framework; sourceTree = "<group>"; };
+		A5D5751223164DA4008D25AF /* libmetacall-core-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libmetacall-core-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A5D5751423164DAF008D25AF /* libmetacall-core-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libmetacall-core-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -162,7 +164,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A585E6D023160EA300810584 /* libmetacall-macOS.a in Frameworks */,
+				A5BF2A672316534A0048125B /* libmetacall-core-macOS.a in Frameworks */,
 				A585E6702315FC3E00810584 /* libAsyncCpp-macOS.a in Frameworks */,
 				A585E6712315FC3E00810584 /* libDataCpp-macOS.a in Frameworks */,
 				A58B31EA230A59B700E80ECB /* libSoundHoleCore-macOS.a in Frameworks */,
@@ -187,7 +189,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A585E6D123160EAB00810584 /* libmetacall-iOS.a in Frameworks */,
+				A5BF2A68231653540048125B /* libmetacall-core-iOS.a in Frameworks */,
 				A585E66E2315FC2E00810584 /* libAsyncCpp-iOS.a in Frameworks */,
 				A585E66F2315FC2E00810584 /* libDataCpp-iOS.a in Frameworks */,
 				A58B32B42310B25E00E80ECB /* libSoundHoleCore-iOS.a in Frameworks */,
@@ -246,7 +248,7 @@
 			children = (
 				A564DFFE230918B50018787F /* AsyncCpp.xcodeproj */,
 				A564E00A230918C00018787F /* DataCpp.xcodeproj */,
-				A585E68B2315FDA500810584 /* metacall.xcodeproj */,
+				A585E68B2315FDA500810584 /* metacall-core.xcodeproj */,
 				A58B31C2230A596100E80ECB /* cpp-httplib */,
 				A58B31B8230A593C00E80ECB /* json11 */,
 			);
@@ -257,6 +259,8 @@
 		A564DFD02309166F0018787F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A5D5751423164DAF008D25AF /* libmetacall-core-iOS.a */,
+				A5D5751223164DA4008D25AF /* libmetacall-core-macOS.a */,
 				A521E02C2315FC0800390084 /* libDataCpp-iOS.a */,
 				A5224A372315E8B30006D213 /* UIKit.framework */,
 				A5224A352315E8AC0006D213 /* Foundation.framework */,
@@ -307,21 +311,21 @@
 			path = providers;
 			sourceTree = "<group>";
 		};
+		A570D72223164DBF00BA7F28 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A570D72D23164DBF00BA7F28 /* libmetacall-core-iOS.a */,
+				A570D72F23164DBF00BA7F28 /* libmetacall-core-macOS.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		A585E6602315FC1E00810584 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				A585E6692315FC1E00810584 /* libDataCpp-macOS.a */,
 				A585E66B2315FC1E00810584 /* DataCppTest-macOS */,
 				A585E66D2315FC1E00810584 /* libDataCpp-iOS.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		A585E68C2315FDA500810584 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				A585E6902315FDA500810584 /* libmetacall-iOS.a */,
-				A585E6CF23160EA300810584 /* libmetacall-macOS.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -496,8 +500,8 @@
 					ProjectRef = A564E00A230918C00018787F /* DataCpp.xcodeproj */;
 				},
 				{
-					ProductGroup = A585E68C2315FDA500810584 /* Products */;
-					ProjectRef = A585E68B2315FDA500810584 /* metacall.xcodeproj */;
+					ProductGroup = A570D72223164DBF00BA7F28 /* Products */;
+					ProjectRef = A585E68B2315FDA500810584 /* metacall-core.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -532,6 +536,20 @@
 			remoteRef = A521E02A2315FBB500390084 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		A570D72D23164DBF00BA7F28 /* libmetacall-core-iOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libmetacall-core-iOS.a";
+			remoteRef = A570D72C23164DBF00BA7F28 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		A570D72F23164DBF00BA7F28 /* libmetacall-core-macOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libmetacall-core-macOS.a";
+			remoteRef = A570D72E23164DBF00BA7F28 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		A585E6692315FC1E00810584 /* libDataCpp-macOS.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -551,20 +569,6 @@
 			fileType = archive.ar;
 			path = "libDataCpp-iOS.a";
 			remoteRef = A585E66C2315FC1E00810584 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		A585E6902315FDA500810584 /* libmetacall-iOS.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "libmetacall-iOS.a";
-			remoteRef = A585E68F2315FDA500810584 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		A585E6CF23160EA300810584 /* libmetacall-macOS.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "libmetacall-macOS.a";
-			remoteRef = A585E6CE23160EA300810584 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
