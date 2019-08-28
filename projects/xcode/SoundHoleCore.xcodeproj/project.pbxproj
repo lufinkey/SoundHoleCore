@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A517B8122309367B00897145 /* libAsyncCpp-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A564E005230918B50018787F /* libAsyncCpp-macOS.a */; };
-		A517B8132309367B00897145 /* libDataCpp-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A564E010230918C00018787F /* libDataCpp-macOS.a */; };
 		A517B82223093CC300897145 /* BandcampProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A517B82023093CC300897145 /* BandcampProvider.cpp */; };
 		A517B82323093CC300897145 /* BandcampProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A517B82123093CC300897145 /* BandcampProvider.hpp */; };
 		A517B82623093E1800897145 /* MediaItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A517B82423093E1800897145 /* MediaItem.cpp */; };
@@ -18,6 +16,10 @@
 		A564DFD7230916AE0018787F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A564DFD5230916A00018787F /* main.cpp */; };
 		A564E015230919820018787F /* MediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A564E013230919820018787F /* MediaProvider.cpp */; };
 		A564E016230919820018787F /* MediaProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A564E014230919820018787F /* MediaProvider.hpp */; };
+		A585E66E2315FC2E00810584 /* libAsyncCpp-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A521E0292315FBB500390084 /* libAsyncCpp-iOS.a */; };
+		A585E66F2315FC2E00810584 /* libDataCpp-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A585E66D2315FC1E00810584 /* libDataCpp-iOS.a */; };
+		A585E6702315FC3E00810584 /* libAsyncCpp-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A521E0272315FBB500390084 /* libAsyncCpp-macOS.a */; };
+		A585E6712315FC3E00810584 /* libDataCpp-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A585E6692315FC1E00810584 /* libDataCpp-macOS.a */; };
 		A58B31E9230A597F00E80ECB /* json11.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58B31C0230A593C00E80ECB /* json11.cpp */; };
 		A58B31EA230A59B700E80ECB /* libSoundHoleCore-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A564DFB6230914680018787F /* libSoundHoleCore-macOS.a */; };
 		A58B325523109A2C00E80ECB /* YoutubeProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A58B324E23109A2C00E80ECB /* YoutubeProvider.hpp */; };
@@ -29,8 +31,6 @@
 		A58B32AC2310B1BF00E80ECB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A58B32AA2310B1BF00E80ECB /* LaunchScreen.storyboard */; };
 		A58B32AF2310B1BF00E80ECB /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = A58B32AE2310B1BF00E80ECB /* main.mm */; };
 		A58B32B42310B25E00E80ECB /* libSoundHoleCore-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A58B32902310B18400E80ECB /* libSoundHoleCore-iOS.a */; };
-		A58B32B52310B25E00E80ECB /* libAsyncCpp-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A564E007230918B50018787F /* libAsyncCpp-iOS.a */; };
-		A58B32B62310B25E00E80ECB /* libDataCpp-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A58B328B2310B15300E80ECB /* libDataCpp-iOS.a */; };
 		A58B32C52310B3B000E80ECB /* MediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A564E013230919820018787F /* MediaProvider.cpp */; };
 		A58B32C62310B3B300E80ECB /* BandcampProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A517B82023093CC300897145 /* BandcampProvider.cpp */; };
 		A58B32C72310B3B500E80ECB /* YoutubeProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58B325623109A3000E80ECB /* YoutubeProvider.cpp */; };
@@ -38,42 +38,42 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		A564E004230918B50018787F /* PBXContainerItemProxy */ = {
+		A521E0262315FBB500390084 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A564DFFE230918B50018787F /* AsyncCpp.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = A53E4E7B2304D166000BB7D8;
 			remoteInfo = "AsyncCpp-macOS";
 		};
-		A564E006230918B50018787F /* PBXContainerItemProxy */ = {
+		A521E0282315FBB500390084 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A564DFFE230918B50018787F /* AsyncCpp.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = A53E4E8C2304D250000BB7D8;
 			remoteInfo = "AsyncCpp-iOS";
 		};
-		A564E008230918B50018787F /* PBXContainerItemProxy */ = {
+		A521E02A2315FBB500390084 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A564DFFE230918B50018787F /* AsyncCpp.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = A53E4EA32304D2E1000BB7D8;
 			remoteInfo = "AsyncCppTest-macOS";
 		};
-		A564E00F230918C00018787F /* PBXContainerItemProxy */ = {
+		A585E6682315FC1E00810584 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A564E00A230918C00018787F /* DataCpp.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = A53E4EB223063BFC000BB7D8;
 			remoteInfo = "DataCpp-macOS";
 		};
-		A564E011230918C00018787F /* PBXContainerItemProxy */ = {
+		A585E66A2315FC1E00810584 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A564E00A230918C00018787F /* DataCpp.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = A53E4EC22306411F000BB7D8;
 			remoteInfo = "DataCppTest-macOS";
 		};
-		A58B328A2310B15300E80ECB /* PBXContainerItemProxy */ = {
+		A585E66C2315FC1E00810584 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A564E00A230918C00018787F /* DataCpp.xcodeproj */;
 			proxyType = 2;
@@ -108,13 +108,14 @@
 		A517B82123093CC300897145 /* BandcampProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BandcampProvider.hpp; sourceTree = "<group>"; };
 		A517B82423093E1800897145 /* MediaItem.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MediaItem.cpp; sourceTree = "<group>"; };
 		A517B82523093E1800897145 /* MediaItem.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaItem.hpp; sourceTree = "<group>"; };
+		A521E02C2315FC0800390084 /* libDataCpp-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libDataCpp-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5224A352315E8AC0006D213 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.4.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		A5224A372315E8B30006D213 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.4.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		A564DFAA230914280018787F /* SoundHoleCoreTest-macOS */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "SoundHoleCoreTest-macOS"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A564DFB6230914680018787F /* libSoundHoleCore-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSoundHoleCore-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A564DFD5230916A00018787F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		A564DFFE230918B50018787F /* AsyncCpp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = AsyncCpp.xcodeproj; path = "../../../external/async-cpp/projects/xcode/AsyncCpp.xcodeproj"; sourceTree = "<group>"; };
-		A564E00A230918C00018787F /* DataCpp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DataCpp.xcodeproj; path = "../../../external/data-cpp/projects/xcode/DataCpp.xcodeproj"; sourceTree = "<group>"; };
+		A564DFFE230918B50018787F /* AsyncCpp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = AsyncCpp.xcodeproj; path = "async-cpp/projects/xcode/AsyncCpp.xcodeproj"; sourceTree = "<group>"; };
+		A564E00A230918C00018787F /* DataCpp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DataCpp.xcodeproj; path = "data-cpp/projects/xcode/DataCpp.xcodeproj"; sourceTree = "<group>"; };
 		A564E013230919820018787F /* MediaProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MediaProvider.cpp; sourceTree = "<group>"; };
 		A564E014230919820018787F /* MediaProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaProvider.hpp; sourceTree = "<group>"; };
 		A564E01F230920F90018787F /* soundhole.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = soundhole.hpp; sourceTree = "<group>"; };
@@ -144,9 +145,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A585E6702315FC3E00810584 /* libAsyncCpp-macOS.a in Frameworks */,
+				A585E6712315FC3E00810584 /* libDataCpp-macOS.a in Frameworks */,
 				A58B31EA230A59B700E80ECB /* libSoundHoleCore-macOS.a in Frameworks */,
-				A517B8122309367B00897145 /* libAsyncCpp-macOS.a in Frameworks */,
-				A517B8132309367B00897145 /* libDataCpp-macOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -168,17 +169,27 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A585E66E2315FC2E00810584 /* libAsyncCpp-iOS.a in Frameworks */,
+				A585E66F2315FC2E00810584 /* libDataCpp-iOS.a in Frameworks */,
+				A58B32B42310B25E00E80ECB /* libSoundHoleCore-iOS.a in Frameworks */,
 				A5224A382315E8B30006D213 /* UIKit.framework in Frameworks */,
 				A5224A362315E8AC0006D213 /* Foundation.framework in Frameworks */,
-				A58B32B42310B25E00E80ECB /* libSoundHoleCore-iOS.a in Frameworks */,
-				A58B32B52310B25E00E80ECB /* libAsyncCpp-iOS.a in Frameworks */,
-				A58B32B62310B25E00E80ECB /* libDataCpp-iOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A521E0212315FBB500390084 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A521E0272315FBB500390084 /* libAsyncCpp-macOS.a */,
+				A521E0292315FBB500390084 /* libAsyncCpp-iOS.a */,
+				A521E02B2315FBB500390084 /* AsyncCppTest-macOS */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		A564DF96230913F30018787F = {
 			isa = PBXGroup;
 			children = (
@@ -219,12 +230,14 @@
 				A58B31C2230A596100E80ECB /* cpp-httplib */,
 				A58B31B8230A593C00E80ECB /* json11 */,
 			);
-			path = external;
+			name = external;
+			path = ../../external;
 			sourceTree = "<group>";
 		};
 		A564DFD02309166F0018787F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A521E02C2315FC0800390084 /* libDataCpp-iOS.a */,
 				A5224A372315E8B30006D213 /* UIKit.framework */,
 				A5224A352315E8AC0006D213 /* Foundation.framework */,
 				A5A9F7102310BCC200EA2AB5 /* Python.framework */,
@@ -274,22 +287,12 @@
 			path = providers;
 			sourceTree = "<group>";
 		};
-		A564DFFF230918B50018787F /* Products */ = {
+		A585E6602315FC1E00810584 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A564E005230918B50018787F /* libAsyncCpp-macOS.a */,
-				A564E007230918B50018787F /* libAsyncCpp-iOS.a */,
-				A564E009230918B50018787F /* AsyncCppTest-macOS */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		A564E00B230918C00018787F /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				A564E010230918C00018787F /* libDataCpp-macOS.a */,
-				A564E012230918C00018787F /* DataCppTest-macOS */,
-				A58B328B2310B15300E80ECB /* libDataCpp-iOS.a */,
+				A585E6692315FC1E00810584 /* libDataCpp-macOS.a */,
+				A585E66B2315FC1E00810584 /* DataCppTest-macOS */,
+				A585E66D2315FC1E00810584 /* libDataCpp-iOS.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -300,8 +303,7 @@
 				A58B31BD230A593C00E80ECB /* json11.hpp */,
 				A58B31C0230A593C00E80ECB /* json11.cpp */,
 			);
-			name = json11;
-			path = ../../../external/json11;
+			path = json11;
 			sourceTree = "<group>";
 		};
 		A58B31C2230A596100E80ECB /* cpp-httplib */ = {
@@ -309,8 +311,7 @@
 			children = (
 				A58B31C3230A596100E80ECB /* httplib.h */,
 			);
-			name = "cpp-httplib";
-			path = "../../../external/cpp-httplib";
+			path = "cpp-httplib";
 			sourceTree = "<group>";
 		};
 		A58B329E2310B1BD00E80ECB /* iOS */ = {
@@ -458,11 +459,11 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = A564DFFF230918B50018787F /* Products */;
+					ProductGroup = A521E0212315FBB500390084 /* Products */;
 					ProjectRef = A564DFFE230918B50018787F /* AsyncCpp.xcodeproj */;
 				},
 				{
-					ProductGroup = A564E00B230918C00018787F /* Products */;
+					ProductGroup = A585E6602315FC1E00810584 /* Products */;
 					ProjectRef = A564E00A230918C00018787F /* DataCpp.xcodeproj */;
 				},
 			);
@@ -477,46 +478,46 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		A564E005230918B50018787F /* libAsyncCpp-macOS.a */ = {
+		A521E0272315FBB500390084 /* libAsyncCpp-macOS.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = "libAsyncCpp-macOS.a";
-			remoteRef = A564E004230918B50018787F /* PBXContainerItemProxy */;
+			remoteRef = A521E0262315FBB500390084 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		A564E007230918B50018787F /* libAsyncCpp-iOS.a */ = {
+		A521E0292315FBB500390084 /* libAsyncCpp-iOS.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = "libAsyncCpp-iOS.a";
-			remoteRef = A564E006230918B50018787F /* PBXContainerItemProxy */;
+			remoteRef = A521E0282315FBB500390084 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		A564E009230918B50018787F /* AsyncCppTest-macOS */ = {
+		A521E02B2315FBB500390084 /* AsyncCppTest-macOS */ = {
 			isa = PBXReferenceProxy;
 			fileType = "compiled.mach-o.executable";
 			path = "AsyncCppTest-macOS";
-			remoteRef = A564E008230918B50018787F /* PBXContainerItemProxy */;
+			remoteRef = A521E02A2315FBB500390084 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		A564E010230918C00018787F /* libDataCpp-macOS.a */ = {
+		A585E6692315FC1E00810584 /* libDataCpp-macOS.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = "libDataCpp-macOS.a";
-			remoteRef = A564E00F230918C00018787F /* PBXContainerItemProxy */;
+			remoteRef = A585E6682315FC1E00810584 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		A564E012230918C00018787F /* DataCppTest-macOS */ = {
+		A585E66B2315FC1E00810584 /* DataCppTest-macOS */ = {
 			isa = PBXReferenceProxy;
 			fileType = "compiled.mach-o.executable";
 			path = "DataCppTest-macOS";
-			remoteRef = A564E011230918C00018787F /* PBXContainerItemProxy */;
+			remoteRef = A585E66A2315FC1E00810584 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		A58B328B2310B15300E80ECB /* libDataCpp-iOS.a */ = {
+		A585E66D2315FC1E00810584 /* libDataCpp-iOS.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = "libDataCpp-iOS.a";
-			remoteRef = A58B328A2310B15300E80ECB /* PBXContainerItemProxy */;
+			remoteRef = A585E66C2315FC1E00810584 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
