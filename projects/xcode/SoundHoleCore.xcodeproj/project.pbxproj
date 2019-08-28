@@ -21,7 +21,7 @@
 		A585E6702315FC3E00810584 /* libAsyncCpp-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A521E0272315FBB500390084 /* libAsyncCpp-macOS.a */; };
 		A585E6712315FC3E00810584 /* libDataCpp-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A585E6692315FC1E00810584 /* libDataCpp-macOS.a */; };
 		A585E6D023160EA300810584 /* libmetacall-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A585E6CF23160EA300810584 /* libmetacall-macOS.a */; };
-		A585E6D123160EAB00810584 /* libmetacall.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A585E6902315FDA500810584 /* libmetacall.a */; };
+		A585E6D123160EAB00810584 /* libmetacall-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A585E6902315FDA500810584 /* libmetacall-iOS.a */; };
 		A58B31E9230A597F00E80ECB /* json11.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58B31C0230A593C00E80ECB /* json11.cpp */; };
 		A58B31EA230A59B700E80ECB /* libSoundHoleCore-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A564DFB6230914680018787F /* libSoundHoleCore-macOS.a */; };
 		A58B325523109A2C00E80ECB /* YoutubeProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A58B324E23109A2C00E80ECB /* YoutubeProvider.hpp */; };
@@ -187,7 +187,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A585E6D123160EAB00810584 /* libmetacall.a in Frameworks */,
+				A585E6D123160EAB00810584 /* libmetacall-iOS.a in Frameworks */,
 				A585E66E2315FC2E00810584 /* libAsyncCpp-iOS.a in Frameworks */,
 				A585E66F2315FC2E00810584 /* libDataCpp-iOS.a in Frameworks */,
 				A58B32B42310B25E00E80ECB /* libSoundHoleCore-iOS.a in Frameworks */,
@@ -320,7 +320,7 @@
 		A585E68C2315FDA500810584 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A585E6902315FDA500810584 /* libmetacall.a */,
+				A585E6902315FDA500810584 /* libmetacall-iOS.a */,
 				A585E6CF23160EA300810584 /* libmetacall-macOS.a */,
 			);
 			name = Products;
@@ -553,10 +553,10 @@
 			remoteRef = A585E66C2315FC1E00810584 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		A585E6902315FDA500810584 /* libmetacall.a */ = {
+		A585E6902315FDA500810584 /* libmetacall-iOS.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = libmetacall.a;
+			path = "libmetacall-iOS.a";
 			remoteRef = A585E68F2315FDA500810584 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -702,7 +702,7 @@
 					"$(PROJECT_DIR)/../../external/async-cpp/src",
 					"$(PROJECT_DIR)/../../external/data-cpp/src",
 					"$(PROJECT_DIR)/../../external/json11",
-					"$(PROJECT_DIR)/../../external/cython/lib",
+					"$(PROJECT_DIR)/../../external/metacall/core/build/$(PLATFORM)/prefix/include",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -762,7 +762,7 @@
 					"$(PROJECT_DIR)/../../external/async-cpp/src",
 					"$(PROJECT_DIR)/../../external/data-cpp/src",
 					"$(PROJECT_DIR)/../../external/json11",
-					"$(PROJECT_DIR)/../../external/cython/lib",
+					"$(PROJECT_DIR)/../../external/metacall/core/build/$(PLATFORM)/prefix/include",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
