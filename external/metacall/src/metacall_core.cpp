@@ -8,7 +8,9 @@
 
 #include <metacall/metacall.h>
 
-void __metacall_core_null_placeholder() {
+// empty c++ file to force project to compile
+
+/*void __metacall_core_null_placeholder() {
 	const char* files[] = { "null.py" };
 	metacall_load_from_file("py", files, sizeof(files), nullptr);
-}
+}*/
