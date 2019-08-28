@@ -8,5 +8,5 @@ base_dir="$PWD"
 # build core
 mkdir "core/build"
 cd "core/build"
-cmake .. || exit $?
+cmake .. -OPTION_SELF_CONTAINED=On -DOPTION_BUILD_LOADERS_C=On -DOPTION_BUILD_LOADERS_NODE=On -DOPTION_BUILD_SERIALS=On || exit $?
 make || exit $?
