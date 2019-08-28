@@ -127,6 +127,7 @@
 		A521E02C2315FC0800390084 /* libDataCpp-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libDataCpp-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5224A352315E8AC0006D213 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.4.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		A5224A372315E8B30006D213 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.4.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		A54325E423172CD100C4FDB3 /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build.sh; sourceTree = "<group>"; };
 		A564DFAA230914280018787F /* SoundHoleCoreTest-macOS */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "SoundHoleCoreTest-macOS"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A564DFB6230914680018787F /* libSoundHoleCore-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSoundHoleCore-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A564DFD5230916A00018787F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -155,6 +156,7 @@
 		A58B32AD2310B1BF00E80ECB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A58B32AE2310B1BF00E80ECB /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		A5A9F7102310BCC200EA2AB5 /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = ../../../../../../Library/Frameworks/Python.framework; sourceTree = "<group>"; };
+		A5BF2A6F231711730048125B /* node */ = {isa = PBXFileReference; lastKnownFileType = folder; path = node; sourceTree = "<group>"; };
 		A5D5751223164DA4008D25AF /* libmetacall-core-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libmetacall-core-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5D5751423164DAF008D25AF /* libmetacall-core-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libmetacall-core-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -276,6 +278,7 @@
 				A564E0212309289C0018787F /* external.hpp */,
 				A564DFD8230916F90018787F /* media */,
 				A564DFD9230917000018787F /* providers */,
+				A5BF2A6D231702590048125B /* metacall */,
 			);
 			path = soundhole;
 			sourceTree = "<group>";
@@ -371,6 +374,15 @@
 			path = desktop;
 			sourceTree = "<group>";
 		};
+		A5BF2A6D231702590048125B /* metacall */ = {
+			isa = PBXGroup;
+			children = (
+				A54325E423172CD100C4FDB3 /* build.sh */,
+				A5BF2A6F231711730048125B /* node */,
+			);
+			path = metacall;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -409,6 +421,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A564DFB7230914680018787F /* Build configuration list for PBXNativeTarget "SoundHoleCore-macOS" */;
 			buildPhases = (
+				A54325ED23172CF700C4FDB3 /* ShellScript */,
 				A564DFB2230914680018787F /* Headers */,
 				A564DFB3230914680018787F /* Sources */,
 				A564DFB4230914680018787F /* Frameworks */,
@@ -585,6 +598,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A54325ED23172CF700C4FDB3 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n../../src/soundhole/metacall/build.sh\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		A564DFA6230914280018787F /* Sources */ = {
