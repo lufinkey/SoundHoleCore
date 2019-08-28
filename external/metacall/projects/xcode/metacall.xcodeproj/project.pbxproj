@@ -3,8 +3,22 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
+
+/* Begin PBXBuildFile section */
+		A5A94065231645A20029B4B3 /* metacall_value.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A94056231645A20029B4B3 /* metacall_value.h */; };
+		A5A94066231645A20029B4B3 /* metacall_version.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A94057231645A20029B4B3 /* metacall_version.h */; };
+		A5A94067231645A20029B4B3 /* metacall_def.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A94058231645A20029B4B3 /* metacall_def.h */; };
+		A5A94068231645A20029B4B3 /* metacall_features.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A94059231645A20029B4B3 /* metacall_features.h */; };
+		A5A94069231645A20029B4B3 /* metacall_allocator.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A9405A231645A20029B4B3 /* metacall_allocator.h */; };
+		A5A9406A231645A20029B4B3 /* metacall.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A9405B231645A20029B4B3 /* metacall.h */; };
+		A5A9406B231645A20029B4B3 /* metacall_fork.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A9405C231645A20029B4B3 /* metacall_fork.h */; };
+		A5A9406C231645A20029B4B3 /* metacall_api.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A9405D231645A20029B4B3 /* metacall_api.h */; };
+		A5A9406D231645A20029B4B3 /* metacall_log.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A9405E231645A20029B4B3 /* metacall_log.h */; };
+		A5A9406E231645A20029B4B3 /* metacall_loaders.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A9405F231645A20029B4B3 /* metacall_loaders.h */; };
+		A5A9406F231645A20029B4B3 /* libmetacall.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A5A94063231645A20029B4B3 /* libmetacall.a */; };
+/* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		A585E67D2315FD7500810584 /* CopyFiles */ = {
@@ -20,9 +34,24 @@
 
 /* Begin PBXFileReference section */
 		A585E67F2315FD7500810584 /* libmetacall-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libmetacall-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		A585E6912315FDB600810584 /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build.sh; sourceTree = "<group>"; };
-		A585E6922315FDB600810584 /* clean.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = clean.sh; sourceTree = "<group>"; };
 		A585E6C823160E2C00810584 /* libmetacall-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libmetacall-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A5A9404E2316446D0029B4B3 /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = build.sh; path = ../../build.sh; sourceTree = "<group>"; };
+		A5A9404F2316446D0029B4B3 /* clean.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = clean.sh; path = ../../clean.sh; sourceTree = "<group>"; };
+		A5A94050231644A50029B4B3 /* BuildScriptOutput.xcfilelist */ = {isa = PBXFileReference; lastKnownFileType = text.xcfilelist; path = BuildScriptOutput.xcfilelist; sourceTree = "<group>"; };
+		A5A94056231645A20029B4B3 /* metacall_value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metacall_value.h; sourceTree = "<group>"; };
+		A5A94057231645A20029B4B3 /* metacall_version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metacall_version.h; sourceTree = "<group>"; };
+		A5A94058231645A20029B4B3 /* metacall_def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metacall_def.h; sourceTree = "<group>"; };
+		A5A94059231645A20029B4B3 /* metacall_features.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metacall_features.h; sourceTree = "<group>"; };
+		A5A9405A231645A20029B4B3 /* metacall_allocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metacall_allocator.h; sourceTree = "<group>"; };
+		A5A9405B231645A20029B4B3 /* metacall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metacall.h; sourceTree = "<group>"; };
+		A5A9405C231645A20029B4B3 /* metacall_fork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metacall_fork.h; sourceTree = "<group>"; };
+		A5A9405D231645A20029B4B3 /* metacall_api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metacall_api.h; sourceTree = "<group>"; };
+		A5A9405E231645A20029B4B3 /* metacall_log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metacall_log.h; sourceTree = "<group>"; };
+		A5A9405F231645A20029B4B3 /* metacall_loaders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metacall_loaders.h; sourceTree = "<group>"; };
+		A5A94061231645A20029B4B3 /* libmetacall_serial.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; path = libmetacall_serial.so; sourceTree = "<group>"; };
+		A5A94062231645A20029B4B3 /* libmock_loader.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; path = libmock_loader.so; sourceTree = "<group>"; };
+		A5A94063231645A20029B4B3 /* libmetacall.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmetacall.a; sourceTree = "<group>"; };
+		A5A94064231645A20029B4B3 /* librapid_json_serial.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; path = librapid_json_serial.so; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,6 +66,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A5A9406F231645A20029B4B3 /* libmetacall.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -46,7 +76,10 @@
 		A585E6762315FD7500810584 = {
 			isa = PBXGroup;
 			children = (
-				A585E6972315FE5F00810584 /* metacall */,
+				A5A9404E2316446D0029B4B3 /* build.sh */,
+				A5A9404F2316446D0029B4B3 /* clean.sh */,
+				A5A94050231644A50029B4B3 /* BuildScriptOutput.xcfilelist */,
+				A5A94051231645530029B4B3 /* build */,
 				A585E6802315FD7500810584 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -60,22 +93,66 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A585E6932315FDFF00810584 /* core */ = {
+		A5A94051231645530029B4B3 /* build */ = {
 			isa = PBXGroup;
 			children = (
+				A5A940522316456D0029B4B3 /* macosx */,
 			);
-			path = core;
+			name = build;
+			path = ../../core/build;
 			sourceTree = "<group>";
 		};
-		A585E6972315FE5F00810584 /* metacall */ = {
+		A5A940522316456D0029B4B3 /* macosx */ = {
 			isa = PBXGroup;
 			children = (
-				A585E6912315FDB600810584 /* build.sh */,
-				A585E6922315FDB600810584 /* clean.sh */,
-				A585E6932315FDFF00810584 /* core */,
+				A5A94053231645790029B4B3 /* prefix */,
 			);
-			name = metacall;
-			path = ../..;
+			path = macosx;
+			sourceTree = "<group>";
+		};
+		A5A94053231645790029B4B3 /* prefix */ = {
+			isa = PBXGroup;
+			children = (
+				A5A94054231645A20029B4B3 /* include */,
+				A5A94060231645A20029B4B3 /* lib */,
+			);
+			path = prefix;
+			sourceTree = "<group>";
+		};
+		A5A94054231645A20029B4B3 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				A5A94055231645A20029B4B3 /* metacall */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		A5A94055231645A20029B4B3 /* metacall */ = {
+			isa = PBXGroup;
+			children = (
+				A5A94056231645A20029B4B3 /* metacall_value.h */,
+				A5A94057231645A20029B4B3 /* metacall_version.h */,
+				A5A94058231645A20029B4B3 /* metacall_def.h */,
+				A5A94059231645A20029B4B3 /* metacall_features.h */,
+				A5A9405A231645A20029B4B3 /* metacall_allocator.h */,
+				A5A9405B231645A20029B4B3 /* metacall.h */,
+				A5A9405C231645A20029B4B3 /* metacall_fork.h */,
+				A5A9405D231645A20029B4B3 /* metacall_api.h */,
+				A5A9405E231645A20029B4B3 /* metacall_log.h */,
+				A5A9405F231645A20029B4B3 /* metacall_loaders.h */,
+			);
+			path = metacall;
+			sourceTree = "<group>";
+		};
+		A5A94060231645A20029B4B3 /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				A5A94061231645A20029B4B3 /* libmetacall_serial.so */,
+				A5A94062231645A20029B4B3 /* libmock_loader.so */,
+				A5A94063231645A20029B4B3 /* libmetacall.a */,
+				A5A94064231645A20029B4B3 /* librapid_json_serial.so */,
+			);
+			path = lib;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -85,6 +162,16 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A5A9406C231645A20029B4B3 /* metacall_api.h in Headers */,
+				A5A94069231645A20029B4B3 /* metacall_allocator.h in Headers */,
+				A5A9406B231645A20029B4B3 /* metacall_fork.h in Headers */,
+				A5A94067231645A20029B4B3 /* metacall_def.h in Headers */,
+				A5A9406E231645A20029B4B3 /* metacall_loaders.h in Headers */,
+				A5A94066231645A20029B4B3 /* metacall_version.h in Headers */,
+				A5A9406A231645A20029B4B3 /* metacall.h in Headers */,
+				A5A94068231645A20029B4B3 /* metacall_features.h in Headers */,
+				A5A9406D231645A20029B4B3 /* metacall_log.h in Headers */,
+				A5A94065231645A20029B4B3 /* metacall_value.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -191,6 +278,7 @@
 			inputPaths = (
 			);
 			outputFileListPaths = (
+				"$(PROJECT_DIR)/BuildScriptOutput.xcfilelist",
 			);
 			outputPaths = (
 			);

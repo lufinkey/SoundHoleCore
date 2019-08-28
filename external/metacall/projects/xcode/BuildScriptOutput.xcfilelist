@@ -1,0 +1,19 @@
+#  BuildScriptOutput.xcfilelist
+#  metacall
+#
+#  Created by Luis Finke on 8/28/19.
+#  Copyright © 2019 Luis Finke. All rights reserved.
+
+# This file may be set as an input or output file list for a shell script build phase.
+# List file paths below; one per line. These paths will be considered inputs or outputs for the script phase.
+# Build settings will be expanded, e.g. $(SRCROOT)/fileName
+$(PROJECT_DIR)/../../core/build/$(PLATFORM)/prefix/include/metacall_value.h
+$(PROJECT_DIR)/../../core/build/$(PLATFORM)/prefix/include/metacall_version.h
+$(PROJECT_DIR)/../../core/build/$(PLATFORM)/prefix/include/metacall_def.h
+$(PROJECT_DIR)/../../core/build/$(PLATFORM)/prefix/include/metacall_features.h
+$(PROJECT_DIR)/../../core/build/$(PLATFORM)/prefix/include/metacall_allocator.h
+$(PROJECT_DIR)/../../core/build/$(PLATFORM)/prefix/include/metacall.h
+$(PROJECT_DIR)/../../core/build/$(PLATFORM)/prefix/include/metacall_fork.h
+$(PROJECT_DIR)/../../core/build/$(PLATFORM)/prefix/include/metacall_api.h
+$(PROJECT_DIR)/../../core/build/$(PLATFORM)/prefix/include/metacall_log.h
+$(PROJECT_DIR)/../../core/build/$(PLATFORM)/prefix/include/metacall_loaders.h
