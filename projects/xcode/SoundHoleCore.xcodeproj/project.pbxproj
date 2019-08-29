@@ -13,6 +13,8 @@
 		A517B82723093E1800897145 /* MediaItem.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A517B82523093E1800897145 /* MediaItem.hpp */; };
 		A5224A362315E8AC0006D213 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5224A352315E8AC0006D213 /* Foundation.framework */; };
 		A5224A382315E8B30006D213 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5224A372315E8B30006D213 /* UIKit.framework */; };
+		A543260F2317347100C4FDB3 /* Metacall.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A543260D2317347100C4FDB3 /* Metacall.cpp */; };
+		A54326102317347100C4FDB3 /* Metacall.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A543260E2317347100C4FDB3 /* Metacall.hpp */; };
 		A564DFD7230916AE0018787F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A564DFD5230916A00018787F /* main.cpp */; };
 		A564E015230919820018787F /* MediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A564E013230919820018787F /* MediaProvider.cpp */; };
 		A564E016230919820018787F /* MediaProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A564E014230919820018787F /* MediaProvider.hpp */; };
@@ -128,6 +130,8 @@
 		A5224A352315E8AC0006D213 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.4.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		A5224A372315E8B30006D213 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.4.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		A54325E423172CD100C4FDB3 /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build.sh; sourceTree = "<group>"; };
+		A543260D2317347100C4FDB3 /* Metacall.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Metacall.cpp; sourceTree = "<group>"; };
+		A543260E2317347100C4FDB3 /* Metacall.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Metacall.hpp; sourceTree = "<group>"; };
 		A564DFAA230914280018787F /* SoundHoleCoreTest-macOS */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "SoundHoleCoreTest-macOS"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A564DFB6230914680018787F /* libSoundHoleCore-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSoundHoleCore-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A564DFD5230916A00018787F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -378,6 +382,8 @@
 			isa = PBXGroup;
 			children = (
 				A54325E423172CD100C4FDB3 /* build.sh */,
+				A543260E2317347100C4FDB3 /* Metacall.hpp */,
+				A543260D2317347100C4FDB3 /* Metacall.cpp */,
 				A5BF2A6F231711730048125B /* node */,
 			);
 			path = metacall;
@@ -391,6 +397,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A564E016230919820018787F /* MediaProvider.hpp in Headers */,
+				A54326102317347100C4FDB3 /* Metacall.hpp in Headers */,
 				A58B325523109A2C00E80ECB /* YoutubeProvider.hpp in Headers */,
 				A517B82323093CC300897145 /* BandcampProvider.hpp in Headers */,
 				A517B82723093E1800897145 /* MediaItem.hpp in Headers */,
@@ -634,6 +641,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A58B325723109A3000E80ECB /* YoutubeProvider.cpp in Sources */,
+				A543260F2317347100C4FDB3 /* Metacall.cpp in Sources */,
 				A517B82223093CC300897145 /* BandcampProvider.cpp in Sources */,
 				A564E015230919820018787F /* MediaProvider.cpp in Sources */,
 				A517B82623093E1800897145 /* MediaItem.cpp in Sources */,
@@ -686,7 +694,6 @@
 		A564DFA1230913F30018787F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -752,7 +759,6 @@
 		A564DFA2230913F30018787F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -832,6 +838,10 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_STYLE = Automatic;
 				EXECUTABLE_PREFIX = lib;
+				HEADER_SEARCH_PATHS = (
+					"$(HEADER_SEARCH_PATHS)",
+					"$(PROJECT_DIR)/../../external/metacall/core/build/macosx/prefix/include",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -843,6 +853,10 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_STYLE = Automatic;
 				EXECUTABLE_PREFIX = lib;
+				HEADER_SEARCH_PATHS = (
+					"$(HEADER_SEARCH_PATHS)",
+					"$(PROJECT_DIR)/../../external/metacall/core/build/macosx/prefix/include",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -854,6 +868,11 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = (
+					"$(HEADER_SEARCH_PATHS)",
+					"$(PROJECT_DIR)/../../external/metacall/core/build/iphoneos/prefix/include",
+					"$(PROJECT_DIR)/../../external/metacall/core/build/iphonesimulator/prefix/include",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -869,6 +888,11 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = (
+					"$(HEADER_SEARCH_PATHS)",
+					"$(PROJECT_DIR)/../../external/metacall/core/build/iphoneos/prefix/include",
+					"$(PROJECT_DIR)/../../external/metacall/core/build/iphonesimulator/prefix/include",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
