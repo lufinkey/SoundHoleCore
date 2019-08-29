@@ -18,6 +18,7 @@
 		A564DFD7230916AE0018787F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A564DFD5230916A00018787F /* main.cpp */; };
 		A564E015230919820018787F /* MediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A564E013230919820018787F /* MediaProvider.cpp */; };
 		A564E016230919820018787F /* MediaProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A564E014230919820018787F /* MediaProvider.hpp */; };
+		A567C132231798E700BB5398 /* global.json in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C131231798BE00BB5398 /* global.json */; };
 		A585E66E2315FC2E00810584 /* libAsyncCpp-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A521E0292315FBB500390084 /* libAsyncCpp-iOS.a */; };
 		A585E66F2315FC2E00810584 /* libDataCpp-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A585E66D2315FC1E00810584 /* libDataCpp-iOS.a */; };
 		A585E6702315FC3E00810584 /* libAsyncCpp-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A521E0272315FBB500390084 /* libAsyncCpp-macOS.a */; };
@@ -103,12 +104,13 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		A564DFA8230914280018787F /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = configurations;
+			dstSubfolderSpec = 16;
 			files = (
+				A567C132231798E700BB5398 /* global.json in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		A58B328E2310B18400E80ECB /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -141,6 +143,7 @@
 		A564E014230919820018787F /* MediaProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaProvider.hpp; sourceTree = "<group>"; };
 		A564E01F230920F90018787F /* soundhole.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = soundhole.hpp; sourceTree = "<group>"; };
 		A564E0212309289C0018787F /* external.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = external.hpp; sourceTree = "<group>"; };
+		A567C131231798BE00BB5398 /* global.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = global.json; sourceTree = "<group>"; };
 		A585E68B2315FDA500810584 /* metacall-core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "metacall-core.xcodeproj"; path = "metacall/projects/xcode/metacall-core.xcodeproj"; sourceTree = "<group>"; };
 		A58B31BD230A593C00E80ECB /* json11.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json11.hpp; sourceTree = "<group>"; };
 		A58B31C0230A593C00E80ECB /* json11.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = json11.cpp; sourceTree = "<group>"; };
@@ -220,6 +223,7 @@
 		A564DF96230913F30018787F = {
 			isa = PBXGroup;
 			children = (
+				A567C130231798AD00BB5398 /* configurations */,
 				A564DFBA230915EF0018787F /* external */,
 				A564DFB1230914380018787F /* src */,
 				A564DFA0230913F30018787F /* Products */,
@@ -316,6 +320,14 @@
 				A58B325623109A3000E80ECB /* YoutubeProvider.cpp */,
 			);
 			path = providers;
+			sourceTree = "<group>";
+		};
+		A567C130231798AD00BB5398 /* configurations */ = {
+			isa = PBXGroup;
+			children = (
+				A567C131231798BE00BB5398 /* global.json */,
+			);
+			path = configurations;
 			sourceTree = "<group>";
 		};
 		A570D72223164DBF00BA7F28 /* Products */ = {
@@ -840,6 +852,7 @@
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
+					"$(PROJECT_DIR)/../../external/metacall/core/build/macos/prefix/include",
 					"$(PROJECT_DIR)/../../external/metacall/core/build/macosx/prefix/include",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -855,6 +868,7 @@
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
+					"$(PROJECT_DIR)/../../external/metacall/core/build/macos/prefix/include",
 					"$(PROJECT_DIR)/../../external/metacall/core/build/macosx/prefix/include",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";

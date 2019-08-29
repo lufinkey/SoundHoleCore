@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A567C127231779A500BB5398 /* libmetacall.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A5A94063231645A20029B4B3 /* libmetacall.a */; };
 		A5A94065231645A20029B4B3 /* metacall_value.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A94056231645A20029B4B3 /* metacall_value.h */; };
 		A5A94066231645A20029B4B3 /* metacall_version.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A94057231645A20029B4B3 /* metacall_version.h */; };
 		A5A94067231645A20029B4B3 /* metacall_def.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A94058231645A20029B4B3 /* metacall_def.h */; };
@@ -17,7 +18,6 @@
 		A5A9406C231645A20029B4B3 /* metacall_api.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A9405D231645A20029B4B3 /* metacall_api.h */; };
 		A5A9406D231645A20029B4B3 /* metacall_log.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A9405E231645A20029B4B3 /* metacall_log.h */; };
 		A5A9406E231645A20029B4B3 /* metacall_loaders.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A9405F231645A20029B4B3 /* metacall_loaders.h */; };
-		A5BF2A5E2316530C0048125B /* libmetacall.a in CopyFiles */ = {isa = PBXBuildFile; fileRef = A5A94063231645A20029B4B3 /* libmetacall.a */; };
 		A5BF2A6B231653CD0048125B /* metacall_core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BF2A6A231653CD0048125B /* metacall_core.cpp */; };
 		A5BF2A6C2316548D0048125B /* metacall_core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BF2A6A231653CD0048125B /* metacall_core.cpp */; };
 /* End PBXBuildFile section */
@@ -38,7 +38,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
-				A5BF2A5E2316530C0048125B /* libmetacall.a in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -79,6 +78,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A567C127231779A500BB5398 /* libmetacall.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -392,6 +392,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../core/build/$(PLATFORM)/prefix/include";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../../core/build/$(PLATFORM)/prefix/lib";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -446,6 +447,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../core/build/$(PLATFORM)/prefix/include";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../../core/build/$(PLATFORM)/prefix/lib";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -489,7 +491,14 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				EXECUTABLE_PREFIX = lib;
-				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../core/build/macosx/prefix/include";
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/../../core/build/macos/prefix/include",
+					"$(PROJECT_DIR)/../../core/build/macosx/prefix/include",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/../../core/build/macos/prefix/lib",
+					"$(PROJECT_DIR)/../../core/build/macosx/prefix/lib",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -503,7 +512,14 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				EXECUTABLE_PREFIX = lib;
-				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../core/build/macosx/prefix/include";
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/../../core/build/macos/prefix/include",
+					"$(PROJECT_DIR)/../../core/build/macosx/prefix/include",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/../../core/build/macos/prefix/lib",
+					"$(PROJECT_DIR)/../../core/build/macosx/prefix/lib",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;

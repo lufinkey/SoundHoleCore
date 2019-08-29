@@ -13,6 +13,25 @@
 namespace sh {
 	static bool Metacall_initialized = false;
 	
+	void Metacall_init() {
+		if(Metacall_initialized) {
+			return;
+		}
+		/*String logLevelKey = "log_level";
+		String logLevelValueStr = "Debug";
+		auto logLevelValue = Metacall::toMetacallValue(logLevelValueStr);
+		auto config = std::make_unique<metacall_initialize_configuration_type[]>(1);
+		config[0] = metacall_initialize_configuration_type{
+			.tag = (char*)logLevelKey.data(),
+			.options = logLevelValue
+		};*/
+		int result = metacall_initialize();
+		//Metacall::destroyMetacallValue(logLevelValue);
+		if(result != 0) {
+			throw Error((String)"Error initializing metacall ("+result+")");
+		}
+		Metacall_initialized = true;
+	}
 	
 	String MetacallLang_getTag(Metacall::Lang lang) {
 		switch(lang) {
@@ -28,13 +47,7 @@ namespace sh {
 	
 	
 	Metacall::Metacall() {
-		if(!Metacall_initialized) {
-			int result = metacall_initialize();
-			if(result != 0) {
-				throw Error((String)"Error initializing metacall ("+result+")");
-			}
-			Metacall_initialized = true;
-		}
+		Metacall_init();
 	}
 	
 	Metacall::~Metacall() {
