@@ -17,24 +17,20 @@ namespace sh {
 		if(Metacall_initialized) {
 			return;
 		}
-		/*String logLevelKey = "log_level";
-		String logLevelValueStr = "Debug";
-		auto logLevelValue = Metacall::toMetacallValue(logLevelValueStr);
-		auto config = std::make_unique<metacall_initialize_configuration_type[]>(1);
-		config[0] = metacall_initialize_configuration_type{
-			.tag = (char*)logLevelKey.data(),
-			.options = logLevelValue
-		};*/
 		int result = metacall_initialize();
-		//Metacall::destroyMetacallValue(logLevelValue);
 		if(result != 0) {
 			throw Error((String)"Error initializing metacall ("+result+")");
+		}
+		if(metacall_is_initialized("node") != 0) {
+			throw Error((String)"Error, unable to initialize metacall node ("+result+")");
 		}
 		Metacall_initialized = true;
 	}
 	
 	String MetacallLang_getTag(Metacall::Lang lang) {
 		switch(lang) {
+			case Metacall::Lang::MOCK:
+				return "mock";
 			case Metacall::Lang::NODE:
 				return "node";
 			case Metacall::Lang::PY:
@@ -76,7 +72,7 @@ namespace sh {
 			throw Error((String)"Error loading files ("+result+")");
 		}
 		if(handles.find(lang) != handles.end()) {
-			handles[lang].push_back(handle);
+			handles[lang].pushBack(handle);
 		} else {
 			handles[lang] = { handle };
 		}
@@ -101,7 +97,7 @@ namespace sh {
 			throw Error((String)"Error loading files ("+result+")");
 		}
 		if(handles.find(lang) != handles.end()) {
-			handles[lang].push_back(handle);
+			handles[lang].pushBack(handle);
 		} else {
 			handles[lang] = { handle };
 		}
@@ -317,7 +313,7 @@ namespace sh {
 				ArrayList<Any> array;
 				array.reserve(size);
 				for(size_t i=0; i<size; i++) {
-					array.push_back(fromMetacallValue(values[i]));
+					array.pushBack(fromMetacallValue(values[i]));
 				}
 				return array;
 			}

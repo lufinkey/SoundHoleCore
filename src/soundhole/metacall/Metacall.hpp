@@ -15,6 +15,7 @@ namespace sh {
 	class Metacall {
 	public:
 		enum class Lang {
+			MOCK,
 			NODE,
 			PY
 		};

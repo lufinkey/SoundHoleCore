@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A567C127231779A500BB5398 /* libmetacall.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A5A94063231645A20029B4B3 /* libmetacall.a */; };
+		A567C179231A344C00BB5398 /* libfunchook.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A567C164231A32AC00BB5398 /* libfunchook.dylib */; };
+		A567C17A231A344F00BB5398 /* libmetacall.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A567C165231A32EE00BB5398 /* libmetacall.dylib */; };
+		A567C17B231A345200BB5398 /* libnode.64.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A567C1422318D81A00BB5398 /* libnode.64.dylib */; };
 		A5A94065231645A20029B4B3 /* metacall_value.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A94056231645A20029B4B3 /* metacall_value.h */; };
 		A5A94066231645A20029B4B3 /* metacall_version.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A94057231645A20029B4B3 /* metacall_version.h */; };
 		A5A94067231645A20029B4B3 /* metacall_def.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A94058231645A20029B4B3 /* metacall_def.h */; };
@@ -44,6 +46,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A567C1422318D81A00BB5398 /* libnode.64.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libnode.64.dylib; sourceTree = "<group>"; };
+		A567C163231A32A400BB5398 /* libfunchook_detourd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; path = libfunchook_detourd.so; sourceTree = "<group>"; };
+		A567C164231A32AC00BB5398 /* libfunchook.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libfunchook.dylib; sourceTree = "<group>"; };
+		A567C165231A32EE00BB5398 /* libmetacall.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libmetacall.dylib; sourceTree = "<group>"; };
 		A585E67F2315FD7500810584 /* libmetacall-core-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libmetacall-core-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A585E6C823160E2C00810584 /* libmetacall-core-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libmetacall-core-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5A9404E2316446D0029B4B3 /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = build.sh; path = ../../build.sh; sourceTree = "<group>"; };
@@ -78,13 +84,38 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A567C127231779A500BB5398 /* libmetacall.a in Frameworks */,
+				A567C179231A344C00BB5398 /* libfunchook.dylib in Frameworks */,
+				A567C17B231A345200BB5398 /* libnode.64.dylib in Frameworks */,
+				A567C17A231A344F00BB5398 /* libmetacall.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A567C1562318E52200BB5398 /* source */ = {
+			isa = PBXGroup;
+			children = (
+				A567C1572318E53600BB5398 /* loaders */,
+			);
+			path = source;
+			sourceTree = "<group>";
+		};
+		A567C1572318E53600BB5398 /* loaders */ = {
+			isa = PBXGroup;
+			children = (
+				A567C1582318E54200BB5398 /* node_loader */,
+			);
+			path = loaders;
+			sourceTree = "<group>";
+		};
+		A567C1582318E54200BB5398 /* node_loader */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = node_loader;
+			sourceTree = "<group>";
+		};
 		A585E6762315FD7500810584 = {
 			isa = PBXGroup;
 			children = (
@@ -120,6 +151,7 @@
 			isa = PBXGroup;
 			children = (
 				A5A94053231645790029B4B3 /* prefix */,
+				A567C1562318E52200BB5398 /* source */,
 			);
 			path = macosx;
 			sourceTree = "<group>";
@@ -161,9 +193,13 @@
 		A5A94060231645A20029B4B3 /* lib */ = {
 			isa = PBXGroup;
 			children = (
+				A567C163231A32A400BB5398 /* libfunchook_detourd.so */,
+				A567C164231A32AC00BB5398 /* libfunchook.dylib */,
 				A5A94061231645A20029B4B3 /* libmetacall_serial.so */,
-				A5A94062231645A20029B4B3 /* libmock_loader.so */,
 				A5A94063231645A20029B4B3 /* libmetacall.a */,
+				A567C165231A32EE00BB5398 /* libmetacall.dylib */,
+				A5A94062231645A20029B4B3 /* libmock_loader.so */,
+				A567C1422318D81A00BB5398 /* libnode.64.dylib */,
 				A5A94064231645A20029B4B3 /* librapid_json_serial.so */,
 			);
 			path = lib;
@@ -297,7 +333,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nexport PATH=${PATH}:/opt/local/bin\n../../build.sh \"$PLATFORM_NAME\"\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nexport PATH=${PATH}:/opt/local/bin\n../../build.sh \"$PLATFORM_NAME\" \"$CONFIGURATION\"\n";
 		};
 		A585E6CC23160E3300810584 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -315,7 +351,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nexport PATH=${PATH}:/opt/local/bin\n../../build.sh \"$PLATFORM_NAME\"\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nexport PATH=${PATH}:/opt/local/bin\n../../build.sh \"$PLATFORM_NAME\" \"$CONFIGURATION\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -390,9 +426,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../core/build/$(PLATFORM)/prefix/include";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../../core/build/$(PLATFORM)/prefix/lib";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -445,9 +479,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../core/build/$(PLATFORM)/prefix/include";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../../core/build/$(PLATFORM)/prefix/lib";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
