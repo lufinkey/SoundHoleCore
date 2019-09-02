@@ -7,6 +7,9 @@
 //
 
 #import "ViewController.h"
+#include <test/SoundHoleCoreTest.hpp>
+
+using namespace shtest;
 
 @interface ViewController ()
 
@@ -14,10 +17,14 @@
 
 @implementation ViewController
 
-- (void)viewDidLoad {
+-(void)viewDidLoad {
 	[super viewDidLoad];
 	// Do any additional setup after loading the view.
 }
 
+-(void)viewDidAppear:(BOOL)animated {
+	[super viewDidAppear:animated];
+	testMetacall();
+}
 
 @end

@@ -7,9 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A567C179231A344C00BB5398 /* libfunchook.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A567C164231A32AC00BB5398 /* libfunchook.dylib */; };
-		A567C17A231A344F00BB5398 /* libmetacall.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A567C165231A32EE00BB5398 /* libmetacall.dylib */; };
-		A567C17B231A345200BB5398 /* libnode.64.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A567C1422318D81A00BB5398 /* libnode.64.dylib */; };
+		A567C22D231C8ADC00BB5398 /* libfunchook.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A567C164231A32AC00BB5398 /* libfunchook.dylib */; };
+		A567C22E231C8ADE00BB5398 /* libmetacall.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A567C165231A32EE00BB5398 /* libmetacall.dylib */; };
+		A567C22F231C8B2900BB5398 /* libnode.64.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A567C1422318D81A00BB5398 /* libnode.64.dylib */; };
+		A567C23D231C8BB300BB5398 /* node_modules in Resources */ = {isa = PBXBuildFile; fileRef = A567C22B231C8ABD00BB5398 /* node_modules */; };
+		A567C23E231C8BB700BB5398 /* bootstrap.js in Resources */ = {isa = PBXBuildFile; fileRef = A567C22C231C8AD100BB5398 /* bootstrap.js */; };
+		A567C255231C8E6C00BB5398 /* libfunchook_detourd.so in Resources */ = {isa = PBXBuildFile; fileRef = A567C163231A32A400BB5398 /* libfunchook_detourd.so */; };
+		A567C256231C8E6C00BB5398 /* libfunchook.dylib in Resources */ = {isa = PBXBuildFile; fileRef = A567C164231A32AC00BB5398 /* libfunchook.dylib */; };
+		A567C257231C8E6C00BB5398 /* libmetacall_seriald.so in Resources */ = {isa = PBXBuildFile; fileRef = A567C243231C8C0000BB5398 /* libmetacall_seriald.so */; };
+		A567C258231C8E6C00BB5398 /* libmetacall.a in Resources */ = {isa = PBXBuildFile; fileRef = A5A94063231645A20029B4B3 /* libmetacall.a */; };
+		A567C259231C8E6C00BB5398 /* libmetacall.dylib in Resources */ = {isa = PBXBuildFile; fileRef = A567C165231A32EE00BB5398 /* libmetacall.dylib */; };
+		A567C25A231C8E6C00BB5398 /* libmock_loaderd.so in Resources */ = {isa = PBXBuildFile; fileRef = A567C241231C8BF200BB5398 /* libmock_loaderd.so */; };
+		A567C25B231C8E6C00BB5398 /* libnode_loaderd.so in Resources */ = {isa = PBXBuildFile; fileRef = A567C23A231C8B9200BB5398 /* libnode_loaderd.so */; };
+		A567C25C231C8E6C00BB5398 /* libnode.64.dylib in Resources */ = {isa = PBXBuildFile; fileRef = A567C1422318D81A00BB5398 /* libnode.64.dylib */; };
+		A567C25D231C8E6C00BB5398 /* librapid_json_seriald.so in Resources */ = {isa = PBXBuildFile; fileRef = A567C23F231C8BE800BB5398 /* librapid_json_seriald.so */; };
 		A5A94065231645A20029B4B3 /* metacall_value.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A94056231645A20029B4B3 /* metacall_value.h */; };
 		A5A94066231645A20029B4B3 /* metacall_version.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A94057231645A20029B4B3 /* metacall_version.h */; };
 		A5A94067231645A20029B4B3 /* metacall_def.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A94058231645A20029B4B3 /* metacall_def.h */; };
@@ -34,15 +45,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A5BF2A5D231653020048125B /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 7;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -50,6 +52,12 @@
 		A567C163231A32A400BB5398 /* libfunchook_detourd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; path = libfunchook_detourd.so; sourceTree = "<group>"; };
 		A567C164231A32AC00BB5398 /* libfunchook.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libfunchook.dylib; sourceTree = "<group>"; };
 		A567C165231A32EE00BB5398 /* libmetacall.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libmetacall.dylib; sourceTree = "<group>"; };
+		A567C22B231C8ABD00BB5398 /* node_modules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = node_modules; sourceTree = "<group>"; };
+		A567C22C231C8AD100BB5398 /* bootstrap.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = bootstrap.js; sourceTree = "<group>"; };
+		A567C23A231C8B9200BB5398 /* libnode_loaderd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; path = libnode_loaderd.so; sourceTree = "<group>"; };
+		A567C23F231C8BE800BB5398 /* librapid_json_seriald.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; path = librapid_json_seriald.so; sourceTree = "<group>"; };
+		A567C241231C8BF200BB5398 /* libmock_loaderd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; path = libmock_loaderd.so; sourceTree = "<group>"; };
+		A567C243231C8C0000BB5398 /* libmetacall_seriald.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; path = libmetacall_seriald.so; sourceTree = "<group>"; };
 		A585E67F2315FD7500810584 /* libmetacall-core-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libmetacall-core-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A585E6C823160E2C00810584 /* libmetacall-core-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libmetacall-core-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5A9404E2316446D0029B4B3 /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = build.sh; path = ../../build.sh; sourceTree = "<group>"; };
@@ -65,10 +73,7 @@
 		A5A9405D231645A20029B4B3 /* metacall_api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metacall_api.h; sourceTree = "<group>"; };
 		A5A9405E231645A20029B4B3 /* metacall_log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metacall_log.h; sourceTree = "<group>"; };
 		A5A9405F231645A20029B4B3 /* metacall_loaders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metacall_loaders.h; sourceTree = "<group>"; };
-		A5A94061231645A20029B4B3 /* libmetacall_serial.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; path = libmetacall_serial.so; sourceTree = "<group>"; };
-		A5A94062231645A20029B4B3 /* libmock_loader.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; path = libmock_loader.so; sourceTree = "<group>"; };
 		A5A94063231645A20029B4B3 /* libmetacall.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmetacall.a; sourceTree = "<group>"; };
-		A5A94064231645A20029B4B3 /* librapid_json_serial.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; path = librapid_json_serial.so; sourceTree = "<group>"; };
 		A5BF2A6A231653CD0048125B /* metacall_core.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = metacall_core.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -84,9 +89,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A567C179231A344C00BB5398 /* libfunchook.dylib in Frameworks */,
-				A567C17B231A345200BB5398 /* libnode.64.dylib in Frameworks */,
-				A567C17A231A344F00BB5398 /* libmetacall.dylib in Frameworks */,
+				A567C22D231C8ADC00BB5398 /* libfunchook.dylib in Frameworks */,
+				A567C22E231C8ADE00BB5398 /* libmetacall.dylib in Frameworks */,
+				A567C22F231C8B2900BB5398 /* libnode.64.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -193,14 +198,17 @@
 		A5A94060231645A20029B4B3 /* lib */ = {
 			isa = PBXGroup;
 			children = (
+				A567C22C231C8AD100BB5398 /* bootstrap.js */,
+				A567C22B231C8ABD00BB5398 /* node_modules */,
 				A567C163231A32A400BB5398 /* libfunchook_detourd.so */,
 				A567C164231A32AC00BB5398 /* libfunchook.dylib */,
-				A5A94061231645A20029B4B3 /* libmetacall_serial.so */,
+				A567C243231C8C0000BB5398 /* libmetacall_seriald.so */,
 				A5A94063231645A20029B4B3 /* libmetacall.a */,
 				A567C165231A32EE00BB5398 /* libmetacall.dylib */,
-				A5A94062231645A20029B4B3 /* libmock_loader.so */,
+				A567C241231C8BF200BB5398 /* libmock_loaderd.so */,
+				A567C23A231C8B9200BB5398 /* libnode_loaderd.so */,
 				A567C1422318D81A00BB5398 /* libnode.64.dylib */,
-				A5A94064231645A20029B4B3 /* librapid_json_serial.so */,
+				A567C23F231C8BE800BB5398 /* librapid_json_seriald.so */,
 			);
 			path = lib;
 			sourceTree = "<group>";
@@ -270,7 +278,7 @@
 				A585E6C423160E2C00810584 /* Headers */,
 				A585E6C523160E2C00810584 /* Sources */,
 				A585E6C623160E2C00810584 /* Frameworks */,
-				A5BF2A5D231653020048125B /* CopyFiles */,
+				A567C23C231C8BB000BB5398 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -315,6 +323,27 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A567C23C231C8BB000BB5398 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A567C255231C8E6C00BB5398 /* libfunchook_detourd.so in Resources */,
+				A567C256231C8E6C00BB5398 /* libfunchook.dylib in Resources */,
+				A567C257231C8E6C00BB5398 /* libmetacall_seriald.so in Resources */,
+				A567C258231C8E6C00BB5398 /* libmetacall.a in Resources */,
+				A567C259231C8E6C00BB5398 /* libmetacall.dylib in Resources */,
+				A567C25A231C8E6C00BB5398 /* libmock_loaderd.so in Resources */,
+				A567C25B231C8E6C00BB5398 /* libnode_loaderd.so in Resources */,
+				A567C25C231C8E6C00BB5398 /* libnode.64.dylib in Resources */,
+				A567C25D231C8E6C00BB5398 /* librapid_json_seriald.so in Resources */,
+				A567C23E231C8BB700BB5398 /* bootstrap.js in Resources */,
+				A567C23D231C8BB300BB5398 /* node_modules in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		A585E6BA2316058300810584 /* Run Script */ = {

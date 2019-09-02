@@ -17,13 +17,15 @@ namespace sh {
 		if(Metacall_initialized) {
 			return;
 		}
+		struct metacall_log_stdio_type log = { stdout };
+		metacall_log( METACALL_LOG_STDIO, (void*)&log);
 		int result = metacall_initialize();
 		if(result != 0) {
 			throw Error((String)"Error initializing metacall ("+result+")");
 		}
-		if(metacall_is_initialized("node") != 0) {
+		/*if(metacall_is_initialized("node") != 0) {
 			throw Error((String)"Error, unable to initialize metacall node ("+result+")");
-		}
+		}*/
 		Metacall_initialized = true;
 	}
 	

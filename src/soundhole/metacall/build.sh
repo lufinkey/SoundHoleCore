@@ -7,4 +7,4 @@ base_dir="$PWD"
 
 # bundle js file
 cd node
-npm run bundle || exit $?
+npm run build || exit $?
