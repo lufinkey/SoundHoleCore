@@ -32,26 +32,17 @@
 		A567C1F7231C83CF00BB5398 /* configurations in Resources */ = {isa = PBXBuildFile; fileRef = A567C1F6231C83CF00BB5398 /* configurations */; };
 		A567C1F8231C83CF00BB5398 /* configurations in Resources */ = {isa = PBXBuildFile; fileRef = A567C1F6231C83CF00BB5398 /* configurations */; };
 		A567C220231C89F000BB5398 /* libfunchook.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A567C219231C89CC00BB5398 /* libfunchook.dylib */; };
-		A567C221231C89F800BB5398 /* libnode.64.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A567C218231C89CC00BB5398 /* libnode.64.dylib */; };
 		A567C222231C89FA00BB5398 /* libmetacall.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A567C217231C89CC00BB5398 /* libmetacall.dylib */; };
 		A567C287231C8FBA00BB5398 /* node in Resources */ = {isa = PBXBuildFile; fileRef = A5BF2A6F231711730048125B /* node */; };
 		A567C288231C8FF100BB5398 /* libfunchook.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = A567C219231C89CC00BB5398 /* libfunchook.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A567C289231C8FF100BB5398 /* libmetacall.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = A567C217231C89CC00BB5398 /* libmetacall.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A567C28A231C8FF100BB5398 /* libnode.64.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = A567C218231C89CC00BB5398 /* libnode.64.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A567C294231C91BF00BB5398 /* libfunchook_detourd.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C281231C8F7F00BB5398 /* libfunchook_detourd.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A567C295231C91BF00BB5398 /* libmetacall_seriald.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C27E231C8F7F00BB5398 /* libmetacall_seriald.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A567C296231C91BF00BB5398 /* libmock_loaderd.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C280231C8F7F00BB5398 /* libmock_loaderd.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A567C297231C91BF00BB5398 /* libnode_loaderd.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C27F231C8F7F00BB5398 /* libnode_loaderd.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A567C298231C91BF00BB5398 /* librapid_json_seriald.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C27D231C8F7F00BB5398 /* librapid_json_seriald.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A567C299231C91CE00BB5398 /* node in CopyFiles */ = {isa = PBXBuildFile; fileRef = A5BF2A6F231711730048125B /* node */; };
-		A567C2A1231C98DD00BB5398 /* dtrace in Resources */ = {isa = PBXBuildFile; fileRef = A567C29D231C98DC00BB5398 /* dtrace */; };
-		A567C2A2231C98DD00BB5398 /* bootstrap.js in Resources */ = {isa = PBXBuildFile; fileRef = A567C29E231C98DC00BB5398 /* bootstrap.js */; };
-		A567C2A3231C98DD00BB5398 /* node_modules in Resources */ = {isa = PBXBuildFile; fileRef = A567C29F231C98DD00BB5398 /* node_modules */; };
-		A567C2A4231C98DD00BB5398 /* trampoline.node in Resources */ = {isa = PBXBuildFile; fileRef = A567C2A0231C98DD00BB5398 /* trampoline.node */; };
-		A567C2AA231C998A00BB5398 /* dtrace in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C29D231C98DC00BB5398 /* dtrace */; };
-		A567C2AC231C998A00BB5398 /* trampoline.node in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C2A0231C98DD00BB5398 /* trampoline.node */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A567C2C4231D771500BB5398 /* bootstrap.js in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C29E231C98DC00BB5398 /* bootstrap.js */; };
-		A567C2C5231D771500BB5398 /* node_modules in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C29F231C98DD00BB5398 /* node_modules */; };
+		A567C2D3231D7BE300BB5398 /* libpy_loaderd.so in Resources */ = {isa = PBXBuildFile; fileRef = A567C2CA231D7BE300BB5398 /* libpy_loaderd.so */; };
+		A567C2D6231D7DFF00BB5398 /* libpy_loaderd.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C2CA231D7BE300BB5398 /* libpy_loaderd.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A585E66E2315FC2E00810584 /* libAsyncCpp-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A521E0292315FBB500390084 /* libAsyncCpp-iOS.a */; };
 		A585E66F2315FC2E00810584 /* libDataCpp-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A585E66D2315FC1E00810584 /* libDataCpp-iOS.a */; };
 		A58B325523109A2C00E80ECB /* YoutubeProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A58B324E23109A2C00E80ECB /* YoutubeProvider.hpp */; };
@@ -146,7 +137,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				A567C288231C8FF100BB5398 /* libfunchook.dylib in Embed Libraries */,
-				A567C28A231C8FF100BB5398 /* libnode.64.dylib in Embed Libraries */,
 				A567C289231C8FF100BB5398 /* libmetacall.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
@@ -168,14 +158,10 @@
 			dstPath = lib;
 			dstSubfolderSpec = 7;
 			files = (
-				A567C2C4231D771500BB5398 /* bootstrap.js in CopyFiles */,
-				A567C2C5231D771500BB5398 /* node_modules in CopyFiles */,
-				A567C2AA231C998A00BB5398 /* dtrace in CopyFiles */,
-				A567C2AC231C998A00BB5398 /* trampoline.node in CopyFiles */,
+				A567C2D6231D7DFF00BB5398 /* libpy_loaderd.so in CopyFiles */,
 				A567C294231C91BF00BB5398 /* libfunchook_detourd.so in CopyFiles */,
 				A567C295231C91BF00BB5398 /* libmetacall_seriald.so in CopyFiles */,
 				A567C296231C91BF00BB5398 /* libmock_loaderd.so in CopyFiles */,
-				A567C297231C91BF00BB5398 /* libnode_loaderd.so in CopyFiles */,
 				A567C298231C91BF00BB5398 /* librapid_json_seriald.so in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -231,10 +217,7 @@
 		A567C27F231C8F7F00BB5398 /* libnode_loaderd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = libnode_loaderd.so; path = ../../external/metacall/core/build/macosx/prefix/lib/libnode_loaderd.so; sourceTree = "<group>"; };
 		A567C280231C8F7F00BB5398 /* libmock_loaderd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = libmock_loaderd.so; path = ../../external/metacall/core/build/macosx/prefix/lib/libmock_loaderd.so; sourceTree = "<group>"; };
 		A567C281231C8F7F00BB5398 /* libfunchook_detourd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = libfunchook_detourd.so; path = ../../external/metacall/core/build/macosx/prefix/lib/libfunchook_detourd.so; sourceTree = "<group>"; };
-		A567C29D231C98DC00BB5398 /* dtrace */ = {isa = PBXFileReference; lastKnownFileType = folder; name = dtrace; path = ../../external/metacall/core/build/macosx/prefix/lib/dtrace; sourceTree = "<group>"; };
-		A567C29E231C98DC00BB5398 /* bootstrap.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = bootstrap.js; path = ../../external/metacall/core/build/macosx/prefix/lib/bootstrap.js; sourceTree = "<group>"; };
-		A567C29F231C98DD00BB5398 /* node_modules */ = {isa = PBXFileReference; lastKnownFileType = folder; name = node_modules; path = ../../external/metacall/core/build/macosx/prefix/lib/node_modules; sourceTree = "<group>"; };
-		A567C2A0231C98DD00BB5398 /* trampoline.node */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = trampoline.node; path = ../../external/metacall/core/build/macosx/prefix/lib/trampoline.node; sourceTree = "<group>"; };
+		A567C2CA231D7BE300BB5398 /* libpy_loaderd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = libpy_loaderd.so; path = ../../external/metacall/core/build/macosx/prefix/lib/libpy_loaderd.so; sourceTree = "<group>"; };
 		A585E68B2315FDA500810584 /* metacall-core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "metacall-core.xcodeproj"; path = "metacall/projects/xcode/metacall-core.xcodeproj"; sourceTree = "<group>"; };
 		A58B31BD230A593C00E80ECB /* json11.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json11.hpp; sourceTree = "<group>"; };
 		A58B31C0230A593C00E80ECB /* json11.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = json11.cpp; sourceTree = "<group>"; };
@@ -269,7 +252,6 @@
 			files = (
 				A567C220231C89F000BB5398 /* libfunchook.dylib in Frameworks */,
 				A567C222231C89FA00BB5398 /* libmetacall.dylib in Frameworks */,
-				A567C221231C89F800BB5398 /* libnode.64.dylib in Frameworks */,
 				A567C1D9231C804100BB5398 /* Cocoa.framework in Frameworks */,
 				A567C1D4231C802200BB5398 /* libSoundHoleCore-macOS.a in Frameworks */,
 				A567C1D5231C802200BB5398 /* libAsyncCpp-macOS.a in Frameworks */,
@@ -360,10 +342,6 @@
 		A564DFD02309166F0018787F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				A567C29E231C98DC00BB5398 /* bootstrap.js */,
-				A567C29D231C98DC00BB5398 /* dtrace */,
-				A567C29F231C98DD00BB5398 /* node_modules */,
-				A567C2A0231C98DD00BB5398 /* trampoline.node */,
 				A567C219231C89CC00BB5398 /* libfunchook.dylib */,
 				A567C217231C89CC00BB5398 /* libmetacall.dylib */,
 				A567C218231C89CC00BB5398 /* libnode.64.dylib */,
@@ -371,6 +349,7 @@
 				A567C27E231C8F7F00BB5398 /* libmetacall_seriald.so */,
 				A567C280231C8F7F00BB5398 /* libmock_loaderd.so */,
 				A567C27F231C8F7F00BB5398 /* libnode_loaderd.so */,
+				A567C2CA231D7BE300BB5398 /* libpy_loaderd.so */,
 				A567C27D231C8F7F00BB5398 /* librapid_json_seriald.so */,
 				A567C1D8231C804100BB5398 /* Cocoa.framework */,
 				A5224A372315E8B30006D213 /* UIKit.framework */,
@@ -744,11 +723,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A567C2A4231C98DD00BB5398 /* trampoline.node in Resources */,
-				A567C2A2231C98DD00BB5398 /* bootstrap.js in Resources */,
+				A567C2D3231D7BE300BB5398 /* libpy_loaderd.so in Resources */,
 				A567C287231C8FBA00BB5398 /* node in Resources */,
-				A567C2A3231C98DD00BB5398 /* node_modules in Resources */,
-				A567C2A1231C98DD00BB5398 /* dtrace in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1019,7 +995,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
-				CODE_SIGN_ENTITLEMENTS = "SoundHoleCoreTest-macOS/SoundHoleCoreTest_macOS.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(PROJECT_DIR)/../../test/main/macOS/SoundHoleCoreTest_macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/../../src/test/main/macOS/Info.plist";
@@ -1042,7 +1018,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
-				CODE_SIGN_ENTITLEMENTS = "SoundHoleCoreTest-macOS/SoundHoleCoreTest_macOS.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(PROJECT_DIR)/../../test/main/macOS/SoundHoleCoreTest_macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/../../src/test/main/macOS/Info.plist";

@@ -20,16 +20,19 @@ namespace shtest {
 		printf("SERIAL_LIBRARY_PATH=%s\n", getenv("SERIAL_LIBRARY_PATH"));
 		printf("running testMetacall\n");
 		Metacall metacall;
-		printf("matacall.loadFromFile\n");
+		//printf("metacall.loadFromFile\n");
 		//metacall.loadFromFile(Metacall::Lang::NODE, "node/asd.js");
-		metacall.loadFromString(Metacall::Lang::NODE, "function f() {\n\tconsole.log('hello');\n};");
+		printf("metacall.loadFromString");
+		//metacall.loadFromString(Metacall::Lang::NODE, "function f() {\n\tconsole.log('hello');\n};");
+		metacall.loadFromString(Metacall::Lang::PY, "\ndef testFunc():\n\tprint(\"This line will be printed.\")\n");
 		printf("matacall.call\n");
-		auto result = metacall.call("f", {
+		metacall.call("testFunc", {});
+		/*auto result = metacall.call("f", {
 			std::map<String,Any>{
 				{ "hello", String("my brotha") },
 				{ "is good", 24 }
 			}
-		});
+		});*/
 		printf("done running testMetacall");
 	}
 }

@@ -16,9 +16,9 @@ if [ -z "$BUILD_TYPE" ]; then
 	BUILD_TYPE="Release"
 fi
 BUILD_DOCS="Off"
-if [ -n "$(which tex)" ]; then
-	BUILD_DOCS="On"
-fi
+#if [ -n "$(which tex)" ]; then
+#	BUILD_DOCS="On"
+#fi
 
 # build core
 mkdir -p "core/build/$PLATFORM"
@@ -31,9 +31,8 @@ fi
 echo ""; echo ""; echo 'running cmake'; echo ""; echo ""
 cmake ../../ \
 	-DCMAKE_INSTALL_PREFIX="$PWD/prefix" -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
-	-DNODEJS_INCLUDE_DIR="$PWD/prefix/include/node" \
 	-DOPTION_SELF_CONTAINED=On -DOPTION_FORK_SAFE=On -DOPTION_BUILD_DOCS="$BUILD_DOCS" \
-	-DOPTION_BUILD_LOADERS_C=On -DOPTION_BUILD_LOADERS_NODE=On -DOPTION_BUILD_LOADERS_PY=Off \
+	-DOPTION_BUILD_LOADERS_C=On -DOPTION_BUILD_LOADERS_NODE=Off -DOPTION_BUILD_LOADERS_PY=On \
 	-DOPTION_BUILD_LOADERS_JS=Off -DOPTION_BUILD_LOADERS_CS=Off -DOPTION_BUILD_LOADERS_RB=Off \
 	-DOPTION_BUILD_SERIALS=On \
 	|| exit $?
