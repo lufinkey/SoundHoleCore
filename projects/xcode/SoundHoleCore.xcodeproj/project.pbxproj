@@ -48,10 +48,10 @@
 		A567C2A2231C98DD00BB5398 /* bootstrap.js in Resources */ = {isa = PBXBuildFile; fileRef = A567C29E231C98DC00BB5398 /* bootstrap.js */; };
 		A567C2A3231C98DD00BB5398 /* node_modules in Resources */ = {isa = PBXBuildFile; fileRef = A567C29F231C98DD00BB5398 /* node_modules */; };
 		A567C2A4231C98DD00BB5398 /* trampoline.node in Resources */ = {isa = PBXBuildFile; fileRef = A567C2A0231C98DD00BB5398 /* trampoline.node */; };
-		A567C2A9231C998A00BB5398 /* bootstrap.js in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C29E231C98DC00BB5398 /* bootstrap.js */; };
 		A567C2AA231C998A00BB5398 /* dtrace in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C29D231C98DC00BB5398 /* dtrace */; };
-		A567C2AB231C998A00BB5398 /* node_modules in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C29F231C98DD00BB5398 /* node_modules */; };
 		A567C2AC231C998A00BB5398 /* trampoline.node in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C2A0231C98DD00BB5398 /* trampoline.node */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A567C2C4231D771500BB5398 /* bootstrap.js in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C29E231C98DC00BB5398 /* bootstrap.js */; };
+		A567C2C5231D771500BB5398 /* node_modules in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C29F231C98DD00BB5398 /* node_modules */; };
 		A585E66E2315FC2E00810584 /* libAsyncCpp-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A521E0292315FBB500390084 /* libAsyncCpp-iOS.a */; };
 		A585E66F2315FC2E00810584 /* libDataCpp-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A585E66D2315FC1E00810584 /* libDataCpp-iOS.a */; };
 		A58B325523109A2C00E80ECB /* YoutubeProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A58B324E23109A2C00E80ECB /* YoutubeProvider.hpp */; };
@@ -168,9 +168,9 @@
 			dstPath = lib;
 			dstSubfolderSpec = 7;
 			files = (
-				A567C2A9231C998A00BB5398 /* bootstrap.js in CopyFiles */,
+				A567C2C4231D771500BB5398 /* bootstrap.js in CopyFiles */,
+				A567C2C5231D771500BB5398 /* node_modules in CopyFiles */,
 				A567C2AA231C998A00BB5398 /* dtrace in CopyFiles */,
-				A567C2AB231C998A00BB5398 /* node_modules in CopyFiles */,
 				A567C2AC231C998A00BB5398 /* trampoline.node in CopyFiles */,
 				A567C294231C91BF00BB5398 /* libfunchook_detourd.so in CopyFiles */,
 				A567C295231C91BF00BB5398 /* libmetacall_seriald.so in CopyFiles */,

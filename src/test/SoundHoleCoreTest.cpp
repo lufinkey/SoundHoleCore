@@ -21,7 +21,8 @@ namespace shtest {
 		printf("running testMetacall\n");
 		Metacall metacall;
 		printf("matacall.loadFromFile\n");
-		metacall.loadFromFile(Metacall::Lang::NODE, "node/asd.js");
+		//metacall.loadFromFile(Metacall::Lang::NODE, "node/asd.js");
+		metacall.loadFromString(Metacall::Lang::NODE, "function f() {\n\tconsole.log('hello');\n};");
 		printf("matacall.call\n");
 		auto result = metacall.call("f", {
 			std::map<String,Any>{
