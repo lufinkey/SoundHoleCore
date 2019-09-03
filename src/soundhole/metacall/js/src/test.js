@@ -1,7 +1,7 @@
 
 const util = require('util');
 
-function testFunction(args) {
+function testJSFunction(args) {
 	console.log("I got this for you");
 	console.log(JSON.stringify(args));
 	return {

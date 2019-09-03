@@ -22,9 +22,10 @@ namespace shtest {
 		Metacall metacall;
 		//printf("metacall.loadFromFile\n");
 		//metacall.loadFromFile(Metacall::Lang::NODE, "node/asd.js");
-		printf("metacall.loadFromString");
-		//metacall.loadFromString(Metacall::Lang::NODE, "function f() {\n\tconsole.log('hello');\n};");
+		printf("metacall.loadFromString(PY,...)\n");
 		metacall.loadFromString(Metacall::Lang::PY, "\ndef testFunc():\n\tprint(\"This line will be printed.\")\n");
+		printf("metacall.loadFromString(NODE,...)\n");
+		metacall.loadFromString(Metacall::Lang::NODE, "function testFunc() {\n\tconsole.log('hello');\n}");
 		printf("matacall.call\n");
 		metacall.call("testFunc", {});
 		/*auto result = metacall.call("f", {
@@ -33,6 +34,6 @@ namespace shtest {
 				{ "is good", 24 }
 			}
 		});*/
-		printf("done running testMetacall");
+		printf("done running testMetacall\n");
 	}
 }

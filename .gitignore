@@ -53,7 +53,5 @@ build
 # NodeJS
 node_modules
 
-# External Libraries
-/external/cython/build
-/external/cython/prefix
-/external/cython/**/*.so
+# Python
+py_prefix

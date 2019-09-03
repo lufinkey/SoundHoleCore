@@ -5,10 +5,9 @@ base_dir=$(dirname "${BASH_SOURCE[0]}")
 cd "$base_dir"
 base_dir="$PWD"
 
-# bundle js file
+# clean js folder
 cd "$base_dir/js"
-npm run build || exit $?
+npm run clean
 
-# bundle py file
 cd "$base_dir/py"
-./build.sh || exit $?
+./clean.sh

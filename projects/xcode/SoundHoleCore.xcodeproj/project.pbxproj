@@ -47,6 +47,17 @@
 		A567C375231DE46D00BB5398 /* libmock_loaderd.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C36D231DE45900BB5398 /* libmock_loaderd.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A567C376231DE46D00BB5398 /* libpy_loaderd.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C36C231DE45900BB5398 /* libpy_loaderd.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A567C377231DE46D00BB5398 /* librapid_json_seriald.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C36B231DE45900BB5398 /* librapid_json_seriald.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A567C399231DE95700BB5398 /* dtrace in Resources */ = {isa = PBXBuildFile; fileRef = A567C395231DE95600BB5398 /* dtrace */; };
+		A567C39A231DE95700BB5398 /* node_modules in Resources */ = {isa = PBXBuildFile; fileRef = A567C396231DE95700BB5398 /* node_modules */; };
+		A567C39B231DE95700BB5398 /* trampoline.node in Resources */ = {isa = PBXBuildFile; fileRef = A567C397231DE95700BB5398 /* trampoline.node */; };
+		A567C39C231DE95700BB5398 /* bootstrap.js in Resources */ = {isa = PBXBuildFile; fileRef = A567C398231DE95700BB5398 /* bootstrap.js */; };
+		A567C39E231DE99700BB5398 /* bootstrap.js in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C398231DE95700BB5398 /* bootstrap.js */; };
+		A567C39F231DE99A00BB5398 /* dtrace in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C395231DE95600BB5398 /* dtrace */; };
+		A567C3A0231DE99B00BB5398 /* node_modules in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C396231DE95700BB5398 /* node_modules */; };
+		A567C3A1231DE99D00BB5398 /* trampoline.node in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C397231DE95700BB5398 /* trampoline.node */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A567C3A3231DE9EE00BB5398 /* libnode_loaderd.so in Resources */ = {isa = PBXBuildFile; fileRef = A567C3A2231DE9ED00BB5398 /* libnode_loaderd.so */; };
+		A567C3A5231DE9FF00BB5398 /* libnode_loaderd.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C3A2231DE9ED00BB5398 /* libnode_loaderd.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A567C3A7231F2B3500BB5398 /* clean.sh in Resources */ = {isa = PBXBuildFile; fileRef = A567C3A6231F2B3500BB5398 /* clean.sh */; };
 		A585E66E2315FC2E00810584 /* libAsyncCpp-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A521E0292315FBB500390084 /* libAsyncCpp-iOS.a */; };
 		A585E66F2315FC2E00810584 /* libDataCpp-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A585E66D2315FC1E00810584 /* libDataCpp-iOS.a */; };
 		A58B325523109A2C00E80ECB /* YoutubeProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A58B324E23109A2C00E80ECB /* YoutubeProvider.hpp */; };
@@ -163,9 +174,14 @@
 			dstPath = lib;
 			dstSubfolderSpec = 7;
 			files = (
+				A567C39E231DE99700BB5398 /* bootstrap.js in CopyFiles */,
+				A567C39F231DE99A00BB5398 /* dtrace in CopyFiles */,
+				A567C3A0231DE99B00BB5398 /* node_modules in CopyFiles */,
+				A567C3A1231DE99D00BB5398 /* trampoline.node in CopyFiles */,
 				A567C373231DE46D00BB5398 /* libfunchook_detourd.so in CopyFiles */,
 				A567C374231DE46D00BB5398 /* libmetacall_seriald.so in CopyFiles */,
 				A567C375231DE46D00BB5398 /* libmock_loaderd.so in CopyFiles */,
+				A567C3A5231DE9FF00BB5398 /* libnode_loaderd.so in CopyFiles */,
 				A567C376231DE46D00BB5398 /* libpy_loaderd.so in CopyFiles */,
 				A567C377231DE46D00BB5398 /* librapid_json_seriald.so in CopyFiles */,
 			);
@@ -220,6 +236,12 @@
 		A567C36B231DE45900BB5398 /* librapid_json_seriald.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = librapid_json_seriald.so; path = ../../external/metacall/core/build/macosx/prefix/lib/librapid_json_seriald.so; sourceTree = "<group>"; };
 		A567C36C231DE45900BB5398 /* libpy_loaderd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = libpy_loaderd.so; path = ../../external/metacall/core/build/macosx/prefix/lib/libpy_loaderd.so; sourceTree = "<group>"; };
 		A567C36D231DE45900BB5398 /* libmock_loaderd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = libmock_loaderd.so; path = ../../external/metacall/core/build/macosx/prefix/lib/libmock_loaderd.so; sourceTree = "<group>"; };
+		A567C395231DE95600BB5398 /* dtrace */ = {isa = PBXFileReference; lastKnownFileType = folder; path = dtrace; sourceTree = "<group>"; };
+		A567C396231DE95700BB5398 /* node_modules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = node_modules; sourceTree = "<group>"; };
+		A567C397231DE95700BB5398 /* trampoline.node */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; path = trampoline.node; sourceTree = "<group>"; };
+		A567C398231DE95700BB5398 /* bootstrap.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = bootstrap.js; sourceTree = "<group>"; };
+		A567C3A2231DE9ED00BB5398 /* libnode_loaderd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = libnode_loaderd.so; path = ../../external/metacall/core/build/macosx/prefix/lib/libnode_loaderd.so; sourceTree = "<group>"; };
+		A567C3A6231F2B3500BB5398 /* clean.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = clean.sh; sourceTree = "<group>"; };
 		A585E68B2315FDA500810584 /* metacall-core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "metacall-core.xcodeproj"; path = "metacall/projects/xcode/metacall-core.xcodeproj"; sourceTree = "<group>"; };
 		A58B31BD230A593C00E80ECB /* json11.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json11.hpp; sourceTree = "<group>"; };
 		A58B31C0230A593C00E80ECB /* json11.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = json11.cpp; sourceTree = "<group>"; };
@@ -344,11 +366,13 @@
 		A564DFD02309166F0018787F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A567C37C231DE7FE00BB5398 /* metacall-lib-macOS */,
 				A567C340231DE0DB00BB5398 /* libfunchook.dylib */,
 				A567C342231DE0DD00BB5398 /* libmetacall.dylib */,
 				A567C36A231DE45900BB5398 /* libfunchook_detourd.so */,
 				A567C369231DE45900BB5398 /* libmetacall_seriald.so */,
 				A567C36D231DE45900BB5398 /* libmock_loaderd.so */,
+				A567C3A2231DE9ED00BB5398 /* libnode_loaderd.so */,
 				A567C36C231DE45900BB5398 /* libpy_loaderd.so */,
 				A567C36B231DE45900BB5398 /* librapid_json_seriald.so */,
 				A567C1D8231C804100BB5398 /* Cocoa.framework */,
@@ -427,6 +451,18 @@
 			path = main;
 			sourceTree = "<group>";
 		};
+		A567C37C231DE7FE00BB5398 /* metacall-lib-macOS */ = {
+			isa = PBXGroup;
+			children = (
+				A567C398231DE95700BB5398 /* bootstrap.js */,
+				A567C395231DE95600BB5398 /* dtrace */,
+				A567C396231DE95700BB5398 /* node_modules */,
+				A567C397231DE95700BB5398 /* trampoline.node */,
+			);
+			name = "metacall-lib-macOS";
+			path = ../../external/metacall/core/build/macosx/prefix/lib;
+			sourceTree = "<group>";
+		};
 		A570D72223164DBF00BA7F28 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -491,6 +527,7 @@
 			isa = PBXGroup;
 			children = (
 				A54325E423172CD100C4FDB3 /* build.sh */,
+				A567C3A6231F2B3500BB5398 /* clean.sh */,
 				A5BF2A6F231711730048125B /* js */,
 				A567C2E6231DCA4300BB5398 /* py */,
 			);
@@ -721,12 +758,18 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A567C39B231DE95700BB5398 /* trampoline.node in Resources */,
+				A567C3A7231F2B3500BB5398 /* clean.sh in Resources */,
+				A567C3A3231DE9EE00BB5398 /* libnode_loaderd.so in Resources */,
+				A567C39C231DE95700BB5398 /* bootstrap.js in Resources */,
 				A567C371231DE45900BB5398 /* libpy_loaderd.so in Resources */,
+				A567C399231DE95700BB5398 /* dtrace in Resources */,
 				A567C36F231DE45900BB5398 /* libfunchook_detourd.so in Resources */,
 				A567C2EA231DCA5800BB5398 /* js in Resources */,
 				A567C2EB231DCA7800BB5398 /* py in Resources */,
 				A567C36E231DE45900BB5398 /* libmetacall_seriald.so in Resources */,
 				A567C370231DE45900BB5398 /* librapid_json_seriald.so in Resources */,
+				A567C39A231DE95700BB5398 /* node_modules in Resources */,
 				A567C372231DE45900BB5398 /* libmock_loaderd.so in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

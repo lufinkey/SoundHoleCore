@@ -22,6 +22,9 @@
 		A567C34A231DE19000BB5398 /* libnode.64.dylib in Resources */ = {isa = PBXBuildFile; fileRef = A567C1422318D81A00BB5398 /* libnode.64.dylib */; };
 		A567C34B231DE19200BB5398 /* libpy_loaderd.so in Resources */ = {isa = PBXBuildFile; fileRef = A567C2D4231D7C2B00BB5398 /* libpy_loaderd.so */; };
 		A567C34C231DE19400BB5398 /* librapid_json_seriald.so in Resources */ = {isa = PBXBuildFile; fileRef = A567C23F231C8BE800BB5398 /* librapid_json_seriald.so */; };
+		A567C378231DE7B900BB5398 /* bootstrap.js in Resources */ = {isa = PBXBuildFile; fileRef = A567C22C231C8AD100BB5398 /* bootstrap.js */; };
+		A567C379231DE7B900BB5398 /* node_modules in Resources */ = {isa = PBXBuildFile; fileRef = A567C22B231C8ABD00BB5398 /* node_modules */; };
+		A567C37B231DE7E000BB5398 /* dtrace in Resources */ = {isa = PBXBuildFile; fileRef = A567C37A231DE7E000BB5398 /* dtrace */; };
 		A5A94065231645A20029B4B3 /* metacall_value.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A94056231645A20029B4B3 /* metacall_value.h */; };
 		A5A94066231645A20029B4B3 /* metacall_version.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A94057231645A20029B4B3 /* metacall_version.h */; };
 		A5A94067231645A20029B4B3 /* metacall_def.h in Headers */ = {isa = PBXBuildFile; fileRef = A5A94058231645A20029B4B3 /* metacall_def.h */; };
@@ -60,6 +63,7 @@
 		A567C2D4231D7C2B00BB5398 /* libpy_loaderd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; path = libpy_loaderd.so; sourceTree = "<group>"; };
 		A567C2D8231D80D200BB5398 /* Metacall.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Metacall.cpp; sourceTree = "<group>"; };
 		A567C2D9231D80D200BB5398 /* Metacall.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Metacall.hpp; sourceTree = "<group>"; };
+		A567C37A231DE7E000BB5398 /* dtrace */ = {isa = PBXFileReference; lastKnownFileType = folder; path = dtrace; sourceTree = "<group>"; };
 		A585E67F2315FD7500810584 /* libmetacall-core-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libmetacall-core-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A585E6C823160E2C00810584 /* libmetacall-core-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libmetacall-core-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5A9404E2316446D0029B4B3 /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = build.sh; path = ../../build.sh; sourceTree = "<group>"; };
@@ -200,6 +204,7 @@
 			isa = PBXGroup;
 			children = (
 				A567C22C231C8AD100BB5398 /* bootstrap.js */,
+				A567C37A231DE7E000BB5398 /* dtrace */,
 				A567C22B231C8ABD00BB5398 /* node_modules */,
 				A567C163231A32A400BB5398 /* libfunchook_detourd.so */,
 				A567C164231A32AC00BB5398 /* libfunchook.dylib */,
@@ -333,9 +338,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A567C378231DE7B900BB5398 /* bootstrap.js in Resources */,
+				A567C379231DE7B900BB5398 /* node_modules in Resources */,
 				A567C344231DE17400BB5398 /* libfunchook_detourd.so in Resources */,
 				A567C345231DE17600BB5398 /* libfunchook.dylib in Resources */,
 				A567C346231DE17800BB5398 /* libmetacall_seriald.so in Resources */,
+				A567C37B231DE7E000BB5398 /* dtrace in Resources */,
 				A567C347231DE18400BB5398 /* libmetacall.dylib in Resources */,
 				A567C348231DE18800BB5398 /* libmock_loaderd.so in Resources */,
 				A567C349231DE18A00BB5398 /* libnode_loaderd.so in Resources */,

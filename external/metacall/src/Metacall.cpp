@@ -95,7 +95,7 @@ namespace mc {
 			if(handle != nullptr) {
 				metacall_clear(handle);
 			}
-			throw std::runtime_error("Error loading files ("+std::to_string(result)+")");
+			throw std::runtime_error("Error loading from memory ("+std::to_string(result)+")");
 		}
 		if(handles.find(lang) != handles.end()) {
 			handles[lang].push_back(handle);
