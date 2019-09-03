@@ -7,10 +7,10 @@
 //
 
 #include "SoundHoleCoreTest.hpp"
-#include <soundhole/metacall/Metacall.hpp>
+#include "Metacall.hpp"
 
 namespace shtest {
-	using namespace sh;
+	using namespace mc;
 	
 	void testMetacall() {
 		printf("CONFIGURATION_PATH=%s\n", getenv("CONFIGURATION_PATH"));

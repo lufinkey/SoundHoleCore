@@ -6,5 +6,5 @@ cd "$base_dir"
 base_dir="$PWD"
 
 # bundle js file
-cd node
+cd js
 npm run build || exit $?

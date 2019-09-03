@@ -1,16 +1,17 @@
 //
 //  Metacall.cpp
-//  SoundHoleCore
+//  metacall-core
 //
 //  Created by Luis Finke on 8/28/19.
 //  Copyright © 2019 Luis Finke. All rights reserved.
 //
 
 #include "Metacall.hpp"
+#include <stdexcept>
 #include <typeinfo>
 #include <metacall/metacall.h>
 
-namespace sh {
+namespace mc {
 	static bool Metacall_initialized = false;
 	
 	void Metacall_init() {
@@ -21,15 +22,12 @@ namespace sh {
 		metacall_log( METACALL_LOG_STDIO, (void*)&log);
 		int result = metacall_initialize();
 		if(result != 0) {
-			throw Error((String)"Error initializing metacall ("+result+")");
+			throw std::runtime_error("Error initializing metacall ("+std::to_string(result)+")");
 		}
-		/*if(metacall_is_initialized("node") != 0) {
-			throw Error((String)"Error, unable to initialize metacall node ("+result+")");
-		}*/
 		Metacall_initialized = true;
 	}
 	
-	String MetacallLang_getTag(Metacall::Lang lang) {
+	std::string MetacallLang_getTag(Metacall::Lang lang) {
 		switch(lang) {
 			case Metacall::Lang::MOCK:
 				return "mock";
@@ -38,7 +36,8 @@ namespace sh {
 			case Metacall::Lang::PY:
 				return "py";
 			default:
-				FGL_ASSERT(false, "Invalid Metacall::Lang value");
+				// invalid Lang enum
+				assert(false);
 		}
 	}
 	
@@ -58,7 +57,7 @@ namespace sh {
 	
 	
 	
-	void Metacall::loadFromFiles(Lang lang, const ArrayList<String>& files) {
+	void Metacall::loadFromFiles(Lang lang, const std::vector<std::string>& files) {
 		auto tag = MetacallLang_getTag(lang);
 		auto files_ptr = std::make_unique<const char*[]>(files.size());
 		for(size_t i=0; i<files.size(); i++) {
@@ -71,20 +70,20 @@ namespace sh {
 			if(handle != nullptr) {
 				metacall_clear(handle);
 			}
-			throw Error((String)"Error loading files ("+result+")");
+			throw std::runtime_error("Error loading files ("+std::to_string(result)+")");
 		}
 		if(handles.find(lang) != handles.end()) {
-			handles[lang].pushBack(handle);
+			handles[lang].push_back(handle);
 		} else {
 			handles[lang] = { handle };
 		}
 	}
 	
-	void Metacall::loadFromFile(Lang lang, const String& file) {
+	void Metacall::loadFromFile(Lang lang, const std::string& file) {
 		loadFromFiles(lang, { file });
 	}
 	
-	void Metacall::loadFromString(Lang lang, const String& buffer) {
+	void Metacall::loadFromString(Lang lang, const std::string& buffer) {
 		loadFromMemory(lang, buffer.data(), buffer.length());
 	}
 	
@@ -96,10 +95,10 @@ namespace sh {
 			if(handle != nullptr) {
 				metacall_clear(handle);
 			}
-			throw Error((String)"Error loading files ("+result+")");
+			throw std::runtime_error("Error loading files ("+std::to_string(result)+")");
 		}
 		if(handles.find(lang) != handles.end()) {
-			handles[lang].pushBack(handle);
+			handles[lang].push_back(handle);
 		} else {
 			handles[lang] = { handle };
 		}
@@ -109,7 +108,7 @@ namespace sh {
 	
 	
 	template<typename ArrayType>
-	void* Metacall_convertArrayToValue(Any any) {
+	void* Metacall_convertArrayToValue(std::any any) {
 		auto list = std::any_cast<ArrayType>(any);
 		auto list_ptr = std::make_unique<void*[]>(list.size());
 		size_t i=0;
@@ -126,7 +125,7 @@ namespace sh {
 	}
 	
 	template<typename MapType>
-	void* Metacall_convertMapToValue(Any any) {
+	void* Metacall_convertMapToValue(std::any any) {
 		auto map = std::any_cast<MapType>(any);
 		auto map_ptr = std::make_unique<void**[]>(map.size());
 		size_t i=0;
@@ -146,10 +145,16 @@ namespace sh {
 		return map_value;
 	}
 	
+	using Any = std::any;
+	using String = std::string;
+	template<typename T>
+	using ArrayList = std::vector<T>;
+	template<typename T>
+	using LinkedList = std::list<T>;
 	template<typename T, typename U>
 	using Map = std::map<T,U>;
 	
-	void* Metacall::toMetacallValue(Any any) {
+	void* Metacall::toMetacallValue(std::any any) {
 		auto typeHash = any.type().hash_code();
 		#define mcallCheckType(...) (typeHash == typeid(__VA_ARGS__).hash_code())
 		
@@ -278,10 +283,10 @@ namespace sh {
 		} else if(mcallCheckType(Map<long,Map<String,Any>>)) {
 			return Metacall_convertMapToValue<Map<long,Map<String,Any>>>(any);
 		}
-		throw Error((String)"No matching conversion for any with type name "+any.type().name());
+		throw std::runtime_error("No matching conversion for any with type name "+std::string(any.type().name()));
 	}
 	
-	Any Metacall::fromMetacallValue(void* value) {
+	std::any Metacall::fromMetacallValue(void* value) {
 		if(value == nullptr) {
 			return Any();
 		}
@@ -315,7 +320,7 @@ namespace sh {
 				ArrayList<Any> array;
 				array.reserve(size);
 				for(size_t i=0; i<size; i++) {
-					array.pushBack(fromMetacallValue(values[i]));
+					array.push_back(fromMetacallValue(values[i]));
 				}
 				return array;
 			}
@@ -324,7 +329,7 @@ namespace sh {
 				size_t size = metacall_value_count(value);
 				for(size_t i=0; i<size; i++) {
 					if(metacall_value_id(values[i][0]) != METACALL_STRING) {
-						throw Error("Unable to convert map with non-string keys");
+						throw std::runtime_error("Unable to convert map with non-string keys");
 					}
 				}
 				Map<String,Any> map;
@@ -334,7 +339,8 @@ namespace sh {
 				return map;
 			}
 			default:
-				FGL_ASSERT(false, "Invalid metacall_value_id");
+				// Invalid metacall_value_id
+				assert(false);
 		}
 	}
 	
@@ -348,7 +354,7 @@ namespace sh {
 	
 	
 	
-	Any Metacall::call(const String& func, const ArrayList<Any>& args) {
+	std::any Metacall::call(const String& func, const std::vector<std::any>& args) {
 		size_t arg_count = args.size();
 		auto args_ptr = std::make_unique<void*[]>(arg_count);
 		for(size_t i=0; i<arg_count; i++) {

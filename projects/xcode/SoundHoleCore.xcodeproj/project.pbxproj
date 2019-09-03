@@ -13,8 +13,6 @@
 		A517B82723093E1800897145 /* MediaItem.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A517B82523093E1800897145 /* MediaItem.hpp */; };
 		A5224A362315E8AC0006D213 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5224A352315E8AC0006D213 /* Foundation.framework */; };
 		A5224A382315E8B30006D213 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5224A372315E8B30006D213 /* UIKit.framework */; };
-		A543260F2317347100C4FDB3 /* Metacall.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A543260D2317347100C4FDB3 /* Metacall.cpp */; };
-		A54326102317347100C4FDB3 /* Metacall.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A543260E2317347100C4FDB3 /* Metacall.hpp */; };
 		A564E015230919820018787F /* MediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A564E013230919820018787F /* MediaProvider.cpp */; };
 		A564E016230919820018787F /* MediaProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A564E014230919820018787F /* MediaProvider.hpp */; };
 		A567C1C4231C7F8300BB5398 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = A567C1C3231C7F8300BB5398 /* AppDelegate.mm */; };
@@ -27,22 +25,28 @@
 		A567C1D6231C802200BB5398 /* libDataCpp-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A585E6692315FC1E00810584 /* libDataCpp-macOS.a */; };
 		A567C1D7231C802200BB5398 /* libmetacall-core-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A570D72F23164DBF00BA7F28 /* libmetacall-core-macOS.a */; };
 		A567C1D9231C804100BB5398 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A567C1D8231C804100BB5398 /* Cocoa.framework */; };
-		A567C1F0231C818E00BB5398 /* SoundHoleCoreTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A567C1EE231C818E00BB5398 /* SoundHoleCoreTest.cpp */; };
 		A567C1F1231C818E00BB5398 /* SoundHoleCoreTest.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A567C1EF231C818E00BB5398 /* SoundHoleCoreTest.hpp */; };
 		A567C1F7231C83CF00BB5398 /* configurations in Resources */ = {isa = PBXBuildFile; fileRef = A567C1F6231C83CF00BB5398 /* configurations */; };
 		A567C1F8231C83CF00BB5398 /* configurations in Resources */ = {isa = PBXBuildFile; fileRef = A567C1F6231C83CF00BB5398 /* configurations */; };
-		A567C220231C89F000BB5398 /* libfunchook.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A567C219231C89CC00BB5398 /* libfunchook.dylib */; };
-		A567C222231C89FA00BB5398 /* libmetacall.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A567C217231C89CC00BB5398 /* libmetacall.dylib */; };
-		A567C287231C8FBA00BB5398 /* node in Resources */ = {isa = PBXBuildFile; fileRef = A5BF2A6F231711730048125B /* node */; };
-		A567C288231C8FF100BB5398 /* libfunchook.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = A567C219231C89CC00BB5398 /* libfunchook.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A567C289231C8FF100BB5398 /* libmetacall.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = A567C217231C89CC00BB5398 /* libmetacall.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A567C294231C91BF00BB5398 /* libfunchook_detourd.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C281231C8F7F00BB5398 /* libfunchook_detourd.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A567C295231C91BF00BB5398 /* libmetacall_seriald.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C27E231C8F7F00BB5398 /* libmetacall_seriald.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A567C296231C91BF00BB5398 /* libmock_loaderd.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C280231C8F7F00BB5398 /* libmock_loaderd.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A567C298231C91BF00BB5398 /* librapid_json_seriald.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C27D231C8F7F00BB5398 /* librapid_json_seriald.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A567C299231C91CE00BB5398 /* node in CopyFiles */ = {isa = PBXBuildFile; fileRef = A5BF2A6F231711730048125B /* node */; };
-		A567C2D3231D7BE300BB5398 /* libpy_loaderd.so in Resources */ = {isa = PBXBuildFile; fileRef = A567C2CA231D7BE300BB5398 /* libpy_loaderd.so */; };
-		A567C2D6231D7DFF00BB5398 /* libpy_loaderd.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C2CA231D7BE300BB5398 /* libpy_loaderd.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A567C2E9231DCA5500BB5398 /* SoundHoleCoreTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A567C1EE231C818E00BB5398 /* SoundHoleCoreTest.cpp */; };
+		A567C2EA231DCA5800BB5398 /* js in Resources */ = {isa = PBXBuildFile; fileRef = A5BF2A6F231711730048125B /* js */; };
+		A567C2EB231DCA7800BB5398 /* py in Resources */ = {isa = PBXBuildFile; fileRef = A567C2E6231DCA4300BB5398 /* py */; };
+		A567C341231DE0DB00BB5398 /* libfunchook.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A567C340231DE0DB00BB5398 /* libfunchook.dylib */; };
+		A567C343231DE0DD00BB5398 /* libmetacall.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A567C342231DE0DD00BB5398 /* libmetacall.dylib */; };
+		A567C34E231DE1D300BB5398 /* libmetacall.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = A567C342231DE0DD00BB5398 /* libmetacall.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A567C350231DE1D600BB5398 /* libfunchook.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = A567C340231DE0DB00BB5398 /* libfunchook.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A567C366231DE41A00BB5398 /* js in CopyFiles */ = {isa = PBXBuildFile; fileRef = A5BF2A6F231711730048125B /* js */; };
+		A567C367231DE41C00BB5398 /* py in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C2E6231DCA4300BB5398 /* py */; };
+		A567C36E231DE45900BB5398 /* libmetacall_seriald.so in Resources */ = {isa = PBXBuildFile; fileRef = A567C369231DE45900BB5398 /* libmetacall_seriald.so */; };
+		A567C36F231DE45900BB5398 /* libfunchook_detourd.so in Resources */ = {isa = PBXBuildFile; fileRef = A567C36A231DE45900BB5398 /* libfunchook_detourd.so */; };
+		A567C370231DE45900BB5398 /* librapid_json_seriald.so in Resources */ = {isa = PBXBuildFile; fileRef = A567C36B231DE45900BB5398 /* librapid_json_seriald.so */; };
+		A567C371231DE45900BB5398 /* libpy_loaderd.so in Resources */ = {isa = PBXBuildFile; fileRef = A567C36C231DE45900BB5398 /* libpy_loaderd.so */; };
+		A567C372231DE45900BB5398 /* libmock_loaderd.so in Resources */ = {isa = PBXBuildFile; fileRef = A567C36D231DE45900BB5398 /* libmock_loaderd.so */; };
+		A567C373231DE46D00BB5398 /* libfunchook_detourd.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C36A231DE45900BB5398 /* libfunchook_detourd.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A567C374231DE46D00BB5398 /* libmetacall_seriald.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C369231DE45900BB5398 /* libmetacall_seriald.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A567C375231DE46D00BB5398 /* libmock_loaderd.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C36D231DE45900BB5398 /* libmock_loaderd.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A567C376231DE46D00BB5398 /* libpy_loaderd.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C36C231DE45900BB5398 /* libpy_loaderd.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A567C377231DE46D00BB5398 /* librapid_json_seriald.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C36B231DE45900BB5398 /* librapid_json_seriald.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A585E66E2315FC2E00810584 /* libAsyncCpp-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A521E0292315FBB500390084 /* libAsyncCpp-iOS.a */; };
 		A585E66F2315FC2E00810584 /* libDataCpp-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A585E66D2315FC1E00810584 /* libDataCpp-iOS.a */; };
 		A58B325523109A2C00E80ECB /* YoutubeProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A58B324E23109A2C00E80ECB /* YoutubeProvider.hpp */; };
@@ -130,39 +134,40 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A567C28B231C8FF100BB5398 /* Embed Libraries */ = {
+		A567C34F231DE1D300BB5398 /* Embed Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				A567C288231C8FF100BB5398 /* libfunchook.dylib in Embed Libraries */,
-				A567C289231C8FF100BB5398 /* libmetacall.dylib in Embed Libraries */,
+				A567C34E231DE1D300BB5398 /* libmetacall.dylib in Embed Libraries */,
+				A567C350231DE1D600BB5398 /* libfunchook.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A567C28C231C8FF700BB5398 /* CopyFiles */ = {
+		A567C35D231DE41500BB5398 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
-				A567C299231C91CE00BB5398 /* node in CopyFiles */,
+				A567C366231DE41A00BB5398 /* js in CopyFiles */,
+				A567C367231DE41C00BB5398 /* py in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A567C292231C908600BB5398 /* CopyFiles */ = {
+		A567C368231DE42700BB5398 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = lib;
 			dstSubfolderSpec = 7;
 			files = (
-				A567C2D6231D7DFF00BB5398 /* libpy_loaderd.so in CopyFiles */,
-				A567C294231C91BF00BB5398 /* libfunchook_detourd.so in CopyFiles */,
-				A567C295231C91BF00BB5398 /* libmetacall_seriald.so in CopyFiles */,
-				A567C296231C91BF00BB5398 /* libmock_loaderd.so in CopyFiles */,
-				A567C298231C91BF00BB5398 /* librapid_json_seriald.so in CopyFiles */,
+				A567C373231DE46D00BB5398 /* libfunchook_detourd.so in CopyFiles */,
+				A567C374231DE46D00BB5398 /* libmetacall_seriald.so in CopyFiles */,
+				A567C375231DE46D00BB5398 /* libmock_loaderd.so in CopyFiles */,
+				A567C376231DE46D00BB5398 /* libpy_loaderd.so in CopyFiles */,
+				A567C377231DE46D00BB5398 /* librapid_json_seriald.so in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -185,8 +190,6 @@
 		A5224A352315E8AC0006D213 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.4.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		A5224A372315E8B30006D213 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.4.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		A54325E423172CD100C4FDB3 /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build.sh; sourceTree = "<group>"; };
-		A543260D2317347100C4FDB3 /* Metacall.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Metacall.cpp; sourceTree = "<group>"; };
-		A543260E2317347100C4FDB3 /* Metacall.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Metacall.hpp; sourceTree = "<group>"; };
 		A564DFB6230914680018787F /* libSoundHoleCore-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSoundHoleCore-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A564DFD5230916A00018787F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		A564DFFE230918B50018787F /* AsyncCpp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = AsyncCpp.xcodeproj; path = "async-cpp/projects/xcode/AsyncCpp.xcodeproj"; sourceTree = "<group>"; };
@@ -209,15 +212,14 @@
 		A567C1EE231C818E00BB5398 /* SoundHoleCoreTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SoundHoleCoreTest.cpp; sourceTree = "<group>"; };
 		A567C1EF231C818E00BB5398 /* SoundHoleCoreTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SoundHoleCoreTest.hpp; sourceTree = "<group>"; };
 		A567C1F6231C83CF00BB5398 /* configurations */ = {isa = PBXFileReference; lastKnownFileType = folder; path = configurations; sourceTree = "<group>"; };
-		A567C217231C89CC00BB5398 /* libmetacall.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmetacall.dylib; path = ../../external/metacall/core/build/macosx/prefix/lib/libmetacall.dylib; sourceTree = "<group>"; };
-		A567C218231C89CC00BB5398 /* libnode.64.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libnode.64.dylib; path = ../../external/metacall/core/build/macosx/prefix/lib/libnode.64.dylib; sourceTree = "<group>"; };
-		A567C219231C89CC00BB5398 /* libfunchook.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfunchook.dylib; path = ../../external/metacall/core/build/macosx/prefix/lib/libfunchook.dylib; sourceTree = "<group>"; };
-		A567C27D231C8F7F00BB5398 /* librapid_json_seriald.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = librapid_json_seriald.so; path = ../../external/metacall/core/build/macosx/prefix/lib/librapid_json_seriald.so; sourceTree = "<group>"; };
-		A567C27E231C8F7F00BB5398 /* libmetacall_seriald.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = libmetacall_seriald.so; path = ../../external/metacall/core/build/macosx/prefix/lib/libmetacall_seriald.so; sourceTree = "<group>"; };
-		A567C27F231C8F7F00BB5398 /* libnode_loaderd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = libnode_loaderd.so; path = ../../external/metacall/core/build/macosx/prefix/lib/libnode_loaderd.so; sourceTree = "<group>"; };
-		A567C280231C8F7F00BB5398 /* libmock_loaderd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = libmock_loaderd.so; path = ../../external/metacall/core/build/macosx/prefix/lib/libmock_loaderd.so; sourceTree = "<group>"; };
-		A567C281231C8F7F00BB5398 /* libfunchook_detourd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = libfunchook_detourd.so; path = ../../external/metacall/core/build/macosx/prefix/lib/libfunchook_detourd.so; sourceTree = "<group>"; };
-		A567C2CA231D7BE300BB5398 /* libpy_loaderd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = libpy_loaderd.so; path = ../../external/metacall/core/build/macosx/prefix/lib/libpy_loaderd.so; sourceTree = "<group>"; };
+		A567C2E6231DCA4300BB5398 /* py */ = {isa = PBXFileReference; lastKnownFileType = folder; path = py; sourceTree = "<group>"; };
+		A567C340231DE0DB00BB5398 /* libfunchook.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfunchook.dylib; path = ../../external/metacall/core/build/macosx/prefix/lib/libfunchook.dylib; sourceTree = "<group>"; };
+		A567C342231DE0DD00BB5398 /* libmetacall.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmetacall.dylib; path = ../../external/metacall/core/build/macosx/prefix/lib/libmetacall.dylib; sourceTree = "<group>"; };
+		A567C369231DE45900BB5398 /* libmetacall_seriald.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = libmetacall_seriald.so; path = ../../external/metacall/core/build/macosx/prefix/lib/libmetacall_seriald.so; sourceTree = "<group>"; };
+		A567C36A231DE45900BB5398 /* libfunchook_detourd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = libfunchook_detourd.so; path = ../../external/metacall/core/build/macosx/prefix/lib/libfunchook_detourd.so; sourceTree = "<group>"; };
+		A567C36B231DE45900BB5398 /* librapid_json_seriald.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = librapid_json_seriald.so; path = ../../external/metacall/core/build/macosx/prefix/lib/librapid_json_seriald.so; sourceTree = "<group>"; };
+		A567C36C231DE45900BB5398 /* libpy_loaderd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = libpy_loaderd.so; path = ../../external/metacall/core/build/macosx/prefix/lib/libpy_loaderd.so; sourceTree = "<group>"; };
+		A567C36D231DE45900BB5398 /* libmock_loaderd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = libmock_loaderd.so; path = ../../external/metacall/core/build/macosx/prefix/lib/libmock_loaderd.so; sourceTree = "<group>"; };
 		A585E68B2315FDA500810584 /* metacall-core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "metacall-core.xcodeproj"; path = "metacall/projects/xcode/metacall-core.xcodeproj"; sourceTree = "<group>"; };
 		A58B31BD230A593C00E80ECB /* json11.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json11.hpp; sourceTree = "<group>"; };
 		A58B31C0230A593C00E80ECB /* json11.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = json11.cpp; sourceTree = "<group>"; };
@@ -235,7 +237,7 @@
 		A58B32AB2310B1BF00E80ECB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		A58B32AD2310B1BF00E80ECB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A58B32AE2310B1BF00E80ECB /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
-		A5BF2A6F231711730048125B /* node */ = {isa = PBXFileReference; lastKnownFileType = folder; path = node; sourceTree = "<group>"; };
+		A5BF2A6F231711730048125B /* js */ = {isa = PBXFileReference; lastKnownFileType = folder; path = js; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -250,8 +252,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A567C220231C89F000BB5398 /* libfunchook.dylib in Frameworks */,
-				A567C222231C89FA00BB5398 /* libmetacall.dylib in Frameworks */,
+				A567C341231DE0DB00BB5398 /* libfunchook.dylib in Frameworks */,
+				A567C343231DE0DD00BB5398 /* libmetacall.dylib in Frameworks */,
 				A567C1D9231C804100BB5398 /* Cocoa.framework in Frameworks */,
 				A567C1D4231C802200BB5398 /* libSoundHoleCore-macOS.a in Frameworks */,
 				A567C1D5231C802200BB5398 /* libAsyncCpp-macOS.a in Frameworks */,
@@ -342,15 +344,13 @@
 		A564DFD02309166F0018787F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				A567C219231C89CC00BB5398 /* libfunchook.dylib */,
-				A567C217231C89CC00BB5398 /* libmetacall.dylib */,
-				A567C218231C89CC00BB5398 /* libnode.64.dylib */,
-				A567C281231C8F7F00BB5398 /* libfunchook_detourd.so */,
-				A567C27E231C8F7F00BB5398 /* libmetacall_seriald.so */,
-				A567C280231C8F7F00BB5398 /* libmock_loaderd.so */,
-				A567C27F231C8F7F00BB5398 /* libnode_loaderd.so */,
-				A567C2CA231D7BE300BB5398 /* libpy_loaderd.so */,
-				A567C27D231C8F7F00BB5398 /* librapid_json_seriald.so */,
+				A567C340231DE0DB00BB5398 /* libfunchook.dylib */,
+				A567C342231DE0DD00BB5398 /* libmetacall.dylib */,
+				A567C36A231DE45900BB5398 /* libfunchook_detourd.so */,
+				A567C369231DE45900BB5398 /* libmetacall_seriald.so */,
+				A567C36D231DE45900BB5398 /* libmock_loaderd.so */,
+				A567C36C231DE45900BB5398 /* libpy_loaderd.so */,
+				A567C36B231DE45900BB5398 /* librapid_json_seriald.so */,
 				A567C1D8231C804100BB5398 /* Cocoa.framework */,
 				A5224A372315E8B30006D213 /* UIKit.framework */,
 				A5224A352315E8AC0006D213 /* Foundation.framework */,
@@ -491,9 +491,8 @@
 			isa = PBXGroup;
 			children = (
 				A54325E423172CD100C4FDB3 /* build.sh */,
-				A543260E2317347100C4FDB3 /* Metacall.hpp */,
-				A543260D2317347100C4FDB3 /* Metacall.cpp */,
-				A5BF2A6F231711730048125B /* node */,
+				A5BF2A6F231711730048125B /* js */,
+				A567C2E6231DCA4300BB5398 /* py */,
 			);
 			path = metacall;
 			sourceTree = "<group>";
@@ -506,7 +505,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				A564E016230919820018787F /* MediaProvider.hpp in Headers */,
-				A54326102317347100C4FDB3 /* Metacall.hpp in Headers */,
 				A58B325523109A2C00E80ECB /* YoutubeProvider.hpp in Headers */,
 				A567C1F1231C818E00BB5398 /* SoundHoleCoreTest.hpp in Headers */,
 				A517B82323093CC300897145 /* BandcampProvider.hpp in Headers */,
@@ -543,9 +541,9 @@
 				A567C1BC231C7F8300BB5398 /* Sources */,
 				A567C1BD231C7F8300BB5398 /* Frameworks */,
 				A567C1BE231C7F8300BB5398 /* Resources */,
-				A567C28B231C8FF100BB5398 /* Embed Libraries */,
-				A567C28C231C8FF700BB5398 /* CopyFiles */,
-				A567C292231C908600BB5398 /* CopyFiles */,
+				A567C34F231DE1D300BB5398 /* Embed Libraries */,
+				A567C35D231DE41500BB5398 /* CopyFiles */,
+				A567C368231DE42700BB5398 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -723,8 +721,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A567C2D3231D7BE300BB5398 /* libpy_loaderd.so in Resources */,
-				A567C287231C8FBA00BB5398 /* node in Resources */,
+				A567C371231DE45900BB5398 /* libpy_loaderd.so in Resources */,
+				A567C36F231DE45900BB5398 /* libfunchook_detourd.so in Resources */,
+				A567C2EA231DCA5800BB5398 /* js in Resources */,
+				A567C2EB231DCA7800BB5398 /* py in Resources */,
+				A567C36E231DE45900BB5398 /* libmetacall_seriald.so in Resources */,
+				A567C370231DE45900BB5398 /* librapid_json_seriald.so in Resources */,
+				A567C372231DE45900BB5398 /* libmock_loaderd.so in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -766,9 +769,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A567C1F0231C818E00BB5398 /* SoundHoleCoreTest.cpp in Sources */,
 				A58B325723109A3000E80ECB /* YoutubeProvider.cpp in Sources */,
-				A543260F2317347100C4FDB3 /* Metacall.cpp in Sources */,
+				A567C2E9231DCA5500BB5398 /* SoundHoleCoreTest.cpp in Sources */,
 				A517B82223093CC300897145 /* BandcampProvider.cpp in Sources */,
 				A564E015230919820018787F /* MediaProvider.cpp in Sources */,
 				A517B82623093E1800897145 /* MediaItem.cpp in Sources */,
@@ -891,6 +893,7 @@
 					"$(PROJECT_DIR)/../../external/async-cpp/src",
 					"$(PROJECT_DIR)/../../external/data-cpp/src",
 					"$(PROJECT_DIR)/../../external/json11",
+					"$(PROJECT_DIR)/../../external/metacall/src",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -949,6 +952,7 @@
 					"$(PROJECT_DIR)/../../external/async-cpp/src",
 					"$(PROJECT_DIR)/../../external/data-cpp/src",
 					"$(PROJECT_DIR)/../../external/json11",
+					"$(PROJECT_DIR)/../../external/metacall/src",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -965,7 +969,6 @@
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
-					"$(PROJECT_DIR)/../../external/metacall/core/build/macos/prefix/include",
 					"$(PROJECT_DIR)/../../external/metacall/core/build/macosx/prefix/include",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -981,7 +984,6 @@
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
-					"$(PROJECT_DIR)/../../external/metacall/core/build/macos/prefix/include",
 					"$(PROJECT_DIR)/../../external/metacall/core/build/macosx/prefix/include",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
