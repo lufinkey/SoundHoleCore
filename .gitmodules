@@ -14,3 +14,6 @@
 	path = external/metacall/core
 	url = https://github.com/metacall/core.git
 	ignore = dirty
+[submodule "external/nodejs"]
+	path = external/nodjs/node
+	url = https://github.com/nodejs/node.git
