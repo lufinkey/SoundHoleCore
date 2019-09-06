@@ -32,3 +32,9 @@ cd "$base_dir/build"
 mkdir -p "$build_type" || exit $?
 cd "$base_dir/build/node/out/$build_type"
 cp *.a "$base_dir/build/$build_type" || exit $?
+
+# link include files
+cd "$base_dir/build"
+mkdir -p "include"
+cd "include"
+ln -s "../node/src" "nodejs"
