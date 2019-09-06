@@ -314,7 +314,7 @@
 				A564E0212309289C0018787F /* external.hpp */,
 				A564DFD8230916F90018787F /* media */,
 				A564DFD9230917000018787F /* providers */,
-				A5BF2A6D231702590048125B /* scripts */,
+				A5BF2A6D231702590048125B /* metacall */,
 			);
 			path = soundhole;
 			sourceTree = "<group>";
@@ -430,7 +430,7 @@
 			path = cmd;
 			sourceTree = "<group>";
 		};
-		A5BF2A6D231702590048125B /* scripts */ = {
+		A5BF2A6D231702590048125B /* metacall */ = {
 			isa = PBXGroup;
 			children = (
 				A54325E423172CD100C4FDB3 /* build.sh */,
@@ -438,7 +438,7 @@
 				A5BF2A6F231711730048125B /* js */,
 				A567C2E6231DCA4300BB5398 /* py */,
 			);
-			path = scripts;
+			path = metacall;
 			sourceTree = "<group>";
 		};
 		E08AD100D9BFB9263FA19A4C /* Pods */ = {
@@ -492,8 +492,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A567C1D1231C7F8500BB5398 /* Build configuration list for PBXNativeTarget "SoundHoleCoreTest-macOS" */;
 			buildPhases = (
-				A567C3EA23220EC500BB5398 /* ShellScript */,
 				40968163A38E62F885609D63 /* [CP] Check Pods Manifest.lock */,
+				A567C3EA23220EC500BB5398 /* ShellScript */,
 				A567C1BC231C7F8300BB5398 /* Sources */,
 				A567C1BD231C7F8300BB5398 /* Frameworks */,
 				A567C1BE231C7F8300BB5398 /* Resources */,
