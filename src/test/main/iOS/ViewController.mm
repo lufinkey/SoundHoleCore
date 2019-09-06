@@ -24,7 +24,6 @@ using namespace shtest;
 
 -(void)viewDidAppear:(BOOL)animated {
 	[super viewDidAppear:animated];
-	testMetacall();
 }
 
 @end

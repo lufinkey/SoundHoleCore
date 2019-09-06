@@ -1,0 +1,30 @@
+PODS:
+  - AsyncCpp (0.1.0):
+    - DataCpp
+  - DataCpp (0.1.0)
+
+DEPENDENCIES:
+  - "AsyncCpp (from `git@github.com:lufinkey/async-cpp.git`)"
+  - "DataCpp (from `git@github.com:lufinkey/data-cpp.git`)"
+
+EXTERNAL SOURCES:
+  AsyncCpp:
+    :git: "git@github.com:lufinkey/async-cpp.git"
+  DataCpp:
+    :git: "git@github.com:lufinkey/data-cpp.git"
+
+CHECKOUT OPTIONS:
+  AsyncCpp:
+    :commit: a2542940002427954f606d3c22711ea1545465c6
+    :git: "git@github.com:lufinkey/async-cpp.git"
+  DataCpp:
+    :commit: 5254cfbf50da73ef7da9bfc7682164f4acab484b
+    :git: "git@github.com:lufinkey/data-cpp.git"
+
+SPEC CHECKSUMS:
+  AsyncCpp: 9157ec5f8068ee8c98d384210b630f8ac2effbed
+  DataCpp: 0d025abc3916dea7aeba09a53ade36b51ecbe439
+
+PODFILE CHECKSUM: 8c8309442f4bb4b509ad99061f0894b0d7f48d64
+
+COCOAPODS: 1.7.5

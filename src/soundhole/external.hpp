@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include <fgl/async.hpp>
 #include <fgl/data.hpp>
+#include <fgl/async.hpp>
 
 namespace sh {
 	using namespace fgl;
