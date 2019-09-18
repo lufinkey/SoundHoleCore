@@ -8,3 +8,9 @@
 	path = external/metacall/core
 	url = https://github.com/metacall/core.git
 	ignore = dirty
+[submodule "external/spotify-ios-streaming-sdk"]
+	path = external/spotify-ios-streaming-sdk
+	url = https://github.com/lufinkey/spotify-ios-streaming-sdk
+[submodule "external/spotify-android-streaming-sdk"]
+	path = external/spotify-android-streaming-sdk
+	url = https://github.com/lufinkey/spotify-android-streaming-sdk
