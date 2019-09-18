@@ -55,3 +55,8 @@ node_modules
 
 # Python
 py_prefix
+
+# Dependencies
+/external/nodejs-embed
+/external/data-cpp
+/external/async-cpp

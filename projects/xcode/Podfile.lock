@@ -1,0 +1,47 @@
+PODS:
+  - AsyncCpp (0.1.0):
+    - DataCpp
+  - DataCpp (0.1.0)
+  - NodeJSEmbed (0.1.0):
+    - NodeMobile
+  - NodeMobile (0.1.8)
+
+DEPENDENCIES:
+  - "AsyncCpp (from `git@github.com:lufinkey/async-cpp.git`)"
+  - "DataCpp (from `git@github.com:lufinkey/data-cpp.git`)"
+  - "NodeJSEmbed (from `git@github.com:lufinkey/nodejs-embed.git`)"
+  - NodeMobile (from `https://github.com/janeasystems/nodejs-mobile.git`)
+
+EXTERNAL SOURCES:
+  AsyncCpp:
+    :git: "git@github.com:lufinkey/async-cpp.git"
+  DataCpp:
+    :git: "git@github.com:lufinkey/data-cpp.git"
+  NodeJSEmbed:
+    :git: "git@github.com:lufinkey/nodejs-embed.git"
+  NodeMobile:
+    :git: https://github.com/janeasystems/nodejs-mobile.git
+
+CHECKOUT OPTIONS:
+  AsyncCpp:
+    :commit: 0345e1c218405d34c1a845804fa0853e8af530ce
+    :git: "git@github.com:lufinkey/async-cpp.git"
+  DataCpp:
+    :commit: 5254cfbf50da73ef7da9bfc7682164f4acab484b
+    :git: "git@github.com:lufinkey/data-cpp.git"
+  NodeJSEmbed:
+    :commit: 10b998651f4ea9a0ec47ba626aeb9c1f34f7e013
+    :git: "git@github.com:lufinkey/nodejs-embed.git"
+  NodeMobile:
+    :commit: d731966cf36550c68b4d7ce22765ca7fd73d0733
+    :git: https://github.com/janeasystems/nodejs-mobile.git
+
+SPEC CHECKSUMS:
+  AsyncCpp: 9157ec5f8068ee8c98d384210b630f8ac2effbed
+  DataCpp: 0d025abc3916dea7aeba09a53ade36b51ecbe439
+  NodeJSEmbed: ff7926e46e0ce00c856cf37e2287c34ef86fb04c
+  NodeMobile: cb332628599d35759769bdb6b1501b17b5f1f287
+
+PODFILE CHECKSUM: 8d2415a7ad42a89c98cb9c73e755dd6df6813b94
+
+COCOAPODS: 1.8.0.beta.2
