@@ -7,119 +7,46 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		61C2B00A0336A0543211FA2A /* Pods_SoundHoleCoreTest_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AED3F52944A8152022D6E241 /* Pods_SoundHoleCoreTest_iOS.framework */; };
-		A517B82223093CC300897145 /* BandcampProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A517B82023093CC300897145 /* BandcampProvider.cpp */; };
-		A517B82323093CC300897145 /* BandcampProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A517B82123093CC300897145 /* BandcampProvider.hpp */; };
-		A517B82623093E1800897145 /* MediaItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A517B82423093E1800897145 /* MediaItem.cpp */; };
-		A517B82723093E1800897145 /* MediaItem.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A517B82523093E1800897145 /* MediaItem.hpp */; };
-		A5224A362315E8AC0006D213 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5224A352315E8AC0006D213 /* Foundation.framework */; };
-		A5224A382315E8B30006D213 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5224A372315E8B30006D213 /* UIKit.framework */; };
-		A564E015230919820018787F /* MediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A564E013230919820018787F /* MediaProvider.cpp */; };
-		A564E016230919820018787F /* MediaProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A564E014230919820018787F /* MediaProvider.hpp */; };
-		A567C1C4231C7F8300BB5398 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = A567C1C3231C7F8300BB5398 /* AppDelegate.mm */; };
-		A567C1C7231C7F8300BB5398 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A567C1C6231C7F8300BB5398 /* ViewController.mm */; };
-		A567C1C9231C7F8500BB5398 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A567C1C8231C7F8500BB5398 /* Assets.xcassets */; };
-		A567C1CC231C7F8500BB5398 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A567C1CA231C7F8500BB5398 /* Main.storyboard */; };
-		A567C1CF231C7F8500BB5398 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = A567C1CE231C7F8500BB5398 /* main.mm */; };
-		A567C1D4231C802200BB5398 /* libSoundHoleCore-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A564DFB6230914680018787F /* libSoundHoleCore-macOS.a */; };
-		A567C1D9231C804100BB5398 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A567C1D8231C804100BB5398 /* Cocoa.framework */; };
-		A567C1F7231C83CF00BB5398 /* configurations in Resources */ = {isa = PBXBuildFile; fileRef = A567C1F6231C83CF00BB5398 /* configurations */; };
-		A567C1F8231C83CF00BB5398 /* configurations in Resources */ = {isa = PBXBuildFile; fileRef = A567C1F6231C83CF00BB5398 /* configurations */; };
-		A567C341231DE0DB00BB5398 /* libfunchook.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A567C340231DE0DB00BB5398 /* libfunchook.dylib */; };
-		A567C343231DE0DD00BB5398 /* libmetacall.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A567C342231DE0DD00BB5398 /* libmetacall.dylib */; };
-		A567C34E231DE1D300BB5398 /* libmetacall.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = A567C342231DE0DD00BB5398 /* libmetacall.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A567C350231DE1D600BB5398 /* libfunchook.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = A567C340231DE0DB00BB5398 /* libfunchook.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A567C36E231DE45900BB5398 /* libmetacall_seriald.so in Resources */ = {isa = PBXBuildFile; fileRef = A567C369231DE45900BB5398 /* libmetacall_seriald.so */; };
-		A567C36F231DE45900BB5398 /* libfunchook_detourd.so in Resources */ = {isa = PBXBuildFile; fileRef = A567C36A231DE45900BB5398 /* libfunchook_detourd.so */; };
-		A567C370231DE45900BB5398 /* librapid_json_seriald.so in Resources */ = {isa = PBXBuildFile; fileRef = A567C36B231DE45900BB5398 /* librapid_json_seriald.so */; };
-		A567C371231DE45900BB5398 /* libpy_loaderd.so in Resources */ = {isa = PBXBuildFile; fileRef = A567C36C231DE45900BB5398 /* libpy_loaderd.so */; };
-		A567C372231DE45900BB5398 /* libmock_loaderd.so in Resources */ = {isa = PBXBuildFile; fileRef = A567C36D231DE45900BB5398 /* libmock_loaderd.so */; };
-		A567C373231DE46D00BB5398 /* libfunchook_detourd.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C36A231DE45900BB5398 /* libfunchook_detourd.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A567C374231DE46D00BB5398 /* libmetacall_seriald.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C369231DE45900BB5398 /* libmetacall_seriald.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A567C375231DE46D00BB5398 /* libmock_loaderd.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C36D231DE45900BB5398 /* libmock_loaderd.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A567C376231DE46D00BB5398 /* libpy_loaderd.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C36C231DE45900BB5398 /* libpy_loaderd.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A567C377231DE46D00BB5398 /* librapid_json_seriald.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C36B231DE45900BB5398 /* librapid_json_seriald.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A567C399231DE95700BB5398 /* dtrace in Resources */ = {isa = PBXBuildFile; fileRef = A567C395231DE95600BB5398 /* dtrace */; };
-		A567C39A231DE95700BB5398 /* node_modules in Resources */ = {isa = PBXBuildFile; fileRef = A567C396231DE95700BB5398 /* node_modules */; };
-		A567C39B231DE95700BB5398 /* trampoline.node in Resources */ = {isa = PBXBuildFile; fileRef = A567C397231DE95700BB5398 /* trampoline.node */; };
-		A567C39C231DE95700BB5398 /* bootstrap.js in Resources */ = {isa = PBXBuildFile; fileRef = A567C398231DE95700BB5398 /* bootstrap.js */; };
-		A567C39E231DE99700BB5398 /* bootstrap.js in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C398231DE95700BB5398 /* bootstrap.js */; };
-		A567C39F231DE99A00BB5398 /* dtrace in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C395231DE95600BB5398 /* dtrace */; };
-		A567C3A0231DE99B00BB5398 /* node_modules in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C396231DE95700BB5398 /* node_modules */; };
-		A567C3A1231DE99D00BB5398 /* trampoline.node in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C397231DE95700BB5398 /* trampoline.node */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A567C3A3231DE9EE00BB5398 /* libnode_loaderd.so in Resources */ = {isa = PBXBuildFile; fileRef = A567C3A2231DE9ED00BB5398 /* libnode_loaderd.so */; };
-		A567C3A5231DE9FF00BB5398 /* libnode_loaderd.so in CopyFiles */ = {isa = PBXBuildFile; fileRef = A567C3A2231DE9ED00BB5398 /* libnode_loaderd.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A567C3D52321E36600BB5398 /* SoundHoleCoreTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A567C1EE231C818E00BB5398 /* SoundHoleCoreTest.cpp */; };
-		A567C3D62321E36700BB5398 /* SoundHoleCoreTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A567C1EE231C818E00BB5398 /* SoundHoleCoreTest.cpp */; };
-		A567C4022323305200BB5398 /* js in Resources */ = {isa = PBXBuildFile; fileRef = A567C4002323305200BB5398 /* js */; };
-		A567C4032323305200BB5398 /* py in Resources */ = {isa = PBXBuildFile; fileRef = A567C4012323305200BB5398 /* py */; };
-		A58B325523109A2C00E80ECB /* YoutubeProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A58B324E23109A2C00E80ECB /* YoutubeProvider.hpp */; };
-		A58B325723109A3000E80ECB /* YoutubeProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58B325623109A3000E80ECB /* YoutubeProvider.cpp */; };
-		A58B32A12310B1BD00E80ECB /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = A58B32A02310B1BD00E80ECB /* AppDelegate.mm */; };
-		A58B32A42310B1BD00E80ECB /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A58B32A32310B1BD00E80ECB /* ViewController.mm */; };
-		A58B32A72310B1BD00E80ECB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A58B32A52310B1BD00E80ECB /* Main.storyboard */; };
-		A58B32A92310B1BF00E80ECB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A58B32A82310B1BF00E80ECB /* Assets.xcassets */; };
-		A58B32AC2310B1BF00E80ECB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A58B32AA2310B1BF00E80ECB /* LaunchScreen.storyboard */; };
-		A58B32AF2310B1BF00E80ECB /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = A58B32AE2310B1BF00E80ECB /* main.mm */; };
-		A58B32B42310B25E00E80ECB /* libSoundHoleCore-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A58B32902310B18400E80ECB /* libSoundHoleCore-iOS.a */; };
-		A58B32C52310B3B000E80ECB /* MediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A564E013230919820018787F /* MediaProvider.cpp */; };
-		A58B32C62310B3B300E80ECB /* BandcampProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A517B82023093CC300897145 /* BandcampProvider.cpp */; };
-		A58B32C72310B3B500E80ECB /* YoutubeProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58B325623109A3000E80ECB /* YoutubeProvider.cpp */; };
-		A58B32C82310B3B900E80ECB /* MediaItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A517B82423093E1800897145 /* MediaItem.cpp */; };
-		CD1C78C2A253E3ABC0D5BB69 /* Pods_SoundHoleCoreTest_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23BB4344E5734036C0C35C45 /* Pods_SoundHoleCoreTest_macOS.framework */; };
+		806FE0F8B91D795108D7E457 /* libPods-SoundHoleCoreTest-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 92C87D0F488E86DFB8CAA6B3 /* libPods-SoundHoleCoreTest-iOS.a */; };
+		A513DB34232DA191000DCAC7 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = A513DB33232DA191000DCAC7 /* AppDelegate.mm */; };
+		A513DB37232DA191000DCAC7 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A513DB36232DA191000DCAC7 /* ViewController.mm */; };
+		A513DB3A232DA191000DCAC7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A513DB38232DA191000DCAC7 /* Main.storyboard */; };
+		A513DB3C232DA192000DCAC7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A513DB3B232DA192000DCAC7 /* Assets.xcassets */; };
+		A513DB3F232DA192000DCAC7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A513DB3D232DA192000DCAC7 /* LaunchScreen.storyboard */; };
+		A513DB42232DA192000DCAC7 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = A513DB41232DA192000DCAC7 /* main.mm */; };
+		A513DB56232DA1D2000DCAC7 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = A513DB55232DA1D2000DCAC7 /* AppDelegate.mm */; };
+		A513DB59232DA1D2000DCAC7 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A513DB58232DA1D2000DCAC7 /* ViewController.mm */; };
+		A513DB5B232DA1D3000DCAC7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A513DB5A232DA1D3000DCAC7 /* Assets.xcassets */; };
+		A513DB5E232DA1D3000DCAC7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A513DB5C232DA1D3000DCAC7 /* Main.storyboard */; };
+		A513DB61232DA1D3000DCAC7 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = A513DB60232DA1D3000DCAC7 /* main.mm */; };
+		A513ED87232DA20B000DCAC7 /* SoundHoleCoreTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A513DB68232DA1F8000DCAC7 /* SoundHoleCoreTest.cpp */; };
+		A513ED88232DA20B000DCAC7 /* SoundHoleCoreTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A513DB68232DA1F8000DCAC7 /* SoundHoleCoreTest.cpp */; };
+		A513ED89232DA20B000DCAC7 /* SoundHoleCoreTest.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A513DB69232DA1F8000DCAC7 /* SoundHoleCoreTest.hpp */; };
+		A513ED8C232DA20B000DCAC7 /* external.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A513DB6E232DA1F8000DCAC7 /* external.hpp */; };
+		A513ED8D232DA20B000DCAC7 /* MediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A513DB70232DA1F8000DCAC7 /* MediaProvider.cpp */; };
+		A513ED8E232DA20B000DCAC7 /* MediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A513DB70232DA1F8000DCAC7 /* MediaProvider.cpp */; };
+		A513ED8F232DA20B000DCAC7 /* YoutubeProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A513DB71232DA1F8000DCAC7 /* YoutubeProvider.hpp */; };
+		A513ED90232DA20B000DCAC7 /* BandcampProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A513DB72232DA1F8000DCAC7 /* BandcampProvider.hpp */; };
+		A513ED91232DA20B000DCAC7 /* BandcampProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A513DB73232DA1F8000DCAC7 /* BandcampProvider.cpp */; };
+		A513ED92232DA20B000DCAC7 /* BandcampProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A513DB73232DA1F8000DCAC7 /* BandcampProvider.cpp */; };
+		A513ED93232DA20B000DCAC7 /* MediaProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A513DB74232DA1F8000DCAC7 /* MediaProvider.hpp */; };
+		A513ED94232DA20B000DCAC7 /* YoutubeProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A513DB75232DA1F8000DCAC7 /* YoutubeProvider.cpp */; };
+		A513ED95232DA20B000DCAC7 /* YoutubeProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A513DB75232DA1F8000DCAC7 /* YoutubeProvider.cpp */; };
+		A513ED9A232DA20C000DCAC7 /* MediaItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A513ED84232DA20A000DCAC7 /* MediaItem.cpp */; };
+		A513ED9B232DA20C000DCAC7 /* MediaItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A513ED84232DA20A000DCAC7 /* MediaItem.cpp */; };
+		A513ED9C232DA20C000DCAC7 /* MediaItem.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A513ED85232DA20A000DCAC7 /* MediaItem.hpp */; };
+		A513ED9D232DA20C000DCAC7 /* soundhole.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A513ED86232DA20A000DCAC7 /* soundhole.hpp */; };
+		A513EDA1232DA2EA000DCAC7 /* libSoundHoleCore-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A513DB4A232DA1C0000DCAC7 /* libSoundHoleCore-macOS.a */; };
+		A513EDA2232DA2F2000DCAC7 /* libSoundHoleCore-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A513DB23232DA15C000DCAC7 /* libSoundHoleCore-iOS.a */; };
+		A513EDA4232DA2F9000DCAC7 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A513EDA3232DA2F9000DCAC7 /* UIKit.framework */; };
+		A513EDA6232DA300000DCAC7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A513EDA5232DA300000DCAC7 /* Foundation.framework */; };
+		A513EDA8232DA30D000DCAC7 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A513EDA7232DA30D000DCAC7 /* Cocoa.framework */; };
+		A571E108232F1C0300603E14 /* libNodeJSEmbed-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A571E107232F1C0300603E14 /* libNodeJSEmbed-macOS.a */; };
+		CD1A74B29839C57A94EAACD7 /* libPods-SoundHoleCoreTest-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		A567C260231C8EDA00BB5398 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		A567C34F231DE1D300BB5398 /* Embed Libraries */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				A567C34E231DE1D300BB5398 /* libmetacall.dylib in Embed Libraries */,
-				A567C350231DE1D600BB5398 /* libfunchook.dylib in Embed Libraries */,
-			);
-			name = "Embed Libraries";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		A567C35D231DE41500BB5398 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 7;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		A567C368231DE42700BB5398 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = lib;
-			dstSubfolderSpec = 7;
-			files = (
-				A567C39E231DE99700BB5398 /* bootstrap.js in CopyFiles */,
-				A567C39F231DE99A00BB5398 /* dtrace in CopyFiles */,
-				A567C3A0231DE99B00BB5398 /* node_modules in CopyFiles */,
-				A567C3A1231DE99D00BB5398 /* trampoline.node in CopyFiles */,
-				A567C373231DE46D00BB5398 /* libfunchook_detourd.so in CopyFiles */,
-				A567C374231DE46D00BB5398 /* libmetacall_seriald.so in CopyFiles */,
-				A567C375231DE46D00BB5398 /* libmock_loaderd.so in CopyFiles */,
-				A567C3A5231DE9FF00BB5398 /* libnode_loaderd.so in CopyFiles */,
-				A567C376231DE46D00BB5398 /* libpy_loaderd.so in CopyFiles */,
-				A567C377231DE46D00BB5398 /* librapid_json_seriald.so in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		A58B328E2310B18400E80ECB /* CopyFiles */ = {
+		A513DB21232DA15C000DCAC7 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "include/$(PRODUCT_NAME)";
@@ -131,388 +58,286 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1DA9B6E7D12D7B1EB3367457 /* Pods-SoundHoleCoreTest-macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-macOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-macOS/Pods-SoundHoleCoreTest-macOS.debug.xcconfig"; sourceTree = "<group>"; };
-		23BB4344E5734036C0C35C45 /* Pods_SoundHoleCoreTest_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SoundHoleCoreTest_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		363217ADD75E06AEBC0B1BD6 /* Pods-SoundHoleCoreTest-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-macOS.release.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-macOS/Pods-SoundHoleCoreTest-macOS.release.xcconfig"; sourceTree = "<group>"; };
-		92B916C1CB37D5B11CCD0CB6 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; sourceTree = "<group>"; };
-		A517B82023093CC300897145 /* BandcampProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampProvider.cpp; sourceTree = "<group>"; };
-		A517B82123093CC300897145 /* BandcampProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BandcampProvider.hpp; sourceTree = "<group>"; };
-		A517B82423093E1800897145 /* MediaItem.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MediaItem.cpp; sourceTree = "<group>"; };
-		A517B82523093E1800897145 /* MediaItem.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaItem.hpp; sourceTree = "<group>"; };
-		A5224A352315E8AC0006D213 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.4.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		A5224A372315E8B30006D213 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.4.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
-		A564DFB6230914680018787F /* libSoundHoleCore-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSoundHoleCore-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		A564DFD5230916A00018787F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		A564E013230919820018787F /* MediaProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MediaProvider.cpp; sourceTree = "<group>"; };
-		A564E014230919820018787F /* MediaProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaProvider.hpp; sourceTree = "<group>"; };
-		A564E01F230920F90018787F /* soundhole.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = soundhole.hpp; sourceTree = "<group>"; };
-		A564E0212309289C0018787F /* external.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = external.hpp; sourceTree = "<group>"; };
-		A567C1C0231C7F8300BB5398 /* SoundHoleCoreTest-macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SoundHoleCoreTest-macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		A567C1C2231C7F8300BB5398 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		A567C1C3231C7F8300BB5398 /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
-		A567C1C5231C7F8300BB5398 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		A567C1C6231C7F8300BB5398 /* ViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
-		A567C1C8231C7F8500BB5398 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A567C1CB231C7F8500BB5398 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		A567C1CD231C7F8500BB5398 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A567C1CE231C7F8500BB5398 /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
-		A567C1D0231C7F8500BB5398 /* SoundHoleCoreTest_macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SoundHoleCoreTest_macOS.entitlements; sourceTree = "<group>"; };
-		A567C1D8231C804100BB5398 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
-		A567C1EE231C818E00BB5398 /* SoundHoleCoreTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SoundHoleCoreTest.cpp; sourceTree = "<group>"; };
-		A567C1EF231C818E00BB5398 /* SoundHoleCoreTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SoundHoleCoreTest.hpp; sourceTree = "<group>"; };
-		A567C1F6231C83CF00BB5398 /* configurations */ = {isa = PBXFileReference; lastKnownFileType = folder; path = configurations; sourceTree = "<group>"; };
-		A567C340231DE0DB00BB5398 /* libfunchook.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfunchook.dylib; path = ../../external/metacall/core/build/macosx/prefix/lib/libfunchook.dylib; sourceTree = "<group>"; };
-		A567C342231DE0DD00BB5398 /* libmetacall.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmetacall.dylib; path = ../../external/metacall/core/build/macosx/prefix/lib/libmetacall.dylib; sourceTree = "<group>"; };
-		A567C369231DE45900BB5398 /* libmetacall_seriald.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = libmetacall_seriald.so; path = ../../external/metacall/core/build/macosx/prefix/lib/libmetacall_seriald.so; sourceTree = "<group>"; };
-		A567C36A231DE45900BB5398 /* libfunchook_detourd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = libfunchook_detourd.so; path = ../../external/metacall/core/build/macosx/prefix/lib/libfunchook_detourd.so; sourceTree = "<group>"; };
-		A567C36B231DE45900BB5398 /* librapid_json_seriald.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = librapid_json_seriald.so; path = ../../external/metacall/core/build/macosx/prefix/lib/librapid_json_seriald.so; sourceTree = "<group>"; };
-		A567C36C231DE45900BB5398 /* libpy_loaderd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = libpy_loaderd.so; path = ../../external/metacall/core/build/macosx/prefix/lib/libpy_loaderd.so; sourceTree = "<group>"; };
-		A567C36D231DE45900BB5398 /* libmock_loaderd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = libmock_loaderd.so; path = ../../external/metacall/core/build/macosx/prefix/lib/libmock_loaderd.so; sourceTree = "<group>"; };
-		A567C395231DE95600BB5398 /* dtrace */ = {isa = PBXFileReference; lastKnownFileType = folder; path = dtrace; sourceTree = "<group>"; };
-		A567C396231DE95700BB5398 /* node_modules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = node_modules; sourceTree = "<group>"; };
-		A567C397231DE95700BB5398 /* trampoline.node */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; path = trampoline.node; sourceTree = "<group>"; };
-		A567C398231DE95700BB5398 /* bootstrap.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = bootstrap.js; sourceTree = "<group>"; };
-		A567C3A2231DE9ED00BB5398 /* libnode_loaderd.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = libnode_loaderd.so; path = ../../external/metacall/core/build/macosx/prefix/lib/libnode_loaderd.so; sourceTree = "<group>"; };
-		A567C3FE2323304900BB5398 /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = build.sh; path = scripts/build.sh; sourceTree = "<group>"; };
-		A567C3FF2323304900BB5398 /* clean.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = clean.sh; path = scripts/clean.sh; sourceTree = "<group>"; };
-		A567C4002323305200BB5398 /* js */ = {isa = PBXFileReference; lastKnownFileType = folder; name = js; path = scripts/js; sourceTree = "<group>"; };
-		A567C4012323305200BB5398 /* py */ = {isa = PBXFileReference; lastKnownFileType = folder; name = py; path = scripts/py; sourceTree = "<group>"; };
-		A58B31BD230A593C00E80ECB /* json11.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json11.hpp; sourceTree = "<group>"; };
-		A58B31C0230A593C00E80ECB /* json11.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = json11.cpp; sourceTree = "<group>"; };
-		A58B31C3230A596100E80ECB /* httplib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = httplib.h; sourceTree = "<group>"; };
-		A58B324E23109A2C00E80ECB /* YoutubeProvider.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = YoutubeProvider.hpp; sourceTree = "<group>"; };
-		A58B325623109A3000E80ECB /* YoutubeProvider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = YoutubeProvider.cpp; sourceTree = "<group>"; };
-		A58B32902310B18400E80ECB /* libSoundHoleCore-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSoundHoleCore-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		A58B329D2310B1BC00E80ECB /* SoundHoleCoreTest-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SoundHoleCoreTest-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		A58B329F2310B1BD00E80ECB /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		A58B32A02310B1BD00E80ECB /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
-		A58B32A22310B1BD00E80ECB /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		A58B32A32310B1BD00E80ECB /* ViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
-		A58B32A62310B1BD00E80ECB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		A58B32A82310B1BF00E80ECB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A58B32AB2310B1BF00E80ECB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		A58B32AD2310B1BF00E80ECB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A58B32AE2310B1BF00E80ECB /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
-		AED3F52944A8152022D6E241 /* Pods_SoundHoleCoreTest_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SoundHoleCoreTest_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		ED14BFA2471877B19AB388AD /* Pods-SoundHoleCoreTest-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.release.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.release.xcconfig"; sourceTree = "<group>"; };
+		2AA86EF008E87D76E221E6AA /* Pods-SoundHoleCoreTest-macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-macOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-macOS/Pods-SoundHoleCoreTest-macOS.debug.xcconfig"; sourceTree = "<group>"; };
+		3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SoundHoleCoreTest-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		92C87D0F488E86DFB8CAA6B3 /* libPods-SoundHoleCoreTest-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SoundHoleCoreTest-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		96CEDFDA87ECADACE17A7C82 /* Pods-SoundHoleCoreTest-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.release.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.release.xcconfig"; sourceTree = "<group>"; };
+		A372CA273104C573CAEC4617 /* Pods-SoundHoleCoreTest-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-macOS.release.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-macOS/Pods-SoundHoleCoreTest-macOS.release.xcconfig"; sourceTree = "<group>"; };
+		A513DB23232DA15C000DCAC7 /* libSoundHoleCore-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSoundHoleCore-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A513DB30232DA191000DCAC7 /* SoundHoleCoreTest-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SoundHoleCoreTest-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A513DB32232DA191000DCAC7 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		A513DB33232DA191000DCAC7 /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
+		A513DB35232DA191000DCAC7 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		A513DB36232DA191000DCAC7 /* ViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
+		A513DB39232DA191000DCAC7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		A513DB3B232DA192000DCAC7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A513DB3E232DA192000DCAC7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		A513DB40232DA192000DCAC7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A513DB41232DA192000DCAC7 /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
+		A513DB4A232DA1C0000DCAC7 /* libSoundHoleCore-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSoundHoleCore-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A513DB52232DA1D2000DCAC7 /* SoundHoleCoreTest-macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SoundHoleCoreTest-macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A513DB54232DA1D2000DCAC7 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		A513DB55232DA1D2000DCAC7 /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
+		A513DB57232DA1D2000DCAC7 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		A513DB58232DA1D2000DCAC7 /* ViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
+		A513DB5A232DA1D3000DCAC7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A513DB5D232DA1D3000DCAC7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		A513DB5F232DA1D3000DCAC7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A513DB60232DA1D3000DCAC7 /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
+		A513DB62232DA1D3000DCAC7 /* SoundHoleCoreTest_macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SoundHoleCoreTest_macOS.entitlements; sourceTree = "<group>"; };
+		A513DB68232DA1F8000DCAC7 /* SoundHoleCoreTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SoundHoleCoreTest.cpp; sourceTree = "<group>"; };
+		A513DB69232DA1F8000DCAC7 /* SoundHoleCoreTest.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SoundHoleCoreTest.hpp; sourceTree = "<group>"; };
+		A513DB6C232DA1F8000DCAC7 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		A513DB6E232DA1F8000DCAC7 /* external.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = external.hpp; sourceTree = "<group>"; };
+		A513DB70232DA1F8000DCAC7 /* MediaProvider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MediaProvider.cpp; sourceTree = "<group>"; };
+		A513DB71232DA1F8000DCAC7 /* YoutubeProvider.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = YoutubeProvider.hpp; sourceTree = "<group>"; };
+		A513DB72232DA1F8000DCAC7 /* BandcampProvider.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BandcampProvider.hpp; sourceTree = "<group>"; };
+		A513DB73232DA1F8000DCAC7 /* BandcampProvider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampProvider.cpp; sourceTree = "<group>"; };
+		A513DB74232DA1F8000DCAC7 /* MediaProvider.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MediaProvider.hpp; sourceTree = "<group>"; };
+		A513DB75232DA1F8000DCAC7 /* YoutubeProvider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = YoutubeProvider.cpp; sourceTree = "<group>"; };
+		A513ED81232DA20A000DCAC7 /* build.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = build.sh; sourceTree = "<group>"; };
+		A513ED82232DA20A000DCAC7 /* clean.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = clean.sh; sourceTree = "<group>"; };
+		A513ED84232DA20A000DCAC7 /* MediaItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MediaItem.cpp; sourceTree = "<group>"; };
+		A513ED85232DA20A000DCAC7 /* MediaItem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MediaItem.hpp; sourceTree = "<group>"; };
+		A513ED86232DA20A000DCAC7 /* soundhole.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = soundhole.hpp; sourceTree = "<group>"; };
+		A513ED9E232DA253000DCAC7 /* js */ = {isa = PBXFileReference; lastKnownFileType = folder; path = js; sourceTree = "<group>"; };
+		A513ED9F232DA253000DCAC7 /* py */ = {isa = PBXFileReference; lastKnownFileType = folder; path = py; sourceTree = "<group>"; };
+		A513EDA3232DA2F9000DCAC7 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.4.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		A513EDA5232DA300000DCAC7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.4.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		A513EDA7232DA30D000DCAC7 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		A513EDAA232DB3BF000DCAC7 /* NodeMobile.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NodeMobile.framework; path = "Pods/NodeMobile/out_ios/Release-universal/NodeMobile.framework"; sourceTree = "<group>"; };
+		A571E107232F1C0300603E14 /* libNodeJSEmbed-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libNodeJSEmbed-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AFF721677F756E337195FAB1 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		A564DFB4230914680018787F /* Frameworks */ = {
+		A513DB20232DA15C000DCAC7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A567C1BD231C7F8300BB5398 /* Frameworks */ = {
+		A513DB2D232DA191000DCAC7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A567C341231DE0DB00BB5398 /* libfunchook.dylib in Frameworks */,
-				A567C343231DE0DD00BB5398 /* libmetacall.dylib in Frameworks */,
-				A567C1D9231C804100BB5398 /* Cocoa.framework in Frameworks */,
-				A567C1D4231C802200BB5398 /* libSoundHoleCore-macOS.a in Frameworks */,
-				CD1C78C2A253E3ABC0D5BB69 /* Pods_SoundHoleCoreTest_macOS.framework in Frameworks */,
+				A513EDA6232DA300000DCAC7 /* Foundation.framework in Frameworks */,
+				A513EDA4232DA2F9000DCAC7 /* UIKit.framework in Frameworks */,
+				A513EDA2232DA2F2000DCAC7 /* libSoundHoleCore-iOS.a in Frameworks */,
+				806FE0F8B91D795108D7E457 /* libPods-SoundHoleCoreTest-iOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A58B328D2310B18400E80ECB /* Frameworks */ = {
+		A513DB48232DA1C0000DCAC7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A58B329A2310B1BC00E80ECB /* Frameworks */ = {
+		A513DB4F232DA1D2000DCAC7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A58B32B42310B25E00E80ECB /* libSoundHoleCore-iOS.a in Frameworks */,
-				A5224A382315E8B30006D213 /* UIKit.framework in Frameworks */,
-				A5224A362315E8AC0006D213 /* Foundation.framework in Frameworks */,
-				61C2B00A0336A0543211FA2A /* Pods_SoundHoleCoreTest_iOS.framework in Frameworks */,
+				A571E108232F1C0300603E14 /* libNodeJSEmbed-macOS.a in Frameworks */,
+				A513EDA8232DA30D000DCAC7 /* Cocoa.framework in Frameworks */,
+				A513EDA1232DA2EA000DCAC7 /* libSoundHoleCore-macOS.a in Frameworks */,
+				CD1A74B29839C57A94EAACD7 /* libPods-SoundHoleCoreTest-macOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A564DF96230913F30018787F = {
+		3AEB30691CC55CDB9F047EE2 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				A567C1F6231C83CF00BB5398 /* configurations */,
-				A564DFBA230915EF0018787F /* external */,
-				A564DFB1230914380018787F /* src */,
-				A564DFA0230913F30018787F /* Products */,
-				A564DFD02309166F0018787F /* Frameworks */,
-				E08AD100D9BFB9263FA19A4C /* Pods */,
+				AFF721677F756E337195FAB1 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */,
+				96CEDFDA87ECADACE17A7C82 /* Pods-SoundHoleCoreTest-iOS.release.xcconfig */,
+				2AA86EF008E87D76E221E6AA /* Pods-SoundHoleCoreTest-macOS.debug.xcconfig */,
+				A372CA273104C573CAEC4617 /* Pods-SoundHoleCoreTest-macOS.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		A513DB0F232DA149000DCAC7 = {
+			isa = PBXGroup;
+			children = (
+				A513DB66232DA1F8000DCAC7 /* src */,
+				A513DB19232DA149000DCAC7 /* Products */,
+				A513EDA0232DA2EA000DCAC7 /* Frameworks */,
+				3AEB30691CC55CDB9F047EE2 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
-		A564DFA0230913F30018787F /* Products */ = {
+		A513DB19232DA149000DCAC7 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A564DFB6230914680018787F /* libSoundHoleCore-macOS.a */,
-				A58B32902310B18400E80ECB /* libSoundHoleCore-iOS.a */,
-				A58B329D2310B1BC00E80ECB /* SoundHoleCoreTest-iOS.app */,
-				A567C1C0231C7F8300BB5398 /* SoundHoleCoreTest-macOS.app */,
+				A513DB23232DA15C000DCAC7 /* libSoundHoleCore-iOS.a */,
+				A513DB30232DA191000DCAC7 /* SoundHoleCoreTest-iOS.app */,
+				A513DB4A232DA1C0000DCAC7 /* libSoundHoleCore-macOS.a */,
+				A513DB52232DA1D2000DCAC7 /* SoundHoleCoreTest-macOS.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A564DFB1230914380018787F /* src */ = {
+		A513DB31232DA191000DCAC7 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
-				A564E01F230920F90018787F /* soundhole.hpp */,
-				A564DFD32309167D0018787F /* soundhole */,
-				A564DFD4230916870018787F /* test */,
+				A513DB32232DA191000DCAC7 /* AppDelegate.h */,
+				A513DB33232DA191000DCAC7 /* AppDelegate.mm */,
+				A513DB35232DA191000DCAC7 /* ViewController.h */,
+				A513DB36232DA191000DCAC7 /* ViewController.mm */,
+				A513DB38232DA191000DCAC7 /* Main.storyboard */,
+				A513DB3B232DA192000DCAC7 /* Assets.xcassets */,
+				A513DB3D232DA192000DCAC7 /* LaunchScreen.storyboard */,
+				A513DB40232DA192000DCAC7 /* Info.plist */,
+				A513DB41232DA192000DCAC7 /* main.mm */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		A513DB53232DA1D2000DCAC7 /* macOS */ = {
+			isa = PBXGroup;
+			children = (
+				A513DB54232DA1D2000DCAC7 /* AppDelegate.h */,
+				A513DB55232DA1D2000DCAC7 /* AppDelegate.mm */,
+				A513DB57232DA1D2000DCAC7 /* ViewController.h */,
+				A513DB58232DA1D2000DCAC7 /* ViewController.mm */,
+				A513DB5A232DA1D3000DCAC7 /* Assets.xcassets */,
+				A513DB5C232DA1D3000DCAC7 /* Main.storyboard */,
+				A513DB5F232DA1D3000DCAC7 /* Info.plist */,
+				A513DB60232DA1D3000DCAC7 /* main.mm */,
+				A513DB62232DA1D3000DCAC7 /* SoundHoleCoreTest_macOS.entitlements */,
+			);
+			path = macOS;
+			sourceTree = "<group>";
+		};
+		A513DB66232DA1F8000DCAC7 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				A513ED86232DA20A000DCAC7 /* soundhole.hpp */,
+				A513DB6D232DA1F8000DCAC7 /* soundhole */,
+				A513DB67232DA1F8000DCAC7 /* test */,
 			);
 			name = src;
 			path = ../../src;
 			sourceTree = "<group>";
 		};
-		A564DFBA230915EF0018787F /* external */ = {
+		A513DB67232DA1F8000DCAC7 /* test */ = {
 			isa = PBXGroup;
 			children = (
-				A58B31C2230A596100E80ECB /* cpp-httplib */,
-				A58B31B8230A593C00E80ECB /* json11 */,
-			);
-			name = external;
-			path = ../../external;
-			sourceTree = "<group>";
-		};
-		A564DFD02309166F0018787F /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				A567C37C231DE7FE00BB5398 /* metacall-lib-macOS */,
-				A567C340231DE0DB00BB5398 /* libfunchook.dylib */,
-				A567C342231DE0DD00BB5398 /* libmetacall.dylib */,
-				A567C36A231DE45900BB5398 /* libfunchook_detourd.so */,
-				A567C369231DE45900BB5398 /* libmetacall_seriald.so */,
-				A567C36D231DE45900BB5398 /* libmock_loaderd.so */,
-				A567C3A2231DE9ED00BB5398 /* libnode_loaderd.so */,
-				A567C36C231DE45900BB5398 /* libpy_loaderd.so */,
-				A567C36B231DE45900BB5398 /* librapid_json_seriald.so */,
-				A567C1D8231C804100BB5398 /* Cocoa.framework */,
-				A5224A372315E8B30006D213 /* UIKit.framework */,
-				A5224A352315E8AC0006D213 /* Foundation.framework */,
-				AED3F52944A8152022D6E241 /* Pods_SoundHoleCoreTest_iOS.framework */,
-				23BB4344E5734036C0C35C45 /* Pods_SoundHoleCoreTest_macOS.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		A564DFD32309167D0018787F /* soundhole */ = {
-			isa = PBXGroup;
-			children = (
-				A564E0212309289C0018787F /* external.hpp */,
-				A564DFD8230916F90018787F /* media */,
-				A564DFD9230917000018787F /* providers */,
-				A567C3FD2323303200BB5398 /* scripts */,
-			);
-			path = soundhole;
-			sourceTree = "<group>";
-		};
-		A564DFD4230916870018787F /* test */ = {
-			isa = PBXGroup;
-			children = (
-				A567C1F2231C819B00BB5398 /* main */,
-				A567C1EF231C818E00BB5398 /* SoundHoleCoreTest.hpp */,
-				A567C1EE231C818E00BB5398 /* SoundHoleCoreTest.cpp */,
+				A513DB69232DA1F8000DCAC7 /* SoundHoleCoreTest.hpp */,
+				A513DB68232DA1F8000DCAC7 /* SoundHoleCoreTest.cpp */,
+				A513DB6A232DA1F8000DCAC7 /* main */,
 			);
 			path = test;
 			sourceTree = "<group>";
 		};
-		A564DFD8230916F90018787F /* media */ = {
+		A513DB6A232DA1F8000DCAC7 /* main */ = {
 			isa = PBXGroup;
 			children = (
-				A517B82523093E1800897145 /* MediaItem.hpp */,
-				A517B82423093E1800897145 /* MediaItem.cpp */,
-			);
-			path = media;
-			sourceTree = "<group>";
-		};
-		A564DFD9230917000018787F /* providers */ = {
-			isa = PBXGroup;
-			children = (
-				A564E014230919820018787F /* MediaProvider.hpp */,
-				A564E013230919820018787F /* MediaProvider.cpp */,
-				A517B82123093CC300897145 /* BandcampProvider.hpp */,
-				A517B82023093CC300897145 /* BandcampProvider.cpp */,
-				A58B324E23109A2C00E80ECB /* YoutubeProvider.hpp */,
-				A58B325623109A3000E80ECB /* YoutubeProvider.cpp */,
-			);
-			path = providers;
-			sourceTree = "<group>";
-		};
-		A567C1C1231C7F8300BB5398 /* macOS */ = {
-			isa = PBXGroup;
-			children = (
-				A567C1C2231C7F8300BB5398 /* AppDelegate.h */,
-				A567C1C3231C7F8300BB5398 /* AppDelegate.mm */,
-				A567C1C5231C7F8300BB5398 /* ViewController.h */,
-				A567C1C6231C7F8300BB5398 /* ViewController.mm */,
-				A567C1C8231C7F8500BB5398 /* Assets.xcassets */,
-				A567C1CA231C7F8500BB5398 /* Main.storyboard */,
-				A567C1CD231C7F8500BB5398 /* Info.plist */,
-				A567C1CE231C7F8500BB5398 /* main.mm */,
-				A567C1D0231C7F8500BB5398 /* SoundHoleCoreTest_macOS.entitlements */,
-			);
-			path = macOS;
-			sourceTree = "<group>";
-		};
-		A567C1F2231C819B00BB5398 /* main */ = {
-			isa = PBXGroup;
-			children = (
-				A58B32B32310B1E200E80ECB /* cmd */,
-				A58B329E2310B1BD00E80ECB /* iOS */,
-				A567C1C1231C7F8300BB5398 /* macOS */,
+				A513DB6B232DA1F8000DCAC7 /* cmd */,
+				A513DB31232DA191000DCAC7 /* iOS */,
+				A513DB53232DA1D2000DCAC7 /* macOS */,
 			);
 			path = main;
 			sourceTree = "<group>";
 		};
-		A567C37C231DE7FE00BB5398 /* metacall-lib-macOS */ = {
+		A513DB6B232DA1F8000DCAC7 /* cmd */ = {
 			isa = PBXGroup;
 			children = (
-				A567C398231DE95700BB5398 /* bootstrap.js */,
-				A567C395231DE95600BB5398 /* dtrace */,
-				A567C396231DE95700BB5398 /* node_modules */,
-				A567C397231DE95700BB5398 /* trampoline.node */,
-			);
-			name = "metacall-lib-macOS";
-			path = ../../external/metacall/core/build/macosx/prefix/lib;
-			sourceTree = "<group>";
-		};
-		A567C3FD2323303200BB5398 /* scripts */ = {
-			isa = PBXGroup;
-			children = (
-				A567C3FE2323304900BB5398 /* build.sh */,
-				A567C3FF2323304900BB5398 /* clean.sh */,
-				A567C4002323305200BB5398 /* js */,
-				A567C4012323305200BB5398 /* py */,
-			);
-			name = scripts;
-			sourceTree = "<group>";
-		};
-		A58B31B8230A593C00E80ECB /* json11 */ = {
-			isa = PBXGroup;
-			children = (
-				A58B31BD230A593C00E80ECB /* json11.hpp */,
-				A58B31C0230A593C00E80ECB /* json11.cpp */,
-			);
-			path = json11;
-			sourceTree = "<group>";
-		};
-		A58B31C2230A596100E80ECB /* cpp-httplib */ = {
-			isa = PBXGroup;
-			children = (
-				A58B31C3230A596100E80ECB /* httplib.h */,
-			);
-			path = "cpp-httplib";
-			sourceTree = "<group>";
-		};
-		A58B329E2310B1BD00E80ECB /* iOS */ = {
-			isa = PBXGroup;
-			children = (
-				A58B32AE2310B1BF00E80ECB /* main.mm */,
-				A58B329F2310B1BD00E80ECB /* AppDelegate.h */,
-				A58B32A02310B1BD00E80ECB /* AppDelegate.mm */,
-				A58B32A22310B1BD00E80ECB /* ViewController.h */,
-				A58B32A32310B1BD00E80ECB /* ViewController.mm */,
-				A58B32A52310B1BD00E80ECB /* Main.storyboard */,
-				A58B32A82310B1BF00E80ECB /* Assets.xcassets */,
-				A58B32AA2310B1BF00E80ECB /* LaunchScreen.storyboard */,
-				A58B32AD2310B1BF00E80ECB /* Info.plist */,
-			);
-			path = iOS;
-			sourceTree = "<group>";
-		};
-		A58B32B32310B1E200E80ECB /* cmd */ = {
-			isa = PBXGroup;
-			children = (
-				A564DFD5230916A00018787F /* main.cpp */,
+				A513DB6C232DA1F8000DCAC7 /* main.cpp */,
 			);
 			path = cmd;
 			sourceTree = "<group>";
 		};
-		E08AD100D9BFB9263FA19A4C /* Pods */ = {
+		A513DB6D232DA1F8000DCAC7 /* soundhole */ = {
 			isa = PBXGroup;
 			children = (
-				92B916C1CB37D5B11CCD0CB6 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */,
-				ED14BFA2471877B19AB388AD /* Pods-SoundHoleCoreTest-iOS.release.xcconfig */,
-				1DA9B6E7D12D7B1EB3367457 /* Pods-SoundHoleCoreTest-macOS.debug.xcconfig */,
-				363217ADD75E06AEBC0B1BD6 /* Pods-SoundHoleCoreTest-macOS.release.xcconfig */,
+				A513DB6E232DA1F8000DCAC7 /* external.hpp */,
+				A513DB6F232DA1F8000DCAC7 /* providers */,
+				A513ED83232DA20A000DCAC7 /* media */,
+				A513DB76232DA1F8000DCAC7 /* scripts */,
 			);
-			path = Pods;
+			path = soundhole;
+			sourceTree = "<group>";
+		};
+		A513DB6F232DA1F8000DCAC7 /* providers */ = {
+			isa = PBXGroup;
+			children = (
+				A513DB74232DA1F8000DCAC7 /* MediaProvider.hpp */,
+				A513DB70232DA1F8000DCAC7 /* MediaProvider.cpp */,
+				A513DB72232DA1F8000DCAC7 /* BandcampProvider.hpp */,
+				A513DB73232DA1F8000DCAC7 /* BandcampProvider.cpp */,
+				A513DB71232DA1F8000DCAC7 /* YoutubeProvider.hpp */,
+				A513DB75232DA1F8000DCAC7 /* YoutubeProvider.cpp */,
+			);
+			path = providers;
+			sourceTree = "<group>";
+		};
+		A513DB76232DA1F8000DCAC7 /* scripts */ = {
+			isa = PBXGroup;
+			children = (
+				A513ED81232DA20A000DCAC7 /* build.sh */,
+				A513ED82232DA20A000DCAC7 /* clean.sh */,
+				A513ED9E232DA253000DCAC7 /* js */,
+				A513ED9F232DA253000DCAC7 /* py */,
+			);
+			path = scripts;
+			sourceTree = "<group>";
+		};
+		A513ED83232DA20A000DCAC7 /* media */ = {
+			isa = PBXGroup;
+			children = (
+				A513ED85232DA20A000DCAC7 /* MediaItem.hpp */,
+				A513ED84232DA20A000DCAC7 /* MediaItem.cpp */,
+			);
+			path = media;
+			sourceTree = "<group>";
+		};
+		A513EDA0232DA2EA000DCAC7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A571E107232F1C0300603E14 /* libNodeJSEmbed-macOS.a */,
+				A513EDAA232DB3BF000DCAC7 /* NodeMobile.framework */,
+				A513EDA7232DA30D000DCAC7 /* Cocoa.framework */,
+				A513EDA5232DA300000DCAC7 /* Foundation.framework */,
+				A513EDA3232DA2F9000DCAC7 /* UIKit.framework */,
+				92C87D0F488E86DFB8CAA6B3 /* libPods-SoundHoleCoreTest-iOS.a */,
+				3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
-		A564DFB2230914680018787F /* Headers */ = {
+		A513DB46232DA1C0000DCAC7 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A564E016230919820018787F /* MediaProvider.hpp in Headers */,
-				A58B325523109A2C00E80ECB /* YoutubeProvider.hpp in Headers */,
-				A517B82323093CC300897145 /* BandcampProvider.hpp in Headers */,
-				A517B82723093E1800897145 /* MediaItem.hpp in Headers */,
+				A513ED93232DA20B000DCAC7 /* MediaProvider.hpp in Headers */,
+				A513ED89232DA20B000DCAC7 /* SoundHoleCoreTest.hpp in Headers */,
+				A513ED9C232DA20C000DCAC7 /* MediaItem.hpp in Headers */,
+				A513ED8C232DA20B000DCAC7 /* external.hpp in Headers */,
+				A513ED8F232DA20B000DCAC7 /* YoutubeProvider.hpp in Headers */,
+				A513ED9D232DA20C000DCAC7 /* soundhole.hpp in Headers */,
+				A513ED90232DA20B000DCAC7 /* BandcampProvider.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		A564DFB5230914680018787F /* SoundHoleCore-macOS */ = {
+		A513DB22232DA15C000DCAC7 /* SoundHoleCore-iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A564DFB7230914680018787F /* Build configuration list for PBXNativeTarget "SoundHoleCore-macOS" */;
+			buildConfigurationList = A513DB29232DA15D000DCAC7 /* Build configuration list for PBXNativeTarget "SoundHoleCore-iOS" */;
 			buildPhases = (
-				A54325ED23172CF700C4FDB3 /* ShellScript */,
-				A564DFB2230914680018787F /* Headers */,
-				A564DFB3230914680018787F /* Sources */,
-				A564DFB4230914680018787F /* Frameworks */,
-				A567C25E231C8E8300BB5398 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "SoundHoleCore-macOS";
-			productName = "SoundHoleCore-macOS";
-			productReference = A564DFB6230914680018787F /* libSoundHoleCore-macOS.a */;
-			productType = "com.apple.product-type.library.static";
-		};
-		A567C1BF231C7F8300BB5398 /* SoundHoleCoreTest-macOS */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = A567C1D1231C7F8500BB5398 /* Build configuration list for PBXNativeTarget "SoundHoleCoreTest-macOS" */;
-			buildPhases = (
-				40968163A38E62F885609D63 /* [CP] Check Pods Manifest.lock */,
-				A567C3EA23220EC500BB5398 /* ShellScript */,
-				A567C1BC231C7F8300BB5398 /* Sources */,
-				A567C1BD231C7F8300BB5398 /* Frameworks */,
-				A567C1BE231C7F8300BB5398 /* Resources */,
-				A567C34F231DE1D300BB5398 /* Embed Libraries */,
-				A567C35D231DE41500BB5398 /* CopyFiles */,
-				A567C368231DE42700BB5398 /* CopyFiles */,
-				E5DC2F8D0A2A4CCCCE226011 /* [CP] Embed Pods Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "SoundHoleCoreTest-macOS";
-			productName = "SoundHoleCoreTest-macOS";
-			productReference = A567C1C0231C7F8300BB5398 /* SoundHoleCoreTest-macOS.app */;
-			productType = "com.apple.product-type.application";
-		};
-		A58B328F2310B18400E80ECB /* SoundHoleCore-iOS */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = A58B32962310B18400E80ECB /* Build configuration list for PBXNativeTarget "SoundHoleCore-iOS" */;
-			buildPhases = (
-				A58B328C2310B18400E80ECB /* Sources */,
-				A58B328D2310B18400E80ECB /* Frameworks */,
-				A58B328E2310B18400E80ECB /* CopyFiles */,
+				A513DB1F232DA15C000DCAC7 /* Sources */,
+				A513DB20232DA15C000DCAC7 /* Frameworks */,
+				A513DB21232DA15C000DCAC7 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -520,19 +345,18 @@
 			);
 			name = "SoundHoleCore-iOS";
 			productName = "SoundHoleCore-iOS";
-			productReference = A58B32902310B18400E80ECB /* libSoundHoleCore-iOS.a */;
+			productReference = A513DB23232DA15C000DCAC7 /* libSoundHoleCore-iOS.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		A58B329C2310B1BC00E80ECB /* SoundHoleCoreTest-iOS */ = {
+		A513DB2F232DA191000DCAC7 /* SoundHoleCoreTest-iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A58B32B02310B1BF00E80ECB /* Build configuration list for PBXNativeTarget "SoundHoleCoreTest-iOS" */;
+			buildConfigurationList = A513DB43232DA192000DCAC7 /* Build configuration list for PBXNativeTarget "SoundHoleCoreTest-iOS" */;
 			buildPhases = (
-				A0CD9DAF5DC3B29DB1A414AC /* [CP] Check Pods Manifest.lock */,
-				A58B32992310B1BC00E80ECB /* Sources */,
-				A58B329A2310B1BC00E80ECB /* Frameworks */,
-				A58B329B2310B1BC00E80ECB /* Resources */,
-				A567C260231C8EDA00BB5398 /* CopyFiles */,
-				27B7565E510CB3CD4622FF52 /* [CP] Embed Pods Frameworks */,
+				3D947BB2EB104B8211934660 /* [CP] Check Pods Manifest.lock */,
+				A513DB2C232DA191000DCAC7 /* Sources */,
+				A513DB2D232DA191000DCAC7 /* Frameworks */,
+				A513DB2E232DA191000DCAC7 /* Resources */,
+				A23E5B3946C4289410FCB40C /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -540,33 +364,68 @@
 			);
 			name = "SoundHoleCoreTest-iOS";
 			productName = "SoundHoleCoreTest-iOS";
-			productReference = A58B329D2310B1BC00E80ECB /* SoundHoleCoreTest-iOS.app */;
+			productReference = A513DB30232DA191000DCAC7 /* SoundHoleCoreTest-iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A513DB49232DA1C0000DCAC7 /* SoundHoleCore-macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A513DB4D232DA1C0000DCAC7 /* Build configuration list for PBXNativeTarget "SoundHoleCore-macOS" */;
+			buildPhases = (
+				A513DB46232DA1C0000DCAC7 /* Headers */,
+				A513DB47232DA1C0000DCAC7 /* Sources */,
+				A513DB48232DA1C0000DCAC7 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SoundHoleCore-macOS";
+			productName = "SoundHoleCore-macOS";
+			productReference = A513DB4A232DA1C0000DCAC7 /* libSoundHoleCore-macOS.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		A513DB51232DA1D2000DCAC7 /* SoundHoleCoreTest-macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A513DB63232DA1D3000DCAC7 /* Build configuration list for PBXNativeTarget "SoundHoleCoreTest-macOS" */;
+			buildPhases = (
+				A02FB12D6AA4821BE799FBFE /* [CP] Check Pods Manifest.lock */,
+				A513DB4E232DA1D2000DCAC7 /* Sources */,
+				A513DB4F232DA1D2000DCAC7 /* Frameworks */,
+				A513DB50232DA1D2000DCAC7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SoundHoleCoreTest-macOS";
+			productName = "SoundHoleCoreTest-macOS";
+			productReference = A513DB52232DA1D2000DCAC7 /* SoundHoleCoreTest-macOS.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		A564DF97230913F30018787F /* Project object */ = {
+		A513DB10232DA149000DCAC7 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1030;
 				ORGANIZATIONNAME = "Luis Finke";
 				TargetAttributes = {
-					A564DFB5230914680018787F = {
+					A513DB22232DA15C000DCAC7 = {
 						CreatedOnToolsVersion = 10.3;
 					};
-					A567C1BF231C7F8300BB5398 = {
+					A513DB2F232DA191000DCAC7 = {
 						CreatedOnToolsVersion = 10.3;
 					};
-					A58B328F2310B18400E80ECB = {
+					A513DB49232DA1C0000DCAC7 = {
 						CreatedOnToolsVersion = 10.3;
 					};
-					A58B329C2310B1BC00E80ECB = {
+					A513DB51232DA1D2000DCAC7 = {
 						CreatedOnToolsVersion = 10.3;
 					};
 				};
 			};
-			buildConfigurationList = A564DF9A230913F30018787F /* Build configuration list for PBXProject "SoundHoleCore" */;
+			buildConfigurationList = A513DB13232DA149000DCAC7 /* Build configuration list for PBXProject "SoundHoleCore" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -574,103 +433,43 @@
 				en,
 				Base,
 			);
-			mainGroup = A564DF96230913F30018787F;
-			productRefGroup = A564DFA0230913F30018787F /* Products */;
+			mainGroup = A513DB0F232DA149000DCAC7;
+			productRefGroup = A513DB19232DA149000DCAC7 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A564DFB5230914680018787F /* SoundHoleCore-macOS */,
-				A58B328F2310B18400E80ECB /* SoundHoleCore-iOS */,
-				A567C1BF231C7F8300BB5398 /* SoundHoleCoreTest-macOS */,
-				A58B329C2310B1BC00E80ECB /* SoundHoleCoreTest-iOS */,
+				A513DB22232DA15C000DCAC7 /* SoundHoleCore-iOS */,
+				A513DB2F232DA191000DCAC7 /* SoundHoleCoreTest-iOS */,
+				A513DB49232DA1C0000DCAC7 /* SoundHoleCore-macOS */,
+				A513DB51232DA1D2000DCAC7 /* SoundHoleCoreTest-macOS */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		A567C1BE231C7F8300BB5398 /* Resources */ = {
+		A513DB2E232DA191000DCAC7 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A567C1C9231C7F8500BB5398 /* Assets.xcassets in Resources */,
-				A567C1F8231C83CF00BB5398 /* configurations in Resources */,
-				A567C1CC231C7F8500BB5398 /* Main.storyboard in Resources */,
+				A513DB3F232DA192000DCAC7 /* LaunchScreen.storyboard in Resources */,
+				A513DB3C232DA192000DCAC7 /* Assets.xcassets in Resources */,
+				A513DB3A232DA191000DCAC7 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A567C25E231C8E8300BB5398 /* Resources */ = {
+		A513DB50232DA1D2000DCAC7 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A567C39B231DE95700BB5398 /* trampoline.node in Resources */,
-				A567C3A3231DE9EE00BB5398 /* libnode_loaderd.so in Resources */,
-				A567C39C231DE95700BB5398 /* bootstrap.js in Resources */,
-				A567C371231DE45900BB5398 /* libpy_loaderd.so in Resources */,
-				A567C399231DE95700BB5398 /* dtrace in Resources */,
-				A567C36F231DE45900BB5398 /* libfunchook_detourd.so in Resources */,
-				A567C4022323305200BB5398 /* js in Resources */,
-				A567C4032323305200BB5398 /* py in Resources */,
-				A567C36E231DE45900BB5398 /* libmetacall_seriald.so in Resources */,
-				A567C370231DE45900BB5398 /* librapid_json_seriald.so in Resources */,
-				A567C39A231DE95700BB5398 /* node_modules in Resources */,
-				A567C372231DE45900BB5398 /* libmock_loaderd.so in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		A58B329B2310B1BC00E80ECB /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				A58B32AC2310B1BF00E80ECB /* LaunchScreen.storyboard in Resources */,
-				A567C1F7231C83CF00BB5398 /* configurations in Resources */,
-				A58B32A92310B1BF00E80ECB /* Assets.xcassets in Resources */,
-				A58B32A72310B1BD00E80ECB /* Main.storyboard in Resources */,
+				A513DB5B232DA1D3000DCAC7 /* Assets.xcassets in Resources */,
+				A513DB5E232DA1D3000DCAC7 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		27B7565E510CB3CD4622FF52 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		40968163A38E62F885609D63 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-SoundHoleCoreTest-macOS-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		A0CD9DAF5DC3B29DB1A414AC /* [CP] Check Pods Manifest.lock */ = {
+		3D947BB2EB104B8211934660 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -692,7 +491,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		A54325ED23172CF700C4FDB3 /* ShellScript */ = {
+		A02FB12D6AA4821BE799FBFE /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -700,129 +499,118 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
+			name = "[CP] Check Pods Manifest.lock";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-SoundHoleCoreTest-macOS-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n../../src/soundhole/scripts/build.sh\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
 		};
-		A567C3EA23220EC500BB5398 /* ShellScript */ = {
+		A23E5B3946C4289410FCB40C /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n../../external/nodejs/build.sh \"$(CONFIGURATION)\"\n";
-		};
-		E5DC2F8D0A2A4CCCCE226011 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SoundHoleCoreTest-macOS/Pods-SoundHoleCoreTest-macOS-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SoundHoleCoreTest-macOS/Pods-SoundHoleCoreTest-macOS-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SoundHoleCoreTest-macOS/Pods-SoundHoleCoreTest-macOS-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		A564DFB3230914680018787F /* Sources */ = {
+		A513DB1F232DA15C000DCAC7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A58B325723109A3000E80ECB /* YoutubeProvider.cpp in Sources */,
-				A517B82223093CC300897145 /* BandcampProvider.cpp in Sources */,
-				A564E015230919820018787F /* MediaProvider.cpp in Sources */,
-				A517B82623093E1800897145 /* MediaItem.cpp in Sources */,
+				A513ED87232DA20B000DCAC7 /* SoundHoleCoreTest.cpp in Sources */,
+				A513ED94232DA20B000DCAC7 /* YoutubeProvider.cpp in Sources */,
+				A513ED91232DA20B000DCAC7 /* BandcampProvider.cpp in Sources */,
+				A513ED9A232DA20C000DCAC7 /* MediaItem.cpp in Sources */,
+				A513ED8D232DA20B000DCAC7 /* MediaProvider.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A567C1BC231C7F8300BB5398 /* Sources */ = {
+		A513DB2C232DA191000DCAC7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A567C3D52321E36600BB5398 /* SoundHoleCoreTest.cpp in Sources */,
-				A567C1C7231C7F8300BB5398 /* ViewController.mm in Sources */,
-				A567C1CF231C7F8500BB5398 /* main.mm in Sources */,
-				A567C1C4231C7F8300BB5398 /* AppDelegate.mm in Sources */,
+				A513DB37232DA191000DCAC7 /* ViewController.mm in Sources */,
+				A513DB42232DA192000DCAC7 /* main.mm in Sources */,
+				A513DB34232DA191000DCAC7 /* AppDelegate.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A58B328C2310B18400E80ECB /* Sources */ = {
+		A513DB47232DA1C0000DCAC7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A58B32C62310B3B300E80ECB /* BandcampProvider.cpp in Sources */,
-				A58B32C82310B3B900E80ECB /* MediaItem.cpp in Sources */,
-				A58B32C52310B3B000E80ECB /* MediaProvider.cpp in Sources */,
-				A58B32C72310B3B500E80ECB /* YoutubeProvider.cpp in Sources */,
+				A513ED88232DA20B000DCAC7 /* SoundHoleCoreTest.cpp in Sources */,
+				A513ED95232DA20B000DCAC7 /* YoutubeProvider.cpp in Sources */,
+				A513ED92232DA20B000DCAC7 /* BandcampProvider.cpp in Sources */,
+				A513ED9B232DA20C000DCAC7 /* MediaItem.cpp in Sources */,
+				A513ED8E232DA20B000DCAC7 /* MediaProvider.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A58B32992310B1BC00E80ECB /* Sources */ = {
+		A513DB4E232DA1D2000DCAC7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A567C3D62321E36700BB5398 /* SoundHoleCoreTest.cpp in Sources */,
-				A58B32A42310B1BD00E80ECB /* ViewController.mm in Sources */,
-				A58B32AF2310B1BF00E80ECB /* main.mm in Sources */,
-				A58B32A12310B1BD00E80ECB /* AppDelegate.mm in Sources */,
+				A513DB59232DA1D2000DCAC7 /* ViewController.mm in Sources */,
+				A513DB61232DA1D3000DCAC7 /* main.mm in Sources */,
+				A513DB56232DA1D2000DCAC7 /* AppDelegate.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		A567C1CA231C7F8500BB5398 /* Main.storyboard */ = {
+		A513DB38232DA191000DCAC7 /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				A567C1CB231C7F8500BB5398 /* Base */,
+				A513DB39232DA191000DCAC7 /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
-		A58B32A52310B1BD00E80ECB /* Main.storyboard */ = {
+		A513DB3D232DA192000DCAC7 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				A58B32A62310B1BD00E80ECB /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		A58B32AA2310B1BF00E80ECB /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				A58B32AB2310B1BF00E80ECB /* Base */,
+				A513DB3E232DA192000DCAC7 /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		A513DB5C232DA1D3000DCAC7 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A513DB5D232DA1D3000DCAC7 /* Base */,
+			);
+			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		A564DFA1230913F30018787F /* Debug */ = {
+		A513DB1A232DA149000DCAC7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -873,12 +661,9 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/../../src",
-					"$(PROJECT_DIR)/../../external/json11",
-					"$(PROJECT_DIR)/../../external/cpp-httplib",
-					"$(PROJECT_DIR)/../../../data-cpp/src",
-					"$(PROJECT_DIR)/../../../async-cpp/src",
 					"$(SRCROOT)/Pods/DataCpp/src",
 					"$(SRCROOT)/Pods/AsyncCpp/src",
+					"$(SRCROOT)/Pods/NodeJSEmbed/src",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -888,9 +673,10 @@
 			};
 			name = Debug;
 		};
-		A564DFA2230913F30018787F /* Release */ = {
+		A513DB1B232DA149000DCAC7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -935,12 +721,9 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/../../src",
-					"$(PROJECT_DIR)/../../external/json11",
-					"$(PROJECT_DIR)/../../external/cpp-httplib",
-					"$(PROJECT_DIR)/../../../data-cpp/src",
-					"$(PROJECT_DIR)/../../../async-cpp/src",
 					"$(SRCROOT)/Pods/DataCpp/src",
 					"$(SRCROOT)/Pods/AsyncCpp/src",
+					"$(SRCROOT)/Pods/NodeJSEmbed/src",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -949,105 +732,13 @@
 			};
 			name = Release;
 		};
-		A564DFB8230914680018787F /* Debug */ = {
+		A513DB2A232DA15D000DCAC7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
-				CODE_SIGN_STYLE = Automatic;
-				EXECUTABLE_PREFIX = lib;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/../../src",
-					"$(PROJECT_DIR)/../../external/json11",
-					"$(PROJECT_DIR)/../../external/cpp-httplib",
-					"$(PROJECT_DIR)/../../../data-cpp/src",
-					"$(PROJECT_DIR)/../../../async-cpp/src",
-					"$(SRCROOT)/Pods/DataCpp/src",
-					"$(SRCROOT)/Pods/AsyncCpp/src",
-					"$(PROJECT_DIR)/../../external/nodejs/build/include",
-				);
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../../external/nodejs/build/$(CONFIGURATION)/";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-			};
-			name = Debug;
-		};
-		A564DFB9230914680018787F /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
-				CODE_SIGN_STYLE = Automatic;
-				EXECUTABLE_PREFIX = lib;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/../../src",
-					"$(PROJECT_DIR)/../../external/json11",
-					"$(PROJECT_DIR)/../../external/cpp-httplib",
-					"$(PROJECT_DIR)/../../../data-cpp/src",
-					"$(PROJECT_DIR)/../../../async-cpp/src",
-					"$(SRCROOT)/Pods/DataCpp/src",
-					"$(SRCROOT)/Pods/AsyncCpp/src",
-					"$(PROJECT_DIR)/../../external/nodejs/build/include",
-				);
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../../external/nodejs/build/$(CONFIGURATION)/";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-			};
-			name = Release;
-		};
-		A567C1D2231C7F8500BB5398 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1DA9B6E7D12D7B1EB3367457 /* Pods-SoundHoleCoreTest-macOS.debug.xcconfig */;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
-				CODE_SIGN_ENTITLEMENTS = "$(PROJECT_DIR)/../../test/main/macOS/SoundHoleCoreTest_macOS.entitlements";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = "$(SRCROOT)/../../src/test/main/macOS/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.lufinkey.SoundHoleCoreTest-macOS";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		A567C1D3231C7F8500BB5398 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 363217ADD75E06AEBC0B1BD6 /* Pods-SoundHoleCoreTest-macOS.release.xcconfig */;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
-				CODE_SIGN_ENTITLEMENTS = "$(PROJECT_DIR)/../../test/main/macOS/SoundHoleCoreTest_macOS.entitlements";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = "$(SRCROOT)/../../src/test/main/macOS/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.lufinkey.SoundHoleCoreTest-macOS";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
-		A58B32972310B18400E80ECB /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-ObjC",
-				);
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1055,17 +746,13 @@
 			};
 			name = Debug;
 		};
-		A58B32982310B18400E80ECB /* Release */ = {
+		A513DB2B232DA15D000DCAC7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-ObjC",
-				);
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1074,17 +761,16 @@
 			};
 			name = Release;
 		};
-		A58B32B12310B1BF00E80ECB /* Debug */ = {
+		A513DB44232DA192000DCAC7 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 92B916C1CB37D5B11CCD0CB6 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */;
+			baseConfigurationReference = AFF721677F756E337195FAB1 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+					"$(PROJECT_DIR)/Pods/NodeMobile/out_ios/Release-universal",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../src/test/main/iOS/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
@@ -1099,17 +785,16 @@
 			};
 			name = Debug;
 		};
-		A58B32B22310B1BF00E80ECB /* Release */ = {
+		A513DB45232DA192000DCAC7 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = ED14BFA2471877B19AB388AD /* Pods-SoundHoleCoreTest-iOS.release.xcconfig */;
+			baseConfigurationReference = 96CEDFDA87ECADACE17A7C82 /* Pods-SoundHoleCoreTest-iOS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+					"$(PROJECT_DIR)/Pods/NodeMobile/out_ios/Release-universal",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../src/test/main/iOS/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
@@ -1122,58 +807,114 @@
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A513DB4B232DA1C0000DCAC7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		A513DB4C232DA1C0000DCAC7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		A513DB64232DA1D3000DCAC7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2AA86EF008E87D76E221E6AA /* Pods-SoundHoleCoreTest-macOS.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ../../src/test/main/macOS/SoundHoleCoreTest_macOS.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = "$(SRCROOT)/../../src/test/main/macOS/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.lufinkey.SoundHoleCoreTest-macOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		A513DB65232DA1D3000DCAC7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A372CA273104C573CAEC4617 /* Pods-SoundHoleCoreTest-macOS.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ../../src/test/main/macOS/SoundHoleCoreTest_macOS.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = "$(SRCROOT)/../../src/test/main/macOS/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.lufinkey.SoundHoleCoreTest-macOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A564DF9A230913F30018787F /* Build configuration list for PBXProject "SoundHoleCore" */ = {
+		A513DB13232DA149000DCAC7 /* Build configuration list for PBXProject "SoundHoleCore" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A564DFA1230913F30018787F /* Debug */,
-				A564DFA2230913F30018787F /* Release */,
+				A513DB1A232DA149000DCAC7 /* Debug */,
+				A513DB1B232DA149000DCAC7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A564DFB7230914680018787F /* Build configuration list for PBXNativeTarget "SoundHoleCore-macOS" */ = {
+		A513DB29232DA15D000DCAC7 /* Build configuration list for PBXNativeTarget "SoundHoleCore-iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A564DFB8230914680018787F /* Debug */,
-				A564DFB9230914680018787F /* Release */,
+				A513DB2A232DA15D000DCAC7 /* Debug */,
+				A513DB2B232DA15D000DCAC7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A567C1D1231C7F8500BB5398 /* Build configuration list for PBXNativeTarget "SoundHoleCoreTest-macOS" */ = {
+		A513DB43232DA192000DCAC7 /* Build configuration list for PBXNativeTarget "SoundHoleCoreTest-iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A567C1D2231C7F8500BB5398 /* Debug */,
-				A567C1D3231C7F8500BB5398 /* Release */,
+				A513DB44232DA192000DCAC7 /* Debug */,
+				A513DB45232DA192000DCAC7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A58B32962310B18400E80ECB /* Build configuration list for PBXNativeTarget "SoundHoleCore-iOS" */ = {
+		A513DB4D232DA1C0000DCAC7 /* Build configuration list for PBXNativeTarget "SoundHoleCore-macOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A58B32972310B18400E80ECB /* Debug */,
-				A58B32982310B18400E80ECB /* Release */,
+				A513DB4B232DA1C0000DCAC7 /* Debug */,
+				A513DB4C232DA1C0000DCAC7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A58B32B02310B1BF00E80ECB /* Build configuration list for PBXNativeTarget "SoundHoleCoreTest-iOS" */ = {
+		A513DB63232DA1D3000DCAC7 /* Build configuration list for PBXNativeTarget "SoundHoleCoreTest-macOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A58B32B12310B1BF00E80ECB /* Debug */,
-				A58B32B22310B1BF00E80ECB /* Release */,
+				A513DB64232DA1D3000DCAC7 /* Debug */,
+				A513DB65232DA1D3000DCAC7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = A564DF97230913F30018787F /* Project object */;
+	rootObject = A513DB10232DA149000DCAC7 /* Project object */;
 }
