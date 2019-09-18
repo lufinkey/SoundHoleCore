@@ -4,13 +4,6 @@
 cmake_minimum_required(VERSION 3.4.1)
 set( CMAKE_CXX_STANDARD 17 )
 
-execute_process(COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../tools/fetch_shared_dependencies.sh")
-
-include_directories(
-	"${CMAKE_CURRENT_SOURCE_DIR}"
-	"${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../src"
-	"${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../external/nodejs-embed/src")
-
 add_subdirectory(
 	"${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../external/nodejs-embed/projects/android-studio/libnodejsembed/src/main/cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/../../../build/libnodejsembed")
