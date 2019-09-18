@@ -41,10 +41,10 @@
 		A513EDA4232DA2F9000DCAC7 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A513EDA3232DA2F9000DCAC7 /* UIKit.framework */; };
 		A513EDA6232DA300000DCAC7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A513EDA5232DA300000DCAC7 /* Foundation.framework */; };
 		A513EDA8232DA30D000DCAC7 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A513EDA7232DA30D000DCAC7 /* Cocoa.framework */; };
-		A571E108232F1C0300603E14 /* libNodeJSEmbed-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A571E107232F1C0300603E14 /* libNodeJSEmbed-macOS.a */; };
 		A571E12E2332C5A300603E14 /* SpotifyProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E12C2332C5A300603E14 /* SpotifyProvider.cpp */; };
 		A571E1322332C64500603E14 /* SpotifyProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E12C2332C5A300603E14 /* SpotifyProvider.cpp */; };
 		A571E1332332C65000603E14 /* SpotifyProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A571E12D2332C5A300603E14 /* SpotifyProvider.hpp */; };
+		A571E1352332C6D000603E14 /* SpotifyAudioPlayback.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A571E1342332C6D000603E14 /* SpotifyAudioPlayback.framework */; };
 		CD1A74B29839C57A94EAACD7 /* libPods-SoundHoleCoreTest-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */; };
 /* End PBXBuildFile section */
 
@@ -109,9 +109,9 @@
 		A513EDA5232DA300000DCAC7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.4.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		A513EDA7232DA30D000DCAC7 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		A513EDAA232DB3BF000DCAC7 /* NodeMobile.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NodeMobile.framework; path = "Pods/NodeMobile/out_ios/Release-universal/NodeMobile.framework"; sourceTree = "<group>"; };
-		A571E107232F1C0300603E14 /* libNodeJSEmbed-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libNodeJSEmbed-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A571E12C2332C5A300603E14 /* SpotifyProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyProvider.cpp; sourceTree = "<group>"; };
 		A571E12D2332C5A300603E14 /* SpotifyProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyProvider.hpp; sourceTree = "<group>"; };
+		A571E1342332C6D000603E14 /* SpotifyAudioPlayback.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SpotifyAudioPlayback.framework; path = "../../external/spotify-ios-streaming-sdk/SpotifyAudioPlayback.framework"; sourceTree = "<group>"; };
 		AFF721677F756E337195FAB1 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -127,6 +127,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A571E1352332C6D000603E14 /* SpotifyAudioPlayback.framework in Frameworks */,
 				A513EDA6232DA300000DCAC7 /* Foundation.framework in Frameworks */,
 				A513EDA4232DA2F9000DCAC7 /* UIKit.framework in Frameworks */,
 				A513EDA2232DA2F2000DCAC7 /* libSoundHoleCore-iOS.a in Frameworks */,
@@ -145,7 +146,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A571E108232F1C0300603E14 /* libNodeJSEmbed-macOS.a in Frameworks */,
 				A513EDA8232DA30D000DCAC7 /* Cocoa.framework in Frameworks */,
 				A513EDA1232DA2EA000DCAC7 /* libSoundHoleCore-macOS.a in Frameworks */,
 				CD1A74B29839C57A94EAACD7 /* libPods-SoundHoleCoreTest-macOS.a in Frameworks */,
@@ -304,7 +304,7 @@
 		A513EDA0232DA2EA000DCAC7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				A571E107232F1C0300603E14 /* libNodeJSEmbed-macOS.a */,
+				A571E1342332C6D000603E14 /* SpotifyAudioPlayback.framework */,
 				A513EDAA232DB3BF000DCAC7 /* NodeMobile.framework */,
 				A513EDA7232DA30D000DCAC7 /* Cocoa.framework */,
 				A513EDA5232DA300000DCAC7 /* Foundation.framework */,
