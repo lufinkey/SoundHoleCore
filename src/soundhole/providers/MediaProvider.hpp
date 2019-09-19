@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <soundhole/external.hpp>
+#include <soundhole/common.hpp>
 #include <soundhole/media/MediaItem.hpp>
 
 namespace sh {

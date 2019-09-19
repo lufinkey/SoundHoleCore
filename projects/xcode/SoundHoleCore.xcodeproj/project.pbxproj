@@ -22,7 +22,7 @@
 		A513ED87232DA20B000DCAC7 /* SoundHoleCoreTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A513DB68232DA1F8000DCAC7 /* SoundHoleCoreTest.cpp */; };
 		A513ED88232DA20B000DCAC7 /* SoundHoleCoreTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A513DB68232DA1F8000DCAC7 /* SoundHoleCoreTest.cpp */; };
 		A513ED89232DA20B000DCAC7 /* SoundHoleCoreTest.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A513DB69232DA1F8000DCAC7 /* SoundHoleCoreTest.hpp */; };
-		A513ED8C232DA20B000DCAC7 /* external.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A513DB6E232DA1F8000DCAC7 /* external.hpp */; };
+		A513ED8C232DA20B000DCAC7 /* common.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A513DB6E232DA1F8000DCAC7 /* common.hpp */; };
 		A513ED8D232DA20B000DCAC7 /* MediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A513DB70232DA1F8000DCAC7 /* MediaProvider.cpp */; };
 		A513ED8E232DA20B000DCAC7 /* MediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A513DB70232DA1F8000DCAC7 /* MediaProvider.cpp */; };
 		A513ED8F232DA20B000DCAC7 /* YoutubeProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A513DB71232DA1F8000DCAC7 /* YoutubeProvider.hpp */; };
@@ -105,7 +105,7 @@
 		A513DB68232DA1F8000DCAC7 /* SoundHoleCoreTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SoundHoleCoreTest.cpp; sourceTree = "<group>"; };
 		A513DB69232DA1F8000DCAC7 /* SoundHoleCoreTest.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SoundHoleCoreTest.hpp; sourceTree = "<group>"; };
 		A513DB6C232DA1F8000DCAC7 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		A513DB6E232DA1F8000DCAC7 /* external.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = external.hpp; sourceTree = "<group>"; };
+		A513DB6E232DA1F8000DCAC7 /* common.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = common.hpp; sourceTree = "<group>"; };
 		A513DB70232DA1F8000DCAC7 /* MediaProvider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MediaProvider.cpp; sourceTree = "<group>"; };
 		A513DB71232DA1F8000DCAC7 /* YoutubeProvider.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = YoutubeProvider.hpp; sourceTree = "<group>"; };
 		A513DB72232DA1F8000DCAC7 /* BandcampProvider.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BandcampProvider.hpp; sourceTree = "<group>"; };
@@ -289,7 +289,7 @@
 		A513DB6D232DA1F8000DCAC7 /* soundhole */ = {
 			isa = PBXGroup;
 			children = (
-				A513DB6E232DA1F8000DCAC7 /* external.hpp */,
+				A513DB6E232DA1F8000DCAC7 /* common.hpp */,
 				A513DB6F232DA1F8000DCAC7 /* providers */,
 				A513ED83232DA20A000DCAC7 /* media */,
 				A513DB76232DA1F8000DCAC7 /* scripts */,
@@ -428,7 +428,7 @@
 				A513ED89232DA20B000DCAC7 /* SoundHoleCoreTest.hpp in Headers */,
 				A571E1332332C65000603E14 /* SpotifyProvider.hpp in Headers */,
 				A513ED9C232DA20C000DCAC7 /* MediaItem.hpp in Headers */,
-				A513ED8C232DA20B000DCAC7 /* external.hpp in Headers */,
+				A513ED8C232DA20B000DCAC7 /* common.hpp in Headers */,
 				A513ED8F232DA20B000DCAC7 /* YoutubeProvider.hpp in Headers */,
 				A571E16723332CE200603E14 /* Utils.hpp in Headers */,
 				A513ED9D232DA20C000DCAC7 /* soundhole.hpp in Headers */,

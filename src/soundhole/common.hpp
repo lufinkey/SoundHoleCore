@@ -1,5 +1,5 @@
 //
-//  external.hpp
+//  common.hpp
 //  SoundHoleCore
 //
 //  Created by Luis Finke on 8/18/19.

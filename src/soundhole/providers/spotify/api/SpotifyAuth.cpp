@@ -105,7 +105,12 @@ namespace sh {
 			} else {
 				renewalInfo->callbacks.pushBack({ resolve, reject });
 			}
+			lock.unlock();
+			if(!shouldPerformRenewal) {
+				return;
+			}
 			
+			// TODO perform actual session renewal
 		});*/
 	}
 	

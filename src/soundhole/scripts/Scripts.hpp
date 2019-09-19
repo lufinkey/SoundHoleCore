@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <soundhole/external.hpp>
+#include <soundhole/common.hpp>
 
 struct napi_ref__;
 typedef struct napi_ref__* napi_ref;
