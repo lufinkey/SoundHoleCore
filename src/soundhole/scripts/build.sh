@@ -10,5 +10,5 @@ cd "$base_dir/js"
 npm run build || exit $?
 
 # bundle py file
-cd "$base_dir/py"
-./build.sh || exit $?
+# cd "$base_dir/py"
+# ./build.sh || exit $?
