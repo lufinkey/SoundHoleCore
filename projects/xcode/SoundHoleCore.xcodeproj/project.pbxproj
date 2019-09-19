@@ -44,7 +44,19 @@
 		A571E12E2332C5A300603E14 /* SpotifyProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E12C2332C5A300603E14 /* SpotifyProvider.cpp */; };
 		A571E1322332C64500603E14 /* SpotifyProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E12C2332C5A300603E14 /* SpotifyProvider.cpp */; };
 		A571E1332332C65000603E14 /* SpotifyProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A571E12D2332C5A300603E14 /* SpotifyProvider.hpp */; };
-		A571E1352332C6D000603E14 /* SpotifyAudioPlayback.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A571E1342332C6D000603E14 /* SpotifyAudioPlayback.framework */; };
+		A571E13D2332D11200603E14 /* SpotifyAudioPlayback.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A571E1342332C6D000603E14 /* SpotifyAudioPlayback.framework */; };
+		A571E15923331C6600603E14 /* SpotifySession.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A571E15323331C6600603E14 /* SpotifySession.hpp */; };
+		A571E15A23331C6600603E14 /* SpotifyAuth.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A571E15423331C6600603E14 /* SpotifyAuth.hpp */; };
+		A571E15D23331C6600603E14 /* SpotifyAuth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E15623331C6600603E14 /* SpotifyAuth.cpp */; };
+		A571E15E23331C6600603E14 /* SpotifyAuth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E15623331C6600603E14 /* SpotifyAuth.cpp */; };
+		A571E15F23331C6600603E14 /* SpotifySession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E15723331C6600603E14 /* SpotifySession.cpp */; };
+		A571E16023331C6600603E14 /* SpotifySession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E15723331C6600603E14 /* SpotifySession.cpp */; };
+		A571E16523332CE200603E14 /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E16323332CE200603E14 /* Utils.cpp */; };
+		A571E16623332CE200603E14 /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E16323332CE200603E14 /* Utils.cpp */; };
+		A571E16723332CE200603E14 /* Utils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A571E16423332CE200603E14 /* Utils.hpp */; };
+		A571E16A2333305D00603E14 /* Scripts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E1682333305D00603E14 /* Scripts.cpp */; };
+		A571E16B2333305D00603E14 /* Scripts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E1682333305D00603E14 /* Scripts.cpp */; };
+		A571E16C2333305D00603E14 /* Scripts.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A571E1692333305D00603E14 /* Scripts.hpp */; };
 		CD1A74B29839C57A94EAACD7 /* libPods-SoundHoleCoreTest-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */; };
 /* End PBXBuildFile section */
 
@@ -112,6 +124,14 @@
 		A571E12C2332C5A300603E14 /* SpotifyProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyProvider.cpp; sourceTree = "<group>"; };
 		A571E12D2332C5A300603E14 /* SpotifyProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyProvider.hpp; sourceTree = "<group>"; };
 		A571E1342332C6D000603E14 /* SpotifyAudioPlayback.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SpotifyAudioPlayback.framework; path = "../../external/spotify-ios-streaming-sdk/SpotifyAudioPlayback.framework"; sourceTree = "<group>"; };
+		A571E15323331C6600603E14 /* SpotifySession.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SpotifySession.hpp; sourceTree = "<group>"; };
+		A571E15423331C6600603E14 /* SpotifyAuth.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SpotifyAuth.hpp; sourceTree = "<group>"; };
+		A571E15623331C6600603E14 /* SpotifyAuth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyAuth.cpp; sourceTree = "<group>"; };
+		A571E15723331C6600603E14 /* SpotifySession.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifySession.cpp; sourceTree = "<group>"; };
+		A571E16323332CE200603E14 /* Utils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Utils.cpp; sourceTree = "<group>"; };
+		A571E16423332CE200603E14 /* Utils.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Utils.hpp; sourceTree = "<group>"; };
+		A571E1682333305D00603E14 /* Scripts.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Scripts.cpp; sourceTree = "<group>"; };
+		A571E1692333305D00603E14 /* Scripts.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Scripts.hpp; sourceTree = "<group>"; };
 		AFF721677F756E337195FAB1 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -120,6 +140,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A571E13D2332D11200603E14 /* SpotifyAudioPlayback.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -127,7 +148,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A571E1352332C6D000603E14 /* SpotifyAudioPlayback.framework in Frameworks */,
 				A513EDA6232DA300000DCAC7 /* Foundation.framework in Frameworks */,
 				A513EDA4232DA2F9000DCAC7 /* UIKit.framework in Frameworks */,
 				A513EDA2232DA2F2000DCAC7 /* libSoundHoleCore-iOS.a in Frameworks */,
@@ -265,6 +285,7 @@
 				A513DB6F232DA1F8000DCAC7 /* providers */,
 				A513ED83232DA20A000DCAC7 /* media */,
 				A513DB76232DA1F8000DCAC7 /* scripts */,
+				A571E16223332CC600603E14 /* utils */,
 			);
 			path = soundhole;
 			sourceTree = "<group>";
@@ -284,6 +305,8 @@
 		A513DB76232DA1F8000DCAC7 /* scripts */ = {
 			isa = PBXGroup;
 			children = (
+				A571E1692333305D00603E14 /* Scripts.hpp */,
+				A571E1682333305D00603E14 /* Scripts.cpp */,
 				A513ED81232DA20A000DCAC7 /* build.sh */,
 				A513ED82232DA20A000DCAC7 /* clean.sh */,
 				A513ED9E232DA253000DCAC7 /* js */,
@@ -336,10 +359,31 @@
 		A571E1312332C5D000603E14 /* spotify */ = {
 			isa = PBXGroup;
 			children = (
+				A571E13F2332D2F700603E14 /* api */,
 				A571E12D2332C5A300603E14 /* SpotifyProvider.hpp */,
 				A571E12C2332C5A300603E14 /* SpotifyProvider.cpp */,
 			);
 			path = spotify;
+			sourceTree = "<group>";
+		};
+		A571E13F2332D2F700603E14 /* api */ = {
+			isa = PBXGroup;
+			children = (
+				A571E15423331C6600603E14 /* SpotifyAuth.hpp */,
+				A571E15623331C6600603E14 /* SpotifyAuth.cpp */,
+				A571E15323331C6600603E14 /* SpotifySession.hpp */,
+				A571E15723331C6600603E14 /* SpotifySession.cpp */,
+			);
+			path = api;
+			sourceTree = "<group>";
+		};
+		A571E16223332CC600603E14 /* utils */ = {
+			isa = PBXGroup;
+			children = (
+				A571E16423332CE200603E14 /* Utils.hpp */,
+				A571E16323332CE200603E14 /* Utils.cpp */,
+			);
+			path = utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -350,13 +394,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				A513ED93232DA20B000DCAC7 /* MediaProvider.hpp in Headers */,
+				A571E15A23331C6600603E14 /* SpotifyAuth.hpp in Headers */,
 				A513ED89232DA20B000DCAC7 /* SoundHoleCoreTest.hpp in Headers */,
 				A571E1332332C65000603E14 /* SpotifyProvider.hpp in Headers */,
 				A513ED9C232DA20C000DCAC7 /* MediaItem.hpp in Headers */,
 				A513ED8C232DA20B000DCAC7 /* external.hpp in Headers */,
 				A513ED8F232DA20B000DCAC7 /* YoutubeProvider.hpp in Headers */,
+				A571E16723332CE200603E14 /* Utils.hpp in Headers */,
 				A513ED9D232DA20C000DCAC7 /* soundhole.hpp in Headers */,
+				A571E16C2333305D00603E14 /* Scripts.hpp in Headers */,
 				A513ED90232DA20B000DCAC7 /* BandcampProvider.hpp in Headers */,
+				A571E15923331C6600603E14 /* SpotifySession.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -367,6 +415,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A513DB29232DA15D000DCAC7 /* Build configuration list for PBXNativeTarget "SoundHoleCore-iOS" */;
 			buildPhases = (
+				A571E1412332D80200603E14 /* ShellScript */,
 				A513DB1F232DA15C000DCAC7 /* Sources */,
 				A513DB20232DA15C000DCAC7 /* Frameworks */,
 				A513DB21232DA15C000DCAC7 /* CopyFiles */,
@@ -562,6 +611,23 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		A571E1412332D80200603E14 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n../../tools/fetch_header_dependencies.sh\n../../tools/fetch_shared_dependencies.sh json11\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -569,8 +635,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A571E16A2333305D00603E14 /* Scripts.cpp in Sources */,
+				A571E15D23331C6600603E14 /* SpotifyAuth.cpp in Sources */,
+				A571E15F23331C6600603E14 /* SpotifySession.cpp in Sources */,
 				A513ED87232DA20B000DCAC7 /* SoundHoleCoreTest.cpp in Sources */,
 				A513ED94232DA20B000DCAC7 /* YoutubeProvider.cpp in Sources */,
+				A571E16523332CE200603E14 /* Utils.cpp in Sources */,
 				A513ED91232DA20B000DCAC7 /* BandcampProvider.cpp in Sources */,
 				A513ED9A232DA20C000DCAC7 /* MediaItem.cpp in Sources */,
 				A513ED8D232DA20B000DCAC7 /* MediaProvider.cpp in Sources */,
@@ -592,8 +662,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A571E16B2333305D00603E14 /* Scripts.cpp in Sources */,
+				A571E15E23331C6600603E14 /* SpotifyAuth.cpp in Sources */,
+				A571E16023331C6600603E14 /* SpotifySession.cpp in Sources */,
 				A513ED88232DA20B000DCAC7 /* SoundHoleCoreTest.cpp in Sources */,
 				A513ED95232DA20B000DCAC7 /* YoutubeProvider.cpp in Sources */,
+				A571E16623332CE200603E14 /* Utils.cpp in Sources */,
 				A513ED92232DA20B000DCAC7 /* BandcampProvider.cpp in Sources */,
 				A513ED9B232DA20C000DCAC7 /* MediaItem.cpp in Sources */,
 				A513ED8E232DA20B000DCAC7 /* MediaProvider.cpp in Sources */,
@@ -698,6 +772,8 @@
 					"$(SRCROOT)/Pods/DataCpp/src",
 					"$(SRCROOT)/Pods/AsyncCpp/src",
 					"$(SRCROOT)/Pods/NodeJSEmbed/src",
+					"$(PROJECT_DIR)/../../external/httplib",
+					"$(PROJECT_DIR)/../../external/json11",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -758,6 +834,8 @@
 					"$(SRCROOT)/Pods/DataCpp/src",
 					"$(SRCROOT)/Pods/AsyncCpp/src",
 					"$(SRCROOT)/Pods/NodeJSEmbed/src",
+					"$(PROJECT_DIR)/../../external/httplib",
+					"$(PROJECT_DIR)/../../external/json11",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -771,6 +849,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../../external/spotify-ios-streaming-sdk";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -785,6 +864,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../../external/spotify-ios-streaming-sdk";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
