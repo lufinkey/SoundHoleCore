@@ -8,6 +8,7 @@
 
 #import "AppDelegate.h"
 #include <embed/nodejs/NodeJS.hpp>
+#include <soundhole/scripts/Scripts.hpp>
 
 @interface AppDelegate() <NodeJSProcessEventDelegate>
 
@@ -18,7 +19,11 @@
 -(BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
 	// Override point for customization after application launch.
 	embed::nodejs::addProcessEventDelegate(self);
-	embed::nodejs::start();
+	sh::scripts::loadScriptsIfNeeded().then([]() {
+		NSLog(@"Successfully loaded nodejs scripts");
+	}).except([](std::exception& error) {
+		NSLog(@"Error loading soundhole scripts: %s", error.what());
+	});
 	return YES;
 }
 
