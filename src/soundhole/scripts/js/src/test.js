@@ -1,5 +1,5 @@
 
-const util = require('util');
+console.log("running test.js");
 
 function testJSFunction(args) {
 	console.log("I got this for you");
@@ -9,6 +9,7 @@ function testJSFunction(args) {
 	};
 }
 
+console.log("exporting test.js");
 module.exports = {
-	myFunction
+	testJSFunction
 }

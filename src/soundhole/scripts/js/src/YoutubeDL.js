@@ -1,11 +1,12 @@
 
-const util = require('util');
+console.log("loading ytdl-core");
 const ytdl = require('ytdl-core');
 
+console.log("exporting YoutubeDL functions");
 module.exports = {
 	YoutubeDL_download: ytdl,
-	YoutubeDL_getBasicInfo: util.promisify(ytdl.getBasicInfo.bind(ytdl)),
-	YoutubeDL_getInfo: util.promisify(ytdl.getInfo.bind(ytdl)),
+	YoutubeDL_getBasicInfo: ytdl.getBasicInfo.bind(ytdl),
+	YoutubeDL_getInfo: ytdl.getInfo.bind(ytdl),
 	YoutubeDL_downloadFromInfo: ytdl.downloadFromInfo.bind(ytdl),
 	YoutubeDL_chooseFormat: ytdl.chooseFormat.bind(ytdl),
 	YoutubeDL_filterFormats: ytdl.filterFormats.bind(ytdl),
