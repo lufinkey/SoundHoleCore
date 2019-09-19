@@ -59,6 +59,8 @@
 		A571E16C2333305D00603E14 /* Scripts.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A571E1692333305D00603E14 /* Scripts.hpp */; };
 		A571E174233331C100603E14 /* test.js in Resources */ = {isa = PBXBuildFile; fileRef = A571E172233331C100603E14 /* test.js */; };
 		A571E175233331C100603E14 /* YoutubeDL.js in Resources */ = {isa = PBXBuildFile; fileRef = A571E173233331C100603E14 /* YoutubeDL.js */; };
+		A571E19C2334121500603E14 /* url.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E19A2334121500603E14 /* url.cpp */; };
+		A571E19D2334121500603E14 /* url.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E19A2334121500603E14 /* url.cpp */; };
 		CD1A74B29839C57A94EAACD7 /* libPods-SoundHoleCoreTest-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */; };
 /* End PBXBuildFile section */
 
@@ -140,6 +142,9 @@
 		A571E173233331C100603E14 /* YoutubeDL.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = YoutubeDL.js; sourceTree = "<group>"; };
 		A571E1762333350200603E14 /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build.sh; sourceTree = "<group>"; };
 		A571E1842333E5D800603E14 /* build */ = {isa = PBXFileReference; lastKnownFileType = folder; path = build; sourceTree = "<group>"; };
+		A571E1992334121500603E14 /* string.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = string.hpp; path = ../../../external/cxxurl/string.hpp; sourceTree = "<group>"; };
+		A571E19A2334121500603E14 /* url.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = url.cpp; path = ../../../external/cxxurl/url.cpp; sourceTree = "<group>"; };
+		A571E19B2334121500603E14 /* url.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = url.hpp; path = ../../../external/cxxurl/url.hpp; sourceTree = "<group>"; };
 		AFF721677F756E337195FAB1 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -197,6 +202,7 @@
 		A513DB0F232DA149000DCAC7 = {
 			isa = PBXGroup;
 			children = (
+				A571E197233411CD00603E14 /* external */,
 				A513DB66232DA1F8000DCAC7 /* src */,
 				A513DB19232DA149000DCAC7 /* Products */,
 				A513EDA0232DA2EA000DCAC7 /* Frameworks */,
@@ -414,6 +420,24 @@
 				A571E173233331C100603E14 /* YoutubeDL.js */,
 			);
 			path = src;
+			sourceTree = "<group>";
+		};
+		A571E197233411CD00603E14 /* external */ = {
+			isa = PBXGroup;
+			children = (
+				A571E198233411D500603E14 /* cxxurl */,
+			);
+			name = external;
+			sourceTree = "<group>";
+		};
+		A571E198233411D500603E14 /* cxxurl */ = {
+			isa = PBXGroup;
+			children = (
+				A571E1992334121500603E14 /* string.hpp */,
+				A571E19B2334121500603E14 /* url.hpp */,
+				A571E19A2334121500603E14 /* url.cpp */,
+			);
+			path = cxxurl;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -658,7 +682,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n../../tools/fetch_header_dependencies.sh\n../../tools/fetch_shared_dependencies.sh json11\n../../src/soundhole/scripts/build.sh\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n../../tools/fetch_header_dependencies.sh\n../../tools/fetch_shared_dependencies.sh json11 cxxurl\n../../src/soundhole/scripts/build.sh\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -687,6 +711,7 @@
 				A513DB37232DA191000DCAC7 /* ViewController.mm in Sources */,
 				A513DB42232DA192000DCAC7 /* main.mm in Sources */,
 				A513DB34232DA191000DCAC7 /* AppDelegate.mm in Sources */,
+				A571E19C2334121500603E14 /* url.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -714,6 +739,7 @@
 				A513DB59232DA1D2000DCAC7 /* ViewController.mm in Sources */,
 				A513DB61232DA1D3000DCAC7 /* main.mm in Sources */,
 				A513DB56232DA1D2000DCAC7 /* AppDelegate.mm in Sources */,
+				A571E19D2334121500603E14 /* url.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -802,13 +828,12 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/../../src",
 					"$(PROJECT_DIR)/../../src/soundhole/scripts/js/build",
+					"$(PROJECT_DIR)/../../external",
 					"$(PROJECT_DIR)/../../external/httplib",
 					"$(PROJECT_DIR)/../../external/json11",
 					"$(SRCROOT)/Pods/DataCpp/src",
 					"$(SRCROOT)/Pods/AsyncCpp/src",
 					"$(SRCROOT)/Pods/NodeJSEmbed/src",
-					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include",
-					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include/nodejs",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/addon-api",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
@@ -868,13 +893,12 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/../../src",
 					"$(PROJECT_DIR)/../../src/soundhole/scripts/js/build",
+					"$(PROJECT_DIR)/../../external",
 					"$(PROJECT_DIR)/../../external/httplib",
 					"$(PROJECT_DIR)/../../external/json11",
 					"$(SRCROOT)/Pods/DataCpp/src",
 					"$(SRCROOT)/Pods/AsyncCpp/src",
 					"$(SRCROOT)/Pods/NodeJSEmbed/src",
-					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include",
-					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include/nodejs",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/addon-api",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
@@ -890,6 +914,12 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../../external/spotify-ios-streaming-sdk";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include/nodejs",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/node/deps/openssl/openssl/include",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -905,6 +935,12 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../../external/spotify-ios-streaming-sdk";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include/nodejs",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/node/deps/openssl/openssl/include",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -969,6 +1005,12 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				EXECUTABLE_PREFIX = lib;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/desktop/include",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/desktop/include/nodejs",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/desktop/node/deps/openssl/openssl/include",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -979,6 +1021,12 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				EXECUTABLE_PREFIX = lib;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/desktop/include",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/desktop/include/nodejs",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/desktop/node/deps/openssl/openssl/include",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};

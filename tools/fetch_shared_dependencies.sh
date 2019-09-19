@@ -10,11 +10,13 @@ nodejs_embed=false
 data_cpp=false
 async_cpp=false
 json11=false
+cxxurl=false
 if [ $# -eq 0 ]; then
 	nodejs_embed=true
 	data_cpp=true
 	async_cpp=true
 	json11=true
+	cxxurl=true
 else
 	for arg; do
 		if [ "$arg" == "nodejs_embed" ]; then
@@ -25,6 +27,8 @@ else
 			async_cpp=true
 		elif [ "$arg" == "json11" ]; then
 			json11=true
+		elif [ "$arg" == "cxxurl" ]; then
+			cxxurl=true
 		else
 			>&2 echo "unknown dependency $arg"
 		fi
@@ -57,5 +61,12 @@ if $json11; then
 	if [ ! -e "external/json11/.git" ]; then
 		echo "fetching json11"
 		git clone --recursive "https://github.com/dropbox/json11.git" "external/json11" || exit $?
+	fi
+fi
+# clone cxxurl
+if $cxxurl; then
+	if [ ! -e "external/cxxurl/.git" ]; then
+		echo "fetching cxxurl"
+		git clone --recursive "https://github.com/chmike/CxxUrl.git" "external/cxxurl" || exit $?
 	fi
 fi
