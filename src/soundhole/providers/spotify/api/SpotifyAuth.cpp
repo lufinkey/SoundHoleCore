@@ -122,7 +122,35 @@ namespace sh {
 	
 	
 	Promise<SpotifySession> SpotifyAuth::swapCodeForToken(String code, String url) {
-		throw std::runtime_error("not implemented");
+		auto params = std::map<String,String>{
+			{ "code", code }
+		};
+		return performTokenURLRequest(url, params).map<SpotifySession>([](Json result) -> SpotifySession {
+			auto resultShape = std::initializer_list<std::pair<std::string,Json::Type>>{
+				{ "access_token", Json::Type::STRING },
+				{ "expires_in", Json::Type::NUMBER }
+			};
+			if(!result.is_object()) {
+				throw std::runtime_error("Bad response for token swap: result is not an object");
+			}
+			std::string shapeError;
+			if(!result.has_shape(resultShape, shapeError)) {
+				throw std::runtime_error("Bad response for token swap: "+shapeError);
+			}
+			String accessToken = result["access_token"].string_value();
+			int expireSeconds = (int)result["expires_in"].number_value();
+			String refreshToken;
+			Json refreshTokenVal = result["refresh_token"];
+			if(refreshTokenVal.is_string()) {
+				refreshToken = refreshTokenVal.string_value();
+			}
+			ArrayList<String> scopes;
+			Json scopeVal = result["scope"];
+			if(scopeVal.is_string()) {
+				scopes = String(scopeVal.string_value()).split(' ');
+			}
+			return SpotifySession(accessToken, SpotifySession::getExpireTimeFromSeconds(expireSeconds), refreshToken, scopes);
+		});
 	}
 	
 	Promise<Json> SpotifyAuth::performTokenURLRequest(String url, std::map<String,String> params) {
