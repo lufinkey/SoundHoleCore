@@ -10,6 +10,10 @@
 
 #include <soundhole/external.hpp>
 
+struct napi_ref__;
+typedef struct napi_ref__* napi_ref;
+
 namespace sh::scripts {
-	void loadScriptsIfNeeded();
+	Promise<void> loadScriptsIfNeeded();
+	napi_ref getJSExportsRef();
 }

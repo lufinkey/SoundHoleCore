@@ -57,6 +57,8 @@
 		A571E16A2333305D00603E14 /* Scripts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E1682333305D00603E14 /* Scripts.cpp */; };
 		A571E16B2333305D00603E14 /* Scripts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E1682333305D00603E14 /* Scripts.cpp */; };
 		A571E16C2333305D00603E14 /* Scripts.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A571E1692333305D00603E14 /* Scripts.hpp */; };
+		A571E174233331C100603E14 /* test.js in Resources */ = {isa = PBXBuildFile; fileRef = A571E172233331C100603E14 /* test.js */; };
+		A571E175233331C100603E14 /* YoutubeDL.js in Resources */ = {isa = PBXBuildFile; fileRef = A571E173233331C100603E14 /* YoutubeDL.js */; };
 		CD1A74B29839C57A94EAACD7 /* libPods-SoundHoleCoreTest-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */; };
 /* End PBXBuildFile section */
 
@@ -115,7 +117,6 @@
 		A513ED84232DA20A000DCAC7 /* MediaItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MediaItem.cpp; sourceTree = "<group>"; };
 		A513ED85232DA20A000DCAC7 /* MediaItem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MediaItem.hpp; sourceTree = "<group>"; };
 		A513ED86232DA20A000DCAC7 /* soundhole.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = soundhole.hpp; sourceTree = "<group>"; };
-		A513ED9E232DA253000DCAC7 /* js */ = {isa = PBXFileReference; lastKnownFileType = folder; path = js; sourceTree = "<group>"; };
 		A513ED9F232DA253000DCAC7 /* py */ = {isa = PBXFileReference; lastKnownFileType = folder; path = py; sourceTree = "<group>"; };
 		A513EDA3232DA2F9000DCAC7 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.4.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		A513EDA5232DA300000DCAC7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.4.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
@@ -132,6 +133,13 @@
 		A571E16423332CE200603E14 /* Utils.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Utils.hpp; sourceTree = "<group>"; };
 		A571E1682333305D00603E14 /* Scripts.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Scripts.cpp; sourceTree = "<group>"; };
 		A571E1692333305D00603E14 /* Scripts.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Scripts.hpp; sourceTree = "<group>"; };
+		A571E16E233331B900603E14 /* package-lock.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "package-lock.json"; sourceTree = "<group>"; };
+		A571E16F233331B900603E14 /* index.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = index.js; sourceTree = "<group>"; };
+		A571E170233331B900603E14 /* package.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = package.json; sourceTree = "<group>"; };
+		A571E172233331C100603E14 /* test.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = test.js; sourceTree = "<group>"; };
+		A571E173233331C100603E14 /* YoutubeDL.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = YoutubeDL.js; sourceTree = "<group>"; };
+		A571E1762333350200603E14 /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build.sh; sourceTree = "<group>"; };
+		A571E1842333E5D800603E14 /* build */ = {isa = PBXFileReference; lastKnownFileType = folder; path = build; sourceTree = "<group>"; };
 		AFF721677F756E337195FAB1 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -309,7 +317,7 @@
 				A571E1682333305D00603E14 /* Scripts.cpp */,
 				A513ED81232DA20A000DCAC7 /* build.sh */,
 				A513ED82232DA20A000DCAC7 /* clean.sh */,
-				A513ED9E232DA253000DCAC7 /* js */,
+				A571E16D233331A000603E14 /* js */,
 				A513ED9F232DA253000DCAC7 /* py */,
 			);
 			path = scripts;
@@ -384,6 +392,28 @@
 				A571E16323332CE200603E14 /* Utils.cpp */,
 			);
 			path = utils;
+			sourceTree = "<group>";
+		};
+		A571E16D233331A000603E14 /* js */ = {
+			isa = PBXGroup;
+			children = (
+				A571E1842333E5D800603E14 /* build */,
+				A571E1762333350200603E14 /* build.sh */,
+				A571E16F233331B900603E14 /* index.js */,
+				A571E170233331B900603E14 /* package.json */,
+				A571E16E233331B900603E14 /* package-lock.json */,
+				A571E171233331C100603E14 /* src */,
+			);
+			path = js;
+			sourceTree = "<group>";
+		};
+		A571E171233331C100603E14 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				A571E172233331C100603E14 /* test.js */,
+				A571E173233331C100603E14 /* YoutubeDL.js */,
+			);
+			path = src;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -534,6 +564,8 @@
 			files = (
 				A513DB3F232DA192000DCAC7 /* LaunchScreen.storyboard in Resources */,
 				A513DB3C232DA192000DCAC7 /* Assets.xcassets in Resources */,
+				A571E174233331C100603E14 /* test.js in Resources */,
+				A571E175233331C100603E14 /* YoutubeDL.js in Resources */,
 				A513DB3A232DA191000DCAC7 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -626,7 +658,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n../../tools/fetch_header_dependencies.sh\n../../tools/fetch_shared_dependencies.sh json11\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n../../tools/fetch_header_dependencies.sh\n../../tools/fetch_shared_dependencies.sh json11\n../../src/soundhole/scripts/build.sh\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -769,11 +801,15 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/../../src",
+					"$(PROJECT_DIR)/../../src/soundhole/scripts/js/build",
+					"$(PROJECT_DIR)/../../external/httplib",
+					"$(PROJECT_DIR)/../../external/json11",
 					"$(SRCROOT)/Pods/DataCpp/src",
 					"$(SRCROOT)/Pods/AsyncCpp/src",
 					"$(SRCROOT)/Pods/NodeJSEmbed/src",
-					"$(PROJECT_DIR)/../../external/httplib",
-					"$(PROJECT_DIR)/../../external/json11",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include/nodejs",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/addon-api",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -831,11 +867,15 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/../../src",
+					"$(PROJECT_DIR)/../../src/soundhole/scripts/js/build",
+					"$(PROJECT_DIR)/../../external/httplib",
+					"$(PROJECT_DIR)/../../external/json11",
 					"$(SRCROOT)/Pods/DataCpp/src",
 					"$(SRCROOT)/Pods/AsyncCpp/src",
 					"$(SRCROOT)/Pods/NodeJSEmbed/src",
-					"$(PROJECT_DIR)/../../external/httplib",
-					"$(PROJECT_DIR)/../../external/json11",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include/nodejs",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/addon-api",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
