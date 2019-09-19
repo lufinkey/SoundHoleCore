@@ -30,7 +30,7 @@ CHECKOUT OPTIONS:
     :commit: 5b33b454d1d8f69ca7f85e5ba0510806d36acfd8
     :git: "git@github.com:lufinkey/data-cpp.git"
   NodeJSEmbed:
-    :commit: 10b998651f4ea9a0ec47ba626aeb9c1f34f7e013
+    :commit: 598bee3bd0234f001d976fb47b47eb574e5ccd68
     :git: "git@github.com:lufinkey/nodejs-embed.git"
   NodeMobile:
     :commit: d731966cf36550c68b4d7ce22765ca7fd73d0733
