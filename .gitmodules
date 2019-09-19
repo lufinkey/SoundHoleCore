@@ -1,9 +1,6 @@
 [submodule "external/json11"]
 	path = external/json11
 	url = git@github.com:dropbox/json11.git
-[submodule "external/cpp-httplib"]
-	path = external/cpp-httplib
-	url = git@github.com:yhirose/cpp-httplib.git
 [submodule "external/metacall/core"]
 	path = external/metacall/core
 	url = https://github.com/metacall/core.git

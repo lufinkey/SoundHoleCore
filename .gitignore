@@ -60,3 +60,4 @@ py_prefix
 /external/nodejs-embed
 /external/data-cpp
 /external/async-cpp
+/external/cpp-httplib
