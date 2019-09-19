@@ -4,9 +4,10 @@
 	"description": "The JS components of SoundHoleCore",
 	"main": "index.js",
 	"scripts": {
-		"build": "npm install && npm run bundle",
+		"build": "npm install && npm run make-header",
 		"clean": "rm -rf node_modules build",
-		"bundle": "mkdir -p build && browserify --node index.js -o build/bundle.js",
+		"bundle": "mkdir -p build && browserify --node --standalone _ index.js -o build/soundhole_js_bundle.js",
+		"make-header": "npm run bundle && cd build && xxd -i soundhole_js_bundle.js > soundhole_js_bundle.h",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"author": "Luis Finke (luisfinke@gmail.com)",
