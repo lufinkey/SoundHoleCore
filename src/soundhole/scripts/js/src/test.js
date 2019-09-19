@@ -1,6 +1,4 @@
 
-console.log("running test.js");
-
 function testJSFunction(args) {
 	console.log("I got this for you");
 	console.log(JSON.stringify(args));
@@ -9,7 +7,11 @@ function testJSFunction(args) {
 	};
 }
 
-console.log("exporting test.js");
+async function testJSAsyncFunction() {
+	await Promise.resolve(true);
+}
+
 module.exports = {
-	testJSFunction
+	testJSFunction,
+	testJSAsyncFunction
 }
