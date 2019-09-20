@@ -20,7 +20,7 @@ namespace sh::scripts {
 	std::mutex scriptsLoadPromiseMutex;
 	
 	String moduleName = "[eval]/soundhole";
-	Napi::Reference<Napi::Object> moduleExports;
+	napi_ref moduleExports;
 	
 	#ifndef NAPI_CALL_OR_THROW
 		#define NAPI_CALL_OR_THROW(env, error, the_call) NAPI_CALL_BASE(env, the_call, throw std::runtime_error(error))
@@ -47,7 +47,7 @@ namespace sh::scripts {
 						napi_ref exportsRef = nullptr;
 						auto exportsRefError = "failed to create reference for soundhole exports";
 						NAPI_CALL_OR_THROW(env, exportsRefError, napi_create_reference(env, exports, 1, &exportsRef));
-						moduleExports = Napi::Reference<Napi::Object>(env, exportsRef);
+						moduleExports = exportsRef;
 					} catch(Napi::Error& error) {
 						std::unique_lock<std::mutex> lock(scriptsLoadPromiseMutex);
 						scriptsLoadPromise.reset();

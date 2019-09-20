@@ -61,6 +61,9 @@
 		A571E175233331C100603E14 /* YoutubeDL.js in Resources */ = {isa = PBXBuildFile; fileRef = A571E173233331C100603E14 /* YoutubeDL.js */; };
 		A571E19C2334121500603E14 /* url.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E19A2334121500603E14 /* url.cpp */; };
 		A571E19D2334121500603E14 /* url.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E19A2334121500603E14 /* url.cpp */; };
+		A571E1A6233440A800603E14 /* HttpClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E1A4233440A800603E14 /* HttpClient.cpp */; };
+		A571E1A7233440A800603E14 /* HttpClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E1A4233440A800603E14 /* HttpClient.cpp */; };
+		A571E1A8233440A800603E14 /* HttpClient.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A571E1A5233440A800603E14 /* HttpClient.hpp */; };
 		CD1A74B29839C57A94EAACD7 /* libPods-SoundHoleCoreTest-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */; };
 /* End PBXBuildFile section */
 
@@ -145,6 +148,9 @@
 		A571E1992334121500603E14 /* string.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = string.hpp; path = ../../../external/cxxurl/string.hpp; sourceTree = "<group>"; };
 		A571E19A2334121500603E14 /* url.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = url.cpp; path = ../../../external/cxxurl/url.cpp; sourceTree = "<group>"; };
 		A571E19B2334121500603E14 /* url.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = url.hpp; path = ../../../external/cxxurl/url.hpp; sourceTree = "<group>"; };
+		A571E1A4233440A800603E14 /* HttpClient.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = HttpClient.cpp; sourceTree = "<group>"; };
+		A571E1A5233440A800603E14 /* HttpClient.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = HttpClient.hpp; sourceTree = "<group>"; };
+		A571E1A92334438600603E14 /* HttpClient.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = HttpClient.js; sourceTree = "<group>"; };
 		AFF721677F756E337195FAB1 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -396,6 +402,8 @@
 			children = (
 				A571E16423332CE200603E14 /* Utils.hpp */,
 				A571E16323332CE200603E14 /* Utils.cpp */,
+				A571E1A5233440A800603E14 /* HttpClient.hpp */,
+				A571E1A4233440A800603E14 /* HttpClient.cpp */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -403,11 +411,11 @@
 		A571E16D233331A000603E14 /* js */ = {
 			isa = PBXGroup;
 			children = (
-				A571E1842333E5D800603E14 /* build */,
 				A571E1762333350200603E14 /* build.sh */,
 				A571E16F233331B900603E14 /* index.js */,
 				A571E170233331B900603E14 /* package.json */,
 				A571E16E233331B900603E14 /* package-lock.json */,
+				A571E1842333E5D800603E14 /* build */,
 				A571E171233331C100603E14 /* src */,
 			);
 			path = js;
@@ -418,6 +426,7 @@
 			children = (
 				A571E172233331C100603E14 /* test.js */,
 				A571E173233331C100603E14 /* YoutubeDL.js */,
+				A571E1A92334438600603E14 /* HttpClient.js */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -450,6 +459,7 @@
 				A513ED93232DA20B000DCAC7 /* MediaProvider.hpp in Headers */,
 				A571E15A23331C6600603E14 /* SpotifyAuth.hpp in Headers */,
 				A513ED89232DA20B000DCAC7 /* SoundHoleCoreTest.hpp in Headers */,
+				A571E1A8233440A800603E14 /* HttpClient.hpp in Headers */,
 				A571E1332332C65000603E14 /* SpotifyProvider.hpp in Headers */,
 				A513ED9C232DA20C000DCAC7 /* MediaItem.hpp in Headers */,
 				A513ED8C232DA20B000DCAC7 /* common.hpp in Headers */,
@@ -695,6 +705,7 @@
 				A571E15D23331C6600603E14 /* SpotifyAuth.cpp in Sources */,
 				A571E15F23331C6600603E14 /* SpotifySession.cpp in Sources */,
 				A513ED87232DA20B000DCAC7 /* SoundHoleCoreTest.cpp in Sources */,
+				A571E1A6233440A800603E14 /* HttpClient.cpp in Sources */,
 				A513ED94232DA20B000DCAC7 /* YoutubeProvider.cpp in Sources */,
 				A571E16523332CE200603E14 /* Utils.cpp in Sources */,
 				A513ED91232DA20B000DCAC7 /* BandcampProvider.cpp in Sources */,
@@ -723,6 +734,7 @@
 				A571E15E23331C6600603E14 /* SpotifyAuth.cpp in Sources */,
 				A571E16023331C6600603E14 /* SpotifySession.cpp in Sources */,
 				A513ED88232DA20B000DCAC7 /* SoundHoleCoreTest.cpp in Sources */,
+				A571E1A7233440A800603E14 /* HttpClient.cpp in Sources */,
 				A513ED95232DA20B000DCAC7 /* YoutubeProvider.cpp in Sources */,
 				A571E16623332CE200603E14 /* Utils.cpp in Sources */,
 				A513ED92232DA20B000DCAC7 /* BandcampProvider.cpp in Sources */,
