@@ -64,6 +64,9 @@
 		A571E1A6233440A800603E14 /* HttpClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E1A4233440A800603E14 /* HttpClient.cpp */; };
 		A571E1A7233440A800603E14 /* HttpClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E1A4233440A800603E14 /* HttpClient.cpp */; };
 		A571E1A8233440A800603E14 /* HttpClient.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A571E1A5233440A800603E14 /* HttpClient.hpp */; };
+		A5B7A78E2335C91800301FC0 /* SoundHoleError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A78C2335C91800301FC0 /* SoundHoleError.cpp */; };
+		A5B7A78F2335C91800301FC0 /* SoundHoleError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A78C2335C91800301FC0 /* SoundHoleError.cpp */; };
+		A5B7A7902335C91800301FC0 /* SoundHoleError.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5B7A78D2335C91800301FC0 /* SoundHoleError.hpp */; };
 		CD1A74B29839C57A94EAACD7 /* libPods-SoundHoleCoreTest-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */; };
 /* End PBXBuildFile section */
 
@@ -151,6 +154,8 @@
 		A571E1A4233440A800603E14 /* HttpClient.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = HttpClient.cpp; sourceTree = "<group>"; };
 		A571E1A5233440A800603E14 /* HttpClient.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = HttpClient.hpp; sourceTree = "<group>"; };
 		A571E1A92334438600603E14 /* HttpClient.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = HttpClient.js; sourceTree = "<group>"; };
+		A5B7A78C2335C91800301FC0 /* SoundHoleError.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SoundHoleError.cpp; sourceTree = "<group>"; };
+		A5B7A78D2335C91800301FC0 /* SoundHoleError.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SoundHoleError.hpp; sourceTree = "<group>"; };
 		AFF721677F756E337195FAB1 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -404,6 +409,8 @@
 				A571E16323332CE200603E14 /* Utils.cpp */,
 				A571E1A5233440A800603E14 /* HttpClient.hpp */,
 				A571E1A4233440A800603E14 /* HttpClient.cpp */,
+				A5B7A78D2335C91800301FC0 /* SoundHoleError.hpp */,
+				A5B7A78C2335C91800301FC0 /* SoundHoleError.cpp */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -457,6 +464,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A513ED93232DA20B000DCAC7 /* MediaProvider.hpp in Headers */,
+				A5B7A7902335C91800301FC0 /* SoundHoleError.hpp in Headers */,
 				A571E15A23331C6600603E14 /* SpotifyAuth.hpp in Headers */,
 				A513ED89232DA20B000DCAC7 /* SoundHoleCoreTest.hpp in Headers */,
 				A571E1A8233440A800603E14 /* HttpClient.hpp in Headers */,
@@ -703,6 +711,7 @@
 			files = (
 				A571E16A2333305D00603E14 /* Scripts.cpp in Sources */,
 				A571E15D23331C6600603E14 /* SpotifyAuth.cpp in Sources */,
+				A5B7A78E2335C91800301FC0 /* SoundHoleError.cpp in Sources */,
 				A571E15F23331C6600603E14 /* SpotifySession.cpp in Sources */,
 				A513ED87232DA20B000DCAC7 /* SoundHoleCoreTest.cpp in Sources */,
 				A571E1A6233440A800603E14 /* HttpClient.cpp in Sources */,
@@ -732,6 +741,7 @@
 			files = (
 				A571E16B2333305D00603E14 /* Scripts.cpp in Sources */,
 				A571E15E23331C6600603E14 /* SpotifyAuth.cpp in Sources */,
+				A5B7A78F2335C91800301FC0 /* SoundHoleError.cpp in Sources */,
 				A571E16023331C6600603E14 /* SpotifySession.cpp in Sources */,
 				A513ED88232DA20B000DCAC7 /* SoundHoleCoreTest.cpp in Sources */,
 				A571E1A7233440A800603E14 /* HttpClient.cpp in Sources */,
