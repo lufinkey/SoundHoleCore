@@ -69,6 +69,9 @@
 		A5B7A7902335C91800301FC0 /* SoundHoleError.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5B7A78D2335C91800301FC0 /* SoundHoleError.hpp */; };
 		A5B7A7942335D57B00301FC0 /* json11.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7932335D57B00301FC0 /* json11.cpp */; };
 		A5B7A7952335D57B00301FC0 /* json11.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7932335D57B00301FC0 /* json11.cpp */; };
+		A5B7A79D2336C28B00301FC0 /* SpotifyError_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A79A2335DDE100301FC0 /* SpotifyError_iOS.mm */; };
+		A5B7A79E2336C29200301FC0 /* SpotifyError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7962335D63000301FC0 /* SpotifyError.cpp */; };
+		A5B7A79F2336C29200301FC0 /* SpotifyError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7962335D63000301FC0 /* SpotifyError.cpp */; };
 		CD1A74B29839C57A94EAACD7 /* libPods-SoundHoleCoreTest-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */; };
 /* End PBXBuildFile section */
 
@@ -160,6 +163,9 @@
 		A5B7A78D2335C91800301FC0 /* SoundHoleError.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SoundHoleError.hpp; sourceTree = "<group>"; };
 		A5B7A7922335D57B00301FC0 /* json11.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = json11.hpp; path = ../../external/json11/json11.hpp; sourceTree = "<group>"; };
 		A5B7A7932335D57B00301FC0 /* json11.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = json11.cpp; path = ../../external/json11/json11.cpp; sourceTree = "<group>"; };
+		A5B7A7962335D63000301FC0 /* SpotifyError.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyError.cpp; sourceTree = "<group>"; };
+		A5B7A7972335D63000301FC0 /* SpotifyError.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyError.hpp; sourceTree = "<group>"; };
+		A5B7A79A2335DDE100301FC0 /* SpotifyError_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SpotifyError_iOS.mm; sourceTree = "<group>"; };
 		AFF721677F756E337195FAB1 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -400,6 +406,9 @@
 			children = (
 				A571E15423331C6600603E14 /* SpotifyAuth.hpp */,
 				A571E15623331C6600603E14 /* SpotifyAuth.cpp */,
+				A5B7A7972335D63000301FC0 /* SpotifyError.hpp */,
+				A5B7A7962335D63000301FC0 /* SpotifyError.cpp */,
+				A5B7A79A2335DDE100301FC0 /* SpotifyError_iOS.mm */,
 				A571E15323331C6600603E14 /* SpotifySession.hpp */,
 				A571E15723331C6600603E14 /* SpotifySession.cpp */,
 			);
@@ -724,6 +733,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A571E16A2333305D00603E14 /* Scripts.cpp in Sources */,
+				A5B7A79D2336C28B00301FC0 /* SpotifyError_iOS.mm in Sources */,
 				A571E15D23331C6600603E14 /* SpotifyAuth.cpp in Sources */,
 				A5B7A78E2335C91800301FC0 /* SoundHoleError.cpp in Sources */,
 				A571E15F23331C6600603E14 /* SpotifySession.cpp in Sources */,
@@ -735,6 +745,7 @@
 				A513ED9A232DA20C000DCAC7 /* MediaItem.cpp in Sources */,
 				A513ED8D232DA20B000DCAC7 /* MediaProvider.cpp in Sources */,
 				A571E12E2332C5A300603E14 /* SpotifyProvider.cpp in Sources */,
+				A5B7A79F2336C29200301FC0 /* SpotifyError.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -764,6 +775,7 @@
 				A571E16623332CE200603E14 /* Utils.cpp in Sources */,
 				A513ED92232DA20B000DCAC7 /* BandcampProvider.cpp in Sources */,
 				A513ED9B232DA20C000DCAC7 /* MediaItem.cpp in Sources */,
+				A5B7A79E2336C29200301FC0 /* SpotifyError.cpp in Sources */,
 				A513ED8E232DA20B000DCAC7 /* MediaProvider.cpp in Sources */,
 				A571E1322332C64500603E14 /* SpotifyProvider.cpp in Sources */,
 			);

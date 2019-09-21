@@ -7,6 +7,8 @@
 //
 
 #include "SpotifyAuth.hpp"
+#include "SpotifyError.hpp"
+#include <soundhole/utils/HttpClient.hpp>
 #include <soundhole/utils/Utils.hpp>
 
 namespace sh {
@@ -154,7 +156,33 @@ namespace sh {
 	}
 	
 	Promise<Json> SpotifyAuth::performTokenURLRequest(String url, std::map<String,String> params) {
-		String body = utils::makeQueryString(params);
-		throw std::runtime_error("not implemented");
+		utils::HttpRequest request;
+		request.url = Url(url);
+		request.method = utils::HttpMethod::POST;
+		request.data = utils::makeQueryString(params);
+		return utils::performHttpRequest(request).map<Json>([](std::shared_ptr<utils::HttpResponse> response) -> Json {
+			std::string parseError;
+			auto json = Json::parse(response->data.storage, parseError);
+			if(parseError.length() > 0) {
+				throw SpotifyError(SpotifyError::Code::BAD_RESPONSE, parseError, {
+					{ "httpResponse", response }
+				});
+			}
+			auto error = json["error"];
+			if(error.is_string()) {
+				auto error_description = json["error_description"];
+				auto error_uri = json["error_uri"];
+				throw SpotifyError(SpotifyError::Code::OAUTH_REQUEST_FAILED, error_description.string_value(), {
+					{ "statusCode", int(response->statusCode) },
+					{ "oauthError", String(error.string_value()) }
+				});
+			}
+			return json;
+		}).except([=](std::exception& error) -> Json {
+			throw SpotifyError(SpotifyError::Code::REQUEST_NOT_SENT, error.what(), {
+				{ "url", url },
+				{ "params", params }
+			});
+		});
 	}
 }

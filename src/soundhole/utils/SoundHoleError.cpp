@@ -38,6 +38,6 @@ namespace sh {
 	}
 	
 	String SoundHoleError::toString() const {
-		return "SoundHoleError[" + getCodeName() + "]: " + message;
+		return "SoundHoleError[" + getCodeName() + "]: " + getMessage();
 	}
 }
