@@ -49,6 +49,22 @@ namespace sh {
 		//
 	}
 	
+	SpotifyAuth::~SpotifyAuth() {
+		if(renewalInfo != nullptr) {
+			renewalInfo->deleted = true;
+		}
+	}
+	
+	void SpotifyAuth::addEventListener(SpotifyAuthEventListener* listener) {
+		std::unique_lock<std::mutex> lock(listenersMutex);
+		listeners.pushBack(listener);
+	}
+	
+	void SpotifyAuth::removeEventListener(SpotifyAuthEventListener* listener) {
+		std::unique_lock<std::mutex> lock(listenersMutex);
+		listeners.removeEqual(listener);
+	}
+	
 	bool SpotifyAuth::Options::hasTokenSwapURL() const {
 		return (tokenSwapURL.length() > 0);
 	}
@@ -130,10 +146,10 @@ namespace sh {
 	}
 	
 	Promise<bool> SpotifyAuth::performSessionRenewal() {
+		std::unique_lock<std::mutex> lock(this->renewalInfoMutex);
 		// ensure session can be refreshed
 		if(!canRefreshSession()) {
 			// session ended, so call all callbacks with false and return
-			std::unique_lock<std::mutex> lock(this->renewalInfoMutex);
 			std::shared_ptr<RenewalInfo> renewalInfo;
 			renewalInfo.swap(this->renewalInfo);
 			lock.unlock();
@@ -145,17 +161,21 @@ namespace sh {
 			}
 			return Promise<bool>::resolve(false);
 		}
+		// save renewalInfo pointer
+		auto renewalInfo = this->renewalInfo;
+		lock.unlock();
 		// perform session renewal request
 		return performTokenURLRequest(this->options.tokenRefreshURL, {
 			{ "refresh_token", this->session->getRefreshToken() }
 		}).map<bool>([=](Json result) -> bool {
 			// ensure session still exists
-			if(!canRefreshSession()) {
+			if(renewalInfo->deleted || !canRefreshSession()) {
 				// session ended, so call all callbacks with false and return
-				std::unique_lock<std::mutex> lock(this->renewalInfoMutex);
-				std::shared_ptr<RenewalInfo> renewalInfo;
-				renewalInfo.swap(this->renewalInfo);
-				lock.unlock();
+				if(!renewalInfo->deleted) {
+					std::unique_lock<std::mutex> lock(this->renewalInfoMutex);
+					this->renewalInfo = nullptr;
+					lock.unlock();
+				}
 				for(auto& callback : renewalInfo->callbacks) {
 					callback.resolve(false);
 				}
@@ -190,27 +210,44 @@ namespace sh {
 				callback.resolve(true);
 			}
 			
+			// call listeners
+			std::unique_lock<std::mutex> listenersLock(listenersMutex);
+			LinkedList<SpotifyAuthEventListener*> listeners = this->listeners;
+			listenersLock.unlock();
+			for(auto listener : listeners) {
+				listener->onSpotifyAuthSessionRenewed(this);
+			}
+			
 			// renewal is successful
 			return true;
 		}).except([=](std::exception_ptr errorPtr) -> Promise<bool> {
 			// get renewal callbacks
 			bool shouldRetry = false;
-			std::unique_lock<std::mutex> lock(this->renewalInfoMutex);
+			std::mutex* mutexPtr = nullptr;
+			if(!renewalInfo->deleted) {
+				mutexPtr = &this->renewalInfoMutex;
+			}
 			LinkedList<RenewCallback> callbacks;
-			callbacks.swap(this->renewalInfo->callbacks);
+			std::mutex defaultMutex;
+			std::unique_lock<std::mutex> lock((mutexPtr != nullptr) ? *mutexPtr : defaultMutex);
+			callbacks.swap(renewalInfo->callbacks);
 			try {
 				std::rethrow_exception(errorPtr);
 			} catch(SpotifyError& error) {
 				// if the request wasn't sent, we should try again if needed, otherwise give up and forward the error
 				if(error.getCode() == SpotifyError::Code::REQUEST_NOT_SENT) {
-					if(this->renewalInfo->retryUntilResponseCallbacks.size() > 0) {
+					if(renewalInfo->retryUntilResponseCallbacks.size() > 0) {
 						shouldRetry = true;
 					} else {
-						this->renewalInfo = nullptr;
+						if(!renewalInfo->deleted) {
+							this->renewalInfo = nullptr;
+						}
 					}
 				} else {
-					callbacks.splice(callbacks.end(), this->renewalInfo->retryUntilResponseCallbacks);
-					this->renewalInfo = nullptr;
+					callbacks.splice(callbacks.end(), renewalInfo->retryUntilResponseCallbacks);
+					if(!renewalInfo->deleted) {
+						this->renewalInfo = nullptr;
+					}
 				}
 			} catch(...) {
 				// just forward the other errors
@@ -224,10 +261,17 @@ namespace sh {
 			
 			// retry if needed, otherwise fail
 			if(shouldRetry) {
+				if(renewalInfo->deleted) {
+					return Promise<bool>::resolve(false);
+				}
 				// wait 2 seconds before retrying
 				return Promise<bool>([&](auto resolve, auto reject) {
 					getDefaultPromiseQueue()->asyncAfter(std::chrono::steady_clock::now() + std::chrono::seconds(2), [=]() {
-						performSessionRenewal().then(resolve, reject);
+						if(!renewalInfo->deleted) {
+							this->performSessionRenewal().then(resolve, reject);
+						} else {
+							Promise<bool>::resolve(false).then(resolve, reject);
+						}
 					});
 				});
 			}

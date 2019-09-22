@@ -74,6 +74,7 @@
 		A5B7A79F2336C29200301FC0 /* SpotifyError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7962335D63000301FC0 /* SpotifyError.cpp */; };
 		A5B7A7A32337DA5700301FC0 /* SpotifyAuth_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7A22337DA5700301FC0 /* SpotifyAuth_iOS.mm */; };
 		A5B7A7A52337DC9D00301FC0 /* SpotifySession_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7A42337DC9D00301FC0 /* SpotifySession_iOS.mm */; };
+		A5B7A7A72337E86400301FC0 /* SpotifyAuthEventListener.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5B7A7A62337E86400301FC0 /* SpotifyAuthEventListener.hpp */; };
 		CD1A74B29839C57A94EAACD7 /* libPods-SoundHoleCoreTest-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */; };
 /* End PBXBuildFile section */
 
@@ -170,6 +171,7 @@
 		A5B7A79A2335DDE100301FC0 /* SpotifyError_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SpotifyError_iOS.mm; sourceTree = "<group>"; };
 		A5B7A7A22337DA5700301FC0 /* SpotifyAuth_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SpotifyAuth_iOS.mm; sourceTree = "<group>"; };
 		A5B7A7A42337DC9D00301FC0 /* SpotifySession_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SpotifySession_iOS.mm; sourceTree = "<group>"; };
+		A5B7A7A62337E86400301FC0 /* SpotifyAuthEventListener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyAuthEventListener.hpp; sourceTree = "<group>"; };
 		AFF721677F756E337195FAB1 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -411,6 +413,7 @@
 				A571E15423331C6600603E14 /* SpotifyAuth.hpp */,
 				A571E15623331C6600603E14 /* SpotifyAuth.cpp */,
 				A5B7A7A22337DA5700301FC0 /* SpotifyAuth_iOS.mm */,
+				A5B7A7A62337E86400301FC0 /* SpotifyAuthEventListener.hpp */,
 				A5B7A7972335D63000301FC0 /* SpotifyError.hpp */,
 				A5B7A7962335D63000301FC0 /* SpotifyError.cpp */,
 				A5B7A79A2335DDE100301FC0 /* SpotifyError_iOS.mm */,
@@ -497,6 +500,7 @@
 				A571E15A23331C6600603E14 /* SpotifyAuth.hpp in Headers */,
 				A513ED89232DA20B000DCAC7 /* SoundHoleCoreTest.hpp in Headers */,
 				A571E1A8233440A800603E14 /* HttpClient.hpp in Headers */,
+				A5B7A7A72337E86400301FC0 /* SpotifyAuthEventListener.hpp in Headers */,
 				A571E1332332C65000603E14 /* SpotifyProvider.hpp in Headers */,
 				A513ED9C232DA20C000DCAC7 /* MediaItem.hpp in Headers */,
 				A513ED8C232DA20B000DCAC7 /* common.hpp in Headers */,

@@ -10,6 +10,7 @@
 
 #include <soundhole/common.hpp>
 #include "SpotifySession.hpp"
+#include "SpotifyAuthEventListener.hpp"
 
 namespace sh {
 	class SpotifyAuth {
@@ -30,6 +31,10 @@ namespace sh {
 		};
 		
 		SpotifyAuth(Options options);
+		~SpotifyAuth();
+		
+		void addEventListener(SpotifyAuthEventListener* listener);
+		void removeEventListener(SpotifyAuthEventListener* listener);
 		
 		bool isLoggedIn() const;
 		bool isSessionValid() const;
@@ -62,10 +67,14 @@ namespace sh {
 			Promise<bool>::Rejecter reject;
 		};
 		struct RenewalInfo {
+			bool deleted = false;
 			LinkedList<RenewCallback> callbacks;
 			LinkedList<RenewCallback> retryUntilResponseCallbacks;
 		};
 		std::shared_ptr<RenewalInfo> renewalInfo;
 		std::mutex renewalInfoMutex;
+		
+		LinkedList<SpotifyAuthEventListener*> listeners;
+		std::mutex listenersMutex;
 	};
 }
