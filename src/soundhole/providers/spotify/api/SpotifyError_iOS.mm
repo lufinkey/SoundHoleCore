@@ -1,5 +1,5 @@
 //
-//  SpotifyError_iOS.m
+//  SpotifyError_iOS.mm
 //  SoundHoleCore
 //
 //  Created by Luis Finke on 9/21/19.

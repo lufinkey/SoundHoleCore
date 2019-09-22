@@ -10,6 +10,9 @@
 
 #include <soundhole/common.hpp>
 #include <chrono>
+#if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
+#import <Foundation/Foundation.h>
+#endif
 
 namespace sh {
 	class SpotifySession {
@@ -30,6 +33,15 @@ namespace sh {
 		void update(String accessToken, TimePoint expireTime);
 		
 		static TimePoint getExpireTimeFromSeconds(int seconds);
+		
+		#if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
+		NSDictionary* toNSDictionary() const;
+		void writeToNSUserDefaults(const String& key, NSUserDefaults* userDefaults) const;
+		static void writeToNSUserDefaults(const Optional<SpotifySession>& session, const String& key, NSUserDefaults* userDefaults);
+		
+		static Optional<SpotifySession> fromNSDictionary(NSDictionary* dictionary);
+		static Optional<SpotifySession> fromNSUserDefaults(const String& key, NSUserDefaults* userDefaults);
+		#endif
 		
 	private:
 		String accessToken;

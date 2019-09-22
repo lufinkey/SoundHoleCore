@@ -21,6 +21,7 @@ namespace sh {
 			String tokenSwapURL;
 			String tokenRefreshURL;
 			std::map<String,String> params;
+			String sessionPersistKey;
 			
 			String getWebAuthenticationURL(String state) const;
 			

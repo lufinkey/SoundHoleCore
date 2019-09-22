@@ -72,6 +72,8 @@
 		A5B7A79D2336C28B00301FC0 /* SpotifyError_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A79A2335DDE100301FC0 /* SpotifyError_iOS.mm */; };
 		A5B7A79E2336C29200301FC0 /* SpotifyError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7962335D63000301FC0 /* SpotifyError.cpp */; };
 		A5B7A79F2336C29200301FC0 /* SpotifyError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7962335D63000301FC0 /* SpotifyError.cpp */; };
+		A5B7A7A32337DA5700301FC0 /* SpotifyAuth_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7A22337DA5700301FC0 /* SpotifyAuth_iOS.mm */; };
+		A5B7A7A52337DC9D00301FC0 /* SpotifySession_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7A42337DC9D00301FC0 /* SpotifySession_iOS.mm */; };
 		CD1A74B29839C57A94EAACD7 /* libPods-SoundHoleCoreTest-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */; };
 /* End PBXBuildFile section */
 
@@ -166,6 +168,8 @@
 		A5B7A7962335D63000301FC0 /* SpotifyError.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyError.cpp; sourceTree = "<group>"; };
 		A5B7A7972335D63000301FC0 /* SpotifyError.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyError.hpp; sourceTree = "<group>"; };
 		A5B7A79A2335DDE100301FC0 /* SpotifyError_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SpotifyError_iOS.mm; sourceTree = "<group>"; };
+		A5B7A7A22337DA5700301FC0 /* SpotifyAuth_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SpotifyAuth_iOS.mm; sourceTree = "<group>"; };
+		A5B7A7A42337DC9D00301FC0 /* SpotifySession_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SpotifySession_iOS.mm; sourceTree = "<group>"; };
 		AFF721677F756E337195FAB1 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -406,11 +410,13 @@
 			children = (
 				A571E15423331C6600603E14 /* SpotifyAuth.hpp */,
 				A571E15623331C6600603E14 /* SpotifyAuth.cpp */,
+				A5B7A7A22337DA5700301FC0 /* SpotifyAuth_iOS.mm */,
 				A5B7A7972335D63000301FC0 /* SpotifyError.hpp */,
 				A5B7A7962335D63000301FC0 /* SpotifyError.cpp */,
 				A5B7A79A2335DDE100301FC0 /* SpotifyError_iOS.mm */,
 				A571E15323331C6600603E14 /* SpotifySession.hpp */,
 				A571E15723331C6600603E14 /* SpotifySession.cpp */,
+				A5B7A7A42337DC9D00301FC0 /* SpotifySession_iOS.mm */,
 			);
 			path = api;
 			sourceTree = "<group>";
@@ -732,6 +738,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A5B7A7A32337DA5700301FC0 /* SpotifyAuth_iOS.mm in Sources */,
 				A571E16A2333305D00603E14 /* Scripts.cpp in Sources */,
 				A5B7A79D2336C28B00301FC0 /* SpotifyError_iOS.mm in Sources */,
 				A571E15D23331C6600603E14 /* SpotifyAuth.cpp in Sources */,
@@ -742,6 +749,7 @@
 				A513ED94232DA20B000DCAC7 /* YoutubeProvider.cpp in Sources */,
 				A571E16523332CE200603E14 /* Utils.cpp in Sources */,
 				A513ED91232DA20B000DCAC7 /* BandcampProvider.cpp in Sources */,
+				A5B7A7A52337DC9D00301FC0 /* SpotifySession_iOS.mm in Sources */,
 				A513ED9A232DA20C000DCAC7 /* MediaItem.cpp in Sources */,
 				A513ED8D232DA20B000DCAC7 /* MediaProvider.cpp in Sources */,
 				A571E12E2332C5A300603E14 /* SpotifyProvider.cpp in Sources */,
