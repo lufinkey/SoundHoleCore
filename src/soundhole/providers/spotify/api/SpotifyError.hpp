@@ -25,6 +25,7 @@ namespace sh {
 			REQUEST_FAILED,
 			BAD_RESPONSE,
 			NOT_LOGGED_IN,
+			SESSION_EXPIRED,
 			
 			OAUTH_REQUEST_FAILED,
 			

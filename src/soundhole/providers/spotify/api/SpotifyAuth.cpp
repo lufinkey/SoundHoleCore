@@ -90,12 +90,12 @@ namespace sh {
 	
 	
 	Promise<bool> SpotifyAuth::renewSession(RenewOptions options) {
-		throw std::runtime_error("not implemented");
-		/*return Promise<bool>([&](auto resolve, auto reject) {
+		return Promise<bool>([&](auto resolve, auto reject) {
 			if(!canRefreshSession()) {
 				resolve(false);
 				return;
 			}
+			
 			bool shouldPerformRenewal = false;
 			std::unique_lock<std::mutex> lock(renewalInfoMutex);
 			if(!renewalInfo) {
@@ -108,16 +108,131 @@ namespace sh {
 				renewalInfo->callbacks.pushBack({ resolve, reject });
 			}
 			lock.unlock();
+			
 			if(!shouldPerformRenewal) {
 				return;
 			}
 			
-			// TODO perform actual session renewal
-		});*/
+			performSessionRenewal().then(resolve, reject);
+		});
 	}
 	
 	Promise<bool> SpotifyAuth::renewSessionIfNeeded(RenewOptions options) {
-		throw std::runtime_error("not implemented");
+		if(!session || isSessionValid()) {
+			// not logged in or session does not need renewal
+			return Promise<bool>::resolve(false);
+		} else if(!canRefreshSession()) {
+			// no refresh token to renew session with, so the session has expired
+			return Promise<bool>::reject(SpotifyError(SpotifyError::Code::SESSION_EXPIRED, "Spotify session has expired"));
+		} else {
+			return renewSession(options);
+		}
+	}
+	
+	Promise<bool> SpotifyAuth::performSessionRenewal() {
+		// ensure session can be refreshed
+		if(!canRefreshSession()) {
+			// session ended, so call all callbacks with false and return
+			std::unique_lock<std::mutex> lock(this->renewalInfoMutex);
+			std::shared_ptr<RenewalInfo> renewalInfo;
+			renewalInfo.swap(this->renewalInfo);
+			lock.unlock();
+			for(auto& callback : renewalInfo->callbacks) {
+				callback.resolve(false);
+			}
+			for(auto& callback : renewalInfo->retryUntilResponseCallbacks) {
+				callback.resolve(false);
+			}
+			return Promise<bool>::resolve(false);
+		}
+		// perform session renewal request
+		return performTokenURLRequest(this->options.tokenRefreshURL, {
+			{ "refresh_token", this->session->getRefreshToken() }
+		}).map<bool>([=](Json result) -> bool {
+			// ensure session still exists
+			if(!canRefreshSession()) {
+				// session ended, so call all callbacks with false and return
+				std::unique_lock<std::mutex> lock(this->renewalInfoMutex);
+				std::shared_ptr<RenewalInfo> renewalInfo;
+				renewalInfo.swap(this->renewalInfo);
+				lock.unlock();
+				for(auto& callback : renewalInfo->callbacks) {
+					callback.resolve(false);
+				}
+				for(auto& callback : renewalInfo->retryUntilResponseCallbacks) {
+					callback.resolve(false);
+				}
+				return false;
+			}
+			
+			// get session renewal data
+			auto accessToken = result["access_token"];
+			auto expireSeconds = result["expires_in"];
+			if(!accessToken.is_string() || !expireSeconds.is_number()) {
+				throw SpotifyError(SpotifyError::Code::BAD_RESPONSE, "token refresh response does not match expected shape", {
+					{ "jsonResponse", result }
+				});
+			}
+			this->session->update(accessToken.string_value(), SpotifySession::getExpireTimeFromSeconds((int)expireSeconds.number_value()));
+			this->save();
+			
+			// get renewal callbacks
+			std::unique_lock<std::mutex> lock(this->renewalInfoMutex);
+			std::shared_ptr<RenewalInfo> renewalInfo;
+			renewalInfo.swap(this->renewalInfo);
+			lock.unlock();
+			
+			// call renewal callbacks
+			for(auto& callback : renewalInfo->callbacks) {
+				callback.resolve(true);
+			}
+			for(auto& callback : renewalInfo->retryUntilResponseCallbacks) {
+				callback.resolve(true);
+			}
+			
+			// renewal is successful
+			return true;
+		}).except([=](std::exception_ptr errorPtr) -> Promise<bool> {
+			// get renewal callbacks
+			bool shouldRetry = false;
+			std::unique_lock<std::mutex> lock(this->renewalInfoMutex);
+			LinkedList<RenewCallback> callbacks;
+			callbacks.swap(this->renewalInfo->callbacks);
+			try {
+				std::rethrow_exception(errorPtr);
+			} catch(SpotifyError& error) {
+				// if the request wasn't sent, we should try again if needed, otherwise give up and forward the error
+				if(error.getCode() == SpotifyError::Code::REQUEST_NOT_SENT) {
+					if(this->renewalInfo->retryUntilResponseCallbacks.size() > 0) {
+						shouldRetry = true;
+					} else {
+						this->renewalInfo = nullptr;
+					}
+				} else {
+					callbacks.splice(callbacks.end(), this->renewalInfo->retryUntilResponseCallbacks);
+					this->renewalInfo = nullptr;
+				}
+			} catch(...) {
+				// just forward the other errors
+			}
+			lock.unlock();
+			
+			// call renewal callbacks
+			for(auto& callback : callbacks) {
+				callback.reject(errorPtr);
+			}
+			
+			// retry if needed, otherwise fail
+			if(shouldRetry) {
+				// wait 2 seconds before retrying
+				return Promise<bool>([&](auto resolve, auto reject) {
+					getDefaultPromiseQueue()->asyncAfter(std::chrono::steady_clock::now() + std::chrono::seconds(2), [=]() {
+						performSessionRenewal().then(resolve, reject);
+					});
+				});
+			}
+			return Promise<bool>::reject(errorPtr);
+		});
 	}
 	
 	
@@ -161,6 +276,11 @@ namespace sh {
 		request.method = utils::HttpMethod::POST;
 		request.data = utils::makeQueryString(params);
 		return utils::performHttpRequest(request).map<Json>([](std::shared_ptr<utils::HttpResponse> response) -> Json {
+			if((response->statusCode < 200 || response->statusCode >= 300) && response->data.size() == 0) {
+				throw SpotifyError(SpotifyError::Code::OAUTH_REQUEST_FAILED, response->statusMessage, {
+					{ "httpResponse", response }
+				});
+			}
 			std::string parseError;
 			auto json = Json::parse(response->data.storage, parseError);
 			if(parseError.length() > 0) {

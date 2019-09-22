@@ -50,6 +50,7 @@ namespace sh {
 		static Promise<SpotifySession> swapCodeForToken(String code, String url);
 		
 	private:
+		Promise<bool> performSessionRenewal();
 		static Promise<Json> performTokenURLRequest(String url, std::map<String,String> params);
 		
 		Options options;

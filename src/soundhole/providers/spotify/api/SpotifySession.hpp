@@ -27,6 +27,8 @@ namespace sh {
 		bool hasRefreshToken() const;
 		bool hasScope(String scope) const;
 		
+		void update(String accessToken, TimePoint expireTime);
+		
 		static TimePoint getExpireTimeFromSeconds(int seconds);
 		
 	private:

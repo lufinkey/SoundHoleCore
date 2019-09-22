@@ -42,6 +42,11 @@ namespace sh {
 		return scopes.contains(scope);
 	}
 	
+	void SpotifySession::update(String accessToken, TimePoint expireTime) {
+		this->accessToken = accessToken;
+		this->expireTime = expireTime;
+	}
+	
 	SpotifySession::TimePoint SpotifySession::getExpireTimeFromSeconds(int seconds) {
 		return std::chrono::system_clock::now() + std::chrono::seconds(seconds);
 	}
