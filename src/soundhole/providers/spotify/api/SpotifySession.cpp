@@ -18,7 +18,7 @@ namespace sh {
 		return accessToken;
 	}
 	
-	const SpotifySession::TimePoint& SpotifySession::getTimePoint() const {
+	const SpotifySession::TimePoint& SpotifySession::getExpireTime() const {
 		return expireTime;
 	}
 	

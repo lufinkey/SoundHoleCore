@@ -22,7 +22,7 @@ namespace sh {
 		SpotifySession(String accessToken, TimePoint expireTime, String refreshToken, ArrayList<String> scopes);
 		
 		const String& getAccessToken() const;
-		const TimePoint& getTimePoint() const;
+		const TimePoint& getExpireTime() const;
 		const String& getRefreshToken() const;
 		const ArrayList<String>& getScopes() const;
 		

@@ -21,6 +21,7 @@ namespace sh {
 	class SpotifyError: public Error {
 	public:
 		enum class Code {
+			BAD_PARAMETERS,
 			REQUEST_NOT_SENT,
 			REQUEST_FAILED,
 			BAD_RESPONSE,
@@ -28,6 +29,7 @@ namespace sh {
 			SESSION_EXPIRED,
 			
 			OAUTH_REQUEST_FAILED,
+			OAUTH_STATE_MISMATCH,
 			
 			SDK_FAILED,
 			SDK_INIT_FAILED,

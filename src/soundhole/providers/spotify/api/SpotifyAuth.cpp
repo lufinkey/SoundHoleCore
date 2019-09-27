@@ -73,6 +73,10 @@ namespace sh {
 		return (tokenRefreshURL.length() > 0);
 	}
 	
+	const SpotifyAuth::Options& SpotifyAuth::getOptions() const {
+		return this->options;
+	}
+	
 	bool SpotifyAuth::isLoggedIn() const {
 		return session.has_value();
 	}
@@ -100,6 +104,10 @@ namespace sh {
 	void SpotifyAuth::clearSession() {
 		session.reset();
 		save();
+	}
+	
+	const Optional<SpotifySession>& SpotifyAuth::getSession() const {
+		return session;
 	}
 	
 	
@@ -227,7 +235,7 @@ namespace sh {
 			if(!renewalInfo->deleted) {
 				mutexPtr = &this->renewalInfoMutex;
 			}
-			LinkedList<RenewCallback> callbacks;
+			LinkedList<WaitCallback> callbacks;
 			std::mutex defaultMutex;
 			std::unique_lock<std::mutex> lock((mutexPtr != nullptr) ? *mutexPtr : defaultMutex);
 			callbacks.swap(renewalInfo->callbacks);

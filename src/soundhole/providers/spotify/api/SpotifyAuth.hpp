@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <soundhole/common.hpp>
 #include "SpotifySession.hpp"
 #include "SpotifyAuthEventListener.hpp"
@@ -23,6 +24,7 @@ namespace sh {
 			String tokenRefreshURL;
 			std::map<String,String> params;
 			String sessionPersistKey;
+			std::chrono::seconds tokenRefreshEarliness = std::chrono::seconds(300);
 			
 			String getWebAuthenticationURL(String state) const;
 			
@@ -36,6 +38,7 @@ namespace sh {
 		void addEventListener(SpotifyAuthEventListener* listener);
 		void removeEventListener(SpotifyAuthEventListener* listener);
 		
+		const Options& getOptions() const;
 		bool isLoggedIn() const;
 		bool isSessionValid() const;
 		bool hasStreamingScope() const;
@@ -44,8 +47,11 @@ namespace sh {
 		void load();
 		void save();
 		
+		Promise<bool> login();
+		
 		void startSession(SpotifySession session);
 		void clearSession();
+		const Optional<SpotifySession>& getSession() const;
 		
 		struct RenewOptions {
 			bool retryUntilResponse = false;
@@ -62,14 +68,14 @@ namespace sh {
 		Options options;
 		Optional<SpotifySession> session;
 		
-		struct RenewCallback {
+		struct WaitCallback {
 			Promise<bool>::Resolver resolve;
 			Promise<bool>::Rejecter reject;
 		};
 		struct RenewalInfo {
 			bool deleted = false;
-			LinkedList<RenewCallback> callbacks;
-			LinkedList<RenewCallback> retryUntilResponseCallbacks;
+			LinkedList<WaitCallback> callbacks;
+			LinkedList<WaitCallback> retryUntilResponseCallbacks;
 		};
 		std::shared_ptr<RenewalInfo> renewalInfo;
 		std::mutex renewalInfoMutex;
