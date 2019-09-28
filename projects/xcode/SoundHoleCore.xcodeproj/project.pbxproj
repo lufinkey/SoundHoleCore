@@ -84,6 +84,9 @@
 		A5B7A7C1233EA76C00301FC0 /* SHWebViewController_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7C0233EA76C00301FC0 /* SHWebViewController_iOS.mm */; };
 		A5B7A7C5233EA8CC00301FC0 /* SHProgressView_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7C4233EA8CC00301FC0 /* SHProgressView_iOS.mm */; };
 		A5B7A7C7233EB4AF00301FC0 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5B7A7C6233EB4AE00301FC0 /* WebKit.framework */; };
+		A5B7A7DD233F126800301FC0 /* Spotify.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7DB233F126800301FC0 /* Spotify.cpp */; };
+		A5B7A7DE233F126800301FC0 /* Spotify.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7DB233F126800301FC0 /* Spotify.cpp */; };
+		A5B7A7DF233F126800301FC0 /* Spotify.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5B7A7DC233F126800301FC0 /* Spotify.hpp */; };
 		CD1A74B29839C57A94EAACD7 /* libPods-SoundHoleCoreTest-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */; };
 /* End PBXBuildFile section */
 
@@ -193,6 +196,8 @@
 		A5B7A7C3233EA8CC00301FC0 /* SHProgressView_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SHProgressView_iOS.hpp; sourceTree = "<group>"; };
 		A5B7A7C4233EA8CC00301FC0 /* SHProgressView_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SHProgressView_iOS.mm; sourceTree = "<group>"; };
 		A5B7A7C6233EB4AE00301FC0 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.4.sdk/System/Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
+		A5B7A7DB233F126800301FC0 /* Spotify.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Spotify.cpp; sourceTree = "<group>"; };
+		A5B7A7DC233F126800301FC0 /* Spotify.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Spotify.hpp; sourceTree = "<group>"; };
 		AFF721677F756E337195FAB1 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -433,6 +438,8 @@
 		A571E13F2332D2F700603E14 /* api */ = {
 			isa = PBXGroup;
 			children = (
+				A5B7A7DC233F126800301FC0 /* Spotify.hpp */,
+				A5B7A7DB233F126800301FC0 /* Spotify.cpp */,
 				A571E15423331C6600603E14 /* SpotifyAuth.hpp */,
 				A571E15623331C6600603E14 /* SpotifyAuth.cpp */,
 				A5B7A7A22337DA5700301FC0 /* SpotifyAuth_iOS.mm */,
@@ -543,6 +550,7 @@
 				A571E15A23331C6600603E14 /* SpotifyAuth.hpp in Headers */,
 				A513ED89232DA20B000DCAC7 /* SoundHoleCoreTest.hpp in Headers */,
 				A571E1A8233440A800603E14 /* HttpClient.hpp in Headers */,
+				A5B7A7DF233F126800301FC0 /* Spotify.hpp in Headers */,
 				A5B7A7A72337E86400301FC0 /* SpotifyAuthEventListener.hpp in Headers */,
 				A571E1332332C65000603E14 /* SpotifyProvider.hpp in Headers */,
 				A513ED9C232DA20C000DCAC7 /* MediaItem.hpp in Headers */,
@@ -798,6 +806,7 @@
 				A5B7A7BB233EA5A500301FC0 /* SpotifyAuthViewController_iOS.mm in Sources */,
 				A5B7A7B423394BD400301FC0 /* SpotifyPlayerEventHandler_iOS.mm in Sources */,
 				A5B7A7AF2337F9B500301FC0 /* SpotifyPlayer_iOS.mm in Sources */,
+				A5B7A7DD233F126800301FC0 /* Spotify.cpp in Sources */,
 				A513ED94232DA20B000DCAC7 /* YoutubeProvider.cpp in Sources */,
 				A571E16523332CE200603E14 /* Utils.cpp in Sources */,
 				A513ED91232DA20B000DCAC7 /* BandcampProvider.cpp in Sources */,
@@ -839,6 +848,7 @@
 				A513ED9B232DA20C000DCAC7 /* MediaItem.cpp in Sources */,
 				A5B7A79E2336C29200301FC0 /* SpotifyError.cpp in Sources */,
 				A513ED8E232DA20B000DCAC7 /* MediaProvider.cpp in Sources */,
+				A5B7A7DE233F126800301FC0 /* Spotify.cpp in Sources */,
 				A571E1322332C64500603E14 /* SpotifyProvider.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

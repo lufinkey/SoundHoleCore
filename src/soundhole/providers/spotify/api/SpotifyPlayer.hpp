@@ -28,11 +28,11 @@ namespace sh {
 		static SpotifyPlayer* const shared;
 		
 		struct State {
-			bool playing;
-			bool repeating;
-			bool shuffling;
-			bool activeDevice;
-			double position;
+			bool playing = false;
+			bool repeating = false;
+			bool shuffling = false;
+			bool activeDevice = false;
+			double position = 0.0;
 		};
 		
 		struct Track {
@@ -45,8 +45,8 @@ namespace sh {
 			String albumURI;
 			String albumName;
 			Optional<String> albumCoverArtURL;
-			double duration;
-			size_t indexInContext;
+			double duration = 0.0;
+			size_t indexInContext = 0;
 		};
 		
 		struct Metadata {
