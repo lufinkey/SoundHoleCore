@@ -48,6 +48,29 @@ namespace sh {
 		
 		Promise<Json> sendRequest(utils::HttpMethod method, String endpoint, Json params = Json());
 		
+		Promise<Json> getMe(Json options = Json());
+		
+		Promise<Json> search(String query, ArrayList<String> types, Json options = Json());
+		
+		Promise<Json> getAlbum(String albumId, Json options = Json());
+		Promise<Json> getAlbums(ArrayList<String> albumIds, Json options = Json());
+		Promise<Json> getAlbumTracks(String albumId, Json options = Json());
+		
+		Promise<Json> getArtist(String artistId, Json options = Json());
+		Promise<Json> getArtists(ArrayList<String> artistIds, Json options = Json());
+		Promise<Json> getArtistAlbums(String artistId, Json options = Json());
+		Promise<Json> getArtistTopTracks(String artistId, String country, Json options = Json());
+		Promise<Json> getArtistRelatedArtists(String artistId, Json options = Json());
+		
+		Promise<Json> getTrack(String trackId, Json options = Json());
+		Promise<Json> getTracks(ArrayList<String> trackIds, Json options = Json());
+		Promise<Json> getTrackAudioAnalysis(String trackId, Json options = Json());
+		Promise<Json> getTrackAudioFeatures(String trackId, Json options = Json());
+		Promise<Json> getTracksAudioFeatures(ArrayList<String> trackIds, Json options = Json());
+		
+		Promise<Json> getPlaylist(String playlistId, Json options = Json());
+		Promise<Json> getPlaylistTracks(String playlistId, Json options = Json());
+		
 	private:
 		Promise<void> prepareForPlayer();
 		Promise<void> prepareForRequest();
