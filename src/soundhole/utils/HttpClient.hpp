@@ -40,6 +40,7 @@ namespace sh::utils {
 		std::map<String,String> headers;
 		String data;
 	};
+	using SharedHttpResponse = std::shared_ptr<HttpResponse>;
 	
-	Promise<std::shared_ptr<HttpResponse>> performHttpRequest(HttpRequest request);
+	Promise<SharedHttpResponse> performHttpRequest(HttpRequest request);
 }

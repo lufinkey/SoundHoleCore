@@ -38,9 +38,9 @@ namespace sh::utils {
 		}
 	}
 	
-	Promise<std::shared_ptr<HttpResponse>> performHttpRequest(HttpRequest request) {
-		return scripts::loadScriptsIfNeeded().then([=]() -> Promise<std::shared_ptr<HttpResponse>> {
-			return Promise<std::shared_ptr<HttpResponse>>([&](auto resolve, auto reject) {
+	Promise<SharedHttpResponse> performHttpRequest(HttpRequest request) {
+		return scripts::loadScriptsIfNeeded().then([=]() -> Promise<SharedHttpResponse> {
+			return Promise<SharedHttpResponse>([&](auto resolve, auto reject) {
 				try {
 					embed::nodejs::queueMain([=](napi_env env) {
 						try {

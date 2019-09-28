@@ -9,6 +9,7 @@
 #pragma once
 
 #include <soundhole/common.hpp>
+#include <soundhole/utils/HttpClient.hpp>
 #include "SpotifyAuth.hpp"
 #include "SpotifyPlayer.hpp"
 
@@ -40,8 +41,11 @@ namespace sh {
 		SpotifyPlayer::State getPlaybackState() const;
 		SpotifyPlayer::Metadata getPlaybackMetadata() const;
 		
+		Promise<Json> sendRequest(utils::HttpMethod method, String endpoint, Json params = Json());
+		
 	private:
 		Promise<void> prepareForPlayer();
+		Promise<void> prepareForRequest();
 		
 		SpotifyAuth* auth;
 		SpotifyPlayer* player;
