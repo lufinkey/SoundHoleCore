@@ -18,6 +18,10 @@ namespace sh {
 	public:
 		virtual ~SpotifyAuthEventListener() {}
 		
-		virtual void onSpotifyAuthSessionRenewed(SpotifyAuth* auth) {}
+		virtual void onSpotifyAuthSessionResume(SpotifyAuth* auth) {}
+		virtual void onSpotifyAuthSessionStart(SpotifyAuth* auth) {}
+		virtual void onSpotifyAuthSessionRenew(SpotifyAuth* auth) {}
+		virtual void onSpotifyAuthSessionExpire(SpotifyAuth* auth) {}
+		virtual void onSpotifyAuthSessionEnd(SpotifyAuth* auth) {}
 	};
 }

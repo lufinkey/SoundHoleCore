@@ -6,7 +6,7 @@
 //  Copyright © 2019 Luis Finke. All rights reserved.
 //
 
-#import "SHProgressView_iOS.hpp"
+#include "SHProgressView_iOS.hpp"
 #if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
 #import <QuartzCore/QuartzCore.h>
 

@@ -55,6 +55,44 @@ namespace sh {
 		}
 	}
 	
+	
+	
+	void SpotifyAuth::load() {
+		if(options.sessionPersistKey.empty()) {
+			return;
+		}
+		bool wasLoggedIn = isLoggedIn();
+		session = SpotifySession::load(options.sessionPersistKey);
+		if(!wasLoggedIn && session) {
+			std::unique_lock<std::mutex> lock(listenersMutex);
+			LinkedList<SpotifyAuthEventListener*> listeners = this->listeners;
+			lock.unlock();
+			for(auto listener : listeners) {
+				listener->onSpotifyAuthSessionResume(this);
+			}
+			if(session && !session->isValid()) {
+				std::unique_lock<std::mutex> lock(listenersMutex);
+				LinkedList<SpotifyAuthEventListener*> listeners = this->listeners;
+				lock.unlock();
+				for(auto listener : listeners) {
+					listener->onSpotifyAuthSessionExpire(this);
+				}
+			}
+		}
+		renewSessionIfNeeded({.retryUntilResponse = true});
+	}
+	
+	void SpotifyAuth::save() {
+		if(options.sessionPersistKey.empty()) {
+			return;
+		}
+		if(session) {
+			session->save(options.sessionPersistKey);
+		}
+	}
+	
+	
+	
 	void SpotifyAuth::addEventListener(SpotifyAuthEventListener* listener) {
 		std::unique_lock<std::mutex> lock(listenersMutex);
 		listeners.pushBack(listener);
@@ -62,7 +100,7 @@ namespace sh {
 	
 	void SpotifyAuth::removeEventListener(SpotifyAuthEventListener* listener) {
 		std::unique_lock<std::mutex> lock(listenersMutex);
-		listeners.removeEqual(listener);
+		listeners.removeFirstEqual(listener);
 	}
 	
 	bool SpotifyAuth::Options::hasTokenSwapURL() const {
@@ -97,11 +135,27 @@ namespace sh {
 	
 	
 	void SpotifyAuth::startSession(SpotifySession newSession) {
+		std::unique_lock<std::recursive_mutex> lock(sessionMutex);
 		session = newSession;
 		save();
+		if(session) {
+			startRenewalTimer();
+		}
+	}
+	
+	void SpotifyAuth::updateSession(String accessToken, SpotifySession::TimePoint expireTime) {
+		std::unique_lock<std::recursive_mutex> lock(sessionMutex);
+		if(!session) {
+			return;
+		}
+		session->update(accessToken, expireTime);
+		save();
+		rescheduleRenewalTimer();
 	}
 	
 	void SpotifyAuth::clearSession() {
+		std::unique_lock<std::recursive_mutex> lock(sessionMutex);
+		stopRenewalTimer();
 		session.reset();
 		save();
 	}
@@ -112,6 +166,40 @@ namespace sh {
 	
 	
 	
+	void SpotifyAuth::loginWithSession(SpotifySession newSession) {
+		bool wasLoggedIn = isLoggedIn();
+		startSession(newSession);
+		if(!wasLoggedIn && session) {
+			std::unique_lock<std::mutex> lock(listenersMutex);
+			LinkedList<SpotifyAuthEventListener*> listeners = this->listeners;
+			lock.unlock();
+			for(auto listener : listeners) {
+				listener->onSpotifyAuthSessionStart(this);
+			}
+			if(session && !session->isValid()) {
+				std::unique_lock<std::mutex> lock(listenersMutex);
+				LinkedList<SpotifyAuthEventListener*> listeners = this->listeners;
+				lock.unlock();
+				for(auto listener : listeners) {
+					listener->onSpotifyAuthSessionExpire(this);
+				}
+			}
+		}
+		renewSessionIfNeeded({.retryUntilResponse = true});
+	}
+	
+	void SpotifyAuth::logout() {
+		bool wasLogged = isLoggedIn();
+		clearSession();
+		if(wasLogged) {
+			std::unique_lock<std::mutex> lock(listenersMutex);
+			LinkedList<SpotifyAuthEventListener*> listeners = this->listeners;
+			lock.unlock();
+			for(auto listener : listeners) {
+				listener->onSpotifyAuthSessionEnd(this);
+			}
+		}
+	}
 	
 	Promise<bool> SpotifyAuth::renewSession(RenewOptions options) {
 		return Promise<bool>([&](auto resolve, auto reject) {
@@ -121,7 +209,7 @@ namespace sh {
 			}
 			
 			bool shouldPerformRenewal = false;
-			std::unique_lock<std::mutex> lock(renewalInfoMutex);
+			std::unique_lock<std::recursive_mutex> lock(sessionMutex);
 			if(!renewalInfo) {
 				shouldPerformRenewal = true;
 				renewalInfo = std::make_shared<RenewalInfo>();
@@ -154,7 +242,7 @@ namespace sh {
 	}
 	
 	Promise<bool> SpotifyAuth::performSessionRenewal() {
-		std::unique_lock<std::mutex> lock(this->renewalInfoMutex);
+		std::unique_lock<std::recursive_mutex> lock(sessionMutex);
 		// ensure session can be refreshed
 		if(!canRefreshSession()) {
 			// session ended, so call all callbacks with false and return
@@ -177,10 +265,9 @@ namespace sh {
 			{ "refresh_token", this->session->getRefreshToken() }
 		}).map<bool>([=](Json result) -> bool {
 			// ensure session still exists
-			if(renewalInfo->deleted || !canRefreshSession()) {
-				// session ended, so call all callbacks with false and return
+			auto cancelRenewal = [&]() {
 				if(!renewalInfo->deleted) {
-					std::unique_lock<std::mutex> lock(this->renewalInfoMutex);
+					std::unique_lock<std::recursive_mutex> lock(this->sessionMutex);
 					this->renewalInfo = nullptr;
 					lock.unlock();
 				}
@@ -190,6 +277,16 @@ namespace sh {
 				for(auto& callback : renewalInfo->retryUntilResponseCallbacks) {
 					callback.resolve(false);
 				}
+			};
+			if(renewalInfo->deleted || !canRefreshSession()) {
+				// session ended, so call all callbacks with false and return
+				cancelRenewal();
+				return false;
+			}
+			std::unique_lock<std::recursive_mutex> lock(this->sessionMutex);
+			if(!canRefreshSession()) {
+				// session ended, so call all callbacks with false and return
+				cancelRenewal();
 				return false;
 			}
 			
@@ -201,11 +298,9 @@ namespace sh {
 					{ "jsonResponse", result }
 				});
 			}
-			this->session->update(accessToken.string_value(), SpotifySession::getExpireTimeFromSeconds((int)expireSeconds.number_value()));
-			this->save();
+			this->updateSession(accessToken.string_value(), SpotifySession::getExpireTimeFromSeconds((int)expireSeconds.number_value()));
 			
 			// get renewal callbacks
-			std::unique_lock<std::mutex> lock(this->renewalInfoMutex);
 			std::shared_ptr<RenewalInfo> renewalInfo;
 			renewalInfo.swap(this->renewalInfo);
 			lock.unlock();
@@ -223,7 +318,7 @@ namespace sh {
 			LinkedList<SpotifyAuthEventListener*> listeners = this->listeners;
 			listenersLock.unlock();
 			for(auto listener : listeners) {
-				listener->onSpotifyAuthSessionRenewed(this);
+				listener->onSpotifyAuthSessionRenew(this);
 			}
 			
 			// renewal is successful
@@ -231,13 +326,13 @@ namespace sh {
 		}).except([=](std::exception_ptr errorPtr) -> Promise<bool> {
 			// get renewal callbacks
 			bool shouldRetry = false;
-			std::mutex* mutexPtr = nullptr;
+			std::recursive_mutex* mutexPtr = nullptr;
 			if(!renewalInfo->deleted) {
-				mutexPtr = &this->renewalInfoMutex;
+				mutexPtr = &this->sessionMutex;
 			}
 			LinkedList<WaitCallback> callbacks;
-			std::mutex defaultMutex;
-			std::unique_lock<std::mutex> lock((mutexPtr != nullptr) ? *mutexPtr : defaultMutex);
+			std::recursive_mutex defaultMutex;
+			std::unique_lock<std::recursive_mutex> lock((mutexPtr != nullptr) ? *mutexPtr : defaultMutex);
 			callbacks.swap(renewalInfo->callbacks);
 			try {
 				std::rethrow_exception(errorPtr);
@@ -356,5 +451,48 @@ namespace sh {
 				{ "params", params }
 			});
 		});
+	}
+	
+	
+	
+	void SpotifyAuth::startRenewalTimer() {
+		if(renewalTimer && renewalTimer->isValid()) {
+			// auth renewal timer has already been started, don't bother starting again
+			return;
+		}
+		rescheduleRenewalTimer();
+	}
+	
+	void SpotifyAuth::rescheduleRenewalTimer() {
+		if(!canRefreshSession()) {
+			// we can't perform token refresh, so don't bother scheduling the timer
+			return;
+		}
+		auto now = std::chrono::system_clock::now();
+		auto expireTime = session->getExpireTime();
+		auto timeDiff = expireTime - now;
+		auto renewalTimeDiff = (expireTime - options.tokenRefreshEarliness) - now;
+		if(timeDiff <= std::chrono::seconds(30) || timeDiff <= (options.tokenRefreshEarliness + std::chrono::seconds(30)) || renewalTimeDiff <= std::chrono::seconds(0)) {
+			onRenewalTimerFire();
+		}
+		else {
+			if(renewalTimer) {
+				renewalTimer->cancel();
+			}
+			renewalTimer = Timer::withTimeout(renewalTimeDiff, [=](auto timer) {
+				onRenewalTimerFire();
+			});
+		}
+	}
+	
+	void SpotifyAuth::stopRenewalTimer() {
+		if(renewalTimer) {
+			renewalTimer->cancel();
+			renewalTimer = nullptr;
+		}
+	}
+	
+	void SpotifyAuth::onRenewalTimerFire() {
+		renewSession({.retryUntilResponse=true});
 	}
 }

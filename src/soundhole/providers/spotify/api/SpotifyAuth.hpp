@@ -35,6 +35,9 @@ namespace sh {
 		SpotifyAuth(Options options);
 		~SpotifyAuth();
 		
+		void load();
+		void save();
+		
 		void addEventListener(SpotifyAuthEventListener* listener);
 		void removeEventListener(SpotifyAuthEventListener* listener);
 		
@@ -44,13 +47,10 @@ namespace sh {
 		bool hasStreamingScope() const;
 		bool canRefreshSession() const;
 		
-		void load();
-		void save();
-		
 		Promise<bool> login();
+		void loginWithSession(SpotifySession session);
+		void logout();
 		
-		void startSession(SpotifySession session);
-		void clearSession();
 		const Optional<SpotifySession>& getSession() const;
 		
 		struct RenewOptions {
@@ -62,11 +62,21 @@ namespace sh {
 		static Promise<SpotifySession> swapCodeForToken(String code, String url);
 		
 	private:
+		void startSession(SpotifySession session);
+		void updateSession(String accessToken, SpotifySession::TimePoint expireTime);
+		void clearSession();
+		
 		Promise<bool> performSessionRenewal();
 		static Promise<Json> performTokenURLRequest(String url, std::map<String,String> params);
 		
+		void startRenewalTimer();
+		void rescheduleRenewalTimer();
+		void stopRenewalTimer();
+		void onRenewalTimerFire();
+		
 		Options options;
 		Optional<SpotifySession> session;
+		std::recursive_mutex sessionMutex;
 		
 		struct WaitCallback {
 			Promise<bool>::Resolver resolve;
@@ -78,9 +88,10 @@ namespace sh {
 			LinkedList<WaitCallback> retryUntilResponseCallbacks;
 		};
 		std::shared_ptr<RenewalInfo> renewalInfo;
-		std::mutex renewalInfoMutex;
 		
 		LinkedList<SpotifyAuthEventListener*> listeners;
 		std::mutex listenersMutex;
+		
+		SharedTimer renewalTimer;
 	};
 }

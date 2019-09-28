@@ -19,7 +19,11 @@ namespace sh {
 	public:
 		using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
 		
+		static Optional<SpotifySession> load(const String& key);
+		
 		SpotifySession(String accessToken, TimePoint expireTime, String refreshToken, ArrayList<String> scopes);
+		
+		void save(const String& key);
 		
 		const String& getAccessToken() const;
 		const TimePoint& getExpireTime() const;

@@ -8,8 +8,8 @@
 
 #include "SpotifyAuthViewController_iOS.hpp"
 #if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
-#include <soundhole/utils/ios/SHWebViewController_iOS.hpp>
-#include <soundhole/utils/ios/SHProgressView_iOS.hpp>
+#import <soundhole/utils/ios/SHWebViewController_iOS.hpp>
+#import <soundhole/utils/ios/SHProgressView_iOS.hpp>
 
 using namespace sh;
 

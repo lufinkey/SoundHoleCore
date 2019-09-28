@@ -12,6 +12,14 @@
 #import <Foundation/Foundation.h>
 
 namespace sh {
+	Optional<SpotifySession> SpotifySession::load(const String& key) {
+		return SpotifySession::fromNSUserDefaults(key, NSUserDefaults.standardUserDefaults);
+	}
+	
+	void SpotifySession::save(const String& key) {
+		writeToNSUserDefaults(key, NSUserDefaults.standardUserDefaults);
+	}
+	
 	NSDictionary* SpotifySession::toNSDictionary() const {
 		NSMutableDictionary* dictionary = [NSMutableDictionary dictionary];
 		dictionary[@"accessToken"] = accessToken.toNSString();

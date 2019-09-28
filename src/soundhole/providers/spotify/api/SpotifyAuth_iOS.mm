@@ -15,21 +15,6 @@
 using namespace sh;
 
 namespace sh {
-	void SpotifyAuth::load() {
-		if(options.sessionPersistKey.size() == 0) {
-			return;
-		}
-		session = SpotifySession::fromNSUserDefaults(options.sessionPersistKey, NSUserDefaults.standardUserDefaults);
-	}
-	
-	void SpotifyAuth::save() {
-		if(options.sessionPersistKey.size() == 0) {
-			return;
-		}
-		SpotifySession::writeToNSUserDefaults(session, options.sessionPersistKey, NSUserDefaults.standardUserDefaults);
-	}
-	
-	
 	Promise<bool> SpotifyAuth::login() {
 		return Promise<bool>([=](auto resolve, auto reject) {
 			SpotifyAuthViewController* authController = [[SpotifyAuthViewController alloc] initWithOptions:options];
@@ -44,11 +29,11 @@ namespace sh {
 						}];
 					});
 				}
-				else if(session.has_value()) {
+				else if(session) {
 					// login successful
 					dispatch_async(dispatch_get_main_queue(), ^{
 						[authController.presentingViewController dismissViewControllerAnimated:YES completion:^{
-							startSession(session.value());
+							loginWithSession(session.value());
 							resolve(true);
 						}];
 					});

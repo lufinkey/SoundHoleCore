@@ -9,6 +9,8 @@
 #include "SpotifyPlayer.hpp"
 
 namespace sh {
+	SpotifyPlayer* const SpotifyPlayer::shared = new SpotifyPlayer();
+	
 	void SpotifyPlayer::setAuth(SpotifyAuth* auth) {
 		std::unique_lock<std::mutex> lock(loginMutex);
 		if(this->auth != nullptr) {
@@ -150,11 +152,14 @@ namespace sh {
 		loggedIn = false;
 		loggingIn = false;
 		loggingOut = false;
+		renewingSession = false;
+		#ifdef TARGETPLATFORM_IOS
+		renewingPlayerState = std::nullopt;
+		#endif
 		LinkedList<WaitCallback> logoutCallbacks;
 		logoutCallbacks.swap(this->logoutCallbacks);
 		LinkedList<WaitCallback> loginCallbacks;
 		loginCallbacks.swap(this->loginCallbacks);
-		
 		lock.unlock();
 		
 		stop();
@@ -212,6 +217,7 @@ namespace sh {
 		std::unique_lock<std::mutex> lock(loginMutex);
 		bool wasLoggingOut = loggingOut;
 		loggingIn = false;
+		loggingOut = false;
 		
 		// get loginCallbacks
 		LinkedList<WaitCallback> loginCallbacks;
@@ -270,5 +276,29 @@ namespace sh {
 				endSession();
 			});
 		}
+	}
+	
+	
+	
+	void SpotifyPlayer::onSpotifyAuthSessionResume(SpotifyAuth* auth) {
+		if(auth->isSessionValid()) {
+			login();
+		}
+	}
+	
+	void SpotifyPlayer::onSpotifyAuthSessionStart(SpotifyAuth* auth) {
+		if(auth->isSessionValid()) {
+			login();
+		}
+	}
+	
+	void SpotifyPlayer::onSpotifyAuthSessionRenew(SpotifyAuth* auth) {
+		if(auth->isSessionValid()) {
+			renewSession(auth->getSession()->getAccessToken());
+		}
+	}
+	
+	void SpotifyPlayer::onSpotifyAuthSessionEnd(SpotifyAuth* auth) {
+		logout();
 	}
 }

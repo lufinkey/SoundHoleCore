@@ -25,6 +25,8 @@
 namespace sh {
 	class SpotifyPlayer: protected SpotifyAuthEventListener {
 	public:
+		static SpotifyPlayer* const shared;
+		
 		struct State {
 			bool playing;
 			bool repeating;
@@ -90,7 +92,10 @@ namespace sh {
 		#endif
 		
 	protected:
-		virtual void onSpotifyAuthSessionRenewed(SpotifyAuth* auth) override;
+		virtual void onSpotifyAuthSessionResume(SpotifyAuth* auth) override;
+		virtual void onSpotifyAuthSessionStart(SpotifyAuth* auth) override;
+		virtual void onSpotifyAuthSessionRenew(SpotifyAuth* auth) override;
+		virtual void onSpotifyAuthSessionEnd(SpotifyAuth* auth) override;
 		
 	private:
 		SpotifyPlayer();
