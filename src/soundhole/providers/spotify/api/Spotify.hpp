@@ -18,10 +18,15 @@ namespace sh {
 	public:
 		using Options = SpotifyAuth::Options;
 		
+		Spotify(const Spotify&) = delete;
+		Spotify& operator=(const Spotify&) = delete;
+		
 		Spotify(Options options);
+		~Spotify();
 		
 		Promise<bool> login();
 		Promise<void> logout();
+		bool isLoggedIn() const;
 		
 		Promise<void> startPlayer();
 		void stopPlayer();

@@ -15,6 +15,16 @@ namespace sh {
 		//
 	}
 	
+	Spotify::~Spotify() {
+		if(player != nullptr) {
+			player->setAuth(nullptr);
+			player->logout();
+			player->stop();
+			player = nullptr;
+		}
+		delete auth;
+	}
+	
 	Promise<bool> Spotify::login() {
 		return auth->login();
 	}
@@ -27,6 +37,12 @@ namespace sh {
 		}
 		return Promise<void>::resolve();
 	}
+	
+	bool Spotify::isLoggedIn() const {
+		return auth->isLoggedIn();
+	}
+	
+	
 	
 	Promise<void> Spotify::startPlayer() {
 		if(!auth->hasStreamingScope()) {
@@ -68,6 +84,8 @@ namespace sh {
 			player = nullptr;
 		}
 	}
+	
+	
 	
 	Promise<void> Spotify::playURI(String uri, PlayOptions options) {
 		return prepareForPlayer().then([=]() -> Promise<void> {
