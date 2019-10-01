@@ -122,6 +122,9 @@ namespace sh {
 	}
 	
 	bool SpotifyAuth::hasStreamingScope() const {
+		if(!session) {
+			return false;
+		}
 		return session->hasScope("streaming");
 	}
 	
