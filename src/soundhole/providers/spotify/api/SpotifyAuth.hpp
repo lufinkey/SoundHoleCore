@@ -47,7 +47,10 @@ namespace sh {
 		bool hasStreamingScope() const;
 		bool canRefreshSession() const;
 		
-		Promise<bool> login();
+		struct LoginOptions {
+			bool showDialog = true;
+		};
+		Promise<bool> login(LoginOptions options = LoginOptions{.showDialog=true});
 		void loginWithSession(SpotifySession session);
 		void logout();
 		

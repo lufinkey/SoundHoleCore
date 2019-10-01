@@ -16,12 +16,13 @@
 #if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import <WebKit/WebKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 typedef void(^SpotifyAuthViewControllerCompletion)(sh::Optional<sh::SpotifySession> session,std::exception_ptr error);
 
-@interface SpotifyAuthViewController: UINavigationController
+@interface SpotifyAuthViewController: UINavigationController <WKNavigationDelegate, UIAdaptivePresentationControllerDelegate>
 
 -(id)initWithOptions:(sh::SpotifyAuth::Options)options;
 

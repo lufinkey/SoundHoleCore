@@ -12,7 +12,7 @@
 namespace sh {
 	Spotify::Spotify(Options options)
 	: auth(new SpotifyAuth(options)), player(nullptr) {
-		//
+		auth->load();
 	}
 	
 	Spotify::~Spotify() {
@@ -25,8 +25,8 @@ namespace sh {
 		delete auth;
 	}
 	
-	Promise<bool> Spotify::login() {
-		return auth->login();
+	Promise<bool> Spotify::login(LoginOptions options) {
+		return auth->login(options);
 	}
 	
 	Promise<void> Spotify::logout() {

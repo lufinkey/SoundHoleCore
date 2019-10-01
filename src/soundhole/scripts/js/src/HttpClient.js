@@ -22,8 +22,12 @@ function performHttpRequest(request, callback) {
 			buffers.push(chunk);
 		});
 		res.on('end', () => {
-			const data = Buffer.concat(buffers);
-			buffers = null;
+			const buffer = Buffer.concat(buffers);
+			const arrayBuffer = new ArrayBuffer(buffer.length);
+			const data = new Uint8Array(arrayBuffer);
+			for(let i=0; i<buffer.length; i++) {
+				data[i] = buffer[i];
+			}
 			callback(null, {
 				statusCode: res.statusCode,
 				statusMessage: res.statusMessage,

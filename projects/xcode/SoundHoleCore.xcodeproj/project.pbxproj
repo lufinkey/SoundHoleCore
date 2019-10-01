@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -38,13 +38,15 @@
 		A513ED9D232DA20C000DCAC7 /* soundhole.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A513ED86232DA20A000DCAC7 /* soundhole.hpp */; };
 		A513EDA1232DA2EA000DCAC7 /* libSoundHoleCore-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A513DB4A232DA1C0000DCAC7 /* libSoundHoleCore-macOS.a */; };
 		A513EDA2232DA2F2000DCAC7 /* libSoundHoleCore-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A513DB23232DA15C000DCAC7 /* libSoundHoleCore-iOS.a */; };
-		A513EDA4232DA2F9000DCAC7 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A513EDA3232DA2F9000DCAC7 /* UIKit.framework */; };
-		A513EDA6232DA300000DCAC7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A513EDA5232DA300000DCAC7 /* Foundation.framework */; };
 		A513EDA8232DA30D000DCAC7 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A513EDA7232DA30D000DCAC7 /* Cocoa.framework */; };
+		A5622C6C23430AF4008D6631 /* SpotifyAudioPlayback.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A571E1342332C6D000603E14 /* SpotifyAudioPlayback.framework */; };
+		A5622C6E23430B1A008D6631 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5622C6D23430B1A008D6631 /* WebKit.framework */; };
+		A5622C7023430B20008D6631 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5622C6F23430B20008D6631 /* UIKit.framework */; };
+		A5622C7223430B27008D6631 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5622C7123430B27008D6631 /* Foundation.framework */; };
 		A571E12E2332C5A300603E14 /* SpotifyProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E12C2332C5A300603E14 /* SpotifyProvider.cpp */; };
 		A571E1322332C64500603E14 /* SpotifyProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E12C2332C5A300603E14 /* SpotifyProvider.cpp */; };
 		A571E1332332C65000603E14 /* SpotifyProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A571E12D2332C5A300603E14 /* SpotifyProvider.hpp */; };
-		A571E13D2332D11200603E14 /* SpotifyAudioPlayback.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A571E1342332C6D000603E14 /* SpotifyAudioPlayback.framework */; };
+		A571E13D2332D11200603E14 /* SpotifyAudioPlayback.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A571E1342332C6D000603E14 /* SpotifyAudioPlayback.framework */; platformFilter = ios; };
 		A571E15923331C6600603E14 /* SpotifySession.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A571E15323331C6600603E14 /* SpotifySession.hpp */; };
 		A571E15A23331C6600603E14 /* SpotifyAuth.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A571E15423331C6600603E14 /* SpotifyAuth.hpp */; };
 		A571E15D23331C6600603E14 /* SpotifyAuth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E15623331C6600603E14 /* SpotifyAuth.cpp */; };
@@ -83,7 +85,6 @@
 		A5B7A7BB233EA5A500301FC0 /* SpotifyAuthViewController_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7BA233EA5A500301FC0 /* SpotifyAuthViewController_iOS.mm */; };
 		A5B7A7C1233EA76C00301FC0 /* SHWebViewController_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7C0233EA76C00301FC0 /* SHWebViewController_iOS.mm */; };
 		A5B7A7C5233EA8CC00301FC0 /* SHProgressView_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7C4233EA8CC00301FC0 /* SHProgressView_iOS.mm */; };
-		A5B7A7C7233EB4AF00301FC0 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5B7A7C6233EB4AE00301FC0 /* WebKit.framework */; };
 		A5B7A7DD233F126800301FC0 /* Spotify.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7DB233F126800301FC0 /* Spotify.cpp */; };
 		A5B7A7DE233F126800301FC0 /* Spotify.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7DB233F126800301FC0 /* Spotify.cpp */; };
 		A5B7A7DF233F126800301FC0 /* Spotify.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5B7A7DC233F126800301FC0 /* Spotify.hpp */; };
@@ -146,10 +147,11 @@
 		A513ED85232DA20A000DCAC7 /* MediaItem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MediaItem.hpp; sourceTree = "<group>"; };
 		A513ED86232DA20A000DCAC7 /* soundhole.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = soundhole.hpp; sourceTree = "<group>"; };
 		A513ED9F232DA253000DCAC7 /* py */ = {isa = PBXFileReference; lastKnownFileType = folder; path = py; sourceTree = "<group>"; };
-		A513EDA3232DA2F9000DCAC7 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.4.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
-		A513EDA5232DA300000DCAC7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.4.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		A513EDA7232DA30D000DCAC7 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		A513EDAA232DB3BF000DCAC7 /* NodeMobile.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NodeMobile.framework; path = "Pods/NodeMobile/out_ios/Release-universal/NodeMobile.framework"; sourceTree = "<group>"; };
+		A5622C6D23430B1A008D6631 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS13.0.sdk/System/Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
+		A5622C6F23430B20008D6631 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS13.0.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		A5622C7123430B27008D6631 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS13.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		A571E12C2332C5A300603E14 /* SpotifyProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyProvider.cpp; sourceTree = "<group>"; };
 		A571E12D2332C5A300603E14 /* SpotifyProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyProvider.hpp; sourceTree = "<group>"; };
 		A571E1342332C6D000603E14 /* SpotifyAudioPlayback.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SpotifyAudioPlayback.framework; path = "../../external/spotify-ios-streaming-sdk/SpotifyAudioPlayback.framework"; sourceTree = "<group>"; };
@@ -195,7 +197,6 @@
 		A5B7A7C0233EA76C00301FC0 /* SHWebViewController_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SHWebViewController_iOS.mm; sourceTree = "<group>"; };
 		A5B7A7C3233EA8CC00301FC0 /* SHProgressView_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SHProgressView_iOS.hpp; sourceTree = "<group>"; };
 		A5B7A7C4233EA8CC00301FC0 /* SHProgressView_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SHProgressView_iOS.mm; sourceTree = "<group>"; };
-		A5B7A7C6233EB4AE00301FC0 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.4.sdk/System/Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
 		A5B7A7DB233F126800301FC0 /* Spotify.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Spotify.cpp; sourceTree = "<group>"; };
 		A5B7A7DC233F126800301FC0 /* Spotify.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Spotify.hpp; sourceTree = "<group>"; };
 		AFF721677F756E337195FAB1 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -214,9 +215,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A5B7A7C7233EB4AF00301FC0 /* WebKit.framework in Frameworks */,
-				A513EDA6232DA300000DCAC7 /* Foundation.framework in Frameworks */,
-				A513EDA4232DA2F9000DCAC7 /* UIKit.framework in Frameworks */,
+				A5622C7223430B27008D6631 /* Foundation.framework in Frameworks */,
+				A5622C7023430B20008D6631 /* UIKit.framework in Frameworks */,
+				A5622C6E23430B1A008D6631 /* WebKit.framework in Frameworks */,
+				A5622C6C23430AF4008D6631 /* SpotifyAudioPlayback.framework in Frameworks */,
 				A513EDA2232DA2F2000DCAC7 /* libSoundHoleCore-iOS.a in Frameworks */,
 				806FE0F8B91D795108D7E457 /* libPods-SoundHoleCoreTest-iOS.a in Frameworks */,
 			);
@@ -395,12 +397,12 @@
 		A513EDA0232DA2EA000DCAC7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				A5B7A7C6233EB4AE00301FC0 /* WebKit.framework */,
+				A5622C7123430B27008D6631 /* Foundation.framework */,
+				A5622C6F23430B20008D6631 /* UIKit.framework */,
+				A5622C6D23430B1A008D6631 /* WebKit.framework */,
 				A571E1342332C6D000603E14 /* SpotifyAudioPlayback.framework */,
 				A513EDAA232DB3BF000DCAC7 /* NodeMobile.framework */,
 				A513EDA7232DA30D000DCAC7 /* Cocoa.framework */,
-				A513EDA5232DA300000DCAC7 /* Foundation.framework */,
-				A513EDA3232DA2F9000DCAC7 /* UIKit.framework */,
 				92C87D0F488E86DFB8CAA6B3 /* libPods-SoundHoleCoreTest-iOS.a */,
 				3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */,
 			);
@@ -478,12 +480,12 @@
 		A571E16D233331A000603E14 /* js */ = {
 			isa = PBXGroup;
 			children = (
-				A571E1762333350200603E14 /* build.sh */,
 				A571E16F233331B900603E14 /* index.js */,
+				A571E171233331C100603E14 /* src */,
+				A571E1762333350200603E14 /* build.sh */,
 				A571E170233331B900603E14 /* package.json */,
 				A571E16E233331B900603E14 /* package-lock.json */,
 				A571E1842333E5D800603E14 /* build */,
-				A571E171233331C100603E14 /* src */,
 			);
 			path = js;
 			sourceTree = "<group>";
@@ -1083,6 +1085,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Pods/NodeMobile/out_ios/Release-universal",
+					"$(PROJECT_DIR)/../../external/spotify-ios-streaming-sdk",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../src/test/main/iOS/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
@@ -1107,6 +1110,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Pods/NodeMobile/out_ios/Release-universal",
+					"$(PROJECT_DIR)/../../external/spotify-ios-streaming-sdk",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../src/test/main/iOS/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;

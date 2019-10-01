@@ -421,6 +421,7 @@ namespace sh {
 		utils::HttpRequest request;
 		request.url = Url(url);
 		request.method = utils::HttpMethod::POST;
+		request.headers["Content-Type"] = "application/x-www-form-urlencoded";
 		request.data = utils::makeQueryString(params);
 		return utils::performHttpRequest(request).map<Json>([](std::shared_ptr<utils::HttpResponse> response) -> Json {
 			if((response->statusCode < 200 || response->statusCode >= 300) && response->data.size() == 0) {

@@ -7,17 +7,24 @@
 //
 
 #import "ViewController.h"
+#include <test/SoundHoleCoreTest.hpp>
 
-@interface ViewController ()
-
-@end
+@interface ViewController () {
+	BOOL _tested;
+} @end
 
 @implementation ViewController
 
-- (void)viewDidLoad {
+-(void)viewDidLoad {
 	[super viewDidLoad];
+	_tested = NO;
 	// Do any additional setup after loading the view.
 }
 
+-(void)viewDidAppear:(BOOL)animated {
+	[super viewDidAppear:animated];
+	_tested = YES;
+	sh::test::testSpotify();
+}
 
 @end

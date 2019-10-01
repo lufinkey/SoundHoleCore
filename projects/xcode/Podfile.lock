@@ -24,7 +24,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   AsyncCpp:
-    :commit: 2f66d0dc20cfda96b1788033663ad296cf3e26bb
+    :commit: be166af001eed864082070dd030df4eb9b52170b
     :git: "git@github.com:lufinkey/async-cpp.git"
   DataCpp:
     :commit: 7438d287a1b941c019300f6b2cd0becd6c48ccab
@@ -44,4 +44,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 8d2415a7ad42a89c98cb9c73e755dd6df6813b94
 
-COCOAPODS: 1.8.0.beta.2
+COCOAPODS: 1.8.1

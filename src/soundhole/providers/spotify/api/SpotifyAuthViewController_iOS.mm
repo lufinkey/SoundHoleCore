@@ -13,7 +13,7 @@
 
 using namespace sh;
 
-@interface SpotifyAuthViewController() <WKNavigationDelegate> {
+@interface SpotifyAuthViewController() {
 	SpotifyAuth::Options _options;
 	NSString* _xssState;
 	
@@ -59,11 +59,23 @@ using namespace sh;
 	return self;
 }
 
+-(void)viewDidLoad {
+	[super viewDidLoad];
+	
+	self.presentationController.delegate = self;
+}
+
 -(UIStatusBarStyle)preferredStatusBarStyle {
 	return UIStatusBarStyleLightContent;
 }
 
 -(void)didSelectCancelButton {
+	if(_completion != nil) {
+		_completion(std::nullopt, nullptr);
+	}
+}
+
+-(void)presentationControllerDidDismiss:(UIPresentationController*)presentationController {
 	if(_completion != nil) {
 		_completion(std::nullopt, nullptr);
 	}

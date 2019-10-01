@@ -24,7 +24,8 @@ namespace sh {
 		Spotify(Options options);
 		~Spotify();
 		
-		Promise<bool> login();
+		using LoginOptions = SpotifyAuth::LoginOptions;
+		Promise<bool> login(LoginOptions options = LoginOptions());
 		Promise<void> logout();
 		bool isLoggedIn() const;
 		

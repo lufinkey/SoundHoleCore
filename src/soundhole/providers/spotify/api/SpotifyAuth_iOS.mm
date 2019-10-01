@@ -15,35 +15,32 @@
 using namespace sh;
 
 namespace sh {
-	Promise<bool> SpotifyAuth::login() {
+	Promise<bool> SpotifyAuth::login(LoginOptions options) {
 		return Promise<bool>([=](auto resolve, auto reject) {
-			SpotifyAuthViewController* authController = [[SpotifyAuthViewController alloc] initWithOptions:options];
+			auto authOptions = this->options;
+			authOptions.params["show_dialog"] = options.showDialog ? "true" : "false";
+			SpotifyAuthViewController* authController = [[SpotifyAuthViewController alloc] initWithOptions:authOptions];
 			__weak SpotifyAuthViewController* weakAuthController = authController;
 			authController.completion = ^(Optional<SpotifySession> session, std::exception_ptr error) {
 				SpotifyAuthViewController* authController = weakAuthController;
-				if(error) {
-					// login failed
+				auto finishLogin = [=]() {
+					if(error) {
+						reject(error);
+					} else if(session) {
+						loginWithSession(session.value());
+						resolve(true);
+					} else {
+						resolve(false);
+					}
+				};
+				if(authController.presentingViewController != nil) {
 					dispatch_async(dispatch_get_main_queue(), ^{
 						[authController.presentingViewController dismissViewControllerAnimated:YES completion:^{
-							reject(error);
-						}];
-					});
-				}
-				else if(session) {
-					// login successful
-					dispatch_async(dispatch_get_main_queue(), ^{
-						[authController.presentingViewController dismissViewControllerAnimated:YES completion:^{
-							loginWithSession(session.value());
-							resolve(true);
+							finishLogin();
 						}];
 					});
 				} else {
-					// login cancelled
-					dispatch_async(dispatch_get_main_queue(), ^{
-						[authController.presentingViewController dismissViewControllerAnimated:YES completion:^{
-							resolve(false);
-						}];
-					});
+					finishLogin();
 				}
 			};
 			
