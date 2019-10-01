@@ -20,24 +20,39 @@ namespace sh::test {
 			.sessionPersistKey = "SpotifySession"
 		});
 		
-		return spotify->login().then([=](bool loggedIn) {
-			if(loggedIn) {
-				printf("login succeeded\n");
-			} else {
-				printf("login cancelled\n");
-			}
-		}).except([=](std::exception_ptr errorPtr) {
-			try {
+		auto promise = Promise<void>::resolve();
+		if(!spotify->isLoggedIn()) {
+			promise = promise.then([=]() -> Promise<bool> {
+				return spotify->login();
+			}).then([=](bool loggedIn) {
+				if(loggedIn) {
+					printf("login succeeded\n");
+				} else {
+					printf("login cancelled\n");
+				}
+			}).except([=](std::exception_ptr errorPtr) {
+				try {
+					std::rethrow_exception(errorPtr);
+				} catch(SpotifyError& error) {
+					printf("login failed with error: %s\n", error.toString().c_str());
+				} catch(Error& error) {
+					printf("login failed with error: %s\n", error.toString().c_str());
+				} catch(std::exception& error) {
+					printf("login failed with exception: %s\n", error.what());
+				} catch(...) {
+					printf("login failed with unknown error\n");
+				}
 				std::rethrow_exception(errorPtr);
-			} catch(SpotifyError& error) {
-				printf("login failed with error: %s\n", error.toString().c_str());
-			} catch(Error& error) {
-				printf("login failed with error: %s\n", error.toString().c_str());
-			} catch(std::exception& error) {
-				printf("login failed with exception: %s\n", error.what());
-			} catch(...) {
-				printf("login failed with unknown error\n");
-			}
+			});
+		} else {
+			printf("spotify is already logged in\n");
+		}
+		
+		promise = promise.then([=]() {
+			printf("cleaning up spotify instance\n");
+			delete spotify;
 		});
+		
+		return promise;
 	}
 }
