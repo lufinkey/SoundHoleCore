@@ -15,6 +15,10 @@ namespace sh {
 	Optional<SpotifySession> SpotifySession::load(const String& key) {
 		return SpotifySession::fromNSUserDefaults(key, NSUserDefaults.standardUserDefaults);
 	}
+
+	void SpotifySession::save(const String& key, Optional<SpotifySession> session) {
+		writeToNSUserDefaults(session, key, NSUserDefaults.standardUserDefaults);
+	}
 	
 	void SpotifySession::save(const String& key) {
 		writeToNSUserDefaults(key, NSUserDefaults.standardUserDefaults);

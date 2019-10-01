@@ -71,17 +71,17 @@ namespace sh {
 		String accessToken = auth->getSession()->getAccessToken();
 		std::unique_ptr<Promise<void>> resultPromise;
 		if(loggingIn) {
-			resultPromise = std::make_unique<Promise<void>>(Promise<void>([=](auto resolve, auto reject) {
+			return Promise<void>([=](auto resolve, auto reject) {
 				loginCallbacks.pushBack({ resolve, reject });
-			}));
+			});
 		}
 		else if(isPlayerLoggedIn()) {
 			return Promise<void>::resolve();
 		}
 		else {
-			Promise<void>([=](auto resolve, auto reject) {
+			resultPromise = std::make_unique<Promise<void>>(Promise<void>([=](auto resolve, auto reject) {
 				loginCallbacks.pushBack({ resolve, reject });
-			});
+			}));
 		}
 		loggingIn = true;
 		lock.unlock();

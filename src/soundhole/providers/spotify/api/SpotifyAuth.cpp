@@ -86,9 +86,7 @@ namespace sh {
 		if(options.sessionPersistKey.empty()) {
 			return;
 		}
-		if(session) {
-			session->save(options.sessionPersistKey);
-		}
+		SpotifySession::save(options.sessionPersistKey, session);
 	}
 	
 	

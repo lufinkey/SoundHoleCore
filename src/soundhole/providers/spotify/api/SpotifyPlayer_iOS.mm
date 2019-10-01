@@ -38,6 +38,9 @@ namespace sh {
 		playerEventHandler.onReconnect = ^() {
 			// TODO handle reconnect
 		};
+		playerEventHandler.onPlaybackEvent = ^(SpPlaybackEvent event) {
+			// TODO handle playback event
+		};
 	}
 	
 	
