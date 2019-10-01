@@ -48,6 +48,11 @@ namespace sh::test {
 			printf("spotify is already logged in\n");
 		}
 		
+		promise = promise.then([=]() -> Promise<void> {
+			printf("delaying for 10 seconds\n");
+			return Timer::delay(std::chrono::seconds(10));
+		});
+		
 		promise = promise.then([=]() {
 			printf("cleaning up spotify instance\n");
 			delete spotify;
