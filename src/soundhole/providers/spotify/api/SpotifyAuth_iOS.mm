@@ -15,22 +15,20 @@
 using namespace sh;
 
 namespace sh {
-	Promise<bool> SpotifyAuth::login(LoginOptions options) {
-		return Promise<bool>([=](auto resolve, auto reject) {
-			auto authOptions = this->options;
-			authOptions.params["show_dialog"] = options.showDialog ? "true" : "false";
-			SpotifyAuthViewController* authController = [[SpotifyAuthViewController alloc] initWithOptions:authOptions];
+	Promise<Optional<SpotifySession>> SpotifyAuth::authenticate(Options options) {
+		return Promise<Optional<SpotifySession>>([&](auto resolve, auto reject) {
+			if(options.params.find("show_dialog") == options.params.end()) {
+				options.params["show_dialog"] = "true";
+			}
+			SpotifyAuthViewController* authController = [[SpotifyAuthViewController alloc] initWithOptions:options];
 			__weak SpotifyAuthViewController* weakAuthController = authController;
 			authController.completion = ^(Optional<SpotifySession> session, std::exception_ptr error) {
 				SpotifyAuthViewController* authController = weakAuthController;
 				auto finishLogin = [=]() {
 					if(error) {
 						reject(error);
-					} else if(session) {
-						loginWithSession(session.value());
-						resolve(true);
 					} else {
-						resolve(false);
+						resolve(session);
 					}
 				};
 				if(authController.presentingViewController != nil) {
@@ -47,6 +45,23 @@ namespace sh {
 			// present auth view controller
 			UIViewController* topViewController = [SpotifyAuthViewController topVisibleViewController];
 			[topViewController presentViewController:authController animated:YES completion:nil];
+		});
+	}
+
+	Promise<Optional<SpotifySession>> SpotifyAuth::authenticate(LoginOptions options) {
+		Options authOptions = this->options;
+		if(options.showDialog.has_value()) {
+			authOptions.params["show_dialog"] = options.showDialog.value() ? "true" : "false";
+		}
+		return SpotifyAuth::authenticate(authOptions);
+	}
+
+	Promise<bool> SpotifyAuth::login(LoginOptions options) {
+		return authenticate(options).then([=](Optional<SpotifySession> session) -> Promise<bool> {
+			if(session) {
+				loginWithSession(session.value());
+			}
+			return Promise<bool>::resolve(session.has_value());
 		});
 	}
 }
