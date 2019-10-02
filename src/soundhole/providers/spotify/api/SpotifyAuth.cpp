@@ -131,6 +131,26 @@ namespace sh {
 	bool SpotifyAuth::canRefreshSession() const {
 		return session.has_value() && session->hasRefreshToken() && options.hasTokenRefreshURL();
 	}
+
+
+
+
+	Promise<Optional<SpotifySession>> SpotifyAuth::authenticate(LoginOptions options) {
+		Options authOptions = this->options;
+		if(options.showDialog.has_value()) {
+			authOptions.params["show_dialog"] = options.showDialog.value() ? "true" : "false";
+		}
+		return SpotifyAuth::authenticate(authOptions);
+	}
+
+	Promise<bool> SpotifyAuth::login(LoginOptions options) {
+		return authenticate(options).then([=](Optional<SpotifySession> session) -> Promise<bool> {
+			if(session) {
+				loginWithSession(session.value());
+			}
+			return Promise<bool>::resolve(session.has_value());
+		});
+	}
 	
 	
 	
