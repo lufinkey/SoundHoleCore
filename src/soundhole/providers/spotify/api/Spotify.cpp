@@ -45,7 +45,11 @@ namespace sh {
 	
 	
 	Promise<void> Spotify::startPlayer() {
-		if(!auth->hasStreamingScope()) {
+		if(!auth->isLoggedIn()) {
+			return Promise<void>::reject(
+				SpotifyError(SpotifyError::Code::NOT_LOGGED_IN, "Not logged in")
+			);
+		} else if(!auth->hasStreamingScope()) {
 			return Promise<void>::reject(
 				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "Missing spotify streaming scope")
 			);
