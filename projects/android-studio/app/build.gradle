@@ -30,7 +30,6 @@ android {
 }
 
 dependencies {
-    api project(':libnodejsembed')
     api project(':libsoundholecore')
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
