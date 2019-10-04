@@ -21,8 +21,8 @@ fi
 
 # clone httplib
 if $httplib; then
-	if [ ! -e "external/cpp-httplib/.git" ]; then
+	if [ ! -e "external/httplib/.git" ]; then
 		echo "fetching nodejs-embed"
-		git clone --recursive "https://github.com/yhirose/cpp-httplib" "external/httplib" || ex$
+		git clone --recursive "https://github.com/yhirose/cpp-httplib" "external/httplib" || exit $?
 	fi
 fi

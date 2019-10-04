@@ -4,8 +4,10 @@
 cmake_minimum_required(VERSION 3.4.1)
 set( CMAKE_CXX_STANDARD 17 )
 
+set( SOUNDHOLECORE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../.." )
+
 add_subdirectory(
-	"${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../external/nodejs-embed/projects/android-studio/libnodejsembed/src/main/cpp"
+	"${SOUNDHOLECORE_ROOT}/external/nodejs-embed/projects/android-studio/libnodejsembed/src/main/cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/../../../build/libnodejsembed")
 
 add_subdirectory(
@@ -15,7 +17,9 @@ add_subdirectory(
 add_library(
 	native-lib
 	SHARED
-	native-lib.cpp)
+	native-lib.cpp
+	"${SOUNDHOLECORE_ROOT}/external/cxxurl/url.cpp"
+	"${SOUNDHOLECORE_ROOT}/external/json11/json11.cpp")
 
 find_library(
 	log-lib
