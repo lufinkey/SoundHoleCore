@@ -9,4 +9,5 @@
 #pragma once
 
 #include <soundhole/providers/MediaProvider.hpp>
-#include <soundhole/providers/BandcampProvider.hpp>
+#include <soundhole/providers/bandcamp/BandcampProvider.hpp>
+#include <soundhole/providers/spotify/SpotifyProvider.hpp>

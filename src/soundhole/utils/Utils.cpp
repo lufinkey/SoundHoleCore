@@ -7,7 +7,7 @@
 //
 
 #include "Utils.hpp"
-#include <httplib.h>
+#include <httplib/httplib.h>
 
 namespace sh::utils {
 	String makeQueryString(std::map<String,String> params) {

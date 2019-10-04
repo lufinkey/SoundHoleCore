@@ -1,10 +1,12 @@
 #include <jni.h>
 #include <string>
 
-extern "C" JNIEXPORT jstring JNICALL
-Java_com_lufinkey_soundholecoretest_MainActivity_stringFromJNI(
+#include <soundhole.hpp>
+#include <test/SoundHoleCoreTest.hpp>
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_lufinkey_soundholecoretest_MainActivity_testSpotify(
 		JNIEnv *env,
 		jobject /* this */) {
-	std::string hello = "Hello from C++";
-	return env->NewStringUTF(hello.c_str());
+	sh::test::testSpotify();
 }

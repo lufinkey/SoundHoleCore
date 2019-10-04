@@ -45,7 +45,6 @@ dependencies {
 
 	api project(':libnodejsembed')
 	api 'com.spotify.android:auth:1.1.0'
-	api(name: 'spotify-player-24-noconnect-2.20b', ext: 'aar')
 
 	implementation 'androidx.appcompat:appcompat:1.1.0'
 	testImplementation 'junit:junit:4.12'

@@ -10,7 +10,7 @@
 
 #include <fgl/data.hpp>
 #include <fgl/async.hpp>
-#include <json11.hpp>
+#include <json11/json11.hpp>
 
 namespace sh {
 	using namespace fgl;
