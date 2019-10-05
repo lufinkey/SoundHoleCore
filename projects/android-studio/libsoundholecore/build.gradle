@@ -43,8 +43,10 @@ preBuild.dependsOn fetchSpotify
 dependencies {
 	implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
 
-	api project(':libnodejsembed')
 	api 'com.spotify.android:auth:1.1.0'
+	api project(':libnodejsembed')
+	api project(':libdatacpp')
+	api project(':libasynccpp')
 
 	implementation 'androidx.appcompat:appcompat:1.1.0'
 	testImplementation 'junit:junit:4.12'

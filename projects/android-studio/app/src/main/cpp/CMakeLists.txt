@@ -11,6 +11,14 @@ add_subdirectory(
 		"${CMAKE_CURRENT_SOURCE_DIR}/../../../build/libnodejsembed")
 
 add_subdirectory(
+		"${SOUNDHOLECORE_ROOT}/external/data-cpp/projects/android-studio/libdatacpp/src/main/cpp"
+		"${CMAKE_CURRENT_SOURCE_DIR}/../../../build/libdatacpp")
+
+add_subdirectory(
+		"${SOUNDHOLECORE_ROOT}/external/async-cpp/projects/android-studio/libasynccpp/src/main/cpp"
+		"${CMAKE_CURRENT_SOURCE_DIR}/../../../build/libasynccpp")
+
+add_subdirectory(
 		"${CMAKE_CURRENT_SOURCE_DIR}/../../../../libsoundholecore/src/main/cpp"
 		"${CMAKE_CURRENT_SOURCE_DIR}/../../../build/libsoundholecore")
 
@@ -38,4 +46,7 @@ target_link_libraries( # Specifies the target library.
 		native-lib
 
 		NodeJSEmbed
+		DataCpp
+		AsyncCpp
+		SoundHoleCore
 		${log-lib})

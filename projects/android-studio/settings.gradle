@@ -1,4 +1,8 @@
 include ':app', ':libsoundholecore'
 include ':libnodejsembed'
 project(':libnodejsembed').projectDir=new File('../../external/nodejs-embed/projects/android-studio/libnodejsembed')
+include ':libdatacpp'
+project(':libdatacpp').projectDir=new File('../../external/data-cpp/projects/android-studio/libdatacpp')
+include ':libasynccpp'
+project(':libasynccpp').projectDir=new File('../../external/async-cpp/projects/android-studio/libasynccpp')
 rootProject.name='SoundHoleCore'

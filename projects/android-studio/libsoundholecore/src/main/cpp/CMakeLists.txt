@@ -40,7 +40,8 @@ target_include_directories(
 
 		"${SOUNDHOLECORE_ROOT}/external/nodejs-embed/external/nodejs/build/mobile/include"
 		"${SOUNDHOLECORE_ROOT}/external/nodejs-embed/external/nodejs/build/mobile/include/nodejs"
-		"${SOUNDHOLECORE_ROOT}/external/nodejs-embed/external/nodejs/build/mobile/node/deps/openssl/openssl/include")
+		"${SOUNDHOLECORE_ROOT}/external/nodejs-embed/external/nodejs/build/mobile/node/deps/openssl/openssl/include"
+		"${SOUNDHOLECORE_ROOT}/external/nodejs-embed/external/nodejs/build/addon-api")
 
 find_library(
 	log-lib

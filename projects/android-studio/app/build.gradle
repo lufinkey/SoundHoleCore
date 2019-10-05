@@ -29,7 +29,15 @@ android {
     }
 }
 
+task fetchDependencies(type: Exec) {
+    commandLine 'sh', '../fetch-dependencies.sh'
+}
+preBuild.dependsOn fetchDependencies
+
 dependencies {
+    api project(':libdatacpp')
+    api project(':libasynccpp')
+    api project(':libnodejsembed')
     api project(':libsoundholecore')
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
