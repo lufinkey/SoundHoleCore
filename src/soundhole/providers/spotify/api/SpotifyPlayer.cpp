@@ -9,7 +9,14 @@
 #include "SpotifyPlayer.hpp"
 
 namespace sh {
-	SpotifyPlayer* const SpotifyPlayer::shared = new SpotifyPlayer();
+	SpotifyPlayer* sharedSpotifyPlayer = nullptr;
+
+	SpotifyPlayer* SpotifyPlayer::shared() {
+		if(sharedSpotifyPlayer == nullptr) {
+			sharedSpotifyPlayer = new SpotifyPlayer();
+		}
+		return sharedSpotifyPlayer;
+	}
 	
 	void SpotifyPlayer::setAuth(SpotifyAuth* auth) {
 		std::unique_lock<std::mutex> lock(loginMutex);
@@ -85,7 +92,18 @@ namespace sh {
 		}
 		loggingIn = true;
 		lock.unlock();
-		applyAuthToken(accessToken);
+		try {
+			applyAuthToken(accessToken);
+		} catch(...) {
+			lock.lock();
+			LinkedList<WaitCallback> callbacks;
+			callbacks.swap(loginCallbacks);
+			lock.unlock();
+			auto error = std::current_exception();
+			for(auto callback : callbacks) {
+				callback.reject(error);
+			}
+		}
 		return std::move(*resultPromise.get());
 	}
 	

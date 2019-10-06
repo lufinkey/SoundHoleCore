@@ -25,7 +25,7 @@
 namespace sh {
 	class SpotifyPlayer: protected SpotifyAuthEventListener {
 	public:
-		static SpotifyPlayer* const shared;
+		static SpotifyPlayer* shared();
 		
 		struct State {
 			bool playing = false;
@@ -38,15 +38,16 @@ namespace sh {
 		struct Track {
 			String uri;
 			String name;
-			String contextURI;
-			String contextName;
 			String artistURI;
 			String artistName;
 			String albumURI;
 			String albumName;
 			Optional<String> albumCoverArtURL;
 			double duration = 0.0;
-			size_t indexInContext = 0;
+
+			Optional<size_t> indexInContext;
+			Optional<String> contextURI;
+            Optional<String> contextName;
 		};
 		
 		struct Metadata {
@@ -54,6 +55,8 @@ namespace sh {
 			Optional<Track> currentTrack;
 			Optional<Track> nextTrack;
 		};
+
+		~SpotifyPlayer();
 		
 		void setAuth(SpotifyAuth* auth);
 		SpotifyAuth* getAuth();
@@ -89,6 +92,11 @@ namespace sh {
 		static State stateFromSPTPlaybackState(SPTPlaybackState* state);
 		static Track trackFromSPTPlaybackTrack(SPTPlaybackTrack* track);
 		static Metadata metadataFromSPTPlaybackMetadata(SPTPlaybackMetadata* metadata);
+		#endif
+		#if defined(JNIEXPORT) && defined(TARGETPLATFORM_ANDROID)
+		static State stateFromAndroidState(JNIEnv* env, jobject state);
+		static Track trackFromAndroidTrack(JNIEnv* env, jobject track, jobject metadata);
+		static Metadata metadataFromAndroidMetadata(JNIEnv* env, jobject metadata);
 		#endif
 		
 	protected:
@@ -129,10 +137,14 @@ namespace sh {
 		OBJCPP_PTR(SPTAudioStreamingController) player;
 		OBJCPP_PTR(SpotifyPlayerEventHandler) playerEventHandler;
 		#endif
+		//#ifdef TARGETPLATFORM_ANDROID
+		void* spotifyUtils;
+		void* player;
+		//#endif
 		
 		bool starting;
 		LinkedList<WaitCallback> startCallbacks;
-		std::mutex startMutex;
+		std::recursive_mutex startMutex;
 		
 		bool loggingIn;
 		bool loggedIn;

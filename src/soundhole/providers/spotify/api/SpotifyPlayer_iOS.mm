@@ -42,11 +42,15 @@ namespace sh {
 			// TODO handle playback event
 		};
 	}
+
+	SpotifyPlayer::~SpotifyPlayer() {
+		//
+	}
 	
 	
 	
 	Promise<void> SpotifyPlayer::start() {
-		std::unique_lock<std::mutex> lock(startMutex);
+		std::unique_lock<std::recursive_mutex> lock(startMutex);
 		if(starting) {
 			return Promise<void>([=](auto resolve, auto reject) {
 				startCallbacks.pushBack({ resolve, reject });
@@ -79,7 +83,7 @@ namespace sh {
 				player.playbackDelegate = playerEventHandler;
 				resolve();
 			}).then([=]() {
-				std::unique_lock<std::mutex> lock(startMutex);
+				std::unique_lock<std::recursive_mutex> lock(startMutex);
 				starting = false;
 				LinkedList<WaitCallback> callbacks;
 				callbacks.swap(startCallbacks);
@@ -90,7 +94,7 @@ namespace sh {
 					callback.resolve();
 				}
 			}).except([=](std::exception_ptr errorPtr) {
-				std::unique_lock<std::mutex> lock(startMutex);
+				std::unique_lock<std::recursive_mutex> lock(startMutex);
 				starting = false;
 				LinkedList<WaitCallback> callbacks;
 				callbacks.swap(startCallbacks);
@@ -119,14 +123,17 @@ namespace sh {
 	bool SpotifyPlayer::isPlayerLoggedIn() const {
 		return (bool)player.loggedIn;
 	}
+
+	void SpotifyPlayer::applyAuthToken(String accessToken) {
+		[player loginWithAccessToken:accessToken.toNSString()];
+	}
 	
 	Promise<void> SpotifyPlayer::logout() {
 		std::unique_lock<std::mutex> lock(loginMutex);
+		if(!loggedIn && !isPlayerLoggedIn()) {
+			return Promise<void>::resolve();
+		}
 		return Promise<void>([&](auto resolve, auto reject) {
-			if(!loggedIn) {
-				resolve();
-				return;
-			}
 			logoutCallbacks.pushBack({ resolve, reject });
 			if(!loggingOut) {
 				loggingOut = true;
@@ -196,7 +203,7 @@ namespace sh {
 	}
 	
 	Promise<void> SpotifyPlayer::seek(double position) {
-		return prepareForCall().then([=]() -> Promise<void> {
+		return prepareForCall((position != 0.0)).then([=]() -> Promise<void> {
 			return Promise<void>([&](auto resolve, auto reject) {
 				[player seekTo:(NSTimeInterval)position callback:^(NSError* error) {
 					if(error != nil) {
@@ -272,15 +279,15 @@ namespace sh {
 		return Track{
 			.uri = String(track.uri),
 			.name = String(track.name),
-			.contextURI = String(track.playbackSourceUri),
-			.contextName = String(track.playbackSourceName),
 			.artistURI = String(track.artistUri),
 			.artistName = String(track.artistName),
 			.albumURI = String(track.albumUri),
 			.albumName = String(track.albumName),
 			.albumCoverArtURL = ((track.albumCoverArtURL != nil) ? String(track.albumCoverArtURL) : Optional<String>()),
 			.duration = (double)track.duration,
-			.indexInContext = (size_t)track.indexInContext
+			.indexInContext = (size_t)track.indexInContext,
+			.contextURI = String(track.playbackSourceUri),
+            .contextName = String(track.playbackSourceName)
 		};
 	}
 	
@@ -333,10 +340,6 @@ namespace sh {
 				.playing = false
 			};
 		}
-	}
-	
-	void SpotifyPlayer::applyAuthToken(String accessToken) {
-		[player loginWithAccessToken:accessToken.toNSString()];
 	}
 }
 

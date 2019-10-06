@@ -56,6 +56,7 @@ namespace sh {
 			SDK_CONTEXT_FAILED,
 			SDK_PREFETCH_ITEM_UNAVAILABLE,
 			SDK_ALREADY_PREFETCHING,
+			SDK_STORAGE_READ_ERROR,
 			SDK_STORAGE_WRITE_ERROR,
 			SDK_PREFETCH_DOWNLOAD_FAILED
 		};
@@ -65,6 +66,10 @@ namespace sh {
 		
 		#if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
 		SpotifyError(NSError* error);
+		#endif
+
+		#if defined(TARGETPLATFORM_ANDROID) && defined(JNIEXPORT)
+		SpotifyError(JNIEnv* env, jobject error);
 		#endif
 		
 		Code getCode() const;

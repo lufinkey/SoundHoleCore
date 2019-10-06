@@ -64,7 +64,7 @@ namespace sh {
 				return player->start();
 			}
 		} else {
-			auto player = SpotifyPlayer::shared;
+			auto player = SpotifyPlayer::shared();
 			if(player->getAuth() != nullptr && player->getAuth() != this->auth) {
 				return Promise<void>::reject(
 					SpotifyError(SpotifyError::Code::PLAYER_IN_USE, "Player is being used by another SpotifyAuth instance")
