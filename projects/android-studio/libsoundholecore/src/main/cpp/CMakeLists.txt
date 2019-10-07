@@ -49,4 +49,5 @@ find_library(
 
 target_link_libraries(
 	SoundHoleCore
+	NodeJSEmbed
 	${log-lib})

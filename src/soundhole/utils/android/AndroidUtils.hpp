@@ -16,6 +16,7 @@
 
 namespace sh {
 	JavaVM* getMainJavaVM();
+	jobject getMainAndroidContext(JNIEnv* env);
 
 	jobject newAndroidFunction(JNIEnv* env, std::function<void(JNIEnv*,jobject)> func);
 	jobject newAndroidCallback(JNIEnv* env, std::function<void(JNIEnv*,jobject)> onResolve, std::function<void(JNIEnv*,jobject)> onReject);

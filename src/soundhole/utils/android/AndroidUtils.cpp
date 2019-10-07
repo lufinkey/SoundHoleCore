@@ -13,10 +13,23 @@
 #include <functional>
 
 namespace sh {
+	namespace android {
+		namespace SoundHole {
+			jclass javaClass;
+			jfieldID mainContext;
+		}
+	}
+
+
 	JavaVM* mainJavaVM = nullptr;
 
 	JavaVM* getMainJavaVM() {
 		return mainJavaVM;
+	}
+
+
+	jobject getMainAndroidContext(JNIEnv* env) {
+		return env->GetStaticObjectField(android::SoundHole::javaClass, android::SoundHole::mainContext);
 	}
 
 
@@ -184,11 +197,14 @@ namespace sh {
 
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_lufinkey_soundholecore_SoundHole_init(JNIEnv* env, jclass javaClass) {
+Java_com_lufinkey_soundholecore_SoundHole_staticInit(JNIEnv* env, jclass javaClass) {
+	using namespace sh;
 	auto vmResult = env->GetJavaVM(&sh::mainJavaVM);
 	if(vmResult != 0 || sh::mainJavaVM == nullptr) {
 		throw std::runtime_error("Could not get java VM");
 	}
+	android::SoundHole::javaClass = javaClass;
+	android::SoundHole::mainContext = env->GetStaticFieldID(javaClass, "mainContext", "Landroid/content/Context;");
 }
 
 extern "C" JNIEXPORT void JNICALL

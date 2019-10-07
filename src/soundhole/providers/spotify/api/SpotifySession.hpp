@@ -47,6 +47,12 @@ namespace sh {
 		static Optional<SpotifySession> fromNSDictionary(NSDictionary* dictionary);
 		static Optional<SpotifySession> fromNSUserDefaults(const String& key, NSUserDefaults* userDefaults);
 		#endif
+		#if defined(JNIEXPORT) && defined(TARGETPLATFORM_ANDROID)
+		void writeToAndroidSharedPrefs(JNIEnv* env, const String& key, jobject context) const;
+		static void writeToAndroidSharedPrefs(JNIEnv* env, const Optional<SpotifySession>& session, const String& key, jobject context);
+
+		static Optional<SpotifySession> fromAndroidSharedPrefs(JNIEnv* env, const String& key, jobject context);
+		#endif
 		
 	private:
 		String accessToken;

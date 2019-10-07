@@ -60,13 +60,13 @@ namespace sh {
 		NSString* refreshToken = dictionary[@"refreshToken"];
 		NSArray* scopesArr = dictionary[@"scopes"];
 		if(accessToken == nil || ![accessToken isKindOfClass:NSString.class]) {
-			return {};
+			return std::nullopt;
 		} else if(expireDate == nil || ![expireDate isKindOfClass:NSDate.class]) {
-			return {};
+			return std::nullopt;
 		} else if(refreshToken != nil && ![refreshToken isKindOfClass:NSString.class]) {
-			return {};
+			return std::nullopt;
 		} else if(scopesArr != nil && ![scopesArr isKindOfClass:NSArray.class]) {
-			return {};
+			return std::nullopt;
 		}
 		if(refreshToken == nil) {
 			refreshToken = @"";
@@ -85,7 +85,7 @@ namespace sh {
 	Optional<SpotifySession> SpotifySession::fromNSUserDefaults(const String& key, NSUserDefaults* userDefaults) {
 		NSDictionary* sessionData = [userDefaults objectForKey:key.toNSString()];
 		if(sessionData == nil || ![sessionData isKindOfClass:[NSDictionary class]]) {
-			return {};
+			return std::nullopt;
 		}
 		return fromNSDictionary(sessionData);
 	}

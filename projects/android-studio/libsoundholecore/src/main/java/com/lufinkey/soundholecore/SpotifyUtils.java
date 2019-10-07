@@ -18,11 +18,10 @@ public class SpotifyUtils {
 
 	private static native void initPlayerUtils(Class spotifyPlayerClass, Class stateClass, Class metadataClass, Class trackClass);
 	private static native void initErrorUtils(Class errorClass);
-	public static Context appContext;
 
 	public void getPlayer(String clientId, String accessToken, final NativeSpotifyPlayerInitCallback callback) {
 		final Object reference = this;
-		Config config = new Config(appContext, accessToken, clientId);
+		Config config = new Config(SoundHole.getMainContext(), accessToken, clientId);
 		Spotify.getPlayer(config, reference, callback);
 	}
 
@@ -34,8 +33,9 @@ public class SpotifyUtils {
 	}
 
 	public static Connectivity getNetworkConnectivity() {
-		assert appContext != null : "SpotifyUtils.appContext has not been set";
-		ConnectivityManager connectivityManager = (ConnectivityManager)appContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+		Context context = SoundHole.getMainContext();
+		assert context != null : "SoundHole.mainContext has not been set";
+		ConnectivityManager connectivityManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
 		if (activeNetwork != null && activeNetwork.isConnected()) {
 			return Connectivity.fromNetworkType(activeNetwork.getType());

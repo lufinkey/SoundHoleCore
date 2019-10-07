@@ -68,6 +68,12 @@ namespace sh {
 			jfieldID isShuffling = nullptr;
 			jfieldID isActiveDevice = nullptr;
 			jfieldID positionMs = nullptr;
+
+			inline std::vector<jfieldID> fields() {
+				return {
+					isPlaying, isRepeating, isShuffling, isActiveDevice, positionMs
+				};
+			}
 		}
 
 		namespace SpotifyMetadata {
@@ -77,6 +83,12 @@ namespace sh {
 			jfieldID prevTrack = nullptr;
 			jfieldID currentTrack = nullptr;
 			jfieldID nextTrack = nullptr;
+
+			inline std::vector<jfieldID> fields() {
+				return {
+					contextName, contextUri, prevTrack, currentTrack, nextTrack
+				};
+			}
 		}
 
 		namespace SpotifyTrack {
@@ -90,6 +102,12 @@ namespace sh {
 			jfieldID durationMs = nullptr;
 			jfieldID indexInContext = nullptr;
 			jfieldID albumCoverWebUrl = nullptr;
+
+			inline std::vector<jfieldID> fields() {
+				return {
+					name, uri, artistName, artistUri, albumName, albumUri, durationMs, indexInContext, albumCoverWebUrl
+				};
+			}
 		}
 	}
 
@@ -253,6 +271,7 @@ namespace sh {
 		std::unique_lock<std::recursive_mutex> lock(startMutex);
 		starting = false;
 		destroyAndroidSpotifyPlayerEventHandler(env, (jobject)playerEventHandler);
+		playerEventHandler = nullptr;
 		env->CallVoidMethod((jobject)spotifyUtils, android::SpotifyUtils::destroyPlayer, player);
 		player = nullptr;
 		LinkedList<WaitCallback> callbacks;
@@ -508,6 +527,14 @@ Java_com_lufinkey_soundholecore_SpotifyUtils_initPlayerUtils(JNIEnv* env, jclass
 		for(auto method : methodList) {
 			if(method == nullptr) {
 				throw std::runtime_error("missing java method for Spotify");
+			}
+		}
+	}
+	// validate that all fields have been got
+	for(auto& fieldList : { android::SpotifyPlaybackState::fields(), android::SpotifyMetadata::fields(), android::SpotifyTrack::fields() }) {
+		for(auto field : fieldList) {
+			if(field == nullptr) {
+				throw std::runtime_error("missing java field for Spotify");
 			}
 		}
 	}
