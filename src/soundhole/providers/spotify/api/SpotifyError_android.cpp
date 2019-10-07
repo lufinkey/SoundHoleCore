@@ -6,6 +6,8 @@
 //  Copyright © 2019 Luis Finke. All rights reserved.
 //
 
+#ifdef __ANDROID__
+
 #include <jni.h>
 #include "SpotifyError.hpp"
 #include <tuple>
@@ -98,3 +100,5 @@ Java_com_lufinkey_soundholecore_SpotifyUtils_initErrorUtils(JNIEnv* env, jclass 
 	android::SpotifyError::nativeCode = env->GetFieldID(errorClass, "nativeCode", "I");
 	android::SpotifyError::generateSDKErrorMap(env);
 }
+
+#endif

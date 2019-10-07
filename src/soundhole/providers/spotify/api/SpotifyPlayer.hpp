@@ -130,6 +130,7 @@ namespace sh {
 		
 		void onStreamingLogin();
 		void onStreamingLogout();
+		void onStreamingLoginError(SpotifyError);
 		void onStreamingError(SpotifyError);
 		
 		SpotifyAuth* auth;
@@ -137,10 +138,11 @@ namespace sh {
 		OBJCPP_PTR(SPTAudioStreamingController) player;
 		OBJCPP_PTR(SpotifyPlayerEventHandler) playerEventHandler;
 		#endif
-		//#ifdef TARGETPLATFORM_ANDROID
+		#ifdef TARGETPLATFORM_ANDROID
 		void* spotifyUtils;
 		void* player;
-		//#endif
+		void* playerEventHandler;
+		#endif
 		
 		bool starting;
 		LinkedList<WaitCallback> startCallbacks;

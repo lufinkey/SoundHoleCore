@@ -18,7 +18,11 @@ namespace sh {
 	playerEventHandler([[SpotifyPlayerEventHandler alloc] init]),
 	starting(false), loggingIn(false), loggedIn(false), loggingOut(false), renewingSession(false) {
 		playerEventHandler.onError = ^(NSError* error) {
-			onStreamingError(SpotifyError(error));
+			if(loggingIn) {
+				onStreamingLoginError(SpotifyError(error));
+			} else {
+				onStreamingError(SpotifyError(error));
+			}
 		};
 		playerEventHandler.onLogin = ^() {
 			onStreamingLogin();

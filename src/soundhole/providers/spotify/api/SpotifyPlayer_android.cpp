@@ -6,6 +6,8 @@
 //  Copyright © 2019 Luis Finke. All rights reserved.
 //
 
+#ifdef __ANDROID__
+
 #include <jni.h>
 #include "SpotifyPlayer.hpp"
 #include <functional>
@@ -13,7 +15,7 @@
 #include <soundhole/utils/android/AndroidUtils.hpp>
 #include <embed/nodejs/NodeJS_jni.hpp>
 
-//#ifdef TARGETPLATFORM_ANDROID
+#ifdef TARGETPLATFORM_ANDROID
 
 namespace sh {
 	namespace android {
@@ -114,7 +116,7 @@ namespace sh {
 
 
 	SpotifyPlayer::SpotifyPlayer()
-	: auth(nullptr), spotifyUtils(nullptr), player(nullptr),
+	: auth(nullptr), spotifyUtils(nullptr), player(nullptr), playerEventHandler(nullptr),
 	starting(false), loggingIn(false), loggedIn(false), loggingOut(false), renewingSession(false) {
 		auto mainJavaVM = getMainJavaVM();
 		if(mainJavaVM == nullptr) {
@@ -174,6 +176,36 @@ namespace sh {
 			starting = false;
 			if(wasStarting) {
 				this->player = env->NewGlobalRef(player);
+				jobject playerEventHandler = newAndroidSpotifyPlayerEventHandler(env, player, SpotifyPlayerEventHandlerParams{
+					.onLoggedIn = [=](JNIEnv* env) {
+						this->onStreamingLogin();
+					},
+					.onLoggedOut = [=](JNIEnv* env) {
+						this->onStreamingLogout();
+					},
+					.onLoginFailed = [=](JNIEnv* env, jobject error) {
+						this->onStreamingLoginError(SpotifyError(env, error));
+					},
+					.onTemporaryError = [=](JNIEnv* env) {
+						// TODO handle temporary connection error
+					},
+					.onConnectionMessage = [=](JNIEnv* env, jstring message) {
+						// TODO handle player message
+					},
+					.onDisconnect = [=](JNIEnv* env) {
+						// TODO handle disconnect
+					},
+					.onReconnect = [=](JNIEnv* env) {
+						// TODO handle reconnect
+					},
+					.onPlaybackEvent = [=](JNIEnv* env, jobject event) {
+						// TODO handle playback event
+					},
+					.onPlaybackError = [=](JNIEnv* env, jobject error) {
+						onStreamingError(SpotifyError(env, error));
+					}
+				});
+				this->playerEventHandler = env->NewGlobalRef(playerEventHandler);
 			} else {
 				env->CallVoidMethod((jobject)spotifyUtils, android::SpotifyUtils::destroyPlayer, player);
 			}
@@ -220,6 +252,7 @@ namespace sh {
 		JNIEnv* env = scopedEnv.getEnv();
 		std::unique_lock<std::recursive_mutex> lock(startMutex);
 		starting = false;
+		destroyAndroidSpotifyPlayerEventHandler(env, (jobject)playerEventHandler);
 		env->CallVoidMethod((jobject)spotifyUtils, android::SpotifyUtils::destroyPlayer, player);
 		player = nullptr;
 		LinkedList<WaitCallback> callbacks;
@@ -480,4 +513,5 @@ Java_com_lufinkey_soundholecore_SpotifyUtils_initPlayerUtils(JNIEnv* env, jclass
 	}
 }
 
-//#endif
+#endif
+#endif

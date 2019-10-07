@@ -8,6 +8,8 @@
 
 #pragma once
 
+#ifdef __ANDROID__
+
 #include <functional>
 #include <soundhole/common.hpp>
 #include <jni.h>
@@ -26,8 +28,13 @@ namespace sh {
 		std::function<void(JNIEnv*,jobject)> onLoginFailed;
 		std::function<void(JNIEnv*)> onTemporaryError;
 		std::function<void(JNIEnv*,jstring)> onConnectionMessage;
+		std::function<void(JNIEnv*)> onDisconnect;
+		std::function<void(JNIEnv*)> onReconnect;
 		std::function<void(JNIEnv*,jobject)> onPlaybackEvent;
 		std::function<void(JNIEnv*,jobject)> onPlaybackError;
 	};
-	jobject newAndroidSpotifyPlayerEventHandler(JNIEnv* env, SpotifyPlayerEventHandlerParams params);
+	jobject newAndroidSpotifyPlayerEventHandler(JNIEnv* env, jobject player, SpotifyPlayerEventHandlerParams params);
+	void destroyAndroidSpotifyPlayerEventHandler(JNIEnv* env, jobject eventHandler);
 }
+
+#endif

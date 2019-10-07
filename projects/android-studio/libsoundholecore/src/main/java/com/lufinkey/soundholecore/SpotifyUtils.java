@@ -1,6 +1,8 @@
 package com.lufinkey.soundholecore;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import com.spotify.sdk.android.player.*;
 
@@ -29,5 +31,17 @@ public class SpotifyUtils {
 			player.destroy();
 		}
 		Spotify.destroyPlayer(this);
+	}
+
+	public static Connectivity getNetworkConnectivity() {
+		assert appContext != null : "SpotifyUtils.appContext has not been set";
+		ConnectivityManager connectivityManager = (ConnectivityManager)appContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+		if (activeNetwork != null && activeNetwork.isConnected()) {
+			return Connectivity.fromNetworkType(activeNetwork.getType());
+		}
+		else {
+			return Connectivity.OFFLINE;
+		}
 	}
 }

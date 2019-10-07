@@ -6,6 +6,8 @@
 //  Copyright © 2019 Luis Finke. All rights reserved.
 //
 
+#ifdef __ANDROID__
+
 #include <jni.h>
 #include "AndroidUtils.hpp"
 #include <functional>
@@ -131,17 +133,19 @@ namespace sh {
 		return AndroidSpotifyPlayerEventHandlerClass;
 	}
 
-	jobject newAndroidSpotifyPlayerEventHandler(JNIEnv* env, SpotifyPlayerEventHandlerParams params) {
-		std::function<void(JNIEnv*)> onLoggedIn = params.onLoggedIn;
-		std::function<void(JNIEnv*)> onLoggedOut = params.onLoggedOut;
-		std::function<void(JNIEnv*,jobject)> onLoginFailed = params.onLoginFailed;
-		std::function<void(JNIEnv*)> onTemporaryError = params.onTemporaryError;
-		std::function<void(JNIEnv*,jstring)> onConnectionMessage = params.onConnectionMessage;
-		std::function<void(JNIEnv*,jobject)> onPlaybackEvent = params.onPlaybackEvent;
-		std::function<void(JNIEnv*,jobject)> onPlaybackError = params.onPlaybackError;
+	jobject newAndroidSpotifyPlayerEventHandler(JNIEnv* env, jobject player, SpotifyPlayerEventHandlerParams params) {
+		auto onLoggedIn = params.onLoggedIn;
+		auto onLoggedOut = params.onLoggedOut;
+		auto onLoginFailed = params.onLoginFailed;
+		auto onTemporaryError = params.onTemporaryError;
+		auto onConnectionMessage = params.onConnectionMessage;
+		auto onDisconnect = params.onDisconnect;
+		auto onReconnect = params.onReconnect;
+		auto onPlaybackEvent = params.onPlaybackEvent;
+		auto onPlaybackError = params.onPlaybackError;
 
 		jclass handlerClass = getAndroidSpotifyPlayerEventHandlerClass(env);
-		jmethodID methodId = env->GetMethodID(handlerClass, "<init>", "(JJJJJJJ)V");
+		jmethodID methodId = env->GetMethodID(handlerClass, "<init>", "(Lcom/spotify/sdk/android/player/SpotifyPlayer;JJJJJJJJJ)V");
 		return env->NewObject(
 			handlerClass,
 			methodId,
@@ -155,10 +159,24 @@ namespace sh {
 			(jlong)(new std::function<void(JNIEnv*,jobject)>([=](JNIEnv* env, jobject){
 				onTemporaryError(env);
 			})),
-			(jlong)(new std::function<void(JNIEnv*,jobject)>([=](JNIEnv* env, jobject obj) { onConnectionMessage(env, (jstring)obj); })),
+			(jlong)(new std::function<void(JNIEnv*,jobject)>([=](JNIEnv* env, jobject obj) {
+				onConnectionMessage(env, (jstring)obj);
+			})),
+			(jlong)(new std::function<void(JNIEnv*,jobject)>([=](JNIEnv* env, jobject) {
+				onDisconnect(env);
+			})),
+			(jlong)(new std::function<void(JNIEnv*,jobject)>([=](JNIEnv* env, jobject) {
+				onReconnect(env);
+			})),
 			(jlong)(new std::function<void(JNIEnv*,jobject)>(onPlaybackEvent)),
 			(jlong)(new std::function<void(JNIEnv*,jobject)>(onPlaybackError))
 		);
+	}
+
+	void destroyAndroidSpotifyPlayerEventHandler(JNIEnv* env, jobject eventHandler) {
+		jclass javaClass = env->GetObjectClass(eventHandler);
+		jmethodID methodId = env->GetMethodID(javaClass, "destroy", "()V");
+		env->CallVoidMethod(eventHandler, methodId);
 	}
 }
 
@@ -183,3 +201,5 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_lufinkey_soundholecore_NativeFunction_destroyFunction(JNIEnv* env, jobject, jlong funcPtr) {
 	delete ((std::function<void(JNIEnv*,jobject)>*)funcPtr);
 }
+
+#endif

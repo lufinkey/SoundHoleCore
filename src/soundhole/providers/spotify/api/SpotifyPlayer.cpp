@@ -200,7 +200,7 @@ namespace sh {
 	
 	
 	
-	void SpotifyPlayer::onStreamingError(SpotifyError error) {
+	void SpotifyPlayer::onStreamingLoginError(SpotifyError error) {
 		std::unique_lock<std::mutex> lock(loginMutex);
 		if(loggingIn) {
 			loggingIn = false;
@@ -294,6 +294,10 @@ namespace sh {
 				endSession();
 			});
 		}
+	}
+
+	void SpotifyPlayer::onStreamingError(SpotifyError error) {
+		// TODO handle normal streaming error
 	}
 	
 	
