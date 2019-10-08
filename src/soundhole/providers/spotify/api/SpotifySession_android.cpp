@@ -21,9 +21,9 @@ namespace sh {
 	Optional<SpotifySession> SpotifySession::load(const String& key) {
 		ScopedJNIEnv scopedEnv(getMainJavaVM());
 		JNIEnv* env = scopedEnv.getEnv();
-		jobject context = getMainAndroidContext(env);
+		jobject context = getAndroidAppContext(env);
 		if(context == nullptr) {
-			throw std::runtime_error("SoundHole.mainContext has not been set");
+			throw std::runtime_error("SoundHole.mainActivity has not been set");
 		}
 		return fromAndroidSharedPrefs(env, key, context);
 	}
@@ -31,9 +31,9 @@ namespace sh {
 	void SpotifySession::save(const String& key, Optional<SpotifySession> session) {
 		ScopedJNIEnv scopedEnv(getMainJavaVM());
 		JNIEnv* env = scopedEnv.getEnv();
-		jobject context = getMainAndroidContext(env);
+		jobject context = getAndroidAppContext(env);
 		if(context == nullptr) {
-			throw std::runtime_error("SoundHole.mainContext has not been set");
+			throw std::runtime_error("SoundHole.mainActivity has not been set");
 		}
 		writeToAndroidSharedPrefs(env, session, key, context);
 	}
@@ -41,9 +41,9 @@ namespace sh {
 	void SpotifySession::save(const String& key) {
 		ScopedJNIEnv scopedEnv(getMainJavaVM());
 		JNIEnv* env = scopedEnv.getEnv();
-		jobject context = getMainAndroidContext(env);
+		jobject context = getAndroidAppContext(env);
 		if(context == nullptr) {
-			throw std::runtime_error("SoundHole.mainContext has not been set");
+			throw std::runtime_error("SoundHole.mainActivity has not been set");
 		}
 		writeToAndroidSharedPrefs(env, key, context);
 	}
@@ -93,7 +93,7 @@ namespace sh {
 		env->CallObjectMethod(prefsEditor, prefsEditor_putString,
 			env->NewStringUTF("accessToken"), accessToken.toJavaString(env));
 		env->CallObjectMethod(prefsEditor, prefsEditor_putLong,
-			env->NewStringUTF("expireTime"), (jlong)std::chrono::system_clock::to_time_t(expireTime));
+			env->NewStringUTF("expireTime"), (1000 * (jlong)std::chrono::system_clock::to_time_t(expireTime)));
 		if(refreshToken.empty()) {
 			env->CallObjectMethod(prefsEditor, prefsEditor_remove,
 				env->NewStringUTF("refreshToken"));

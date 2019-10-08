@@ -16,9 +16,10 @@
 
 namespace sh {
 	JavaVM* getMainJavaVM();
-	jobject getMainAndroidContext(JNIEnv* env);
+	jobject getAndroidMainActivity(JNIEnv* env);
+	jobject getAndroidAppContext(JNIEnv* env);
 
-	jobject newAndroidFunction(JNIEnv* env, std::function<void(JNIEnv*,jobject)> func);
+	jobject newAndroidFunction(JNIEnv* env, std::function<void(JNIEnv*,std::vector<jobject>)> func);
 	jobject newAndroidCallback(JNIEnv* env, std::function<void(JNIEnv*,jobject)> onResolve, std::function<void(JNIEnv*,jobject)> onReject);
 	jobject newAndroidSpotifyPlayerInitCallback(JNIEnv* env, std::function<void(JNIEnv*,jobject)> onResolve, std::function<void(JNIEnv*,jobject)> onReject);
 	jobject newAndroidSpotifyPlayerOpCallback(JNIEnv* env, std::function<void(JNIEnv*)> onResolve, std::function<void(JNIEnv*,jobject)> onReject);

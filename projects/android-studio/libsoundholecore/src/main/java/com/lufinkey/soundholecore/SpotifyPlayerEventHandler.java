@@ -60,7 +60,7 @@ public class SpotifyPlayerEventHandler implements Player.NotificationCallback, C
 			}
 		};
 		IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-		SoundHole.getMainContext().registerReceiver(networkStateReceiver, filter);
+		SoundHole.getAppContext().registerReceiver(networkStateReceiver, filter);
 
 		player.setConnectivityStatus(null, currentConnectivity);
 		player.addNotificationCallback(this);
@@ -68,7 +68,7 @@ public class SpotifyPlayerEventHandler implements Player.NotificationCallback, C
 	}
 
 	void destroy() {
-		SoundHole.getMainContext().unregisterReceiver(networkStateReceiver);
+		SoundHole.getAppContext().unregisterReceiver(networkStateReceiver);
 		player.removeNotificationCallback(this);
 		player.removeConnectionStateCallback(this);
 		player = null;

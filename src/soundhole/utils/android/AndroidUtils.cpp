@@ -16,7 +16,8 @@ namespace sh {
 	namespace android {
 		namespace SoundHole {
 			jclass javaClass;
-			jfieldID mainContext;
+			jmethodID getMainActivity;
+			jmethodID getAppContext;
 		}
 	}
 
@@ -28,8 +29,12 @@ namespace sh {
 	}
 
 
-	jobject getMainAndroidContext(JNIEnv* env) {
-		return env->GetStaticObjectField(android::SoundHole::javaClass, android::SoundHole::mainContext);
+	jobject getAndroidMainActivity(JNIEnv* env) {
+		return env->CallStaticObjectMethod(android::SoundHole::javaClass, android::SoundHole::getMainActivity);
+	}
+
+	jobject getAndroidAppContext(JNIEnv* env) {
+		return env->CallStaticObjectMethod(android::SoundHole::javaClass, android::SoundHole::getAppContext);
 	}
 
 
@@ -47,13 +52,13 @@ namespace sh {
 		return AndroidFunctionClass;
 	}
 
-	jobject newAndroidFunction(JNIEnv* env, std::function<void(JNIEnv*,jobject)> func) {
+	jobject newAndroidFunction(JNIEnv* env, std::function<void(JNIEnv*,std::vector<jobject>)> func) {
 		jclass callbackClass = getAndroidFunctionClass(env);
 		jmethodID methodId = env->GetMethodID(callbackClass, "<init>", "(J)V");
 		return env->NewObject(
-				callbackClass,
-				methodId,
-				(jlong)(new std::function<void(JNIEnv*,jobject)>(func)));
+			callbackClass,
+			methodId,
+			(jlong)(new std::function<void(JNIEnv*,std::vector<jobject>)>(func)));
 	}
 
 
@@ -75,10 +80,14 @@ namespace sh {
 		jclass callbackClass = getAndroidCallbackClass(env);
 		jmethodID methodId = env->GetMethodID(callbackClass, "<init>", "(JJ)V");
 		return env->NewObject(
-				callbackClass,
-				methodId,
-				(jlong)(new std::function<void(JNIEnv*,jobject)>(onResolve)),
-				(jlong)(new std::function<void(JNIEnv*,jobject)>(onReject)));
+			callbackClass,
+			methodId,
+			(jlong)(new std::function<void(JNIEnv*,std::vector<jobject>)>([=](auto env, auto args) {
+				onResolve(env, args[0]);
+			})),
+			(jlong)(new std::function<void(JNIEnv*,std::vector<jobject>)>([=](auto env, auto args) {
+				onReject(env, args[0]);
+			})));
 	}
 
 
@@ -100,10 +109,14 @@ namespace sh {
 		jclass callbackClass = getAndroidSpotifyPlayerInitCallbackClass(env);
 		jmethodID methodId = env->GetMethodID(callbackClass, "<init>", "(JJ)V");
 		return env->NewObject(
-				callbackClass,
-				methodId,
-				(jlong)(new std::function<void(JNIEnv*,jobject)>(onResolve)),
-				(jlong)(new std::function<void(JNIEnv*,jobject)>(onReject)));
+			callbackClass,
+			methodId,
+			(jlong)(new std::function<void(JNIEnv*,std::vector<jobject>)>([=](auto env, auto args) {
+				onResolve(env, args[0]);
+			})),
+			(jlong)(new std::function<void(JNIEnv*,std::vector<jobject>)>([=](auto env, auto args) {
+				onReject(env, args[0]);
+			})));
 	}
 
 
@@ -127,8 +140,12 @@ namespace sh {
 		return env->NewObject(
 			callbackClass,
 			methodId,
-			(jlong)(new std::function<void(JNIEnv*,jobject)>([=](JNIEnv* env,jobject) { onResolve(env); })),
-			(jlong)(new std::function<void(JNIEnv*,jobject)>(onReject)));
+			(jlong)(new std::function<void(JNIEnv*,std::vector<jobject>)>([=](auto env, auto args) {
+				onResolve(env);
+			})),
+			(jlong)(new std::function<void(JNIEnv*,std::vector<jobject>)>([=](auto env, auto args) {
+				onReject(env, args[0]);
+			})));
 	}
 
 
@@ -162,27 +179,33 @@ namespace sh {
 		return env->NewObject(
 			handlerClass,
 			methodId,
-			(jlong)(new std::function<void(JNIEnv*,jobject)>([=](JNIEnv* env, jobject){
+			(jlong)(new std::function<void(JNIEnv*,std::vector<jobject>)>([=](auto env, auto args) {
 				onLoggedIn(env);
 			})),
-			(jlong)(new std::function<void(JNIEnv*,jobject)>([=](JNIEnv* env, jobject){
+			(jlong)(new std::function<void(JNIEnv*,std::vector<jobject>)>([=](auto env, auto args) {
 				onLoggedOut(env);
 			})),
-			(jlong)(new std::function<void(JNIEnv*,jobject)>(onLoginFailed)),
-			(jlong)(new std::function<void(JNIEnv*,jobject)>([=](JNIEnv* env, jobject){
+			(jlong)(new std::function<void(JNIEnv*,std::vector<jobject>)>([=](auto env, auto args) {
+				onLoginFailed(env, args[0]);
+			})),
+			(jlong)(new std::function<void(JNIEnv*,std::vector<jobject>)>([=](auto env, auto args) {
 				onTemporaryError(env);
 			})),
-			(jlong)(new std::function<void(JNIEnv*,jobject)>([=](JNIEnv* env, jobject obj) {
-				onConnectionMessage(env, (jstring)obj);
+			(jlong)(new std::function<void(JNIEnv*,std::vector<jobject>)>([=](auto env, auto args) {
+				onConnectionMessage(env, (jstring)args[0]);
 			})),
-			(jlong)(new std::function<void(JNIEnv*,jobject)>([=](JNIEnv* env, jobject) {
+			(jlong)(new std::function<void(JNIEnv*,std::vector<jobject>)>([=](auto env, auto args) {
 				onDisconnect(env);
 			})),
-			(jlong)(new std::function<void(JNIEnv*,jobject)>([=](JNIEnv* env, jobject) {
+			(jlong)(new std::function<void(JNIEnv*,std::vector<jobject>)>([=](auto env, auto args) {
 				onReconnect(env);
 			})),
-			(jlong)(new std::function<void(JNIEnv*,jobject)>(onPlaybackEvent)),
-			(jlong)(new std::function<void(JNIEnv*,jobject)>(onPlaybackError))
+			(jlong)(new std::function<void(JNIEnv*,std::vector<jobject>)>([=](auto env, auto args) {
+				onPlaybackEvent(env, args[0]);
+			})),
+			(jlong)(new std::function<void(JNIEnv*,std::vector<jobject>)>([=](auto env, auto args) {
+				onPlaybackError(env, args[0]);
+			}))
 		);
 	}
 
@@ -204,18 +227,25 @@ Java_com_lufinkey_soundholecore_SoundHole_staticInit(JNIEnv* env, jclass javaCla
 		throw std::runtime_error("Could not get java VM");
 	}
 	android::SoundHole::javaClass = javaClass;
-	android::SoundHole::mainContext = env->GetStaticFieldID(javaClass, "mainContext", "Landroid/content/Context;");
+	android::SoundHole::getMainActivity = env->GetStaticMethodID(javaClass, "getMainActivity", "()Landroid/app/Activity;");
+	android::SoundHole::getAppContext = env->GetStaticMethodID(javaClass, "getAppContext", "()Landroid/content/Context;");
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_lufinkey_soundholecore_NativeFunction_callFunction(JNIEnv* env, jobject, jlong funcPtr, jobject arg) {
-	std::function<void(JNIEnv*,jobject)> func = *((std::function<void(JNIEnv*,jobject)>*)funcPtr);
-	func(env,arg);
+Java_com_lufinkey_soundholecore_NativeFunction_callFunction(JNIEnv* env, jobject, jlong funcPtr, jobjectArray argsArray) {
+	std::function<void(JNIEnv*,std::vector<jobject>)> func = *((std::function<void(JNIEnv*,std::vector<jobject>)>*)funcPtr);
+	std::vector<jobject> args;
+	jsize argsSize = env->GetArrayLength(argsArray);
+	args.reserve((size_t)argsSize);
+	for(jsize i=0; i<argsSize; i++) {
+		args.push_back(env->GetObjectArrayElement(argsArray, i));
+	}
+	func(env,args);
 }
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_lufinkey_soundholecore_NativeFunction_destroyFunction(JNIEnv* env, jobject, jlong funcPtr) {
-	delete ((std::function<void(JNIEnv*,jobject)>*)funcPtr);
+	delete ((std::function<void(JNIEnv*,std::vector<jobject>)>*)funcPtr);
 }
 
 #endif

@@ -7,12 +7,8 @@ public class NativeFunction {
 		this.func = func;
 	}
 
-	public void call() {
-		call(null);
-	}
-
-	public void call(Object arg) {
-		callFunction(func, arg);
+	public void call(Object... args) {
+		callFunction(func, args);
 	}
 
 	protected void finalize() throws Throwable {
@@ -20,6 +16,6 @@ public class NativeFunction {
 		destroyFunction(func);
 	}
 
-	public native void callFunction(long func, Object arg);
+	public native void callFunction(long func, Object[] arg);
 	public native void destroyFunction(long func);
 }
