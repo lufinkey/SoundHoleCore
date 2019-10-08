@@ -7,20 +7,21 @@ import android.net.NetworkInfo;
 import com.spotify.sdk.android.player.*;
 
 public class SpotifyUtils {
-	static {
+	static void staticInit() {
 		initAuthUtils(
-			SpotifySession.class,
-			SpotifyLoginOptions.class,
-			SpotifyAuthActivity.class);
+				SpotifySession.class,
+				SpotifyLoginOptions.class,
+				SpotifyAuthActivity.class,
+				SpotifyNativeAuthActivityListener.class);
 		initPlayerUtils(
-			com.spotify.sdk.android.player.SpotifyPlayer.class,
-			com.spotify.sdk.android.player.PlaybackState.class,
-			com.spotify.sdk.android.player.Metadata.class,
-			com.spotify.sdk.android.player.Metadata.Track.class);
+				com.spotify.sdk.android.player.SpotifyPlayer.class,
+				com.spotify.sdk.android.player.PlaybackState.class,
+				com.spotify.sdk.android.player.Metadata.class,
+				com.spotify.sdk.android.player.Metadata.Track.class);
 		initErrorUtils(com.spotify.sdk.android.player.Error.class);
 	}
 
-	private static native void initAuthUtils(Class sessionClass, Class loginOptionsClass, Class authActivityClass);
+	private static native void initAuthUtils(Class sessionClass, Class loginOptionsClass, Class authActivityClass, Class nativeAuthActivityListener);
 	private static native void initPlayerUtils(Class spotifyPlayerClass, Class stateClass, Class metadataClass, Class trackClass);
 	private static native void initErrorUtils(Class errorClass);
 

@@ -221,6 +221,13 @@ Java_com_lufinkey_soundholecore_SoundHole_staticInit(JNIEnv* env, jclass javaCla
 	if(vmResult != 0 || sh::mainJavaVM == nullptr) {
 		throw std::runtime_error("Could not get java VM");
 	}
+
+	// initialize NodeJSEmbed
+	jclass nodejsClass = env->FindClass("com/lufinkey/embed/NodeJS");
+	if(nodejsClass == nullptr) {
+		throw std::runtime_error("Could not load com/lufinkey/embed/NodeJS");
+	}
+
 	android::SoundHole::javaClass = (jclass)env->NewGlobalRef(javaClass);
 	android::SoundHole::getAppContext = env->GetStaticMethodID(javaClass, "getAppContext", "()Landroid/content/Context;");
 }

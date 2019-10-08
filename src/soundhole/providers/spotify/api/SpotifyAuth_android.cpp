@@ -26,6 +26,10 @@ namespace sh {
 			jfieldID expireTime = nullptr;
 			jfieldID refreshToken = nullptr;
 			jfieldID scopes = nullptr;
+
+			inline std::vector<jfieldID> fields() {
+				return { accessToken, expireTime, refreshToken, scopes };
+			}
 		}
 
 		namespace SpotifyLoginOptions {
@@ -37,6 +41,14 @@ namespace sh {
 			jfieldID tokenSwapURL = nullptr;
 			jfieldID tokenRefreshURL = nullptr;
 			jfieldID params = nullptr;
+
+			inline std::vector<jmethodID> methods() {
+				return { instantiate };
+			}
+
+			inline std::vector<jfieldID> fields() {
+				return { clientId, redirectURL, scopes, tokenSwapURL, tokenRefreshURL, params };
+			}
 
 			jobject from(JNIEnv* env, sh::SpotifyAuth::Options options) {
 				jobject loginOptions = env->NewObject(javaClass, instantiate);
@@ -75,6 +87,10 @@ namespace sh {
 			jclass javaClass = nullptr;
 			jmethodID performAuthFlow = nullptr;
 			jmethodID finish = nullptr;
+
+			inline std::vector<jmethodID> methods() {
+				return { performAuthFlow, finish };
+			}
 		}
 
 		namespace SpotifyNativeAuthActivityListener {
@@ -87,6 +103,10 @@ namespace sh {
 
 			jclass javaClass = nullptr;
 			jmethodID instantiate = nullptr;
+
+			inline std::vector<jmethodID> methods() {
+				return { instantiate };
+			}
 
 			inline jobject newInstance(JNIEnv* env, Params params) {
 				return env->NewObject(javaClass, instantiate,
@@ -139,7 +159,7 @@ namespace sh {
 			throw std::runtime_error("SoundHole.mainActivity has not been set");
 		}
 		return Promise<Optional<SpotifySession>>([=](auto resolve, auto reject) {
-			env->CallObjectMethod(android::SpotifyAuthActivity::javaClass, android::SpotifyAuthActivity::performAuthFlow,
+			env->CallStaticVoidMethod(android::SpotifyAuthActivity::javaClass, android::SpotifyAuthActivity::performAuthFlow,
 				context, android::SpotifyLoginOptions::from(env, options),
 				android::SpotifyNativeAuthActivityListener::newInstance(env, {
 					.onReceiveSession = [=](JNIEnv* env, jobject activity, sh::SpotifySession session) {
@@ -150,11 +170,15 @@ namespace sh {
 					},
 					.onReceiveCode = [=](JNIEnv* env, jobject activity, String code) {
 						sh::SpotifyAuth::swapCodeForToken(code, options.tokenSwapURL).then([=](SpotifySession session) {
+							ScopedJNIEnv scopedEnv(getMainJavaVM());
+							JNIEnv* env = scopedEnv.getEnv();
 							env->CallVoidMethod(activity, android::SpotifyAuthActivity::finish,
 								newAndroidFunction(env, [=](JNIEnv* env, std::vector<jobject> args) {
 									resolve(session);
 								}));
 						}).except([=](std::exception_ptr error) {
+							ScopedJNIEnv scopedEnv(getMainJavaVM());
+							JNIEnv* env = scopedEnv.getEnv();
 							env->CallVoidMethod(activity, android::SpotifyAuthActivity::finish,
 								newAndroidFunction(env, [=](JNIEnv* env, std::vector<jobject> args) {
 									reject(error);
@@ -182,28 +206,47 @@ namespace sh {
 
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_lufinkey_soundholecore_SpotifyUtils_initAuthUtils(JNIEnv* env, jclass utilsClass, jclass sessionClass, jclass loginOptions, jclass authActivityClass) {
+Java_com_lufinkey_soundholecore_SpotifyUtils_initAuthUtils(JNIEnv* env, jclass utilsClass, jclass sessionClass, jclass loginOptions, jclass authActivityClass, jclass nativeAuthActivityListener) {
 	using namespace sh;
 
 	android::SpotifySession::javaClass = (jclass)env->NewGlobalRef(sessionClass);
 	android::SpotifySession::accessToken = env->GetFieldID(sessionClass, "accessToken", "Ljava/lang/String;");
 	android::SpotifySession::expireTime = env->GetFieldID(sessionClass, "expireTime", "J");
 	android::SpotifySession::refreshToken = env->GetFieldID(sessionClass, "refreshToken", "Ljava/lang/String;");
-	android::SpotifySession::scopes = env->GetFieldID(sessionClass, "scopes", "L[java/lang/String;");
+	android::SpotifySession::scopes = env->GetFieldID(sessionClass, "scopes", "[Ljava/lang/String;");
 
 	android::SpotifyLoginOptions::javaClass = (jclass)env->NewGlobalRef(loginOptions);
 	android::SpotifyLoginOptions::instantiate = env->GetMethodID(loginOptions, "<init>", "()V");
 	android::SpotifyLoginOptions::clientId = env->GetFieldID(loginOptions, "clientId", "Ljava/lang/String;");
 	android::SpotifyLoginOptions::redirectURL = env->GetFieldID(loginOptions, "redirectURL", "Ljava/lang/String;");
-	android::SpotifyLoginOptions::scopes = env->GetFieldID(loginOptions, "scopes", "L[java/lang/String;");
+	android::SpotifyLoginOptions::scopes = env->GetFieldID(loginOptions, "scopes", "[Ljava/lang/String;");
 	android::SpotifyLoginOptions::tokenSwapURL = env->GetFieldID(loginOptions, "tokenSwapURL", "Ljava/lang/String;");
 	android::SpotifyLoginOptions::tokenRefreshURL = env->GetFieldID(loginOptions, "tokenRefreshURL", "Ljava/lang/String;");
 	android::SpotifyLoginOptions::params = env->GetFieldID(loginOptions, "params", "Ljava/util/HashMap;");
 
 	android::SpotifyAuthActivity::javaClass = (jclass)env->NewGlobalRef(authActivityClass);
 	android::SpotifyAuthActivity::performAuthFlow = env->GetStaticMethodID(authActivityClass, "performAuthFlow",
-		"(Landroid/app/Activity;Lcom/lufinkey/soundholecore/SpotifyLoginOptions;Lcom/lufinkey/soundholecore/SpotifyAuthActivityListener;)V");
+		"(Landroid/content/Context;Lcom/lufinkey/soundholecore/SpotifyLoginOptions;Lcom/lufinkey/soundholecore/SpotifyAuthActivityListener;)V");
 	android::SpotifyAuthActivity::finish = env->GetMethodID(authActivityClass, "finish", "(Lcom/lufinkey/soundholecore/NativeFunction;)V");
+
+	android::SpotifyNativeAuthActivityListener::javaClass = (jclass)env->NewGlobalRef(nativeAuthActivityListener);
+	android::SpotifyNativeAuthActivityListener::instantiate = env->GetMethodID(nativeAuthActivityListener, "<init>", "(JJJJ)V");
+
+	for(auto& fieldList : { android::SpotifySession::fields(), android::SpotifyLoginOptions::fields() }) {
+		for(auto field : fieldList) {
+			if(field == nullptr) {
+				throw std::runtime_error("missing java field for Spotify");
+			}
+		}
+	}
+
+	for(auto& methodList : { android::SpotifyLoginOptions::methods(), android::SpotifyAuthActivity::methods(), android::SpotifyNativeAuthActivityListener::methods() }) {
+		for(auto method : methodList) {
+			if(method == nullptr) {
+				throw std::runtime_error("missing java method for Spotify");
+			}
+		}
+	}
 }
 
 #endif

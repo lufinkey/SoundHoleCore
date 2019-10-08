@@ -495,7 +495,9 @@ Java_com_lufinkey_soundholecore_SpotifyUtils_initPlayerUtils(JNIEnv* env, jclass
 	android::SpotifyPlayer::getPlaybackState = env->GetMethodID(playerClass, "getPlaybackState", "()Lcom/spotify/sdk/android/player/PlaybackState;");
 	android::SpotifyPlayer::getMetadata = env->GetMethodID(playerClass, "getMetadata", "()Lcom/spotify/sdk/android/player/Metadata;");
 	android::SpotifyPlayer::skipToNext = env->GetMethodID(playerClass, "skipToNext", "(Lcom/spotify/sdk/android/player/Player$OperationCallback;)V");
-	android::SpotifyPlayer::skipToNext = env->GetMethodID(playerClass, "skipToPrevious", "(Lcom/spotify/sdk/android/player/Player$OperationCallback;)V");
+	android::SpotifyPlayer::skipToPrevious = env->GetMethodID(playerClass, "skipToPrevious", "(Lcom/spotify/sdk/android/player/Player$OperationCallback;)V");
+	android::SpotifyPlayer::setShuffle = env->GetMethodID(playerClass, "setShuffle", "(Lcom/spotify/sdk/android/player/Player$OperationCallback;Z)V");
+	android::SpotifyPlayer::setRepeat = env->GetMethodID(playerClass, "setRepeat", "(Lcom/spotify/sdk/android/player/Player$OperationCallback;Z)V");
 
 	android::SpotifyPlaybackState::javaClass = (jclass)env->NewGlobalRef(stateClass);
 	android::SpotifyPlaybackState::isPlaying = env->GetFieldID(stateClass, "isPlaying", "Z");

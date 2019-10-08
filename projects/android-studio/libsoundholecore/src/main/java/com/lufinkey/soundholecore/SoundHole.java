@@ -6,6 +6,7 @@ import android.content.Context;
 public class SoundHole {
 	static {
 		staticInit();
+		SpotifyUtils.staticInit();
 	}
 	private static native void staticInit();
 

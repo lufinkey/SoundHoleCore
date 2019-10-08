@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
@@ -36,6 +37,7 @@ public class SpotifyAuthActivity extends Activity {
 
 		// start activity
 		Intent intent = new Intent(context, SpotifyAuthActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(intent);
 	}
 
@@ -53,8 +55,6 @@ public class SpotifyAuthActivity extends Activity {
 		authFlow_listener = null;
 
 		AuthenticationRequest request = options.getAuthenticationRequest(xssState);
-
-		// show auth activity
 		AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
 	}
 

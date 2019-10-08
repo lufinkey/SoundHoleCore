@@ -21,6 +21,10 @@ namespace sh {
 
 			jfieldID nativeCode = nullptr;
 
+			inline std::vector<jfieldID> fields() {
+				return { nativeCode };
+			}
+
 			inline jobject getEnum(JNIEnv* env, const char* name) {
 				if(javaClass == nullptr) {
 					throw std::runtime_error("SpotifyError java class has not been initialized");
@@ -99,6 +103,14 @@ Java_com_lufinkey_soundholecore_SpotifyUtils_initErrorUtils(JNIEnv* env, jclass 
 	android::SpotifyError::javaClass = (jclass)env->NewGlobalRef(errorClass);
 	android::SpotifyError::nativeCode = env->GetFieldID(errorClass, "nativeCode", "I");
 	android::SpotifyError::generateSDKErrorMap(env);
+
+	for(auto& fieldList : { android::SpotifyError::fields() }) {
+		for(auto field : fieldList) {
+			if(field == nullptr) {
+				throw std::runtime_error("missing java field for Spotify");
+			}
+		}
+	}
 }
 
 #endif

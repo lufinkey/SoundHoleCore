@@ -21,6 +21,10 @@ android {
 	}
 
 	buildTypes {
+		debug {
+			minifyEnabled false
+			debuggable true
+		}
 		release {
 			minifyEnabled false
 			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -43,7 +47,7 @@ preBuild.dependsOn fetchSpotify
 dependencies {
 	implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
 
-	api 'com.spotify.android:auth:1.1.0'
+	implementation 'com.spotify.android:auth:1.1.0'
 	api project(':libnodejsembed')
 	api project(':libdatacpp')
 	api project(':libasynccpp')
