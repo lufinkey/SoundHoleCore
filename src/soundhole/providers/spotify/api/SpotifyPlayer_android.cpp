@@ -474,7 +474,7 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_lufinkey_soundholecore_SpotifyUtils_initPlayerUtils(JNIEnv* env, jclass utilsClass, jclass playerClass, jclass stateClass, jclass metadataClass, jclass trackClass) {
 	using namespace sh;
 
-	android::SpotifyUtils::javaClass = utilsClass;
+	android::SpotifyUtils::javaClass = (jclass)env->NewGlobalRef(utilsClass);
 	android::SpotifyUtils::instantiate = env->GetMethodID(utilsClass, "<init>", "()V");
 	android::SpotifyUtils::getPlayer = env->GetMethodID(utilsClass,
 			"getPlayer",
@@ -483,7 +483,7 @@ Java_com_lufinkey_soundholecore_SpotifyUtils_initPlayerUtils(JNIEnv* env, jclass
 			"destroyPlayer",
 			"(Lcom/spotify/sdk/android/player/SpotifyPlayer;)V");
 
-	android::SpotifyPlayer::javaClass = playerClass;
+	android::SpotifyPlayer::javaClass = (jclass)env->NewGlobalRef(playerClass);
 	android::SpotifyPlayer::isLoggedIn = env->GetMethodID(playerClass, "isLoggedIn", "()Z");
 	android::SpotifyPlayer::login = env->GetMethodID(playerClass, "login", "(Ljava/lang/String;)Z");
 	android::SpotifyPlayer::logout = env->GetMethodID(playerClass, "logout", "()Z");
@@ -497,21 +497,21 @@ Java_com_lufinkey_soundholecore_SpotifyUtils_initPlayerUtils(JNIEnv* env, jclass
 	android::SpotifyPlayer::skipToNext = env->GetMethodID(playerClass, "skipToNext", "(Lcom/spotify/sdk/android/player/Player$OperationCallback;)V");
 	android::SpotifyPlayer::skipToNext = env->GetMethodID(playerClass, "skipToPrevious", "(Lcom/spotify/sdk/android/player/Player$OperationCallback;)V");
 
-	android::SpotifyPlaybackState::javaClass = stateClass;
+	android::SpotifyPlaybackState::javaClass = (jclass)env->NewGlobalRef(stateClass);
 	android::SpotifyPlaybackState::isPlaying = env->GetFieldID(stateClass, "isPlaying", "Z");
 	android::SpotifyPlaybackState::isRepeating = env->GetFieldID(stateClass, "isRepeating", "Z");
 	android::SpotifyPlaybackState::isShuffling = env->GetFieldID(stateClass, "isShuffling", "Z");
 	android::SpotifyPlaybackState::isActiveDevice = env->GetFieldID(stateClass, "isActiveDevice", "Z");
 	android::SpotifyPlaybackState::positionMs = env->GetFieldID(stateClass, "positionMs", "J");
 
-	android::SpotifyMetadata::javaClass = metadataClass;
+	android::SpotifyMetadata::javaClass = (jclass)env->NewGlobalRef(metadataClass);
 	android::SpotifyMetadata::contextName = env->GetFieldID(metadataClass, "contextName", "Ljava/lang/String;");
 	android::SpotifyMetadata::contextUri = env->GetFieldID(metadataClass, "contextUri", "Ljava/lang/String;");
 	android::SpotifyMetadata::prevTrack = env->GetFieldID(metadataClass, "prevTrack", "Lcom/spotify/sdk/android/player/Metadata$Track;");
 	android::SpotifyMetadata::currentTrack = env->GetFieldID(metadataClass, "currentTrack", "Lcom/spotify/sdk/android/player/Metadata$Track;");
 	android::SpotifyMetadata::nextTrack = env->GetFieldID(metadataClass, "nextTrack", "Lcom/spotify/sdk/android/player/Metadata$Track;");
 
-	android::SpotifyTrack::javaClass = trackClass;
+	android::SpotifyTrack::javaClass = (jclass)env->NewGlobalRef(trackClass);
 	android::SpotifyTrack::name = env->GetFieldID(trackClass, "name", "Ljava/lang/String;");
 	android::SpotifyTrack::uri = env->GetFieldID(trackClass, "uri", "Ljava/lang/String;");
 	android::SpotifyTrack::artistName = env->GetFieldID(trackClass, "artistName", "Ljava/lang/String;");

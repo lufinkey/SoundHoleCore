@@ -23,7 +23,7 @@ namespace sh {
 		JNIEnv* env = scopedEnv.getEnv();
 		jobject context = getAndroidAppContext(env);
 		if(context == nullptr) {
-			throw std::runtime_error("SoundHole.mainActivity has not been set");
+			throw std::runtime_error("SoundHole.appContext has not been set");
 		}
 		return fromAndroidSharedPrefs(env, key, context);
 	}
@@ -33,7 +33,7 @@ namespace sh {
 		JNIEnv* env = scopedEnv.getEnv();
 		jobject context = getAndroidAppContext(env);
 		if(context == nullptr) {
-			throw std::runtime_error("SoundHole.mainActivity has not been set");
+			throw std::runtime_error("SoundHole.appContext has not been set");
 		}
 		writeToAndroidSharedPrefs(env, session, key, context);
 	}
@@ -43,7 +43,7 @@ namespace sh {
 		JNIEnv* env = scopedEnv.getEnv();
 		jobject context = getAndroidAppContext(env);
 		if(context == nullptr) {
-			throw std::runtime_error("SoundHole.mainActivity has not been set");
+			throw std::runtime_error("SoundHole.appContext has not been set");
 		}
 		writeToAndroidSharedPrefs(env, key, context);
 	}

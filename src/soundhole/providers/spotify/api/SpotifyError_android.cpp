@@ -96,7 +96,7 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_lufinkey_soundholecore_SpotifyUtils_initErrorUtils(JNIEnv* env, jclass utilsClass, jclass errorClass) {
 	using namespace sh;
 
-	android::SpotifyError::javaClass = errorClass;
+	android::SpotifyError::javaClass = (jclass)env->NewGlobalRef(errorClass);
 	android::SpotifyError::nativeCode = env->GetFieldID(errorClass, "nativeCode", "I");
 	android::SpotifyError::generateSDKErrorMap(env);
 }

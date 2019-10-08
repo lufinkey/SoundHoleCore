@@ -9,11 +9,12 @@ public class SoundHole {
 	}
 	private static native void staticInit();
 
-	private static Activity mainActivity;
-	public static Activity getMainActivity() {
-		return mainActivity;
-	}
+	private static Context appContext;
 	public static Context getAppContext() {
-		return mainActivity.getApplicationContext();
+		return appContext;
+	}
+
+	public static void init(Context context) {
+		appContext = context;
 	}
 }

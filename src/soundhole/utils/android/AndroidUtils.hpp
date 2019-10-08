@@ -16,7 +16,6 @@
 
 namespace sh {
 	JavaVM* getMainJavaVM();
-	jobject getAndroidMainActivity(JNIEnv* env);
 	jobject getAndroidAppContext(JNIEnv* env);
 
 	jobject newAndroidFunction(JNIEnv* env, std::function<void(JNIEnv*,std::vector<jobject>)> func);

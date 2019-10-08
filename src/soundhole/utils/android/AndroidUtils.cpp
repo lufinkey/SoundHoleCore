@@ -16,7 +16,6 @@ namespace sh {
 	namespace android {
 		namespace SoundHole {
 			jclass javaClass;
-			jmethodID getMainActivity;
 			jmethodID getAppContext;
 		}
 	}
@@ -28,10 +27,6 @@ namespace sh {
 		return mainJavaVM;
 	}
 
-
-	jobject getAndroidMainActivity(JNIEnv* env) {
-		return env->CallStaticObjectMethod(android::SoundHole::javaClass, android::SoundHole::getMainActivity);
-	}
 
 	jobject getAndroidAppContext(JNIEnv* env) {
 		return env->CallStaticObjectMethod(android::SoundHole::javaClass, android::SoundHole::getAppContext);
@@ -226,8 +221,7 @@ Java_com_lufinkey_soundholecore_SoundHole_staticInit(JNIEnv* env, jclass javaCla
 	if(vmResult != 0 || sh::mainJavaVM == nullptr) {
 		throw std::runtime_error("Could not get java VM");
 	}
-	android::SoundHole::javaClass = javaClass;
-	android::SoundHole::getMainActivity = env->GetStaticMethodID(javaClass, "getMainActivity", "()Landroid/app/Activity;");
+	android::SoundHole::javaClass = (jclass)env->NewGlobalRef(javaClass);
 	android::SoundHole::getAppContext = env->GetStaticMethodID(javaClass, "getAppContext", "()Landroid/content/Context;");
 }
 

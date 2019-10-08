@@ -42,6 +42,11 @@ namespace sh {
 				jobject loginOptions = env->NewObject(javaClass, instantiate);
 				jclass stringClass = env->FindClass("java/lang/String");
 				jclass hashMapClass = env->FindClass("java/util/HashMap");
+				if(stringClass == nullptr) {
+					throw std::runtime_error("Could not find android String");
+				} else if(hashMapClass == nullptr) {
+					throw std::runtime_error("Could not find android HashMap");
+				}
 				jmethodID hashMapConstructor = env->GetMethodID(hashMapClass, "<init>", "()V");
 				jmethodID hashMapPut = env->GetMethodID(hashMapClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
 				if(hashMapConstructor == nullptr) {
@@ -180,13 +185,13 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_lufinkey_soundholecore_SpotifyUtils_initAuthUtils(JNIEnv* env, jclass utilsClass, jclass sessionClass, jclass loginOptions, jclass authActivityClass) {
 	using namespace sh;
 
-	android::SpotifySession::javaClass = sessionClass;
+	android::SpotifySession::javaClass = (jclass)env->NewGlobalRef(sessionClass);
 	android::SpotifySession::accessToken = env->GetFieldID(sessionClass, "accessToken", "Ljava/lang/String;");
 	android::SpotifySession::expireTime = env->GetFieldID(sessionClass, "expireTime", "J");
 	android::SpotifySession::refreshToken = env->GetFieldID(sessionClass, "refreshToken", "Ljava/lang/String;");
 	android::SpotifySession::scopes = env->GetFieldID(sessionClass, "scopes", "L[java/lang/String;");
 
-	android::SpotifyLoginOptions::javaClass = loginOptions;
+	android::SpotifyLoginOptions::javaClass = (jclass)env->NewGlobalRef(loginOptions);
 	android::SpotifyLoginOptions::instantiate = env->GetMethodID(loginOptions, "<init>", "()V");
 	android::SpotifyLoginOptions::clientId = env->GetFieldID(loginOptions, "clientId", "Ljava/lang/String;");
 	android::SpotifyLoginOptions::redirectURL = env->GetFieldID(loginOptions, "redirectURL", "Ljava/lang/String;");
@@ -195,7 +200,7 @@ Java_com_lufinkey_soundholecore_SpotifyUtils_initAuthUtils(JNIEnv* env, jclass u
 	android::SpotifyLoginOptions::tokenRefreshURL = env->GetFieldID(loginOptions, "tokenRefreshURL", "Ljava/lang/String;");
 	android::SpotifyLoginOptions::params = env->GetFieldID(loginOptions, "params", "Ljava/util/HashMap;");
 
-	android::SpotifyAuthActivity::javaClass = authActivityClass;
+	android::SpotifyAuthActivity::javaClass = (jclass)env->NewGlobalRef(authActivityClass);
 	android::SpotifyAuthActivity::performAuthFlow = env->GetStaticMethodID(authActivityClass, "performAuthFlow",
 		"(Landroid/app/Activity;Lcom/lufinkey/soundholecore/SpotifyLoginOptions;Lcom/lufinkey/soundholecore/SpotifyAuthActivityListener;)V");
 	android::SpotifyAuthActivity::finish = env->GetMethodID(authActivityClass, "finish", "(Lcom/lufinkey/soundholecore/NativeFunction;)V");

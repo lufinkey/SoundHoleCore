@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.lufinkey.soundholecore.SoundHole;
+
 public class MainActivity extends AppCompatActivity {
 
 	// Used to load the 'native-lib' library on application startup.
@@ -16,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		SoundHole.init(getApplicationContext());
 		testSpotify();
 	}
 
