@@ -11,17 +11,14 @@
 #include <jni.h>
 #include "SpotifySession.hpp"
 #include <soundhole/utils/android/AndroidUtils.hpp>
-#include <embed/nodejs/NodeJS_jni.hpp>
 
 #ifdef TARGETPLATFORM_ANDROID
 
 namespace sh {
-	using ScopedJNIEnv = embed::nodejs::ScopedJNIEnv;
-
 	Optional<SpotifySession> SpotifySession::load(const String& key) {
 		ScopedJNIEnv scopedEnv(getMainJavaVM());
 		JNIEnv* env = scopedEnv.getEnv();
-		jobject context = getAndroidAppContext(env);
+		jobject context = android::SoundHole::getAppContext(env);
 		if(context == nullptr) {
 			throw std::runtime_error("SoundHole.appContext has not been set");
 		}
@@ -31,7 +28,7 @@ namespace sh {
 	void SpotifySession::save(const String& key, Optional<SpotifySession> session) {
 		ScopedJNIEnv scopedEnv(getMainJavaVM());
 		JNIEnv* env = scopedEnv.getEnv();
-		jobject context = getAndroidAppContext(env);
+		jobject context = android::SoundHole::getAppContext(env);
 		if(context == nullptr) {
 			throw std::runtime_error("SoundHole.appContext has not been set");
 		}
@@ -41,7 +38,7 @@ namespace sh {
 	void SpotifySession::save(const String& key) {
 		ScopedJNIEnv scopedEnv(getMainJavaVM());
 		JNIEnv* env = scopedEnv.getEnv();
-		jobject context = getAndroidAppContext(env);
+		jobject context = android::SoundHole::getAppContext(env);
 		if(context == nullptr) {
 			throw std::runtime_error("SoundHole.appContext has not been set");
 		}
@@ -144,10 +141,10 @@ namespace sh {
 		jstring refreshToken = (jstring)env->CallObjectMethod(sharedPrefs, sharedPrefs_getString, env->NewStringUTF("refreshToken"), (jstring)nullptr);
 		jstring scope = (jstring)env->CallObjectMethod(sharedPrefs, sharedPrefs_getString, env->NewStringUTF("scopes"), (jstring)nullptr);
 		return SpotifySession(
-				String(env, accessToken),
-				std::chrono::system_clock::from_time_t((time_t)expireTime),
-				(refreshToken != nullptr) ? String(env, refreshToken) : String(),
-				(scope != nullptr) ? String(env, scope).split(',').where([](auto& str) { return !str.empty(); }) : LinkedList<String>());
+			String(env, accessToken),
+			std::chrono::system_clock::from_time_t((time_t)expireTime),
+			(refreshToken != nullptr) ? String(env, refreshToken) : String(),
+			(scope != nullptr) ? String(env, scope).split(',').where([](auto& str) { return !str.empty(); }) : LinkedList<String>());
 	}
 }
 
