@@ -2,7 +2,7 @@ package com.lufinkey.soundholecore;
 
 import com.spotify.sdk.android.player.*;
 
-public class NativeSpotifyPlayerOpCallback implements Player.OperationCallback {
+class NativeSpotifyPlayerOpCallback implements Player.OperationCallback {
 	NativeCallback callback;
 
 	public NativeSpotifyPlayerOpCallback(long onResolve, long onReject) {

@@ -8,7 +8,7 @@ import android.net.ConnectivityManager;
 
 import com.spotify.sdk.android.player.*;
 
-public class SpotifyPlayerEventHandler implements Player.NotificationCallback, ConnectionStateCallback {
+class SpotifyPlayerEventHandler implements Player.NotificationCallback, ConnectionStateCallback {
 	private SpotifyPlayer player;
 	NativeFunction _onLoggedIn;
 	NativeFunction _onLoggedOut;
@@ -60,7 +60,7 @@ public class SpotifyPlayerEventHandler implements Player.NotificationCallback, C
 			}
 		};
 		IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-		SoundHole.getAppContext().registerReceiver(networkStateReceiver, filter);
+		Utils.appContext.registerReceiver(networkStateReceiver, filter);
 
 		player.setConnectivityStatus(null, currentConnectivity);
 		player.addNotificationCallback(this);
@@ -68,7 +68,7 @@ public class SpotifyPlayerEventHandler implements Player.NotificationCallback, C
 	}
 
 	void destroy() {
-		SoundHole.getAppContext().unregisterReceiver(networkStateReceiver);
+		Utils.appContext.unregisterReceiver(networkStateReceiver);
 		player.removeNotificationCallback(this);
 		player.removeConnectionStateCallback(this);
 		player = null;

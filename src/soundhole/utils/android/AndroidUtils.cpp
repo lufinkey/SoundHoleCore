@@ -24,6 +24,11 @@ namespace sh {
 	namespace android {
 		namespace SoundHole {
 			jclass javaClass = nullptr;
+		}
+
+
+		namespace Utils {
+			jclass javaClass = nullptr;
 			jmethodID _getAppContext = nullptr;
 			jmethodID _runOnMainThread = nullptr;
 
@@ -550,8 +555,11 @@ Java_com_lufinkey_soundholecore_SoundHole_staticInit(JNIEnv* env, jclass javaCla
 	}
 
 	android::SoundHole::javaClass = (jclass)env->NewGlobalRef(javaClass);
-	android::SoundHole::_getAppContext = env->GetStaticMethodID(javaClass, "getAppContext", "()Landroid/content/Context;");
-	android::SoundHole::_runOnMainThread = env->GetStaticMethodID(javaClass, "runOnMainThread", "(Lcom/lufinkey/soundholecore/NativeFunction;)V");
+
+	jclass utilsClass = env->FindClass("com/lufinkey/soundholecore/Utils");
+	android::Utils::javaClass = (jclass)env->NewGlobalRef(utilsClass);
+	android::Utils::_getAppContext = env->GetStaticMethodID(javaClass, "getAppContext", "()Landroid/content/Context;");
+	android::Utils::_runOnMainThread = env->GetStaticMethodID(javaClass, "runOnMainThread", "(Lcom/lufinkey/soundholecore/NativeFunction;)V");
 
 	jclass nativeFunctionClass = env->FindClass("com/lufinkey/soundholecore/NativeFunction");
 	android::NativeFunction::javaClass = (jclass)env->NewGlobalRef(nativeFunctionClass);
@@ -664,7 +672,7 @@ Java_com_lufinkey_soundholecore_SoundHole_staticInit(JNIEnv* env, jclass javaCla
 
 	// validate that all methods have been got
 	for(auto& methodList : {
-		android::SoundHole::methods(), android::NativeFunction::methods(), android::NativeCallback::methods(),
+		android::Utils::methods(), android::NativeFunction::methods(), android::NativeCallback::methods(),
 		android::NativeSpotifyPlayerInitCallback::methods(), android::NativeSpotifyPlayerOpCallback::methods(),
 		android::SpotifyPlayerEventHandler::methods(), android::SpotifyLoginOptions::methods(),
 		android::SpotifyAuthActivity::methods(), android::SpotifyNativeAuthActivityListener::methods(),

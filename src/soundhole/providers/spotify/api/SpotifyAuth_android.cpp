@@ -23,13 +23,13 @@ namespace sh {
 		}
 		ScopedJNIEnv scopedEnv(vm);
 		JNIEnv* env = scopedEnv.getEnv();
-		jobject context = android::SoundHole::getAppContext(env);
+		jobject context = android::Utils::getAppContext(env);
 		if(context == nullptr) {
 			throw std::runtime_error("SoundHole.mainActivity has not been set");
 		}
 		context = env->NewGlobalRef(context);
 		return Promise<Optional<SpotifySession>>([=](auto resolve, auto reject) {
-			android::SoundHole::runOnMainThread(env, [=](JNIEnv* env) {
+			android::Utils::runOnMainThread(env, [=](JNIEnv* env) {
 				android::SpotifyAuthActivity::performAuthFlow(env,
 					context, android::SpotifyLoginOptions::from(env, options),
 					android::SpotifyNativeAuthActivityListener::newObject(env, {
@@ -44,7 +44,7 @@ namespace sh {
 							sh::SpotifyAuth::swapCodeForToken(code, options.tokenSwapURL).then([=](SpotifySession session) {
 								ScopedJNIEnv scopedEnv(getMainJavaVM());
 								JNIEnv* env = scopedEnv.getEnv();
-								android::SoundHole::runOnMainThread(env, [=](JNIEnv* env) {
+								android::Utils::runOnMainThread(env, [=](JNIEnv* env) {
 									android::SpotifyAuthActivity::finish(env, activity,
 										android::NativeFunction::newObject(env, [=](JNIEnv* env, std::vector<jobject> args) {
 											resolve(session);
@@ -54,7 +54,7 @@ namespace sh {
 							}).except([=](std::exception_ptr error) {
 								ScopedJNIEnv scopedEnv(getMainJavaVM());
 								JNIEnv* env = scopedEnv.getEnv();
-								android::SoundHole::runOnMainThread(env, [=](JNIEnv* env) {
+								android::Utils::runOnMainThread(env, [=](JNIEnv* env) {
 									android::SpotifyAuthActivity::finish(env, activity,
 										android::NativeFunction::newObject(env, [=](JNIEnv *env, std::vector<jobject> args) {
 											reject(error);

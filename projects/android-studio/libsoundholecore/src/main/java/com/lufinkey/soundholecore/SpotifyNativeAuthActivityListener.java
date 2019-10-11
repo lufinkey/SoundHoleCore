@@ -1,6 +1,6 @@
 package com.lufinkey.soundholecore;
 
-public class SpotifyNativeAuthActivityListener implements SpotifyAuthActivityListener {
+class SpotifyNativeAuthActivityListener implements SpotifyAuthActivityListener {
 	private NativeFunction _onSpotifyAuthReceiveSession;
 	private NativeFunction _onSpotifyAuthReceiveCode;
 	private NativeFunction _onSpotifyAuthCancel;

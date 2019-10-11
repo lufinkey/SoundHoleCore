@@ -27,6 +27,10 @@ namespace sh {
 	namespace android {
 		namespace SoundHole {
 			extern jclass javaClass;
+		}
+
+		namespace Utils {
+			extern jclass javaClass;
 			jobject getAppContext(JNIEnv* env);
 			void runOnMainThread(JNIEnv* env, Function<void(JNIEnv*)> func);
 		}

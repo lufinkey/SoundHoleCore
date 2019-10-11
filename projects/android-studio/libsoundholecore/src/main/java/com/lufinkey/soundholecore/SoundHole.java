@@ -10,24 +10,7 @@ public class SoundHole {
 	}
 	private static native void staticInit();
 
-	private static Context appContext;
-	public static Context getAppContext() {
-		return appContext;
-	}
-	public static void runOnMainThread(Runnable runnable) {
-		(new Handler(Looper.getMainLooper())).post(runnable);
-	}
-	public static void runOnMainThread(NativeFunction function) {
-		final NativeFunction func = function;
-		(new Handler(Looper.getMainLooper())).post(new Runnable() {
-			@Override
-			public void run() {
-				func.call();
-			}
-		});
-	}
-
 	public static void init(Context context) {
-		appContext = context;
+		Utils.appContext = context;
 	}
 }

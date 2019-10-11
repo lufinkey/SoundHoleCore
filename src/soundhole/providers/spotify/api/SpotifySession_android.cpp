@@ -18,7 +18,7 @@ namespace sh {
 	Optional<SpotifySession> SpotifySession::load(const String& key) {
 		ScopedJNIEnv scopedEnv(getMainJavaVM());
 		JNIEnv* env = scopedEnv.getEnv();
-		jobject context = android::SoundHole::getAppContext(env);
+		jobject context = android::Utils::getAppContext(env);
 		if(context == nullptr) {
 			throw std::runtime_error("SoundHole.appContext has not been set");
 		}
@@ -28,7 +28,7 @@ namespace sh {
 	void SpotifySession::save(const String& key, Optional<SpotifySession> session) {
 		ScopedJNIEnv scopedEnv(getMainJavaVM());
 		JNIEnv* env = scopedEnv.getEnv();
-		jobject context = android::SoundHole::getAppContext(env);
+		jobject context = android::Utils::getAppContext(env);
 		if(context == nullptr) {
 			throw std::runtime_error("SoundHole.appContext has not been set");
 		}
@@ -38,7 +38,7 @@ namespace sh {
 	void SpotifySession::save(const String& key) {
 		ScopedJNIEnv scopedEnv(getMainJavaVM());
 		JNIEnv* env = scopedEnv.getEnv();
-		jobject context = android::SoundHole::getAppContext(env);
+		jobject context = android::Utils::getAppContext(env);
 		if(context == nullptr) {
 			throw std::runtime_error("SoundHole.appContext has not been set");
 		}
