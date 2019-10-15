@@ -11,7 +11,8 @@
 
 namespace sh {
 	Spotify::Spotify(Options options)
-	: auth(new SpotifyAuth(options)), player(nullptr) {
+	: playerOptions(options.player),
+	auth(new SpotifyAuth(options.auth)), player(nullptr) {
 		auth->load();
 	}
 	
@@ -71,6 +72,7 @@ namespace sh {
 				);
 			}
 			player->setAuth(this->auth);
+			player->setOptions(playerOptions);
 			this->player = player;
 			if(player->isStarted()) {
 				return Promise<void>::resolve();
@@ -83,6 +85,7 @@ namespace sh {
 		std::unique_lock<std::mutex> lock(playerMutex);
 		if(player != nullptr) {
 			player->setAuth(nullptr);
+			player->setOptions(SpotifyPlayer::Options());
 			player->logout();
 			player->stop();
 			player = nullptr;

@@ -14,12 +14,14 @@ namespace sh::test {
 		printf("beginning spotify tests\n");
 
 		auto spotify = new Spotify({
-			.clientId = "b2f54a1af8c943eeabbf2b197c53d173",
-			.redirectURL = "soundhole://spotify-auth",
-			.scopes = {"user-library-read", "user-read-private", "playlist-read", "playlist-read-private", "streaming"},
-			.tokenSwapURL = "http://spotifytokenrefresh.iwouldtotallyfuck.me:5080/swap.php",
-			.tokenRefreshURL = "http://spotifytokenrefresh.iwouldtotallyfuck.me:5080/refresh.php",
-			.sessionPersistKey = "SpotifySession"
+			.auth = {
+				.clientId = "b2f54a1af8c943eeabbf2b197c53d173",
+				.redirectURL = "soundhole://spotify-auth",
+				.scopes = {"user-library-read", "user-read-private", "playlist-read", "playlist-read-private", "streaming"},
+				.tokenSwapURL = "http://spotifytokenrefresh.iwouldtotallyfuck.me:5080/swap.php",
+				.tokenRefreshURL = "http://spotifytokenrefresh.iwouldtotallyfuck.me:5080/refresh.php",
+				.sessionPersistKey = "SpotifySession"
+			}
 		});
 		
 		auto promise = Promise<void>::resolve();

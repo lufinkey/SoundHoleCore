@@ -16,7 +16,10 @@
 namespace sh {
 	class Spotify {
 	public:
-		using Options = SpotifyAuth::Options;
+		struct Options {
+			SpotifyAuth::Options auth;
+			SpotifyPlayer::Options player;
+		};
 		
 		Spotify(const Spotify&) = delete;
 		Spotify& operator=(const Spotify&) = delete;
@@ -76,6 +79,7 @@ namespace sh {
 		Promise<void> prepareForPlayer();
 		Promise<void> prepareForRequest();
 		
+		SpotifyPlayer::Options playerOptions;
 		SpotifyAuth* auth;
 		SpotifyPlayer* player;
 		std::mutex playerMutex;
