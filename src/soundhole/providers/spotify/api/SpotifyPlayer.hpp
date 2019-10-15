@@ -27,6 +27,12 @@ namespace sh {
 	public:
 		static SpotifyPlayer* shared();
 		
+		struct Options {
+			struct iOS {
+				String audioSessionCategory = "AVAudioSessionCategoryPlayback";
+			} ios;
+		};
+		
 		struct State {
 			bool playing = false;
 			bool repeating = false;
@@ -85,6 +91,9 @@ namespace sh {
 		Promise<void> setShuffling(bool shuffling);
 		Promise<void> setRepeating(bool repeating);
 		
+		void setOptions(Options options);
+		const Options& getOptions() const;
+		
 		State getState() const;
 		Metadata getMetadata() const;
 		
@@ -133,6 +142,8 @@ namespace sh {
 		void onStreamingLoginError(SpotifyError);
 		void onStreamingError(SpotifyError);
 		
+		Options options;
+		
 		SpotifyAuth* auth;
 		#ifdef TARGETPLATFORM_IOS
 		OBJCPP_PTR(SPTAudioStreamingController) player;
@@ -168,6 +179,8 @@ namespace sh {
 		void restoreSavedPlayerState(const SavedPlayerState& state);
 		SavedPlayerState getPlayerState();
 		Optional<SavedPlayerState> renewingPlayerState;
+		void activateAudioSession();
+		void deactivateAudioSession();
 		#endif
 	};
 }

@@ -17,6 +17,16 @@ namespace sh {
 		}
 		return sharedSpotifyPlayer;
 	}
+
+
+	void SpotifyPlayer::setOptions(Options options) {
+		this->options = options;
+	}
+
+	const SpotifyPlayer::Options& SpotifyPlayer::getOptions() const {
+		return options;
+	}
+
 	
 	void SpotifyPlayer::setAuth(SpotifyAuth* auth) {
 		std::unique_lock<std::mutex> lock(loginMutex);

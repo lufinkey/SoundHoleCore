@@ -26,7 +26,7 @@ namespace sh {
 			String sessionPersistKey;
 			std::chrono::seconds tokenRefreshEarliness = std::chrono::seconds(300);
 
-			struct {
+			struct Android {
 				String loginLoadingText;
 			} android;
 			

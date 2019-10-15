@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property void(^onDisconnect)();
 @property void(^onReconnect)();
 @property void(^onPlaybackEvent)(SpPlaybackEvent);
+@property void(^onChangePlaybackStatus)(BOOL);
 
 @end
 

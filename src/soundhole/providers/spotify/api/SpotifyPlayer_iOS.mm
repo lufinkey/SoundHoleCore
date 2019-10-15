@@ -11,6 +11,7 @@
 
 #if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
 #import <Foundation/Foundation.h>
+#import <AVFoundation/AVFoundation.h>
 
 namespace sh {
 	SpotifyPlayer::SpotifyPlayer()
@@ -44,6 +45,13 @@ namespace sh {
 		};
 		playerEventHandler.onPlaybackEvent = ^(SpPlaybackEvent event) {
 			// TODO handle playback event
+		};
+		playerEventHandler.onChangePlaybackStatus = ^(BOOL isPlaying) {
+			if(isPlaying) {
+				activateAudioSession();
+			} else {
+				deactivateAudioSession();
+			}
 		};
 	}
 
@@ -343,6 +351,33 @@ namespace sh {
 				.repeating = (bool)state.isRepeating,
 				.playing = false
 			};
+		}
+	}
+
+
+	void SpotifyPlayer::activateAudioSession() {
+		AVAudioSession* audioSession = [AVAudioSession sharedInstance];
+		NSError* error = nil;
+		NSString* audioSessionCategory = options.ios.audioSessionCategory.toNSString();
+		if(![audioSessionCategory isEqualToString:audioSession.category]) {
+			[audioSession setCategory:audioSessionCategory error:&error];
+			if(error != nil) {
+				NSLog(@"Error setting spotify audio session category: %@", error);
+			}
+		}
+		error = nil;
+		[audioSession setActive:YES error:&error];
+		if(error != nil) {
+			NSLog(@"Error setting spotify audio session active: %@", error);
+		}
+	}
+
+	void SpotifyPlayer::deactivateAudioSession() {
+		AVAudioSession* audioSession = [AVAudioSession sharedInstance];
+		NSError* error = nil;
+		[audioSession setActive:NO error:&error];
+		if(error != nil) {
+			NSLog(@"Error setting spotify audio session inactive: %@", error);
 		}
 	}
 }

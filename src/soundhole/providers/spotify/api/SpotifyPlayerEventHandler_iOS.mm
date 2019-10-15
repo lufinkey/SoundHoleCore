@@ -43,6 +43,10 @@
 	_onPlaybackEvent(event);
 }
 
+-(void)audioStreaming:(SPTAudioStreamingController*)audioStreaming didChangePlaybackStatus:(BOOL)isPlaying {
+	_onChangePlaybackStatus(isPlaying);
+}
+
 @end
 
 #endif
