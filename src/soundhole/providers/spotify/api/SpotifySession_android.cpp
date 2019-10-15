@@ -142,7 +142,7 @@ namespace sh {
 		jstring scope = (jstring)env->CallObjectMethod(sharedPrefs, sharedPrefs_getString, env->NewStringUTF("scopes"), (jstring)nullptr);
 		return SpotifySession(
 			String(env, accessToken),
-			std::chrono::system_clock::from_time_t((time_t)expireTime),
+			std::chrono::system_clock::from_time_t((time_t)(expireTime / 1000)),
 			(refreshToken != nullptr) ? String(env, refreshToken) : String(),
 			(scope != nullptr) ? String(env, scope).split(',').where([](auto& str) { return !str.empty(); }) : LinkedList<String>());
 	}

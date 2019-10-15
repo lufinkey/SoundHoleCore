@@ -29,15 +29,19 @@ namespace sh {
 
 		namespace Utils {
 			jclass javaClass = nullptr;
-			jmethodID _getAppContext = nullptr;
+			jfieldID _appContext = nullptr;
 			jmethodID _runOnMainThread = nullptr;
 
+			inline std::vector<jfieldID> fields() {
+				return { _appContext };
+			}
+
 			inline std::vector<jmethodID> methods() {
-				return { _getAppContext, _runOnMainThread };
+				return { _runOnMainThread };
 			}
 
 			jobject getAppContext(JNIEnv* env) {
-				return env->CallStaticObjectMethod(javaClass, _getAppContext);
+				return env->GetStaticObjectField(javaClass, _appContext);
 			}
 
 			void runOnMainThread(JNIEnv* env, Function<void(JNIEnv*)> func) {
@@ -290,9 +294,11 @@ namespace sh {
 			jclass javaClass = nullptr;
 			jmethodID _performAuthFlow = nullptr;
 			jmethodID _finish = nullptr;
+			jmethodID _showProgressDialog = nullptr;
+			jmethodID _hideProgressDialog = nullptr;
 
 			inline std::vector<jmethodID> methods() {
-				return { _performAuthFlow, _finish };
+				return { _performAuthFlow, _finish, _showProgressDialog, _hideProgressDialog };
 			}
 
 			void performAuthFlow(JNIEnv* env, jobject context, jobject loginOptions, jobject listener) {
@@ -301,6 +307,14 @@ namespace sh {
 
 			void finish(JNIEnv* env, jobject self, jobject completion) {
 				env->CallVoidMethod(self, _finish, completion);
+			}
+
+			void showProgressDialog(JNIEnv* env, jobject self, jstring loadingText) {
+				env->CallVoidMethod(self, _showProgressDialog, loadingText);
+			}
+
+			void hideProgressDialog(JNIEnv* env, jobject self) {
+				env->CallVoidMethod(self, _hideProgressDialog);
 			}
 		}
 
@@ -558,8 +572,8 @@ Java_com_lufinkey_soundholecore_SoundHole_staticInit(JNIEnv* env, jclass javaCla
 
 	jclass utilsClass = env->FindClass("com/lufinkey/soundholecore/Utils");
 	android::Utils::javaClass = (jclass)env->NewGlobalRef(utilsClass);
-	android::Utils::_getAppContext = env->GetStaticMethodID(javaClass, "getAppContext", "()Landroid/content/Context;");
-	android::Utils::_runOnMainThread = env->GetStaticMethodID(javaClass, "runOnMainThread", "(Lcom/lufinkey/soundholecore/NativeFunction;)V");
+	android::Utils::_appContext = env->GetStaticFieldID(utilsClass, "appContext", "Landroid/content/Context;");
+	android::Utils::_runOnMainThread = env->GetStaticMethodID(utilsClass, "runOnMainThread", "(Lcom/lufinkey/soundholecore/NativeFunction;)V");
 
 	jclass nativeFunctionClass = env->FindClass("com/lufinkey/soundholecore/NativeFunction");
 	android::NativeFunction::javaClass = (jclass)env->NewGlobalRef(nativeFunctionClass);
@@ -605,6 +619,8 @@ Java_com_lufinkey_soundholecore_SoundHole_staticInit(JNIEnv* env, jclass javaCla
 	android::SpotifyAuthActivity::_performAuthFlow = env->GetStaticMethodID(spotifyAuthActivityClass, "performAuthFlow",
 		"(Landroid/content/Context;Lcom/lufinkey/soundholecore/SpotifyLoginOptions;Lcom/lufinkey/soundholecore/SpotifyAuthActivityListener;)V");
 	android::SpotifyAuthActivity::_finish = env->GetMethodID(spotifyAuthActivityClass, "finish", "(Lcom/lufinkey/soundholecore/NativeFunction;)V");
+	android::SpotifyAuthActivity::_showProgressDialog = env->GetMethodID(spotifyAuthActivityClass, "showProgressDialog", "(Ljava/lang/String;)V");
+	android::SpotifyAuthActivity::_hideProgressDialog = env->GetMethodID(spotifyAuthActivityClass, "hideProgressDialog", "()V");
 
 	jclass nativeSpotifyAuthActivityListenerClass = env->FindClass("com/lufinkey/soundholecore/SpotifyNativeAuthActivityListener");
 	android::SpotifyNativeAuthActivityListener::javaClass = (jclass)env->NewGlobalRef(nativeSpotifyAuthActivityListenerClass);

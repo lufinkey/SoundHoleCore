@@ -25,6 +25,10 @@ namespace sh {
 			std::map<String,String> params;
 			String sessionPersistKey;
 			std::chrono::seconds tokenRefreshEarliness = std::chrono::seconds(300);
+
+			struct {
+				String loginLoadingText;
+			} android;
 			
 			String getWebAuthenticationURL(String state) const;
 			

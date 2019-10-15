@@ -1,10 +1,13 @@
 package com.lufinkey.soundholecore;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Gravity;
+import android.widget.ProgressBar;
 
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
@@ -23,6 +26,8 @@ public class SpotifyAuthActivity extends Activity {
 	private String xssState;
 	private SpotifyAuthActivityListener listener;
 	private NativeFunction finishCompletion;
+
+	private ProgressDialog progressDialog;
 
 	public static void performAuthFlow(Context context, SpotifyLoginOptions options, SpotifyAuthActivityListener listener) {
 		// ensure no conflicting callbacks
@@ -73,8 +78,7 @@ public class SpotifyAuthActivity extends Activity {
 				case ERROR:
 					if(response.getError().equals("access_denied")) {
 						listener.onSpotifyAuthCancel(this);
-					}
-					else {
+					} else {
 						listener.onSpotifyAuthFailure(this, response.getError());
 					}
 					break;
@@ -124,6 +128,31 @@ public class SpotifyAuthActivity extends Activity {
 				finishCompletion = null;
 				completion.call();
 			}
+		}
+	}
+
+
+	private void showProgressDialog(String loadingText) {
+		if(progressDialog != null) {
+			progressDialog.setMessage(loadingText);
+			return;
+		}
+		ProgressDialog dialog = new ProgressDialog(this, android.R.style.Theme_Black);
+		dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+		dialog.getWindow().setGravity(Gravity.CENTER);
+		if(loadingText != null) {
+			dialog.setMessage(loadingText);
+		}
+		dialog.setCancelable(false);
+		dialog.setIndeterminate(true);
+		dialog.show();
+		progressDialog = dialog;
+	}
+
+	private void hideProgressDialog() {
+		if(progressDialog != null) {
+			progressDialog.dismiss();
+			progressDialog = null;
 		}
 	}
 }

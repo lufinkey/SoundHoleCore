@@ -223,7 +223,7 @@ namespace sh {
 	}
 	
 	Promise<bool> SpotifyAuth::renewSession(RenewOptions options) {
-		return Promise<bool>([&](auto resolve, auto reject) {
+		return Promise<bool>("SpotifyAuth.renewSession", [&](auto resolve, auto reject) {
 			if(!canRefreshSession()) {
 				resolve(false);
 				return;
@@ -246,7 +246,7 @@ namespace sh {
 				return;
 			}
 			
-			performSessionRenewal().then(resolve, reject);
+			performSessionRenewal();
 		});
 	}
 	
@@ -322,8 +322,7 @@ namespace sh {
 			this->updateSession(accessToken.string_value(), SpotifySession::getExpireTimeFromSeconds((int)expireSeconds.number_value()));
 			
 			// get renewal callbacks
-			std::shared_ptr<RenewalInfo> renewalInfo;
-			renewalInfo.swap(this->renewalInfo);
+			this->renewalInfo = nullptr;
 			lock.unlock();
 			
 			// call renewal callbacks

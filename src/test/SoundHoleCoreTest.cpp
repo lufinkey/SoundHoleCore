@@ -11,6 +11,8 @@
 
 namespace sh::test {
 	Promise<void> testSpotify() {
+		printf("beginning spotify tests\n");
+
 		auto spotify = new Spotify({
 			.clientId = "b2f54a1af8c943eeabbf2b197c53d173",
 			.redirectURL = "soundhole://spotify-auth",
@@ -23,11 +25,12 @@ namespace sh::test {
 		auto promise = Promise<void>::resolve();
 		
 		promise = promise.then([=]() -> Promise<void> {
+			printf("logging out spotify\n");
 			return spotify->logout();
 		});
-		
-		if(!spotify->isLoggedIn()) {
-			promise = promise.then([=]() -> Promise<void> {
+
+		promise = promise.then([=]() -> Promise<void> {
+			if(!spotify->isLoggedIn()) {
 				return spotify->login().then([=](bool loggedIn) {
 					if(loggedIn) {
 						printf("login succeeded\n");
@@ -48,10 +51,11 @@ namespace sh::test {
 					}
 					std::rethrow_exception(errorPtr);
 				});
-			});
-		} else {
-			printf("spotify is already logged in\n");
-		}
+			} else {
+				printf("spotify is already logged in\n");
+				return Promise<void>::resolve();
+			}
+		});
 		
 		promise = promise.then([=]() -> Promise<void> {
 			printf("playing song\n");
@@ -74,7 +78,7 @@ namespace sh::test {
 			});
 		});
 		
-		promise = promise.then([=]() {
+		promise = promise.finally([=]() {
 			printf("cleaning up spotify instance\n");
 			delete spotify;
 		});

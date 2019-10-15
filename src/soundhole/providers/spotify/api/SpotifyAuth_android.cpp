@@ -17,6 +17,9 @@
 
 namespace sh {
 	Promise<Optional<SpotifySession>> SpotifyAuth::authenticate(Options options) {
+		if(options.params.find("show_dialog") == options.params.end()) {
+			options.params["show_dialog"] = "true";
+		}
 		JavaVM* vm = getMainJavaVM();
 		if(vm == nullptr) {
 			throw std::runtime_error("Java VM has not been initialized");
@@ -40,11 +43,17 @@ namespace sh {
 								}));
 						},
 						.onReceiveCode = [=](JNIEnv* env, jobject activity, String code) {
+							auto loadingText = options.android.loginLoadingText;
+							if(loadingText.empty()) {
+								loadingText = "Loading...";
+							}
+							android::SpotifyAuthActivity::showProgressDialog(env, activity, loadingText.toJavaString(env));
 							activity = env->NewGlobalRef(activity);
 							sh::SpotifyAuth::swapCodeForToken(code, options.tokenSwapURL).then([=](SpotifySession session) {
 								ScopedJNIEnv scopedEnv(getMainJavaVM());
 								JNIEnv* env = scopedEnv.getEnv();
 								android::Utils::runOnMainThread(env, [=](JNIEnv* env) {
+									android::SpotifyAuthActivity::hideProgressDialog(env, activity);
 									android::SpotifyAuthActivity::finish(env, activity,
 										android::NativeFunction::newObject(env, [=](JNIEnv* env, std::vector<jobject> args) {
 											resolve(session);
@@ -55,6 +64,7 @@ namespace sh {
 								ScopedJNIEnv scopedEnv(getMainJavaVM());
 								JNIEnv* env = scopedEnv.getEnv();
 								android::Utils::runOnMainThread(env, [=](JNIEnv* env) {
+									android::SpotifyAuthActivity::hideProgressDialog(env, activity);
 									android::SpotifyAuthActivity::finish(env, activity,
 										android::NativeFunction::newObject(env, [=](JNIEnv *env, std::vector<jobject> args) {
 											reject(error);

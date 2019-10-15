@@ -96,6 +96,8 @@ namespace sh {
 			extern jclass javaClass;
 			void performAuthFlow(JNIEnv* env, jobject context, jobject loginOptions, jobject listener);
 			void finish(JNIEnv* env, jobject self, jobject completion);
+			void showProgressDialog(JNIEnv* env, jobject self, jstring loadingText);
+			void hideProgressDialog(JNIEnv* env, jobject self);
 		}
 
 		namespace SpotifyNativeAuthActivityListener {
