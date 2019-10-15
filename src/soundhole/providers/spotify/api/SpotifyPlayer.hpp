@@ -122,10 +122,6 @@ namespace sh {
 			typename Promise<void>::Rejecter reject;
 		};
 		
-		struct PrepareForCallOptions {
-			bool start = true;
-			bool login = true;
-		};
 		Promise<void> prepareForCall(bool condition = true);
 		Promise<bool> startIfAble();
 		Promise<bool> loginIfAble();
