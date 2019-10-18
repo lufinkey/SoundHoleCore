@@ -15,5 +15,15 @@ typedef struct napi_ref__* napi_ref;
 
 namespace sh::scripts {
 	Promise<void> loadScriptsIfNeeded();
+	
 	napi_ref getJSExportsRef();
+	#ifdef NODE_API_MODULE
+	inline Napi::Object getJSExports(napi_env env) {
+		auto exportsRef = scripts::getJSExportsRef();
+		if(exportsRef == nullptr) {
+			return Napi::Object();
+		}
+		return Napi::Reference<Napi::Object>(env, exportsRef).Value().template As<Napi::Object>();
+	}
+	#endif
 }

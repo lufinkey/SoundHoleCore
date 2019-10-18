@@ -88,6 +88,12 @@
 		A5B7A7DD233F126800301FC0 /* Spotify.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7DB233F126800301FC0 /* Spotify.cpp */; };
 		A5B7A7DE233F126800301FC0 /* Spotify.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7DB233F126800301FC0 /* Spotify.cpp */; };
 		A5B7A7DF233F126800301FC0 /* Spotify.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5B7A7DC233F126800301FC0 /* Spotify.hpp */; };
+		A5E851A52357B1660001F74D /* Bandcamp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5E851A32357B1660001F74D /* Bandcamp.cpp */; };
+		A5E851A62357B1660001F74D /* Bandcamp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5E851A32357B1660001F74D /* Bandcamp.cpp */; };
+		A5E851A72357B1660001F74D /* Bandcamp.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5E851A42357B1660001F74D /* Bandcamp.hpp */; };
+		A5E851AA2357BECD0001F74D /* BandcampError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5E851A82357BECD0001F74D /* BandcampError.cpp */; };
+		A5E851AB2357BECD0001F74D /* BandcampError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5E851A82357BECD0001F74D /* BandcampError.cpp */; };
+		A5E851AC2357BECD0001F74D /* BandcampError.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5E851A92357BECD0001F74D /* BandcampError.hpp */; };
 		CD1A74B29839C57A94EAACD7 /* libPods-SoundHoleCoreTest-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */; };
 /* End PBXBuildFile section */
 
@@ -200,6 +206,11 @@
 		A5B7A7C4233EA8CC00301FC0 /* SHProgressView_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SHProgressView_iOS.mm; sourceTree = "<group>"; };
 		A5B7A7DB233F126800301FC0 /* Spotify.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Spotify.cpp; sourceTree = "<group>"; };
 		A5B7A7DC233F126800301FC0 /* Spotify.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Spotify.hpp; sourceTree = "<group>"; };
+		A5E851A32357B1660001F74D /* Bandcamp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Bandcamp.cpp; sourceTree = "<group>"; };
+		A5E851A42357B1660001F74D /* Bandcamp.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Bandcamp.hpp; sourceTree = "<group>"; };
+		A5E851A82357BECD0001F74D /* BandcampError.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampError.cpp; sourceTree = "<group>"; };
+		A5E851A92357BECD0001F74D /* BandcampError.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BandcampError.hpp; sourceTree = "<group>"; };
+		A5E851AF2358DADE0001F74D /* Utils.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Utils.js; sourceTree = "<group>"; };
 		AFF721677F756E337195FAB1 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -413,6 +424,7 @@
 		A571E12F2332C5AC00603E14 /* bandcamp */ = {
 			isa = PBXGroup;
 			children = (
+				A5E851A22357B1300001F74D /* api */,
 				A513DB72232DA1F8000DCAC7 /* BandcampProvider.hpp */,
 				A513DB73232DA1F8000DCAC7 /* BandcampProvider.cpp */,
 			);
@@ -498,6 +510,7 @@
 				A571E173233331C100603E14 /* YoutubeDL.js */,
 				A571E1A92334438600603E14 /* HttpClient.js */,
 				A5382A0F2355774100E22A29 /* Bandcamp.js */,
+				A5E851AF2358DADE0001F74D /* Utils.js */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -541,6 +554,17 @@
 			path = ios;
 			sourceTree = "<group>";
 		};
+		A5E851A22357B1300001F74D /* api */ = {
+			isa = PBXGroup;
+			children = (
+				A5E851A42357B1660001F74D /* Bandcamp.hpp */,
+				A5E851A32357B1660001F74D /* Bandcamp.cpp */,
+				A5E851A92357BECD0001F74D /* BandcampError.hpp */,
+				A5E851A82357BECD0001F74D /* BandcampError.cpp */,
+			);
+			path = api;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -554,7 +578,9 @@
 				A571E15A23331C6600603E14 /* SpotifyAuth.hpp in Headers */,
 				A513ED89232DA20B000DCAC7 /* SoundHoleCoreTest.hpp in Headers */,
 				A571E1A8233440A800603E14 /* HttpClient.hpp in Headers */,
+				A5E851A72357B1660001F74D /* Bandcamp.hpp in Headers */,
 				A5B7A7DF233F126800301FC0 /* Spotify.hpp in Headers */,
+				A5E851AC2357BECD0001F74D /* BandcampError.hpp in Headers */,
 				A5B7A7A72337E86400301FC0 /* SpotifyAuthEventListener.hpp in Headers */,
 				A571E1332332C65000603E14 /* SpotifyProvider.hpp in Headers */,
 				A513ED9C232DA20C000DCAC7 /* MediaItem.hpp in Headers */,
@@ -808,10 +834,12 @@
 				A513ED87232DA20B000DCAC7 /* SoundHoleCoreTest.cpp in Sources */,
 				A571E1A6233440A800603E14 /* HttpClient.cpp in Sources */,
 				A5B7A7BB233EA5A500301FC0 /* SpotifyAuthViewController_iOS.mm in Sources */,
+				A5E851A52357B1660001F74D /* Bandcamp.cpp in Sources */,
 				A5B7A7B423394BD400301FC0 /* SpotifyPlayerEventHandler_iOS.mm in Sources */,
 				A5B7A7AF2337F9B500301FC0 /* SpotifyPlayer_iOS.mm in Sources */,
 				A5B7A7DD233F126800301FC0 /* Spotify.cpp in Sources */,
 				A513ED94232DA20B000DCAC7 /* YoutubeProvider.cpp in Sources */,
+				A5E851AA2357BECD0001F74D /* BandcampError.cpp in Sources */,
 				A571E16523332CE200603E14 /* Utils.cpp in Sources */,
 				A513ED91232DA20B000DCAC7 /* BandcampProvider.cpp in Sources */,
 				A5B7A7A52337DC9D00301FC0 /* SpotifySession_iOS.mm in Sources */,
@@ -842,6 +870,7 @@
 				A571E16B2333305D00603E14 /* Scripts.cpp in Sources */,
 				A571E15E23331C6600603E14 /* SpotifyAuth.cpp in Sources */,
 				A5B7A78F2335C91800301FC0 /* SoundHoleError.cpp in Sources */,
+				A5E851A62357B1660001F74D /* Bandcamp.cpp in Sources */,
 				A5B7A7AC2337F1DE00301FC0 /* SpotifyPlayer.cpp in Sources */,
 				A571E16023331C6600603E14 /* SpotifySession.cpp in Sources */,
 				A513ED88232DA20B000DCAC7 /* SoundHoleCoreTest.cpp in Sources */,
@@ -849,6 +878,7 @@
 				A513ED95232DA20B000DCAC7 /* YoutubeProvider.cpp in Sources */,
 				A571E16623332CE200603E14 /* Utils.cpp in Sources */,
 				A513ED92232DA20B000DCAC7 /* BandcampProvider.cpp in Sources */,
+				A5E851AB2357BECD0001F74D /* BandcampError.cpp in Sources */,
 				A513ED9B232DA20C000DCAC7 /* MediaItem.cpp in Sources */,
 				A5B7A79E2336C29200301FC0 /* SpotifyError.cpp in Sources */,
 				A513ED8E232DA20B000DCAC7 /* MediaProvider.cpp in Sources */,
