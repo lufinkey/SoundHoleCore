@@ -11,11 +11,6 @@
 #include "BandcampError.hpp"
 #include <soundhole/scripts/Scripts.hpp>
 #include <embed/nodejs/NodeJS.hpp>
-#include <embed/nodejs/NAPI_Macros.hpp>
-
-#ifndef NAPI_CALL_OR_THROW
-	#define NAPI_CALL_OR_THROW(env, error, the_call) NAPI_CALL_BASE(env, the_call, throw std::runtime_error(error))
-#endif
 
 namespace sh {
 	Bandcamp::Bandcamp()
@@ -36,6 +31,15 @@ namespace sh {
 			return Napi::Object();
 		}
 		return Napi::ObjectReference(env, jsRef).Value();
+	}
+
+	void Bandcamp::performJSOp(Function<void(napi_env)> work) {
+		scripts::loadScriptsIfNeeded().then([=]() {
+			embed::nodejs::queueMain([=](napi_env env) {
+				initIfNeeded(env);
+				work(env);
+			});
+		});
 	}
 
 	Json Bandcamp::jsonFromNAPIValue(napi_env env, napi_value value) {
@@ -64,17 +68,8 @@ namespace sh {
 			auto jsExports = scripts::getJSExports(env);
 			auto BandcampClass = jsExports.Get("Bandcamp").As<Napi::Function>();
 			auto bandcamp = BandcampClass.New({});
-			NAPI_CALL_OR_THROW(env, "Failed to reference bandcamp", napi_create_reference(env, bandcamp, 1, &jsRef));
+			jsRef = Napi::ObjectReference::New(bandcamp, 1);
 		}
-	}
-
-	void Bandcamp::performJSOp(Function<void(napi_env)> work) {
-		scripts::loadScriptsIfNeeded().then([=]() {
-			embed::nodejs::queueMain([=](napi_env env) {
-				initIfNeeded(env);
-				work(env);
-			});
-		});
 	}
 
 	Promise<Json> Bandcamp::search(String query, SearchOptions options) {

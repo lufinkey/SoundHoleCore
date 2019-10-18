@@ -9,7 +9,6 @@
 #pragma once
 
 #include <soundhole/common.hpp>
-#include <embed/nodejs/NodeJS.hpp>
 
 namespace sh {
 	class Bandcamp {

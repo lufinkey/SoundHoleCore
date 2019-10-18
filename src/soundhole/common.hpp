@@ -11,6 +11,7 @@
 #include <fgl/data.hpp>
 #include <fgl/async.hpp>
 #include <json11/json11.hpp>
+#include <embed/nodejs/NAPI_Types.hpp>
 
 namespace sh {
 	using namespace fgl;
