@@ -32,10 +32,6 @@ namespace sh {
 	private:
 		virtual void initializeJS(napi_env env) override;
 		
-		#ifdef NODE_API_MODULE
-		Napi::Object getJSAPI(napi_env env);
-		#endif
-		
 		napi_ref jsRef;
 	};
 }

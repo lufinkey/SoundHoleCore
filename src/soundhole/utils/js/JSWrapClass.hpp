@@ -19,5 +19,15 @@ namespace sh {
 		
 		Json jsonFromNAPIValue(napi_env env, napi_value value);
 		Promise<Json> jsonPromiseFromNAPIValue(napi_env env, napi_value value);
+		
+		#ifdef NODE_API_MODULE
+		template<typename NapiType>
+		NapiType jsValue(napi_env env, napi_ref ref) {
+			if(ref == nullptr) {
+				return NapiType();
+			}
+			return Napi::Reference<NapiType>(env, ref).Value();
+		}
+		#endif
 	};
 }
