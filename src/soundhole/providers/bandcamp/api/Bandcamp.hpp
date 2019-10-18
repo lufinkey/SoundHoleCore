@@ -9,10 +9,14 @@
 #pragma once
 
 #include <soundhole/common.hpp>
+#include <soundhole/utils/js/JSWrapClass.hpp>
 
 namespace sh {
-	class Bandcamp {
+	class Bandcamp: private JSWrapClass {
 	public:
+		Bandcamp(const Bandcamp&) = delete;
+		Bandcamp& operator=(const Bandcamp&) = delete;
+		
 		Bandcamp();
 		~Bandcamp();
 		
@@ -26,13 +30,10 @@ namespace sh {
 		Promise<Json> getArtist(String url);
 		
 	private:
-		void initIfNeeded(napi_env env);
-		void performJSOp(Function<void(napi_env)> work);
+		virtual void initializeJS(napi_env env) override;
 		
 		#ifdef NODE_API_MODULE
 		Napi::Object getJSAPI(napi_env env);
-		Json jsonFromNAPIValue(napi_env env, napi_value value);
-		Promise<Json> jsonPromiseFromNAPIValue(napi_env env, napi_value value);
 		#endif
 		
 		napi_ref jsRef;

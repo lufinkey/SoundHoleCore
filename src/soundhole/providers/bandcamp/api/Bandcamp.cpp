@@ -19,11 +19,9 @@ namespace sh {
 	}
 
 	Bandcamp::~Bandcamp() {
-		if(embed::nodejs::isRunning()) {
-			embed::nodejs::queueMain([=](napi_env env) {
-				Napi::ObjectReference(env, jsRef).Unref();
-			});
-		}
+		queueJSDestruct([=](napi_env env) {
+			Napi::ObjectReference(env, jsRef).Unref();
+		});
 	}
 
 	Napi::Object Bandcamp::getJSAPI(napi_env env) {
@@ -33,37 +31,7 @@ namespace sh {
 		return Napi::ObjectReference(env, jsRef).Value();
 	}
 
-	void Bandcamp::performJSOp(Function<void(napi_env)> work) {
-		scripts::loadScriptsIfNeeded().then([=]() {
-			embed::nodejs::queueMain([=](napi_env env) {
-				initIfNeeded(env);
-				work(env);
-			});
-		});
-	}
-
-	Json Bandcamp::jsonFromNAPIValue(napi_env env, napi_value value) {
-		auto jsExports = scripts::getJSExports(env);
-		auto resultJson = jsExports.Get("json_encode").As<Napi::Function>().Call({ value }).As<Napi::String>();
-		std::string parseError;
-		auto result = Json::parse(resultJson.Utf8Value(), parseError);
-		if(!parseError.empty()) {
-			throw BandcampError(BandcampError::Code::BAD_RESPONSE, parseError);
-		}
-		return result;
-	}
-
-	Promise<Json> Bandcamp::jsonPromiseFromNAPIValue(napi_env env, napi_value value) {
-		std::unique_ptr<Json> resultPtr;
-		try {
-			resultPtr = std::make_unique<Json>(jsonFromNAPIValue(env, value));
-		} catch(...) {
-			return Promise<Json>::reject(std::current_exception());
-		}
-		return Promise<Json>::resolve(std::move(*resultPtr.get()));
-	}
-
-	void Bandcamp::initIfNeeded(napi_env env) {
+	void Bandcamp::initializeJS(napi_env env) {
 		if(this->jsRef == nullptr) {
 			auto jsExports = scripts::getJSExports(env);
 			auto BandcampClass = jsExports.Get("Bandcamp").As<Napi::Function>();
@@ -74,7 +42,7 @@ namespace sh {
 
 	Promise<Json> Bandcamp::search(String query, SearchOptions options) {
 		return Promise<Json>([=](auto resolve, auto reject) {
-			performJSOp([=](napi_env env) {
+			queueJS([=](napi_env env) {
 				auto jsApi = getJSAPI(env);
 				if(jsApi.IsEmpty()) {
 					reject(BandcampError(BandcampError::Code::NOT_INITIALIZED, "Bandcamp not initialized"));
@@ -106,7 +74,7 @@ namespace sh {
 
 	Promise<Json> Bandcamp::getTrack(String url) {
 		return Promise<Json>([=](auto resolve, auto reject) {
-			performJSOp([=](napi_env env) {
+			queueJS([=](napi_env env) {
 				auto jsApi = getJSAPI(env);
 				if(jsApi.IsEmpty()) {
 					reject(BandcampError(BandcampError::Code::NOT_INITIALIZED, "Bandcamp not initialized"));
@@ -135,7 +103,7 @@ namespace sh {
 
 	Promise<Json> Bandcamp::getAlbum(String url) {
 		return Promise<Json>([=](auto resolve, auto reject) {
-			performJSOp([=](napi_env env) {
+			queueJS([=](napi_env env) {
 				auto jsApi = getJSAPI(env);
 				if(jsApi.IsEmpty()) {
 					reject(BandcampError(BandcampError::Code::NOT_INITIALIZED, "Bandcamp not initialized"));
@@ -164,7 +132,7 @@ namespace sh {
 
 	Promise<Json> Bandcamp::getArtist(String url) {
 		return Promise<Json>([=](auto resolve, auto reject) {
-			performJSOp([=](napi_env env) {
+			queueJS([=](napi_env env) {
 				auto jsApi = getJSAPI(env);
 				if(jsApi.IsEmpty()) {
 					reject(BandcampError(BandcampError::Code::NOT_INITIALIZED, "Bandcamp not initialized"));
