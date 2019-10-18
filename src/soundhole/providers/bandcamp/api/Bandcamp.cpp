@@ -23,6 +23,14 @@ namespace sh {
 		//
 	}
 
+	Bandcamp::~Bandcamp() {
+		if(embed::nodejs::isRunning()) {
+			embed::nodejs::queueMain([=](napi_env env) {
+				Napi::ObjectReference(env, jsRef).Unref();
+			});
+		}
+	}
+
 	Napi::Object Bandcamp::getJSAPI(napi_env env) {
 		if(jsRef == nullptr) {
 			return Napi::Object();
