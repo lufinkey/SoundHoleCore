@@ -17,7 +17,6 @@ namespace sh {
 		switch(code) {
 			CASE_CODE(NOT_INITIALIZED)
 			CASE_CODE(REQUEST_FAILED)
-			CASE_CODE(BAD_RESPONSE)
 		}
 		
 		#undef CASE_CODE
@@ -38,6 +37,6 @@ namespace sh {
 	}
 
 	String BandcampError::toString() const {
-		return "BandcampError: " + getMessage();
+		return "BandcampError[" + Code_toString(code) + "]: " + getMessage();
 	}
 }

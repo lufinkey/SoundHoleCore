@@ -32,7 +32,7 @@ namespace sh {
 		});
 	}
 
-	Json JSWrapClass::jsonFromNAPIValue(napi_env env, napi_value value) {
+	Json JSWrapClass::jsonFromNapiValue(napi_env env, napi_value value) {
 		auto jsExports = scripts::getJSExports(env);
 		auto resultJson = jsExports.Get("json_encode").As<Napi::Function>().Call({ value }).As<Napi::String>();
 		std::string parseError;
@@ -43,13 +43,7 @@ namespace sh {
 		return result;
 	}
 
-	Promise<Json> JSWrapClass::jsonPromiseFromNAPIValue(napi_env env, napi_value value) {
-		std::unique_ptr<Json> resultPtr;
-		try {
-			resultPtr = std::make_unique<Json>(jsonFromNAPIValue(env, value));
-		} catch(...) {
-			return Promise<Json>::reject(std::current_exception());
-		}
-		return Promise<Json>::resolve(std::move(*resultPtr.get()));
+	Json JSWrapClass::jsonFromNapiValue(Napi::Value value) {
+		return jsonFromNapiValue(value.Env(), value);
 	}
 }

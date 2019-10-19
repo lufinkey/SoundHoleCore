@@ -53,6 +53,7 @@ namespace sh::scripts {
 						scriptsLoadPromise.reset();
 						lock.unlock();
 						reject(std::runtime_error(error.what()));
+						error.Unref();
 						return;
 					} catch(...) {
 						std::unique_lock<std::mutex> lock(scriptsLoadPromiseMutex);

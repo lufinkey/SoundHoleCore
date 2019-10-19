@@ -43,4 +43,6 @@ namespace sh::utils {
 	using SharedHttpResponse = std::shared_ptr<HttpResponse>;
 	
 	Promise<SharedHttpResponse> performHttpRequest(HttpRequest request);
+	
+	String makeQueryString(std::map<String,String> params);
 }

@@ -27,7 +27,7 @@ CHECKOUT OPTIONS:
     :commit: d9c914942d381cbca461ee4fa39e97d766dea90a
     :git: "git@github.com:lufinkey/async-cpp.git"
   DataCpp:
-    :commit: f56179eab15b0b44f26af00711ab466395650df7
+    :commit: da76742a3ec52a019d5f7671de1e18c644479bf2
     :git: "git@github.com:lufinkey/data-cpp.git"
   NodeJSEmbed:
     :commit: 598bee3bd0234f001d976fb47b47eb574e5ccd68
@@ -44,4 +44,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 8d2415a7ad42a89c98cb9c73e755dd6df6813b94
 
-COCOAPODS: 1.8.1
+COCOAPODS: 1.8.4

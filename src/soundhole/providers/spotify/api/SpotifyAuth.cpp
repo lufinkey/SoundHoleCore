@@ -9,7 +9,6 @@
 #include "SpotifyAuth.hpp"
 #include "SpotifyError.hpp"
 #include <soundhole/utils/HttpClient.hpp>
-#include <soundhole/utils/Utils.hpp>
 
 namespace sh {
 	String SpotifyAuth::Options::getWebAuthenticationURL(String state) const {

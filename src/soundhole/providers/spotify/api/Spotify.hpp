@@ -16,13 +16,13 @@
 namespace sh {
 	class Spotify {
 	public:
-		Spotify(const Spotify&) = delete;
-		Spotify& operator=(const Spotify&) = delete;
-		
 		struct Options {
 			SpotifyAuth::Options auth;
 			SpotifyPlayer::Options player;
 		};
+		
+		Spotify(const Spotify&) = delete;
+		Spotify& operator=(const Spotify&) = delete;
 		
 		Spotify(Options options);
 		~Spotify();

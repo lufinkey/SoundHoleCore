@@ -7,7 +7,7 @@
 //
 
 #include "Spotify.hpp"
-#include <soundhole/utils/Utils.hpp>
+#include <soundhole/utils/HttpClient.hpp>
 
 namespace sh {
 	Spotify::Spotify(Options options)

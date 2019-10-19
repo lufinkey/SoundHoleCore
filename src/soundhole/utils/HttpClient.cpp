@@ -6,11 +6,12 @@
 //  Copyright © 2019 Luis Finke. All rights reserved.
 //
 
+#include <napi.h>
 #include "HttpClient.hpp"
 #include <stdexcept>
-#include <napi.h>
 #include <embed/nodejs/NodeJS.hpp>
 #include <soundhole/scripts/Scripts.hpp>
+#include <httplib/httplib.h>
 
 namespace sh::utils {
 	String HttpMethod_toString(HttpMethod method) {
@@ -82,6 +83,7 @@ namespace sh::utils {
 							}) });
 						} catch(Napi::Error& error) {
 							reject(std::runtime_error(error.what()));
+							error.Unref();
 						} catch(...) {
 							reject(std::current_exception());
 						}
@@ -91,5 +93,17 @@ namespace sh::utils {
 				}
 			});
 		});
+	}
+	
+	
+	
+	String makeQueryString(std::map<String,String> params) {
+		LinkedList<String> items;
+		for(auto& pair : params) {
+			items.pushBack(
+				httplib::detail::encode_url(pair.first) + "=" + httplib::detail::encode_url(pair.second)
+			);
+		}
+		return String::join(items, "&");
 	}
 }

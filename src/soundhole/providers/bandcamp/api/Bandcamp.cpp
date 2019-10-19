@@ -10,7 +10,6 @@
 #include "Bandcamp.hpp"
 #include "BandcampError.hpp"
 #include <soundhole/scripts/Scripts.hpp>
-#include <embed/nodejs/NodeJS.hpp>
 
 namespace sh {
 	Bandcamp::Bandcamp()
@@ -46,19 +45,16 @@ namespace sh {
 				auto promise = jsApi.Get("search").As<Napi::Function>().Call(jsApi, {
 					query.toNodeJSValue(env),
 					jsOptions
-				}).As<Napi::Promise>();
+				}).As<Napi::Object>();
 				promise.Get("then").As<Napi::Function>().Call(promise, {
 					// then
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
-						auto env = info.Env();
-						auto jsResult = info[0].As<Napi::Object>();
-						jsonPromiseFromNAPIValue(env, jsResult)
-							.then(nullptr, resolve, reject);
+						resolve(jsonFromNapiValue(info[0].As<Napi::Object>()));
 					}),
 					// catch
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
-						auto jsError = info[0].As<Napi::Error>();
-						reject(BandcampError(BandcampError::Code::REQUEST_FAILED, jsError.Message()));
+						auto errorMessage = info[0].As<Napi::Object>().Get("message").ToString();
+						reject(BandcampError(BandcampError::Code::REQUEST_FAILED, errorMessage));
 					})
 				});
 			});
@@ -75,19 +71,16 @@ namespace sh {
 				}
 				auto promise = jsApi.Get("getTrack").As<Napi::Function>().Call(jsApi, {
 					url.toNodeJSValue(env),
-				}).As<Napi::Promise>();
+				}).As<Napi::Object>();
 				promise.Get("then").As<Napi::Function>().Call(promise, {
 					// then
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
-						auto env = info.Env();
-						auto jsResult = info[0].As<Napi::Object>();
-						jsonPromiseFromNAPIValue(env, jsResult)
-							.then(nullptr, resolve, reject);
+						resolve(jsonFromNapiValue(info[0].As<Napi::Object>()));
 					}),
 					// catch
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
-						auto jsError = info[0].As<Napi::Error>();
-						reject(BandcampError(BandcampError::Code::REQUEST_FAILED, jsError.Message()));
+						auto errorMessage = info[0].As<Napi::Object>().Get("message").ToString();
+						reject(BandcampError(BandcampError::Code::REQUEST_FAILED, errorMessage));
 					})
 				});
 			});
@@ -104,19 +97,16 @@ namespace sh {
 				}
 				auto promise = jsApi.Get("getTrack").As<Napi::Function>().Call(jsApi, {
 					url.toNodeJSValue(env),
-				}).As<Napi::Promise>();
+				}).As<Napi::Object>();
 				promise.Get("then").As<Napi::Function>().Call(promise, {
 					// then
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
-						auto env = info.Env();
-						auto jsResult = info[0].As<Napi::Object>();
-						jsonPromiseFromNAPIValue(env, jsResult)
-							.then(nullptr, resolve, reject);
+						resolve(jsonFromNapiValue(info[0].As<Napi::Object>()));
 					}),
 					// catch
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
-						auto jsError = info[0].As<Napi::Error>();
-						reject(BandcampError(BandcampError::Code::REQUEST_FAILED, jsError.Message()));
+						auto errorMessage = info[0].As<Napi::Object>().Get("message").ToString();
+						reject(BandcampError(BandcampError::Code::REQUEST_FAILED, errorMessage));
 					})
 				});
 			});
@@ -133,19 +123,16 @@ namespace sh {
 				}
 				auto promise = jsApi.Get("getTrack").As<Napi::Function>().Call(jsApi, {
 					url.toNodeJSValue(env),
-				}).As<Napi::Promise>();
+				}).As<Napi::Object>();
 				promise.Get("then").As<Napi::Function>().Call(promise, {
 					// then
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
-						auto env = info.Env();
-						auto jsResult = info[0].As<Napi::Object>();
-						jsonPromiseFromNAPIValue(env, jsResult)
-							.then(nullptr, resolve, reject);
+						resolve(jsonFromNapiValue(info[0].As<Napi::Object>()));
 					}),
 					// catch
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
-						auto jsError = info[0].As<Napi::Error>();
-						reject(BandcampError(BandcampError::Code::REQUEST_FAILED, jsError.Message()));
+						auto errorMessage = info[0].As<Napi::Object>().Get("message").ToString();
+						reject(BandcampError(BandcampError::Code::REQUEST_FAILED, errorMessage));
 					})
 				});
 			});

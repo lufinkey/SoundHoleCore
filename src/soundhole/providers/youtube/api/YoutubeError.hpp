@@ -1,8 +1,8 @@
 //
-//  BandcampError.hpp
+//  YoutubeError.hpp
 //  SoundHoleCore
 //
-//  Created by Luis Finke on 10/16/19.
+//  Created by Luis Finke on 10/18/19.
 //  Copyright © 2019 Luis Finke. All rights reserved.
 //
 
@@ -11,7 +11,7 @@
 #include <soundhole/common.hpp>
 
 namespace sh {
-	class BandcampError: public Error {
+	class YoutubeError: public Error {
 	public:
 		enum class Code {
 			NOT_INITIALIZED,
@@ -20,7 +20,7 @@ namespace sh {
 		
 		static String Code_toString(Code code);
 		
-		BandcampError(Code code, String message);
+		YoutubeError(Code code, String message);
 		
 		Code getCode() const;
 		
