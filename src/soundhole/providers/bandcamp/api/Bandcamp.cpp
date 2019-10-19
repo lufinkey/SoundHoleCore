@@ -49,10 +49,7 @@ namespace sh {
 				promise.Get("then").As<Napi::Function>().Call(promise, {
 					// then
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
-						auto json = jsonFromNapiValue(info[0].As<Napi::Object>());
-						getDefaultPromiseQueue()->async([=]() {
-							resolve(searchResultsFromJson(json));
-						});
+						resolve(searchResultsFromNapiObject(info[0].As<Napi::Object>()));
 					}),
 					// catch
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
@@ -64,14 +61,15 @@ namespace sh {
 		});
 	}
 
-	Bandcamp::SearchResults Bandcamp::searchResultsFromJson(Json json) const {
+	Bandcamp::SearchResults Bandcamp::searchResultsFromNapiObject(Napi::Object results) const {
 		return SearchResults{
-			.prevURL = json["prevURL"].string_value(),
-			.nextURL = json["nextURL"].string_value(),
-			.items = ArrayList<Json>(json["items"].array_items()).map<SearchResults::Item>([=](auto item) -> SearchResults::Item {
+			.prevURL = stringFromNapiValue(results.Get("prevURL")),
+			.nextURL = stringFromNapiValue(results.Get("nextURL")),
+			.items = linkedListFromNapiArray<SearchResults::Item>(results.Get("items").template As<Napi::Array>(), [=](auto itemValue) -> SearchResults::Item {
+				auto item = itemValue.template As<Napi::Object>();
 				return SearchResults::Item{
 					.type = ([&]() -> MediaType {
-						auto mediaType = item["type"].string_value();
+						auto mediaType = stringFromNapiValue(item.Get("type"));
 						if(mediaType == "track") {
 							return MediaType::TRACK;
 						} else if(mediaType == "artist") {
@@ -86,26 +84,32 @@ namespace sh {
 							return MediaType::UNKNOWN;
 						}
 					})(),
-					.name = item["name"].string_value(),
-					.url = item["url"].string_value(),
-					.imageURL = item["imageURL"].string_value(),
-					.tags = ArrayList<Json>(item["tags"].array_items()).map<String>([](auto tag) -> String {
-						return tag.string_value();
+					.name = stringFromNapiValue(item.Get("name")),
+					.url = stringFromNapiValue(item.Get("url")),
+					.imageURL = stringFromNapiValue(item.Get("imageURL")),
+					.tags = arrayListFromNapiArray<String>(item.Get("tags").template As<Napi::Array>(), [](auto tag) -> String {
+						return tag.ToString();
 					}),
-					.genre = item["genre"].string_value(),
-					.releaseDate = item["releaseDate"].string_value(),
-					.artistName = item["artistName"].string_value(),
-					.artistURL = item["artistURL"].string_value(),
-					.albumName = item["albumName"].string_value(),
-					.albumURL = item["albumURL"].string_value(),
-					.location = item["location"].string_value(),
+					.genre = stringFromNapiValue(item.Get("genre")),
+					.releaseDate = stringFromNapiValue(item.Get("releaseDate")),
+					.artistName = stringFromNapiValue(item.Get("artistName")),
+					.artistURL = stringFromNapiValue(item.Get("artistURL")),
+					.albumName = stringFromNapiValue(item.Get("albumName")),
+					.albumURL = stringFromNapiValue(item.Get("albumURL")),
+					.location = stringFromNapiValue(item.Get("location")),
 					.numTracks = ([&]() -> Optional<size_t> {
-						auto numTracks = item["numTracks"];
-						return (!numTracks.is_null()) ? Optional<size_t>((size_t)numTracks.int_value()) : std::nullopt;
+						auto numTracks = item.Get("numTracks").template As<Napi::Number>();
+						if(numTracks.IsEmpty() || numTracks.IsNull() || numTracks.IsUndefined()) {
+							return std::nullopt;
+						}
+						return Optional<size_t>(numTracks.Int64Value());
 					})(),
 					.numMinutes = ([&]() -> Optional<size_t> {
-						auto numMinutes = item["numMinutes"];
-						return (!numMinutes.is_null()) ? Optional<size_t>((size_t)numMinutes.int_value()) : std::nullopt;
+						auto numMinutes = item.Get("numMinutes").template As<Napi::Number>();
+						if(numMinutes.IsEmpty() || numMinutes.IsNull() || numMinutes.IsUndefined()) {
+							return std::nullopt;
+						}
+						return Optional<size_t>(numMinutes.Int64Value());
 					})()
 				};
 			})

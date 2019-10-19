@@ -46,4 +46,11 @@ namespace sh {
 	Json JSWrapClass::jsonFromNapiValue(Napi::Value value) const {
 		return jsonFromNapiValue(value.Env(), value);
 	}
+
+	String JSWrapClass::stringFromNapiValue(Napi::Value value) const {
+		if(value.IsEmpty() || value.IsNull() || value.IsUndefined()) {
+			return "";
+		}
+		return value.ToString();
+	}
 }

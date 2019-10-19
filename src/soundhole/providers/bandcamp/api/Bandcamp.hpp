@@ -68,7 +68,9 @@ namespace sh {
 	private:
 		virtual void initializeJS(napi_env env) override;
 		
-		SearchResults searchResultsFromJson(Json json) const;
+		#ifdef NODE_API_MODULE
+		SearchResults searchResultsFromNapiObject(Napi::Object) const;
+		#endif
 		
 		napi_ref jsRef;
 	};
