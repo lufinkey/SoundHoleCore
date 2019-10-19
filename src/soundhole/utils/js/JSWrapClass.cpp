@@ -32,7 +32,7 @@ namespace sh {
 		});
 	}
 
-	Json JSWrapClass::jsonFromNapiValue(napi_env env, napi_value value) {
+	Json JSWrapClass::jsonFromNapiValue(napi_env env, napi_value value) const {
 		auto jsExports = scripts::getJSExports(env);
 		auto resultJson = jsExports.Get("json_encode").As<Napi::Function>().Call({ value }).As<Napi::String>();
 		std::string parseError;
@@ -43,7 +43,7 @@ namespace sh {
 		return result;
 	}
 
-	Json JSWrapClass::jsonFromNapiValue(Napi::Value value) {
+	Json JSWrapClass::jsonFromNapiValue(Napi::Value value) const {
 		return jsonFromNapiValue(value.Env(), value);
 	}
 }

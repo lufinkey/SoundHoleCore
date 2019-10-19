@@ -9,6 +9,15 @@
 #include "BandcampProvider.hpp"
 
 namespace sh {
+	BandcampProvider::BandcampProvider()
+	: bandcamp(new Bandcamp()) {
+		//
+	}
+
+	BandcampProvider::~BandcampProvider() {
+		delete bandcamp;
+	}
+
 	String BandcampProvider::getName() const {
 		return "bandcamp";
 	}

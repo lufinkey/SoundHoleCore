@@ -32,8 +32,8 @@ namespace sh {
 		}
 	}
 
-	Promise<Json> Bandcamp::search(String query, SearchOptions options) {
-		return Promise<Json>([=](auto resolve, auto reject) {
+	Promise<Bandcamp::SearchResults> Bandcamp::search(String query, SearchOptions options) {
+		return Promise<Bandcamp::SearchResults>([=](auto resolve, auto reject) {
 			queueJS([=](napi_env env) {
 				auto jsApi = jsValue<Napi::Object>(env, jsRef);
 				if(jsApi.IsEmpty()) {
@@ -49,7 +49,10 @@ namespace sh {
 				promise.Get("then").As<Napi::Function>().Call(promise, {
 					// then
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
-						resolve(jsonFromNapiValue(info[0].As<Napi::Object>()));
+						auto json = jsonFromNapiValue(info[0].As<Napi::Object>());
+						getDefaultPromiseQueue()->async([=]() {
+							resolve(searchResultsFromJson(json));
+						});
 					}),
 					// catch
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
@@ -59,6 +62,54 @@ namespace sh {
 				});
 			});
 		});
+	}
+
+	Bandcamp::SearchResults Bandcamp::searchResultsFromJson(Json json) const {
+		return SearchResults{
+			.prevURL = json["prevURL"].string_value(),
+			.nextURL = json["nextURL"].string_value(),
+			.items = ArrayList<Json>(json["items"].array_items()).map<SearchResults::Item>([=](auto item) -> SearchResults::Item {
+				return SearchResults::Item{
+					.type = ([&]() -> MediaType {
+						auto mediaType = item["type"].string_value();
+						if(mediaType == "track") {
+							return MediaType::TRACK;
+						} else if(mediaType == "artist") {
+							return MediaType::ARTIST;
+						} else if(mediaType == "album") {
+							return MediaType::ALBUM;
+						} else if(mediaType == "label") {
+							return MediaType::LABEL;
+						} else if(mediaType == "fan") {
+							return MediaType::FAN;
+						} else {
+							return MediaType::UNKNOWN;
+						}
+					})(),
+					.name = item["name"].string_value(),
+					.url = item["url"].string_value(),
+					.imageURL = item["imageURL"].string_value(),
+					.tags = ArrayList<Json>(item["tags"].array_items()).map<String>([](auto tag) -> String {
+						return tag.string_value();
+					}),
+					.genre = item["genre"].string_value(),
+					.releaseDate = item["releaseDate"].string_value(),
+					.artistName = item["artistName"].string_value(),
+					.artistURL = item["artistURL"].string_value(),
+					.albumName = item["albumName"].string_value(),
+					.albumURL = item["albumURL"].string_value(),
+					.location = item["location"].string_value(),
+					.numTracks = ([&]() -> Optional<size_t> {
+						auto numTracks = item["numTracks"];
+						return (!numTracks.is_null()) ? Optional<size_t>((size_t)numTracks.int_value()) : std::nullopt;
+					})(),
+					.numMinutes = ([&]() -> Optional<size_t> {
+						auto numMinutes = item["numMinutes"];
+						return (!numMinutes.is_null()) ? Optional<size_t>((size_t)numMinutes.int_value()) : std::nullopt;
+					})()
+				};
+			})
+		};
 	}
 
 	Promise<Json> Bandcamp::getTrack(String url) {

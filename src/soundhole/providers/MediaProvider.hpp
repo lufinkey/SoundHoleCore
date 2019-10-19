@@ -14,6 +14,10 @@
 namespace sh {
 	class MediaProvider {
 	public:
+		MediaProvider(const MediaProvider&) = delete;
+		MediaProvider& operator=(const MediaProvider&) = delete;
+		
+		MediaProvider() {};
 		virtual ~MediaProvider() {}
 		
 		virtual String getName() const = 0;

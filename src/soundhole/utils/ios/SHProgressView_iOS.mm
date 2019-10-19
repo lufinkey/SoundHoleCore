@@ -63,11 +63,10 @@
 		_hudView.transform = CGAffineTransformMakeScale(1.4, 1.4);
 		[view addSubview:self];
 		[UIView animateWithDuration:0.25 animations:^{
-			_hudView.alpha = 1;
-			_hudView.transform = CGAffineTransformIdentity;
+			self->_hudView.alpha = 1;
+			self->_hudView.transform = CGAffineTransformIdentity;
 		} completion:^(BOOL finished) {
-			if(completion != nil)
-			{
+			if(completion != nil) {
 				completion();
 			}
 		}];

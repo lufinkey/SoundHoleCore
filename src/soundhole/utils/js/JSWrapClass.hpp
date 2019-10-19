@@ -17,18 +17,20 @@ namespace sh {
 		void queueJS(Function<void(napi_env)> work);
 		void queueJSDestruct(Function<void(napi_env)> work);
 		
-		Json jsonFromNapiValue(napi_env env, napi_value value);
+		Json jsonFromNapiValue(napi_env env, napi_value value) const;
 		
 		#ifdef NODE_API_MODULE
-		Json jsonFromNapiValue(Napi::Value value);
+		
+		Json jsonFromNapiValue(Napi::Value value) const;
 		
 		template<typename NapiType>
-		NapiType jsValue(napi_env env, napi_ref ref) {
+		NapiType jsValue(napi_env env, napi_ref ref) const {
 			if(ref == nullptr) {
 				return NapiType();
 			}
 			return Napi::Reference<NapiType>(env, ref).Value();
 		}
+		
 		#endif
 	};
 }

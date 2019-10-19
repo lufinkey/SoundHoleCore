@@ -10,10 +10,14 @@
 
 #include <memory>
 #include <soundhole/providers/MediaProvider.hpp>
+#include "api/Bandcamp.hpp"
 
 namespace sh {
 	class BandcampProvider: public MediaProvider {
 	public:
+		BandcampProvider();
+		virtual ~BandcampProvider();
+		
 		virtual String getName() const override;
 		virtual String getDisplayName() const override;
 		
@@ -25,5 +29,8 @@ namespace sh {
 			LinkedList<std::shared_ptr<MediaItem*>> items;
 		};
 		virtual Promise<SearchResults> search(String text, SearchOptions options) const;
+		
+	private:
+		Bandcamp* bandcamp;
 	};
 }
