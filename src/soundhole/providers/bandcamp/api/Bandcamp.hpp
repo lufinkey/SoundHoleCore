@@ -10,46 +10,11 @@
 
 #include <soundhole/common.hpp>
 #include <soundhole/utils/js/JSWrapClass.hpp>
+#include "BandcampMediaTypes.hpp"
 
 namespace sh {
 	class Bandcamp: private JSWrapClass {
 	public:
-		enum class MediaType {
-			TRACK,
-			ARTIST,
-			ALBUM,
-			LABEL,
-			FAN,
-			UNKNOWN
-		};
-		
-		struct SearchResults {
-			struct Item {
-				MediaType type;
-				String name;
-				String url;
-				String imageURL;
-				ArrayList<String> tags;
-				String genre;
-				String releaseDate;
-				
-				String artistName;
-				String artistURL;
-				
-				String albumName;
-				String albumURL;
-				
-				String location;
-				
-				Optional<size_t> numTracks;
-				Optional<size_t> numMinutes;
-			};
-			
-			String prevURL;
-			String nextURL;
-			LinkedList<Item> items;
-		};
-		
 		Bandcamp(const Bandcamp&) = delete;
 		Bandcamp& operator=(const Bandcamp&) = delete;
 		
@@ -59,18 +24,14 @@ namespace sh {
 		struct SearchOptions {
 			size_t page = 0;
 		};
-		Promise<SearchResults> search(String query, SearchOptions options = SearchOptions{.page=0});
+		Promise<BandcampSearchResults> search(String query, SearchOptions options = SearchOptions{.page=0});
 		
-		Promise<Json> getTrack(String url);
-		Promise<Json> getAlbum(String url);
-		Promise<Json> getArtist(String url);
+		Promise<BandcampTrack> getTrack(String url);
+		Promise<BandcampAlbum> getAlbum(String url);
+		Promise<BandcampArtist> getArtist(String url);
 		
 	private:
 		virtual void initializeJS(napi_env env) override;
-		
-		#ifdef NODE_API_MODULE
-		SearchResults searchResultsFromNapiObject(Napi::Object) const;
-		#endif
 		
 		napi_ref jsRef;
 	};

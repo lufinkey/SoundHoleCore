@@ -32,8 +32,10 @@ namespace sh {
 		}
 	}
 
-	Promise<Bandcamp::SearchResults> Bandcamp::search(String query, SearchOptions options) {
-		return Promise<Bandcamp::SearchResults>([=](auto resolve, auto reject) {
+
+
+	Promise<BandcampSearchResults> Bandcamp::search(String query, SearchOptions options) {
+		return Promise<BandcampSearchResults>([=](auto resolve, auto reject) {
 			queueJS([=](napi_env env) {
 				auto jsApi = jsValue<Napi::Object>(env, jsRef);
 				if(jsApi.IsEmpty()) {
@@ -49,7 +51,7 @@ namespace sh {
 				promise.Get("then").As<Napi::Function>().Call(promise, {
 					// then
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
-						resolve(searchResultsFromNapiObject(info[0].As<Napi::Object>()));
+						resolve(BandcampSearchResults::fromNapiObject(info[0].As<Napi::Object>()));
 					}),
 					// catch
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
@@ -61,76 +63,27 @@ namespace sh {
 		});
 	}
 
-	Bandcamp::SearchResults Bandcamp::searchResultsFromNapiObject(Napi::Object results) const {
-		return SearchResults{
-			.prevURL = stringFromNapiValue(results.Get("prevURL")),
-			.nextURL = stringFromNapiValue(results.Get("nextURL")),
-			.items = linkedListFromNapiArray<SearchResults::Item>(results.Get("items").template As<Napi::Array>(), [=](auto itemValue) -> SearchResults::Item {
-				auto item = itemValue.template As<Napi::Object>();
-				return SearchResults::Item{
-					.type = ([&]() -> MediaType {
-						auto mediaType = stringFromNapiValue(item.Get("type"));
-						if(mediaType == "track") {
-							return MediaType::TRACK;
-						} else if(mediaType == "artist") {
-							return MediaType::ARTIST;
-						} else if(mediaType == "album") {
-							return MediaType::ALBUM;
-						} else if(mediaType == "label") {
-							return MediaType::LABEL;
-						} else if(mediaType == "fan") {
-							return MediaType::FAN;
+	Promise<BandcampTrack> Bandcamp::getTrack(String url) {
+		return Promise<BandcampTrack>([=](auto resolve, auto reject) {
+			queueJS([=](napi_env env) {
+				auto jsApi = jsValue<Napi::Object>(env, jsRef);
+				if(jsApi.IsEmpty()) {
+					reject(BandcampError(BandcampError::Code::NOT_INITIALIZED, "Bandcamp not initialized"));
+					return;
+				}
+				auto promise = jsApi.Get("getTrack").As<Napi::Function>().Call(jsApi, {
+					url.toNodeJSValue(env),
+				}).As<Napi::Object>();
+				promise.Get("then").As<Napi::Function>().Call(promise, {
+					// then
+					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
+						auto track = info[0].As<Napi::Object>();
+						auto mediaType = track.Get("type").ToString().Utf8Value();
+						if(mediaType != "track") {
+							reject(BandcampError(BandcampError::Code::MEDIATYPE_MISMATCH, "Bandcamp item is " + mediaType + ", not track"));
 						} else {
-							return MediaType::UNKNOWN;
+							resolve(BandcampTrack::fromNapiObject(track));
 						}
-					})(),
-					.name = stringFromNapiValue(item.Get("name")),
-					.url = stringFromNapiValue(item.Get("url")),
-					.imageURL = stringFromNapiValue(item.Get("imageURL")),
-					.tags = arrayListFromNapiArray<String>(item.Get("tags").template As<Napi::Array>(), [](auto tag) -> String {
-						return tag.ToString();
-					}),
-					.genre = stringFromNapiValue(item.Get("genre")),
-					.releaseDate = stringFromNapiValue(item.Get("releaseDate")),
-					.artistName = stringFromNapiValue(item.Get("artistName")),
-					.artistURL = stringFromNapiValue(item.Get("artistURL")),
-					.albumName = stringFromNapiValue(item.Get("albumName")),
-					.albumURL = stringFromNapiValue(item.Get("albumURL")),
-					.location = stringFromNapiValue(item.Get("location")),
-					.numTracks = ([&]() -> Optional<size_t> {
-						auto numTracks = item.Get("numTracks").template As<Napi::Number>();
-						if(numTracks.IsEmpty() || numTracks.IsNull() || numTracks.IsUndefined()) {
-							return std::nullopt;
-						}
-						return Optional<size_t>(numTracks.Int64Value());
-					})(),
-					.numMinutes = ([&]() -> Optional<size_t> {
-						auto numMinutes = item.Get("numMinutes").template As<Napi::Number>();
-						if(numMinutes.IsEmpty() || numMinutes.IsNull() || numMinutes.IsUndefined()) {
-							return std::nullopt;
-						}
-						return Optional<size_t>(numMinutes.Int64Value());
-					})()
-				};
-			})
-		};
-	}
-
-	Promise<Json> Bandcamp::getTrack(String url) {
-		return Promise<Json>([=](auto resolve, auto reject) {
-			queueJS([=](napi_env env) {
-				auto jsApi = jsValue<Napi::Object>(env, jsRef);
-				if(jsApi.IsEmpty()) {
-					reject(BandcampError(BandcampError::Code::NOT_INITIALIZED, "Bandcamp not initialized"));
-					return;
-				}
-				auto promise = jsApi.Get("getTrack").As<Napi::Function>().Call(jsApi, {
-					url.toNodeJSValue(env),
-				}).As<Napi::Object>();
-				promise.Get("then").As<Napi::Function>().Call(promise, {
-					// then
-					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
-						resolve(jsonFromNapiValue(info[0].As<Napi::Object>()));
 					}),
 					// catch
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
@@ -142,8 +95,8 @@ namespace sh {
 		});
 	}
 
-	Promise<Json> Bandcamp::getAlbum(String url) {
-		return Promise<Json>([=](auto resolve, auto reject) {
+	Promise<BandcampAlbum> Bandcamp::getAlbum(String url) {
+		return Promise<BandcampAlbum>([=](auto resolve, auto reject) {
 			queueJS([=](napi_env env) {
 				auto jsApi = jsValue<Napi::Object>(env, jsRef);
 				if(jsApi.IsEmpty()) {
@@ -156,7 +109,13 @@ namespace sh {
 				promise.Get("then").As<Napi::Function>().Call(promise, {
 					// then
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
-						resolve(jsonFromNapiValue(info[0].As<Napi::Object>()));
+						auto album = info[0].As<Napi::Object>();
+						auto mediaType = album.Get("type").ToString().Utf8Value();
+						if(mediaType != "album") {
+							reject(BandcampError(BandcampError::Code::MEDIATYPE_MISMATCH, "Bandcamp item is " + mediaType + ", not album"));
+						} else {
+							resolve(BandcampAlbum::fromNapiObject(album));
+						}
 					}),
 					// catch
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
@@ -168,8 +127,8 @@ namespace sh {
 		});
 	}
 
-	Promise<Json> Bandcamp::getArtist(String url) {
-		return Promise<Json>([=](auto resolve, auto reject) {
+	Promise<BandcampArtist> Bandcamp::getArtist(String url) {
+		return Promise<BandcampArtist>([=](auto resolve, auto reject) {
 			queueJS([=](napi_env env) {
 				auto jsApi = jsValue<Napi::Object>(env, jsRef);
 				if(jsApi.IsEmpty()) {
@@ -182,7 +141,13 @@ namespace sh {
 				promise.Get("then").As<Napi::Function>().Call(promise, {
 					// then
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
-						resolve(jsonFromNapiValue(info[0].As<Napi::Object>()));
+						auto artist = info[0].As<Napi::Object>();
+						auto mediaType = artist.Get("type").ToString().Utf8Value();
+						if(mediaType != "album") {
+							reject(BandcampError(BandcampError::Code::MEDIATYPE_MISMATCH, "Bandcamp item is " + mediaType + ", not artist"));
+						} else {
+							resolve(BandcampArtist::fromNapiObject(artist));
+						}
 					}),
 					// catch
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {

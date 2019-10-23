@@ -17,6 +17,7 @@ namespace sh {
 		switch(code) {
 			CASE_CODE(NOT_INITIALIZED)
 			CASE_CODE(REQUEST_FAILED)
+			CASE_CODE(MEDIATYPE_MISMATCH)
 		}
 		
 		#undef CASE_CODE

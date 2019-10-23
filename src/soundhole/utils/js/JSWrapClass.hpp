@@ -12,20 +12,20 @@
 
 namespace sh {
 	class JSWrapClass {
-	protected:
-		virtual void initializeJS(napi_env) = 0;
-		void queueJS(Function<void(napi_env)> work);
-		void queueJSDestruct(Function<void(napi_env)> work);
-		
-		Json jsonFromNapiValue(napi_env env, napi_value value) const;
+	public:
+		static Json jsonFromNapiValue(napi_env env, napi_value value);
 		
 		#ifdef NODE_API_MODULE
 		
-		Json jsonFromNapiValue(Napi::Value value) const;
-		String stringFromNapiValue(Napi::Value value) const;
+		static Json jsonFromNapiValue(Napi::Value value);
+		static String stringFromNapiValue(Napi::Value value);
+		static Optional<String> optStringFromNapiValue(Napi::Value value);
 		
 		template<typename T>
-		ArrayList<T> arrayListFromNapiArray(Napi::Array array, Function<T(Napi::Value)> transform) const {
+		static ArrayList<T> arrayListFromNapiArray(Napi::Array array, Function<T(Napi::Value)> transform) {
+			if(array.IsEmpty() || array.IsNull() || array.IsUndefined()) {
+				return {};
+			}
 			ArrayList<T> newList;
 			uint32_t listLength = array.Length();
 			newList.reserve((size_t)listLength);
@@ -36,13 +36,32 @@ namespace sh {
 		}
 		
 		template<typename T>
-		LinkedList<T> linkedListFromNapiArray(Napi::Array array, Function<T(Napi::Value)> transform) const {
+		static Optional<ArrayList<T>> optArrayListFromNapiArray(Napi::Array array, Function<T(Napi::Value)> transform) {
+			if(array.IsEmpty() || array.IsNull() || array.IsUndefined()) {
+				return std::nullopt;
+			}
+			return arrayListFromNapiArray<T>(array, transform);
+		}
+		
+		template<typename T>
+		static LinkedList<T> linkedListFromNapiArray(Napi::Array array, Function<T(Napi::Value)> transform) {
+			if(array.IsNull() || array.IsUndefined()) {
+				return {};
+			}
 			LinkedList<T> newList;
 			uint32_t listLength = array.Length();
 			for(uint32_t i=0; i<listLength; i++) {
 				newList.pushBack(transform(array.Get(i)));
 			}
 			return newList;
+		}
+		
+		template<typename T>
+		static Optional<LinkedList<T>> optLinkedListFromNapiArray(Napi::Array array, Function<T(Napi::Value)> transform) {
+			if(array.IsEmpty() || array.IsNull() || array.IsUndefined()) {
+				return std::nullopt;
+			}
+			return linkedListFromNapiArray<T>(array, transform);
 		}
 		
 		template<typename NapiType>
@@ -54,5 +73,10 @@ namespace sh {
 		}
 		
 		#endif
+		
+	protected:
+		virtual void initializeJS(napi_env) = 0;
+		void queueJS(Function<void(napi_env)> work);
+		void queueJSDestruct(Function<void(napi_env)> work);
 	};
 }

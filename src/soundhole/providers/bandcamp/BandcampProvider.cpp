@@ -25,9 +25,4 @@ namespace sh {
 	String BandcampProvider::getDisplayName() const {
 		return "Bandcamp";
 	}
-	
-	Promise<BandcampProvider::SearchResults> BandcampProvider::search(String text, SearchOptions options) const {
-		// TODO implement search
-		return Promise<SearchResults>::resolve(SearchResults{ .page = 0 });
-	}
 }

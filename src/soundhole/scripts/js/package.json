@@ -13,7 +13,7 @@
 	"author": "Luis Finke (luisfinke@gmail.com)",
 	"license": "UNLICENSED",
 	"dependencies": {
-		"bandcamp-api": "git+ssh://git@github.com:lufinkey/bandcamp-api.git",
+		"bandcamp-api": "git+ssh://git@github.com/lufinkey/bandcamp-api.git",
 		"ytdl-core": "^0.29.5"
 	},
 	"devDependencies": {

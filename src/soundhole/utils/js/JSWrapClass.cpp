@@ -32,7 +32,7 @@ namespace sh {
 		});
 	}
 
-	Json JSWrapClass::jsonFromNapiValue(napi_env env, napi_value value) const {
+	Json JSWrapClass::jsonFromNapiValue(napi_env env, napi_value value) {
 		auto jsExports = scripts::getJSExports(env);
 		auto resultJson = jsExports.Get("json_encode").As<Napi::Function>().Call({ value }).As<Napi::String>();
 		std::string parseError;
@@ -43,14 +43,21 @@ namespace sh {
 		return result;
 	}
 
-	Json JSWrapClass::jsonFromNapiValue(Napi::Value value) const {
+	Json JSWrapClass::jsonFromNapiValue(Napi::Value value) {
 		return jsonFromNapiValue(value.Env(), value);
 	}
 
-	String JSWrapClass::stringFromNapiValue(Napi::Value value) const {
+	String JSWrapClass::stringFromNapiValue(Napi::Value value) {
 		if(value.IsEmpty() || value.IsNull() || value.IsUndefined()) {
 			return "";
 		}
 		return value.ToString();
+	}
+
+	Optional<String> JSWrapClass::optStringFromNapiValue(Napi::Value value) {
+		if(value.IsEmpty() || value.IsNull() || value.IsUndefined()) {
+			return std::nullopt;
+		}
+		return String(value.ToString());
 	}
 }
