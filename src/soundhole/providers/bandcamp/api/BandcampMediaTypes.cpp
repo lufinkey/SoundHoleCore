@@ -76,20 +76,8 @@ namespace sh {
 					.albumName = JSWrapClass::stringFromNapiValue(item.Get("albumName")),
 					.albumURL = JSWrapClass::stringFromNapiValue(item.Get("albumURL")),
 					.location = JSWrapClass::stringFromNapiValue(item.Get("location")),
-					.numTracks = ([&]() -> Optional<size_t> {
-						auto numTracks = item.Get("numTracks");
-						if(numTracks.IsEmpty() || numTracks.IsNull() || numTracks.IsUndefined()) {
-							return std::nullopt;
-						}
-						return Optional<size_t>(numTracks.template As<Napi::Number>().Int64Value());
-					})(),
-					.numMinutes = ([&]() -> Optional<size_t> {
-						auto numMinutes = item.Get("numMinutes");
-						if(numMinutes.IsEmpty() || numMinutes.IsNull() || numMinutes.IsUndefined()) {
-							return std::nullopt;
-						}
-						return Optional<size_t>(numMinutes.template As<Napi::Number>().Int64Value());
-					})()
+					.numTracks = JSWrapClass::optSizeFromNapiValue(item.Get("numTracks")),
+					.numMinutes = JSWrapClass::optSizeFromNapiValue(item.Get("numMinutes"))
 				};
 			})
 		};

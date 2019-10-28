@@ -13,6 +13,27 @@
 namespace sh {
 	class JSWrapClass {
 	public:
+		template<typename T>
+		static ArrayList<T> arrayListFromJson(const Json& json, const Function<T(const Json&)>& transform) {
+			if(!json.is_array()) {
+				return {};
+			}
+			ArrayList<T> list;
+			list.reserve(json.array_items().size());
+			for(auto& jsonItem : json.array_items()) {
+				list.pushBack(transform(jsonItem));
+			}
+			return list;
+		}
+		
+		template<typename T>
+		static Optional<ArrayList<T>> optArrayListFromJson(const Json& json, const Function<T(const Json&)>& transform) {
+			if(json.is_null()) {
+				return std::nullopt;
+			}
+			return arrayListFromJson(json, transform);
+		}
+		
 		static Json jsonFromNapiValue(napi_env env, napi_value value);
 		
 		#ifdef NODE_API_MODULE
@@ -20,6 +41,8 @@ namespace sh {
 		static Json jsonFromNapiValue(Napi::Value value);
 		static String stringFromNapiValue(Napi::Value value);
 		static Optional<String> optStringFromNapiValue(Napi::Value value);
+		static size_t sizeFromNapiValue(Napi::Value value);
+		static Optional<size_t> optSizeFromNapiValue(Napi::Value value);
 		
 		template<typename T>
 		static ArrayList<T> arrayListFromNapiArray(Napi::Array array, Function<T(Napi::Value)> transform) {

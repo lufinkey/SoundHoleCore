@@ -287,156 +287,270 @@ namespace sh {
 	
 	
 	
-	Promise<Json> Spotify::getMe(Json options) {
-		return sendRequest(utils::HttpMethod::GET, "v1/me", options);
+	Promise<SpotifyUser> Spotify::getMe() {
+		return sendRequest(utils::HttpMethod::GET, "v1/me").map<SpotifyUser>([](auto json) {
+			return SpotifyUser::fromJson(json);
+		});
 	}
 	
-	Promise<Json> Spotify::search(String query, ArrayList<String> types, Json options) {
+	Promise<SpotifySearchResults> Spotify::search(String query, ArrayList<String> types, SearchOptions options) {
 		std::map<std::string,Json> params;
-		for(auto& pair : options.object_items()) {
-			params[pair.first] = pair.second;
+		if(!options.market.empty()) {
+			params["market"] = (std::string)options.market;
+		}
+		if(options.limit.has_value()) {
+			params["limit"] = std::to_string(options.limit.value());
+		}
+		if(options.offset.has_value()) {
+			params["offset"] = std::to_string(options.offset.value());
 		}
 		params["q"] = (std::string)query;
 		params["type"] = (std::string)String::join(types, ",");
-		return sendRequest(utils::HttpMethod::GET, "v1/search", params);
+		return sendRequest(utils::HttpMethod::GET, "v1/search", params).map<SpotifySearchResults>([](auto json) {
+			return SpotifySearchResults::fromJson(json);
+		});
 	}
 	
-	Promise<Json> Spotify::getAlbum(String albumId, Json options) {
+	Promise<SpotifyAlbum> Spotify::getAlbum(String albumId, GetAlbumOptions options) {
 		if(albumId.empty()) {
-			return Promise<Json>::reject(
+			return Promise<SpotifyAlbum>::reject(
 				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "albumId cannot be empty")
 			);
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/albums/"+albumId, options);
+		std::map<std::string,Json> params;
+		if(!options.market.empty()) {
+			params["market"] = (std::string)options.market;
+		}
+		return sendRequest(utils::HttpMethod::GET, "v1/albums/"+albumId, params).map<SpotifyAlbum>([](auto json) {
+			return SpotifyAlbum::fromJson(json);
+		});
 	}
 	
-	Promise<Json> Spotify::getAlbums(ArrayList<String> albumIds, Json options) {
+	Promise<ArrayList<SpotifyAlbum>> Spotify::getAlbums(ArrayList<String> albumIds, GetAlbumsOptions options) {
 		std::map<std::string,Json> params;
-		for(auto& pair : options.object_items()) {
-			params[pair.first] = pair.second;
+		if(!options.market.empty()) {
+			params["market"] = (std::string)options.market;
 		}
 		params["ids"] = (std::string)String::join(albumIds, ",");
-		return sendRequest(utils::HttpMethod::GET, "v1/albums", params);
+		return sendRequest(utils::HttpMethod::GET, "v1/albums", params).map<ArrayList<SpotifyAlbum>>([](auto json) {
+			auto albumItems = json["albums"].array_items();
+			ArrayList<SpotifyAlbum> albums;
+			albums.reserve(albumItems.size());
+			for(auto& albumJson : albumItems) {
+				albums.pushBack(SpotifyAlbum::fromJson(albumJson));
+			}
+			return albums;
+		});
 	}
 	
-	Promise<Json> Spotify::getAlbumTracks(String albumId, Json options) {
+	Promise<SpotifyPage<SpotifyTrack>> Spotify::getAlbumTracks(String albumId, GetAlbumTracksOptions options) {
 		if(albumId.empty()) {
-			return Promise<Json>::reject(
+			return Promise<SpotifyPage<SpotifyTrack>>::reject(
 				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "albumId cannot be empty")
 			);
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/albums/"+albumId+"/tracks", options);
-	}
-	
-	Promise<Json> Spotify::getArtist(String artistId, Json options) {
-		if(artistId.empty()) {
-			return Promise<Json>::reject(
-				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "artistId cannot be empty")
-			);
-		}
-		return sendRequest(utils::HttpMethod::GET, "v1/artists/"+artistId, options);
-	}
-	
-	Promise<Json> Spotify::getArtists(ArrayList<String> artistIds, Json options) {
 		std::map<std::string,Json> params;
-		for(auto& pair : options.object_items()) {
-			params[pair.first] = pair.second;
+		if(!options.market.empty()) {
+			params["market"] = (std::string)options.market;
 		}
-		params["ids"] = (std::string)String::join(artistIds, ",");
-		return sendRequest(utils::HttpMethod::GET, "v1/artists", params);
+		if(options.limit.has_value()) {
+			params["limit"] = std::to_string(options.limit.value());
+		}
+		if(options.offset.has_value()) {
+			params["offset"] = std::to_string(options.offset.value());
+		}
+		return sendRequest(utils::HttpMethod::GET, "v1/albums/"+albumId+"/tracks", params).map<SpotifyPage<SpotifyTrack>>([](auto json) {
+			return SpotifyPage<SpotifyTrack>::fromJson(json);
+		});
 	}
 	
-	Promise<Json> Spotify::getArtistAlbums(String artistId, Json options) {
+	Promise<SpotifyArtist> Spotify::getArtist(String artistId) {
 		if(artistId.empty()) {
-			return Promise<Json>::reject(
+			return Promise<SpotifyArtist>::reject(
 				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "artistId cannot be empty")
 			);
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/artists/"+artistId+"/albums", options);
+		return sendRequest(utils::HttpMethod::GET, "v1/artists/"+artistId).map<SpotifyArtist>([](auto json) {
+			return SpotifyArtist::fromJson(json);
+		});
 	}
 	
-	Promise<Json> Spotify::getArtistTopTracks(String artistId, String country, Json options) {
+	Promise<ArrayList<SpotifyArtist>> Spotify::getArtists(ArrayList<String> artistIds) {
+		std::map<std::string,Json> params;
+		params["ids"] = (std::string)String::join(artistIds, ",");
+		return sendRequest(utils::HttpMethod::GET, "v1/artists", params).map<ArrayList<SpotifyArtist>>([](auto json) {
+			auto artistItems = json["artists"].array_items();
+			ArrayList<SpotifyArtist> artists;
+			artists.reserve(artistItems.size());
+			for(auto& artistJson : artistItems) {
+				artists.pushBack(SpotifyArtist::fromJson(artistJson));
+			}
+			return artists;
+		});
+	}
+	
+	Promise<SpotifyPage<SpotifyAlbum>> Spotify::getArtistAlbums(String artistId, GetArtistAlbumsOptions options) {
 		if(artistId.empty()) {
-			return Promise<Json>::reject(
+			return Promise<SpotifyPage<SpotifyAlbum>>::reject(
+				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "artistId cannot be empty")
+			);
+		}
+		std::map<std::string,Json> params;
+		if(!options.market.empty()) {
+			params["market"] = (std::string)options.market;
+		}
+		if(!options.includeGroups.empty()) {
+			params["include_groups"] = (std::string)String::join(options.includeGroups, ",");
+		}
+		if(options.limit.has_value()) {
+			params["limit"] = std::to_string(options.limit.value());
+		}
+		if(options.offset.has_value()) {
+			params["offset"] = std::to_string(options.offset.value());
+		}
+		return sendRequest(utils::HttpMethod::GET, "v1/artists/"+artistId+"/albums", params).map<SpotifyPage<SpotifyAlbum>>([](auto json) {
+			return SpotifyPage<SpotifyAlbum>::fromJson(json);
+		});
+	}
+	
+	Promise<ArrayList<SpotifyTrack>> Spotify::getArtistTopTracks(String artistId, String country, GetArtistTopTracksOptions options) {
+		if(artistId.empty()) {
+			return Promise<ArrayList<SpotifyTrack>>::reject(
 				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "artistId cannot be empty")
 			);
 		} else if(country.empty()) {
-			return Promise<Json>::reject(
+			return Promise<ArrayList<SpotifyTrack>>::reject(
 				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "country cannot be empty")
 			);
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/artists/"+artistId+"/top-tracks", options);
+		std::map<std::string,Json> params;
+		if(!options.market.empty()) {
+			params["market"] = (std::string)options.market;
+		}
+		params["country"] = (std::string)country;
+		return sendRequest(utils::HttpMethod::GET, "v1/artists/"+artistId+"/top-tracks", params).map<ArrayList<SpotifyTrack>>([](auto json) {
+			auto trackItems = json["tracks"].array_items();
+			ArrayList<SpotifyTrack> tracks;
+			tracks.reserve(trackItems.size());
+			for(auto& trackJson : trackItems) {
+				tracks.pushBack(SpotifyTrack::fromJson(trackJson));
+			}
+			return tracks;
+		});
 	}
 	
-	Promise<Json> Spotify::getArtistRelatedArtists(String artistId, Json options) {
+	Promise<ArrayList<SpotifyArtist>> Spotify::getArtistRelatedArtists(String artistId) {
 		if(artistId.empty()) {
-			return Promise<Json>::reject(
+			return Promise<ArrayList<SpotifyArtist>>::reject(
 				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "artistId cannot be empty")
 			);
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/artists/"+artistId+"/related-artists", options);
+		return sendRequest(utils::HttpMethod::GET, "v1/artists/"+artistId+"/related-artists").map<ArrayList<SpotifyArtist>>([](auto json) {
+			auto artistItems = json["artists"].array_items();
+			ArrayList<SpotifyArtist> artists;
+			artists.reserve(artistItems.size());
+			for(auto& artistJson : artistItems) {
+				artists.pushBack(SpotifyArtist::fromJson(artistJson));
+			}
+			return artists;
+		});
 	}
 	
-	Promise<Json> Spotify::getTrack(String trackId, Json options) {
+	Promise<SpotifyTrack> Spotify::getTrack(String trackId, GetTrackOptions options) {
 		if(trackId.empty()) {
-			return Promise<Json>::reject(
+			return Promise<SpotifyTrack>::reject(
 				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "trackId cannot be empty")
 			);
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/tracks/"+trackId, options);
+		std::map<std::string,Json> params;
+		if(!options.market.empty()) {
+			params["market"] = (std::string)options.market;
+		}
+		return sendRequest(utils::HttpMethod::GET, "v1/tracks/"+trackId, params).map<SpotifyTrack>([](auto json) {
+			return SpotifyTrack::fromJson(json);
+		});
 	}
 	
-	Promise<Json> Spotify::getTracks(ArrayList<String> trackIds, Json options) {
+	Promise<ArrayList<SpotifyTrack>> Spotify::getTracks(ArrayList<String> trackIds, GetTracksOptions options) {
 		std::map<std::string,Json> params;
-		for(auto& pair : options.object_items()) {
-			params[pair.first] = pair.second;
+		if(!options.market.empty()) {
+			params["market"] = (std::string)options.market;
 		}
 		params["ids"] = (std::string)String::join(trackIds, ",");
-		return sendRequest(utils::HttpMethod::GET, "v1/tracks", params);
+		return sendRequest(utils::HttpMethod::GET, "v1/tracks", params).map<ArrayList<SpotifyTrack>>([](auto json) {
+			auto trackItems = json["tracks"].array_items();
+			ArrayList<SpotifyTrack> tracks;
+			tracks.reserve(trackItems.size());
+			for(auto& trackJson : trackItems) {
+				tracks.pushBack(SpotifyTrack::fromJson(trackJson));
+			}
+			return tracks;
+		});
 	}
 	
-	Promise<Json> Spotify::getTrackAudioAnalysis(String trackId, Json options) {
+	Promise<Json> Spotify::getTrackAudioAnalysis(String trackId) {
 		if(trackId.empty()) {
 			return Promise<Json>::reject(
 				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "trackId cannot be empty")
 			);
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/audio-analysis/"+trackId, options);
+		return sendRequest(utils::HttpMethod::GET, "v1/audio-analysis/"+trackId);
 	}
 	
-	Promise<Json> Spotify::getTrackAudioFeatures(String trackId, Json options) {
+	Promise<Json> Spotify::getTrackAudioFeatures(String trackId) {
 		if(trackId.empty()) {
 			return Promise<Json>::reject(
 				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "trackId cannot be empty")
 			);
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/audio-features/"+trackId, options);
+		return sendRequest(utils::HttpMethod::GET, "v1/audio-features/"+trackId);
 	}
 	
-	Promise<Json> Spotify::getTracksAudioFeatures(ArrayList<String> trackIds, Json options) {
+	Promise<Json> Spotify::getTracksAudioFeatures(ArrayList<String> trackIds) {
 		std::map<std::string,Json> params;
-		for(auto& pair : options.object_items()) {
-			params[pair.first] = pair.second;
-		}
 		params["ids"] = (std::string)String::join(trackIds, ",");
 		return sendRequest(utils::HttpMethod::GET, "v1/audio-features", params);
 	}
 	
-	Promise<Json> Spotify::getPlaylist(String playlistId, Json options) {
+	Promise<SpotifyPlaylist> Spotify::getPlaylist(String playlistId, GetPlaylistOptions options) {
 		if(playlistId.empty()) {
-			return Promise<Json>::reject(
+			return Promise<SpotifyPlaylist>::reject(
 				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "playlistId cannot be empty")
 			);
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/playlists/"+playlistId, options);
+		std::map<std::string,Json> params;
+		if(!options.market.empty()) {
+			params["market"] = (std::string)options.market;
+		}
+		if(!options.fields.empty()) {
+			params["fields"] = (std::string)options.fields;
+		}
+		return sendRequest(utils::HttpMethod::GET, "v1/playlists/"+playlistId, params).map<SpotifyPlaylist>([](auto json) {
+			return SpotifyPlaylist::fromJson(json);
+		});
 	}
 	
-	Promise<Json> Spotify::getPlaylistTracks(String playlistId, Json options) {
+	Promise<SpotifyPage<SpotifyPlaylist::Item>> Spotify::getPlaylistTracks(String playlistId, GetPlaylistTracksOptions options) {
 		if(playlistId.empty()) {
-			return Promise<Json>::reject(
+			return Promise<SpotifyPage<SpotifyPlaylist::Item>>::reject(
 				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "playlistId cannot be empty")
 			);
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/playlists/"+playlistId+"/tracks", options);
+		std::map<std::string,Json> params;
+		if(!options.market.empty()) {
+			params["market"] = (std::string)options.market;
+		}
+		if(!options.fields.empty()) {
+			params["fields"] = (std::string)options.fields;
+		}
+		if(options.limit.has_value()) {
+			params["limit"] = std::to_string(options.limit.value());
+		}
+		if(options.offset.has_value()) {
+			params["offset"] = std::to_string(options.offset.value());
+		}
+		return sendRequest(utils::HttpMethod::GET, "v1/playlists/"+playlistId+"/tracks", params).map<SpotifyPage<SpotifyPlaylist::Item>>([](auto json) {
+			return SpotifyPage<SpotifyPlaylist::Item>::fromJson(json);
+		});
 	}
 }

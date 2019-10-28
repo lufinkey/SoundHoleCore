@@ -13,9 +13,9 @@
 namespace sh {
 	struct BandcampImage;
 	struct BandcampSearchResults;
+	struct BandcampArtist;
 	struct BandcampTrack;
 	struct BandcampAlbum;
-	struct BandcampArtist;
 	struct BandcampShow;
 	struct BandcampLink;
 
@@ -39,7 +39,8 @@ namespace sh {
 		static BandcampImage fromNapiObject(Napi::Object);
 		#endif
 	};
-	
+
+
 	struct BandcampSearchResults {
 		struct Item {
 			enum class Type {
@@ -80,6 +81,7 @@ namespace sh {
 		#endif
 	};
 
+
 	struct BandcampArtist {
 		String url;
 		String name;
@@ -95,7 +97,8 @@ namespace sh {
 		static BandcampArtist fromNapiObject(Napi::Object);
 		#endif
 	};
-	
+
+
 	struct BandcampTrack {
 		String url;
 		String name;
@@ -114,7 +117,8 @@ namespace sh {
 		static BandcampTrack fromNapiObject(Napi::Object);
 		#endif
 	};
-	
+
+
 	struct BandcampAlbum {
 		String url;
 		String name;
@@ -131,7 +135,8 @@ namespace sh {
 		static BandcampAlbum fromNapiObject(Napi::Object);
 		#endif
 	};
-	
+
+
 	struct BandcampShow {
 		String date;
 		String url;
@@ -142,7 +147,8 @@ namespace sh {
 		static BandcampShow fromNapiObject(Napi::Object);
 		#endif
 	};
-	
+
+
 	struct BandcampLink {
 		String name;
 		String url;

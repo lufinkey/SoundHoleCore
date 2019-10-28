@@ -60,4 +60,18 @@ namespace sh {
 		}
 		return String(value.ToString());
 	}
+
+	size_t JSWrapClass::sizeFromNapiValue(Napi::Value value) {
+		if(value.IsEmpty() || value.IsNull() || value.IsUndefined()) {
+			return 0;
+		}
+		return (size_t)value.As<Napi::Number>().Int64Value();
+	}
+
+	Optional<size_t> JSWrapClass::optSizeFromNapiValue(Napi::Value value) {
+		if(value.IsEmpty() || value.IsNull() || value.IsUndefined()) {
+			return std::nullopt;
+		}
+		return sizeFromNapiValue(value);
+	}
 }
