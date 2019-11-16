@@ -17,6 +17,7 @@ namespace sh {
 		switch(code) {
 			CASE_CODE(NOT_INITIALIZED)
 			CASE_CODE(REQUEST_FAILED)
+			CASE_CODE(BAD_DATA)
 		}
 		
 		#undef CASE_CODE

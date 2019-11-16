@@ -14,6 +14,19 @@
 namespace sh {
 	String YOUTUBE_API_URL = "https://www.googleapis.com/youtube/v3";
 
+	String Youtube::MediaType_toString(MediaType mediaType) {
+		switch(mediaType) {
+			case MediaType::VIDEO:
+				return "video";
+			case MediaType::CHANNEL:
+				return "channel";
+			case MediaType::PLAYLIST:
+				return "playlist";
+		}
+		throw std::runtime_error("invalid MediaType value");
+	}
+
+
 	Youtube::Youtube(Options options)
 	: options(options), jsRef(nullptr) {
 		//
@@ -61,25 +74,22 @@ namespace sh {
 		});
 	}
 
-	Promise<Json> Youtube::search(String query, SearchOptions options) {
+	Promise<YoutubePage<YoutubeSearchResult>> Youtube::search(String query, SearchOptions options) {
 		auto params = std::map<String,String>();
 		params["q"] = query;
 		params["part"] = "id,snippet";
 		if(options.types.size() > 0) {
 			params["type"] = String::join(options.types.map<String>([](auto& type) -> String {
-				switch(type) {
-					case MediaType::VIDEO:
-						return "video";
-					case MediaType::CHANNEL:
-						return "channel";
-					case MediaType::PLAYLIST:
-						return "playlist";
-					default:
-						throw std::runtime_error("invalid MediaType value");
-				}
+				return MediaType_toString(type);
 			}), ",");
 		}
-		return sendApiRequest(utils::HttpMethod::GET, "search", params, nullptr);
+		if(options.pageToken.has_value()) {
+			params["pageToken"] = options.pageToken.value();
+		}
+		return sendApiRequest(utils::HttpMethod::GET, "search", params, nullptr)
+		.map<YoutubePage<YoutubeSearchResult>>([](auto json) {
+			return YoutubePage<YoutubeSearchResult>::fromJson(json);
+		});
 	}
 
 	Promise<Json> Youtube::getVideoInfo(String id) {
@@ -108,24 +118,30 @@ namespace sh {
 		});
 	}
 
-	Promise<Json> Youtube::getVideo(String id) {
+	Promise<YoutubeVideo> Youtube::getVideo(String id) {
 		return sendApiRequest(utils::HttpMethod::GET, "videos", {
 			{ "id", id },
 			{ "part", "id,snippet" }
-		}, nullptr);
+		}, nullptr).map<YoutubeVideo>([](auto json) {
+			return YoutubeVideo::fromJson(json);
+		});
 	}
 
-	Promise<Json> Youtube::getChannel(String id) {
+	Promise<YoutubeChannel> Youtube::getChannel(String id) {
 		return sendApiRequest(utils::HttpMethod::GET, "channels", {
 			{ "id", id },
 			{ "part", "id,snippet" }
-		}, nullptr);
+		}, nullptr).map<YoutubeChannel>([](auto json) {
+			return YoutubeChannel::fromJson(json);
+		});
 	}
 
-	Promise<Json> Youtube::getPlaylist(String id) {
+	Promise<YoutubePlaylist> Youtube::getPlaylist(String id) {
 		return sendApiRequest(utils::HttpMethod::GET, "playlists", {
 			{ "id", id },
 			{ "part", "id,snippet" }
-		}, nullptr);
+		}, nullptr).map<YoutubePlaylist>([](auto json) {
+			return YoutubePlaylist::fromJson(json);
+		});
 	}
 }

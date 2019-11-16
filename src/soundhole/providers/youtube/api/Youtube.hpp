@@ -11,6 +11,7 @@
 #include <soundhole/common.hpp>
 #include <soundhole/utils/js/JSWrapClass.hpp>
 #include <soundhole/utils/HttpClient.hpp>
+#include "YoutubeMediaTypes.hpp"
 
 namespace sh {
 	class Youtube: private JSWrapClass {
@@ -20,6 +21,8 @@ namespace sh {
 			CHANNEL,
 			PLAYLIST
 		};
+		
+		static String MediaType_toString(MediaType);
 		
 		struct Options {
 			String apiKey;
@@ -37,13 +40,13 @@ namespace sh {
 			Optional<String> pageToken;
 			ArrayList<MediaType> types;
 		};
-		Promise<Json> search(String query, SearchOptions options);
+		Promise<YoutubePage<YoutubeSearchResult>> search(String query, SearchOptions options);
 		
 		Promise<Json> getVideoInfo(String id);
 		
-		Promise<Json> getVideo(String id);
-		Promise<Json> getChannel(String id);
-		Promise<Json> getPlaylist(String id);
+		Promise<YoutubeVideo> getVideo(String id);
+		Promise<YoutubeChannel> getChannel(String id);
+		Promise<YoutubePlaylist> getPlaylist(String id);
 		
 	private:
 		virtual void initializeJS(napi_env env) override;
