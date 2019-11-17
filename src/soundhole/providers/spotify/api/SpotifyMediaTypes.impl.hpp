@@ -9,7 +9,7 @@
 #pragma once
 
 #include <soundhole/common.hpp>
-#include <soundhole/utils/js/JSWrapClass.hpp>
+#include <soundhole/utils/js/JSUtils.hpp>
 
 namespace sh {
 	template<typename T>
@@ -21,7 +21,7 @@ namespace sh {
 			.total = (size_t)json["total"].number_value(),
 			.previous = json["previous"].string_value(),
 			.next = json["next"].string_value(),
-			.items = JSWrapClass::arrayListFromJson<T>(json["items"], [](auto& item) -> T {
+			.items = jsutils::arrayListFromJson<T>(json["items"], [](auto& item) -> T {
 				return T::fromJson(item);
 			})
 		};

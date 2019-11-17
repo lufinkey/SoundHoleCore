@@ -8,14 +8,14 @@
 
 #include <napi.h>
 #include "BandcampMediaTypes.hpp"
-#include <soundhole/utils/js/JSWrapClass.hpp>
+#include <soundhole/utils/js/JSUtils.hpp>
 
 namespace sh {
 	BandcampImage BandcampImage::fromNapiObject(Napi::Object image) {
 		return BandcampImage{
-			.url = JSWrapClass::stringFromNapiValue(image.Get("url")),
+			.url = jsutils::stringFromNapiValue(image.Get("url")),
 			.size = ([&]() -> Size {
-				auto size = JSWrapClass::stringFromNapiValue(image.Get("size"));
+				auto size = jsutils::stringFromNapiValue(image.Get("size"));
 				if(size == "small") {
 					return Size::SMALL;
 				} else if(size == "medium") {
@@ -42,13 +42,13 @@ namespace sh {
 
 	BandcampSearchResults BandcampSearchResults::fromNapiObject(Napi::Object results) {
 		return BandcampSearchResults{
-			.prevURL = JSWrapClass::stringFromNapiValue(results.Get("prevURL")),
-			.nextURL = JSWrapClass::stringFromNapiValue(results.Get("nextURL")),
-			.items = JSWrapClass::arrayListFromNapiArray<Item>(results.Get("items").template As<Napi::Array>(), [=](auto itemValue) -> Item {
+			.prevURL = jsutils::stringFromNapiValue(results.Get("prevURL")),
+			.nextURL = jsutils::stringFromNapiValue(results.Get("nextURL")),
+			.items = jsutils::arrayListFromNapiArray<Item>(results.Get("items").template As<Napi::Array>(), [=](auto itemValue) -> Item {
 				auto item = itemValue.template As<Napi::Object>();
 				return Item{
 					.type = ([&]() -> Item::Type {
-						auto mediaType = JSWrapClass::stringFromNapiValue(item.Get("type"));
+						auto mediaType = jsutils::stringFromNapiValue(item.Get("type"));
 						if(mediaType == "track") {
 							return Item::Type::TRACK;
 						} else if(mediaType == "artist") {
@@ -63,43 +63,43 @@ namespace sh {
 							return Item::Type::UNKNOWN;
 						}
 					})(),
-					.name = JSWrapClass::stringFromNapiValue(item.Get("name")),
-					.url = JSWrapClass::stringFromNapiValue(item.Get("url")),
-					.imageURL = JSWrapClass::stringFromNapiValue(item.Get("imageURL")),
-					.tags = JSWrapClass::arrayListFromNapiArray<String>(item.Get("tags").template As<Napi::Array>(), [](auto tag) -> String {
+					.name = jsutils::stringFromNapiValue(item.Get("name")),
+					.url = jsutils::stringFromNapiValue(item.Get("url")),
+					.imageURL = jsutils::stringFromNapiValue(item.Get("imageURL")),
+					.tags = jsutils::arrayListFromNapiArray<String>(item.Get("tags").template As<Napi::Array>(), [](auto tag) -> String {
 						return tag.ToString();
 					}),
-					.genre = JSWrapClass::stringFromNapiValue(item.Get("genre")),
-					.releaseDate = JSWrapClass::stringFromNapiValue(item.Get("releaseDate")),
-					.artistName = JSWrapClass::stringFromNapiValue(item.Get("artistName")),
-					.artistURL = JSWrapClass::stringFromNapiValue(item.Get("artistURL")),
-					.albumName = JSWrapClass::stringFromNapiValue(item.Get("albumName")),
-					.albumURL = JSWrapClass::stringFromNapiValue(item.Get("albumURL")),
-					.location = JSWrapClass::stringFromNapiValue(item.Get("location")),
-					.numTracks = JSWrapClass::optSizeFromNapiValue(item.Get("numTracks")),
-					.numMinutes = JSWrapClass::optSizeFromNapiValue(item.Get("numMinutes"))
+					.genre = jsutils::stringFromNapiValue(item.Get("genre")),
+					.releaseDate = jsutils::stringFromNapiValue(item.Get("releaseDate")),
+					.artistName = jsutils::stringFromNapiValue(item.Get("artistName")),
+					.artistURL = jsutils::stringFromNapiValue(item.Get("artistURL")),
+					.albumName = jsutils::stringFromNapiValue(item.Get("albumName")),
+					.albumURL = jsutils::stringFromNapiValue(item.Get("albumURL")),
+					.location = jsutils::stringFromNapiValue(item.Get("location")),
+					.numTracks = jsutils::optSizeFromNapiValue(item.Get("numTracks")),
+					.numMinutes = jsutils::optSizeFromNapiValue(item.Get("numMinutes"))
 				};
 			})
 		};
 	}
 
 	BandcampArtist BandcampArtist::fromNapiObject(Napi::Object artist) {
-		auto type = JSWrapClass::stringFromNapiValue(artist.Get("type"));
+		auto type = jsutils::stringFromNapiValue(artist.Get("type"));
 		return BandcampArtist{
-			.url = JSWrapClass::stringFromNapiValue(artist.Get("url")),
-			.name = JSWrapClass::stringFromNapiValue(artist.Get("name")),
-			.location = JSWrapClass::stringFromNapiValue(artist.Get("location")),
-			.description = JSWrapClass::stringFromNapiValue(artist.Get("description")),
-			.images = JSWrapClass::arrayListFromNapiArray<BandcampImage>(artist.Get("images").As<Napi::Array>(), [](auto image) -> BandcampImage {
+			.url = jsutils::stringFromNapiValue(artist.Get("url")),
+			.name = jsutils::stringFromNapiValue(artist.Get("name")),
+			.location = jsutils::stringFromNapiValue(artist.Get("location")),
+			.description = jsutils::stringFromNapiValue(artist.Get("description")),
+			.images = jsutils::arrayListFromNapiArray<BandcampImage>(artist.Get("images").As<Napi::Array>(), [](auto image) -> BandcampImage {
 				return BandcampImage::fromNapiObject(image.template As<Napi::Object>());
 			}),
-			.shows = JSWrapClass::arrayListFromNapiArray<BandcampShow>(artist.Get("shows").As<Napi::Array>(), [](auto show) -> BandcampShow {
+			.shows = jsutils::arrayListFromNapiArray<BandcampShow>(artist.Get("shows").As<Napi::Array>(), [](auto show) -> BandcampShow {
 				return BandcampShow::fromNapiObject(show.template As<Napi::Object>());
 			}),
-			.links = JSWrapClass::arrayListFromNapiArray<BandcampLink>(artist.Get("shows").As<Napi::Array>(), [](auto link) -> BandcampLink {
+			.links = jsutils::arrayListFromNapiArray<BandcampLink>(artist.Get("shows").As<Napi::Array>(), [](auto link) -> BandcampLink {
 				return BandcampLink::fromNapiObject(link.template As<Napi::Object>());
 			}),
-			.albums = JSWrapClass::optArrayListFromNapiArray<BandcampAlbum>(artist.Get("albums").As<Napi::Array>(), [](auto album) -> BandcampAlbum {
+			.albums = jsutils::optArrayListFromNapiArray<BandcampAlbum>(artist.Get("albums").As<Napi::Array>(), [](auto album) -> BandcampAlbum {
 				return BandcampAlbum::fromNapiObject(album.template As<Napi::Object>());
 			}),
 			.isLabel = (type == "label")
@@ -108,13 +108,13 @@ namespace sh {
 
 	BandcampTrack BandcampTrack::fromNapiObject(Napi::Object track) {
 		return BandcampTrack{
-			.url = JSWrapClass::stringFromNapiValue(track.Get("url")),
-			.name = JSWrapClass::stringFromNapiValue(track.Get("name")),
-			.images = JSWrapClass::arrayListFromNapiArray<BandcampImage>(track.Get("images").As<Napi::Array>(), [](auto image) -> BandcampImage {
+			.url = jsutils::stringFromNapiValue(track.Get("url")),
+			.name = jsutils::stringFromNapiValue(track.Get("name")),
+			.images = jsutils::arrayListFromNapiArray<BandcampImage>(track.Get("images").As<Napi::Array>(), [](auto image) -> BandcampImage {
 				return BandcampImage::fromNapiObject(image.template As<Napi::Object>());
 			}),
-			.artistName = JSWrapClass::stringFromNapiValue(track.Get("artistName")),
-			.artistURL = JSWrapClass::stringFromNapiValue(track.Get("artistURL")),
+			.artistName = jsutils::stringFromNapiValue(track.Get("artistName")),
+			.artistURL = jsutils::stringFromNapiValue(track.Get("artistURL")),
 			.artist = ([&]() -> Optional<BandcampArtist> {
 				auto artist = track.Get("artist");
 				if(artist.IsEmpty() || artist.IsNull() || artist.IsUndefined()) {
@@ -122,9 +122,9 @@ namespace sh {
 				}
 				return BandcampArtist::fromNapiObject(artist.template As<Napi::Object>());
 			})(),
-			.albumName = JSWrapClass::stringFromNapiValue(track.Get("albumName")),
-			.albumURL = JSWrapClass::stringFromNapiValue(track.Get("albumURL")),
-			.audioURL = JSWrapClass::optStringFromNapiValue(track.Get("audioURL")),
+			.albumName = jsutils::stringFromNapiValue(track.Get("albumName")),
+			.albumURL = jsutils::stringFromNapiValue(track.Get("albumURL")),
+			.audioURL = jsutils::optStringFromNapiValue(track.Get("audioURL")),
 			.duration = ([&]() -> Optional<double> {
 				auto duration = track.Get("duration");
 				if(duration.IsNull() || duration.IsUndefined()) {
@@ -132,22 +132,22 @@ namespace sh {
 				}
 				return duration.template As<Napi::Number>().DoubleValue();
 			})(),
-			.tags = JSWrapClass::optArrayListFromNapiArray<String>(track.Get("tags").As<Napi::Array>(), [](auto tag) -> String {
+			.tags = jsutils::optArrayListFromNapiArray<String>(track.Get("tags").As<Napi::Array>(), [](auto tag) -> String {
 				return tag.ToString();
 			}),
-			.description = JSWrapClass::optStringFromNapiValue(track.Get("description"))
+			.description = jsutils::optStringFromNapiValue(track.Get("description"))
 		};
 	}
 
 	BandcampAlbum BandcampAlbum::fromNapiObject(Napi::Object album) {
 		return BandcampAlbum{
-			.url = JSWrapClass::stringFromNapiValue(album.Get("url")),
-			.name = JSWrapClass::stringFromNapiValue(album.Get("name")),
-			.images = JSWrapClass::arrayListFromNapiArray<BandcampImage>(album.Get("images").As<Napi::Array>(), [](auto image) -> BandcampImage {
+			.url = jsutils::stringFromNapiValue(album.Get("url")),
+			.name = jsutils::stringFromNapiValue(album.Get("name")),
+			.images = jsutils::arrayListFromNapiArray<BandcampImage>(album.Get("images").As<Napi::Array>(), [](auto image) -> BandcampImage {
 				return BandcampImage::fromNapiObject(image.template As<Napi::Object>());
 			}),
-			.artistName = JSWrapClass::stringFromNapiValue(album.Get("artistName")),
-			.artistURL = JSWrapClass::stringFromNapiValue(album.Get("artistURL")),
+			.artistName = jsutils::stringFromNapiValue(album.Get("artistName")),
+			.artistURL = jsutils::stringFromNapiValue(album.Get("artistURL")),
 			.artist = ([&]() -> Optional<BandcampArtist> {
 				auto artist = album.Get("artist");
 				if(artist.IsEmpty() || artist.IsNull() || artist.IsUndefined()) {
@@ -155,7 +155,7 @@ namespace sh {
 				}
 				return BandcampArtist::fromNapiObject(artist.template As<Napi::Object>());
 			})(),
-			.tracks = JSWrapClass::optArrayListFromNapiArray<BandcampTrack>(album.Get("tracks").As<Napi::Array>(), [](auto track) -> BandcampTrack {
+			.tracks = jsutils::optArrayListFromNapiArray<BandcampTrack>(album.Get("tracks").As<Napi::Array>(), [](auto track) -> BandcampTrack {
 				return BandcampTrack::fromNapiObject(track.template As<Napi::Object>());
 			}),
 			.numTracks = ([&]() -> Optional<size_t> {
@@ -169,26 +169,26 @@ namespace sh {
 				}
 				return std::nullopt;
 			})(),
-			.tags = JSWrapClass::optArrayListFromNapiArray<String>(album.Get("tags").As<Napi::Array>(), [](auto tag) -> String {
+			.tags = jsutils::optArrayListFromNapiArray<String>(album.Get("tags").As<Napi::Array>(), [](auto tag) -> String {
 				return tag.ToString();
 			}),
-			.description = JSWrapClass::optStringFromNapiValue(album.Get("description"))
+			.description = jsutils::optStringFromNapiValue(album.Get("description"))
 		};
 	}
 
 	BandcampShow BandcampShow::fromNapiObject(Napi::Object show) {
 		return BandcampShow{
-			.date = JSWrapClass::stringFromNapiValue(show.Get("date")),
-			.url = JSWrapClass::stringFromNapiValue(show.Get("url")),
-			.venueName = JSWrapClass::stringFromNapiValue(show.Get("venueName")),
-			.location = JSWrapClass::stringFromNapiValue(show.Get("location"))
+			.date = jsutils::stringFromNapiValue(show.Get("date")),
+			.url = jsutils::stringFromNapiValue(show.Get("url")),
+			.venueName = jsutils::stringFromNapiValue(show.Get("venueName")),
+			.location = jsutils::stringFromNapiValue(show.Get("location"))
 		};
 	}
 
 	BandcampLink BandcampLink::fromNapiObject(Napi::Object link) {
 		return BandcampLink{
-			.name = JSWrapClass::stringFromNapiValue(link.Get("name")),
-			.url = JSWrapClass::stringFromNapiValue(link.Get("url"))
+			.name = jsutils::stringFromNapiValue(link.Get("name")),
+			.url = jsutils::stringFromNapiValue(link.Get("url"))
 		};
 	}
 }

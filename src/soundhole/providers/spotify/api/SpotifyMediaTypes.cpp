@@ -98,7 +98,7 @@ namespace sh {
 				}
 				return displayName.string_value();
 			})(),
-			.images = JSWrapClass::optArrayListFromJson<SpotifyImage>(json["images"], [&](auto& json) {
+			.images = jsutils::optArrayListFromJson<SpotifyImage>(json["images"], [&](auto& json) {
 				return SpotifyImage::fromJson(json);
 			}),
 			.externalURLs = SpotifyExternalURL::arrayFromJson(json["external_urls"]),
@@ -115,7 +115,7 @@ namespace sh {
 			.href = json["href"].string_value(),
 			.name = json["name"].string_value(),
 			.externalURLs = SpotifyExternalURL::arrayFromJson(json["external_urls"]),
-			.images = JSWrapClass::optArrayListFromJson<SpotifyImage>(json["images"], [&](auto& json) {
+			.images = jsutils::optArrayListFromJson<SpotifyImage>(json["images"], [&](auto& json) {
 				return SpotifyImage::fromJson(json);
 			}),
 			.genres = ([&]() -> Optional<ArrayList<String>> {
@@ -150,17 +150,17 @@ namespace sh {
 			.uri = json["uri"].string_value(),
 			.href = json["href"].string_value(),
 			.name = json["name"].string_value(),
-			.artists = JSWrapClass::arrayListFromJson<SpotifyArtist>(json["artists"], [&](auto& json) {
+			.artists = jsutils::arrayListFromJson<SpotifyArtist>(json["artists"], [&](auto& json) {
 				return SpotifyArtist::fromJson(json);
 			}),
-			.images = JSWrapClass::arrayListFromJson<SpotifyImage>(json["images"], [&](auto& json) {
+			.images = jsutils::arrayListFromJson<SpotifyImage>(json["images"], [&](auto& json) {
 				return SpotifyImage::fromJson(json);
 			}),
 			.externalURLs = SpotifyExternalURL::arrayFromJson(json["external_urls"]),
-			.availableMarkets = JSWrapClass::optArrayListFromJson<String>(json["available_markets"], [&](auto& json) -> String {
+			.availableMarkets = jsutils::optArrayListFromJson<String>(json["available_markets"], [&](auto& json) -> String {
 				return json.string_value();
 			}),
-			.copyrights = JSWrapClass::optArrayListFromJson<SpotifyCopyright>(json["copyrights"], [&](auto& json) {
+			.copyrights = jsutils::optArrayListFromJson<SpotifyCopyright>(json["copyrights"], [&](auto& json) {
 				return SpotifyCopyright::fromJson(json);
 			}),
 			.label = ([&]() -> Optional<String> {
@@ -192,10 +192,10 @@ namespace sh {
 				}
 				return SpotifyAlbum::fromJson(album);
 			})(),
-			.artists = JSWrapClass::arrayListFromJson<SpotifyArtist>(json["artists"], [&](auto& json) {
+			.artists = jsutils::arrayListFromJson<SpotifyArtist>(json["artists"], [&](auto& json) {
 				return SpotifyArtist::fromJson(json);
 			}),
-			.availableMarkets = JSWrapClass::optArrayListFromJson<String>(json["available_markets"], [&](auto& json) -> String {
+			.availableMarkets = jsutils::optArrayListFromJson<String>(json["available_markets"], [&](auto& json) -> String {
 				return json.string_value();
 			}),
 			.externalIds = SpotifyExternalId::arrayFromJson(json["external_ids"]),
@@ -227,7 +227,7 @@ namespace sh {
 				return description.string_value();
 			})(),
 			.snapshotId = json["snapshot_id"].string_value(),
-			.images = JSWrapClass::arrayListFromJson<SpotifyImage>(json["images"], [&](auto& json) {
+			.images = jsutils::arrayListFromJson<SpotifyImage>(json["images"], [&](auto& json) {
 				return SpotifyImage::fromJson(json);
 			}),
 			.tracks = SpotifyPage<SpotifyPlaylist::Item>::fromJson(json["tracks"]),

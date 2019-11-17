@@ -27,7 +27,7 @@ CHECKOUT OPTIONS:
     :commit: d9c914942d381cbca461ee4fa39e97d766dea90a
     :git: "git@github.com:lufinkey/async-cpp.git"
   DataCpp:
-    :commit: da76742a3ec52a019d5f7671de1e18c644479bf2
+    :commit: e487103330510fd286ad1caee637e10a36013e64
     :git: "git@github.com:lufinkey/data-cpp.git"
   NodeJSEmbed:
     :commit: 598bee3bd0234f001d976fb47b47eb574e5ccd68

@@ -92,11 +92,11 @@ namespace sh {
 		});
 	}
 
-	Promise<Json> Youtube::getVideoInfo(String id) {
+	Promise<YoutubeVideoInfo> Youtube::getVideoInfo(String id) {
 		String url = "https://www.youtube.com/watch?v=" + id;
-		return Promise<Json>([=](auto resolve, auto reject) {
+		return Promise<YoutubeVideoInfo>([=](auto resolve, auto reject) {
 			queueJS([=](napi_env env) {
-				auto jsApi = jsValue<Napi::Object>(env, jsRef);
+				auto jsApi = jsutils::jsValue<Napi::Object>(env, jsRef);
 				if(jsApi.IsEmpty()) {
 					reject(YoutubeError(YoutubeError::Code::NOT_INITIALIZED, "ytdl not initialized"));
 					return;
@@ -110,7 +110,7 @@ namespace sh {
 							auto errorMessage = error.Get("message").ToString();
 							reject(YoutubeError(YoutubeError::Code::REQUEST_FAILED, errorMessage));
 						} else {
-							resolve(jsonFromNapiValue(result));
+							resolve(YoutubeVideoInfo::fromNapiObject(result));
 						}
 					})
 				});

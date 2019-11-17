@@ -42,7 +42,7 @@ namespace sh {
 		};
 		Promise<YoutubePage<YoutubeSearchResult>> search(String query, SearchOptions options);
 		
-		Promise<Json> getVideoInfo(String id);
+		Promise<YoutubeVideoInfo> getVideoInfo(String id);
 		
 		Promise<YoutubeVideo> getVideo(String id);
 		Promise<YoutubeChannel> getChannel(String id);

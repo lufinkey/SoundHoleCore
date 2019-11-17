@@ -192,6 +192,133 @@ namespace sh {
 		
 		static YoutubePlaylist fromJson(const Json&);
 	};
+
+
+
+	struct YoutubeVideoInfo {
+		struct Image {
+			String url;
+			size_t width;
+			size_t height;
+			
+			#ifdef NODE_API_MODULE
+			static Image fromNapiObject(Napi::Object);
+			#endif
+		};
+		
+		struct AudioFormat {
+			String projectionType;
+			String clen;
+			String init;
+			String fps;
+			String index;
+			
+			String itag;
+			String url;
+			String type;
+			
+			String quality;
+			String qualityLabel;
+			String size;
+			
+			String sp;
+			String s;
+			String container;
+			String resolution;
+			String encoding;
+			String profile;
+			String bitrate;
+			String audioEncoding;
+			Optional<size_t> audioBitrate;
+			
+			bool live;
+			bool isHLS;
+			bool isDashMPD;
+			
+			#ifdef NODE_API_MODULE
+			static AudioFormat fromNapiObject(Napi::Object);
+			#endif
+		};
+		
+		struct VideoDetails {
+			struct Thumbnail {
+				ArrayList<Image> thumbnails;
+				
+				#ifdef NODE_API_MODULE
+				static Thumbnail fromNapiObject(Napi::Object);
+				static Optional<Thumbnail> maybeFromNapiObject(Napi::Object);
+				#endif
+			};
+			
+			String videoId;
+			String title;
+			String lengthSeconds;
+			ArrayList<String> keywords;
+			String channelId;
+			bool isCrawlable;
+			Optional<Thumbnail> thumbnail;
+			String viewCount;
+			String author;
+			bool isLiveContent;
+			
+			#ifdef NODE_API_MODULE
+			static VideoDetails fromNapiObject(Napi::Object);
+			static Optional<VideoDetails> maybeFromNapiObject(Napi::Object);
+			#endif
+		};
+		
+		struct PlayerResponse {
+			Optional<VideoDetails> videoDetails;
+			
+			#ifdef NODE_API_MODULE
+			static PlayerResponse fromNapiObject(Napi::Object);
+			static Optional<PlayerResponse> maybeFromNapiObject(Napi::Object);
+			#endif
+		};
+		
+		struct Media {
+			String categoryURL;
+			String category;
+			String song;
+			String artistURL;
+			String artist;
+			String licensedToYoutubeBy;
+			
+			#ifdef NODE_API_MODULE
+			static Media fromNapiObject(Napi::Object);
+			static Optional<Media> maybeFromNapiObject(Napi::Object);
+			#endif
+		};
+		
+		struct Author {
+			String id;
+			String name;
+			String avatar;
+			bool verified;
+			String user;
+			String channelURL;
+			String userURL;
+			
+			#ifdef NODE_API_MODULE
+			static Author fromNapiObject(Napi::Object);
+			static Optional<Author> maybeFromNapiObject(Napi::Object);
+			#endif
+		};
+		
+		String videoId;
+		String thumbnailURL;
+		String title;
+		ArrayList<AudioFormat> formats;
+		double published;
+		String description;
+		Optional<Media> media;
+		Optional<Author> author;
+		Optional<PlayerResponse> playerResponse;
+		
+		#ifdef NODE_API_MODULE
+		static YoutubeVideoInfo fromNapiObject(Napi::Object);
+		#endif
+	};
 }
 
 #include "YoutubeMediaTypes.impl.hpp"

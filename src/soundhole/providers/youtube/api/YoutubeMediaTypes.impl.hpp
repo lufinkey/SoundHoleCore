@@ -9,7 +9,7 @@
 #pragma once
 
 #include <soundhole/common.hpp>
-#include <soundhole/utils/js/JSWrapClass.hpp>
+#include <soundhole/utils/js/JSUtils.hpp>
 
 namespace sh {
 	template<typename T>
@@ -29,7 +29,7 @@ namespace sh {
 			.nextPageToken = json["nextPageToken"].string_value(),
 			.regionCode = json["regionCode"].string_value(),
 			.pageInfo = PageInfo::fromJson(json["pageInfo"]),
-			.items = JSWrapClass::arrayListFromJson<T>(json["items"], [](auto& json){
+			.items = jsutils::arrayListFromJson<T>(json["items"], [](auto& json){
 				return T::fromJson(json);
 			})
 		};

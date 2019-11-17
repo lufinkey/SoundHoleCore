@@ -10,6 +10,7 @@
 #include "Bandcamp.hpp"
 #include "BandcampError.hpp"
 #include <soundhole/scripts/Scripts.hpp>
+#include <soundhole/utils/js/JSUtils.hpp>
 
 namespace sh {
 	Bandcamp::Bandcamp()
@@ -37,7 +38,7 @@ namespace sh {
 	Promise<BandcampSearchResults> Bandcamp::search(String query, SearchOptions options) {
 		return Promise<BandcampSearchResults>([=](auto resolve, auto reject) {
 			queueJS([=](napi_env env) {
-				auto jsApi = jsValue<Napi::Object>(env, jsRef);
+				auto jsApi = jsutils::jsValue<Napi::Object>(env, jsRef);
 				if(jsApi.IsEmpty()) {
 					reject(BandcampError(BandcampError::Code::NOT_INITIALIZED, "Bandcamp not initialized"));
 					return;
@@ -66,7 +67,7 @@ namespace sh {
 	Promise<BandcampTrack> Bandcamp::getTrack(String url) {
 		return Promise<BandcampTrack>([=](auto resolve, auto reject) {
 			queueJS([=](napi_env env) {
-				auto jsApi = jsValue<Napi::Object>(env, jsRef);
+				auto jsApi = jsutils::jsValue<Napi::Object>(env, jsRef);
 				if(jsApi.IsEmpty()) {
 					reject(BandcampError(BandcampError::Code::NOT_INITIALIZED, "Bandcamp not initialized"));
 					return;
@@ -98,7 +99,7 @@ namespace sh {
 	Promise<BandcampAlbum> Bandcamp::getAlbum(String url) {
 		return Promise<BandcampAlbum>([=](auto resolve, auto reject) {
 			queueJS([=](napi_env env) {
-				auto jsApi = jsValue<Napi::Object>(env, jsRef);
+				auto jsApi = jsutils::jsValue<Napi::Object>(env, jsRef);
 				if(jsApi.IsEmpty()) {
 					reject(BandcampError(BandcampError::Code::NOT_INITIALIZED, "Bandcamp not initialized"));
 					return;
@@ -130,7 +131,7 @@ namespace sh {
 	Promise<BandcampArtist> Bandcamp::getArtist(String url) {
 		return Promise<BandcampArtist>([=](auto resolve, auto reject) {
 			queueJS([=](napi_env env) {
-				auto jsApi = jsValue<Napi::Object>(env, jsRef);
+				auto jsApi = jsutils::jsValue<Napi::Object>(env, jsRef);
 				if(jsApi.IsEmpty()) {
 					reject(BandcampError(BandcampError::Code::NOT_INITIALIZED, "Bandcamp not initialized"));
 					return;

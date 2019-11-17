@@ -6,9 +6,10 @@
 //  Copyright © 2019 Luis Finke. All rights reserved.
 //
 
+#include <napi.h>
 #include "YoutubeMediaTypes.hpp"
 #include "YoutubeError.hpp"
-#include <soundhole/utils/js/JSWrapClass.hpp>
+#include <soundhole/utils/js/JSUtils.hpp>
 
 namespace sh {
 	YoutubeImage::Size YoutubeImage::Size_fromString(const std::string& str) {
@@ -116,7 +117,7 @@ namespace sh {
 			.description = json["description"].string_value(),
 			.publishedAt = json["publishedAt"].string_value(),
 			.thumbnails = YoutubeImage::arrayFromJson(json["thumbnails"]),
-			.tags = JSWrapClass::arrayListFromJson<String>(json["tags"], [](auto& json) {
+			.tags = jsutils::arrayListFromJson<String>(json["tags"], [](auto& json) {
 				return json.string_value();
 			}),
 			.categoryId = json["categoryId"].string_value(),
@@ -202,7 +203,7 @@ namespace sh {
 			.description = json["description"].string_value(),
 			.publishedAt = json["publishedAt"].string_value(),
 			.thumbnails = YoutubeImage::arrayFromJson(json["thumbnails"]),
-			.tags = JSWrapClass::arrayListFromJson<String>(json["tags"], [](auto& json) {
+			.tags = jsutils::arrayListFromJson<String>(json["tags"], [](auto& json) {
 				return json.string_value();
 			}),
 			.defaultLanguage = json["defaultLanguage"].string_value(),
@@ -224,5 +225,139 @@ namespace sh {
 			}
 		}
 		return std::nullopt;
+	}
+
+
+
+
+	YoutubeVideoInfo YoutubeVideoInfo::fromNapiObject(Napi::Object obj) {
+		return YoutubeVideoInfo{
+			.videoId = jsutils::stringFromNapiValue(obj.Get("video_id")),
+			.thumbnailURL = jsutils::stringFromNapiValue(obj.Get("thumbnail_url")),
+			.title = jsutils::stringFromNapiValue(obj.Get("title")),
+			.formats = jsutils::arrayListFromNapiValue<AudioFormat>(obj.Get("formats"), [](Napi::Value value) {
+				return AudioFormat::fromNapiObject(value.As<Napi::Object>());
+			}),
+			.published = obj.Get("published").As<Napi::Number>().DoubleValue(),
+			.description = jsutils::stringFromNapiValue(obj.Get("description")),
+			.media = Media::maybeFromNapiObject(obj.Get("media").As<Napi::Object>()),
+			.author = Author::maybeFromNapiObject(obj.Get("author").As<Napi::Object>()),
+			.playerResponse = PlayerResponse::maybeFromNapiObject(obj.Get("player_response").As<Napi::Object>())
+		};
+	}
+
+	YoutubeVideoInfo::Image YoutubeVideoInfo::Image::fromNapiObject(Napi::Object obj) {
+		return Image{
+			.url = jsutils::stringFromNapiValue(obj.Get("url")),
+			.width = (size_t)obj.Get("width").As<Napi::Number>().Int64Value(),
+			.height = (size_t)obj.Get("height").As<Napi::Number>().Int64Value()
+		};
+	}
+
+	YoutubeVideoInfo::AudioFormat YoutubeVideoInfo::AudioFormat::fromNapiObject(Napi::Object obj) {
+		return AudioFormat{
+			.projectionType = jsutils::stringFromNapiValue(obj.Get("projection_type")),
+			.clen = jsutils::stringFromNapiValue(obj.Get("clen")),
+			.init = jsutils::stringFromNapiValue(obj.Get("init")),
+			.fps = jsutils::stringFromNapiValue(obj.Get("fps")),
+			.index = jsutils::stringFromNapiValue(obj.Get("index")),
+			
+			.itag = jsutils::stringFromNapiValue(obj.Get("itag")),
+			.url = jsutils::stringFromNapiValue(obj.Get("url")),
+			.type = jsutils::stringFromNapiValue(obj.Get("type")),
+			
+			.quality = jsutils::stringFromNapiValue(obj.Get("quality")),
+			.qualityLabel = jsutils::stringFromNapiValue(obj.Get("quality_label")),
+			.size = jsutils::stringFromNapiValue(obj.Get("size")),
+			
+			.sp = jsutils::stringFromNapiValue(obj.Get("sp")),
+			.s = jsutils::stringFromNapiValue(obj.Get("s")),
+			.container = jsutils::stringFromNapiValue(obj.Get("container")),
+			.resolution = jsutils::stringFromNapiValue(obj.Get("resolution")),
+			.encoding = jsutils::stringFromNapiValue(obj.Get("encoding")),
+			.profile = jsutils::stringFromNapiValue(obj.Get("profile")),
+			.bitrate = jsutils::stringFromNapiValue(obj.Get("bitrate")),
+			
+			.audioEncoding = jsutils::stringFromNapiValue(obj.Get("audioEncoding")),
+			.audioBitrate = jsutils::optSizeFromNapiValue(obj.Get("audioBitrate")),
+			
+			.live = obj.Get("live").ToBoolean(),
+			.isHLS = obj.Get("isHLS").ToBoolean(),
+			.isDashMPD = obj.Get("isDashMPD").ToBoolean()
+		};
+	}
+
+	YoutubeVideoInfo::PlayerResponse YoutubeVideoInfo::PlayerResponse::fromNapiObject(Napi::Object obj) {
+		return PlayerResponse{
+			.videoDetails = VideoDetails::maybeFromNapiObject(obj.Get("videoDetails").As<Napi::Object>())
+		};
+	}
+	
+	Optional<YoutubeVideoInfo::PlayerResponse> YoutubeVideoInfo::PlayerResponse::maybeFromNapiObject(Napi::Object obj) {
+		if(obj.IsEmpty() || obj.IsNull() || obj.IsUndefined()) {
+			return std::nullopt;
+		}
+		return fromNapiObject(obj);
+	}
+
+	YoutubeVideoInfo::VideoDetails YoutubeVideoInfo::VideoDetails::fromNapiObject(Napi::Object obj) {
+		return VideoDetails{
+			.videoId = jsutils::stringFromNapiValue(obj.Get("videoId")),
+			.title = jsutils::stringFromNapiValue(obj.Get("title")),
+			.lengthSeconds = jsutils::stringFromNapiValue(obj.Get("lengthSeconds")),
+			.keywords = jsutils::arrayListFromNapiValue<String>(obj.Get("keywords"), [](Napi::Value obj) {
+				return jsutils::stringFromNapiValue(obj);
+			}),
+			.channelId = jsutils::stringFromNapiValue(obj.Get("channelId")),
+			.isCrawlable = obj.Get("isCrawlable").ToBoolean(),
+			.thumbnail = Thumbnail::maybeFromNapiObject(obj.Get("thumbnail").As<Napi::Object>()),
+			.viewCount = jsutils::stringFromNapiValue(obj.Get("viewCount")),
+			.author = jsutils::stringFromNapiValue(obj.Get("author")),
+			.isLiveContent = obj.Get("isLiveContent").ToBoolean()
+		};
+	}
+
+	Optional<YoutubeVideoInfo::VideoDetails> YoutubeVideoInfo::VideoDetails::maybeFromNapiObject(Napi::Object obj) {
+		if(obj.IsEmpty() || obj.IsNull() || obj.IsUndefined()) {
+			return std::nullopt;
+		}
+		return fromNapiObject(obj);
+	}
+
+	YoutubeVideoInfo::Media YoutubeVideoInfo::Media::fromNapiObject(Napi::Object obj) {
+		return Media{
+			.categoryURL = jsutils::stringFromNapiValue(obj.Get("category_url")),
+			.category = jsutils::stringFromNapiValue(obj.Get("category")),
+			.song = jsutils::stringFromNapiValue(obj.Get("song")),
+			.artistURL = jsutils::stringFromNapiValue(obj.Get("artist_url")),
+			.artist = jsutils::stringFromNapiValue(obj.Get("artist")),
+			.licensedToYoutubeBy = jsutils::stringFromNapiValue(obj.Get("licensed_to_youtube_by"))
+		};
+	}
+
+	Optional<YoutubeVideoInfo::Media> YoutubeVideoInfo::Media::maybeFromNapiObject(Napi::Object obj) {
+		if(obj.IsEmpty() || obj.IsNull() || obj.IsUndefined()) {
+			return std::nullopt;
+		}
+		return fromNapiObject(obj);
+	}
+
+	YoutubeVideoInfo::Author YoutubeVideoInfo::Author::fromNapiObject(Napi::Object obj) {
+		return Author{
+			.id = jsutils::stringFromNapiValue(obj.Get("id")),
+			.name = jsutils::stringFromNapiValue(obj.Get("name")),
+			.avatar = jsutils::stringFromNapiValue(obj.Get("avatar")),
+			.verified = obj.Get("verified").ToBoolean(),
+			.user = jsutils::stringFromNapiValue(obj.Get("user")),
+			.channelURL = jsutils::stringFromNapiValue(obj.Get("channel_url")),
+			.userURL = jsutils::stringFromNapiValue(obj.Get("user_url"))
+		};
+	}
+
+	Optional<YoutubeVideoInfo::Author> YoutubeVideoInfo::Author::maybeFromNapiObject(Napi::Object obj) {
+		if(obj.IsEmpty() || obj.IsNull() || obj.IsUndefined()) {
+			return std::nullopt;
+		}
+		return fromNapiObject(obj);
 	}
 }
