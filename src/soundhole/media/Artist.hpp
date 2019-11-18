@@ -16,6 +16,6 @@ namespace sh {
 	public:
 		using MediaItem::MediaItem;
 		
-		virtual String getDescription() const = 0;
+		virtual Optional<String> description() const = 0;
 	};
 }
