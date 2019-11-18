@@ -107,6 +107,9 @@
 		A5B9736523822C0100FB3F1C /* TrackCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B9736323822C0100FB3F1C /* TrackCollection.cpp */; };
 		A5B9736623822C0100FB3F1C /* TrackCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B9736323822C0100FB3F1C /* TrackCollection.cpp */; };
 		A5B9736723822C0100FB3F1C /* TrackCollection.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5B9736423822C0100FB3F1C /* TrackCollection.hpp */; };
+		A5B9736A23823BFE00FB3F1C /* Playlist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B9736823823BFE00FB3F1C /* Playlist.cpp */; };
+		A5B9736B23823BFE00FB3F1C /* Playlist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B9736823823BFE00FB3F1C /* Playlist.cpp */; };
+		A5B9736C23823BFE00FB3F1C /* Playlist.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5B9736923823BFE00FB3F1C /* Playlist.hpp */; };
 		A5E851A52357B1660001F74D /* Bandcamp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5E851A32357B1660001F74D /* Bandcamp.cpp */; };
 		A5E851A62357B1660001F74D /* Bandcamp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5E851A32357B1660001F74D /* Bandcamp.cpp */; };
 		A5E851A72357B1660001F74D /* Bandcamp.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5E851A42357B1660001F74D /* Bandcamp.hpp */; };
@@ -251,6 +254,8 @@
 		A5B9735F23822BA300FB3F1C /* Album.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Album.hpp; sourceTree = "<group>"; };
 		A5B9736323822C0100FB3F1C /* TrackCollection.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TrackCollection.cpp; sourceTree = "<group>"; };
 		A5B9736423822C0100FB3F1C /* TrackCollection.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TrackCollection.hpp; sourceTree = "<group>"; };
+		A5B9736823823BFE00FB3F1C /* Playlist.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Playlist.cpp; sourceTree = "<group>"; };
+		A5B9736923823BFE00FB3F1C /* Playlist.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Playlist.hpp; sourceTree = "<group>"; };
 		A5E851A32357B1660001F74D /* Bandcamp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Bandcamp.cpp; sourceTree = "<group>"; };
 		A5E851A42357B1660001F74D /* Bandcamp.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Bandcamp.hpp; sourceTree = "<group>"; };
 		A5E851A82357BECD0001F74D /* BandcampError.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampError.cpp; sourceTree = "<group>"; };
@@ -463,6 +468,8 @@
 				A5B973542381F91900FB3F1C /* Track.cpp */,
 				A5B9736423822C0100FB3F1C /* TrackCollection.hpp */,
 				A5B9736323822C0100FB3F1C /* TrackCollection.cpp */,
+				A5B9736923823BFE00FB3F1C /* Playlist.hpp */,
+				A5B9736823823BFE00FB3F1C /* Playlist.cpp */,
 			);
 			path = media;
 			sourceTree = "<group>";
@@ -685,6 +692,7 @@
 				A571E1332332C65000603E14 /* SpotifyProvider.hpp in Headers */,
 				A513ED9C232DA20C000DCAC7 /* MediaItem.hpp in Headers */,
 				A513ED8C232DA20B000DCAC7 /* common.hpp in Headers */,
+				A5B9736C23823BFE00FB3F1C /* Playlist.hpp in Headers */,
 				A513ED8F232DA20B000DCAC7 /* YoutubeProvider.hpp in Headers */,
 				A513ED9D232DA20C000DCAC7 /* soundhole.hpp in Headers */,
 				A571E16C2333305D00603E14 /* Scripts.hpp in Headers */,
@@ -928,6 +936,7 @@
 				A5B7A7A32337DA5700301FC0 /* SpotifyAuth_iOS.mm in Sources */,
 				A571E16A2333305D00603E14 /* Scripts.cpp in Sources */,
 				A5B7A79D2336C28B00301FC0 /* SpotifyError_iOS.mm in Sources */,
+				A5B9736A23823BFE00FB3F1C /* Playlist.cpp in Sources */,
 				A5B9735B2381FBA700FB3F1C /* Artist.cpp in Sources */,
 				A5B973512381F16A00FB3F1C /* JSWrapClass.cpp in Sources */,
 				A5B2BBF82360E84C00ED010C /* SpotifyMediaTypes.cpp in Sources */,
@@ -986,6 +995,7 @@
 				A5B7A78F2335C91800301FC0 /* SoundHoleError.cpp in Sources */,
 				A5B9736623822C0100FB3F1C /* TrackCollection.cpp in Sources */,
 				A5E851A62357B1660001F74D /* Bandcamp.cpp in Sources */,
+				A5B9736B23823BFE00FB3F1C /* Playlist.cpp in Sources */,
 				A5B7A7AC2337F1DE00301FC0 /* SpotifyPlayer.cpp in Sources */,
 				A5B2BBF92360E84C00ED010C /* SpotifyMediaTypes.cpp in Sources */,
 				A571E16023331C6600603E14 /* SpotifySession.cpp in Sources */,

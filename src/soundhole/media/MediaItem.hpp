@@ -21,6 +21,7 @@ namespace sh {
 				size_t height;
 			};
 			enum class Size {
+				TINY,
 				SMALL,
 				MEDIUM,
 				LARGE
