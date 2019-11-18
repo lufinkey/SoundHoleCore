@@ -10,6 +10,7 @@
 
 #include <soundhole/common.hpp>
 #include "MediaItem.hpp"
+#include "Track.hpp"
 
 namespace sh {
 	class TrackCollection;
@@ -24,8 +25,11 @@ namespace sh {
 		virtual $<TrackCollection> context() = 0;
 		virtual $<const TrackCollection> context() const = 0;
 		
-		virtual Optional<size_t> indexInContext() const = 0;
+		virtual size_t indexInContext() const = 0;
 		virtual bool matchesItem(const TrackCollectionItem* item) const = 0;
+		
+		virtual $<TrackCollectionItem> detached() = 0;
+		virtual $<const TrackCollectionItem> detached() const = 0;
 	};
 
 

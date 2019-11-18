@@ -42,7 +42,7 @@ namespace sh {
 		
 		virtual ArrayList<Image> images() const = 0;
 		
-		virtual MediaProvider* provider() const;
+		virtual MediaProvider* mediaProvider() const;
 		
 		virtual bool needsData() const;
 		virtual Promise<void> fetchMissingData();
