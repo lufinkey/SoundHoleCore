@@ -34,14 +34,14 @@ namespace sh {
 		MediaItem(MediaProvider* provider);
 		virtual ~MediaItem();
 		
-		virtual String getType() const = 0;
+		virtual String type() const = 0;
 		
-		virtual String getName() const = 0;
-		virtual String getURI() const = 0;
+		virtual String name() const = 0;
+		virtual String uri() const = 0;
 		
-		virtual ArrayList<Image> getImages() const = 0;
+		virtual ArrayList<Image> images() const = 0;
 		
-		virtual MediaProvider* getProvider() const;
+		virtual MediaProvider* provider() const;
 		
 		virtual bool needsData() const;
 		virtual Promise<void> fetchMissingData();
