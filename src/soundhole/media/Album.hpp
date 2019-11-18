@@ -20,5 +20,8 @@ namespace sh {
 	class Album: public TrackCollection {
 	public:
 		using TrackCollection::TrackCollection;
+		
+		virtual ArrayList<$<Artist>> artists() = 0;
+		virtual ArrayList<$<const Artist>> artists() const = 0;
 	};
 }

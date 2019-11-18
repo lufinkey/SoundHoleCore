@@ -22,8 +22,8 @@ namespace sh {
 		virtual $<Album> album() = 0;
 		virtual $<const Album> album() const = 0;
 		
-		virtual ArrayList<$<Artist>> artist() = 0;
-		virtual ArrayList<$<const Artist>> artist() const = 0;
+		virtual ArrayList<$<Artist>> artists() = 0;
+		virtual ArrayList<$<const Artist>> artists() const = 0;
 		
 		virtual Optional<ArrayList<String>> tags() const = 0;
 		
