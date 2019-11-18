@@ -21,4 +21,12 @@ namespace sh {
 	MediaProvider* MediaItem::getProvider() const {
 		return provider;
 	}
+
+	bool MediaItem::needsData() const {
+		return false;
+	}
+
+	Promise<void> MediaItem::fetchMissingData() {
+		return Promise<void>::resolve();
+	}
 }

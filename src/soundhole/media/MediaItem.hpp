@@ -15,6 +15,22 @@ namespace sh {
 	
 	class MediaItem {
 	public:
+		struct Image {
+			struct Dimensions {
+				size_t width;
+				size_t height;
+			};
+			enum class Size {
+				SMALL,
+				MEDIUM,
+				LARGE
+			};
+			
+			String url;
+			Size size;
+			Optional<Dimensions> dimensions;
+		};
+		
 		MediaItem(MediaProvider* provider);
 		virtual ~MediaItem();
 		
@@ -23,7 +39,12 @@ namespace sh {
 		virtual String getName() const = 0;
 		virtual String getURI() const = 0;
 		
+		virtual ArrayList<Image> getImages() const = 0;
+		
 		virtual MediaProvider* getProvider() const;
+		
+		virtual bool needsData() const;
+		virtual Promise<void> fetchMissingData();
 		
 	private:
 		MediaProvider* provider;
