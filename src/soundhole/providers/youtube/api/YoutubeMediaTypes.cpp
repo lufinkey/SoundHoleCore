@@ -235,8 +235,8 @@ namespace sh {
 			.videoId = jsutils::stringFromNapiValue(obj.Get("video_id")),
 			.thumbnailURL = jsutils::stringFromNapiValue(obj.Get("thumbnail_url")),
 			.title = jsutils::stringFromNapiValue(obj.Get("title")),
-			.formats = jsutils::arrayListFromNapiValue<AudioFormat>(obj.Get("formats"), [](Napi::Value value) {
-				return AudioFormat::fromNapiObject(value.As<Napi::Object>());
+			.formats = jsutils::arrayListFromNapiValue<Format>(obj.Get("formats"), [](Napi::Value value) {
+				return Format::fromNapiObject(value.As<Napi::Object>());
 			}),
 			.published = obj.Get("published").As<Napi::Number>().DoubleValue(),
 			.description = jsutils::stringFromNapiValue(obj.Get("description")),
@@ -254,8 +254,8 @@ namespace sh {
 		};
 	}
 
-	YoutubeVideoInfo::AudioFormat YoutubeVideoInfo::AudioFormat::fromNapiObject(Napi::Object obj) {
-		return AudioFormat{
+	YoutubeVideoInfo::Format YoutubeVideoInfo::Format::fromNapiObject(Napi::Object obj) {
+		return Format{
 			.projectionType = jsutils::stringFromNapiValue(obj.Get("projection_type")),
 			.clen = jsutils::stringFromNapiValue(obj.Get("clen")),
 			.init = jsutils::stringFromNapiValue(obj.Get("init")),
@@ -359,5 +359,57 @@ namespace sh {
 			return std::nullopt;
 		}
 		return fromNapiObject(obj);
+	}
+
+	
+
+	ArrayList<YoutubeVideoInfo::Format> YoutubeVideoInfo::Format::filterFormats(const ArrayList<Format>& formats, MediaTypeFilter filter) {
+		switch(filter) {
+			case MediaTypeFilter::AUDIO_AND_VIDEO:
+				return formats.where([](auto& format) {
+					return !format.bitrate.empty() && format.audioBitrate.has_value();
+				});
+			case MediaTypeFilter::VIDEO:
+				return formats.where([](auto& format) {
+					return !format.bitrate.empty();
+				});
+			case MediaTypeFilter::VIDEO_ONLY:
+				return formats.where([](auto& format) {
+					return !format.bitrate.empty() && !format.audioBitrate.has_value();
+				});
+			case MediaTypeFilter::AUDIO:
+				return formats.where([](auto& format) {
+					return format.audioBitrate.has_value();
+				});
+			case MediaTypeFilter::AUDIO_ONLY:
+				return formats.where([](auto& format) {
+					return format.audioBitrate.has_value() && format.bitrate.empty();
+				});
+		}
+		throw std::runtime_error("invalid media type filter");
+	}
+
+	Optional<YoutubeVideoInfo::Format> YoutubeVideoInfo::chooseAudioFormat(ChooseAudioFormatOptions options) const {
+		auto formats = Format::filterFormats(this->formats, Format::MediaTypeFilter::AUDIO);
+		formats.sort([&](auto& a, auto& b) {
+			if(a.bitrate.empty() && !b.bitrate.empty()) {
+				return true;
+			} else if(!a.bitrate.empty() && b.bitrate.empty()) {
+				return false;
+			}
+			if(options.bitrate.has_value()) {
+				if(a.audioBitrate.value() >= options.bitrate.value() && b.audioBitrate.value() >= options.bitrate.value()) {
+					return a.audioBitrate.value() < b.audioBitrate.value();
+				} else {
+					return a.audioBitrate.value() > b.audioBitrate.value();
+				}
+			} else {
+				return a.audioBitrate.value() > b.audioBitrate.value();
+			}
+		});
+		if(formats.size() == 0) {
+			return std::nullopt;
+		}
+		return formats[0];
 	}
 }

@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <memory>
 #include <fgl/data.hpp>
 #include <fgl/async.hpp>
 #include <json11/json11.hpp>

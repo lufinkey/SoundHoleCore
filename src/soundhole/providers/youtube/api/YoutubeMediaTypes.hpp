@@ -206,7 +206,7 @@ namespace sh {
 			#endif
 		};
 		
-		struct AudioFormat {
+		struct Format {
 			String projectionType;
 			String clen;
 			String init;
@@ -236,8 +236,17 @@ namespace sh {
 			bool isDashMPD;
 			
 			#ifdef NODE_API_MODULE
-			static AudioFormat fromNapiObject(Napi::Object);
+			static Format fromNapiObject(Napi::Object);
 			#endif
+			
+			enum class MediaTypeFilter {
+				AUDIO_AND_VIDEO,
+				VIDEO,
+				VIDEO_ONLY,
+				AUDIO,
+				AUDIO_ONLY
+			};
+			static ArrayList<Format> filterFormats(const ArrayList<Format>& formats, MediaTypeFilter filter);
 		};
 		
 		struct VideoDetails {
@@ -308,7 +317,7 @@ namespace sh {
 		String videoId;
 		String thumbnailURL;
 		String title;
-		ArrayList<AudioFormat> formats;
+		ArrayList<Format> formats;
 		double published;
 		String description;
 		Optional<Media> media;
@@ -318,6 +327,11 @@ namespace sh {
 		#ifdef NODE_API_MODULE
 		static YoutubeVideoInfo fromNapiObject(Napi::Object);
 		#endif
+		
+		struct ChooseAudioFormatOptions {
+			Optional<size_t> bitrate;
+		};
+		Optional<Format> chooseAudioFormat(ChooseAudioFormatOptions options = {}) const;
 	};
 }
 
