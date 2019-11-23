@@ -70,7 +70,7 @@ namespace sh {
 		struct RunOptions {
 			String name;
 			String tag;
-			Task::Status initialStatus;
+			Task::Status initialStatus = Task::Status();
 			ArrayList<String> cancelTags;
 			bool cancelMatchingTags = false;
 			bool cancelAll = false;
