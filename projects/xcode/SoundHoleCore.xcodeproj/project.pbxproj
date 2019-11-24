@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		806FE0F8B91D795108D7E457 /* libPods-SoundHoleCoreTest-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 92C87D0F488E86DFB8CAA6B3 /* libPods-SoundHoleCoreTest-iOS.a */; };
+		A50F74B6238B223F0061D9FD /* TrackCollection.impl.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A50F74B5238B223F0061D9FD /* TrackCollection.impl.hpp */; };
 		A513DB34232DA191000DCAC7 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = A513DB33232DA191000DCAC7 /* AppDelegate.mm */; };
 		A513DB37232DA191000DCAC7 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A513DB36232DA191000DCAC7 /* ViewController.mm */; };
 		A513DB3A232DA191000DCAC7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A513DB38232DA191000DCAC7 /* Main.storyboard */; };
@@ -149,6 +150,7 @@
 		92C87D0F488E86DFB8CAA6B3 /* libPods-SoundHoleCoreTest-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SoundHoleCoreTest-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		96CEDFDA87ECADACE17A7C82 /* Pods-SoundHoleCoreTest-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.release.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.release.xcconfig"; sourceTree = "<group>"; };
 		A372CA273104C573CAEC4617 /* Pods-SoundHoleCoreTest-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-macOS.release.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-macOS/Pods-SoundHoleCoreTest-macOS.release.xcconfig"; sourceTree = "<group>"; };
+		A50F74B5238B223F0061D9FD /* TrackCollection.impl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TrackCollection.impl.hpp; sourceTree = "<group>"; };
 		A513DB23232DA15C000DCAC7 /* libSoundHoleCore-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSoundHoleCore-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A513DB30232DA191000DCAC7 /* SoundHoleCoreTest-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SoundHoleCoreTest-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A513DB32232DA191000DCAC7 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -422,8 +424,8 @@
 			isa = PBXGroup;
 			children = (
 				A513DB6E232DA1F8000DCAC7 /* common.hpp */,
-				A513DB6F232DA1F8000DCAC7 /* providers */,
 				A513ED83232DA20A000DCAC7 /* media */,
+				A513DB6F232DA1F8000DCAC7 /* providers */,
 				A571E16223332CC600603E14 /* utils */,
 				A513DB76232DA1F8000DCAC7 /* scripts */,
 			);
@@ -467,6 +469,7 @@
 				A5B973552381F91900FB3F1C /* Track.hpp */,
 				A5B973542381F91900FB3F1C /* Track.cpp */,
 				A5B9736423822C0100FB3F1C /* TrackCollection.hpp */,
+				A50F74B5238B223F0061D9FD /* TrackCollection.impl.hpp */,
 				A5B9736323822C0100FB3F1C /* TrackCollection.cpp */,
 				A5B9736923823BFE00FB3F1C /* Playlist.hpp */,
 				A5B9736823823BFE00FB3F1C /* Playlist.cpp */,
@@ -685,6 +688,7 @@
 				A571E1A8233440A800603E14 /* HttpClient.hpp in Headers */,
 				A5E851A72357B1660001F74D /* Bandcamp.hpp in Headers */,
 				A5B7A7DF233F126800301FC0 /* Spotify.hpp in Headers */,
+				A50F74B6238B223F0061D9FD /* TrackCollection.impl.hpp in Headers */,
 				A5E851AC2357BECD0001F74D /* BandcampError.hpp in Headers */,
 				A5B7A7A72337E86400301FC0 /* SpotifyAuthEventListener.hpp in Headers */,
 				A5B9735D2381FBA700FB3F1C /* Artist.hpp in Headers */,

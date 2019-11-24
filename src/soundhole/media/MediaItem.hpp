@@ -32,22 +32,33 @@ namespace sh {
 			Optional<Dimensions> dimensions;
 		};
 		
-		MediaItem(MediaProvider* provider);
+		struct Data {
+			String type;
+			String name;
+			String uri;
+			ArrayList<Image> images;
+		};
+		
+		MediaItem(MediaProvider* provider, Data data);
 		virtual ~MediaItem();
 		
-		virtual String type() const = 0;
+		const String& type() const;
 		
-		virtual String name() const = 0;
-		virtual String uri() const = 0;
+		const String& name() const;
+		const String& uri() const;
 		
-		virtual ArrayList<Image> images() const = 0;
+		const ArrayList<Image>& images() const;
 		
-		virtual MediaProvider* mediaProvider() const;
+		MediaProvider* mediaProvider() const;
 		
-		virtual bool needsData() const;
-		virtual Promise<void> fetchMissingData();
+		virtual bool needsData() const = 0;
+		virtual Promise<void> fetchMissingData() = 0;
 		
-	private:
+	protected:
 		MediaProvider* provider;
+		String _type;
+		String _name;
+		String _uri;
+		ArrayList<Image> _images;
 	};
 }

@@ -17,21 +17,47 @@ namespace sh {
 
 	class Track: public MediaItem {
 	public:
-		using MediaItem::MediaItem;
+		struct Data: public MediaItem::Data {
+			String albumName;
+			String albumURI;
+			ArrayList<$<Artist>> artists;
+			Optional<ArrayList<String>> tags;
+			Optional<size_t> diskNumber;
+			Optional<size_t> trackNumber;
+			Optional<double> duration;
+			bool isSingle;
+		};
 		
-		virtual $<Album> album() = 0;
-		virtual $<const Album> album() const = 0;
+		static $<Track> new$(MediaProvider* provider, Data data);
 		
-		virtual ArrayList<$<Artist>> artists() = 0;
-		virtual ArrayList<$<const Artist>> artists() const = 0;
+		Track(MediaProvider* provider, Data data);
 		
-		virtual Optional<ArrayList<String>> tags() const = 0;
+		const String& albumName() const;
+		const String& albumURI() const;
 		
-		virtual Optional<size_t> diskNumber() const = 0;
-		virtual Optional<size_t> trackNumber() const = 0;
+		const ArrayList<$<Artist>>& artists();
+		const ArrayList<$<const Artist>>& artists() const;
 		
-		virtual Optional<double> duration() const = 0;
+		const Optional<ArrayList<String>>& tags() const;
 		
-		virtual bool isSingle() const = 0;
+		const Optional<size_t>& diskNumber() const;
+		const Optional<size_t>& trackNumber() const;
+		
+		const Optional<double>& duration() const;
+		
+		bool isSingle() const;
+		
+		virtual bool needsData() const override;
+		virtual Promise<void> fetchMissingData() override;
+		
+	protected:
+		String _albumName;
+		String _albumURI;
+		ArrayList<$<Artist>> _artists;
+		Optional<ArrayList<String>> _tags;
+		Optional<size_t> _diskNumber;
+		Optional<size_t> _trackNumber;
+		Optional<double> _duration;
+		bool _isSingle;
 	};
 }

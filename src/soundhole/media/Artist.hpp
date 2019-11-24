@@ -14,8 +14,20 @@
 namespace sh {
 	class Artist: public MediaItem {
 	public:
-		using MediaItem::MediaItem;
+		struct Data: public MediaItem::Data {
+			Optional<String> description;
+		};
 		
-		virtual Optional<String> description() const = 0;
+		static $<Artist> new$(MediaProvider* provider, Data data);
+		
+		Artist(MediaProvider* provider, Data data);
+		
+		const Optional<String>& description() const;
+		
+		virtual bool needsData() const override;
+		virtual Promise<void> fetchMissingData() override;
+		
+	protected:
+		Optional<String> _description;
 	};
 }

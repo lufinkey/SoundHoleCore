@@ -17,8 +17,8 @@ namespace sh {
 	};
 
 
-	class Playlist: public TrackCollection {
+	class Playlist: public SpecialTrackCollection<PlaylistItem> {
 	public:
-		using TrackCollection::TrackCollection;
+		using SpecialTrackCollection<PlaylistItem>::SpecialTrackCollection;
 	};
 }

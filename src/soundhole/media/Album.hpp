@@ -17,9 +17,9 @@ namespace sh {
 	};
 
 
-	class Album: public TrackCollection {
+	class Album: public SpecialTrackCollection<AlbumItem> {
 	public:
-		using TrackCollection::TrackCollection;
+		using SpecialTrackCollection<AlbumItem>::SpecialTrackCollection;
 		
 		virtual ArrayList<$<Artist>> artists() = 0;
 		virtual ArrayList<$<const Artist>> artists() const = 0;
