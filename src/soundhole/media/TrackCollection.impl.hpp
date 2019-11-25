@@ -18,28 +18,43 @@ namespace sh {
 	}
 
 	template<typename ItemType>
-	std::variant<typename SpecialTrackCollection<ItemType>::EmptyTracks,LinkedList<ItemType>,AsyncList<ItemType>>
-	SpecialTrackCollection<ItemType>::constructItems(typename Data::Tracks tracks) {
-		if(tracks.items.size() == 0) {
+	SpecialTrackCollection<ItemType>::~SpecialTrackCollection() {
+		if(_items.index() == 3) {
+			delete std::get<AsyncList<$<ItemType>>*>(_items);
+		}
+	}
+
+	
+
+	template<typename ItemType>
+	std::variant<std::nullptr_t,typename SpecialTrackCollection<ItemType>::EmptyTracks,LinkedList<$<ItemType>>,AsyncList<$<ItemType>>*>
+	SpecialTrackCollection<ItemType>::constructItems(Optional<typename Data::Tracks> tracks) {
+		if(!tracks.has_value()) {
+			return std::nullptr_t();
+		} else if(tracks->items.size() == 0) {
 			return EmptyTracks{
-				.total = tracks.total
+				.total = tracks->total
 			};
-		} else if(tracks.offset == 0 && tracks.items.size() == tracks.total) {
-			return tracks.items;
+		} else if(tracks->offset == 0 && tracks->items.size() == tracks->total) {
+			return tracks->items.template map<$<ItemType>>([&](auto& data) {
+				return ItemType::new$(self(), std::move(data));
+			});
 		} else {
-			return AsyncList<ItemType>({
+			return new AsyncList<$<ItemType>>({
 				.delegate=this,
 				.chunkSize=24,
-				.initialItemsOffset=tracks.offset,
-				.initialItems=tracks.items,
-				.initialSize=tracks.total
+				.initialItemsOffset=tracks->offset,
+				.initialItems=ArrayList<$<ItemType>>(tracks->items.template map<$<ItemType>>([&](auto& data) {
+					return ItemType::new$(self(), std::move(data));
+				})),
+				.initialSize=tracks->total
 			});
 		}
 	}
 
 	template<typename ItemType>
 	Optional<size_t> SpecialTrackCollection<ItemType>::indexOfItem(const TrackCollectionItem* item) const {
-		auto castItem = dynamic_cast<ItemType>(item);
+		auto castItem = dynamic_cast<const ItemType*>(item);
 		if(castItem == nullptr) {
 			return std::nullopt;
 		}
@@ -119,15 +134,15 @@ namespace sh {
 		if(!tracksAreEmpty() && !tracksAreAsync()) {
 			auto& items = itemsList();
 			if(index >= items.size()) {
-				return Promise<$<ItemType>>::resolve(LinkedList<$<ItemType>>());
+				return Promise<LinkedList<$<TrackCollectionItem>>>::resolve(LinkedList<$<TrackCollectionItem>>());
 			}
 			auto startIt = std::next(items.begin(), index);
 			auto endIt = ((index+count) < items.size()) ? std::next(startIt, count) : items.end();
-			LinkedList<$<TrackCollectionItem>> selectedItems;
+			LinkedList<$<TrackCollectionItem>> loadedItems;
 			for(auto it=startIt; it!=endIt; it++) {
-				selectedItems.pushBack(std::static_pointer_cast<$<TrackCollectionItem>>(*it));
+				loadedItems.pushBack(std::static_pointer_cast<TrackCollectionItem>(*it));
 			}
-			return Promise<$<ItemType>>::resolve(selectedItems);
+			return Promise<LinkedList<$<TrackCollectionItem>>>::resolve(loadedItems);
 		}
 		makeTracksAsync();
 		return this->asyncItemsList().getItems(index, count).template map<LinkedList<$<TrackCollectionItem>>>(nullptr, [](auto items) {
@@ -145,7 +160,7 @@ namespace sh {
 		if(tracksAreAsync()) {
 			return asyncItemsList().generateItems(startIndex).template map<LinkedList<$<TrackCollectionItem>>>([](auto items) {
 				return items.template map<$<TrackCollectionItem>>([](auto& item) {
-					return std::static_pointer_cast<$<TrackCollectionItem>>(item);
+					return std::static_pointer_cast<TrackCollectionItem>(item);
 				});
 			});
 		} else {
@@ -153,19 +168,19 @@ namespace sh {
 			auto index = new$<size_t>(startIndex);
 			auto items = new$<LinkedList<$<ItemType>>>(itemsList());
 			return Generator<LinkedList<$<TrackCollectionItem>>,void>([=]() {
-				using YieldResult = typename Generator<LinkedList<$<ItemType>>,void>::YieldResult;
-				LinkedList<$<ItemType>> genItems;
-				while(genItems.size() < chunkSize && items.size() > 0) {
-					genItems.pushBack(std::static_pointer_cast<$<TrackCollectionItem>>(items.front()));
-					items.popFront();
+				using YieldResult = typename Generator<LinkedList<$<TrackCollectionItem>>,void>::YieldResult;
+				LinkedList<$<TrackCollectionItem>> genItems;
+				while(genItems.size() < chunkSize && items->size() > 0) {
+					genItems.pushBack(std::static_pointer_cast<TrackCollectionItem>(items->front()));
+					items->popFront();
 				}
-				if(items.size() == 0) {
-					return Promise<YieldResult>::resolve({
+				if(items->size() == 0) {
+					return Promise<YieldResult>::resolve(YieldResult{
 						.value=genItems,
 						.done=true
 					});
 				} else {
-					return Promise<YieldResult>::resolve({
+					return Promise<YieldResult>::resolve(YieldResult{
 						.value=genItems,
 						.done=false
 					});
@@ -175,14 +190,19 @@ namespace sh {
 	}
 
 	template<typename ItemType>
-	size_t SpecialTrackCollection<ItemType>::itemCount() const {
-		if(tracksAreEmpty()) {
+	Optional<size_t> SpecialTrackCollection<ItemType>::itemCount() const {
+		if(_items.index() == 1) {
 			return std::get<EmptyTracks>(_items).total;
-		} else if(tracksAreAsync()) {
-			return asyncItemsList().size();
-		} else {
-			return itemsList().size();
+		} else if(_items.index() == 2) {
+			return std::get<LinkedList<$<ItemType>>>(_items).size();
+		} else if(_items.index() == 3) {
+			auto asyncItems = std::get<AsyncList<$<ItemType>>*>(_items);
+			if(asyncItems->sizeIsKnown()) {
+				return asyncItems->size();
+			}
+			return std::nullopt;
 		}
+		return std::nullopt;
 	}
 	
 	template<typename ItemType>
@@ -201,32 +221,32 @@ namespace sh {
 
 	template<typename ItemType>
 	bool SpecialTrackCollection<ItemType>::tracksAreEmpty() const {
-		return _items.index() == 0;
+		return _items.index() == 0 || _items.index() == 1;
 	}
 
 	template<typename ItemType>
 	bool SpecialTrackCollection<ItemType>::tracksAreAsync() const {
-		return _items.index() == 2;
+		return _items.index() == 3;
 	}
 
 	template<typename ItemType>
-	LinkedList<ItemType>& SpecialTrackCollection<ItemType>::itemsList() {
-		return std::get<LinkedList<ItemType>>(_items);
+	LinkedList<$<ItemType>>& SpecialTrackCollection<ItemType>::itemsList() {
+		return std::get<LinkedList<$<ItemType>>>(_items);
 	}
 
 	template<typename ItemType>
-	const LinkedList<ItemType>& SpecialTrackCollection<ItemType>::itemsList() const {
-		return std::get<LinkedList<ItemType>>(_items);
+	const LinkedList<$<ItemType>>& SpecialTrackCollection<ItemType>::itemsList() const {
+		return std::get<LinkedList<$<ItemType>>>(_items);
 	}
 
 	template<typename ItemType>
-	AsyncList<ItemType>& SpecialTrackCollection<ItemType>::asyncItemsList() {
-		return std::get<AsyncList<ItemType>>(_items);
+	AsyncList<$<ItemType>>& SpecialTrackCollection<ItemType>::asyncItemsList() {
+		return *std::get<AsyncList<$<ItemType>>*>(_items);
 	}
 
 	template<typename ItemType>
-	const AsyncList<ItemType>& SpecialTrackCollection<ItemType>::asyncItemsList() const {
-		return std::get<AsyncList<ItemType>>(_items);
+	const AsyncList<$<ItemType>>& SpecialTrackCollection<ItemType>::asyncItemsList() const {
+		return *std::get<AsyncList<$<ItemType>>*>(_items);
 	}
 
 	template<typename ItemType>
@@ -234,15 +254,22 @@ namespace sh {
 		if(tracksAreAsync()) {
 			return;
 		} else if(tracksAreEmpty()) {
-			auto& tracks = std::get<EmptyTracks>(_items);
-			_items = AsyncList<ItemType>({
-				.delegate=this,
-				.chunkSize=24,
-				.initialSize=tracks.total
-			});
+			if(_items.index() == 0) {
+				_items = new AsyncList<$<ItemType>>({
+					.delegate=this,
+					.chunkSize=24
+				});
+			} else {
+				auto& tracks = std::get<EmptyTracks>(_items);
+				_items = new AsyncList<$<ItemType>>({
+					.delegate=this,
+					.chunkSize=24,
+					.initialSize=tracks.total
+				});
+			}
 		} else {
 			auto& tracks = itemsList();
-			_items = AsyncList<ItemType>({
+			_items = new AsyncList<$<ItemType>>({
 				.delegate=this,
 				.chunkSize=24,
 				.initialItemsOffset=0,
@@ -253,12 +280,6 @@ namespace sh {
 	}
 
 
-
-	template<typename Context>
-	SpecialTrackCollectionItem<Context>::SpecialTrackCollectionItem($<Context> context, Data data)
-	: SpecialTrackCollectionItem(std::static_pointer_cast<TrackCollection>(context), data) {
-		//
-	}
 
 	template<typename Context>
 	w$<Context> SpecialTrackCollectionItem<Context>::context() {

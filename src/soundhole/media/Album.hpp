@@ -18,14 +18,24 @@ namespace sh {
 	class AlbumItem: public SpecialTrackCollectionItem<Album> {
 	public:
 		using SpecialTrackCollectionItem<Album>::SpecialTrackCollectionItem;
+		
+		static $<AlbumItem> new$($<Album> album, Data data);
+		static $<AlbumItem> new$($<SpecialTrackCollection<AlbumItem>> album, Data data);
 	};
 
 
 	class Album: public SpecialTrackCollection<AlbumItem> {
 	public:
-		using SpecialTrackCollection<AlbumItem>::SpecialTrackCollection;
+		struct Data: public SpecialTrackCollection<AlbumItem>::Data {
+			ArrayList<$<Artist>> artists;
+		};
 		
-		virtual ArrayList<$<Artist>> artists() = 0;
-		virtual ArrayList<$<const Artist>> artists() const = 0;
+		Album(MediaProvider* provider, Data data);
+		
+		const ArrayList<$<Artist>>& artists();
+		const ArrayList<$<const Artist>>& artists() const;
+		
+	private:
+		ArrayList<$<Artist>> _artists;
 	};
 }

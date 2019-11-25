@@ -24,10 +24,10 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   AsyncCpp:
-    :commit: 4ec66f42d03d1a314fcc7f179b7698dec36e6fb4
+    :commit: b3661a50ab79c1a5f7ed1d9070b2bf7aa298f1c5
     :git: "git@github.com:lufinkey/async-cpp.git"
   DataCpp:
-    :commit: a818215c1b5a179e6e55a5eb15ef545510204602
+    :commit: 2b29b5fa9301a6a80446948e3770e85fb87336ae
     :git: "git@github.com:lufinkey/data-cpp.git"
   NodeJSEmbed:
     :commit: 598bee3bd0234f001d976fb47b47eb574e5ccd68
@@ -37,11 +37,11 @@ CHECKOUT OPTIONS:
     :git: https://github.com/janeasystems/nodejs-mobile.git
 
 SPEC CHECKSUMS:
-  AsyncCpp: 9157ec5f8068ee8c98d384210b630f8ac2effbed
-  DataCpp: 0d025abc3916dea7aeba09a53ade36b51ecbe439
+  AsyncCpp: fbdd9f4c92518adab685a33dfe13c0766804c048
+  DataCpp: e7befe7138f94d9745eb2987b4a4bd4e41a3b1d7
   NodeJSEmbed: ff7926e46e0ce00c856cf37e2287c34ef86fb04c
   NodeMobile: cb332628599d35759769bdb6b1501b17b5f1f287
 
-PODFILE CHECKSUM: 8d2415a7ad42a89c98cb9c73e755dd6df6813b94
+PODFILE CHECKSUM: 47622f512149f0786a1ca60b5d24cdf4a1b0b18f
 
 COCOAPODS: 1.8.4

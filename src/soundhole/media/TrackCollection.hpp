@@ -53,7 +53,7 @@ namespace sh {
 		virtual Promise<LinkedList<$<TrackCollectionItem>>> getItems(size_t index, size_t count) = 0;
 		virtual Generator<LinkedList<$<TrackCollectionItem>>,void> generateItems(size_t startIndex=0) = 0;
 		
-		virtual size_t itemCount() const = 0;
+		virtual Optional<size_t> itemCount() const = 0;
 		
 		virtual Promise<void> loadItems(size_t index, size_t count) = 0;
 	};
@@ -63,7 +63,7 @@ namespace sh {
 	template<typename ItemType>
 	class SpecialTrackCollection: public TrackCollection,
 	public std::enable_shared_from_this<SpecialTrackCollection<ItemType>>,
-	protected AsyncList<ItemType>::Delegate {
+	protected AsyncList<$<ItemType>>::Delegate {
 	public:
 		using Item = ItemType;
 		
@@ -74,10 +74,11 @@ namespace sh {
 				LinkedList<typename ItemType::Data> items;
 			};
 			
-			Tracks tracks;
+			Optional<Tracks> tracks;
 		};
 		
 		SpecialTrackCollection(MediaProvider* provider, Data data);
+		virtual ~SpecialTrackCollection();
 		
 		virtual Optional<size_t> indexOfItem(const TrackCollectionItem* item) const override;
 		Optional<size_t> indexOfItem(const ItemType* item) const;
@@ -88,34 +89,37 @@ namespace sh {
 		virtual Promise<LinkedList<$<TrackCollectionItem>>> getItems(size_t index, size_t count) override final;
 		virtual Generator<LinkedList<$<TrackCollectionItem>>,void> generateItems(size_t startIndex=0) override final;
 		
-		virtual size_t itemCount() const override;
+		virtual Optional<size_t> itemCount() const override;
 		
 		virtual Promise<void> loadItems(size_t index, size_t count) override;
 		
 	protected:
+		inline $<SpecialTrackCollection<ItemType>> self();
+		inline $<const SpecialTrackCollection<ItemType>> self() const;
+		
 		inline bool tracksAreEmpty() const;
 		inline bool tracksAreAsync() const;
-		inline LinkedList<ItemType>& itemsList();
-		inline const LinkedList<ItemType>& itemsList() const;
-		inline AsyncList<ItemType>& asyncItemsList();
-		inline const AsyncList<ItemType>& asyncItemsList() const;
+		inline LinkedList<$<ItemType>>& itemsList();
+		inline const LinkedList<$<ItemType>>& itemsList() const;
+		inline AsyncList<$<ItemType>>& asyncItemsList();
+		inline const AsyncList<$<ItemType>>& asyncItemsList() const;
 		void makeTracksAsync();
 		
 		struct EmptyTracks {
 			size_t total;
 		};
 		
-		std::variant<EmptyTracks,LinkedList<ItemType>,AsyncList<ItemType>> _items;
+		std::variant<std::nullptr_t,EmptyTracks,LinkedList<$<ItemType>>,AsyncList<$<ItemType>>*> _items;
 		
 	private:
-		std::variant<EmptyTracks,LinkedList<ItemType>,AsyncList<ItemType>> constructItems(typename Data::Tracks tracks);
+		std::variant<std::nullptr_t,EmptyTracks,LinkedList<$<ItemType>>,AsyncList<$<ItemType>>*> constructItems(Optional<typename Data::Tracks> tracks);
 	};
 
 
 	template<typename Context>
 	class SpecialTrackCollectionItem: public TrackCollectionItem {
 	public:
-		SpecialTrackCollectionItem($<Context> context, Data data);
+		using TrackCollectionItem::TrackCollectionItem;
 		
 		w$<Context> context();
 		w$<const Context> context() const;

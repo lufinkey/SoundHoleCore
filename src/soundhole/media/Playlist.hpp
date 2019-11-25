@@ -18,6 +18,9 @@ namespace sh {
 	class PlaylistItem: public SpecialTrackCollectionItem<Playlist> {
 	public:
 		using SpecialTrackCollectionItem<Playlist>::SpecialTrackCollectionItem;
+		
+		static $<PlaylistItem> new$($<Playlist> album, Data data);
+		static $<PlaylistItem> new$($<SpecialTrackCollection<PlaylistItem>> album, Data data);
 	};
 
 
