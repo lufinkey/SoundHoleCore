@@ -12,8 +12,12 @@
 #include "TrackCollection.hpp"
 
 namespace sh {
-	class PlaylistItem: public TrackCollectionItem {
-		//
+	class Playlist;
+
+
+	class PlaylistItem: public SpecialTrackCollectionItem<Playlist> {
+	public:
+		using SpecialTrackCollectionItem<Playlist>::SpecialTrackCollectionItem;
 	};
 
 

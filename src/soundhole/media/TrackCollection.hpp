@@ -23,7 +23,7 @@ namespace sh {
 			$<Track> track;
 		};
 		
-		TrackCollectionItem(w$<TrackCollection> context, Data data);
+		TrackCollectionItem($<TrackCollection> context, Data data);
 		virtual ~TrackCollectionItem() {};
 		
 		$<Track> track();
@@ -36,8 +36,8 @@ namespace sh {
 		virtual bool matchesItem(const TrackCollectionItem* item) const = 0;
 		
 	protected:
-		$<Track> _track;
 		w$<TrackCollection> _context;
+		$<Track> _track;
 	};
 
 
@@ -46,6 +46,7 @@ namespace sh {
 	public:
 		using MediaItem::MediaItem;
 		
+		virtual Optional<size_t> indexOfItem(const TrackCollectionItem* item) const = 0;
 		virtual $<TrackCollectionItem> itemAt(size_t index) = 0;
 		virtual $<const TrackCollectionItem> itemAt(size_t index) const = 0;
 		virtual Promise<$<TrackCollectionItem>> getItem(size_t index) = 0;
@@ -60,8 +61,8 @@ namespace sh {
 
 
 	template<typename ItemType>
-	class _SpecialTrackCollection: public TrackCollection,
-	public std::enable_shared_from_this<_SpecialTrackCollection<ItemType>>,
+	class SpecialTrackCollection: public TrackCollection,
+	public std::enable_shared_from_this<SpecialTrackCollection<ItemType>>,
 	protected AsyncList<ItemType>::Delegate {
 	public:
 		using Item = ItemType;
@@ -76,19 +77,22 @@ namespace sh {
 			Tracks tracks;
 		};
 		
-		_SpecialTrackCollection(MediaProvider* provider, Data data);
+		SpecialTrackCollection(MediaProvider* provider, Data data);
+		
+		virtual Optional<size_t> indexOfItem(const TrackCollectionItem* item) const override;
+		Optional<size_t> indexOfItem(const ItemType* item) const;
+		
+		virtual $<TrackCollectionItem> itemAt(size_t index) override final;
+		virtual $<const TrackCollectionItem> itemAt(size_t index) const override final;
+		virtual Promise<$<TrackCollectionItem>> getItem(size_t index) override final;
+		virtual Promise<LinkedList<$<TrackCollectionItem>>> getItems(size_t index, size_t count) override final;
+		virtual Generator<LinkedList<$<TrackCollectionItem>>,void> generateItems(size_t startIndex=0) override final;
 		
 		virtual size_t itemCount() const override;
 		
 		virtual Promise<void> loadItems(size_t index, size_t count) override;
 		
 	protected:
-		virtual $<TrackCollectionItem> itemAt(size_t index) override;
-		virtual $<const TrackCollectionItem> itemAt(size_t index) const override;
-		virtual Promise<$<TrackCollectionItem>> getItem(size_t index) override;
-		virtual Promise<LinkedList<$<TrackCollectionItem>>> getItems(size_t index, size_t count) override;
-		virtual Generator<LinkedList<$<TrackCollectionItem>>,void> generateItems(size_t startIndex=0) override;
-		
 		inline bool tracksAreEmpty() const;
 		inline bool tracksAreAsync() const;
 		inline LinkedList<ItemType>& itemsList();
@@ -108,17 +112,13 @@ namespace sh {
 	};
 
 
-
-	template<typename ItemType>
-	class SpecialTrackCollection: public _SpecialTrackCollection<ItemType> {
+	template<typename Context>
+	class SpecialTrackCollectionItem: public TrackCollectionItem {
 	public:
-		using _SpecialTrackCollection<ItemType>::_SpecialTrackCollection;
+		SpecialTrackCollectionItem($<Context> context, Data data);
 		
-		$<ItemType> itemAt(size_t index);
-		$<const ItemType> itemAt(size_t index) const;
-		Promise<$<ItemType>> getItem(size_t index);
-		Promise<LinkedList<$<ItemType>>> getItems(size_t index, size_t count);
-		Generator<LinkedList<$<ItemType>>,void> generateItems(size_t startIndex=0);
+		w$<Context> context();
+		w$<const Context> context() const;
 	};
 }
 
