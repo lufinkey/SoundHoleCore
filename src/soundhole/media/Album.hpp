@@ -17,10 +17,10 @@ namespace sh {
 
 	class AlbumItem: public SpecialTrackCollectionItem<Album> {
 	public:
-		using SpecialTrackCollectionItem<Album>::SpecialTrackCollectionItem;
-		
 		static $<AlbumItem> new$($<Album> album, Data data);
 		static $<AlbumItem> new$($<SpecialTrackCollection<AlbumItem>> album, Data data);
+		
+		AlbumItem($<Album> album, Data data);
 		
 		virtual bool matchesItem(const TrackCollectionItem* item) const override;
 	};

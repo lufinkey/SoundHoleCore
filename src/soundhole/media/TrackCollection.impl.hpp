@@ -220,6 +220,18 @@ namespace sh {
 
 
 	template<typename ItemType>
+	$<SpecialTrackCollection<ItemType>> SpecialTrackCollection<ItemType>::self() {
+		return this->shared_from_this();
+	}
+
+	template<typename ItemType>
+	$<const SpecialTrackCollection<ItemType>> SpecialTrackCollection<ItemType>::self() const {
+		return this->shared_from_this();
+	}
+
+
+
+	template<typename ItemType>
 	bool SpecialTrackCollection<ItemType>::tracksAreEmpty() const {
 		return _items.index() == 0 || _items.index() == 1;
 	}

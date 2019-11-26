@@ -10,6 +10,7 @@
 
 #include <soundhole/common.hpp>
 #include "TrackCollection.hpp"
+#include "UserAccount.hpp"
 
 namespace sh {
 	class Playlist;
@@ -17,15 +18,39 @@ namespace sh {
 
 	class PlaylistItem: public SpecialTrackCollectionItem<Playlist> {
 	public:
-		using SpecialTrackCollectionItem<Playlist>::SpecialTrackCollectionItem;
+		struct Data: public SpecialTrackCollectionItem<Playlist>::Data {
+			time_t addedAt;
+			$<UserAccount> addedBy;
+		};
 		
-		static $<PlaylistItem> new$($<Playlist> album, Data data);
-		static $<PlaylistItem> new$($<SpecialTrackCollection<PlaylistItem>> album, Data data);
+		static $<PlaylistItem> new$($<Playlist> playlist, Data data);
+		static $<PlaylistItem> new$($<SpecialTrackCollection<PlaylistItem>> playlist, Data data);
+		
+		PlaylistItem($<Playlist> playlist, Data data);
+		
+		time_t addedAt() const;
+		$<UserAccount> addedBy();
+		$<const UserAccount> addedBy() const;
+		
+		virtual bool matchesItem(const TrackCollectionItem* item) const override;
+		
+	private:
+		time_t _addedAt;
+		$<UserAccount> _addedBy;
 	};
 
 
 	class Playlist: public SpecialTrackCollection<PlaylistItem> {
 	public:
-		using SpecialTrackCollection<PlaylistItem>::SpecialTrackCollection;
+		struct Data: public SpecialTrackCollection<PlaylistItem>::Data {
+			$<UserAccount> owner;
+		};
+		
+		static $<Playlist> new$(MediaProvider* provider, Data data);
+		
+		Playlist(MediaProvider* provider, Data data);
+		
+	private:
+		$<UserAccount> _owner;
 	};
 }
