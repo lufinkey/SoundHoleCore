@@ -21,6 +21,8 @@ namespace sh {
 		
 		static $<AlbumItem> new$($<Album> album, Data data);
 		static $<AlbumItem> new$($<SpecialTrackCollection<AlbumItem>> album, Data data);
+		
+		virtual bool matchesItem(const TrackCollectionItem* item) const override;
 	};
 
 
