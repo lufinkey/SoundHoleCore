@@ -16,11 +16,20 @@ namespace sh {
 
 	class UserAccount: public MediaItem {
 	public:
-		using MediaItem::MediaItem;
+		struct Data: public MediaItem::Data {
+			String id;
+		};
 		
 		static $<UserAccount> new$(MediaProvider* provider, Data data);
 		
+		UserAccount(MediaProvider* provider, Data data);
+		
+		const String& id() const;
+		
 		virtual bool needsData() const;
 		virtual Promise<void> fetchMissingData();
+		
+	private:
+		String _id;
 	};
 }

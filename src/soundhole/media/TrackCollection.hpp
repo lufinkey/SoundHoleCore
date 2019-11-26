@@ -97,6 +97,8 @@ namespace sh {
 		inline $<SpecialTrackCollection<ItemType>> self();
 		inline $<const SpecialTrackCollection<ItemType>> self() const;
 		
+		bool areAsyncListItemsEqual(const AsyncList<$<ItemType>>* list, const $<ItemType>& item1, const $<ItemType>& item2) const override;
+		
 		inline bool tracksAreEmpty() const;
 		inline bool tracksAreAsync() const;
 		inline LinkedList<$<ItemType>>& itemsList();

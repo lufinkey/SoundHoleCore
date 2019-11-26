@@ -232,6 +232,13 @@ namespace sh {
 
 
 	template<typename ItemType>
+	bool SpecialTrackCollection<ItemType>::areAsyncListItemsEqual(const AsyncList<$<ItemType>>* list, const $<ItemType>& item1, const $<ItemType>& item2) const {
+		return item1->matchesItem(item2.get());
+	}
+
+
+
+	template<typename ItemType>
 	bool SpecialTrackCollection<ItemType>::tracksAreEmpty() const {
 		return _items.index() == 0 || _items.index() == 1;
 	}

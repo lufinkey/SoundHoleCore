@@ -13,6 +13,16 @@ namespace sh {
 		return fgl::new$<UserAccount>(provider, data);
 	}
 
+	UserAccount::UserAccount(MediaProvider* provider, Data data)
+	: MediaItem(provider, data),
+	_id(data.id) {
+		//
+	}
+
+	const String& UserAccount::id() const {
+		return _id;
+	}
+
 	bool UserAccount::needsData() const {
 		// TODO implement needsData
 		return false;

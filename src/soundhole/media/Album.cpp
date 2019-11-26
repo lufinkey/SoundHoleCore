@@ -35,6 +35,10 @@ namespace sh {
 
 
 
+	$<Album> Album::new$(MediaProvider* provider, Data data) {
+		return fgl::new$<Album>(provider, data);
+	}
+
 	Album::Album(MediaProvider* provider, Data data)
 	: SpecialTrackCollection<AlbumItem>(provider, data),
 	_artists(data.artists) {
@@ -47,5 +51,22 @@ namespace sh {
 
 	const ArrayList<$<const Artist>>& Album::artists() const {
 		return *((const ArrayList<$<const Artist>>*)(&_artists));
+	}
+
+	bool Album::needsData() const {
+		// TODO implement needsData
+		return false;
+	}
+
+	Promise<void> Album::fetchMissingData() {
+		// TODO implement fetchMissingData
+		return Promise<void>::reject(std::runtime_error("not implemented"));
+	}
+
+
+
+	Promise<void> Album::loadAsyncListItems(typename AsyncList<$<AlbumItem>>::Mutator* mutator, size_t index, size_t count) {
+		// TODO implement loadAsyncListItems
+		return Promise<void>::reject(std::runtime_error("not implemented"));
 	}
 }

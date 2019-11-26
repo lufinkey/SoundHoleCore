@@ -50,6 +50,15 @@ namespace sh {
 		
 		Playlist(MediaProvider* provider, Data data);
 		
+		$<UserAccount> owner();
+		$<const UserAccount> owner() const;
+		
+		virtual bool needsData() const override;
+		virtual Promise<void> fetchMissingData() override;
+		
+	protected:
+		virtual Promise<void> loadAsyncListItems(typename AsyncList<$<PlaylistItem>>::Mutator* mutator, size_t index, size_t count) override;
+		
 	private:
 		$<UserAccount> _owner;
 	};

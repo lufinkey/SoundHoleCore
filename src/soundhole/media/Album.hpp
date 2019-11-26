@@ -32,10 +32,18 @@ namespace sh {
 			ArrayList<$<Artist>> artists;
 		};
 		
+		static $<Album> new$(MediaProvider* provider, Data data);
+		
 		Album(MediaProvider* provider, Data data);
 		
 		const ArrayList<$<Artist>>& artists();
 		const ArrayList<$<const Artist>>& artists() const;
+		
+		virtual bool needsData() const override;
+		virtual Promise<void> fetchMissingData() override;
+		
+	protected:
+		virtual Promise<void> loadAsyncListItems(typename AsyncList<$<AlbumItem>>::Mutator* mutator, size_t index, size_t count) override;
 		
 	private:
 		ArrayList<$<Artist>> _artists;

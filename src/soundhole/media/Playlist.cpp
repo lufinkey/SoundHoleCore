@@ -46,4 +46,39 @@ namespace sh {
 		}
 		return false;
 	}
+
+
+
+	$<Playlist> Playlist::new$(MediaProvider* provider, Data data) {
+		return fgl::new$<Playlist>(provider, data);
+	}
+	
+	Playlist::Playlist(MediaProvider* provider, Data data)
+	: SpecialTrackCollection<PlaylistItem>(provider, data),
+	_owner(data.owner) {
+		//
+	}
+
+	$<UserAccount> Playlist::owner() {
+		return _owner;
+	}
+
+	$<const UserAccount> Playlist::owner() const {
+		return std::static_pointer_cast<const UserAccount>(_owner);
+	}
+
+	bool Playlist::needsData() const {
+		// TODO implement needsData
+		return false;
+	}
+
+	Promise<void> Playlist::fetchMissingData() {
+		// TODO implement fetchMissingData
+		return Promise<void>::reject(std::runtime_error("not implemented"));
+	}
+
+	Promise<void> Playlist::loadAsyncListItems(typename AsyncList<$<PlaylistItem>>::Mutator* mutator, size_t index, size_t count) {
+		// TODO implement loadAsyncListItems
+		return Promise<void>::reject(std::runtime_error("not implemented"));
+	}
 }
