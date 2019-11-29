@@ -64,7 +64,8 @@ namespace sh {
 			.tags=ArrayList<String>(),
 			.discNumber=track.discNumber,
 			.trackNumber=track.trackNumber,
-			.duration=(((double)track.durationMs)/1000.0)
+			.duration=(((double)track.durationMs)/1000.0),
+			.audioSources=std::nullopt
 		};
 	}
 

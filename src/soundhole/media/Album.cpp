@@ -7,6 +7,7 @@
 //
 
 #include "Album.hpp"
+#include "MediaProvider.hpp"
 
 namespace sh {
 	$<AlbumItem> AlbumItem::new$($<Album> album, Data data) {
@@ -54,8 +55,7 @@ namespace sh {
 	}
 
 	bool Album::needsData() const {
-		// TODO implement needsData
-		return false;
+		return provider->doesAlbumNeedData(this);
 	}
 
 	Promise<void> Album::fetchMissingData() {

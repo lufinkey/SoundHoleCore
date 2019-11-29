@@ -58,4 +58,18 @@ namespace sh {
 	Promise<void> MediaItem::fetchMissingData() {
 		return Promise<void>::resolve();
 	}
+
+	Promise<void> MediaItem::fetchMissingDataIfNeeded() {
+		if(!needsData()) {
+			return Promise<void>::resolve();
+		}
+		if(_itemDataPromise.has_value()) {
+			return _itemDataPromise.value();
+		}
+		auto promise = fetchMissingData().then([=]() {
+			_itemDataPromise.reset();
+		});
+		_itemDataPromise = promise;
+		return promise;
+	}
 }

@@ -7,6 +7,7 @@
 //
 
 #include "Artist.hpp"
+#include "MediaProvider.hpp"
 
 namespace sh {
 	$<Artist> Artist::new$(MediaProvider* provider, Data data) {
@@ -26,8 +27,7 @@ namespace sh {
 
 
 	bool Artist::needsData() const {
-		// TODO implement needsData
-		return false;
+		return provider->doesArtistNeedData(this);
 	}
 
 	Promise<void> fetchMissingData() {

@@ -17,6 +17,12 @@ namespace sh {
 
 	class Track: public MediaItem {
 	public:
+		struct AudioSource {
+			String url;
+			String encoding;
+			size_t bitrate;
+		};
+		
 		struct Data: public MediaItem::Data {
 			String albumName;
 			String albumURI;
@@ -25,6 +31,7 @@ namespace sh {
 			Optional<size_t> discNumber;
 			Optional<size_t> trackNumber;
 			Optional<double> duration;
+			Optional<ArrayList<AudioSource>> audioSources;
 		};
 		
 		static $<Track> new$(MediaProvider* provider, Data data);
@@ -41,8 +48,9 @@ namespace sh {
 		
 		const Optional<size_t>& discNumber() const;
 		const Optional<size_t>& trackNumber() const;
-		
 		const Optional<double>& duration() const;
+		
+		const Optional<ArrayList<AudioSource>>& audioSources() const;
 		
 		virtual bool needsData() const override;
 		virtual Promise<void> fetchMissingData() override;
@@ -55,5 +63,6 @@ namespace sh {
 		Optional<size_t> _discNumber;
 		Optional<size_t> _trackNumber;
 		Optional<double> _duration;
+		Optional<ArrayList<AudioSource>> _audioSources;
 	};
 }

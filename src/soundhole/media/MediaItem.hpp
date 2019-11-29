@@ -54,6 +54,7 @@ namespace sh {
 		
 		virtual bool needsData() const = 0;
 		virtual Promise<void> fetchMissingData() = 0;
+		Promise<void> fetchMissingDataIfNeeded();
 		
 	protected:
 		MediaProvider* provider;
@@ -61,5 +62,6 @@ namespace sh {
 		String _name;
 		String _uri;
 		Optional<ArrayList<Image>> _images;
+		Optional<Promise<void>> _itemDataPromise;
 	};
 }

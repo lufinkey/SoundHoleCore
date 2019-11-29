@@ -7,6 +7,7 @@
 //
 
 #include "Playlist.hpp"
+#include "MediaProvider.hpp"
 
 namespace sh {
 	$<PlaylistItem> PlaylistItem::new$($<Playlist> playlist, Data data) {
@@ -68,8 +69,7 @@ namespace sh {
 	}
 
 	bool Playlist::needsData() const {
-		// TODO implement needsData
-		return false;
+		return provider->doesPlaylistNeedData(this);
 	}
 
 	Promise<void> Playlist::fetchMissingData() {

@@ -7,6 +7,7 @@
 //
 
 #include "Track.hpp"
+#include "MediaProvider.hpp"
 
 namespace sh {
 	$<Track> Track::new$(MediaProvider* provider, Data data) {
@@ -17,7 +18,7 @@ namespace sh {
 	: MediaItem(provider, data),
 	_albumName(data.albumName), _albumURI(data.albumURI), _artists(data.artists),
 	_tags(data.tags), _discNumber(data.discNumber), _trackNumber(data.trackNumber),
-	_duration(data.duration) {
+	_duration(data.duration), _audioSources(data.audioSources) {
 		//
 	}
 	
@@ -53,11 +54,14 @@ namespace sh {
 		return _duration;
 	}
 
+	const Optional<ArrayList<Track::AudioSource>>& Track::audioSources() const {
+		return _audioSources;
+	}
+
 
 
 	bool Track::needsData() const {
-		// TODO implement needsData
-		return false;
+		return provider->doesTrackNeedData(this);
 	}
 
 	Promise<void> Track::fetchMissingData() {
