@@ -18,11 +18,11 @@ namespace sh {
 		delete bandcamp;
 	}
 
-	String BandcampProvider::getName() const {
+	String BandcampProvider::name() const {
 		return "bandcamp";
 	}
 	
-	String BandcampProvider::getDisplayName() const {
+	String BandcampProvider::displayName() const {
 		return "Bandcamp";
 	}
 }

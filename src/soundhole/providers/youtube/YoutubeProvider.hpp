@@ -8,14 +8,14 @@
 
 #pragma once
 
-#include <soundhole/providers/MediaProvider.hpp>
+#include <soundhole/media/MediaProvider.hpp>
 
 namespace sh {
 	class YoutubeProvider: public MediaProvider {
 	public:
 		YoutubeProvider();
 		
-		virtual String getName() const override;
-		virtual String getDisplayName() const override;
+		virtual String name() const override;
+		virtual String displayName() const override;
 	};
 }

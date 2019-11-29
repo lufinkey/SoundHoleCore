@@ -13,11 +13,11 @@ namespace sh {
 		//
 	}
 	
-	String YoutubeProvider::getName() const {
+	String YoutubeProvider::name() const {
 		return "youtube";
 	}
 	
-	String YoutubeProvider::getDisplayName() const {
+	String YoutubeProvider::displayName() const {
 		return "Youtube";
 	}
 }

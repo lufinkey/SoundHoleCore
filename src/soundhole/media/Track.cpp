@@ -16,8 +16,8 @@ namespace sh {
 	Track::Track(MediaProvider* provider, Data data)
 	: MediaItem(provider, data),
 	_albumName(data.albumName), _albumURI(data.albumURI), _artists(data.artists),
-	_tags(data.tags), _diskNumber(data.diskNumber), _trackNumber(data.trackNumber),
-	_duration(data.duration), _isSingle(data.isSingle) {
+	_tags(data.tags), _discNumber(data.discNumber), _trackNumber(data.trackNumber),
+	_duration(data.duration) {
 		//
 	}
 	
@@ -41,8 +41,8 @@ namespace sh {
 		return _tags;
 	}
 	
-	const Optional<size_t>& Track::diskNumber() const {
-		return _diskNumber;
+	const Optional<size_t>& Track::discNumber() const {
+		return _discNumber;
 	}
 
 	const Optional<size_t>& Track::trackNumber() const {
@@ -51,10 +51,6 @@ namespace sh {
 	
 	const Optional<double>& Track::duration() const {
 		return _duration;
-	}
-	
-	bool Track::isSingle() const {
-		return _isSingle;
 	}
 
 

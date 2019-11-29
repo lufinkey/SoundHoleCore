@@ -9,7 +9,7 @@
 #pragma once
 
 #include <memory>
-#include <soundhole/providers/MediaProvider.hpp>
+#include <soundhole/media/MediaProvider.hpp>
 #include "api/Bandcamp.hpp"
 
 namespace sh {
@@ -18,8 +18,8 @@ namespace sh {
 		BandcampProvider();
 		virtual ~BandcampProvider();
 		
-		virtual String getName() const override;
-		virtual String getDisplayName() const override;
+		virtual String name() const override;
+		virtual String displayName() const override;
 		
 	private:
 		Bandcamp* bandcamp;

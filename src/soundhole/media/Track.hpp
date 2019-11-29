@@ -22,10 +22,9 @@ namespace sh {
 			String albumURI;
 			ArrayList<$<Artist>> artists;
 			Optional<ArrayList<String>> tags;
-			Optional<size_t> diskNumber;
+			Optional<size_t> discNumber;
 			Optional<size_t> trackNumber;
 			Optional<double> duration;
-			bool isSingle;
 		};
 		
 		static $<Track> new$(MediaProvider* provider, Data data);
@@ -40,12 +39,10 @@ namespace sh {
 		
 		const Optional<ArrayList<String>>& tags() const;
 		
-		const Optional<size_t>& diskNumber() const;
+		const Optional<size_t>& discNumber() const;
 		const Optional<size_t>& trackNumber() const;
 		
 		const Optional<double>& duration() const;
-		
-		bool isSingle() const;
 		
 		virtual bool needsData() const override;
 		virtual Promise<void> fetchMissingData() override;
@@ -55,9 +52,8 @@ namespace sh {
 		String _albumURI;
 		ArrayList<$<Artist>> _artists;
 		Optional<ArrayList<String>> _tags;
-		Optional<size_t> _diskNumber;
+		Optional<size_t> _discNumber;
 		Optional<size_t> _trackNumber;
 		Optional<double> _duration;
-		bool _isSingle;
 	};
 }

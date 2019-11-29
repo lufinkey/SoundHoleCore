@@ -18,6 +18,7 @@ namespace sh {
 	public:
 		struct Data: public MediaItem::Data {
 			String id;
+			Optional<String> displayName;
 		};
 		
 		static $<UserAccount> new$(MediaProvider* provider, Data data);
@@ -25,11 +26,13 @@ namespace sh {
 		UserAccount(MediaProvider* provider, Data data);
 		
 		const String& id() const;
+		const Optional<String>& displayName() const;
 		
 		virtual bool needsData() const;
 		virtual Promise<void> fetchMissingData();
 		
 	private:
 		String _id;
+		Optional<String> _displayName;
 	};
 }

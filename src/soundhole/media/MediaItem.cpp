@@ -9,6 +9,18 @@
 #include "MediaItem.hpp"
 
 namespace sh {
+	MediaItem::Image::Size MediaItem::Image::Dimensions::toSize() const {
+		if(height <= 100 || width <= 100) {
+			return Size::TINY;
+		} else if(height <= 280 || width <= 280) {
+			return Size::SMALL;
+		} else if(height <= 800 || width <= 800) {
+			return Size::MEDIUM;
+		} else {
+			return Size::LARGE;
+		}
+	}
+
 	MediaItem::MediaItem(MediaProvider* provider, Data data)
 	: provider(provider),
 	_type(data.type), _name(data.name), _uri(data.uri), _images(data.images) {
@@ -31,7 +43,7 @@ namespace sh {
 		return _uri;
 	}
 	
-	const ArrayList<MediaItem::Image>& MediaItem::images() const {
+	const Optional<ArrayList<MediaItem::Image>>& MediaItem::images() const {
 		return _images;
 	}
 	

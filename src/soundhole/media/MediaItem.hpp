@@ -16,15 +16,16 @@ namespace sh {
 	class MediaItem {
 	public:
 		struct Image {
-			struct Dimensions {
-				size_t width;
-				size_t height;
-			};
 			enum class Size {
 				TINY,
 				SMALL,
 				MEDIUM,
 				LARGE
+			};
+			struct Dimensions {
+				size_t width;
+				size_t height;
+				Size toSize() const;
 			};
 			
 			String url;
@@ -36,7 +37,7 @@ namespace sh {
 			String type;
 			String name;
 			String uri;
-			ArrayList<Image> images;
+			Optional<ArrayList<Image>> images;
 		};
 		
 		MediaItem(MediaProvider* provider, Data data);
@@ -47,7 +48,7 @@ namespace sh {
 		const String& name() const;
 		const String& uri() const;
 		
-		const ArrayList<Image>& images() const;
+		const Optional<ArrayList<Image>>& images() const;
 		
 		MediaProvider* mediaProvider() const;
 		
@@ -59,6 +60,6 @@ namespace sh {
 		String _type;
 		String _name;
 		String _uri;
-		ArrayList<Image> _images;
+		Optional<ArrayList<Image>> _images;
 	};
 }

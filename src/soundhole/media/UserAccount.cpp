@@ -15,12 +15,16 @@ namespace sh {
 
 	UserAccount::UserAccount(MediaProvider* provider, Data data)
 	: MediaItem(provider, data),
-	_id(data.id) {
+	_id(data.id), _displayName(data.displayName) {
 		//
 	}
 
 	const String& UserAccount::id() const {
 		return _id;
+	}
+
+	const Optional<String>& UserAccount::displayName() const {
+		return _displayName;
 	}
 
 	bool UserAccount::needsData() const {
