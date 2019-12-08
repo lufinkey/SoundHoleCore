@@ -32,19 +32,45 @@ namespace sh {
 			onStreamingLogout();
 		};
 		playerEventHandler.onTemporaryConnectionError = ^() {
-			// TODO handle temporary connection error
+			std::unique_lock<std::mutex> lock(listenersMutex);
+			auto listeners = this->listeners;
+			lock.unlock();
+			for(auto listener : listeners) {
+				listener->onSpotifyPlayerTemporaryConnectionError(this);
+			}
 		};
 		playerEventHandler.onMessage = ^(NSString* message) {
-			// TODO handle player message
+			std::unique_lock<std::mutex> lock(listenersMutex);
+			auto listeners = this->listeners;
+			lock.unlock();
+			for(auto listener : listeners) {
+				listener->onSpotifyPlayerMessage(this, String(message));
+			}
 		};
 		playerEventHandler.onDisconnect = ^() {
-			// TODO handle disconnect
+			std::unique_lock<std::mutex> lock(listenersMutex);
+			auto listeners = this->listeners;
+			lock.unlock();
+			for(auto listener : listeners) {
+				listener->onSpotifyPlayerDisconnect(this);
+			}
 		};
 		playerEventHandler.onReconnect = ^() {
-			// TODO handle reconnect
+			std::unique_lock<std::mutex> lock(listenersMutex);
+			auto listeners = this->listeners;
+			lock.unlock();
+			for(auto listener : listeners) {
+				listener->onSpotifyPlayerReconnect(this);
+			}
 		};
-		playerEventHandler.onPlaybackEvent = ^(SpPlaybackEvent event) {
-			// TODO handle playback event
+		playerEventHandler.onPlaybackEvent = ^(SpPlaybackEvent spEvent) {
+			std::unique_lock<std::mutex> lock(listenersMutex);
+			auto listeners = this->listeners;
+			lock.unlock();
+			auto event = SpotifyPlaybackEvent_fromSpPlaybackEvent(spEvent);
+			for(auto listener : listeners) {
+				listener->onSpotifyPlaybackEvent(this, event);
+			}
 		};
 		playerEventHandler.onChangePlaybackStatus = ^(BOOL isPlaying) {
 			if(isPlaying) {

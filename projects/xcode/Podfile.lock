@@ -24,7 +24,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   AsyncCpp:
-    :commit: b3661a50ab79c1a5f7ed1d9070b2bf7aa298f1c5
+    :commit: 6009368276e236462bca85da6fd29a751164ab47
     :git: "git@github.com:lufinkey/async-cpp.git"
   DataCpp:
     :commit: 8ab00f783feee611adb278041522e569695f9e32
@@ -42,6 +42,6 @@ SPEC CHECKSUMS:
   NodeJSEmbed: ff7926e46e0ce00c856cf37e2287c34ef86fb04c
   NodeMobile: cb332628599d35759769bdb6b1501b17b5f1f287
 
-PODFILE CHECKSUM: 47622f512149f0786a1ca60b5d24cdf4a1b0b18f
+PODFILE CHECKSUM: 7b01911d4487351e9c894dfd67960bc9b04c800d
 
 COCOAPODS: 1.8.4

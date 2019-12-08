@@ -15,3 +15,14 @@ target 'SoundHoleCoreTest-macOS' do
 	pod 'AsyncCpp', :git => 'git@github.com:lufinkey/async-cpp.git'
 	pod 'NodeJSEmbed', :git => 'git@github.com:lufinkey/nodejs-embed.git'
 end
+
+post_install do |installer|
+	installer.pods_project.targets.each do |target|
+		if target.name == 'AsyncCpp-iOS' || target.name == 'AsyncCpp-macOS'
+			target.build_configurations.each do |config|
+				config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
+				config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'FGL_DISPATCH_USES_MAIN=1'
+			end
+		end
+	end
+end

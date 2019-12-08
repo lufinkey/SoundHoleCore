@@ -12,7 +12,7 @@
 
 namespace sh {
 	void JSWrapClass::queueJS(Function<void(napi_env)> work) {
-		scripts::loadScriptsIfNeeded().then([=]() {
+		scripts::loadScriptsIfNeeded().then(nullptr, [=]() {
 			embed::nodejs::queueMain([=](napi_env env) {
 				this->initializeJS(env);
 				work(env);
@@ -24,7 +24,7 @@ namespace sh {
 		if(!embed::nodejs::isRunning()) {
 			return;
 		}
-		scripts::loadScriptsIfNeeded().then([=]() {
+		scripts::loadScriptsIfNeeded().then(nullptr, [=]() {
 			embed::nodejs::queueMain([=](napi_env env) {
 				work(env);
 			});

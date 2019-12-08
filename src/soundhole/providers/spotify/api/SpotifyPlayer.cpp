@@ -19,6 +19,19 @@ namespace sh {
 	}
 
 
+	void SpotifyPlayer::addEventListener(SpotifyPlayerEventListener* listener) {
+		std::unique_lock<std::mutex> lock(listenersMutex);
+		listeners.pushBack(listener);
+		lock.unlock();
+	}
+
+	void SpotifyPlayer::removeEventListener(SpotifyPlayerEventListener* listener) {
+		std::unique_lock<std::mutex> lock(listenersMutex);
+		listeners.removeFirstEqual(listener);
+		lock.unlock();
+	}
+
+
 	void SpotifyPlayer::setOptions(Options options) {
 		this->options = options;
 	}
@@ -237,7 +250,7 @@ namespace sh {
 	}
 	
 	void SpotifyPlayer::onStreamingLogin() {
-		// handle loginPlayer callbacks
+		// begin session / handle loginPlayer callbacks
 		beginSession();
 	}
 	

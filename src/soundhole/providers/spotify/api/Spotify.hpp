@@ -28,6 +28,11 @@ namespace sh {
 		Spotify(Options options);
 		~Spotify();
 		
+		SpotifyAuth* getAuth();
+		const SpotifyAuth* getAuth() const;
+		SpotifyPlayer* getPlayer();
+		const SpotifyPlayer* getPlayer() const;
+		
 		using LoginOptions = SpotifyAuth::LoginOptions;
 		Promise<bool> login(LoginOptions options = LoginOptions());
 		Promise<void> logout();

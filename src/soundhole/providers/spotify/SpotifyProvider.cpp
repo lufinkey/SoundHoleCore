@@ -11,9 +11,18 @@
 
 namespace sh {
 	SpotifyProvider::SpotifyProvider(Options options)
-	: spotify(new Spotify(options)) {
+	: spotify(new Spotify(options)),
+	_player(new SpotifyPlaybackProvider(this)) {
 		//
 	}
+
+	SpotifyProvider::~SpotifyProvider() {
+		delete _player;
+		delete spotify;
+	}
+
+
+
 
 	String SpotifyProvider::name() const {
 		return "spotify";
@@ -22,6 +31,9 @@ namespace sh {
 	String SpotifyProvider::displayName() const {
 		return "Spotify";
 	}
+
+
+
 
 	Promise<bool> SpotifyProvider::login() {
 		return spotify->login();
@@ -34,6 +46,7 @@ namespace sh {
 	bool SpotifyProvider::isLoggedIn() const {
 		return spotify->isLoggedIn();
 	}
+
 
 
 
@@ -187,7 +200,12 @@ namespace sh {
 
 
 
-	bool SpotifyProvider::usesPublicAudioStreams() const {
-		return false;
+
+	SpotifyPlaybackProvider* SpotifyProvider::player() {
+		return _player;
+	}
+
+	const SpotifyPlaybackProvider* SpotifyProvider::player() const {
+		return _player;
 	}
 }

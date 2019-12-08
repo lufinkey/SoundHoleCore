@@ -20,7 +20,7 @@
 
 #include "SpotifyAuth.hpp"
 #include "SpotifyError.hpp"
-#include "SpotifyAuthEventListener.hpp"
+#include "SpotifyPlayerEventListener.hpp"
 
 namespace sh {
 	class SpotifyPlayer: protected SpotifyAuthEventListener {
@@ -63,6 +63,9 @@ namespace sh {
 		};
 
 		~SpotifyPlayer();
+		
+		void addEventListener(SpotifyPlayerEventListener* listener);
+		void removeEventListener(SpotifyPlayerEventListener* listener);
 		
 		void setAuth(SpotifyAuth* auth);
 		SpotifyAuth* getAuth();
@@ -162,6 +165,9 @@ namespace sh {
 		LinkedList<WaitCallback> loginCallbacks;
 		LinkedList<WaitCallback> logoutCallbacks;
 		std::mutex loginMutex;
+		
+		LinkedList<SpotifyPlayerEventListener*> listeners;
+		std::mutex listenersMutex;
 		
 		#ifdef TARGETPLATFORM_IOS
 		struct SavedPlayerState {

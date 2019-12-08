@@ -25,6 +25,22 @@ namespace sh {
 		}
 		delete auth;
 	}
+
+	SpotifyAuth* Spotify::getAuth() {
+		return auth;
+	}
+
+	const SpotifyAuth* Spotify::getAuth() const {
+		return auth;
+	}
+
+	SpotifyPlayer* Spotify::getPlayer() {
+		return player;
+	}
+
+	const SpotifyPlayer* Spotify::getPlayer() const {
+		return player;
+	}
 	
 	Promise<bool> Spotify::login(LoginOptions options) {
 		return auth->login(options);

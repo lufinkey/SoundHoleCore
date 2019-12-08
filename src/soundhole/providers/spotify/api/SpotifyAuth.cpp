@@ -209,9 +209,9 @@ namespace sh {
 	}
 	
 	void SpotifyAuth::logout() {
-		bool wasLogged = isLoggedIn();
+		bool wasLoggedIn = isLoggedIn();
 		clearSession();
-		if(wasLogged) {
+		if(wasLoggedIn) {
 			std::unique_lock<std::mutex> lock(listenersMutex);
 			LinkedList<SpotifyAuthEventListener*> listeners = this->listeners;
 			lock.unlock();
@@ -222,7 +222,7 @@ namespace sh {
 	}
 	
 	Promise<bool> SpotifyAuth::renewSession(RenewOptions options) {
-		return Promise<bool>("SpotifyAuth.renewSession", [&](auto resolve, auto reject) {
+		return Promise<bool>([&](auto resolve, auto reject) {
 			if(!canRefreshSession()) {
 				resolve(false);
 				return;

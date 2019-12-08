@@ -61,7 +61,7 @@ namespace sh {
 
 
 	bool Track::needsData() const {
-		return (!_duration.has_value() || (provider->usesPublicAudioStreams() && !_audioSources.has_value()));
+		return (!_duration.has_value() || (provider->player()->usesPublicAudioStreams() && !_audioSources.has_value()));
 	}
 
 	Promise<void> Track::fetchMissingData() {

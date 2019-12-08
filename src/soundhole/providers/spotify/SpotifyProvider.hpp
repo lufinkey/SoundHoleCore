@@ -8,11 +8,14 @@
 
 #pragma once
 
+#include <soundhole/common.hpp>
 #include <soundhole/media/MediaProvider.hpp>
+#include "SpotifyPlaybackProvider.hpp"
 #include "api/Spotify.hpp"
 
 namespace sh {
 	class SpotifyProvider: public MediaProvider {
+		friend class SpotifyPlaybackProvider;
 	public:
 		using Options = Spotify::Options;
 		
@@ -26,12 +29,13 @@ namespace sh {
 		virtual void logout() override;
 		bool isLoggedIn() const override;
 		
+		virtual SpotifyPlaybackProvider* player() override;
+		virtual const SpotifyPlaybackProvider* player() const override;
+		
 		virtual Promise<Track::Data> getTrackData(String uri) override;
 		virtual Promise<Artist::Data> getArtistData(String uri) override;
 		virtual Promise<Album::Data> getAlbumData(String uri) override;
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) override;
-		
-		virtual bool usesPublicAudioStreams() const override;
 		
 	protected:
 		Track::Data createTrackData(SpotifyTrack track);
@@ -45,5 +49,6 @@ namespace sh {
 		static MediaItem::Image createImage(SpotifyImage image);
 		
 		Spotify* spotify;
+		SpotifyPlaybackProvider* _player;
 	};
 }
