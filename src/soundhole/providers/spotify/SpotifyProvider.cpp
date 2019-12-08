@@ -184,4 +184,10 @@ namespace sh {
 			return createPlaylistData(playlist);
 		});
 	}
+
+
+
+	bool SpotifyProvider::usesPublicAudioStreams() const {
+		return false;
+	}
 }

@@ -112,8 +112,6 @@ namespace sh {
 		};
 		
 		std::variant<std::nullptr_t,EmptyTracks,LinkedList<$<ItemType>>,AsyncList<$<ItemType>>*> _items;
-		
-	private:
 		std::variant<std::nullptr_t,EmptyTracks,LinkedList<$<ItemType>>,AsyncList<$<ItemType>>*> constructItems(Optional<typename Data::Tracks> tracks);
 	};
 

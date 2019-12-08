@@ -55,12 +55,15 @@ namespace sh {
 	}
 
 	bool Album::needsData() const {
-		return provider->doesAlbumNeedData(this);
+		return tracksAreEmpty();
 	}
 
 	Promise<void> Album::fetchMissingData() {
-		// TODO implement fetchMissingData
-		return Promise<void>::reject(std::runtime_error("not implemented"));
+		return provider->getAlbumData(_uri).then([=](Data data) {
+			if(tracksAreEmpty()) {
+				_items = constructItems(data.tracks);
+			}
+		});
 	}
 
 

@@ -21,6 +21,7 @@ namespace sh {
 			String url;
 			String encoding;
 			size_t bitrate;
+			Optional<size_t> videoBitrate;
 		};
 		
 		struct Data: public MediaItem::Data {

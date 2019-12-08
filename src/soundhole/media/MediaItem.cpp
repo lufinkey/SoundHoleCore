@@ -66,7 +66,7 @@ namespace sh {
 		if(_itemDataPromise.has_value()) {
 			return _itemDataPromise.value();
 		}
-		auto promise = fetchMissingData().then([=]() {
+		auto promise = fetchMissingData().finally([=]() {
 			_itemDataPromise.reset();
 		});
 		_itemDataPromise = promise;

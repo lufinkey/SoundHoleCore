@@ -31,6 +31,8 @@ namespace sh {
 		virtual Promise<Album::Data> getAlbumData(String uri) override;
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) override;
 		
+		virtual bool usesPublicAudioStreams() const override;
+		
 	protected:
 		Track::Data createTrackData(SpotifyTrack track);
 		Artist::Data createArtistData(SpotifyArtist artist);

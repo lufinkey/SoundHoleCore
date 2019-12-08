@@ -69,12 +69,15 @@ namespace sh {
 	}
 
 	bool Playlist::needsData() const {
-		return provider->doesPlaylistNeedData(this);
+		return tracksAreEmpty();
 	}
 
 	Promise<void> Playlist::fetchMissingData() {
-		// TODO implement fetchMissingData
-		return Promise<void>::reject(std::runtime_error("not implemented"));
+		return provider->getPlaylistData(_uri).then([=](Data data) {
+			if(tracksAreEmpty()) {
+				_items = constructItems(data.tracks);
+			}
+		});
 	}
 
 	Promise<void> Playlist::loadAsyncListItems(typename AsyncList<$<PlaylistItem>>::Mutator* mutator, size_t index, size_t count) {

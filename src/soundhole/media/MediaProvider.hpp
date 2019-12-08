@@ -42,9 +42,6 @@ namespace sh {
 		virtual Promise<$<Album>> getAlbum(String uri);
 		virtual Promise<$<Playlist>> getPlaylist(String uri);
 		
-		virtual bool doesTrackNeedData(const Track* track) const = 0;
-		virtual bool doesArtistNeedData(const Artist* artist) const = 0;
-		virtual bool doesAlbumNeedData(const Album* album) const = 0;
-		virtual bool doesPlaylistNeedData(const Playlist* playlist) const = 0;
+		virtual bool usesPublicAudioStreams() const = 0;
 	};
 }

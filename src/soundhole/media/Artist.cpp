@@ -27,11 +27,14 @@ namespace sh {
 
 
 	bool Artist::needsData() const {
-		return provider->doesArtistNeedData(this);
+		// TODO implement Artist::needsData
+		return false;
 	}
 
-	Promise<void> fetchMissingData() {
-		// TODO implement fetchMissingData
-		return Promise<void>::reject(std::runtime_error("not implemented"));
+	Promise<void> Artist::fetchMissingData() {
+		return provider->getArtistData(_uri).then([=](Data data) {
+			_name = data.name;
+			_description = data.description;
+		});
 	}
 }

@@ -61,11 +61,18 @@ namespace sh {
 
 
 	bool Track::needsData() const {
-		return provider->doesTrackNeedData(this);
+		return (!_duration.has_value() || (provider->usesPublicAudioStreams() && !_audioSources.has_value()));
 	}
 
 	Promise<void> Track::fetchMissingData() {
-		// TODO implement fetchMissingData
-		return Promise<void>::reject(std::runtime_error("not implemented"));
+		return provider->getTrackData(_uri).then([=](Data data) {
+			_albumName = data.albumName;
+			_albumURI = data.albumURI;
+			_tags = data.tags;
+			_discNumber = data.discNumber;
+			_trackNumber = data.trackNumber;
+			_duration = data.duration;
+			_audioSources = data.audioSources;
+		});
 	}
 }
