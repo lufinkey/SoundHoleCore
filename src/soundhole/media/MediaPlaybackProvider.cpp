@@ -9,5 +9,13 @@
 #include "MediaPlaybackProvider.hpp"
 
 namespace sh {
-	//
+	void MediaPlaybackProvider::addEventListener(EventListener* listener) {
+		std::unique_lock<std::mutex> lock(listenersMutex);
+		listeners.pushBack(listener);
+	}
+
+	void MediaPlaybackProvider::removeEventListener(EventListener* listener) {
+		std::unique_lock<std::mutex> lock(listenersMutex);
+		listeners.removeFirstEqual(listener);
+	}
 }

@@ -169,6 +169,14 @@ namespace sh {
 #pragma mark SpotifyPlayerEventListener
 
 	void SpotifyPlaybackProvider::onSpotifyPlaybackEvent(SpotifyPlayer* player, SpotifyPlaybackEvent event) {
-		//
+		if(event == SpotifyPlaybackEvent::PLAY) {
+			callListenerEvent(&EventListener::onMediaPlaybackProviderPlay, this);
+		} else if(event == SpotifyPlaybackEvent::PAUSE) {
+			callListenerEvent(&EventListener::onMediaPlaybackProviderPause, this);
+		} else if(event == SpotifyPlaybackEvent::TRACK_DELIVERED) {
+			callListenerEvent(&EventListener::onMediaPlaybackProviderTrackFinish, this);
+		} else if(event == SpotifyPlaybackEvent::METADATA_CHANGE) {
+			callListenerEvent(&EventListener::onMediaPlaybackProviderMetadataChange, this);
+		}
 	}
 }
