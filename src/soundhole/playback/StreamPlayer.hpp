@@ -26,9 +26,9 @@ namespace sh {
 		public:
 			virtual ~Listener() {}
 			
-			virtual void onStreamPlayerPlay(StreamPlayer* player);
-			virtual void onStreamPlayerPause(StreamPlayer* player);
-			virtual void onStreamPlayerTrackFinish(StreamPlayer* player, String audioURL);
+			virtual void onStreamPlayerPlay(StreamPlayer* player) {}
+			virtual void onStreamPlayerPause(StreamPlayer* player) {}
+			virtual void onStreamPlayerTrackFinish(StreamPlayer* player, String audioURL) {}
 		};
 		
 		struct PlaybackState {
