@@ -138,26 +138,29 @@ using namespace sh;
 	return YES;
 }
 
--(void)handleRedirectURL:(NSURL*)url {
-	if(_completion == nil) {
-		return;
-	}
+-(void)handleRedirectURL:(NSURL*)url completion:(SpotifyAuthViewControllerCompletion)completion {
 	NSDictionary* params = [self.class parseOAuthQueryParams:url];
 	NSString* state = params[@"state"];
 	NSString* error = params[@"error"];
 	if(error != nil) {
 		if([error isEqualToString:@"access_denied"]) {
 			// cancelled from webview
-			_completion(std::nullopt, nullptr);
+			if(completion != nil) {
+				completion(std::nullopt, nullptr);
+			}
 		}
 		else {
 			// error
-			_completion(std::nullopt, std::make_exception_ptr(SpotifyError(SpotifyError::Code::OAUTH_REQUEST_FAILED, String(error))));
+			if(completion != nil) {
+				completion(std::nullopt, std::make_exception_ptr(SpotifyError(SpotifyError::Code::OAUTH_REQUEST_FAILED, String(error))));
+			}
 		}
 	}
 	else if(_xssState != nil && (state == nil || ![_xssState isEqualToString:state])) {
 		// state mismatch
-		_completion(std::nullopt, std::make_exception_ptr(SpotifyError(SpotifyError::Code::OAUTH_STATE_MISMATCH, "State mismatch")));
+		if(completion != nil) {
+			completion(std::nullopt, std::make_exception_ptr(SpotifyError(SpotifyError::Code::OAUTH_STATE_MISMATCH, "State mismatch")));
+		}
 	}
 	else if(params[@"access_token"] != nil) {
 		// access token
@@ -165,7 +168,9 @@ using namespace sh;
 		NSString* expiresIn = params[@"expires_in"];
 		NSInteger expireSeconds = [expiresIn integerValue];
 		if(expireSeconds == 0) {
-			_completion(std::nullopt, std::make_exception_ptr(SpotifyError(SpotifyError::Code::BAD_RESPONSE, "Access token expire time was 0")));
+			if(completion != nil) {
+				completion(std::nullopt, std::make_exception_ptr(SpotifyError(SpotifyError::Code::BAD_RESPONSE, "Access token expire time was 0")));
+			}
 			return;
 		}
 		NSString* scope = params[@"scope"];
@@ -185,12 +190,16 @@ using namespace sh;
 			(refreshToken != nil) ? String(refreshToken) : "",
 			scopes
 		);
-		_completion(session, nullptr);
+		if(completion != nil) {
+			completion(session, nullptr);
+		}
 	}
 	else if(params[@"code"] != nil) {
 		// authentication code
 		if(_options.tokenSwapURL.empty()) {
-			_completion(std::nullopt, std::make_exception_ptr(SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "Missing tokenSwapURL")));
+			if(completion != nil) {
+				completion(std::nullopt, std::make_exception_ptr(SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "Missing tokenSwapURL")));
+			}
 			return;
 		}
 		NSString* code = params[@"code"];
@@ -202,29 +211,39 @@ using namespace sh;
 					session.getRefreshToken(),
 					_options.scopes);
 			}
-			dispatch_async(dispatch_get_main_queue(), ^{
-				self->_completion(session, nullptr);
-			});
+			if(completion != nil) {
+				dispatch_async(dispatch_get_main_queue(), ^{
+					completion(session, nullptr);
+				});
+			}
 		}).except([=](std::exception_ptr error) {
-			dispatch_async(dispatch_get_main_queue(), ^{
-				self->_completion(std::nullopt, error);
-			});
+			if(completion != nil) {
+				dispatch_async(dispatch_get_main_queue(), ^{
+					completion(std::nullopt, error);
+				});
+			}
 		});
 	}
 	else {
-		_completion(std::nullopt, std::make_exception_ptr(SpotifyError(SpotifyError::Code::BAD_RESPONSE, "Missing expected parameters in redirect URL")));
+		if(completion != nil) {
+			completion(std::nullopt, std::make_exception_ptr(SpotifyError(SpotifyError::Code::BAD_RESPONSE, "Missing expected parameters in redirect URL")));
+		}
 	}
 }
 
 
 #pragma mark - UIWebViewDelegate
 
--(void)webView:(WKWebView*)webView
-decidePolicyForNavigationAction:(WKNavigationAction*)navigationAction
-decisionHandler:(void(^)(WKNavigationActionPolicy))decisionHandler {
+-(void)webView:(WKWebView*)webView decidePolicyForNavigationAction:(WKNavigationAction*)navigationAction decisionHandler:(void(^)(WKNavigationActionPolicy))decisionHandler {
 	if([self canHandleRedirectURL:navigationAction.request.URL]) {
 		[_progressView showInView:self.view animated:YES completion:nil];
-		[self handleRedirectURL:navigationAction.request.URL];
+		[self handleRedirectURL:navigationAction.request.URL completion:^(sh::Optional<sh::SpotifySession> session, std::exception_ptr error) {
+			[self->_progressView dismissAnimated:YES completion:nil];
+			if(self.presentingViewController == nil) {
+				return;
+			}
+			self->_completion(session, error);
+		}];
 		decisionHandler(WKNavigationActionPolicyCancel);
 	}
 	else {

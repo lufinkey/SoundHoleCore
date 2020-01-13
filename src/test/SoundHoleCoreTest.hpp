@@ -12,4 +12,5 @@
 
 namespace sh::test {
 	Promise<void> testSpotify();
+	Promise<void> testStreamPlayer();
 }

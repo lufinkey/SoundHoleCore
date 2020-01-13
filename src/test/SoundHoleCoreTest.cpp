@@ -8,10 +8,11 @@
 
 #include "SoundHoleCoreTest.hpp"
 #include <soundhole/providers/spotify/api/Spotify.hpp>
+#include <soundhole/playback/StreamPlayer.hpp>
 
 namespace sh::test {
 	Promise<void> testSpotify() {
-		printf("beginning spotify tests\n");
+		printf("testing Spotify\n");
 
 		auto spotify = new Spotify({
 			.auth = {
@@ -24,14 +25,12 @@ namespace sh::test {
 			}
 		});
 		
-		auto promise = Promise<void>::resolve();
-		
-		promise = promise.then([=]() -> Promise<void> {
+		return Promise<void>::resolve()
+		.then([=]() {
 			printf("logging out spotify\n");
 			return spotify->logout();
-		});
-
-		promise = promise.then([=]() -> Promise<void> {
+		})
+		.then([=]() {
 			if(!spotify->isLoggedIn()) {
 				return spotify->login().then([=](bool loggedIn) {
 					if(loggedIn) {
@@ -57,14 +56,12 @@ namespace sh::test {
 				printf("spotify is already logged in\n");
 				return Promise<void>::resolve();
 			}
-		});
-		
-		promise = promise.then([=]() -> Promise<void> {
+		})
+		.then([=]() {
 			printf("playing song\n");
-			return spotify->playURI("spotify:track:1ONC00cKNdFgKiATMtcxEc").then([=]() -> Promise<void> {
-				printf("delaying for 10 seconds\n");
-				return Timer::delay(std::chrono::seconds(10));
-			}).except([=](std::exception_ptr errorPtr) {
+			return spotify->playURI("spotify:track:1ONC00cKNdFgKiATMtcxEc")
+			.delay(std::chrono::seconds(10))
+			.except([=](std::exception_ptr errorPtr) {
 				try {
 					std::rethrow_exception(errorPtr);
 				} catch(SpotifyError& error) {
@@ -78,13 +75,53 @@ namespace sh::test {
 				}
 				std::rethrow_exception(errorPtr);
 			});
-		});
-		
-		promise = promise.finally([=]() {
+		})
+		.then([=]() {
+			printf("stopping spotify\n");
+			spotify->stopPlayer();
+		})
+		.finally([=]() {
 			printf("cleaning up spotify instance\n");
 			delete spotify;
+			printf("\n");
 		});
+	}
+	
+	
+	
+	Promise<void> testStreamPlayer() {
+		printf("testing StreamPlayer\n");
 		
-		return promise;
+		auto streamPlayer = new StreamPlayer();
+		
+		String iWishIWasAChair = "https://t4.bcbits.com/stream/eaf3df4fb945d596ecec739ce4dea428/mp3-128/1350603412?p=0&ts=1578972318&t=5629ea641c9f18a90485763182a417e170e9c17c&token=1578972318_703260b281c45e78e9ee8e3fdf02412738fb236d";
+		
+		String endOfTheNight = "https://t4.bcbits.com/stream/9cec9cf3b8981b020112f369dd36b7ff/mp3-128/2708171616?p=0&ts=1578973443&t=7639636dfb9feac2d56d4d7ada9beb133d34ebbd&token=1578973443_7278cdd10a35fca4098b288295723d1e3f8992c8";
+		
+		return Promise<void>::resolve()
+		.then([=]() {
+			printf("playing: I Wish I was a Chair.\n");
+			return streamPlayer->play(iWishIWasAChair);
+		})
+		.delay(std::chrono::seconds(5))
+		.then([=]() {
+			printf("preparing: End Of The niGht. (AF THE NAYSAYER Remix)\n");
+			return streamPlayer->prepare(endOfTheNight);
+		})
+		.delay(std::chrono::seconds(5))
+		.then([=]() {
+			printf("playing: End Of The niGht. (AF THE NAYSAYER Remix)\n");
+			return streamPlayer->play(endOfTheNight);
+		})
+		.delay(std::chrono::seconds(10))
+		.finally([=]() {
+			printf("stopping\n");
+			return streamPlayer->stop();
+		})
+		.finally([=]() {
+			printf("deleting StreamPlayer\n");
+			delete streamPlayer;
+			printf("\n");
+		});
 	}
 }

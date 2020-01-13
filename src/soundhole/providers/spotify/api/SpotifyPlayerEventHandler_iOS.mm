@@ -12,39 +12,57 @@
 @implementation SpotifyPlayerEventHandler
 
 -(void)audioStreaming:(SPTAudioStreamingController*)audioStreaming didReceiveError:(NSError*)error {
-	_onError(error);
+	if(_onError != nil) {
+		_onError(error);
+	}
 }
 
 -(void)audioStreamingDidLogin:(SPTAudioStreamingController*)audioStreaming {
-	_onLogin();
+	if(_onLogin != nil) {
+		_onLogin();
+	}
 }
 
 -(void)audioStreamingDidLogout:(SPTAudioStreamingController*)audioStreaming {
-	_onLogout();
+	if(_onLogout != nil) {
+		_onLogout();
+	}
 }
 
 -(void)audioStreamingDidEncounterTemporaryConnectionError:(SPTAudioStreamingController*)audioStreaming {
-	_onTemporaryConnectionError();
+	if(_onTemporaryConnectionError != nil) {
+		_onTemporaryConnectionError();
+	}
 }
 
 -(void)audioStreaming:(SPTAudioStreamingController*)audioStreaming didReceiveMessage:(NSString*)message {
-	_onMessage(message);
+	if(_onMessage != nil) {
+		_onMessage(message);
+	}
 }
 
 -(void)audioStreamingDidDisconnect:(SPTAudioStreamingController*)audioStreaming {
-	_onDisconnect();
+	if(_onDisconnect != nil) {
+		_onDisconnect();
+	}
 }
 
 -(void)audioStreamingDidReconnect:(SPTAudioStreamingController*)audioStreaming {
-	_onReconnect();
+	if(_onReconnect != nil) {
+		_onReconnect();
+	}
 }
 
 -(void)audioStreaming:(SPTAudioStreamingController*)audioStreaming didReceivePlaybackEvent:(SpPlaybackEvent)event {
-	_onPlaybackEvent(event);
+	if(_onPlaybackEvent != nil) {
+		_onPlaybackEvent(event);
+	}
 }
 
 -(void)audioStreaming:(SPTAudioStreamingController*)audioStreaming didChangePlaybackStatus:(BOOL)isPlaying {
-	_onChangePlaybackStatus(isPlaying);
+	if(_onChangePlaybackStatus != nil) {
+		_onChangePlaybackStatus(isPlaying);
+	}
 }
 
 @end

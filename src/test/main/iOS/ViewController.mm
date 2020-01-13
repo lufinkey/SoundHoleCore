@@ -24,7 +24,9 @@
 -(void)viewDidAppear:(BOOL)animated {
 	[super viewDidAppear:animated];
 	_tested = YES;
-	sh::test::testSpotify();
+	sh::test::testSpotify().then([=]() {
+		sh::test::testStreamPlayer();
+	});
 }
 
 @end
