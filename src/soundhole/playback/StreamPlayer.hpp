@@ -20,6 +20,8 @@
 namespace sh {
 	class StreamPlayer {
 	public:
+		static StreamPlayer* shared();
+		
 		class Listener {
 		public:
 			virtual ~Listener() {}
@@ -37,6 +39,9 @@ namespace sh {
 		
 		StreamPlayer();
 		~StreamPlayer();
+		
+		void addListener(Listener* listener);
+		void removeListener(Listener* listener);
 		
 		Promise<void> prepare(String audioURL);
 		struct PlayOptions {
@@ -64,6 +69,7 @@ namespace sh {
 		OBJCPP_PTR(AVPlayer) preparedPlayer;
 		String preparedAudioURL;
 		#endif
+		std::recursive_mutex playerMutex;
 		
 		OBJCPP_PTR(StreamPlayerEventHandler) playerEventHandler;
 		

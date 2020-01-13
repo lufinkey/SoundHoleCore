@@ -15,7 +15,37 @@
 namespace sh {
 	StreamPlayer::StreamPlayer()
 	: player(nil), preparedPlayer(nil), playerEventHandler([[StreamPlayerEventHandler alloc] init]) {
-		//
+		playerEventHandler.onPlay = ^{
+			std::unique_lock<std::mutex> lock(listenersMutex);
+			auto listeners = this->listeners;
+			lock.unlock();
+			for(auto listener : listeners) {
+				listener->onStreamPlayerPlay(this);
+			}
+		};
+		playerEventHandler.onPause = ^{
+			std::unique_lock<std::mutex> lock(listenersMutex);
+			auto listeners = this->listeners;
+			lock.unlock();
+			for(auto listener : listeners) {
+				listener->onStreamPlayerPause(this);
+			}
+		};
+		playerEventHandler.onItemFinish = ^(AVPlayerItem* _Nonnull item) {
+			std::unique_lock<std::recursive_mutex> playerLock(playerMutex);
+			auto audioURL = playerAudioURL;
+			if(item != player.currentItem) {
+				return;
+			}
+			playerLock.unlock();
+			
+			std::unique_lock<std::mutex> lock(listenersMutex);
+			auto listeners = this->listeners;
+			lock.unlock();
+			for(auto listener : listeners) {
+				listener->onStreamPlayerTrackFinish(this, audioURL);
+			}
+		};
 	}
 
 	StreamPlayer::~StreamPlayer() {
@@ -31,6 +61,7 @@ namespace sh {
 	}
 
 	void StreamPlayer::setPlayer(AVPlayer* player, String audioURL) {
+		std::unique_lock<std::recursive_mutex> lock(playerMutex);
 		destroyPlayer();
 		this->player = player;
 		this->playerAudioURL = audioURL;
@@ -39,29 +70,33 @@ namespace sh {
 	}
 
 	void StreamPlayer::destroyPlayer() {
+		std::unique_lock<std::recursive_mutex> lock(playerMutex);
 		if(player == nil) {
 			return;
 		}
 		AVPlayer* deadPlayer = player;
 		player = nil;
 		playerAudioURL.clear();
-		[deadPlayer pause];
-		[deadPlayer replaceCurrentItemWithPlayerItem:nil];
 		[NSNotificationCenter.defaultCenter removeObserver:playerEventHandler name:AVPlayerItemDidPlayToEndTimeNotification object:deadPlayer.currentItem];
 		[deadPlayer removeObserver:playerEventHandler forKeyPath:@"timeControlStatus"];
+		lock.unlock();
+		[deadPlayer pause];
+		[deadPlayer replaceCurrentItemWithPlayerItem:nil];
 	}
 
 	void StreamPlayer::destroyPreparedPlayer() {
+		std::unique_lock<std::recursive_mutex> lock(playerMutex);
 		if(preparedPlayer == nil) {
 			return;
 		}
 		AVPlayer* deadPlayer = preparedPlayer;
 		preparedPlayer = nil;
 		preparedAudioURL.clear();
-		[deadPlayer pause];
-		[deadPlayer replaceCurrentItemWithPlayerItem:nil];
 		[NSNotificationCenter.defaultCenter removeObserver:playerEventHandler name:AVPlayerItemDidPlayToEndTimeNotification object:deadPlayer.currentItem];
 		[deadPlayer removeObserver:playerEventHandler forKeyPath:@"timeControlStatus"];
+		lock.unlock();
+		[deadPlayer pause];
+		[deadPlayer replaceCurrentItemWithPlayerItem:nil];
 	}
 
 
@@ -70,21 +105,25 @@ namespace sh {
 		if(audioURL.empty()) {
 			return Promise<void>::reject(std::invalid_argument("audioURL cannot be empty"));
 		}
+		std::unique_lock<std::recursive_mutex> lock(playerMutex);
 		if(preparedAudioURL == audioURL) {
 			return Promise<void>::resolve();
 		}
+		lock.unlock();
 		auto runOptions = AsyncQueue::RunOptions{
 			.tag = "prepare",
 			.cancelMatchingTags = true
 		};
 		return playQueue.run(runOptions, [=](auto task) {
 			return generate<void>([=](auto yield) {
+				std::unique_lock<std::recursive_mutex> lock(playerMutex);
 				if(preparedAudioURL == audioURL) {
 					return;
 				}
 				destroyPreparedPlayer();
 				preparedPlayer = createPlayer(audioURL);
 				preparedAudioURL = audioURL;
+				lock.unlock();
 				preparedPlayer.muted = YES;
 				[preparedPlayer play];
 				[preparedPlayer pause];
@@ -121,13 +160,17 @@ namespace sh {
 					}));
 					return;
 				} else if(preparedAudioURL == audioURL) {
+					std::unique_lock<std::recursive_mutex> lock(playerMutex);
 					auto newPlayer = preparedPlayer;
 					preparedPlayer = nil;
 					preparedAudioURL.clear();
 					setPlayer(newPlayer, audioURL);
+					lock.unlock();
 				} else {
+					std::unique_lock<std::recursive_mutex> lock(playerMutex);
 					destroyPreparedPlayer();
 					setPlayer(createPlayer(audioURL), audioURL);
+					lock.unlock();
 				}
 				yield();
 				if(options.beforePlay) {
@@ -147,7 +190,6 @@ namespace sh {
 					}));
 				}
 				[player play];
-				// TODO emit play event
 			});
 		}).promise;
 	}
@@ -166,7 +208,6 @@ namespace sh {
 			} else {
 				[player pause];
 			}
-			// TODO emit play/pause event
 		}).promise;
 	}
 
@@ -177,13 +218,13 @@ namespace sh {
 		};
 		return playQueue.run(runOptions, [=](auto task) {
 			if(player == nil) {
-				return;
+				return Promise<void>::resolve();
 			}
-			await(Promise<void>([=](auto resolve, auto reject) {
+			return Promise<void>([=](auto resolve, auto reject) {
 				[player seekToTime:CMTimeMake((CMTimeValue)(position * 1000.0), 1000) completionHandler:^(BOOL finished) {
 					resolve();
 				}];
-			}));
+			});
 		}).promise;
 	}
 
@@ -194,6 +235,7 @@ namespace sh {
 		};
 		playQueue.cancelAllTasks();
 		return playQueue.run(runOptions, [=](auto task) {
+			std::unique_lock<std::recursive_mutex> lock(playerMutex);
 			destroyPlayer();
 			destroyPreparedPlayer();
 		}).promise;
