@@ -104,7 +104,7 @@ namespace sh {
 					reject(BandcampError(BandcampError::Code::NOT_INITIALIZED, "Bandcamp not initialized"));
 					return;
 				}
-				auto promise = jsApi.Get("getTrack").As<Napi::Function>().Call(jsApi, {
+				auto promise = jsApi.Get("getAlbum").As<Napi::Function>().Call(jsApi, {
 					url.toNodeJSValue(env),
 				}).As<Napi::Object>();
 				promise.Get("then").As<Napi::Function>().Call(promise, {
@@ -136,7 +136,7 @@ namespace sh {
 					reject(BandcampError(BandcampError::Code::NOT_INITIALIZED, "Bandcamp not initialized"));
 					return;
 				}
-				auto promise = jsApi.Get("getTrack").As<Napi::Function>().Call(jsApi, {
+				auto promise = jsApi.Get("getArtist").As<Napi::Function>().Call(jsApi, {
 					url.toNodeJSValue(env),
 				}).As<Napi::Object>();
 				promise.Get("then").As<Napi::Function>().Call(promise, {
@@ -144,7 +144,7 @@ namespace sh {
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
 						auto artist = info[0].As<Napi::Object>();
 						auto mediaType = artist.Get("type").ToString().Utf8Value();
-						if(mediaType != "album") {
+						if(mediaType != "artist") {
 							reject(BandcampError(BandcampError::Code::MEDIATYPE_MISMATCH, "Bandcamp item is " + mediaType + ", not artist"));
 						} else {
 							resolve(BandcampArtist::fromNapiObject(artist));

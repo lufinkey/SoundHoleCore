@@ -125,9 +125,16 @@ namespace sh {
 			.albumName = jsutils::stringFromNapiValue(track.Get("albumName")),
 			.albumURL = jsutils::stringFromNapiValue(track.Get("albumURL")),
 			.audioURL = jsutils::optStringFromNapiValue(track.Get("audioURL")),
+			.playable = ([&]() -> Optional<bool> {
+				auto playable = track.Get("playable");
+				if(playable.IsEmpty() || playable.IsNull() || playable.IsUndefined()) {
+					return std::nullopt;
+				}
+				return playable.ToBoolean();
+			})(),
 			.duration = ([&]() -> Optional<double> {
 				auto duration = track.Get("duration");
-				if(duration.IsNull() || duration.IsUndefined()) {
+				if(duration.IsEmpty() || duration.IsNull() || duration.IsUndefined()) {
 					return std::nullopt;
 				}
 				return duration.template As<Napi::Number>().DoubleValue();

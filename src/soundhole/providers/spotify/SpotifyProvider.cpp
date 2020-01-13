@@ -98,6 +98,9 @@ namespace sh {
 	}
 
 	Album::Data SpotifyProvider::createAlbumData(SpotifyAlbum album) {
+		auto artists = album.artists.map<$<Artist>>([&](SpotifyArtist& artist) {
+			return Artist::new$(this, createArtistData(artist));
+		});
 		return Album::Data{{{
 			.type=album.type,
 			.name=album.name,
@@ -111,16 +114,24 @@ namespace sh {
 					.total=album.tracks->total,
 					.offset=album.tracks->offset,
 					.items=album.tracks->items.map<AlbumItem::Data>([&](SpotifyTrack& track) {
+						auto trackData = createTrackData(track);
+						for(size_t i=0; i<trackData.artists.size(); i++) {
+							auto cmpArtist = trackData.artists[i];
+							auto artist = artists.firstWhere([&](auto artist) {
+								return (artist->uri() == cmpArtist->uri());
+							}, nullptr);
+							if(artist) {
+								trackData.artists[i] = artist;
+							}
+						}
 						return AlbumItem::Data{
-							.track=Track::new$(this, createTrackData(track))
+							.track=Track::new$(this, trackData)
 						};
 					})
 				})
 				: std::nullopt)
 			},
-			.artists=album.artists.map<$<Artist>>([&](SpotifyArtist& artist) {
-				return Artist::new$(this, createArtistData(artist));
-			})
+			.artists=artists
 		};
 	}
 

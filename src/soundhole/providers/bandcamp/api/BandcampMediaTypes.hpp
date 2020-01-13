@@ -109,6 +109,7 @@ namespace sh {
 		String albumName;
 		String albumURL;
 		Optional<String> audioURL;
+		Optional<bool> playable;
 		Optional<double> duration;
 		Optional<ArrayList<String>> tags;
 		Optional<String> description;
