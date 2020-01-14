@@ -54,6 +54,7 @@ namespace sh {
 		Promise<void> stop();
 		
 		PlaybackState getState() const;
+		String getAudioURL() const;
 		
 	private:
 		#if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
@@ -69,7 +70,7 @@ namespace sh {
 		OBJCPP_PTR(AVPlayer) preparedPlayer;
 		String preparedAudioURL;
 		#endif
-		std::recursive_mutex playerMutex;
+		mutable std::recursive_mutex playerMutex;
 		
 		OBJCPP_PTR(StreamPlayerEventHandler) playerEventHandler;
 		

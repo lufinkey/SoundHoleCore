@@ -16,6 +16,8 @@ namespace sh {
 				return "REQUEST_NOT_SENT";
 			case Code::REQUEST_FAILED:
 				return "REQUEST_FAILED";
+			case Code::STREAM_UNAVAILABLE:
+				return "STREAM_UNAVAILABLE";
 		}
 		throw std::invalid_argument("invalid enum value for sh::SoundHoleError::Code");
 	}

@@ -58,6 +58,56 @@ namespace sh {
 		return _audioSources;
 	}
 
+	Optional<Track::AudioSource> Track::findAudioSource(FindAudioSourceOptions options) const {
+		if(!_audioSources) {
+			return std::nullopt;
+		}
+		Optional<Track::AudioSource> bestAudioSource;
+		for(auto& audioSource : _audioSources.value()) {
+			if(!bestAudioSource) {
+				bestAudioSource = audioSource;
+				continue;
+			}
+			if(audioSource.bitrate >= options.bitrate) {
+				bool needVideo = (options.video.has_value() && options.video.value());
+				if(needVideo) {
+					if(audioSource.videoBitrate.has_value() && !bestAudioSource->videoBitrate.has_value()) {
+						bestAudioSource = audioSource;
+						continue;
+					}
+				} else {
+					if(!audioSource.videoBitrate.has_value() && bestAudioSource->videoBitrate.has_value()) {
+						bestAudioSource = audioSource;
+						continue;
+					}
+				}
+				if(audioSource.bitrate < bestAudioSource->bitrate) {
+					bestAudioSource = audioSource;
+					continue;
+				}
+				if(options.videoBitrate.has_value() && audioSource.videoBitrate.has_value() && bestAudioSource->videoBitrate.has_value()) {
+					if(audioSource.videoBitrate.value() >= options.videoBitrate.value()
+					   && (bestAudioSource->videoBitrate.value() < options.videoBitrate.value()
+						   || audioSource.videoBitrate.value() < bestAudioSource->videoBitrate.value())) {
+						bestAudioSource = audioSource;
+						continue;
+					}
+				}
+			} else if(audioSource.bitrate >= bestAudioSource->bitrate) {
+				bestAudioSource = audioSource;
+				continue;
+			}
+		}
+		if(!options.allowFallback && bestAudioSource) {
+			if(bestAudioSource->bitrate < options.bitrate
+			   || (options.video.has_value() && options.video.value() != bestAudioSource->videoBitrate.has_value())
+			   || (options.videoBitrate.has_value() && bestAudioSource->videoBitrate.has_value() && bestAudioSource->videoBitrate.value() < options.videoBitrate.value())) {
+				return std::nullopt;
+			}
+		}
+		return bestAudioSource;
+	}
+
 
 
 	bool Track::needsData() const {

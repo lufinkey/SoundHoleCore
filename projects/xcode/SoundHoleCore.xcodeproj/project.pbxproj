@@ -40,6 +40,7 @@
 		A513EDA1232DA2EA000DCAC7 /* libSoundHoleCore-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A513DB4A232DA1C0000DCAC7 /* libSoundHoleCore-macOS.a */; };
 		A513EDA2232DA2F2000DCAC7 /* libSoundHoleCore-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A513DB23232DA15C000DCAC7 /* libSoundHoleCore-iOS.a */; };
 		A513EDA8232DA30D000DCAC7 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A513EDA7232DA30D000DCAC7 /* Cocoa.framework */; };
+		A538982323CD3D36008638D1 /* BandcampPlaybackProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A538982123CD3D36008638D1 /* BandcampPlaybackProvider.cpp */; };
 		A5485A1E238CCB5F00CB7749 /* UserAccount.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5485A1C238CCB5F00CB7749 /* UserAccount.cpp */; };
 		A5485A1F238CCB5F00CB7749 /* UserAccount.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5485A1C238CCB5F00CB7749 /* UserAccount.cpp */; };
 		A5485A20238CCB5F00CB7749 /* UserAccount.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5485A1D238CCB5F00CB7749 /* UserAccount.hpp */; };
@@ -210,6 +211,8 @@
 		A513EDA7232DA30D000DCAC7 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		A513EDAA232DB3BF000DCAC7 /* NodeMobile.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NodeMobile.framework; path = "Pods/NodeMobile/out_ios/Release-universal/NodeMobile.framework"; sourceTree = "<group>"; };
 		A5382A0F2355774100E22A29 /* Bandcamp.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Bandcamp.js; sourceTree = "<group>"; };
+		A538982123CD3D36008638D1 /* BandcampPlaybackProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampPlaybackProvider.cpp; sourceTree = "<group>"; };
+		A538982223CD3D36008638D1 /* BandcampPlaybackProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BandcampPlaybackProvider.hpp; sourceTree = "<group>"; };
 		A5485A1C238CCB5F00CB7749 /* UserAccount.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UserAccount.cpp; sourceTree = "<group>"; };
 		A5485A1D238CCB5F00CB7749 /* UserAccount.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = UserAccount.hpp; sourceTree = "<group>"; };
 		A5485A21238DFB1300CB7749 /* Utils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Utils.cpp; sourceTree = "<group>"; };
@@ -549,6 +552,8 @@
 				A5E851A22357B1300001F74D /* api */,
 				A513DB72232DA1F8000DCAC7 /* BandcampProvider.hpp */,
 				A513DB73232DA1F8000DCAC7 /* BandcampProvider.cpp */,
+				A538982223CD3D36008638D1 /* BandcampPlaybackProvider.hpp */,
+				A538982123CD3D36008638D1 /* BandcampPlaybackProvider.cpp */,
 			);
 			path = bandcamp;
 			sourceTree = "<group>";
@@ -1004,6 +1009,7 @@
 				A571E16A2333305D00603E14 /* Scripts.cpp in Sources */,
 				A5B7A79D2336C28B00301FC0 /* SpotifyError_iOS.mm in Sources */,
 				A5E51BB523A3EE24006E061F /* StreamPlayer_iOS.mm in Sources */,
+				A538982323CD3D36008638D1 /* BandcampPlaybackProvider.cpp in Sources */,
 				A5B9736A23823BFE00FB3F1C /* Playlist.cpp in Sources */,
 				A5B9735B2381FBA700FB3F1C /* Artist.cpp in Sources */,
 				A5B973512381F16A00FB3F1C /* JSWrapClass.cpp in Sources */,

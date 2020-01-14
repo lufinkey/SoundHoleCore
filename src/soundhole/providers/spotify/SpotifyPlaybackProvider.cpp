@@ -33,14 +33,19 @@ namespace sh {
 		playQueue.cancelAllTasks();
 		setPlayingQueue.cancelAllTasks();
 		return playQueue.run([=](auto task) {
-			return generate<void>([=](auto yield) {
-				await(track->fetchMissingDataIfNeeded());
-				yield();
-				await(provider->spotify->playURI(track->uri(), {
-					.position=position
-				}));
-				yield();
-				setPlayingUntilSuccess();
+			return generate_items<void>({
+				[=]() {
+					return track->fetchMissingDataIfNeeded();
+				},
+				[=]() {
+					return provider->spotify->playURI(track->uri(), {
+						.position=position
+					});
+				},
+				[=]() {
+					setPlayingUntilSuccess();
+					return Promise<void>::resolve();
+				}
 			});
 		}).promise;
 	}

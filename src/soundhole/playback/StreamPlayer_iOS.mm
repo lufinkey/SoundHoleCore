@@ -106,7 +106,7 @@ namespace sh {
 			return Promise<void>::reject(std::invalid_argument("audioURL cannot be empty"));
 		}
 		std::unique_lock<std::recursive_mutex> lock(playerMutex);
-		if(preparedAudioURL == audioURL) {
+		if(preparedAudioURL == audioURL || playerAudioURL == audioURL) {
 			return Promise<void>::resolve();
 		}
 		lock.unlock();
@@ -117,7 +117,7 @@ namespace sh {
 		return playQueue.run(runOptions, [=](auto task) {
 			return generate<void>([=](auto yield) {
 				std::unique_lock<std::recursive_mutex> lock(playerMutex);
-				if(preparedAudioURL == audioURL) {
+				if(preparedAudioURL == audioURL || playerAudioURL == audioURL) {
 					return;
 				}
 				destroyPreparedPlayer();

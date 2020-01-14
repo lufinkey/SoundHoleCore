@@ -21,7 +21,7 @@ namespace sh {
 			String url;
 			String encoding;
 			size_t bitrate;
-			Optional<size_t> videoBitrate;
+			Optional<double> videoBitrate;
 		};
 		
 		struct Data: public MediaItem::Data {
@@ -52,6 +52,13 @@ namespace sh {
 		const Optional<double>& duration() const;
 		
 		const Optional<ArrayList<AudioSource>>& audioSources() const;
+		struct FindAudioSourceOptions {
+			size_t bitrate = 128;
+			Optional<bool> video;
+			Optional<double> videoBitrate;
+			bool allowFallback = true;
+		};
+		Optional<AudioSource> findAudioSource(FindAudioSourceOptions options = {.bitrate=128,.allowFallback=true}) const;
 		
 		virtual bool needsData() const override;
 		virtual Promise<void> fetchMissingData() override;

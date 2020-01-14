@@ -10,6 +10,7 @@
 
 #include <memory>
 #include <soundhole/media/MediaProvider.hpp>
+#include "BandcampPlaybackProvider.hpp"
 #include "api/Bandcamp.hpp"
 
 namespace sh {
@@ -42,5 +43,6 @@ namespace sh {
 		static MediaItem::Image createImage(BandcampImage image);
 		
 		Bandcamp* bandcamp;
+		BandcampPlaybackProvider* _player;
 	};
 }

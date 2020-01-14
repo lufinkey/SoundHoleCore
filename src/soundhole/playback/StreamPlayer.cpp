@@ -29,4 +29,11 @@ namespace sh {
 		this->listeners.removeFirstEqual(listener);
 		lock.unlock();
 	}
+
+	String StreamPlayer::getAudioURL() const {
+		std::unique_lock<std::recursive_mutex> lock(playerMutex);
+		String audioURL = playerAudioURL;
+		lock.unlock();
+		return audioURL;
+	}
 }

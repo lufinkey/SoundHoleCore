@@ -10,11 +10,12 @@
 
 namespace sh {
 	BandcampProvider::BandcampProvider()
-	: bandcamp(new Bandcamp()) {
+	: bandcamp(new Bandcamp()), _player(new BandcampPlaybackProvider(this)) {
 		//
 	}
 
 	BandcampProvider::~BandcampProvider() {
+		delete _player;
 		delete bandcamp;
 	}
 
@@ -203,10 +204,10 @@ namespace sh {
 
 
 	MediaPlaybackProvider* BandcampProvider::player() {
-		return nullptr;
+		return _player;
 	}
 
 	const MediaPlaybackProvider* BandcampProvider::player() const {
-		return nullptr;
+		return _player;
 	}
 }
