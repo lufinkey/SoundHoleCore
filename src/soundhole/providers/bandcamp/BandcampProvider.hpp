@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <memory>
+#include <soundhole/common.hpp>
 #include <soundhole/media/MediaProvider.hpp>
 #include "BandcampPlaybackProvider.hpp"
 #include "api/Bandcamp.hpp"
@@ -31,8 +31,8 @@ namespace sh {
 		virtual Promise<Album::Data> getAlbumData(String uri) override;
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) override;
 		
-		virtual MediaPlaybackProvider* player() override;
-		virtual const MediaPlaybackProvider* player() const override;
+		virtual BandcampPlaybackProvider* player() override;
+		virtual const BandcampPlaybackProvider* player() const override;
 		
 	protected:
 		Track::Data createTrackData(BandcampTrack track);

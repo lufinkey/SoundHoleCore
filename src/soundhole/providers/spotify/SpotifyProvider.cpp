@@ -118,7 +118,7 @@ namespace sh {
 						for(size_t i=0; i<trackData.artists.size(); i++) {
 							auto cmpArtist = trackData.artists[i];
 							auto artist = artists.firstWhere([&](auto artist) {
-								return (artist->uri() == cmpArtist->uri());
+								return (artist->uri() == cmpArtist->uri() && artist->name() == cmpArtist->name());
 							}, nullptr);
 							if(artist) {
 								trackData.artists[i] = artist;

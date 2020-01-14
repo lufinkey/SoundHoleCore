@@ -51,7 +51,7 @@ namespace sh {
 			.type="track",
 			.name=track.name,
 			.uri=track.url,
-			.images=track.images.map<MediaItem::Image>([=](auto& image) {
+			.images=track.images.map<MediaItem::Image>([&](auto& image) {
 				return createImage(image);
 			})
 			},
@@ -92,7 +92,7 @@ namespace sh {
 			.type="artist",
 			.name=artist.name,
 			.uri=artist.url,
-			.images=artist.images.map<MediaItem::Image>([=](auto& image) {
+			.images=artist.images.map<MediaItem::Image>([&](auto& image) {
 				return createImage(image);
 			})
 			},
@@ -132,7 +132,7 @@ namespace sh {
 						} else {
 							for(size_t i=0; i<trackData.artists.size(); i++) {
 								auto cmpArtist = trackData.artists[i];
-								if(cmpArtist->uri() == artist->uri()) {
+								if(cmpArtist->uri() == artist->uri() && cmpArtist->name() == artist->name()) {
 									trackData.artists[i] = artist;
 									break;
 								}
@@ -203,11 +203,11 @@ namespace sh {
 
 
 
-	MediaPlaybackProvider* BandcampProvider::player() {
+	BandcampPlaybackProvider* BandcampProvider::player() {
 		return _player;
 	}
 
-	const MediaPlaybackProvider* BandcampProvider::player() const {
+	const BandcampPlaybackProvider* BandcampProvider::player() const {
 		return _player;
 	}
 }

@@ -16,7 +16,8 @@ namespace sh {
 		enum class Code {
 			REQUEST_NOT_SENT,
 			REQUEST_FAILED,
-			STREAM_UNAVAILABLE
+			STREAM_UNAVAILABLE,
+			PARSE_FAILED
 		};
 		static String Code_toString(Code code);
 		
