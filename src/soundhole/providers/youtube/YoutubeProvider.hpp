@@ -10,12 +10,15 @@
 
 #include <soundhole/common.hpp>
 #include <soundhole/media/MediaProvider.hpp>
+#include "YoutubePlaybackProvider.hpp"
 #include "api/Youtube.hpp"
 
 namespace sh {
 	class YoutubeProvider: public MediaProvider {
 	public:
-		YoutubeProvider();
+		using Options = Youtube::Options;
+		YoutubeProvider(Options options);
+		virtual ~YoutubeProvider();
 		
 		virtual String name() const override;
 		virtual String displayName() const override;
@@ -29,8 +32,8 @@ namespace sh {
 		virtual Promise<Album::Data> getAlbumData(String uri) override;
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) override;
 		
-		virtual MediaPlaybackProvider* player() override;
-		virtual const MediaPlaybackProvider* player() const override;
+		virtual YoutubePlaybackProvider* player() override;
+		virtual const YoutubePlaybackProvider* player() const override;
 			
 	protected:
 		Track::Data createTrackData(YoutubeVideo video);
@@ -51,5 +54,6 @@ namespace sh {
 		static MediaItem::Image createImage(YoutubeImage image);
 		
 		Youtube* youtube;
+		YoutubePlaybackProvider* _player;
 	};
 }

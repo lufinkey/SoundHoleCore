@@ -10,8 +10,14 @@
 #include <soundhole/utils/SoundHoleError.hpp>
 
 namespace sh {
-	YoutubeProvider::YoutubeProvider() {
+	YoutubeProvider::YoutubeProvider(Options options)
+	: youtube(new Youtube(options)), _player(new YoutubePlaybackProvider(this)) {
 		//
+	}
+
+	YoutubeProvider::~YoutubeProvider() {
+		delete _player;
+		delete youtube;
 	}
 	
 	String YoutubeProvider::name() const {
@@ -302,11 +308,11 @@ namespace sh {
 
 
 
-	MediaPlaybackProvider* YoutubeProvider::player() {
-		return nullptr;
+	YoutubePlaybackProvider* YoutubeProvider::player() {
+		return _player;
 	}
 
-	const MediaPlaybackProvider* YoutubeProvider::player() const {
-		return nullptr;
+	const YoutubePlaybackProvider* YoutubeProvider::player() const {
+		return _player;
 	}
 }
