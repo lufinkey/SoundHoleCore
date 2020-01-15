@@ -31,6 +31,125 @@ namespace sh {
 
 
 
+	YoutubeProvider::URI YoutubeProvider::parseURI(String uri) const {
+		auto uriParts = uri.split(':');
+		if(uriParts.size() != 3 || uriParts.containsWhere([](auto& part) { return part.empty(); }) || uriParts.front() != name()) {
+			throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid youtube uri "+uri);
+		}
+		return URI{
+			.provider=name(),
+			.type=uriParts.extractFront(),
+			.id=uriParts.extractFront()
+		};
+	}
+
+	YoutubeProvider::URI YoutubeProvider::parseURL(String url) const {
+		auto urlObj = Url(url);
+		if(urlObj.host() != "www.youtube.com" && urlObj.host() != "youtube.com" && urlObj.host() != "youtu.be" && urlObj.host() != "www.youtu.be") {
+			throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid youtube URL");
+		}
+		String path = urlObj.path();
+		String channelStarter = "/channel/";
+		if(path.startsWith(channelStarter)) {
+			auto channelId = path.substring(channelStarter.length());
+			while(channelId.startsWith("/")) {
+				channelId = channelId.substring(1);
+			}
+			auto slashIndex = channelId.indexOf('/');
+			if(slashIndex != -1) {
+				channelId = channelId.substring(0, slashIndex);
+			}
+			if(channelId.empty()) {
+				throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid youtube channel URL "+url);
+			}
+			return URI{
+				.provider=name(),
+				.type="channel",
+				.id=channelId
+			};
+		}
+		String userStarter = "/user/";
+		if(path.startsWith(userStarter)) {
+			auto userId = path.substring(userStarter.length());
+			while(userId.startsWith("/")) {
+				userId = userId.substring(1);
+			}
+			auto slashIndex = userId.indexOf('/');
+			if(slashIndex != -1) {
+				userId = userId.substring(0, slashIndex);
+			}
+			if(userId.empty()) {
+				throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid youtube user URL "+url);
+			}
+			return URI{
+				.provider=name(),
+				.type="user",
+				.id=userId
+			};
+		}
+		String videoStarter = "/v/";
+		if(path.startsWith(videoStarter)) {
+			auto videoId = path.substring(videoStarter.length());
+			while(videoId.startsWith("/")) {
+				videoId = videoId.substring(1);
+			}
+			auto slashIndex = videoId.indexOf('/');
+			if(slashIndex != -1) {
+				videoId = videoId.substring(0, slashIndex);
+			}
+			if(videoId.empty()) {
+				throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid youtube video URL "+url);
+			}
+			return URI{
+				.provider=name(),
+				.type="video",
+				.id=videoId
+			};
+		}
+		if(path.empty() || path == "/" || path == "/watch" || path == "/watch/") {
+			String videoId;
+			for(auto& queryItem : urlObj.query()) {
+				if(queryItem.key() == "v") {
+					videoId = queryItem.val();
+					break;
+				}
+			}
+			if(videoId.empty()) {
+				throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid youtube video URL "+url);
+			}
+			return URI{
+				.provider=name(),
+				.type="video",
+				.id=videoId
+			};
+		}
+		if(path == "/playlist" || path=="/playlist") {
+			String playlistId;
+			for(auto& queryItem : urlObj.query()) {
+				if(queryItem.key() == "list") {
+					playlistId = queryItem.val();
+					break;
+				}
+			}
+			if(playlistId.empty()) {
+				throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid youtube playlist URL "+url);
+			}
+			return URI{
+				.provider=name(),
+				.type="playlist",
+				.id=playlistId
+			};
+		}
+		throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid youtube media URL "+url);
+	}
+
+	String YoutubeProvider::createURI(String type, String id) const {
+		return name()+':'+type+':'+id;
+	}
+
+
+
+
 	Promise<bool> YoutubeProvider::login() {
 		// TODO implement login
 		return Promise<bool>::reject(std::logic_error("Youtube login is not available"));
