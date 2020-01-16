@@ -16,6 +16,8 @@
 namespace sh {
 	class SpotifyProvider: public MediaProvider {
 		friend class SpotifyPlaybackProvider;
+		friend class SpotifyAlbumMutatorDelegate;
+		friend class SpotifyPlaylistMutatorDelegate;
 	public:
 		using Options = Spotify::Options;
 		
@@ -46,6 +48,8 @@ namespace sh {
 		
 	private:
 		static String idFromURI(String uri);
+		static time_t stringToTime(const String& str);
+		
 		static MediaItem::Image createImage(SpotifyImage image);
 		
 		Spotify* spotify;

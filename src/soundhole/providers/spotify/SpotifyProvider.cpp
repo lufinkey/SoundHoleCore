@@ -58,6 +58,14 @@ namespace sh {
 		return parts.back();
 	}
 
+	time_t SpotifyProvider::stringToTime(const String& str) {
+		struct tm tm;
+		strptime(str.c_str(), "%Y-%m-%jT%H:%M:%S%z", &tm);
+		return std::mktime(&tm);
+	}
+
+
+
 	Track::Data SpotifyProvider::createTrackData(SpotifyTrack track) {
 		return Track::Data{{
 			.type=track.type,
@@ -151,7 +159,8 @@ namespace sh {
 					return PlaylistItem::Data{{
 						.track=Track::new$(this, createTrackData(item.track))
 						},
-						.addedAt=utils::stringToTime(item.addedAt)
+						.addedAt=stringToTime(item.addedAt),
+						.addedBy=UserAccount::new$(this, createUserAccountData(item.addedBy))
 					};
 				})
 			}

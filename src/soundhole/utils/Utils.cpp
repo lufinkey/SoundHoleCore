@@ -7,12 +7,7 @@
 //
 
 #include "Utils.hpp"
-#include <time.h>
 
 namespace sh::utils {
-	time_t stringToTime(const String& str) {
-		struct tm tm;
-		strptime(str.c_str(), "%Y-%m-%jT%H:%M:%S%z", &tm);
-		return std::mktime(&tm);
-	}
+	//
 }

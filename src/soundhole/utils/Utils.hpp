@@ -11,5 +11,5 @@
 #include <soundhole/common.hpp>
 
 namespace sh::utils {
-	time_t stringToTime(const String& str);
+	//
 }
