@@ -66,10 +66,7 @@ namespace sh {
 		});
 	}
 
-
-
-	Promise<void> Album::loadAsyncListItems(typename AsyncList<$<AlbumItem>>::Mutator* mutator, size_t index, size_t count) {
-		// TODO implement loadAsyncListItems
-		return Promise<void>::reject(std::runtime_error("not implemented"));
+	Album::MutatorDelegate* Album::createMutatorDelegate() {
+		return provider->createAlbumMutatorDelegate(std::static_pointer_cast<Album>(self()));
 	}
 }

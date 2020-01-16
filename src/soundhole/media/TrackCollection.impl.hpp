@@ -13,12 +13,18 @@
 namespace sh {
 	template<typename ItemType>
 	SpecialTrackCollection<ItemType>::SpecialTrackCollection(MediaProvider* provider, Data data)
-	: TrackCollection(provider, data), _items(constructItems(data.tracks)) {
+	: TrackCollection(provider, data), _items(constructItems(data.tracks)), _mutatorDelegate(nullptr) {
 		//
 	}
 
 	template<typename ItemType>
 	SpecialTrackCollection<ItemType>::~SpecialTrackCollection() {
+		if(_mutatorDelegate != nullptr) {
+			auto selfTest = dynamic_cast<SpecialTrackCollection<ItemType>*>(_mutatorDelegate);
+			if(selfTest != this) {
+				delete _mutatorDelegate;
+			}
+		}
 		if(_items.index() == 3) {
 			delete std::get<AsyncList<$<ItemType>>*>(_items);
 		}
@@ -234,6 +240,23 @@ namespace sh {
 	template<typename ItemType>
 	bool SpecialTrackCollection<ItemType>::areAsyncListItemsEqual(const AsyncList<$<ItemType>>* list, const $<ItemType>& item1, const $<ItemType>& item2) const {
 		return item1->matchesItem(item2.get());
+	}
+
+	template<typename ItemType>
+	Promise<void> SpecialTrackCollection<ItemType>::loadAsyncListItems(typename AsyncList<$<ItemType>>::Mutator* mutator, size_t index, size_t count) {
+		auto delegate = mutatorDelegate();
+		return delegate->loadTrackCollectionItems(self(), mutator, index, count);
+	}
+
+	template<typename ItemType>
+	typename SpecialTrackCollection<ItemType>::MutatorDelegate* SpecialTrackCollection<ItemType>::mutatorDelegate() {
+		if(_mutatorDelegate != nullptr) {
+			_mutatorDelegate = createMutatorDelegate();
+			if(_mutatorDelegate == nullptr) {
+				throw std::logic_error("createMutatorDelegate returned null");
+			}
+		}
+		return _mutatorDelegate;
 	}
 
 

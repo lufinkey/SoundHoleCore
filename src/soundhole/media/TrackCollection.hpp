@@ -67,6 +67,14 @@ namespace sh {
 	public:
 		using Item = ItemType;
 		
+		class MutatorDelegate {
+		public:
+			using Mutator = typename AsyncList<$<ItemType>>::Mutator;
+			virtual ~MutatorDelegate() {}
+			
+			virtual Promise<void> loadTrackCollectionItems($<TrackCollection> collection, Mutator* mutator, size_t index, size_t count) = 0;
+		};
+		
 		struct Data: public TrackCollection::Data {
 			struct Tracks {
 				size_t total;
@@ -97,7 +105,11 @@ namespace sh {
 		inline $<SpecialTrackCollection<ItemType>> self();
 		inline $<const SpecialTrackCollection<ItemType>> self() const;
 		
-		bool areAsyncListItemsEqual(const AsyncList<$<ItemType>>* list, const $<ItemType>& item1, const $<ItemType>& item2) const override;
+		virtual bool areAsyncListItemsEqual(const AsyncList<$<ItemType>>* list, const $<ItemType>& item1, const $<ItemType>& item2) const override;
+		virtual Promise<void> loadAsyncListItems(typename AsyncList<$<ItemType>>::Mutator* mutator, size_t index, size_t count) override;
+		
+		virtual MutatorDelegate* createMutatorDelegate() = 0;
+		MutatorDelegate* mutatorDelegate();
 		
 		inline bool tracksAreEmpty() const;
 		inline bool tracksAreAsync() const;
@@ -113,6 +125,8 @@ namespace sh {
 		
 		std::variant<std::nullptr_t,EmptyTracks,LinkedList<$<ItemType>>,AsyncList<$<ItemType>>*> _items;
 		std::variant<std::nullptr_t,EmptyTracks,LinkedList<$<ItemType>>,AsyncList<$<ItemType>>*> constructItems(Optional<typename Data::Tracks> tracks);
+		
+		MutatorDelegate* _mutatorDelegate;
 	};
 
 

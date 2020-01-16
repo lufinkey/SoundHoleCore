@@ -57,7 +57,7 @@ namespace sh {
 		virtual Promise<void> fetchMissingData() override;
 		
 	protected:
-		virtual Promise<void> loadAsyncListItems(typename AsyncList<$<PlaylistItem>>::Mutator* mutator, size_t index, size_t count) override;
+		virtual MutatorDelegate* createMutatorDelegate() override;
 		
 	private:
 		$<UserAccount> _owner;
