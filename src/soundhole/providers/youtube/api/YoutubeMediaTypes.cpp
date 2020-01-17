@@ -229,6 +229,38 @@ namespace sh {
 
 
 
+	YoutubePlaylistItem YoutubePlaylistItem::fromJson(const Json& json) {
+		return YoutubePlaylistItem{
+			.kind = json["kind"].string_value(),
+			.etag = json["etag"].string_value(),
+			.id = json["id"].string_value(),
+			.snippet = Snippet::fromJson(json["snippet"])
+		};
+	}
+
+	YoutubePlaylistItem::Snippet YoutubePlaylistItem::Snippet::fromJson(const Json& json) {
+		return Snippet{
+			.channelId = json["channelId"].string_value(),
+			.channelTitle = json["channelTitle"].string_value(),
+			.title = json["title"].string_value(),
+			.description = json["description"].string_value(),
+			.publishedAt = json["publishedAt"].string_value(),
+			.thumbnails = YoutubeImage::arrayFromJson(json["thumbnails"]),
+			.playlistId = json["playlistId"].string_value(),
+			.position = (size_t)json["position"].number_value(),
+			.resourceId = ResourceId::fromJson(json["resourceId"])
+		};
+	}
+
+	YoutubePlaylistItem::Snippet::ResourceId YoutubePlaylistItem::Snippet::ResourceId::fromJson(const Json& json) {
+		return ResourceId{
+			.kind=json["kind"].string_value(),
+			.videoId=json["videoId"].string_value()
+		};
+	}
+
+
+
 
 	YoutubeVideoInfo YoutubeVideoInfo::fromNapiObject(Napi::Object obj) {
 		return YoutubeVideoInfo{

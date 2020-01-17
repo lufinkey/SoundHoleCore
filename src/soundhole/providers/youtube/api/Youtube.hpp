@@ -37,7 +37,7 @@ namespace sh {
 		Promise<Json> sendApiRequest(utils::HttpMethod method, String endpoint, std::map<String,String> query, Json body);
 		
 		struct SearchOptions {
-			Optional<String> pageToken;
+			String pageToken;
 			ArrayList<MediaType> types;
 		};
 		Promise<YoutubePage<YoutubeSearchResult>> search(String query, SearchOptions options);
@@ -47,6 +47,13 @@ namespace sh {
 		Promise<YoutubeVideo> getVideo(String id);
 		Promise<YoutubeChannel> getChannel(String id);
 		Promise<YoutubePlaylist> getPlaylist(String id);
+		
+		struct GetPlaylistItemsOptions {
+			Optional<size_t> maxResults;
+			String pageToken;
+			String videoId;
+		};
+		Promise<YoutubePage<YoutubePlaylistItem>> getPlaylistItems(String id, GetPlaylistItemsOptions options);
 		
 	private:
 		virtual void initializeJS(napi_env env) override;

@@ -194,6 +194,38 @@ namespace sh {
 	};
 
 
+	struct YoutubePlaylistItem {
+		struct Snippet {
+			struct ResourceId {
+				String kind;
+				String videoId;
+				
+				static ResourceId fromJson(const Json&);
+			};
+			
+			String channelId;
+			String channelTitle;
+			String title;
+			String description;
+			String publishedAt;
+			ArrayList<YoutubeImage> thumbnails;
+			Optional<YoutubeImage> thumbnail(YoutubeImage::Size size) const;
+			String playlistId;
+			size_t position;
+			ResourceId resourceId;
+			
+			static Snippet fromJson(const Json&);
+		};
+		
+		String kind;
+		String etag;
+		String id;
+		Snippet snippet;
+		
+		static YoutubePlaylistItem fromJson(const Json&);
+	};
+
+
 
 	struct YoutubeVideoInfo {
 		struct Image {

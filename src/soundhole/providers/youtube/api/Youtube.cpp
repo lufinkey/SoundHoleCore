@@ -75,16 +75,17 @@ namespace sh {
 	}
 
 	Promise<YoutubePage<YoutubeSearchResult>> Youtube::search(String query, SearchOptions options) {
-		auto params = std::map<String,String>();
-		params["q"] = query;
-		params["part"] = "id,snippet";
+		auto params = std::map<String,String>{
+			{ "q", query },
+			{ "part", "id,snippet" }
+		};
 		if(options.types.size() > 0) {
 			params["type"] = String::join(options.types.map<String>([](auto& type) -> String {
 				return MediaType_toString(type);
 			}), ",");
 		}
-		if(options.pageToken.has_value()) {
-			params["pageToken"] = options.pageToken.value();
+		if(!options.pageToken.empty()) {
+			params["pageToken"] = options.pageToken;
 		}
 		return sendApiRequest(utils::HttpMethod::GET, "search", params, nullptr)
 		.map<YoutubePage<YoutubeSearchResult>>([](auto json) {
@@ -142,6 +143,25 @@ namespace sh {
 			{ "part", "id,snippet" }
 		}, nullptr).map<YoutubePlaylist>([](auto json) {
 			return YoutubePlaylist::fromJson(json);
+		});
+	}
+
+	Promise<YoutubePage<YoutubePlaylistItem>> Youtube::getPlaylistItems(String id, GetPlaylistItemsOptions options) {
+		auto query = std::map<String,String>{
+			{ "playlistId", id },
+			{ "part", "id,snippet" }
+		};
+		if(options.maxResults.has_value()) {
+			query["maxResults"] = std::to_string(options.maxResults.value());
+		}
+		if(!options.pageToken.empty()) {
+			query["pageToken"] = options.pageToken;
+		}
+		if(!options.videoId.empty()) {
+			query["videoId"] = options.videoId;
+		}
+		return sendApiRequest(utils::HttpMethod::GET, "playlistItems", query, nullptr).map<YoutubePage<YoutubePlaylistItem>>([](auto json) {
+			return YoutubePage<YoutubePlaylistItem>::fromJson(json);
 		});
 	}
 }
