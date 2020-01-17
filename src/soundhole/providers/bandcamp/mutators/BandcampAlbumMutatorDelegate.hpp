@@ -1,8 +1,8 @@
 //
-//  SpotifyAlbumMutatorDelegate.hpp
+//  BandcampAlbumMutatorDelegate.hpp
 //  SoundHoleCore
 //
-//  Created by Luis Finke on 1/15/20.
+//  Created by Luis Finke on 1/16/20.
 //  Copyright © 2020 Luis Finke. All rights reserved.
 //
 
@@ -12,15 +12,15 @@
 #include <soundhole/media/Album.hpp>
 
 namespace sh {
-	class SpotifyProvider;
+	class BandcampProvider;
 
-	class SpotifyAlbumMutatorDelegate: public Album::MutatorDelegate {
-		friend class SpotifyProvider;
+	class BandcampAlbumMutatorDelegate: public Album::MutatorDelegate {
+		friend class BandcampProvider;
 	public:
 		virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count) override;
 		
 	private:
-		SpotifyAlbumMutatorDelegate($<Album> album);
+		BandcampAlbumMutatorDelegate($<Album> album);
 		
 		w$<Album> album;
 	};

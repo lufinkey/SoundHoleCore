@@ -7,6 +7,7 @@
 //
 
 #include "BandcampProvider.hpp"
+#include "mutators/BandcampAlbumMutatorDelegate.hpp"
 
 namespace sh {
 	BandcampProvider::BandcampProvider()
@@ -200,6 +201,18 @@ namespace sh {
 	Promise<Playlist::Data> BandcampProvider::getPlaylistData(String uri) {
 		return Promise<Playlist::Data>::reject(std::logic_error("Bandcamp does not support playlists"));
 	}
+
+
+
+
+	Album::MutatorDelegate* BandcampProvider::createAlbumMutatorDelegate($<Album> album) {
+		return new BandcampAlbumMutatorDelegate(album);
+	}
+
+	Playlist::MutatorDelegate* BandcampProvider::createPlaylistMutatorDelegate($<Playlist> playlist) {
+		throw std::logic_error("Bandcamp does not support playlists");
+	}
+
 
 
 

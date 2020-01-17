@@ -31,6 +31,9 @@ namespace sh {
 		virtual Promise<Album::Data> getAlbumData(String uri) override;
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) override;
 		
+		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album);
+		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist);
+		
 		virtual BandcampPlaybackProvider* player() override;
 		virtual const BandcampPlaybackProvider* player() const override;
 		

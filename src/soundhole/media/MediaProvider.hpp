@@ -43,8 +43,8 @@ namespace sh {
 		virtual Promise<$<Album>> getAlbum(String uri);
 		virtual Promise<$<Playlist>> getPlaylist(String uri);
 		
-		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album);
-		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist);
+		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album) = 0;
+		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) = 0;
 		
 		virtual MediaPlaybackProvider* player() = 0;
 		virtual const MediaPlaybackProvider* player() const = 0;
