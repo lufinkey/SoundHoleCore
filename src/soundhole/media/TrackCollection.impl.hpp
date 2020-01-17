@@ -245,7 +245,7 @@ namespace sh {
 	template<typename ItemType>
 	Promise<void> SpecialTrackCollection<ItemType>::loadAsyncListItems(typename AsyncList<$<ItemType>>::Mutator* mutator, size_t index, size_t count) {
 		auto delegate = mutatorDelegate();
-		return delegate->loadTrackCollectionItems(self(), mutator, index, count);
+		return delegate->loadItems(mutator, index, count);
 	}
 
 	template<typename ItemType>

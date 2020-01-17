@@ -72,7 +72,7 @@ namespace sh {
 			using Mutator = typename AsyncList<$<ItemType>>::Mutator;
 			virtual ~MutatorDelegate() {}
 			
-			virtual Promise<void> loadTrackCollectionItems($<TrackCollection> collection, Mutator* mutator, size_t index, size_t count) = 0;
+			virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count) = 0;
 		};
 		
 		struct Data: public TrackCollection::Data {

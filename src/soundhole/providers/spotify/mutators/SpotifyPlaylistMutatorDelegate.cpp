@@ -10,13 +10,14 @@
 #include <soundhole/providers/spotify/SpotifyProvider.hpp>
 
 namespace sh {
-	SpotifyPlaylistMutatorDelegate::SpotifyPlaylistMutatorDelegate(SpotifyProvider* provider)
-	: provider(provider) {
+	SpotifyPlaylistMutatorDelegate::SpotifyPlaylistMutatorDelegate($<Playlist> playlist)
+	: playlist(playlist) {
 		//
 	}
 
-	Promise<void> SpotifyPlaylistMutatorDelegate::loadTrackCollectionItems($<TrackCollection> collection, Mutator* mutator, size_t index, size_t count) {
-		auto playlist = std::static_pointer_cast<Playlist>(collection);
+	Promise<void> SpotifyPlaylistMutatorDelegate::loadItems(Mutator* mutator, size_t index, size_t count) {
+		auto playlist = this->playlist.lock();
+		auto provider = (SpotifyProvider*)playlist->mediaProvider();
 		auto id = provider->idFromURI(playlist->uri());
 		return provider->spotify->getPlaylistTracks(id, {
 			.offset=index,

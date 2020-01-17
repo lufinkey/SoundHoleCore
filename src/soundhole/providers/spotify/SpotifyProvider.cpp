@@ -7,7 +7,8 @@
 //
 
 #include "SpotifyProvider.hpp"
-#include <soundhole/utils/Utils.hpp>
+#include "mutators/SpotifyAlbumMutatorDelegate.hpp"
+#include "mutators/SpotifyPlaylistMutatorDelegate.hpp"
 
 namespace sh {
 	SpotifyProvider::SpotifyProvider(Options options)
@@ -216,6 +217,17 @@ namespace sh {
 		return spotify->getPlaylist(idFromURI(uri)).map<Playlist::Data>([=](SpotifyPlaylist playlist) {
 			return createPlaylistData(playlist);
 		});
+	}
+
+
+
+
+	Album::MutatorDelegate* SpotifyProvider::createAlbumMutatorDelegate($<Album> album) {
+		return new SpotifyAlbumMutatorDelegate(album);
+	}
+
+	Playlist::MutatorDelegate* SpotifyProvider::createPlaylistMutatorDelegate($<Playlist> playlist) {
+		return new SpotifyPlaylistMutatorDelegate(playlist);
 	}
 
 

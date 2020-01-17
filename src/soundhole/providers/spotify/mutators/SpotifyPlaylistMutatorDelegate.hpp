@@ -16,11 +16,11 @@ namespace sh {
 
 	class SpotifyPlaylistMutatorDelegate: public Playlist::MutatorDelegate {
 	public:
-		SpotifyPlaylistMutatorDelegate(SpotifyProvider* provider);
+		SpotifyPlaylistMutatorDelegate($<Playlist> playlist);
 		
-		virtual Promise<void> loadTrackCollectionItems($<TrackCollection> playlist, Mutator* mutator, size_t index, size_t count) override;
+		virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count) override;
 		
 	private:
-		SpotifyProvider* provider;
+		w$<Playlist> playlist;
 	};
 }
