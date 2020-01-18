@@ -171,7 +171,6 @@ namespace sh {
 			});
 		} else {
 			size_t chunkSize = 24;
-			auto index = new$<size_t>(startIndex);
 			auto items = new$<LinkedList<$<ItemType>>>(itemsList());
 			return Generator<LinkedList<$<TrackCollectionItem>>,void>([=]() {
 				using YieldResult = typename Generator<LinkedList<$<TrackCollectionItem>>,void>::YieldResult;
