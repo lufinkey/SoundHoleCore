@@ -24,7 +24,7 @@ namespace sh {
 		//
 	}
 
-	time_t PlaylistItem::addedAt() const {
+	const String& PlaylistItem::addedAt() const {
 		return _addedAt;
 	}
 

@@ -15,6 +15,7 @@
 
 namespace sh {
 	class YoutubeProvider: public MediaProvider {
+		friend class YoutubePlaylistMutatorDelegate;
 	public:
 		using Options = Youtube::Options;
 		YoutubeProvider(Options options);
@@ -32,6 +33,9 @@ namespace sh {
 		virtual Promise<Album::Data> getAlbumData(String uri) override;
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) override;
 		
+		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album) override;
+		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) override;
+		
 		virtual YoutubePlaybackProvider* player() override;
 		virtual const YoutubePlaybackProvider* player() const override;
 			
@@ -40,6 +44,7 @@ namespace sh {
 		Track::Data createTrackData(YoutubeVideoInfo video);
 		Artist::Data createArtistData(YoutubeChannel channel);
 		Playlist::Data createPlaylistData(YoutubePlaylist playlist);
+		PlaylistItem::Data createPlaylistItemData(YoutubePlaylistItem playlistItem);
 		
 	private:
 		struct URI {

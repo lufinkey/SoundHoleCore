@@ -82,6 +82,9 @@
 		A571E1A6233440A800603E14 /* HttpClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E1A4233440A800603E14 /* HttpClient.cpp */; };
 		A571E1A7233440A800603E14 /* HttpClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E1A4233440A800603E14 /* HttpClient.cpp */; };
 		A571E1A8233440A800603E14 /* HttpClient.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A571E1A5233440A800603E14 /* HttpClient.hpp */; };
+		A57378A223D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A57378A023D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp */; };
+		A57378A323D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A57378A023D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp */; };
+		A57378A423D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A57378A123D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.hpp */; };
 		A5A970E023CBDCD0009887CA /* StreamPlayerEventHandler_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5A970DF23CBDCD0009887CA /* StreamPlayerEventHandler_iOS.mm */; };
 		A5AB5BC42368B1630028851A /* YoutubeMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AB5BC22368B1630028851A /* YoutubeMediaTypes.cpp */; };
 		A5AB5BC52368B1630028851A /* YoutubeMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AB5BC22368B1630028851A /* YoutubeMediaTypes.cpp */; };
@@ -269,6 +272,8 @@
 		A571E1A4233440A800603E14 /* HttpClient.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = HttpClient.cpp; sourceTree = "<group>"; };
 		A571E1A5233440A800603E14 /* HttpClient.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = HttpClient.hpp; sourceTree = "<group>"; };
 		A571E1A92334438600603E14 /* HttpClient.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = HttpClient.js; sourceTree = "<group>"; };
+		A57378A023D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = YoutubePlaylistMutatorDelegate.cpp; sourceTree = "<group>"; };
+		A57378A123D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = YoutubePlaylistMutatorDelegate.hpp; sourceTree = "<group>"; };
 		A5A970DE23CBDCD0009887CA /* StreamPlayerEventHandler_iOS.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = StreamPlayerEventHandler_iOS.hpp; sourceTree = "<group>"; };
 		A5A970DF23CBDCD0009887CA /* StreamPlayerEventHandler_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StreamPlayerEventHandler_iOS.mm; sourceTree = "<group>"; };
 		A5AB5BC22368B1630028851A /* YoutubeMediaTypes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = YoutubeMediaTypes.cpp; sourceTree = "<group>"; };
@@ -578,8 +583,8 @@
 		A571E12F2332C5AC00603E14 /* bandcamp */ = {
 			isa = PBXGroup;
 			children = (
-				A5C0A8EC23D1713300CDB59E /* mutators */,
 				A5E851A22357B1300001F74D /* api */,
+				A5C0A8EC23D1713300CDB59E /* mutators */,
 				A513DB72232DA1F8000DCAC7 /* BandcampProvider.hpp */,
 				A513DB73232DA1F8000DCAC7 /* BandcampProvider.cpp */,
 				A538982223CD3D36008638D1 /* BandcampPlaybackProvider.hpp */,
@@ -592,6 +597,7 @@
 			isa = PBXGroup;
 			children = (
 				A5E851B0235A46180001F74D /* api */,
+				A573789F23D25A2F00EEA533 /* mutators */,
 				A513DB71232DA1F8000DCAC7 /* YoutubeProvider.hpp */,
 				A513DB75232DA1F8000DCAC7 /* YoutubeProvider.cpp */,
 				A5E7852223CE70BC00BD1C67 /* YoutubePlaybackProvider.hpp */,
@@ -705,6 +711,15 @@
 			path = cxxurl;
 			sourceTree = "<group>";
 		};
+		A573789F23D25A2F00EEA533 /* mutators */ = {
+			isa = PBXGroup;
+			children = (
+				A57378A123D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.hpp */,
+				A57378A023D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp */,
+			);
+			path = mutators;
+			sourceTree = "<group>";
+		};
 		A5B7A7912335D56200301FC0 /* json11 */ = {
 			isa = PBXGroup;
 			children = (
@@ -792,6 +807,7 @@
 			files = (
 				A513ED93232DA20B000DCAC7 /* MediaProvider.hpp in Headers */,
 				A5E851D0235DFEBC0001F74D /* BandcampMediaTypes.hpp in Headers */,
+				A57378A423D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.hpp in Headers */,
 				A5B9736723822C0100FB3F1C /* TrackCollection.hpp in Headers */,
 				A5E851BE235A4AE90001F74D /* JSUtils.hpp in Headers */,
 				A5B2BBFC2360F1E900ED010C /* SpotifyMediaTypes.impl.hpp in Headers */,
@@ -1087,6 +1103,7 @@
 				A5485A2823942EB800CB7749 /* MediaPlaybackProvider.cpp in Sources */,
 				A5E851A52357B1660001F74D /* Bandcamp.cpp in Sources */,
 				A54F2547239DAA2700C81E1C /* StreamPlayer.cpp in Sources */,
+				A57378A223D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp in Sources */,
 				A5485A1E238CCB5F00CB7749 /* UserAccount.cpp in Sources */,
 				A5B973562381F91900FB3F1C /* Track.cpp in Sources */,
 				A5B9736523822C0100FB3F1C /* TrackCollection.cpp in Sources */,
@@ -1139,6 +1156,7 @@
 				A571E15E23331C6600603E14 /* SpotifyAuth.cpp in Sources */,
 				A5E851C5235A505B0001F74D /* Youtube.cpp in Sources */,
 				A5B7A78F2335C91800301FC0 /* SoundHoleError.cpp in Sources */,
+				A57378A323D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp in Sources */,
 				A5B9736623822C0100FB3F1C /* TrackCollection.cpp in Sources */,
 				A5485A1F238CCB5F00CB7749 /* UserAccount.cpp in Sources */,
 				A5E851A62357B1660001F74D /* Bandcamp.cpp in Sources */,

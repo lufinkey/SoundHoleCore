@@ -19,7 +19,7 @@ namespace sh {
 	class PlaylistItem: public SpecialTrackCollectionItem<Playlist> {
 	public:
 		struct Data: public SpecialTrackCollectionItem<Playlist>::Data {
-			time_t addedAt;
+			String addedAt;
 			$<UserAccount> addedBy;
 		};
 		
@@ -28,14 +28,14 @@ namespace sh {
 		
 		PlaylistItem($<Playlist> playlist, Data data);
 		
-		time_t addedAt() const;
+		const String& addedAt() const;
 		$<UserAccount> addedBy();
 		$<const UserAccount> addedBy() const;
 		
 		virtual bool matchesItem(const TrackCollectionItem* item) const override;
 		
 	private:
-		time_t _addedAt;
+		String _addedAt;
 		$<UserAccount> _addedBy;
 	};
 

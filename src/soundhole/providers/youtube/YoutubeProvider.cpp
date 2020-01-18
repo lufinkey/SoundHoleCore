@@ -7,6 +7,7 @@
 //
 
 #include "YoutubeProvider.hpp"
+#include "mutators/YoutubePlaylistMutatorDelegate.hpp"
 #include <soundhole/utils/SoundHoleError.hpp>
 
 namespace sh {
@@ -364,6 +365,48 @@ namespace sh {
 		};
 	}
 
+	PlaylistItem::Data YoutubeProvider::createPlaylistItemData(YoutubePlaylistItem playlistItem) {
+		return PlaylistItem::Data{{
+			.track=Track::new$(this, {{
+				.type="track",
+				.name=playlistItem.snippet.title,
+				.uri=createURI("video", playlistItem.snippet.resourceId.videoId),
+				.images=playlistItem.snippet.thumbnails.map<MediaItem::Image>([&](auto image) {
+					return createImage(image);
+				})
+				},
+				.albumName="",
+				.albumURI="",
+				.artists=ArrayList<$<Artist>>{
+					Artist::new$(this, Artist::Data{{
+						.type="artist",
+						.name=playlistItem.snippet.channelTitle,
+						.uri=createURI("channel", playlistItem.snippet.channelId),
+						.images=std::nullopt
+						},
+						.description=std::nullopt
+					})
+				},
+				.tags=std::nullopt,
+				.discNumber=std::nullopt,
+				.trackNumber=std::nullopt,
+				.duration=std::nullopt,
+				.audioSources=std::nullopt
+			})
+			},
+			.addedAt=playlistItem.snippet.publishedAt,
+			.addedBy=UserAccount::new$(this, {{
+				.type="user",
+				.name=playlistItem.snippet.channelTitle,
+				.uri=createURI("channel", playlistItem.snippet.channelId),
+				.images=std::nullopt
+				},
+				.id=playlistItem.snippet.channelId,
+				.displayName=playlistItem.snippet.channelTitle
+			})
+		};
+	}
+
 	MediaItem::Image YoutubeProvider::createImage(YoutubeImage image) {
 		return MediaItem::Image{
 			.url=image.url,
@@ -423,6 +466,16 @@ namespace sh {
 		return youtube->getPlaylist(uri).map<Playlist::Data>([=](auto playlist) {
 			return createPlaylistData(playlist);
 		});
+	}
+
+
+
+	Album::MutatorDelegate* YoutubeProvider::createAlbumMutatorDelegate($<Album> album) {
+		throw std::logic_error("Youtube does not support albums");
+	}
+
+	Playlist::MutatorDelegate* YoutubeProvider::createPlaylistMutatorDelegate($<Playlist> playlist) {
+		return new YoutubePlaylistMutatorDelegate(playlist);
 	}
 
 

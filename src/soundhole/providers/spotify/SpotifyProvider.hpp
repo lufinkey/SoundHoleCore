@@ -47,11 +47,11 @@ namespace sh {
 		Artist::Data createArtistData(SpotifyArtist artist);
 		Album::Data createAlbumData(SpotifyAlbum album);
 		Playlist::Data createPlaylistData(SpotifyPlaylist playlist);
+		PlaylistItem::Data createPlaylistItemData(SpotifyPlaylist::Item playlistItem);
 		UserAccount::Data createUserAccountData(SpotifyUser user);
 		
 	private:
 		static String idFromURI(String uri);
-		static time_t stringToTime(const String& str);
 		
 		static MediaItem::Image createImage(SpotifyImage image);
 		

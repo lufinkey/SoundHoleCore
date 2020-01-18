@@ -24,12 +24,7 @@ namespace sh {
 			.limit=count
 		}).then([=](SpotifyPage<SpotifyPlaylist::Item> page) -> void {
 			auto items = page.items.map<$<PlaylistItem>>([&](auto& item) {
-				return PlaylistItem::new$(playlist, {{
-					.track=Track::new$(provider, provider->createTrackData(item.track))
-					},
-					.addedAt=provider->stringToTime(item.addedAt),
-					.addedBy=UserAccount::new$(provider, provider->createUserAccountData(item.addedBy))
-				});
+				return PlaylistItem::new$(playlist, provider->createPlaylistItemData(item));
 			});
 			mutator->lock([&]() {
 				mutator->resize(page.total);

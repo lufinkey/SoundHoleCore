@@ -15,6 +15,7 @@
 
 namespace sh {
 	class BandcampProvider: public MediaProvider {
+		friend class BandcampAlbumMutatorDelegate;
 	public:
 		BandcampProvider();
 		virtual ~BandcampProvider();

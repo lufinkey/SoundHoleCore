@@ -7,7 +7,7 @@
 //
 
 #include "BandcampAlbumMutatorDelegate.hpp"
-#include <soundhole/providers/spotify/SpotifyProvider.hpp>
+#include <soundhole/providers/bandcamp/BandcampProvider.hpp>
 #include <soundhole/utils/SoundHoleError.hpp>
 
 namespace sh {
@@ -18,7 +18,7 @@ namespace sh {
 
 	Promise<void> BandcampAlbumMutatorDelegate::loadItems(Mutator* mutator, size_t index, size_t count) {
 		auto album = this->album.lock();
-		auto provider = (SpotifyProvider*)album->mediaProvider();
+		auto provider = (BandcampProvider*)album->mediaProvider();
 		return provider->getAlbumData(album->uri()).then([=](Album::Data albumData) {
 			if(!albumData.tracks) {
 				throw SoundHoleError(SoundHoleError::Code::REQUEST_FAILED, "Failed to get tracks for bandcamp album");
