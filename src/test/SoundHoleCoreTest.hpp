@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <soundhole/common.hpp>
+#include <soundhole/soundhole.hpp>
 
 namespace sh::test {
 	Promise<void> testSpotify();

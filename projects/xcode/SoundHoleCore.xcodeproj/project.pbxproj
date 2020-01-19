@@ -453,7 +453,6 @@
 		A513DB66232DA1F8000DCAC7 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				A513ED86232DA20A000DCAC7 /* soundhole.hpp */,
 				A513DB6D232DA1F8000DCAC7 /* soundhole */,
 				A513DB67232DA1F8000DCAC7 /* test */,
 			);
@@ -492,6 +491,7 @@
 		A513DB6D232DA1F8000DCAC7 /* soundhole */ = {
 			isa = PBXGroup;
 			children = (
+				A513ED86232DA20A000DCAC7 /* soundhole.hpp */,
 				A513DB6E232DA1F8000DCAC7 /* common.hpp */,
 				A513ED83232DA20A000DCAC7 /* media */,
 				A513DB6F232DA1F8000DCAC7 /* providers */,
