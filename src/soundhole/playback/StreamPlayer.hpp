@@ -66,10 +66,10 @@ namespace sh {
 		
 		#ifdef TARGETPLATFORM_IOS
 		OBJCPP_PTR(AVPlayer) player;
-		String playerAudioURL;
 		OBJCPP_PTR(AVPlayer) preparedPlayer;
-		String preparedAudioURL;
 		#endif
+		String playerAudioURL;
+		String preparedAudioURL;
 		mutable std::recursive_mutex playerMutex;
 		
 		OBJCPP_PTR(StreamPlayerEventHandler) playerEventHandler;

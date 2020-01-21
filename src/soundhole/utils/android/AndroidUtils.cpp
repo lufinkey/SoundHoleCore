@@ -10,6 +10,7 @@
 
 #include <jni.h>
 #include "AndroidUtils.hpp"
+#include <fgl/async/JNIAsyncCpp.hpp>
 #include <functional>
 
 #ifdef TARGETPLATFORM_ANDROID
@@ -561,6 +562,9 @@ Java_com_lufinkey_soundholecore_SoundHole_staticInit(JNIEnv* env, jclass javaCla
 	if(vmResult != 0 || sh::mainJavaVM == nullptr) {
 		throw std::runtime_error("Could not get java VM");
 	}
+
+	// initialize AsyncCpp
+	setAsyncCppJavaVM(sh::mainJavaVM);
 
 	// initialize NodeJSEmbed
 	jclass nodejsClass = env->FindClass("com/lufinkey/embed/NodeJS");

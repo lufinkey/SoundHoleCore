@@ -14,8 +14,7 @@ android {
 
 		externalNativeBuild {
 			cmake {
-				cppFlags "-std=c++17"
-				arguments "-DANDROID_STL=c++_shared"
+				targets 'SoundHoleCore'
 			}
 		}
 	}
@@ -24,6 +23,11 @@ android {
 		debug {
 			minifyEnabled false
 			debuggable true
+			externalNativeBuild {
+				ndkBuild {
+					cFlags "-DDEBUG=1"
+				}
+			}
 		}
 		release {
 			minifyEnabled false
