@@ -33,10 +33,10 @@ Pod::Spec.new do |s|
 
 	s.static_framework = true
 
-	s.source_files = 'src/soundhole/**/*.{c,cc,cpp,m,mm}', 'external/cxxurl/url.cpp', 'external/json11/json11.cpp'
+	s.source_files = 'src/soundhole/**/*.{c,cc,cpp,m,mm,h,hpp}', 'external/cxxurl/url.cpp', 'external/json11/json11.cpp'
 	s.ios.frameworks = 'SpotifyAudioPlayback'
 
-	s.public_header_files = 'src/soundhole/**/*.hpp', 'external/cxxurl/*.{h,hpp}', 'external/json11/*.{h,hpp}'
+	s.public_header_files = 'src/soundhole/**/*.{h,hpp}', 'external/cxxurl/*.{h,hpp}', 'external/json11/*.{h,hpp}'
 	s.preserve_paths = 'external/**/*', 'src/soundhole/scripts/**/*', 'tools/**/*'
 	s.header_mappings_dir = 'src/soundhole'
 	s.pod_target_xcconfig = {
