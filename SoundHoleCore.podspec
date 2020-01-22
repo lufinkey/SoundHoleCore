@@ -30,14 +30,33 @@ Pod::Spec.new do |s|
 
 	s.ios.deployment_target = '12.0'
 	s.osx.deployment_target = '10.14'
+	
+	s.static_framework = true
 
 	s.source_files = 'src/soundhole/**/*'
+	s.ios.frameworks = 'SpotifyAudioPlayback'
   
 	s.public_header_files = 'src/soundhole/**/*.hpp'
+	s.preserve_paths = 'external/**/*', 'src/soundhole/scripts'
 	s.header_mappings_dir = 'src/soundhole'
 	s.pod_target_xcconfig = {
-		'HEADER_SEARCH_PATHS' => '"$(PODS_ROOT)/DataCpp/src" "$(PODS_ROOT)/AsyncCpp/src" "$(PODS_ROOT)/NodeJSEmbed/src"',
+		'HEADER_SEARCH_PATHS' => [
+			"$(PODS_ROOT)/SoundHoleCore/src",
+			"$(PODS_ROOT)/SoundHoleCore/src/soundhole/scripts/js/build",
+			"$(PODS_ROOT)/DataCpp/src",
+			"$(PODS_ROOT)/AsyncCpp/src",
+			"$(PODS_ROOT)/NodeJSEmbed/src",
+			"$(PODS_ROOT)/NodeJSEmbed/external/nodejs/build/addon-api"
+		],
 		'CLANG_CXX_LANGUAGE_STANDARD' => 'gnu++17'
+	}
+	s.ios.pod_target_xcconfig = {
+		'HEADER_SEARCH_PATHS' => [
+			"$(PODS_ROOT)/NodeJSEmbed/external/nodejs/build/mobile/include",
+			"$(PODS_ROOT)/NodeJSEmbed/external/nodejs/build/mobile/include/nodejs",
+			"$(PODS_ROOT)/NodeJSEmbed/external/nodejs/build/mobile/node/deps/openssl/openssl/include"
+		],
+		'FRAMEWORK_SEARCH_PATHS' => "${PODS_ROOT}/SoundHoleCore/external/spotify-ios-streaming-sdk"
 	}
 	# s.frameworks = 'UIKit', 'MapKit'
 	s.dependency 'DataCpp' # git@github.com:lufinkey/data-cpp.git
