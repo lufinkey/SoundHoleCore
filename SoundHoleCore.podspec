@@ -30,14 +30,14 @@ Pod::Spec.new do |s|
 
 	s.ios.deployment_target = '12.0'
 	s.osx.deployment_target = '10.14'
-	
+
 	s.static_framework = true
 
-	s.source_files = 'src/soundhole/**/*'
+	s.source_files = 'src/soundhole/**/*', 'external/cxxurl/url.cpp', 'external/json11/json11.cpp'
 	s.ios.frameworks = 'SpotifyAudioPlayback'
-  
-	s.public_header_files = 'src/soundhole/**/*.hpp'
-	s.preserve_paths = 'external/**/*', 'src/soundhole/scripts'
+
+	s.public_header_files = 'src/soundhole/**/*.hpp', 'external/cxxurl/*.{h,hpp}', 'external/json11/*.{h,hpp}'
+	s.preserve_paths = 'external/**/*', 'src/soundhole/scripts/**/*'
 	s.header_mappings_dir = 'src/soundhole'
 	s.pod_target_xcconfig = {
 		'HEADER_SEARCH_PATHS' => [
