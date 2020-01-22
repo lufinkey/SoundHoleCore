@@ -33,7 +33,7 @@ Pod::Spec.new do |s|
 
 	s.static_framework = true
 
-	s.source_files = 'src/soundhole/**/*', 'external/cxxurl/url.cpp', 'external/json11/json11.cpp'
+	s.source_files = 'src/soundhole/**/*.{c,cc,cpp,m,mm}', 'external/cxxurl/url.cpp', 'external/json11/json11.cpp'
 	s.ios.frameworks = 'SpotifyAudioPlayback'
 
 	s.public_header_files = 'src/soundhole/**/*.hpp', 'external/cxxurl/*.{h,hpp}', 'external/json11/*.{h,hpp}'
@@ -69,5 +69,5 @@ Pod::Spec.new do |s|
 	s.dependency 'AsyncCpp' # git@github.com:lufinkey/async-cpp.git
 	s.dependency 'NodeJSEmbed' # git@github.com:lufinkey/nodejs-embed.git
 	
-	s.prepare_command = "./tools/fetch_shared_dependencies.sh json11 cxxurl && ./tools/fetch_header_dependencies.sh && ./src/soundhole/scripts/build.sh"
+	s.prepare_command = "./tools/fetch_shared_dependencies.sh json11 cxxurl && ./tools/fetch_header_dependencies.sh && ./src/soundhole/scripts/build.sh && rm -rf src/soundhole/scripts/js/node_modules"
 end
