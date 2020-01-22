@@ -37,7 +37,7 @@ Pod::Spec.new do |s|
 	s.ios.frameworks = 'SpotifyAudioPlayback'
 
 	s.public_header_files = 'src/soundhole/**/*.hpp', 'external/cxxurl/*.{h,hpp}', 'external/json11/*.{h,hpp}'
-	s.preserve_paths = 'external/**/*', 'src/soundhole/scripts/**/*'
+	s.preserve_paths = 'external/**/*', 'src/soundhole/scripts/**/*', 'tools/**/*'
 	s.header_mappings_dir = 'src/soundhole'
 	s.pod_target_xcconfig = {
 		'HEADER_SEARCH_PATHS' => [
@@ -62,4 +62,6 @@ Pod::Spec.new do |s|
 	s.dependency 'DataCpp' # git@github.com:lufinkey/data-cpp.git
 	s.dependency 'AsyncCpp' # git@github.com:lufinkey/async-cpp.git
 	s.dependency 'NodeJSEmbed' # git@github.com:lufinkey/nodejs-embed.git
+	
+	s.prepare_command = "./tools/nodejs/fetch_shared_dependencies.sh json11 cxxurl && ./tools/fetch_header_dependencies.sh"
 end
