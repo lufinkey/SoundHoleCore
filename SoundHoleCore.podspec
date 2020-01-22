@@ -46,7 +46,8 @@ Pod::Spec.new do |s|
 			"$(PODS_ROOT)/DataCpp/src",
 			"$(PODS_ROOT)/AsyncCpp/src",
 			"$(PODS_ROOT)/NodeJSEmbed/src",
-			"$(PODS_ROOT)/NodeJSEmbed/external/nodejs/build/addon-api"
+			"$(PODS_ROOT)/NodeJSEmbed/external/nodejs/build/addon-api",
+			"$(PODS_ROOT)/SoundHoleCore/external"
 		],
 		'CLANG_CXX_LANGUAGE_STANDARD' => 'gnu++17'
 	}
