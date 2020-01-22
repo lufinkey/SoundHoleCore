@@ -24,10 +24,10 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   AsyncCpp:
-    :commit: 7f493306147f2d4f567fbdacd94f550d4eb91e4b
+    :commit: 1c4b9f74947c75497b0d17c7693f4bea817e4940
     :git: "git@github.com:lufinkey/async-cpp.git"
   DataCpp:
-    :commit: 038af31b1fccce1a3baea93c90fcfcb0e27f86a4
+    :commit: 8a65b4c5b12335983b55f5336ab7725ce405cd16
     :git: "git@github.com:lufinkey/data-cpp.git"
   NodeJSEmbed:
     :commit: 598bee3bd0234f001d976fb47b47eb574e5ccd68
