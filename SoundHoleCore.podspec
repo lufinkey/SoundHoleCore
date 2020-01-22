@@ -56,7 +56,8 @@ Pod::Spec.new do |s|
 			"$(PODS_ROOT)/NodeJSEmbed/external/nodejs/build/mobile/include",
 			"$(PODS_ROOT)/NodeJSEmbed/external/nodejs/build/mobile/include/nodejs",
 			"$(PODS_ROOT)/NodeJSEmbed/external/nodejs/build/mobile/node/deps/openssl/openssl/include"
-		]
+		],
+		'FRAMEWORK_SEARCH_PATHS' => "${PODS_ROOT}/SoundHoleCore/external/spotify-ios-streaming-sdk"
 	}
 	s.user_target_xcconfig = {
 		'HEADER_SEARCH_PATHS' => [
