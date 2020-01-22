@@ -50,6 +50,11 @@ Pod::Spec.new do |s|
 		],
 		'CLANG_CXX_LANGUAGE_STANDARD' => 'gnu++17'
 	}
+	s.user_target_xcconfig = {
+		'HEADER_SEARCH_PATHS' => [
+			"$(PODS_ROOT)/SoundHoleCore/external"
+		]
+	}
 	s.ios.pod_target_xcconfig = {
 		'HEADER_SEARCH_PATHS' => [
 			"$(PODS_ROOT)/NodeJSEmbed/external/nodejs/build/mobile/include",
