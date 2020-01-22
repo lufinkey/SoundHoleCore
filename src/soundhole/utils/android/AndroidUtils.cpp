@@ -549,6 +549,53 @@ namespace sh {
 				};
 			}
 		}
+
+
+		namespace MediaPlayer {
+			jclass javaClass = nullptr;
+			jmethodID _instantiate = nullptr;
+			jmethodID _setAudioStreamType = nullptr;
+			jmethodID _setDataSource = nullptr;
+			jmethodID _prepare = nullptr;
+			jmethodID _prepareAsync = nullptr;
+			jmethodID _start = nullptr;
+			jmethodID _pause = nullptr;
+			jmethodID _seekTo = nullptr;
+			jmethodID _stop = nullptr;
+			jmethodID _reset = nullptr;
+			jmethodID _isPlaying = nullptr;
+			jmethodID _isLooping = nullptr;
+			jmethodID _getCurrentPosition = nullptr;
+			jmethodID _getDuration = nullptr;
+
+			inline std::vector<jmethodID> methods() {
+				return {
+					_instantiate, _setAudioStreamType, _setDataSource, _prepare, _prepareAsync,
+					_start, _pause, _seekTo, _stop, _reset, _isPlaying, _isLooping, _getCurrentPosition,
+					_getDuration
+				};
+			}
+
+			jobject newObject(JNIEnv* env) {
+				return env->NewObject(javaClass, _instantiate);
+			}
+		}
+
+
+		namespace AudioManager {
+			jclass javaClass = nullptr;
+			jfieldID _STREAM_MUSIC = nullptr;
+
+			inline std::vector<jfieldID> fields() {
+				return {
+					_STREAM_MUSIC
+				};
+			}
+
+			int STREAM_MUSIC(JNIEnv* env) {
+				return env->GetStaticIntField(javaClass, _STREAM_MUSIC);
+			}
+		}
 	}
 }
 
@@ -690,13 +737,34 @@ Java_com_lufinkey_soundholecore_SoundHole_staticInit(JNIEnv* env, jclass javaCla
 	android::SpotifyTrack::_indexInContext = env->GetFieldID(spotifyTrackClass, "indexInContext", "J");
 	android::SpotifyTrack::_albumCoverWebUrl = env->GetFieldID(spotifyTrackClass, "albumCoverWebUrl", "Ljava/lang/String;");
 
+	jclass mediaPlayerClass = env->FindClass("android/media/MediaPlayer");
+	android::MediaPlayer::javaClass = (jclass)env->NewGlobalRef(mediaPlayerClass);
+	android::MediaPlayer::_instantiate = env->GetMethodID(mediaPlayerClass, "<init>", "()V");
+	android::MediaPlayer::_setAudioStreamType = env->GetMethodID(mediaPlayerClass, "setAudioStreamType", "(I)V");
+	android::MediaPlayer::_setDataSource = env->GetMethodID(mediaPlayerClass, "setDataSource", "(Ljava/lang/String;)V");
+	android::MediaPlayer::_prepare = env->GetMethodID(mediaPlayerClass, "prepare", "()V");
+	android::MediaPlayer::_prepareAsync = env->GetMethodID(mediaPlayerClass, "prepareAsync", "()V");
+	android::MediaPlayer::_start = env->GetMethodID(mediaPlayerClass, "start", "()V");
+	android::MediaPlayer::_pause = env->GetMethodID(mediaPlayerClass, "pause", "()V");
+	android::MediaPlayer::_seekTo = env->GetMethodID(mediaPlayerClass, "seekTo", "(I)V");
+	android::MediaPlayer::_stop = env->GetMethodID(mediaPlayerClass, "stop", "()V");
+	android::MediaPlayer::_reset = env->GetMethodID(mediaPlayerClass, "reset", "()V");
+	android::MediaPlayer::_isPlaying = env->GetMethodID(mediaPlayerClass, "isPlaying", "()Z");
+	android::MediaPlayer::_isLooping = env->GetMethodID(mediaPlayerClass, "isLooping", "()Z");
+	android::MediaPlayer::_getCurrentPosition = env->GetMethodID(mediaPlayerClass, "getCurrentPosition", "()I");
+	android::MediaPlayer::_getDuration = env->GetMethodID(mediaPlayerClass, "getDuration", "()I");
+
+	jclass audioManagerClass = env->FindClass("android/media/AudioManager");
+	android::AudioManager::javaClass = (jclass)env->NewGlobalRef(audioManagerClass);
+	android::AudioManager::_STREAM_MUSIC = env->GetStaticFieldID(audioManagerClass, "STREAM_MUSIC", "I");
+
 	// validate that all methods have been got
 	for(auto& methodList : {
 		android::Utils::methods(), android::NativeFunction::methods(), android::NativeCallback::methods(),
 		android::NativeSpotifyPlayerInitCallback::methods(), android::NativeSpotifyPlayerOpCallback::methods(),
 		android::SpotifyPlayerEventHandler::methods(), android::SpotifyLoginOptions::methods(),
 		android::SpotifyAuthActivity::methods(), android::SpotifyNativeAuthActivityListener::methods(),
-		android::SpotifyUtils::methods(), android::SpotifyPlayer::methods()
+		android::SpotifyUtils::methods(), android::SpotifyPlayer::methods(), android::MediaPlayer::methods()
 	}) {
 		for(auto method : methodList) {
 			if(method == nullptr) {
@@ -707,7 +775,8 @@ Java_com_lufinkey_soundholecore_SoundHole_staticInit(JNIEnv* env, jclass javaCla
 	// validate that all fields have been got
 	for(auto& fieldList : {
 		android::SpotifySession::fields(), android::SpotifyLoginOptions::fields(), android::SpotifyError::fields(),
-		android::SpotifyPlaybackState::fields(), android::SpotifyMetadata::fields(), android::SpotifyTrack::fields()
+		android::SpotifyPlaybackState::fields(), android::SpotifyMetadata::fields(), android::SpotifyTrack::fields(),
+		android::AudioManager::fields()
 	}) {
 		for(auto field : fieldList) {
 			if(field == nullptr) {

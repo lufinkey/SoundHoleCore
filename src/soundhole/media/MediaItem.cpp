@@ -60,7 +60,7 @@ namespace sh {
 	}
 
 	Promise<void> MediaItem::fetchMissingDataIfNeeded() {
-		if(DispatchQueue::getLocal() != getDefaultPromiseQueue()) {
+		if(DispatchQueue::local() != getDefaultPromiseQueue()) {
 			return Promise<void>::resolve().then([=]() -> Promise<void> {
 				return fetchMissingDataIfNeeded();
 			});

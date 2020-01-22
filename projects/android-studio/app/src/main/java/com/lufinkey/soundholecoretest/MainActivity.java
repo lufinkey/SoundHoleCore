@@ -20,12 +20,12 @@ public class MainActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_main);
 		System.out.println("initializing SoundHole");
 		SoundHole.init(getApplicationContext());
-		testSpotify();
+		runTests();
 	}
 
 	/**
 	 * A native method that is implemented by the 'native-lib' native library,
 	 * which is packaged with this application.
 	 */
-	public native void testSpotify();
+	public native void runTests();
 }

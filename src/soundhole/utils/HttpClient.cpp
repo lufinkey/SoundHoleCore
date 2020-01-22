@@ -11,7 +11,6 @@
 #include <stdexcept>
 #include <embed/nodejs/NodeJS.hpp>
 #include <soundhole/scripts/Scripts.hpp>
-#include <httplib/httplib.h>
 
 namespace sh::utils {
 	String HttpMethod_toString(HttpMethod method) {
@@ -45,7 +44,8 @@ namespace sh::utils {
 				try {
 					embed::nodejs::queueMain([=](napi_env env) {
 						try {
-							Napi::Reference<Napi::Object> exportsRef(env, scripts::getJSExportsRef());
+							Napi::ObjectReference exportsRef(env, scripts::getJSExportsRef());
+							exportsRef.SuppressDestruct();
 							Napi::Object exports = exportsRef.Value();
 							Napi::Function performRequest = exports.Get("performHttpRequest").As<Napi::Function>();
 							auto jsRequest = Napi::Object::New(env);
@@ -96,12 +96,35 @@ namespace sh::utils {
 	}
 	
 	
-	
+
+	String encodeURLComponent(String urlComponent) {
+		std::ostringstream escaped;
+		escaped.fill('0');
+		escaped << std::hex;
+
+		for (size_t i=0; i<urlComponent.length(); i++) {
+			char c = urlComponent[i];
+
+			// Keep alphanumeric and other accepted characters intact
+			if (std::isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+				escaped << c;
+				continue;
+			}
+
+			// Any other characters are percent-encoded
+			escaped << std::uppercase;
+			escaped << '%' << std::setw(2) << int((unsigned char)c);
+			escaped << std::nouppercase;
+		}
+
+		return escaped.str();
+	}
+
 	String makeQueryString(std::map<String,String> params) {
 		LinkedList<String> items;
 		for(auto& pair : params) {
 			items.pushBack(
-				httplib::detail::encode_url(pair.first) + "=" + httplib::detail::encode_url(pair.second)
+					encodeURLComponent(pair.first) + "=" + encodeURLComponent(pair.second)
 			);
 		}
 		return String::join(items, "&");

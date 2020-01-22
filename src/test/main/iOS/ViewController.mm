@@ -25,7 +25,11 @@
 	[super viewDidAppear:animated];
 	_tested = YES;
 	sh::test::testSpotify().then([=]() {
-		sh::test::testStreamPlayer();
+		return sh::test::testStreamPlayer();
+	}).except([=](fgl::Error& error) {
+		printf("error: %s\n", error.toString().c_str());
+	}).except([=](std::exception& error) {
+		printf("error: %s\n", error.what());
 	});
 }
 

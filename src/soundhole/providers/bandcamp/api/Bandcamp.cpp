@@ -20,7 +20,12 @@ namespace sh {
 
 	Bandcamp::~Bandcamp() {
 		queueJSDestruct([=](napi_env env) {
-			Napi::ObjectReference(env, jsRef).Unref();
+			auto napiRef = Napi::ObjectReference(env, jsRef);
+			if(napiRef.Unref() == 0) {
+				napiRef.Reset();
+			} else {
+				napiRef.SuppressDestruct();
+			}
 		});
 	}
 
@@ -29,7 +34,9 @@ namespace sh {
 			auto jsExports = scripts::getJSExports(env);
 			auto BandcampClass = jsExports.Get("Bandcamp").As<Napi::Function>();
 			auto bandcamp = BandcampClass.New({});
-			jsRef = Napi::ObjectReference::New(bandcamp, 1);
+			auto bandcampRef = Napi::ObjectReference::New(bandcamp, 1);
+			bandcampRef.SuppressDestruct();
+			jsRef = bandcampRef;
 		}
 	}
 

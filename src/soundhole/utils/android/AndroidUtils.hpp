@@ -177,6 +177,33 @@ namespace sh {
 			extern jfieldID _indexInContext;
 			extern jfieldID _albumCoverWebUrl;
 		}
+
+		namespace AudioManager {
+			extern jclass javaClass;
+
+			extern jfieldID _STREAM_MUSIC;
+
+			int STREAM_MUSIC(JNIEnv*);
+		}
+
+		namespace MediaPlayer {
+			extern jclass javaClass;
+			extern jmethodID _setAudioStreamType;
+			extern jmethodID _setDataSource;
+			extern jmethodID _prepare;
+			extern jmethodID _prepareAsync;
+			extern jmethodID _start;
+			extern jmethodID _pause;
+			extern jmethodID _seekTo;
+			extern jmethodID _stop;
+			extern jmethodID _reset;
+			extern jmethodID _isPlaying;
+			extern jmethodID _isLooping;
+			extern jmethodID _getCurrentPosition;
+			extern jmethodID _getDuration;
+
+			jobject newObject(JNIEnv* env);
+		}
 	}
 }
 

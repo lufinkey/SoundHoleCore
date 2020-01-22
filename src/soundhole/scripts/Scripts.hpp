@@ -23,7 +23,9 @@ namespace sh::scripts {
 		if(exportsRef == nullptr) {
 			return Napi::Object();
 		}
-		return Napi::Reference<Napi::Object>(env, exportsRef).Value().template As<Napi::Object>();
+		auto exportsNapiRef = Napi::ObjectReference(env, exportsRef);
+		exportsNapiRef.SuppressDestruct();
+		return exportsNapiRef.Value().template As<Napi::Object>();
 	}
 	#endif
 }

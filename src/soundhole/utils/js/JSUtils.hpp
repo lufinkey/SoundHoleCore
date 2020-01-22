@@ -100,7 +100,9 @@ namespace sh::jsutils {
 		if(ref == nullptr) {
 			return NapiType();
 		}
-		return Napi::Reference<NapiType>(env, ref).Value();
+		auto napiRef = Napi::Reference<NapiType>(env, ref);
+		napiRef.SuppressDestruct();
+		return napiRef.Value();
 	}
 	
 	#endif

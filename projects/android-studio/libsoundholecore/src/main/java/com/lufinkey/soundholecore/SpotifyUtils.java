@@ -14,9 +14,6 @@ class SpotifyUtils {
 	}
 
 	public void destroyPlayer(SpotifyPlayer player) {
-		if(player != null) {
-			player.destroy();
-		}
 		Spotify.destroyPlayer(this);
 	}
 

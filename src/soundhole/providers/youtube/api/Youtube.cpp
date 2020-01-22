@@ -34,7 +34,12 @@ namespace sh {
 
 	Youtube::~Youtube() {
 		queueJSDestruct([=](napi_env env) {
-			Napi::ObjectReference(env, jsRef).Unref();
+			auto napiRef = Napi::ObjectReference(env, jsRef);
+			if(napiRef.Unref() == 0) {
+				napiRef.Reset();
+			} else {
+				napiRef.SuppressDestruct();
+			}
 		});
 	}
 
@@ -42,7 +47,9 @@ namespace sh {
 		if(this->jsRef == nullptr) {
 			auto jsExports = scripts::getJSExports(env);
 			auto ytdl = jsExports.Get("ytdl").As<Napi::Object>();
-			jsRef = Napi::ObjectReference::New(ytdl, 1);
+			auto ytdlRef = Napi::ObjectReference::New(ytdl, 1);
+			ytdlRef.SuppressDestruct();
+			jsRef = ytdlRef;
 		}
 	}
 

@@ -90,8 +90,8 @@ namespace sh {
 		starting = true;
 		lock.unlock();
 
-		jstring clientId = env->NewStringUTF(auth->getOptions().clientId);
-		jstring accessToken = session ? env->NewStringUTF(session->getAccessToken()) : nullptr;
+		jstring clientId = auth->getOptions().clientId.toJavaString(env);
+		jstring accessToken = session ? session->getAccessToken().toJavaString(env) : nullptr;
 		android::SpotifyUtils::getPlayer(env, (jobject)spotifyUtils,
 			clientId, accessToken,
 			android::NativeSpotifyPlayerInitCallback::newObject(env, [=](JNIEnv* env, jobject player) {
@@ -236,7 +236,7 @@ namespace sh {
 		return prepareForCall().then([=]() -> Promise<void> {
 			ScopedJNIEnv scopedEnv(getMainJavaVM());
 			JNIEnv* env = scopedEnv.getEnv();
-			jstring uriStr = env->NewStringUTF(uri);
+			jstring uriStr = uri.toJavaString(env);
 			jint index = (jint)options.index;
 			jint position = (jint)(options.position * 1000.0);
 			return androidPlayerOp(env, (jobject)player, android::SpotifyPlayer::_playUri, uriStr, index, position);
@@ -247,7 +247,7 @@ namespace sh {
 		return prepareForCall().then([=]() -> Promise<void> {
 			ScopedJNIEnv scopedEnv(getMainJavaVM());
 			JNIEnv* env = scopedEnv.getEnv();
-			jstring uriStr = env->NewStringUTF(uri);
+			jstring uriStr = uri.toJavaString(env);
 			return androidPlayerOp(env, (jobject)player, android::SpotifyPlayer::_queue, uriStr);
 		});
 	}

@@ -54,7 +54,7 @@ namespace sh {
 		} else if(context_modePrivate == nullptr) {
 			throw std::runtime_error("Could not find android Context.MODE_PRIVATE");
 		}
-		jstring sessionKey = env->NewStringUTF(key);
+		jstring sessionKey = key.toJavaString(env);
 		jint modePrivate = env->GetStaticIntField(contextClass, context_modePrivate);
 		return env->CallObjectMethod(context, context_getSharedPrefs, sessionKey, modePrivate);
 	}

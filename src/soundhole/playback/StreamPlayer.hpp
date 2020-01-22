@@ -60,19 +60,27 @@ namespace sh {
 		#if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
 		AVPlayer* createPlayer(String audioURL);
 		void setPlayer(AVPlayer* player, String audioURL);
-		#endif
 		void destroyPlayer();
 		void destroyPreparedPlayer();
+		#elif defined(JNIEXPORT) && defined(TARGETPLATFORM_ANDROID)
+		jobject createPlayer(JNIEnv* env, String audioURL);
+		void setPlayer(JNIEnv* env, jobject player, String audioURL);
+		void destroyPlayer(JNIEnv* env);
+		void destroyPreparedPlayer(JNIEnv* env);
+		#endif
 		
-		#ifdef TARGETPLATFORM_IOS
+		#if defined(TARGETPLATFORM_IOS)
 		OBJCPP_PTR(AVPlayer) player;
 		OBJCPP_PTR(AVPlayer) preparedPlayer;
+		OBJCPP_PTR(StreamPlayerEventHandler) playerEventHandler;
+		#elif defined(TARGETPLATFORM_ANDROID)
+		void* javaVm;
+		void* player;
+		void* preparedPlayer;
 		#endif
 		String playerAudioURL;
 		String preparedAudioURL;
 		mutable std::recursive_mutex playerMutex;
-		
-		OBJCPP_PTR(StreamPlayerEventHandler) playerEventHandler;
 		
 		AsyncQueue playQueue;
 		

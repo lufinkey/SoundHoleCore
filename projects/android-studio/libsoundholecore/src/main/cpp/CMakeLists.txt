@@ -26,18 +26,17 @@ add_library(
 target_include_directories(
 		SoundHoleCore
 		PUBLIC
-		"${SOUNDHOLECORE_ROOT}/src")
+		"${SOUNDHOLECORE_ROOT}/src"
+		"${SOUNDHOLECORE_ROOT}/external/nodejs-embed/src"
+		"${SOUNDHOLECORE_ROOT}/external/data-cpp/src"
+		"${SOUNDHOLECORE_ROOT}/external/async-cpp/src")
 
 target_include_directories(
 		SoundHoleCore
 		PRIVATE
 		"${CMAKE_CURRENT_SOURCE_DIR}"
 		"${SOUNDHOLECORE_ROOT}/src/soundhole/scripts/js/build"
-		"${SOUNDHOLECORE_ROOT}/external/nodejs-embed/src"
-		"${SOUNDHOLECORE_ROOT}/external/data-cpp/src"
-		"${SOUNDHOLECORE_ROOT}/external/async-cpp/src"
 		"${SOUNDHOLECORE_ROOT}/external"
-
 		"${SOUNDHOLECORE_ROOT}/external/nodejs-embed/external/nodejs/build/mobile/include"
 		"${SOUNDHOLECORE_ROOT}/external/nodejs-embed/external/nodejs/build/mobile/include/nodejs"
 		"${SOUNDHOLECORE_ROOT}/external/nodejs-embed/external/nodejs/build/mobile/node/deps/openssl/openssl/include"
@@ -49,5 +48,7 @@ find_library(
 
 target_link_libraries(
 	SoundHoleCore
+	DataCpp
+	AsyncCpp
 	NodeJSEmbed
 	${log-lib})

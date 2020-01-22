@@ -5,6 +5,7 @@ cmake_minimum_required(VERSION 3.4.1)
 set( CMAKE_CXX_STANDARD 17 )
 
 # add_definitions( -DDEBUG_PROMISE_NAMING )
+add_definitions( -DFGL_DISPATCH_USES_MAIN )
 
 set( SOUNDHOLECORE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../.." )
 

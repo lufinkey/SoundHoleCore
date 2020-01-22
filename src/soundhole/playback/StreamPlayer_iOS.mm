@@ -92,11 +92,6 @@ namespace sh {
 		AVPlayer* deadPlayer = preparedPlayer;
 		preparedPlayer = nil;
 		preparedAudioURL.clear();
-		[NSNotificationCenter.defaultCenter removeObserver:playerEventHandler name:AVPlayerItemDidPlayToEndTimeNotification object:deadPlayer.currentItem];
-		[deadPlayer removeObserver:playerEventHandler forKeyPath:@"timeControlStatus"];
-		lock.unlock();
-		[deadPlayer pause];
-		[deadPlayer replaceCurrentItemWithPlayerItem:nil];
 	}
 
 
@@ -115,20 +110,18 @@ namespace sh {
 			.cancelMatchingTags = true
 		};
 		return playQueue.run(runOptions, [=](auto task) {
-			return generate<void>([=](auto yield) {
-				std::unique_lock<std::recursive_mutex> lock(playerMutex);
-				if(preparedAudioURL == audioURL || playerAudioURL == audioURL) {
-					return;
-				}
-				destroyPreparedPlayer();
-				preparedPlayer = createPlayer(audioURL);
-				preparedAudioURL = audioURL;
-				lock.unlock();
-				preparedPlayer.muted = YES;
-				[preparedPlayer play];
-				[preparedPlayer pause];
-				preparedPlayer.muted = NO;
-			});
+			std::unique_lock<std::recursive_mutex> lock(playerMutex);
+			if(preparedAudioURL == audioURL || playerAudioURL == audioURL) {
+				return;
+			}
+			destroyPreparedPlayer();
+			preparedPlayer = createPlayer(audioURL);
+			preparedAudioURL = audioURL;
+			lock.unlock();
+			preparedPlayer.muted = YES;
+			[preparedPlayer play];
+			[preparedPlayer pause];
+			preparedPlayer.muted = NO;
 		}).promise;
 	}
 
@@ -242,6 +235,7 @@ namespace sh {
 	}
 
 	StreamPlayer::PlaybackState StreamPlayer::getState() const {
+		std::unique_lock<std::recursive_mutex> lock(playerMutex);
 		AVPlayer* player = this->player;
 		if(player == nil) {
 			return {
@@ -256,7 +250,7 @@ namespace sh {
 		return {
 			.playing = (player.timeControlStatus == AVPlayerTimeControlStatusPlaying || player.timeControlStatus == AVPlayerTimeControlStatusWaitingToPlayAtSpecifiedRate),
 			.position = (1.0 / (double)currentTime.timescale) * (double)currentTime.value,
-			.duration = (1.0 / (double)currentDuration.timescale) * (double)currentDuration.value,
+			.duration = (1.0 / (double)currentDuration.timescale) * (double)currentDuration.value
 		};
 	}
 }
