@@ -51,17 +51,19 @@ Pod::Spec.new do |s|
 		],
 		'CLANG_CXX_LANGUAGE_STANDARD' => 'gnu++17'
 	}
-	s.user_target_xcconfig = {
-		'HEADER_SEARCH_PATHS' => [
-			"$(PODS_ROOT)/SoundHoleCore/external"
-		]
-	}
 	s.ios.pod_target_xcconfig = {
 		'HEADER_SEARCH_PATHS' => [
 			"$(PODS_ROOT)/NodeJSEmbed/external/nodejs/build/mobile/include",
 			"$(PODS_ROOT)/NodeJSEmbed/external/nodejs/build/mobile/include/nodejs",
 			"$(PODS_ROOT)/NodeJSEmbed/external/nodejs/build/mobile/node/deps/openssl/openssl/include"
-		],
+		]
+	}
+	s.user_target_xcconfig = {
+		'HEADER_SEARCH_PATHS' => [
+			"$(PODS_ROOT)/SoundHoleCore/external"
+		]
+	}
+	s.ios.user_target_xcconfig = {
 		'FRAMEWORK_SEARCH_PATHS' => "${PODS_ROOT}/SoundHoleCore/external/spotify-ios-streaming-sdk"
 	}
 	# s.frameworks = 'UIKit', 'MapKit'
