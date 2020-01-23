@@ -62,11 +62,12 @@ namespace sh {
 		
 		
 		struct SearchOptions {
+			ArrayList<String> types;
 			String market;
 			Optional<size_t> limit;
 			Optional<size_t> offset;
 		};
-		Promise<SpotifySearchResults> search(String query, ArrayList<String> types, SearchOptions options = {});
+		Promise<SpotifySearchResults> search(String query, SearchOptions options = {});
 		
 		
 		struct GetOptions {

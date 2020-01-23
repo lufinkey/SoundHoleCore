@@ -309,8 +309,13 @@ namespace sh {
 		});
 	}
 	
-	Promise<SpotifySearchResults> Spotify::search(String query, ArrayList<String> types, SearchOptions options) {
+	Promise<SpotifySearchResults> Spotify::search(String query, SearchOptions options) {
 		std::map<std::string,Json> params;
+		if(options.types.empty()) {
+			params["type"] = (std::string)String::join(ArrayList<String>{ "track", "artist", "album", "playlist" }, ",");
+		} else {
+			params["type"] = (std::string)String::join(options.types, ",");
+		}
 		if(!options.market.empty()) {
 			params["market"] = (std::string)options.market;
 		}
@@ -321,7 +326,6 @@ namespace sh {
 			params["offset"] = std::to_string(options.offset.value());
 		}
 		params["q"] = (std::string)query;
-		params["type"] = (std::string)String::join(types, ",");
 		return sendRequest(utils::HttpMethod::GET, "v1/search", params).map<SpotifySearchResults>([](auto json) {
 			return SpotifySearchResults::fromJson(json);
 		});

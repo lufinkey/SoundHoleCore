@@ -28,7 +28,7 @@ namespace sh {
 		virtual String displayName() const override;
 		
 		using SearchOptions = Spotify::SearchOptions;
-		Promise<SpotifySearchResults> search(String query, ArrayList<String> types, SearchOptions options = {});
+		Promise<SpotifySearchResults> search(String query, SearchOptions options = {});
 		
 		virtual Promise<bool> login() override;
 		virtual void logout() override;

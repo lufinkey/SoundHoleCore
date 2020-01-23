@@ -36,8 +36,8 @@ namespace sh {
 
 
 
-	Promise<SpotifySearchResults> SpotifyProvider::search(String query, ArrayList<String> types, SearchOptions options) {
-		return spotify->search(query, types, options);
+	Promise<SpotifySearchResults> SpotifyProvider::search(String query, SearchOptions options) {
+		return spotify->search(query, options);
 	}
 
 
