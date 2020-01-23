@@ -61,6 +61,7 @@ Pod::Spec.new do |s|
 	}
 	s.user_target_xcconfig = {
 		'HEADER_SEARCH_PATHS' => [
+			"$(PODS_ROOT)/SoundHoleCore/src"
 			"$(PODS_ROOT)/SoundHoleCore/external"
 		]
 	}
