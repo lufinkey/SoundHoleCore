@@ -27,12 +27,18 @@ namespace sh {
 		virtual String name() const override;
 		virtual String displayName() const override;
 		
-		using SearchOptions = Spotify::SearchOptions;
-		Promise<SpotifySearchResults> search(String query, SearchOptions options = {});
-		
 		virtual Promise<bool> login() override;
 		virtual void logout() override;
 		bool isLoggedIn() const override;
+		
+		using SearchOptions = Spotify::SearchOptions;
+		struct SearchResults {
+			Optional<SpotifyPage<$<Track>>> tracks;
+			Optional<SpotifyPage<$<Album>>> albums;
+			Optional<SpotifyPage<$<Artist>>> artists;
+			Optional<SpotifyPage<$<Playlist>>> playlists;
+		};
+		Promise<SearchResults> search(String query, SearchOptions options = {});
 		
 		virtual Promise<Track::Data> getTrackData(String uri) override;
 		virtual Promise<Artist::Data> getArtistData(String uri) override;

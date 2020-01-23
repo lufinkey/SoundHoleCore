@@ -34,4 +34,18 @@ namespace sh {
 		}
 		return fromJson(json);
 	}
+
+	template<typename T>
+	template<typename U>
+	SpotifyPage<U> SpotifyPage<T>::map(Function<U(const T&)> mapper) const {
+		return SpotifyPage<U>{
+			.href=href,
+			.limit=limit,
+			.offset=offset,
+			.total=total,
+			.previous=previous,
+			.next=next,
+			.items=items.template map<U>(mapper)
+		};
+	}
 }

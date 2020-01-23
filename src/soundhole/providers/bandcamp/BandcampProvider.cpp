@@ -8,6 +8,7 @@
 
 #include "BandcampProvider.hpp"
 #include "mutators/BandcampAlbumMutatorDelegate.hpp"
+#include <cxxurl/url.hpp>
 
 namespace sh {
 	BandcampProvider::BandcampProvider()
@@ -42,6 +43,136 @@ namespace sh {
 
 	bool BandcampProvider::isLoggedIn() const {
 		return false;
+	}
+
+
+
+
+	Promise<BandcampProvider::SearchResults> BandcampProvider::search(String query, SearchOptions options) {
+		return bandcamp->search(query, options).map<SearchResults>([=](BandcampSearchResults searchResults) -> SearchResults {
+			return SearchResults{
+				.prevURL=searchResults.prevURL,
+				.nextURL=searchResults.nextURL,
+				.items=searchResults.items.where([&](auto& item) {
+					return (item.type != BandcampSearchResults::Item::Type::UNKNOWN);
+				}).template map<$<MediaItem>>([&](auto& item) {
+					auto images = (!item.imageURL.empty()) ?
+						maybe(ArrayList<MediaItem::Image>{{
+							.url=item.imageURL,
+							.size=MediaItem::Image::Size::SMALL
+						}})
+						: std::nullopt;
+					switch(item.type) {
+						case BandcampSearchResults::Item::Type::TRACK:
+							return std::static_pointer_cast<MediaItem>(Track::new$(this, {{
+								.type="track",
+								.name=item.name,
+								.uri=item.url,
+								.images=images
+								},
+								.albumName=item.albumName,
+								.albumURI=item.albumURL,
+								.artists=ArrayList<$<Artist>>{
+									Artist::new$(this, {{
+										.type="artist",
+										.name=item.artistName,
+										.uri=item.artistURL,
+										.images=std::nullopt
+										},
+										.description=std::nullopt
+									})
+								},
+								.tags=item.tags,
+								.discNumber=std::nullopt,
+								.trackNumber=std::nullopt,
+								.duration=std::nullopt,
+								.audioSources=std::nullopt
+							}));
+							
+						case BandcampSearchResults::Item::Type::ALBUM:
+							return std::static_pointer_cast<MediaItem>(Album::new$(this, {{{
+								.type="album",
+								.name=item.name,
+								.uri=item.url,
+								.images=images
+								},
+								.tracks=item.numTracks ?
+									maybe(Album::Data::Tracks{
+										.total=item.numTracks.value(),
+										.offset=0,
+										.items={}
+									})
+									: std::nullopt
+								},
+								.artists=ArrayList<$<Artist>>{
+									Artist::new$(this, {{
+										.type="artist",
+										.name=item.artistName,
+										.uri=item.artistURL,
+										.images=std::nullopt
+										},
+										.description=std::nullopt
+									})
+								}
+							}));
+							
+						case BandcampSearchResults::Item::Type::ARTIST:
+							return std::static_pointer_cast<MediaItem>(Artist::new$(this, {{
+								.type="artist",
+								.name=item.name,
+								.uri=item.url,
+								.images=images
+								},
+								.description=std::nullopt
+							}));
+							
+						case BandcampSearchResults::Item::Type::LABEL:
+							return std::static_pointer_cast<MediaItem>(Artist::new$(this, {{
+								.type="label",
+								.name=item.name,
+								.uri=item.url,
+								.images=images
+								},
+								.description=std::nullopt
+							}));
+							
+						case BandcampSearchResults::Item::Type::FAN:
+							return std::static_pointer_cast<MediaItem>(UserAccount::new$(this, {{
+								.type="user",
+								.name=item.name,
+								.uri=item.url,
+								.images=images
+								},
+								.id=([&]() -> String {
+									if(item.url.empty()) {
+										return item.url;
+									}
+									try {
+										auto url = Url(item.url);
+										if(url.host() == "bandcamp.com" || url.host() == "www.bandcamp.com") {
+											String id = url.path();
+											while(id.startsWith("/")) {
+												id = id.substring(0);
+											}
+											while(id.endsWith("/")) {
+												id = id.substring(0, id.length()-1);
+											}
+											return id;
+										}
+										return item.url;
+									} catch(Url::parse_error& error) {
+										return item.url;
+									}
+								})(),
+								.displayName=item.name
+							}));
+							
+						case BandcampSearchResults::Item::Type::UNKNOWN:
+							throw std::logic_error("found unknown bandcamp item");
+					}
+				})
+			};
+		});
 	}
 
 

@@ -34,4 +34,21 @@ namespace sh {
 			})
 		};
 	}
+
+	template<typename T>
+	template<typename U>
+	YoutubePage<U> YoutubePage<T>::map(Function<U(const T&)> mapper) const {
+		return YoutubePage<U>{
+			.kind=kind,
+			.etag=etag,
+			.prevPageToken=prevPageToken,
+			.nextPageToken=nextPageToken,
+			.regionCode=regionCode,
+			.pageInfo=typename YoutubePage<U>::PageInfo{
+				.totalResults=pageInfo.totalResults,
+				.resultsPerPage=pageInfo.resultsPerPage
+			},
+			.items=items.template map<U>(mapper)
+		};
+	}
 }

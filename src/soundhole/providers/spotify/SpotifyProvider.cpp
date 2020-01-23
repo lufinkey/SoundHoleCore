@@ -36,13 +36,6 @@ namespace sh {
 
 
 
-	Promise<SpotifySearchResults> SpotifyProvider::search(String query, SearchOptions options) {
-		return spotify->search(query, options);
-	}
-
-
-
-
 	Promise<bool> SpotifyProvider::login() {
 		return spotify->login();
 	}
@@ -55,6 +48,35 @@ namespace sh {
 		return spotify->isLoggedIn();
 	}
 
+
+
+
+	Promise<SpotifyProvider::SearchResults> SpotifyProvider::search(String query, SearchOptions options) {
+		return spotify->search(query, options).map<SpotifyProvider::SearchResults>([=](auto searchResults) {
+			return SearchResults{
+				.tracks = searchResults.tracks ?
+					maybe(searchResults.tracks->template map<$<Track>>([&](auto& track) {
+						return Track::new$(this, createTrackData(track));
+					}))
+					: std::nullopt,
+				.albums = searchResults.albums ?
+					maybe(searchResults.albums->template map<$<Album>>([&](auto& album) {
+						return Album::new$(this, createAlbumData(album));
+					}))
+					: std::nullopt,
+				.artists = searchResults.artists ?
+					maybe(searchResults.artists->template map<$<Artist>>([&](auto& artist) {
+						return Artist::new$(this, createArtistData(artist));
+					}))
+					: std::nullopt,
+				.playlists = searchResults.playlists ?
+					maybe(searchResults.playlists->template map<$<Playlist>>([&](auto& playlist) {
+						return Playlist::new$(this, createPlaylistData(playlist));
+					}))
+					: std::nullopt,
+			};
+		});
+	}
 
 
 

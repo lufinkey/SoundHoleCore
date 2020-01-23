@@ -37,6 +37,9 @@ namespace sh {
 		
 		static SpotifyPage<T> fromJson(const Json&);
 		static Optional<SpotifyPage<T>> maybeFromJson(const Json&);
+		
+		template<typename U>
+		SpotifyPage<U> map(Function<U(const T&)> mapper) const;
 	};
 
 

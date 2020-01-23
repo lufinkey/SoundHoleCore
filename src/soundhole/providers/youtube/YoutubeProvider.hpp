@@ -28,6 +28,9 @@ namespace sh {
 		virtual void logout() override;
 		virtual bool isLoggedIn() const override;
 		
+		using SearchOptions = Youtube::SearchOptions;
+		Promise<YoutubePage<$<MediaItem>>> search(String query, SearchOptions options);
+		
 		virtual Promise<Track::Data> getTrackData(String uri) override;
 		virtual Promise<Artist::Data> getArtistData(String uri) override;
 		virtual Promise<Album::Data> getAlbumData(String uri) override;

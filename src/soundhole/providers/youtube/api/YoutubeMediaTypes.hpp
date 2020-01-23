@@ -61,6 +61,9 @@ namespace sh {
 		ArrayList<T> items;
 		
 		static YoutubePage<T> fromJson(const Json&);
+		
+		template<typename U>
+		YoutubePage<U> map(Function<U(const T&)> mapper) const;
 	};
 
 

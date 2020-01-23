@@ -27,6 +27,14 @@ namespace sh {
 		virtual void logout() override;
 		virtual bool isLoggedIn() const override;
 		
+		struct SearchResults {
+			String prevURL;
+			String nextURL;
+			ArrayList<$<MediaItem>> items;
+		};
+		using SearchOptions = Bandcamp::SearchOptions;
+		Promise<SearchResults> search(String query, SearchOptions options={.page=0});
+		
 		virtual Promise<Track::Data> getTrackData(String uri) override;
 		virtual Promise<Artist::Data> getArtistData(String uri) override;
 		virtual Promise<Album::Data> getAlbumData(String uri) override;
