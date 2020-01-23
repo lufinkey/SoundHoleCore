@@ -24,10 +24,10 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   AsyncCpp:
-    :commit: 1c4b9f74947c75497b0d17c7693f4bea817e4940
+    :commit: 9e0e3cd86ba3f1b772e590f944bbed435386a59b
     :git: "git@github.com:lufinkey/async-cpp.git"
   DataCpp:
-    :commit: 8a65b4c5b12335983b55f5336ab7725ce405cd16
+    :commit: 2891244a5071522e41b0b76098c5591c5a68c9b6
     :git: "git@github.com:lufinkey/data-cpp.git"
   NodeJSEmbed:
     :commit: 598bee3bd0234f001d976fb47b47eb574e5ccd68
@@ -37,8 +37,8 @@ CHECKOUT OPTIONS:
     :git: https://github.com/janeasystems/nodejs-mobile.git
 
 SPEC CHECKSUMS:
-  AsyncCpp: fbdd9f4c92518adab685a33dfe13c0766804c048
-  DataCpp: e7befe7138f94d9745eb2987b4a4bd4e41a3b1d7
+  AsyncCpp: 9ca1f8578493e41e9b449c19dc165ffc3634a33d
+  DataCpp: 7e6957f3f049b1ec0992723d06f65424f81bf836
   NodeJSEmbed: ff7926e46e0ce00c856cf37e2287c34ef86fb04c
   NodeMobile: cb332628599d35759769bdb6b1501b17b5f1f287
 
