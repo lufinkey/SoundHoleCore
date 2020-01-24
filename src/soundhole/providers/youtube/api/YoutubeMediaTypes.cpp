@@ -356,6 +356,21 @@ namespace sh {
 		return fromNapiObject(obj);
 	}
 
+	YoutubeVideoInfo::VideoDetails::Thumbnail YoutubeVideoInfo::VideoDetails::Thumbnail::fromNapiObject(Napi::Object obj) {
+		return Thumbnail{
+			.thumbnails=jsutils::arrayListFromNapiValue<YoutubeVideoInfo::Image>(obj.Get("thumbnails"), [](Napi::Value obj) {
+				return YoutubeVideoInfo::Image::fromNapiObject(obj.As<Napi::Object>());
+			})
+		};
+	}
+
+	Optional<YoutubeVideoInfo::VideoDetails::Thumbnail> YoutubeVideoInfo::VideoDetails::Thumbnail::maybeFromNapiObject(Napi::Object obj) {
+		if(obj.IsEmpty() || obj.IsNull() || obj.IsUndefined()) {
+			return std::nullopt;
+		}
+		return fromNapiObject(obj);
+	}
+
 	YoutubeVideoInfo::Media YoutubeVideoInfo::Media::fromNapiObject(Napi::Object obj) {
 		return Media{
 			.categoryURL = jsutils::stringFromNapiValue(obj.Get("category_url")),
