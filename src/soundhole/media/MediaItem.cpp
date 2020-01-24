@@ -46,6 +46,39 @@ namespace sh {
 	const Optional<ArrayList<MediaItem::Image>>& MediaItem::images() const {
 		return _images;
 	}
+
+	Optional<MediaItem::Image> MediaItem::image(Image::Size size, bool allowFallback) const {
+		if(!_images) {
+			return std::nullopt;
+		}
+		Optional<MediaItem::Image> img;
+		for(auto& cmpImg : _images.value()) {
+			if(!img) {
+				img = cmpImg;
+				continue;
+			}
+			if(img->size < size) {
+				if(cmpImg.size > img->size) {
+					img = cmpImg;
+				} else if(cmpImg.size == img->size) {
+					if(cmpImg.dimensions && img->dimensions && cmpImg.dimensions->height > img->dimensions->height) {
+						img = cmpImg;
+					}
+				}
+			} else if(img->size > size) {
+				if(cmpImg.size < img->size) {
+					if(cmpImg.size >= size) {
+						img = cmpImg;
+					}
+				} else if(cmpImg.size == img->size && cmpImg.dimensions && img->dimensions && cmpImg.dimensions->height < img->dimensions->height) {
+					img = cmpImg;
+				}
+			} else if(cmpImg.size == img->size && cmpImg.dimensions && img->dimensions && cmpImg.dimensions->height > img->dimensions->height) {
+				img = cmpImg;
+			}
+		}
+		return img;
+	}
 	
 	MediaProvider* MediaItem::mediaProvider() const {
 		return provider;

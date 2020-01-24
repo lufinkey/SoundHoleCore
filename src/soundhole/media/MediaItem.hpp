@@ -17,10 +17,10 @@ namespace sh {
 	public:
 		struct Image {
 			enum class Size {
-				TINY,
-				SMALL,
-				MEDIUM,
-				LARGE
+				TINY=0,
+				SMALL=1,
+				MEDIUM=2,
+				LARGE=3
 			};
 			struct Dimensions {
 				size_t width;
@@ -49,6 +49,7 @@ namespace sh {
 		const String& uri() const;
 		
 		const Optional<ArrayList<Image>>& images() const;
+		Optional<Image> image(Image::Size size, bool allowFallback=true) const;
 		
 		MediaProvider* mediaProvider() const;
 		
