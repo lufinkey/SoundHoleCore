@@ -12,11 +12,11 @@
 namespace sh {
 	SpotifyPlaybackProvider::SpotifyPlaybackProvider(SpotifyProvider* provider)
 	: provider(provider) {
-		provider->spotify->getPlayer()->addEventListener(this);
+		provider->spotify->addPlayerEventListener(this);
 	}
 
 	SpotifyPlaybackProvider::~SpotifyPlaybackProvider() {
-		provider->spotify->getPlayer()->removeEventListener(this);
+		provider->spotify->removePlayerEventListener(this);
 	}
 
 

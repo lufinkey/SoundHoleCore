@@ -90,6 +90,9 @@ namespace sh {
 			player->setAuth(this->auth);
 			player->setOptions(playerOptions);
 			this->player = player;
+			for(auto listener : playerListeners) {
+				this->player->addEventListener(listener);
+			}
 			if(player->isStarted()) {
 				return Promise<void>::resolve();
 			}
@@ -104,7 +107,26 @@ namespace sh {
 			player->setOptions(SpotifyPlayer::Options());
 			player->logout();
 			player->stop();
+			for(auto listener : playerListeners) {
+				player->removeEventListener(listener);
+			}
 			player = nullptr;
+		}
+	}
+
+
+
+	void Spotify::addPlayerEventListener(SpotifyPlayerEventListener* listener) {
+		playerListeners.pushBack(listener);
+		if(player != nullptr) {
+			player->addEventListener(listener);
+		}
+	}
+
+	void Spotify::removePlayerEventListener(SpotifyPlayerEventListener* listener) {
+		playerListeners.removeFirstEqual(listener);
+		if(player != nullptr) {
+			player->removeEventListener(listener);
 		}
 	}
 	

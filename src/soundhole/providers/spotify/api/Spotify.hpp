@@ -38,8 +38,13 @@ namespace sh {
 		Promise<void> logout();
 		bool isLoggedIn() const;
 		
+		
+		
 		Promise<void> startPlayer();
 		void stopPlayer();
+		
+		void addPlayerEventListener(SpotifyPlayerEventListener*);
+		void removePlayerEventListener(SpotifyPlayerEventListener*);
 		
 		using PlayOptions = SpotifyPlayer::PlayOptions;
 		Promise<void> playURI(String uri, PlayOptions options = {.index=0,.position=0});
@@ -131,5 +136,6 @@ namespace sh {
 		SpotifyAuth* auth;
 		SpotifyPlayer* player;
 		std::mutex playerMutex;
+		LinkedList<SpotifyPlayerEventListener*> playerListeners;
 	};
 }
