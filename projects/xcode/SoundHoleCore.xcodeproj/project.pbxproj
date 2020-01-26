@@ -83,6 +83,9 @@
 		A57378A223D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A57378A023D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp */; };
 		A57378A323D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A57378A023D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp */; };
 		A57378A423D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A57378A123D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.hpp */; };
+		A578785023DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A578784E23DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp */; };
+		A578785123DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A578784E23DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp */; };
+		A578785223DD4E4200B6B0A5 /* ShuffledTrackCollection.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A578784F23DD4E4200B6B0A5 /* ShuffledTrackCollection.hpp */; };
 		A5A970E023CBDCD0009887CA /* StreamPlayerEventHandler_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5A970DF23CBDCD0009887CA /* StreamPlayerEventHandler_iOS.mm */; };
 		A5AB5BC42368B1630028851A /* YoutubeMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AB5BC22368B1630028851A /* YoutubeMediaTypes.cpp */; };
 		A5AB5BC52368B1630028851A /* YoutubeMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AB5BC22368B1630028851A /* YoutubeMediaTypes.cpp */; };
@@ -272,6 +275,8 @@
 		A571E1A92334438600603E14 /* HttpClient.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = HttpClient.js; sourceTree = "<group>"; };
 		A57378A023D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = YoutubePlaylistMutatorDelegate.cpp; sourceTree = "<group>"; };
 		A57378A123D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = YoutubePlaylistMutatorDelegate.hpp; sourceTree = "<group>"; };
+		A578784E23DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ShuffledTrackCollection.cpp; sourceTree = "<group>"; };
+		A578784F23DD4E4200B6B0A5 /* ShuffledTrackCollection.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ShuffledTrackCollection.hpp; sourceTree = "<group>"; };
 		A5A970DE23CBDCD0009887CA /* StreamPlayerEventHandler_iOS.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = StreamPlayerEventHandler_iOS.hpp; sourceTree = "<group>"; };
 		A5A970DF23CBDCD0009887CA /* StreamPlayerEventHandler_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StreamPlayerEventHandler_iOS.mm; sourceTree = "<group>"; };
 		A5AB5BC22368B1630028851A /* YoutubeMediaTypes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = YoutubeMediaTypes.cpp; sourceTree = "<group>"; };
@@ -528,13 +533,15 @@
 			children = (
 				A513ED85232DA20A000DCAC7 /* MediaItem.hpp */,
 				A513ED84232DA20A000DCAC7 /* MediaItem.cpp */,
-				A5B9735A2381FBA700FB3F1C /* Artist.hpp */,
-				A5B973592381FBA700FB3F1C /* Artist.cpp */,
 				A5B973552381F91900FB3F1C /* Track.hpp */,
 				A5B973542381F91900FB3F1C /* Track.cpp */,
+				A5B9735A2381FBA700FB3F1C /* Artist.hpp */,
+				A5B973592381FBA700FB3F1C /* Artist.cpp */,
 				A5B9736423822C0100FB3F1C /* TrackCollection.hpp */,
 				A50F74B5238B223F0061D9FD /* TrackCollection.impl.hpp */,
 				A5B9736323822C0100FB3F1C /* TrackCollection.cpp */,
+				A578784F23DD4E4200B6B0A5 /* ShuffledTrackCollection.hpp */,
+				A578784E23DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp */,
 				A5B9735F23822BA300FB3F1C /* Album.hpp */,
 				A5B9735E23822BA300FB3F1C /* Album.cpp */,
 				A5B9736923823BFE00FB3F1C /* Playlist.hpp */,
@@ -844,6 +851,7 @@
 				A5E7852C23CE743000BD1C67 /* BandcampPlaybackProvider.hpp in Headers */,
 				A5E851CA235A56BD0001F74D /* YoutubeError.hpp in Headers */,
 				A5E851C3235A505B0001F74D /* Youtube.hpp in Headers */,
+				A578785223DD4E4200B6B0A5 /* ShuffledTrackCollection.hpp in Headers */,
 				A5B973582381F91900FB3F1C /* Track.hpp in Headers */,
 				A513ED90232DA20B000DCAC7 /* BandcampProvider.hpp in Headers */,
 				A571E15923331C6600603E14 /* SpotifySession.hpp in Headers */,
@@ -1091,6 +1099,7 @@
 				A571E15F23331C6600603E14 /* SpotifySession.cpp in Sources */,
 				A5B7A7C1233EA76C00301FC0 /* SHWebViewController_iOS.mm in Sources */,
 				A5B7A7AB2337F1DE00301FC0 /* SpotifyPlayer.cpp in Sources */,
+				A578785023DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp in Sources */,
 				A513ED87232DA20B000DCAC7 /* SoundHoleCoreTest.cpp in Sources */,
 				A5E7852323CE70BC00BD1C67 /* YoutubePlaybackProvider.cpp in Sources */,
 				A5E851BF235A4AE90001F74D /* JSUtils.cpp in Sources */,
@@ -1153,6 +1162,7 @@
 				A5E851C5235A505B0001F74D /* Youtube.cpp in Sources */,
 				A5B7A78F2335C91800301FC0 /* SoundHoleError.cpp in Sources */,
 				A57378A323D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp in Sources */,
+				A578785123DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp in Sources */,
 				A5B9736623822C0100FB3F1C /* TrackCollection.cpp in Sources */,
 				A5485A1F238CCB5F00CB7749 /* UserAccount.cpp in Sources */,
 				A5E851A62357B1660001F74D /* Bandcamp.cpp in Sources */,

@@ -47,6 +47,7 @@ namespace sh {
 		using MediaItem::MediaItem;
 		
 		virtual Optional<size_t> indexOfItem(const TrackCollectionItem* item) const = 0;
+		virtual Optional<size_t> indexOfItemInstance(const TrackCollectionItem* item) const = 0;
 		virtual $<TrackCollectionItem> itemAt(size_t index) = 0;
 		virtual $<const TrackCollectionItem> itemAt(size_t index) const = 0;
 		virtual Promise<$<TrackCollectionItem>> getItem(size_t index) = 0;
@@ -90,6 +91,8 @@ namespace sh {
 		
 		virtual Optional<size_t> indexOfItem(const TrackCollectionItem* item) const override;
 		Optional<size_t> indexOfItem(const ItemType* item) const;
+		virtual Optional<size_t> indexOfItemInstance(const TrackCollectionItem* item) const override;
+		Optional<size_t> indexOfItemInstance(const ItemType* item) const;
 		
 		virtual $<TrackCollectionItem> itemAt(size_t index) override final;
 		virtual $<const TrackCollectionItem> itemAt(size_t index) const override final;
@@ -97,9 +100,9 @@ namespace sh {
 		virtual Promise<LinkedList<$<TrackCollectionItem>>> getItems(size_t index, size_t count) override final;
 		virtual Generator<LinkedList<$<TrackCollectionItem>>,void> generateItems(size_t startIndex=0) override final;
 		
-		virtual Optional<size_t> itemCount() const override;
+		virtual Optional<size_t> itemCount() const override final;
 		
-		virtual Promise<void> loadItems(size_t index, size_t count) override;
+		virtual Promise<void> loadItems(size_t index, size_t count) override final;
 		
 	protected:
 		inline $<SpecialTrackCollection<ItemType>> self();

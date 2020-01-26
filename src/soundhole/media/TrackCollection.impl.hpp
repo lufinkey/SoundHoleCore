@@ -10,6 +10,8 @@
 
 #include <soundhole/common.hpp>
 
+#define TRACKCOLLECTION_CHUNK_SIZE 12
+
 namespace sh {
 	template<typename ItemType>
 	SpecialTrackCollection<ItemType>::SpecialTrackCollection(MediaProvider* provider, Data data)
@@ -48,7 +50,7 @@ namespace sh {
 		} else {
 			return new AsyncList<$<ItemType>>({
 				.delegate=this,
-				.chunkSize=24,
+				.chunkSize=TRACKCOLLECTION_CHUNK_SIZE,
 				.initialItemsOffset=tracks->offset,
 				.initialItems=ArrayList<$<ItemType>>(tracks->items.template map<$<ItemType>>([&](auto& data) {
 					return ItemType::new$(self(), std::move(data));
@@ -81,6 +83,37 @@ namespace sh {
 			auto& items = itemsList();
 			for(auto& cmpItem : items) {
 				if(item == cmpItem.get() || cmpItem->matchesItem(item)) {
+					return index;
+				}
+				index++;
+			}
+			return std::nullopt;
+		}
+	}
+
+	template<typename ItemType>
+	Optional<size_t> SpecialTrackCollection<ItemType>::indexOfItemInstance(const TrackCollectionItem* item) const {
+		auto castItem = dynamic_cast<const ItemType*>(item);
+		if(castItem == nullptr) {
+			return std::nullopt;
+		}
+		return indexOfItemInstance(castItem);
+	}
+
+	template<typename ItemType>
+	Optional<size_t> SpecialTrackCollection<ItemType>::indexOfItemInstance(const ItemType* item) const {
+		if(tracksAreEmpty()) {
+			return std::nullopt;
+		}
+		if(tracksAreAsync()) {
+			return asyncItemsList().indexWhere([&](auto& cmpItem) {
+				return (item == cmpItem.get());
+			});
+		} else {
+			size_t index = 0;
+			auto& items = itemsList();
+			for(auto& cmpItem : items) {
+				if(item == cmpItem.get()) {
 					return index;
 				}
 				index++;
@@ -170,7 +203,7 @@ namespace sh {
 				});
 			});
 		} else {
-			size_t chunkSize = 24;
+			size_t chunkSize = TRACKCOLLECTION_CHUNK_SIZE;
 			auto items = new$<LinkedList<$<ItemType>>>(itemsList());
 			return Generator<LinkedList<$<TrackCollectionItem>>,void>([=]() {
 				using YieldResult = typename Generator<LinkedList<$<TrackCollectionItem>>,void>::YieldResult;
@@ -298,13 +331,13 @@ namespace sh {
 			if(_items.index() == 0) {
 				_items = new AsyncList<$<ItemType>>({
 					.delegate=this,
-					.chunkSize=24
+					.chunkSize=TRACKCOLLECTION_CHUNK_SIZE
 				});
 			} else {
 				auto& tracks = std::get<EmptyTracks>(_items);
 				_items = new AsyncList<$<ItemType>>({
 					.delegate=this,
-					.chunkSize=24,
+					.chunkSize=TRACKCOLLECTION_CHUNK_SIZE,
 					.initialSize=tracks.total
 				});
 			}
@@ -312,7 +345,7 @@ namespace sh {
 			auto& tracks = itemsList();
 			_items = new AsyncList<$<ItemType>>({
 				.delegate=this,
-				.chunkSize=24,
+				.chunkSize=TRACKCOLLECTION_CHUNK_SIZE,
 				.initialItemsOffset=0,
 				.initialItems=tracks,
 				.initialSize=tracks.size()

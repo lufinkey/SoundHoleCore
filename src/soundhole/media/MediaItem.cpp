@@ -48,11 +48,12 @@ namespace sh {
 	}
 
 	Optional<MediaItem::Image> MediaItem::image(Image::Size size, bool allowFallback) const {
-		if(!_images) {
+		auto images = this->images();
+		if(!images) {
 			return std::nullopt;
 		}
 		Optional<MediaItem::Image> img;
-		for(auto& cmpImg : _images.value()) {
+		for(auto& cmpImg : images.value()) {
 			if(!img) {
 				img = cmpImg;
 				continue;

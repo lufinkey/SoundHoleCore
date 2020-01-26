@@ -34,7 +34,7 @@ namespace sh {
 		
 		virtual bool matchesItem(const TrackCollectionItem* item) const override;
 		
-	private:
+	protected:
 		String _addedAt;
 		$<UserAccount> _addedBy;
 	};
