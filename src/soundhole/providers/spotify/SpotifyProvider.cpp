@@ -110,7 +110,8 @@ namespace sh {
 			.discNumber=track.discNumber,
 			.trackNumber=track.trackNumber,
 			.duration=(((double)track.durationMs)/1000.0),
-			.audioSources=std::nullopt
+			.audioSources=std::nullopt,
+			.playable=track.isPlayable.value_or(!(track.availableMarkets && track.availableMarkets->size() == 0))
 		};
 	}
 

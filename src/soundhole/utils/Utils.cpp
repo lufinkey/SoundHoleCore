@@ -9,5 +9,14 @@
 #include "Utils.hpp"
 
 namespace sh::utils {
-	//
+	String getExceptionDetails(std::exception_ptr error) {
+		try {
+			std::rethrow_exception(error);
+			return "";
+		} catch(Error& error) {
+			return error.toString();
+		} catch(std::exception& error) {
+			return error.what();
+		}
+	}
 }

@@ -178,6 +178,7 @@ namespace sh {
 		size_t popularity;
 		bool isLocal;
 		bool isExplicit;
+		Optional<bool> isPlayable;
 		
 		static SpotifyTrack fromJson(const Json&);
 	};

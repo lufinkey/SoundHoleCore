@@ -40,7 +40,15 @@ namespace sh {
 
 	class ShuffledTrackCollection: public SpecialTrackCollection<ShuffledTrackCollectionItem>, protected SpecialTrackCollection<ShuffledTrackCollectionItem>::MutatorDelegate {
 	public:
+		static $<ShuffledTrackCollection> new$($<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems={});
+		
 		ShuffledTrackCollection($<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems = {});
+		
+		$<TrackCollection> source();
+		$<const TrackCollection> source() const;
+		
+		virtual bool needsData() const override;
+		virtual Promise<void> fetchMissingData() override;
 		
 	protected:
 		struct RandomIndex {

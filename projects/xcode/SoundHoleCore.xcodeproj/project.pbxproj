@@ -86,6 +86,12 @@
 		A578785023DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A578784E23DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp */; };
 		A578785123DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A578784E23DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp */; };
 		A578785223DD4E4200B6B0A5 /* ShuffledTrackCollection.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A578784F23DD4E4200B6B0A5 /* ShuffledTrackCollection.hpp */; };
+		A578785523DE547F00B6B0A5 /* PlaybackOrganizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A578785323DE547F00B6B0A5 /* PlaybackOrganizer.cpp */; };
+		A578785623DE547F00B6B0A5 /* PlaybackOrganizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A578785323DE547F00B6B0A5 /* PlaybackOrganizer.cpp */; };
+		A578785723DE547F00B6B0A5 /* PlaybackOrganizer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A578785423DE547F00B6B0A5 /* PlaybackOrganizer.hpp */; };
+		A578785A23E37A7B00B6B0A5 /* QueueItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A578785823E37A7B00B6B0A5 /* QueueItem.cpp */; };
+		A578785B23E37A7B00B6B0A5 /* QueueItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A578785823E37A7B00B6B0A5 /* QueueItem.cpp */; };
+		A578785C23E37A7B00B6B0A5 /* QueueItem.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A578785923E37A7B00B6B0A5 /* QueueItem.hpp */; };
 		A5A970E023CBDCD0009887CA /* StreamPlayerEventHandler_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5A970DF23CBDCD0009887CA /* StreamPlayerEventHandler_iOS.mm */; };
 		A5AB5BC42368B1630028851A /* YoutubeMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AB5BC22368B1630028851A /* YoutubeMediaTypes.cpp */; };
 		A5AB5BC52368B1630028851A /* YoutubeMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AB5BC22368B1630028851A /* YoutubeMediaTypes.cpp */; };
@@ -277,6 +283,10 @@
 		A57378A123D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = YoutubePlaylistMutatorDelegate.hpp; sourceTree = "<group>"; };
 		A578784E23DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ShuffledTrackCollection.cpp; sourceTree = "<group>"; };
 		A578784F23DD4E4200B6B0A5 /* ShuffledTrackCollection.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ShuffledTrackCollection.hpp; sourceTree = "<group>"; };
+		A578785323DE547F00B6B0A5 /* PlaybackOrganizer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PlaybackOrganizer.cpp; sourceTree = "<group>"; };
+		A578785423DE547F00B6B0A5 /* PlaybackOrganizer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PlaybackOrganizer.hpp; sourceTree = "<group>"; };
+		A578785823E37A7B00B6B0A5 /* QueueItem.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = QueueItem.cpp; sourceTree = "<group>"; };
+		A578785923E37A7B00B6B0A5 /* QueueItem.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = QueueItem.hpp; sourceTree = "<group>"; };
 		A5A970DE23CBDCD0009887CA /* StreamPlayerEventHandler_iOS.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = StreamPlayerEventHandler_iOS.hpp; sourceTree = "<group>"; };
 		A5A970DF23CBDCD0009887CA /* StreamPlayerEventHandler_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StreamPlayerEventHandler_iOS.mm; sourceTree = "<group>"; };
 		A5AB5BC22368B1630028851A /* YoutubeMediaTypes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = YoutubeMediaTypes.cpp; sourceTree = "<group>"; };
@@ -548,6 +558,8 @@
 				A5B9736823823BFE00FB3F1C /* Playlist.cpp */,
 				A5485A1D238CCB5F00CB7749 /* UserAccount.hpp */,
 				A5485A1C238CCB5F00CB7749 /* UserAccount.cpp */,
+				A578785923E37A7B00B6B0A5 /* QueueItem.hpp */,
+				A578785823E37A7B00B6B0A5 /* QueueItem.cpp */,
 				A513DB74232DA1F8000DCAC7 /* MediaProvider.hpp */,
 				A513DB70232DA1F8000DCAC7 /* MediaProvider.cpp */,
 				A5485A2723942EB800CB7749 /* MediaPlaybackProvider.hpp */,
@@ -574,6 +586,8 @@
 		A54F2544239DA9B800C81E1C /* playback */ = {
 			isa = PBXGroup;
 			children = (
+				A578785423DE547F00B6B0A5 /* PlaybackOrganizer.hpp */,
+				A578785323DE547F00B6B0A5 /* PlaybackOrganizer.cpp */,
 				A54F2546239DAA2700C81E1C /* StreamPlayer.hpp */,
 				A54F2545239DAA2700C81E1C /* StreamPlayer.cpp */,
 				A5E51BB423A3EE24006E061F /* StreamPlayer_iOS.mm */,
@@ -829,6 +843,7 @@
 				A513ED89232DA20B000DCAC7 /* SoundHoleCoreTest.hpp in Headers */,
 				A5C0A8EA23CFE59100CDB59E /* SpotifyPlaylistMutatorDelegate.hpp in Headers */,
 				A571E1A8233440A800603E14 /* HttpClient.hpp in Headers */,
+				A578785723DE547F00B6B0A5 /* PlaybackOrganizer.hpp in Headers */,
 				A5E851A72357B1660001F74D /* Bandcamp.hpp in Headers */,
 				A5B7A7DF233F126800301FC0 /* Spotify.hpp in Headers */,
 				A50F74B6238B223F0061D9FD /* TrackCollection.impl.hpp in Headers */,
@@ -852,6 +867,7 @@
 				A5E851CA235A56BD0001F74D /* YoutubeError.hpp in Headers */,
 				A5E851C3235A505B0001F74D /* Youtube.hpp in Headers */,
 				A578785223DD4E4200B6B0A5 /* ShuffledTrackCollection.hpp in Headers */,
+				A578785C23E37A7B00B6B0A5 /* QueueItem.hpp in Headers */,
 				A5B973582381F91900FB3F1C /* Track.hpp in Headers */,
 				A513ED90232DA20B000DCAC7 /* BandcampProvider.hpp in Headers */,
 				A571E15923331C6600603E14 /* SpotifySession.hpp in Headers */,
@@ -1087,6 +1103,7 @@
 			files = (
 				A5B7A7A32337DA5700301FC0 /* SpotifyAuth_iOS.mm in Sources */,
 				A571E16A2333305D00603E14 /* Scripts.cpp in Sources */,
+				A578785523DE547F00B6B0A5 /* PlaybackOrganizer.cpp in Sources */,
 				A5B7A79D2336C28B00301FC0 /* SpotifyError_iOS.mm in Sources */,
 				A5E51BB523A3EE24006E061F /* StreamPlayer_iOS.mm in Sources */,
 				A538982323CD3D36008638D1 /* BandcampPlaybackProvider.cpp in Sources */,
@@ -1128,6 +1145,7 @@
 				A513ED91232DA20B000DCAC7 /* BandcampProvider.cpp in Sources */,
 				A5B7A7A52337DC9D00301FC0 /* SpotifySession_iOS.mm in Sources */,
 				A5C0A8E123CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.cpp in Sources */,
+				A578785A23E37A7B00B6B0A5 /* QueueItem.cpp in Sources */,
 				A513ED9A232DA20C000DCAC7 /* MediaItem.cpp in Sources */,
 				A54F2539239984EC00C81E1C /* SpotifyPlaybackEvent_iOS.mm in Sources */,
 				A5AB5BC42368B1630028851A /* YoutubeMediaTypes.cpp in Sources */,
@@ -1156,9 +1174,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A578785623DE547F00B6B0A5 /* PlaybackOrganizer.cpp in Sources */,
 				A5E851C9235A56BD0001F74D /* YoutubeError.cpp in Sources */,
 				A571E16B2333305D00603E14 /* Scripts.cpp in Sources */,
 				A571E15E23331C6600603E14 /* SpotifyAuth.cpp in Sources */,
+				A578785B23E37A7B00B6B0A5 /* QueueItem.cpp in Sources */,
 				A5E851C5235A505B0001F74D /* Youtube.cpp in Sources */,
 				A5B7A78F2335C91800301FC0 /* SoundHoleError.cpp in Sources */,
 				A57378A323D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp in Sources */,

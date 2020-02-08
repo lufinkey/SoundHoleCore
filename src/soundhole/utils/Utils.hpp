@@ -11,5 +11,5 @@
 #include <soundhole/common.hpp>
 
 namespace sh::utils {
-	//
+	String getExceptionDetails(std::exception_ptr error);
 }

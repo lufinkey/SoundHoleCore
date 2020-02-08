@@ -260,7 +260,8 @@ namespace sh {
 			.discNumber=std::nullopt,
 			.trackNumber=std::nullopt,
 			.duration=std::nullopt,
-			.audioSources=std::nullopt
+			.audioSources=std::nullopt,
+			.playable=true
 		};
 	}
 
@@ -394,7 +395,8 @@ namespace sh {
 						return maybeTry([&]{ return bitrateParts.back().template toArithmeticValue<double>(); });
 					})()
 				};
-			})
+			}),
+			.playable=true
 		};
 	}
 

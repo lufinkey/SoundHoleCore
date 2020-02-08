@@ -33,6 +33,7 @@ namespace sh {
 			Optional<size_t> trackNumber;
 			Optional<double> duration;
 			Optional<ArrayList<AudioSource>> audioSources;
+			bool playable;
 		};
 		
 		static $<Track> new$(MediaProvider* provider, Data data);
@@ -59,6 +60,7 @@ namespace sh {
 			bool allowFallback = true;
 		};
 		Optional<AudioSource> findAudioSource(FindAudioSourceOptions options = {.bitrate=128,.allowFallback=true}) const;
+		bool isPlayable() const;
 		
 		virtual bool needsData() const override;
 		virtual Promise<void> fetchMissingData() override;
@@ -72,5 +74,6 @@ namespace sh {
 		Optional<size_t> _trackNumber;
 		Optional<double> _duration;
 		Optional<ArrayList<AudioSource>> _audioSources;
+		bool _playable;
 	};
 }

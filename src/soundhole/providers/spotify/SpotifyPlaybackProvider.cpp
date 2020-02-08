@@ -165,7 +165,8 @@ namespace sh {
 			.discNumber=std::nullopt,
 			.trackNumber=std::nullopt,
 			.duration=track.duration,
-			.audioSources=std::nullopt
+			.audioSources=std::nullopt,
+			.playable=true
 		};
 	}
 

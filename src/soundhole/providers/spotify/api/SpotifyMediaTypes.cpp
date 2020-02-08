@@ -206,7 +206,14 @@ namespace sh {
 			.durationMs = (uint64_t)json["duration_ms"].number_value(),
 			.popularity = (size_t)json["popularity"].number_value(),
 			.isLocal = json["is_local"].bool_value(),
-			.isExplicit = json["explicit"].bool_value()
+			.isExplicit = json["explicit"].bool_value(),
+			.isPlayable = ([&]() -> Optional<bool> {
+				auto playable = json["is_playable"];
+				if(playable.is_null()) {
+					return std::nullopt;
+				}
+				return playable.bool_value();
+			})()
 		};
 	}
 

@@ -215,7 +215,8 @@ namespace sh {
 						.bitrate=128
 					}
 				} : ArrayList<Track::AudioSource>{})
-				: std::nullopt)
+				: std::nullopt),
+			.playable=track.playable.value_or(true)
 		};
 	}
 

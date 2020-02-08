@@ -14,11 +14,11 @@ namespace sh {
 	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::new$($<ShuffledTrackCollection> context, Data data) {
 		return fgl::new$<ShuffledTrackCollectionItem>(context, data);
 	}
-
+	
 	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Data data) {
 		return fgl::new$<ShuffledTrackCollectionItem>(std::static_pointer_cast<ShuffledTrackCollection>(context), data);
 	}
-
+	
 	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::new$($<ShuffledTrackCollection> context, $<TrackCollectionItem> sourceItem) {
 		return fgl::new$<ShuffledTrackCollectionItem>(context, sourceItem);
 	}
@@ -27,7 +27,7 @@ namespace sh {
 	: SpecialTrackCollectionItem<ShuffledTrackCollection>(context, data), _sourceItem(data.sourceItem) {
 		//
 	}
-
+	
 	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<ShuffledTrackCollection> context, $<TrackCollectionItem> sourceItem)
 	: SpecialTrackCollectionItem<ShuffledTrackCollection>(context, {.track=sourceItem->track()}), _sourceItem(sourceItem) {
 		//
@@ -36,7 +36,7 @@ namespace sh {
 	$<TrackCollectionItem> ShuffledTrackCollectionItem::sourceItem() {
 		return _sourceItem;
 	}
-
+	
 	$<const TrackCollectionItem> ShuffledTrackCollectionItem::sourceItem() const {
 		return std::static_pointer_cast<const TrackCollectionItem>(_sourceItem);
 	}
@@ -49,6 +49,11 @@ namespace sh {
 	}
 
 
+
+
+	$<ShuffledTrackCollection> ShuffledTrackCollection::new$($<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems) {
+		return fgl::new$<ShuffledTrackCollection>(source, initialItems);
+	}
 
 	ShuffledTrackCollection::ShuffledTrackCollection($<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems)
 	: SpecialTrackCollection<ShuffledTrackCollectionItem>(source->mediaProvider(), SpecialTrackCollection<ShuffledTrackCollectionItem>::Data{{
@@ -101,6 +106,22 @@ namespace sh {
 		}
 		
 		// TODO subscribe to changes in source
+	}
+
+	$<TrackCollection> ShuffledTrackCollection::source() {
+		return _source;
+	}
+
+	$<const TrackCollection> ShuffledTrackCollection::source() const {
+		return std::static_pointer_cast<const TrackCollection>(_source);
+	}
+
+	bool ShuffledTrackCollection::needsData() const {
+		return _source->needsData();
+	}
+
+	Promise<void> ShuffledTrackCollection::fetchMissingData() {
+		return _source->fetchMissingData();
 	}
 
 	ShuffledTrackCollection::MutatorDelegate* ShuffledTrackCollection::createMutatorDelegate() {
