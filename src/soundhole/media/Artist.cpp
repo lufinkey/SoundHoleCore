@@ -37,4 +37,13 @@ namespace sh {
 			_description = data.description;
 		});
 	}
+
+
+
+	Artist::Data Artist::toData() const {
+		return Artist::Data{
+			MediaItem::toData(),
+			.description=_description
+		};
+	}
 }

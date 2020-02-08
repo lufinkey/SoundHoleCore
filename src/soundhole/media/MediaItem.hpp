@@ -57,6 +57,8 @@ namespace sh {
 		virtual Promise<void> fetchMissingData() = 0;
 		Promise<void> fetchMissingDataIfNeeded();
 		
+		Data toData() const;
+		
 	protected:
 		MediaProvider* provider;
 		String _type;

@@ -35,6 +35,8 @@ namespace sh {
 		
 		virtual bool matchesItem(const TrackCollectionItem* item) const = 0;
 		
+		Data toData() const;
+		
 	protected:
 		w$<TrackCollection> _context;
 		$<Track> _track;
@@ -103,6 +105,12 @@ namespace sh {
 		virtual Optional<size_t> itemCount() const override final;
 		
 		virtual Promise<void> loadItems(size_t index, size_t count) override final;
+		
+		struct DataOptions {
+			size_t tracksOffset = 0;
+			size_t tracksLimit = (size_t)-1;
+		};
+		Data toData(DataOptions options = DataOptions()) const;
 		
 	protected:
 		inline $<SpecialTrackCollection<ItemType>> self();

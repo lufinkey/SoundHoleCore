@@ -36,4 +36,12 @@ namespace sh {
 		// TODO implement fetchMissingData
 		return Promise<void>::reject(std::runtime_error("not implemented"));
 	}
+
+	UserAccount::Data UserAccount::toData() const {
+		return UserAccount::Data{
+			MediaItem::toData(),
+			.id=_id,
+			.displayName=_displayName
+		};
+	}
 }

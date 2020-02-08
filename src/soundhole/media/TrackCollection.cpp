@@ -38,4 +38,10 @@ namespace sh {
 		}
 		return context->indexOfItem(this);
 	}
+
+	TrackCollectionItem::Data TrackCollectionItem::toData() const {
+		return TrackCollectionItem::Data{
+			.track=_track
+		};
+	}
 }

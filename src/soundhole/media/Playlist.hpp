@@ -34,6 +34,8 @@ namespace sh {
 		
 		virtual bool matchesItem(const TrackCollectionItem* item) const override;
 		
+		Data toData() const;
+		
 	protected:
 		String _addedAt;
 		$<UserAccount> _addedBy;
@@ -55,6 +57,8 @@ namespace sh {
 		
 		virtual bool needsData() const override;
 		virtual Promise<void> fetchMissingData() override;
+		
+		Data toData(DataOptions options = DataOptions()) const;
 		
 	protected:
 		virtual MutatorDelegate* createMutatorDelegate() override;

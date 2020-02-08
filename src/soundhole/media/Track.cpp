@@ -129,4 +129,21 @@ namespace sh {
 			_audioSources = data.audioSources;
 		});
 	}
+
+
+
+	Track::Data Track::toData() const {
+		return Track::Data{
+			MediaItem::toData(),
+			.albumName=_albumName,
+			.albumURI=_albumURI,
+			.artists=_artists,
+			.tags=_tags,
+			.discNumber=_discNumber,
+			.trackNumber=_trackNumber,
+			.duration=_duration,
+			.audioSources=_audioSources,
+			.playable=_playable
+		};
+	}
 }

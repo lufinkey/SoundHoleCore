@@ -111,4 +111,13 @@ namespace sh {
 		_itemDataPromise = promise;
 		return promise;
 	}
+
+	MediaItem::Data MediaItem::toData() const {
+		return {
+			.type=_type,
+			.name=_name,
+			.uri=_uri,
+			.images=_images
+		};
+	}
 }

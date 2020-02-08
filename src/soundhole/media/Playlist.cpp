@@ -48,6 +48,14 @@ namespace sh {
 		return false;
 	}
 
+	PlaylistItem::Data PlaylistItem::toData() const {
+		return PlaylistItem::Data{
+			SpecialTrackCollectionItem<Playlist>::toData(),
+			.addedAt=_addedAt,
+			.addedBy=_addedBy
+		};
+	}
+
 
 
 	$<Playlist> Playlist::new$(MediaProvider* provider, Data data) {
@@ -78,6 +86,13 @@ namespace sh {
 				_items = constructItems(data.tracks);
 			}
 		});
+	}
+
+	Playlist::Data Playlist::toData(DataOptions options) const {
+		return Playlist::Data{
+			SpecialTrackCollection<PlaylistItem>::toData(options),
+			.owner=_owner
+		};
 	}
 
 	Playlist::MutatorDelegate* Playlist::createMutatorDelegate() {

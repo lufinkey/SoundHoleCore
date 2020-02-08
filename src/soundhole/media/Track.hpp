@@ -65,6 +65,8 @@ namespace sh {
 		virtual bool needsData() const override;
 		virtual Promise<void> fetchMissingData() override;
 		
+		Data toData() const;
+		
 	protected:
 		String _albumName;
 		String _albumURI;

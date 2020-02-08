@@ -353,6 +353,43 @@ namespace sh {
 		}
 	}
 
+	template<typename ItemType>
+	typename SpecialTrackCollection<ItemType>::Data SpecialTrackCollection<ItemType>::toData(DataOptions options) const {
+		return SpecialTrackCollection<ItemType>::Data{
+			TrackCollection::toData(),
+			.tracks=([&]() -> Optional<typename Data::Tracks> {
+				if(auto emptyTracks = std::get_if<EmptyTracks>(&_items)) {
+					return typename Data::Tracks{
+						.total=emptyTracks->total,
+						.offset=0,
+						.items={}
+					};
+				} else if(auto items = std::get_if<LinkedList<$<ItemType>>>(&_items)) {
+					return typename Data::Tracks{
+						.total=items->size(),
+						.offset=0,
+						.items=items->template map<typename ItemType::Data>([&]($<ItemType> item) -> typename ItemType::Data {
+							return item->toData();
+						})
+					};
+				} else if(auto asyncItemsPtr = std::get_if<AsyncList<$<ItemType>>*>(&_items)) {
+					auto asyncItems = *asyncItemsPtr;
+					return typename Data::Tracks{
+						.total=asyncItems->size(),
+						.offset=0,
+						.items=asyncItems->getLoadedItems({
+							.startIndex=options.tracksOffset,
+							.limit=options.tracksLimit
+						}).template map<typename ItemType::Data>([&]($<ItemType> item) -> typename ItemType::Data {
+							return item->toData();
+						})
+					};
+				}
+				return std::nullopt;
+			})()
+		};
+	}
+
 
 
 	template<typename Context>

@@ -66,6 +66,13 @@ namespace sh {
 		});
 	}
 
+	Album::Data Album::toData(DataOptions options) const {
+		return Album::Data{
+			SpecialTrackCollection<AlbumItem>::toData(options),
+			.artists=_artists
+		};
+	}
+
 	Album::MutatorDelegate* Album::createMutatorDelegate() {
 		return provider->createAlbumMutatorDelegate(std::static_pointer_cast<Album>(self()));
 	}

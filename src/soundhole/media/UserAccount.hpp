@@ -31,6 +31,8 @@ namespace sh {
 		virtual bool needsData() const;
 		virtual Promise<void> fetchMissingData();
 		
+		Data toData() const;
+		
 	private:
 		String _id;
 		Optional<String> _displayName;

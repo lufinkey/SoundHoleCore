@@ -27,6 +27,8 @@ namespace sh {
 		virtual bool needsData() const override;
 		virtual Promise<void> fetchMissingData() override;
 		
+		Data toData() const;
+		
 	protected:
 		Optional<String> _description;
 	};
