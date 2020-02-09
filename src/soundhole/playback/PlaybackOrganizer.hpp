@@ -47,6 +47,7 @@ namespace sh {
 		Promise<void> play($<QueueItem> item);
 		Promise<void> play($<TrackCollectionItem> item);
 		Promise<void> play($<Track> track);
+		Promise<void> stop();
 		
 		$<QueueItem> addToQueue($<Track> track);
 		void removeFromQueue($<QueueItem> item);
@@ -77,7 +78,7 @@ namespace sh {
 	private:
 		void updateMainContext($<TrackCollection> context, $<TrackCollectionItem> contextItem, bool shuffling);
 		Promise<void> prepareCollectionTracks($<TrackCollection> collection, size_t index);
-		Promise<bool> setPlayingItem(Function<Promise<ItemVariant>()> itemGetter);
+		Promise<void> setPlayingItem(Function<Promise<ItemVariant>()> itemGetter);
 		Promise<void> applyPlayingItem(ItemVariant item);
 		
 		Promise<ItemVariant> getValidPreviousItem();

@@ -41,16 +41,32 @@ namespace sh {
 
 
 	Promise<bool> PlaybackOrganizer::previous() {
+		auto valid = fgl::new$<bool>(false);
 		auto self = shared_from_this();
 		return setPlayingItem([=]() {
-			return self->getValidPreviousItem();
+			return self->getValidPreviousItem().map<ItemVariant>([=](auto item) {
+				if(item.index() != 0) {
+					*valid = true;
+				}
+				return item;
+			});
+		}).map<bool>([=]() -> bool {
+			return *valid;
 		});
 	}
 
 	Promise<bool> PlaybackOrganizer::next() {
+		auto valid = fgl::new$<bool>(false);
 		auto self = shared_from_this();
 		return setPlayingItem([=]() {
-			return self->getValidNextItem();
+			return self->getValidNextItem().map<ItemVariant>([=](auto item) {
+				if(item.index() != 0) {
+					*valid = true;
+				}
+				return item;
+			});
+		}).map<bool>([=]() -> bool {
+			return *valid;
 		});
 	}
 
@@ -100,21 +116,27 @@ namespace sh {
 		FGL_ASSERT(item != nullptr, "item cannot be null");
 		return setPlayingItem([=]() {
 			return Promise<ItemVariant>::resolve(item);
-		}).toVoid();
+		});
 	}
 
 	Promise<void> PlaybackOrganizer::play($<TrackCollectionItem> item) {
 		FGL_ASSERT(item != nullptr, "item cannot be null");
 		return setPlayingItem([=]() {
 			return Promise<ItemVariant>::resolve(item);
-		}).toVoid();
+		});
 	}
 
 	Promise<void> PlaybackOrganizer::play($<Track> track) {
 		FGL_ASSERT(track != nullptr, "track cannot be null");
 		return setPlayingItem([=]() {
 			return Promise<ItemVariant>::resolve(track);
-		}).toVoid();
+		});
+	}
+
+	Promise<void> PlaybackOrganizer::stop() {
+		playQueue.cancelAllTasks();
+		continuousPlayQueue.cancelAllTasks();
+		return Promise<void>::all({ playQueue.waitForCurrentTasks(), continuousPlayQueue.waitForCurrentTasks() });
 	}
 
 
@@ -310,47 +332,44 @@ namespace sh {
 		return collection->loadItems(startIndex, (endIndex - startIndex));
 	}
 
-	Promise<bool> PlaybackOrganizer::setPlayingItem(Function<Promise<ItemVariant>()> itemGetter) {
-		return Promise<bool>([=](auto resolve, auto reject) {
-			playQueue.run({.cancelAll=true}, [=](auto task) {
-				return itemGetter().then([=](ItemVariant item) -> Promise<bool> {
-					bool queueChanged = false;
-					if(std::get_if<NoItem>(&item)) {
-						return Promise<bool>::resolve(false);
+	Promise<void> PlaybackOrganizer::setPlayingItem(Function<Promise<ItemVariant>()> itemGetter) {
+		return playQueue.run({.cancelAll=true}, [=](auto task) {
+			return itemGetter().then([=](ItemVariant item) {
+				bool queueChanged = false;
+				if(std::get_if<NoItem>(&item)) {
+					return;
+				}
+				else if(auto queueItemPtr = std::get_if<$<QueueItem>>(&item)) {
+					auto queueItem = *queueItemPtr;
+					auto queueIt = this->queue.findEqual(queueItem);
+					if(queueIt != this->queue.end()) {
+						this->queue.erase(queue.begin(), std::next(queueIt, 1));
+						queueChanged = true;
 					}
-					else if(auto queueItemPtr = std::get_if<$<QueueItem>>(&item)) {
-						auto queueItem = *queueItemPtr;
-						auto queueIt = this->queue.findEqual(queueItem);
-						if(queueIt != this->queue.end()) {
-							this->queue.erase(queue.begin(), std::next(queueIt, 1));
-							queueChanged = true;
-						}
+				}
+				else if(auto collectionItemPtr = std::get_if<$<TrackCollectionItem>>(&item)) {
+					auto collectionItem = *collectionItemPtr;
+					auto collection = collectionItem->context().lock();
+					if(!collection) {
+						throw std::logic_error("TrackCollectionItem has null context");
 					}
-					else if(auto collectionItemPtr = std::get_if<$<TrackCollectionItem>>(&item)) {
-						auto collectionItem = *collectionItemPtr;
-						auto collection = collectionItem->context().lock();
-						if(!collection) {
-							throw std::logic_error("TrackCollectionItem has null context");
-						}
-						updateMainContext(collection, collectionItem, this->shuffling);
-						// TODO figure out if this code below is actually necessary
-						auto contextItem = this->contextItem;
-						FGL_ASSERT(contextItem != nullptr, "contextItem should not be null after call to updateMainContext");
-						item = contextItem;
-					}
-					else if(auto trackPtr = std::get_if<$<Track>>(&item)) {
-						updateMainContext(nullptr, nullptr, this->shuffling);
-					}
-					applyingItem = item;
-					applyPlayingItem(item);
-					// TODO emit trackChange
-					if(queueChanged) {
-						// TODO emit queueChange
-					}
-					return Promise<bool>::resolve(true);
-				}).then(resolve, reject);
+					updateMainContext(collection, collectionItem, this->shuffling);
+					// TODO figure out if this code below is actually necessary
+					auto contextItem = this->contextItem;
+					FGL_ASSERT(contextItem != nullptr, "contextItem should not be null after call to updateMainContext");
+					item = contextItem;
+				}
+				else if(auto trackPtr = std::get_if<$<Track>>(&item)) {
+					updateMainContext(nullptr, nullptr, this->shuffling);
+				}
+				applyingItem = item;
+				applyPlayingItem(item);
+				// TODO emit trackChange
+				if(queueChanged) {
+					// TODO emit queueChange
+				}
 			});
-		});
+		}).promise;
 	}
 
 	Promise<void> PlaybackOrganizer::applyPlayingItem(ItemVariant item) {
