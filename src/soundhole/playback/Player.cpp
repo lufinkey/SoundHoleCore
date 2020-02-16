@@ -55,6 +55,10 @@ namespace sh {
 		return organizer->play(queueItem);
 	}
 
+	Promise<void> Player::play(ItemVariant item) {
+		return organizer->play(item);
+	}
+
 	Promise<void> Player::playAtQueueIndex(size_t index) {
 		auto item = organizer->getQueueItem(index);
 		return organizer->play(item);

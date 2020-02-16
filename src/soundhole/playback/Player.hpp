@@ -79,6 +79,7 @@ namespace sh {
 		Promise<void> play($<Track> track);
 		Promise<void> play($<TrackCollectionItem> item);
 		Promise<void> play($<QueueItem> queueItem);
+		Promise<void> play(ItemVariant item);
 		Promise<void> playAtQueueIndex(size_t index);
 		Promise<void> seek(double position);
 		Promise<bool> skipToPrevious();
