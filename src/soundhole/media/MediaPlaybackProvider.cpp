@@ -16,6 +16,6 @@ namespace sh {
 
 	void MediaPlaybackProvider::removeEventListener(EventListener* listener) {
 		std::unique_lock<std::mutex> lock(listenersMutex);
-		listeners.removeFirstEqual(listener);
+		listeners.removeLastEqual(listener);
 	}
 }

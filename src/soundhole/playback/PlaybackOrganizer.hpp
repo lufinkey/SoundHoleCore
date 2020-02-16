@@ -27,8 +27,16 @@ namespace sh {
 		public:
 			virtual ~Delegate() {}
 			
-			virtual Promise<void> onPlaybackOrganizerPlayTrack(PlaybackOrganizer* organizer, $<Track> track) = 0;
-			virtual Promise<void> onPlaybackOrganizerPrepareTrack(PlaybackOrganizer* organizer, $<Track> track) = 0;
+			virtual Promise<void> onPlaybackOrganizerPrepareTrack($<PlaybackOrganizer> organizer, $<Track> track) = 0;
+			virtual Promise<void> onPlaybackOrganizerPlayTrack($<PlaybackOrganizer> organizer, $<Track> track) = 0;
+		};
+		
+		class EventListener {
+		public:
+			virtual ~EventListener() {}
+			
+			virtual void onPlaybackOrganizerTrackChange($<PlaybackOrganizer> organizer) {}
+			virtual void onPlaybackOrganizerQueueChange($<PlaybackOrganizer> organizer) {}
 		};
 		
 		struct Options {
@@ -36,31 +44,37 @@ namespace sh {
 			size_t contextLoadBuffer = 5;
 		};
 		
+		static $<PlaybackOrganizer> new$(Options options);
+		
 		PlaybackOrganizer(Options options);
+		
+		void addEventListener(EventListener* listener);
+		void removeEventListener(EventListener* listener);
 		
 		Promise<void> save(String path);
 		Promise<bool> load(String path);
 		
 		Promise<bool> previous();
 		Promise<bool> next();
-		Promise<void> prepareNext();
+		Promise<void> prepareNextIfNeeded();
 		Promise<void> play($<QueueItem> item);
 		Promise<void> play($<TrackCollectionItem> item);
 		Promise<void> play($<Track> track);
+		Promise<void> play(ItemVariant item);
 		Promise<void> stop();
 		
 		$<QueueItem> addToQueue($<Track> track);
 		void removeFromQueue($<QueueItem> item);
 		
-		ItemVariant getCurrentItem();
+		ItemVariant getCurrentItem() const;
 		Promise<ItemVariant> getPreviousItem();
 		Promise<ItemVariant> getNextItem();
 		
-		$<Track> getCurrentTrack();
+		$<Track> getCurrentTrack() const;
 		Promise<$<Track>> getPreviousTrack();
 		Promise<$<Track>> getNextTrack();
 		
-		$<QueueItem> getNextInQueue();
+		$<QueueItem> getNextInQueue() const;
 		Promise<$<TrackCollectionItem>> getPreviousInContext();
 		Promise<$<TrackCollectionItem>> getNextInContext();
 		
@@ -100,5 +114,8 @@ namespace sh {
 		
 		AsyncQueue playQueue;
 		AsyncQueue continuousPlayQueue;
+		
+		std::mutex listenersMutex;
+		LinkedList<EventListener*> listeners;
 	};
 }

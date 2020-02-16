@@ -97,7 +97,7 @@ namespace sh {
 	
 	void SpotifyAuth::removeEventListener(SpotifyAuthEventListener* listener) {
 		std::unique_lock<std::mutex> lock(listenersMutex);
-		listeners.removeFirstEqual(listener);
+		listeners.removeLastEqual(listener);
 	}
 	
 	bool SpotifyAuth::Options::hasTokenSwapURL() const {

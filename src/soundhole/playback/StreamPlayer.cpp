@@ -26,7 +26,7 @@ namespace sh {
 
 	void StreamPlayer::removeListener(Listener* listener) {
 		std::unique_lock<std::mutex> lock(listenersMutex);
-		this->listeners.removeFirstEqual(listener);
+		this->listeners.removeLastEqual(listener);
 		lock.unlock();
 	}
 

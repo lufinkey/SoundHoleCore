@@ -40,6 +40,9 @@
 		A513EDA1232DA2EA000DCAC7 /* libSoundHoleCore-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A513DB4A232DA1C0000DCAC7 /* libSoundHoleCore-macOS.a */; };
 		A513EDA2232DA2F2000DCAC7 /* libSoundHoleCore-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A513DB23232DA15C000DCAC7 /* libSoundHoleCore-iOS.a */; };
 		A513EDA8232DA30D000DCAC7 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A513EDA7232DA30D000DCAC7 /* Cocoa.framework */; };
+		A52826E223F09B6200360508 /* Player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A52826E023F09B6200360508 /* Player.cpp */; };
+		A52826E323F09B6200360508 /* Player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A52826E023F09B6200360508 /* Player.cpp */; };
+		A52826E423F09B6200360508 /* Player.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A52826E123F09B6200360508 /* Player.hpp */; };
 		A538982323CD3D36008638D1 /* BandcampPlaybackProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A538982123CD3D36008638D1 /* BandcampPlaybackProvider.cpp */; };
 		A5485A1E238CCB5F00CB7749 /* UserAccount.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5485A1C238CCB5F00CB7749 /* UserAccount.cpp */; };
 		A5485A1F238CCB5F00CB7749 /* UserAccount.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5485A1C238CCB5F00CB7749 /* UserAccount.cpp */; };
@@ -237,6 +240,8 @@
 		A513ED9F232DA253000DCAC7 /* py */ = {isa = PBXFileReference; lastKnownFileType = folder; path = py; sourceTree = "<group>"; };
 		A513EDA7232DA30D000DCAC7 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		A513EDAA232DB3BF000DCAC7 /* NodeMobile.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NodeMobile.framework; path = "Pods/NodeMobile/out_ios/Release-universal/NodeMobile.framework"; sourceTree = "<group>"; };
+		A52826E023F09B6200360508 /* Player.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Player.cpp; sourceTree = "<group>"; };
+		A52826E123F09B6200360508 /* Player.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Player.hpp; sourceTree = "<group>"; };
 		A5382A0F2355774100E22A29 /* Bandcamp.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Bandcamp.js; sourceTree = "<group>"; };
 		A538982123CD3D36008638D1 /* BandcampPlaybackProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampPlaybackProvider.cpp; sourceTree = "<group>"; };
 		A538982223CD3D36008638D1 /* BandcampPlaybackProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BandcampPlaybackProvider.hpp; sourceTree = "<group>"; };
@@ -586,6 +591,8 @@
 		A54F2544239DA9B800C81E1C /* playback */ = {
 			isa = PBXGroup;
 			children = (
+				A52826E123F09B6200360508 /* Player.hpp */,
+				A52826E023F09B6200360508 /* Player.cpp */,
 				A578785423DE547F00B6B0A5 /* PlaybackOrganizer.hpp */,
 				A578785323DE547F00B6B0A5 /* PlaybackOrganizer.cpp */,
 				A54F2546239DAA2700C81E1C /* StreamPlayer.hpp */,
@@ -869,6 +876,7 @@
 				A578785223DD4E4200B6B0A5 /* ShuffledTrackCollection.hpp in Headers */,
 				A578785C23E37A7B00B6B0A5 /* QueueItem.hpp in Headers */,
 				A5B973582381F91900FB3F1C /* Track.hpp in Headers */,
+				A52826E423F09B6200360508 /* Player.hpp in Headers */,
 				A513ED90232DA20B000DCAC7 /* BandcampProvider.hpp in Headers */,
 				A571E15923331C6600603E14 /* SpotifySession.hpp in Headers */,
 			);
@@ -1150,6 +1158,7 @@
 				A54F2539239984EC00C81E1C /* SpotifyPlaybackEvent_iOS.mm in Sources */,
 				A5AB5BC42368B1630028851A /* YoutubeMediaTypes.cpp in Sources */,
 				A5E851C8235A56BD0001F74D /* YoutubeError.cpp in Sources */,
+				A52826E223F09B6200360508 /* Player.cpp in Sources */,
 				A513ED8D232DA20B000DCAC7 /* MediaProvider.cpp in Sources */,
 				A571E12E2332C5A300603E14 /* SpotifyProvider.cpp in Sources */,
 				A5B7A7C5233EA8CC00301FC0 /* SHProgressView_iOS.mm in Sources */,
@@ -1190,6 +1199,7 @@
 				A5B7A7AC2337F1DE00301FC0 /* SpotifyPlayer.cpp in Sources */,
 				A5C0A8E923CFE59100CDB59E /* SpotifyPlaylistMutatorDelegate.cpp in Sources */,
 				A5B2BBF92360E84C00ED010C /* SpotifyMediaTypes.cpp in Sources */,
+				A52826E323F09B6200360508 /* Player.cpp in Sources */,
 				A5C0A8E223CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.cpp in Sources */,
 				A571E16023331C6600603E14 /* SpotifySession.cpp in Sources */,
 				A5485A2E239432CE00CB7749 /* SpotifyPlaybackProvider.cpp in Sources */,

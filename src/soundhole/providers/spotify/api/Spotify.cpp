@@ -124,7 +124,7 @@ namespace sh {
 	}
 
 	void Spotify::removePlayerEventListener(SpotifyPlayerEventListener* listener) {
-		playerListeners.removeFirstEqual(listener);
+		playerListeners.removeLastEqual(listener);
 		if(player != nullptr) {
 			player->removeEventListener(listener);
 		}

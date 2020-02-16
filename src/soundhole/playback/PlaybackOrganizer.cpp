@@ -11,6 +11,12 @@
 #include <soundhole/utils/Utils.hpp>
 
 namespace sh {
+	$<PlaybackOrganizer> PlaybackOrganizer::new$(Options options) {
+		return fgl::new$<PlaybackOrganizer>(options);
+	}
+
+
+
 	PlaybackOrganizer::PlaybackOrganizer(Options options)
 	: options(options),
 	shuffling(false), preparedNext(false),
@@ -40,10 +46,26 @@ namespace sh {
 
 
 
+	void PlaybackOrganizer::addEventListener(EventListener* listener) {
+		std::unique_lock<std::mutex> lock(listenersMutex);
+		listeners.pushBack(listener);
+	}
+
+	void PlaybackOrganizer::removeEventListener(EventListener* listener) {
+		std::unique_lock<std::mutex> lock(listenersMutex);
+		listeners.removeLastEqual(listener);
+	}
+
+
+
 	Promise<bool> PlaybackOrganizer::previous() {
 		auto valid = fgl::new$<bool>(false);
-		auto self = shared_from_this();
+		w$<PlaybackOrganizer> weakSelf = shared_from_this();
 		return setPlayingItem([=]() {
+			auto self = weakSelf.lock();
+			if(!self) {
+				return Promise<ItemVariant>::resolve(NoItem());
+			}
 			return self->getValidPreviousItem().map<ItemVariant>([=](auto item) {
 				if(item.index() != 0) {
 					*valid = true;
@@ -57,8 +79,12 @@ namespace sh {
 
 	Promise<bool> PlaybackOrganizer::next() {
 		auto valid = fgl::new$<bool>(false);
-		auto self = shared_from_this();
+		w$<PlaybackOrganizer> weakSelf = shared_from_this();
 		return setPlayingItem([=]() {
+			auto self = weakSelf.lock();
+			if(!self) {
+				return Promise<ItemVariant>::resolve(NoItem());
+			}
 			return self->getValidNextItem().map<ItemVariant>([=](auto item) {
 				if(item.index() != 0) {
 					*valid = true;
@@ -70,7 +96,7 @@ namespace sh {
 		});
 	}
 
-	Promise<void> PlaybackOrganizer::prepareNext() {
+	Promise<void> PlaybackOrganizer::prepareNextIfNeeded() {
 		if(continuousPlayQueue.getTaskWithTag("prepare")) {
 			return continuousPlayQueue.waitForTasksWithTag("prepare");
 		}
@@ -78,32 +104,44 @@ namespace sh {
 			.tag = "prepare",
 			.cancelMatchingTags = true
 		};
-		auto self = shared_from_this();
+		w$<PlaybackOrganizer> weakSelf = shared_from_this();
 		return continuousPlayQueue.run(runOptions, [=](auto task) {
+			auto self = weakSelf.lock();
+			if(!self) {
+				return generate_items<void>({});
+			}
 			if(self->preparedNext) {
 				return generate_items<void>({});
 			}
 			struct SharedData {
 				ItemVariant nextItem = NoItem();
 			};
-			auto sharedData = new$<SharedData>();
+			auto sharedData = fgl::new$<SharedData>();
 			return generate_items<void>({
 				[=]() {
+					auto self = weakSelf.lock();
+					if(!self) {
+						return Promise<void>::resolve();
+					}
 					return self->getNextItem().then([=](ItemVariant nextItem) {
 						sharedData->nextItem = nextItem;
 					});
 				},
 				[=]() {
-					auto nextItem = sharedData->nextItem;
-					if(nextItem.index() == 0) {
+					auto self = weakSelf.lock();
+					if(!self) {
 						return Promise<void>::resolve();
 					}
+					auto nextItem = sharedData->nextItem;
 					auto nextTrack = trackFromItem(nextItem);
+					if(!nextTrack) {
+						return Promise<void>::resolve();
+					}
 					if(self->options.delegate == nullptr) {
 						self->preparedNext = true;
 						return Promise<void>::resolve();
 					} else {
-						return self->options.delegate->onPlaybackOrganizerPrepareTrack(this, nextTrack).then([=]() {
+						return self->options.delegate->onPlaybackOrganizerPrepareTrack(self, nextTrack).then([=]() {
 							self->preparedNext = true;
 						});
 					}
@@ -121,7 +159,9 @@ namespace sh {
 
 	Promise<void> PlaybackOrganizer::play($<TrackCollectionItem> item) {
 		FGL_ASSERT(item != nullptr, "item cannot be null");
-		return setPlayingItem([=]() {
+		auto context = item->context().lock();
+		FGL_ASSERT(context != nullptr, "item cannot be detached from context");
+		return setPlayingItem([context,item]() {
 			return Promise<ItemVariant>::resolve(item);
 		});
 	}
@@ -131,6 +171,20 @@ namespace sh {
 		return setPlayingItem([=]() {
 			return Promise<ItemVariant>::resolve(track);
 		});
+	}
+
+	Promise<void> PlaybackOrganizer::play(ItemVariant item) {
+		if(std::get_if<NoItem>(&item)) {
+			return Promise<void>::reject(std::invalid_argument("Cannot pass NoItem to PlaybackOrganizer::play"));
+		} else if(auto track = std::get_if<$<Track>>(&item)) {
+			return play(*track);
+		} else if(auto collectionItem = std::get_if<$<TrackCollectionItem>>(&item)) {
+			return play(*collectionItem);
+		} else if(auto queueItem = std::get_if<$<QueueItem>>(&item)) {
+			return play(*queueItem);
+		} else {
+			throw std::logic_error("Unhandled state for ItemVariant");
+		}
 	}
 
 	Promise<void> PlaybackOrganizer::stop() {
@@ -144,7 +198,14 @@ namespace sh {
 	$<QueueItem> PlaybackOrganizer::addToQueue($<Track> track) {
 		auto queueItem = QueueItem::new$(track);
 		queue.pushBack(queueItem);
-		// TODO emit queueChange event
+		// emit queue change event
+		std::unique_lock<std::mutex> lock(listenersMutex);
+		auto listeners = this->listeners;
+		lock.unlock();
+		auto self = shared_from_this();
+		for(auto listener : listeners) {
+			listener->onPlaybackOrganizerQueueChange(self);
+		}
 		return queueItem;
 	}
 
@@ -152,13 +213,20 @@ namespace sh {
 		auto queueIt = queue.findEqual(item);
 		if(queueIt != queue.end()) {
 			queue.erase(queueIt);
-			// TODO emit queueChange event
+			// emit queue change event
+			std::unique_lock<std::mutex> lock(listenersMutex);
+			auto listeners = this->listeners;
+			lock.unlock();
+			auto self = shared_from_this();
+			for(auto listener : listeners) {
+				listener->onPlaybackOrganizerQueueChange(self);
+			}
 		}
 	}
 
 
 
-	PlaybackOrganizer::ItemVariant PlaybackOrganizer::getCurrentItem() {
+	PlaybackOrganizer::ItemVariant PlaybackOrganizer::getCurrentItem() const {
 		if(applyingItem.index() != 0) {
 			return applyingItem;
 		} else if(playingItem.index() != 0) {
@@ -181,10 +249,14 @@ namespace sh {
 		if(queueItem) {
 			return Promise<ItemVariant>::resolve(queueItem);
 		}
-		auto self = shared_from_this();
+		w$<PlaybackOrganizer> weakSelf = shared_from_this();
 		return getNextInContext().map<ItemVariant>([=]($<TrackCollectionItem> item) -> ItemVariant {
 			if(item) {
 				return item;
+			}
+			auto self = weakSelf.lock();
+			if(!self) {
+				return NoItem();
 			}
 			auto queueItem = self->getNextInQueue();
 			if(queueItem) {
@@ -195,9 +267,13 @@ namespace sh {
 	}
 
 	Promise<PlaybackOrganizer::ItemVariant> PlaybackOrganizer::getValidPreviousItem() {
-		auto self = shared_from_this();
 		auto currentContext = this->context;
+		w$<PlaybackOrganizer> weakSelf = shared_from_this();
 		return getPreviousItem().then([=](ItemVariant item) -> Promise<ItemVariant> {
+			auto self = weakSelf.lock();
+			if(!self) {
+				return Promise<ItemVariant>::resolve(NoItem());
+			}
 			if(self->context != currentContext) {
 				return getValidPreviousItem();
 			}
@@ -206,9 +282,13 @@ namespace sh {
 	}
 
 	Promise<PlaybackOrganizer::ItemVariant> PlaybackOrganizer::getValidNextItem() {
-		auto self = shared_from_this();
 		auto currentContext = this->context;
+		w$<PlaybackOrganizer> weakSelf = shared_from_this();
 		return getNextItem().then([=](ItemVariant item) -> Promise<ItemVariant> {
+			auto self = weakSelf.lock();
+			if(!self) {
+				return Promise<ItemVariant>::resolve(NoItem());
+			}
 			if(self->context != currentContext) {
 				return getValidNextItem();
 			}
@@ -218,7 +298,7 @@ namespace sh {
 
 
 
-	$<Track> PlaybackOrganizer::getCurrentTrack() {
+	$<Track> PlaybackOrganizer::getCurrentTrack() const {
 		return trackFromItem(getCurrentItem());
 	}
 
@@ -236,7 +316,7 @@ namespace sh {
 
 
 
-	$<QueueItem> PlaybackOrganizer::getNextInQueue() {
+	$<QueueItem> PlaybackOrganizer::getNextInQueue() const {
 		if(queue.size() == 0) {
 			return nullptr;
 		}
@@ -259,7 +339,6 @@ namespace sh {
 			return Promise<$<TrackCollectionItem>>::resolve(nullptr);
 		}
 		size_t prevIndex = contextIndex - 1;
-		auto self = shared_from_this();
 		return context->getItem(prevIndex);
 	}
 
@@ -333,17 +412,23 @@ namespace sh {
 	}
 
 	Promise<void> PlaybackOrganizer::setPlayingItem(Function<Promise<ItemVariant>()> itemGetter) {
+		w$<PlaybackOrganizer> weakSelf = shared_from_this();
 		return playQueue.run({.cancelAll=true}, [=](auto task) {
 			return itemGetter().then([=](ItemVariant item) {
+				auto self = weakSelf.lock();
+				if(!self) {
+					return;
+				}
+				
 				bool queueChanged = false;
 				if(std::get_if<NoItem>(&item)) {
 					return;
 				}
 				else if(auto queueItemPtr = std::get_if<$<QueueItem>>(&item)) {
 					auto queueItem = *queueItemPtr;
-					auto queueIt = this->queue.findEqual(queueItem);
-					if(queueIt != this->queue.end()) {
-						this->queue.erase(queue.begin(), std::next(queueIt, 1));
+					auto queueIt = self->queue.findEqual(queueItem);
+					if(queueIt != self->queue.end()) {
+						self->queue.erase(queue.begin(), std::next(queueIt, 1));
 						queueChanged = true;
 					}
 				}
@@ -353,20 +438,33 @@ namespace sh {
 					if(!collection) {
 						throw std::logic_error("TrackCollectionItem has null context");
 					}
-					updateMainContext(collection, collectionItem, this->shuffling);
+					self->updateMainContext(collection, collectionItem, this->shuffling);
 					// TODO figure out if this code below is actually necessary
-					auto contextItem = this->contextItem;
+					auto contextItem = self->contextItem;
 					FGL_ASSERT(contextItem != nullptr, "contextItem should not be null after call to updateMainContext");
 					item = contextItem;
 				}
 				else if(auto trackPtr = std::get_if<$<Track>>(&item)) {
-					updateMainContext(nullptr, nullptr, this->shuffling);
+					self->updateMainContext(nullptr, nullptr, self->shuffling);
 				}
 				applyingItem = item;
 				applyPlayingItem(item);
-				// TODO emit trackChange
+				{// emit track change event
+					std::unique_lock<std::mutex> lock(self->listenersMutex);
+					auto listeners = self->listeners;
+					lock.unlock();
+					for(auto listener : listeners) {
+						listener->onPlaybackOrganizerTrackChange(self);
+					}
+				}
 				if(queueChanged) {
-					// TODO emit queueChange
+					// emit queue change event
+					std::unique_lock<std::mutex> lock(self->listenersMutex);
+					auto listeners = self->listeners;
+					lock.unlock();
+					for(auto listener : listeners) {
+						listener->onPlaybackOrganizerQueueChange(self);
+					}
 				}
 			});
 		}).promise;
@@ -377,23 +475,28 @@ namespace sh {
 			.tag = "play",
 			.cancelTags = { "prepare", "play" }
 		};
-		auto self = shared_from_this();
+		w$<PlaybackOrganizer> weakSelf = shared_from_this();
 		return continuousPlayQueue.run(runOptions, [=](auto task) {
 			return generate<void>([=](auto yield) {
+				auto self = weakSelf.lock();
+				if(!self) {
+					return;
+				}
 				size_t sleepCount = 1;
 				auto track = trackFromItem(item);
 				while(true) {
 					try {
-						if(self->options.delegate != nullptr) {
-							await(self->options.delegate->onPlaybackOrganizerPlayTrack(self.get(), track));
-						}
-						await(Promise<void>::resolve().then([&]() {
-							self->playingItem = item;
-							self->applyingItem = NoItem();
-							self->preparedNext = false;
-						}));
-						yield();
 						if(track->isPlayable()) {
+							// play track
+							if(self->options.delegate != nullptr) {
+								await(self->options.delegate->onPlaybackOrganizerPlayTrack(self, track));
+							}
+							await(Promise<void>::resolve().then([&]() {
+								self->playingItem = item;
+								self->applyingItem = NoItem();
+								self->preparedNext = false;
+							}));
+							yield();
 							// load surrounding context until success
 							while(true) {
 								try {

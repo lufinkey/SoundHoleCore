@@ -27,7 +27,7 @@ namespace sh {
 
 	void SpotifyPlayer::removeEventListener(SpotifyPlayerEventListener* listener) {
 		std::unique_lock<std::mutex> lock(listenersMutex);
-		listeners.removeFirstEqual(listener);
+		listeners.removeLastEqual(listener);
 		lock.unlock();
 	}
 
