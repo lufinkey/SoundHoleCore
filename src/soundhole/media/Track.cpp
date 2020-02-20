@@ -146,4 +146,32 @@ namespace sh {
 			.playable=_playable
 		};
 	}
+
+
+
+
+	Track::AudioSource Track::AudioSource::fromJson(Json json) {
+		auto url = json["url"];
+		auto encoding = json["encoding"];
+		auto bitrate = json["bitrate"];
+		auto videoBitrate = json["videoBitrate"];
+		if(!url.is_string() || !encoding.is_string() || !bitrate.is_number() || (!videoBitrate.is_null() && !videoBitrate.is_number())) {
+			throw std::invalid_argument("invalid json for Track::AudioSource");
+		}
+		return AudioSource{
+			.url=url.string_value(),
+			.encoding=encoding.string_value(),
+			.bitrate=(double)bitrate.number_value(),
+			.videoBitrate=(!videoBitrate.is_null()) ? maybe((double)videoBitrate.number_value()) : std::nullopt
+		};
+	}
+
+	Json Track::AudioSource::toJson() const {
+		return Json::object{
+			{"url",(std::string)url},
+			{"encoding",(std::string)encoding},
+			{"bitrate",bitrate},
+			{"videoBitrate",(videoBitrate ? Json(videoBitrate.value()) : Json())}
+		};
+	}
 }

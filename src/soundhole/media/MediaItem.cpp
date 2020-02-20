@@ -120,4 +120,78 @@ namespace sh {
 			.images=_images
 		};
 	}
+
+
+
+
+	MediaItem::Image::Size MediaItem::Image::Size_fromJson(Json json) {
+		if(!json.is_string()) {
+			throw std::invalid_argument("invalid json for MediaItem::Image::Size: "+json.string_value());
+		}
+		auto& str = json.string_value();
+		if(str == "TINY") {
+			return Size::TINY;
+		} else if(str == "SMALL") {
+			return Size::SMALL;
+		} else if(str == "MEDIUM") {
+			return Size::MEDIUM;
+		} else if(str == "LARGE") {
+			return Size::LARGE;
+		} else {
+			throw std::invalid_argument("invalid MediaItem::Image::Size " + str);
+		}
+	}
+
+	Json MediaItem::Image::Size_toJson(Size size) {
+		switch(size) {
+			case Size::TINY:
+				return Json("TINY");
+			case Size::SMALL:
+				return Json("SMALL");
+			case Size::MEDIUM:
+				return Json("MEDIUM");
+			case Size::LARGE:
+				return Json("LARGE");
+		}
+	}
+
+	MediaItem::Image::Dimensions MediaItem::Image::Dimensions::fromJson(Json json) {
+		auto width = json["width"];
+		auto height = json["height"];
+		if(!width.is_number() || !height.is_number()) {
+			throw std::invalid_argument("invalid json for MediaItem::Image::Dimensions");
+		}
+		return Dimensions{
+			.width=(size_t)width.number_value(),
+			.height=(size_t)height.number_value()
+		};
+	}
+
+	Json MediaItem::Image::Dimensions::toJson() const {
+		return Json::object{
+			{"width", (double)width},
+			{"height", (double)height}
+		};
+	}
+
+	MediaItem::Image MediaItem::Image::fromJson(Json json) {
+		auto url = json["url"];
+		auto dimensions = json["dimensions"];
+		if(!url.is_string() || (!dimensions.is_null() && !dimensions.is_object())) {
+			throw std::invalid_argument("invalid json for MediaItem::Image");
+		}
+		return Image{
+			.url=url.string_value(),
+			.size=Size_fromJson(json["size"]),
+			.dimensions=(!dimensions.is_null()) ? maybe(Dimensions::fromJson(dimensions)) : std::nullopt
+		};
+	}
+
+	Json MediaItem::Image::toJson() const {
+		return Json::object{
+			{"url", (std::string)url},
+			{"size",Size_toJson(size)},
+			{"dimensions",(dimensions ? dimensions->toJson() : Json())}
+		};
+	}
 }

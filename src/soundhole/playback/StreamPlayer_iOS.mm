@@ -89,7 +89,7 @@ namespace sh {
 		if(preparedPlayer == nil) {
 			return;
 		}
-		AVPlayer* deadPlayer = preparedPlayer;
+		//AVPlayer* deadPlayer = preparedPlayer;
 		preparedPlayer = nil;
 		preparedAudioURL.clear();
 	}

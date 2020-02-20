@@ -54,4 +54,18 @@ namespace sh::jsutils {
 		}
 		return sizeFromNapiValue(value);
 	}
+	
+	double doubleFromNapiValue(Napi::Value value) {
+		if(value.IsEmpty() || value.IsNull() || value.IsUndefined()) {
+			return 0;
+		}
+		return value.As<Napi::Number>().DoubleValue();
+	}
+
+	Optional<double> optDoubleFromNapiValue(Napi::Value value) {
+		if(value.IsEmpty() || value.IsNull() || value.IsUndefined()) {
+			return std::nullopt;
+		}
+		return doubleFromNapiValue(value);
+	}
 }

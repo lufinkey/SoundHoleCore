@@ -386,7 +386,7 @@ namespace sh {
 				return Track::AudioSource{
 					.url=format.url,
 					.encoding=format.audioEncoding,
-					.bitrate=format.audioBitrate.value(),
+					.bitrate=(double)format.audioBitrate.value(),
 					.videoBitrate=([&]() -> Optional<double> {
 						auto bitrateParts = format.bitrate.split('-');
 						if(bitrateParts.size() == 0) {

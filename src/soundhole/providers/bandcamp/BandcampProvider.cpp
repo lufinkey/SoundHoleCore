@@ -212,7 +212,7 @@ namespace sh {
 					Track::AudioSource{
 						.url=track.audioURL.value(),
 						.encoding="mp3",
-						.bitrate=128
+						.bitrate=128.0
 					}
 				} : ArrayList<Track::AudioSource>{})
 				: std::nullopt),

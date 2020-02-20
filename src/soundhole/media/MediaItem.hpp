@@ -22,15 +22,24 @@ namespace sh {
 				MEDIUM=2,
 				LARGE=3
 			};
+			static Size Size_fromJson(Json json);
+			static Json Size_toJson(Size size);
+			
 			struct Dimensions {
 				size_t width;
 				size_t height;
 				Size toSize() const;
+				
+				static Dimensions fromJson(Json json);
+				Json toJson() const;
 			};
 			
 			String url;
 			Size size;
 			Optional<Dimensions> dimensions;
+			
+			static Image fromJson(Json json);
+			Json toJson() const;
 		};
 		
 		struct Data {
