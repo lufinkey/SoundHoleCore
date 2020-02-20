@@ -49,7 +49,12 @@ namespace sh {
 			Optional<ArrayList<Image>> images;
 		};
 		
+		struct FromJsonOptions {
+			Function<MediaProvider*(const String&)> providerGetter;
+		};
+		
 		MediaItem(MediaProvider* provider, Data data);
+		MediaItem(Json json, FromJsonOptions options);
 		virtual ~MediaItem();
 		
 		const String& type() const;
@@ -67,6 +72,7 @@ namespace sh {
 		Promise<void> fetchMissingDataIfNeeded();
 		
 		Data toData() const;
+		virtual Json toJson() const;
 		
 	protected:
 		MediaProvider* provider;

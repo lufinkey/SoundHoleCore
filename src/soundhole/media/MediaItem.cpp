@@ -7,6 +7,7 @@
 //
 
 #include "MediaItem.hpp"
+#include "MediaProvider.hpp"
 
 namespace sh {
 	MediaItem::Image::Size MediaItem::Image::Dimensions::toSize() const {
@@ -192,6 +193,48 @@ namespace sh {
 			{"url", (std::string)url},
 			{"size",Size_toJson(size)},
 			{"dimensions",(dimensions ? dimensions->toJson() : Json())}
+		};
+	}
+
+
+
+	MediaItem::MediaItem(Json json, FromJsonOptions options) {
+		auto providerName = json["provider"];
+		auto type = json["type"];
+		auto name = json["name"];
+		auto uri = json["uri"];
+		auto images = json["images"];
+		if(!providerName.is_string() || !type.is_string() || !name.is_string()
+		   || !uri.is_string() || (!images.is_null() && !images.is_array())) {
+			throw std::invalid_argument("invalid json for MediaItem");
+		}
+		provider = options.providerGetter(providerName.string_value());
+		if(provider == nullptr) {
+			throw std::invalid_argument("invalid provider name: "+providerName.string_value());
+		}
+		_type = type.string_value();
+		_name = name.string_value();
+		_uri = uri.string_value();
+		if(images.is_null()) {
+			_images = std::nullopt;
+		} else {
+			_images = ArrayList<Image>();
+			_images->reserve(images.array_items().size());
+			for(auto image : images.array_items()) {
+				_images->pushBack(Image::fromJson(image));
+			}
+		}
+	}
+
+	Json MediaItem::toJson() const {
+		return Json::object{
+			{"provider",(std::string)provider->name()},
+			{"type",(std::string)_type},
+			{"name",(std::string)_name},
+			{"uri",(std::string)_uri},
+			{"images",(_images ? Json(_images->map<Json>([&](auto& image) {
+				return image.toJson();
+			})) : Json())}
 		};
 	}
 }

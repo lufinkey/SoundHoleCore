@@ -40,8 +40,8 @@ namespace sh {
 		};
 		
 		static $<Track> new$(MediaProvider* provider, Data data);
-		
 		Track(MediaProvider* provider, Data data);
+		Track(Json json, FromJsonOptions options);
 		
 		const String& albumName() const;
 		const String& albumURI() const;
@@ -69,6 +69,9 @@ namespace sh {
 		virtual Promise<void> fetchMissingData() override;
 		
 		Data toData() const;
+		
+		static $<Track> fromJson(Json json, FromJsonOptions options);
+		virtual Json toJson() const override;
 		
 	protected:
 		String _albumName;

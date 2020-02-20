@@ -46,4 +46,27 @@ namespace sh {
 			.description=_description
 		};
 	}
+
+
+
+	$<Artist> Artist::fromJson(Json json, FromJsonOptions options) {
+		return fgl::new$<Artist>(json, options);
+	}
+
+	Artist::Artist(Json json, FromJsonOptions options)
+	: MediaItem(json, options) {
+		auto description = json["description"];
+		if((!description.is_null() && !description.is_string())) {
+			throw std::invalid_argument("invalid json for Artist");
+		}
+		_description = (!description.is_null()) ? maybe((String)description.string_value()) : std::nullopt;
+	}
+
+	Json Artist::toJson() const {
+		auto json = MediaItem::toJson().object_items();
+		json.merge(Json::object{
+			{"description",(_description ? Json((std::string)_description.value()) : Json())}
+		});
+		return json;
+	}
 }

@@ -19,8 +19,8 @@ namespace sh {
 		};
 		
 		static $<Artist> new$(MediaProvider* provider, Data data);
-		
 		Artist(MediaProvider* provider, Data data);
+		Artist(Json json, FromJsonOptions options);
 		
 		const Optional<String>& description() const;
 		
@@ -28,6 +28,9 @@ namespace sh {
 		virtual Promise<void> fetchMissingData() override;
 		
 		Data toData() const;
+		
+		static $<Artist> fromJson(Json json, FromJsonOptions options);
+		virtual Json toJson() const override;
 		
 	protected:
 		Optional<String> _description;
