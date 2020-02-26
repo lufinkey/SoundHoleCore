@@ -19,8 +19,6 @@ namespace sh {
 		};
 		
 		static $<Artist> new$(MediaProvider* provider, Data data);
-		Artist(MediaProvider* provider, Data data);
-		Artist(Json json, FromJsonOptions options);
 		
 		const Optional<String>& description() const;
 		
@@ -29,10 +27,13 @@ namespace sh {
 		
 		Data toData() const;
 		
-		static $<Artist> fromJson(Json json, FromJsonOptions options);
+		static $<Artist> fromJson(Json json, const FromJsonOptions& options);
 		virtual Json toJson() const override;
 		
 	protected:
+		Artist(std::shared_ptr<MediaItem>& ptr, MediaProvider* provider, Data data);
+		Artist(std::shared_ptr<MediaItem>& ptr, Json json, const FromJsonOptions& options);
+		
 		Optional<String> _description;
 	};
 }

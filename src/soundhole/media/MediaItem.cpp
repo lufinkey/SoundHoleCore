@@ -22,14 +22,23 @@ namespace sh {
 		}
 	}
 
-	MediaItem::MediaItem(MediaProvider* provider, Data data)
+	MediaItem::MediaItem($<MediaItem>& ptr, MediaProvider* provider, Data data)
 	: provider(provider),
 	_type(data.type), _name(data.name), _uri(data.uri), _images(data.images) {
-		//
+		ptr = $<MediaItem>(this);
+		weakSelf = ptr;
 	}
 	
 	MediaItem::~MediaItem() {
 		//
+	}
+
+	$<MediaItem> MediaItem::self() {
+		return weakSelf.lock();
+	}
+
+	$<const MediaItem> MediaItem::self() const {
+		return std::static_pointer_cast<const MediaItem>(weakSelf.lock());
 	}
 
 	const String& MediaItem::type() const {
@@ -198,7 +207,9 @@ namespace sh {
 
 
 
-	MediaItem::MediaItem(Json json, FromJsonOptions options) {
+	MediaItem::MediaItem($<MediaItem>& ptr, Json json, const FromJsonOptions& options) {
+		ptr = $<MediaItem>(this);
+		weakSelf = ptr;
 		auto providerName = json["provider"];
 		auto type = json["type"];
 		auto name = json["name"];

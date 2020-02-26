@@ -12,24 +12,30 @@
 
 namespace sh {
 	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::new$($<ShuffledTrackCollection> context, Data data) {
-		return fgl::new$<ShuffledTrackCollectionItem>(context, data);
+		$<TrackCollectionItem> ptr;
+		new ShuffledTrackCollectionItem(ptr, context, data);
+		return std::static_pointer_cast<ShuffledTrackCollectionItem>(ptr);
 	}
 	
 	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Data data) {
-		return fgl::new$<ShuffledTrackCollectionItem>(std::static_pointer_cast<ShuffledTrackCollection>(context), data);
+		$<TrackCollectionItem> ptr;
+		new ShuffledTrackCollectionItem(ptr, std::static_pointer_cast<ShuffledTrackCollection>(context), data);
+		return std::static_pointer_cast<ShuffledTrackCollectionItem>(ptr);
 	}
 	
 	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::new$($<ShuffledTrackCollection> context, $<TrackCollectionItem> sourceItem) {
-		return fgl::new$<ShuffledTrackCollectionItem>(context, sourceItem);
+		$<TrackCollectionItem> ptr;
+		new ShuffledTrackCollectionItem(ptr, context, sourceItem);
+		return std::static_pointer_cast<ShuffledTrackCollectionItem>(ptr);
 	}
 	
-	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<ShuffledTrackCollection> context, Data data)
-	: SpecialTrackCollectionItem<ShuffledTrackCollection>(context, data), _sourceItem(data.sourceItem) {
+	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<ShuffledTrackCollection> context, Data data)
+	: SpecialTrackCollectionItem<ShuffledTrackCollection>(ptr, context, data), _sourceItem(data.sourceItem) {
 		//
 	}
 	
-	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<ShuffledTrackCollection> context, $<TrackCollectionItem> sourceItem)
-	: SpecialTrackCollectionItem<ShuffledTrackCollection>(context, {.track=sourceItem->track()}), _sourceItem(sourceItem) {
+	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<ShuffledTrackCollection> context, $<TrackCollectionItem> sourceItem)
+	: SpecialTrackCollectionItem<ShuffledTrackCollection>(ptr, context, {.track=sourceItem->track()}), _sourceItem(sourceItem) {
 		//
 	}
 	
@@ -48,15 +54,25 @@ namespace sh {
 		return false;
 	}
 
+	Json ShuffledTrackCollectionItem::toJson() const {
+		auto sourceIndex = _sourceItem->indexInContext();
+		return Json::object{
+			{ "sourceItem", _sourceItem->toJson() },
+			{ "sourceIndex", sourceIndex ? Json((double)sourceIndex.value()) : Json() }
+		};
+	}
+
 
 
 
 	$<ShuffledTrackCollection> ShuffledTrackCollection::new$($<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems) {
-		return fgl::new$<ShuffledTrackCollection>(source, initialItems);
+		$<MediaItem> ptr;
+		new ShuffledTrackCollection(ptr, source, initialItems);
+		return std::static_pointer_cast<ShuffledTrackCollection>(ptr);
 	}
 
-	ShuffledTrackCollection::ShuffledTrackCollection($<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems)
-	: SpecialTrackCollection<ShuffledTrackCollectionItem>(source->mediaProvider(), SpecialTrackCollection<ShuffledTrackCollectionItem>::Data{{
+	ShuffledTrackCollection::ShuffledTrackCollection($<MediaItem>& ptr, $<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems)
+	: SpecialTrackCollection<ShuffledTrackCollectionItem>(ptr, source->mediaProvider(), SpecialTrackCollection<ShuffledTrackCollectionItem>::Data{{
 		.type="shuffled-collection",
 		.name=source->name(),
 		.uri=source->uri(),
@@ -129,7 +145,7 @@ namespace sh {
 	}
 
 	Promise<void> ShuffledTrackCollection::loadItems(Mutator* mutator, size_t index, size_t count) {
-		auto self = std::static_pointer_cast<ShuffledTrackCollection>(this->self());
+		auto self = this->selfAs<ShuffledTrackCollection>();
 		size_t endIndex = index+count;
 		$<LinkedList<$<ShuffledTrackCollectionItem>>> items;
 		auto promise = Promise<void>::resolve();
@@ -163,5 +179,15 @@ namespace sh {
 			}
 			mutator->apply(index, *items);
 		});
+	}
+
+
+
+	Json ShuffledTrackCollection::toJson(ToJsonOptions options) const {
+		auto json = SpecialTrackCollection<ShuffledTrackCollectionItem>::toJson(options).object_items();
+		json.merge(Json::object{
+			{ "source", _source->toJson({.tracksOffset=0,.tracksLimit=options.tracksLimit}) }
+		});
+		return json;
 	}
 }

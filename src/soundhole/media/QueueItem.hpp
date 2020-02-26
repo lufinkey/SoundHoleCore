@@ -12,7 +12,7 @@
 #include "Track.hpp"
 
 namespace sh {
-	class QueueItem {
+	class QueueItem: std::enable_shared_from_this<QueueItem> {
 	public:
 		static $<QueueItem> new$($<Track> track);
 		
@@ -20,6 +20,8 @@ namespace sh {
 		
 		$<Track> track();
 		$<const Track> track() const;
+		
+		virtual Json toJson() const;
 		
 	private:
 		$<Track> _track;

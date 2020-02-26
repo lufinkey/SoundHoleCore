@@ -11,11 +11,13 @@
 
 namespace sh {
 	$<Track> Track::new$(MediaProvider* provider, Data data) {
-		return fgl::new$<Track>(provider, data);
+		$<MediaItem> ptr;
+		new Track(ptr, provider, data);
+		return std::static_pointer_cast<Track>(ptr);
 	}
 
-	Track::Track(MediaProvider* provider, Data data)
-	: MediaItem(provider, data),
+	Track::Track($<MediaItem>& ptr, MediaProvider* provider, Data data)
+	: MediaItem(ptr, provider, data),
 	_albumName(data.albumName), _albumURI(data.albumURI), _artists(data.artists),
 	_tags(data.tags), _discNumber(data.discNumber), _trackNumber(data.trackNumber),
 	_duration(data.duration), _audioSources(data.audioSources), _playable(data.playable) {
@@ -177,12 +179,14 @@ namespace sh {
 
 
 
-	$<Track> Track::fromJson(Json json, FromJsonOptions options) {
-		return fgl::new$<Track>(json, options);
+	$<Track> Track::fromJson(Json json, const FromJsonOptions& options) {
+		$<MediaItem> ptr;
+		new Track(ptr, json, options);
+		return std::static_pointer_cast<Track>(ptr);
 	}
 
-	Track::Track(Json json, FromJsonOptions options)
-	: MediaItem(json, options) {
+	Track::Track($<MediaItem>& ptr, Json json, const FromJsonOptions& options)
+	: MediaItem(ptr, json, options) {
 		auto albumName = json["albumName"];
 		auto albumURI = json["albumURI"];
 		auto artists = json["artists"];

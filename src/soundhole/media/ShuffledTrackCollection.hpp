@@ -25,15 +25,17 @@ namespace sh {
 		static $<ShuffledTrackCollectionItem> new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Data data);
 		static $<ShuffledTrackCollectionItem> new$($<ShuffledTrackCollection> context, $<TrackCollectionItem> sourceItem);
 		
-		ShuffledTrackCollectionItem($<ShuffledTrackCollection> context, Data data);
-		ShuffledTrackCollectionItem($<ShuffledTrackCollection> context, $<TrackCollectionItem> sourceItem);
-		
 		$<TrackCollectionItem> sourceItem();
 		$<const TrackCollectionItem> sourceItem() const;
 		
 		virtual bool matchesItem(const TrackCollectionItem* item) const override;
 		
+		virtual Json toJson() const override;
+		
 	protected:
+		ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<ShuffledTrackCollection> context, Data data);
+		ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<ShuffledTrackCollection> context, $<TrackCollectionItem> sourceItem);
+		
 		$<TrackCollectionItem> _sourceItem;
 	};
 
@@ -42,15 +44,17 @@ namespace sh {
 	public:
 		static $<ShuffledTrackCollection> new$($<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems={});
 		
-		ShuffledTrackCollection($<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems = {});
-		
 		$<TrackCollection> source();
 		$<const TrackCollection> source() const;
 		
 		virtual bool needsData() const override;
 		virtual Promise<void> fetchMissingData() override;
 		
+		virtual Json toJson(ToJsonOptions options) const override;
+		
 	protected:
+		ShuffledTrackCollection($<MediaItem>& ptr, $<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems = {});
+		
 		struct RandomIndex {
 			size_t index;
 			

@@ -10,16 +10,14 @@
 #include "MediaProvider.hpp"
 
 namespace sh {
-	$<AlbumItem> AlbumItem::new$($<Album> album, Data data) {
-		return fgl::new$<AlbumItem>(album, data);
-	}
-
 	$<AlbumItem> AlbumItem::new$($<SpecialTrackCollection<AlbumItem>> album, Data data) {
-		return fgl::new$<AlbumItem>(std::static_pointer_cast<Album>(album), data);
+		$<TrackCollectionItem> ptr;
+		new AlbumItem(ptr, album, data);
+		return std::static_pointer_cast<AlbumItem>(ptr);
 	}
 
-	AlbumItem::AlbumItem($<Album> album, Data data)
-	: SpecialTrackCollectionItem<Album>(std::static_pointer_cast<TrackCollection>(album), data) {
+	AlbumItem::AlbumItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<AlbumItem>> album, Data data)
+	: SpecialTrackCollectionItem<Album>(ptr, album, data) {
 		//
 	}
 
@@ -34,14 +32,27 @@ namespace sh {
 		return false;
 	}
 
+	AlbumItem::AlbumItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<AlbumItem>> album, Json json, const FromJsonOptions& options)
+	: SpecialTrackCollectionItem<Album>(ptr, album, json, options) {
+		//
+	}
+
+	$<AlbumItem> AlbumItem::fromJson($<SpecialTrackCollection<AlbumItem>> album, Json json, const FromJsonOptions& options) {
+		$<TrackCollectionItem> ptr;
+		new AlbumItem(ptr, album, json, options);
+		return std::static_pointer_cast<AlbumItem>(ptr);
+	}
+
 
 
 	$<Album> Album::new$(MediaProvider* provider, Data data) {
-		return fgl::new$<Album>(provider, data);
+		$<MediaItem> ptr;
+		new Album(ptr, provider, data);
+		return std::static_pointer_cast<Album>(ptr);
 	}
 
-	Album::Album(MediaProvider* provider, Data data)
-	: SpecialTrackCollection<AlbumItem>(provider, data),
+	Album::Album($<MediaItem>& ptr, MediaProvider* provider, Data data)
+	: SpecialTrackCollection<AlbumItem>(ptr, provider, data),
 	_artists(data.artists) {
 		//
 	}
@@ -71,6 +82,31 @@ namespace sh {
 			SpecialTrackCollection<AlbumItem>::toData(options),
 			.artists=_artists
 		};
+	}
+
+	$<Album> Album::fromJson(Json json, const FromJsonOptions& options) {
+		$<MediaItem> ptr;
+		new Album(ptr, json, options);
+		return std::static_pointer_cast<Album>(ptr);
+	}
+
+	Album::Album($<MediaItem>& ptr, Json json, const FromJsonOptions& options)
+	: SpecialTrackCollection<AlbumItem>(ptr, json, options) {
+		auto artists = json["artists"];
+		_artists.reserve(artists.array_items().size());
+		for(auto& artist : artists.array_items()) {
+			_artists.pushBack(Artist::fromJson(artist, options));
+		}
+	}
+
+	Json Album::toJson(ToJsonOptions options) const {
+		auto json = SpecialTrackCollection<AlbumItem>::toJson(options).object_items();
+		json.merge(Json::object{
+			{ "artists", _artists.map<Json>([&](auto& artist) {
+				return artist->toJson();
+			}).storage }
+		});
+		return json;
 	}
 
 	Album::MutatorDelegate* Album::createMutatorDelegate() {

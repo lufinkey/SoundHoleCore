@@ -10,16 +10,14 @@
 #include "MediaProvider.hpp"
 
 namespace sh {
-	$<PlaylistItem> PlaylistItem::new$($<Playlist> playlist, Data data) {
-		return fgl::new$<PlaylistItem>(playlist, data);
-	}
-
 	$<PlaylistItem> PlaylistItem::new$($<SpecialTrackCollection<PlaylistItem>> playlist, Data data) {
-		return fgl::new$<PlaylistItem>(std::static_pointer_cast<Playlist>(playlist), data);
+		$<TrackCollectionItem> ptr;
+		new PlaylistItem(ptr, playlist, data);
+		return std::static_pointer_cast<PlaylistItem>(ptr);
 	}
 
-	PlaylistItem::PlaylistItem($<Playlist> playlist, Data data)
-	: SpecialTrackCollectionItem<Playlist>(std::static_pointer_cast<TrackCollection>(playlist), data),
+	PlaylistItem::PlaylistItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<PlaylistItem>> playlist, Data data)
+	: SpecialTrackCollectionItem<Playlist>(ptr, playlist, data),
 	_addedAt(data.addedAt), _addedBy(data.addedBy) {
 		//
 	}
@@ -56,14 +54,38 @@ namespace sh {
 		};
 	}
 
+	$<PlaylistItem> PlaylistItem::fromJson($<SpecialTrackCollection<PlaylistItem>> playlist, Json json, const FromJsonOptions& options) {
+		$<TrackCollectionItem> ptr;
+		new PlaylistItem(ptr, playlist, json, options);
+		return std::static_pointer_cast<PlaylistItem>(ptr);
+	}
+
+	PlaylistItem::PlaylistItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<PlaylistItem>> playlist, Json json, const FromJsonOptions& options)
+	: SpecialTrackCollectionItem<Playlist>(ptr, playlist, json, options) {
+		auto addedBy = json["addedBy"];
+		_addedBy = (!addedBy.is_null()) ? UserAccount::fromJson(addedBy, options) : nullptr;
+		_addedAt = json["addedAt"].string_value();
+	}
+
+	Json PlaylistItem::toJson() const {
+		auto json = SpecialTrackCollectionItem<Playlist>::toJson().object_items();
+		json.merge(Json::object{
+			{ "addedBy", _addedBy ? _addedBy->toJson() : Json() },
+			{ "addedAt", (std::string)_addedAt }
+		});
+		return json;
+	}
+
 
 
 	$<Playlist> Playlist::new$(MediaProvider* provider, Data data) {
-		return fgl::new$<Playlist>(provider, data);
+		$<MediaItem> ptr;
+		new Playlist(ptr, provider, data);
+		return std::static_pointer_cast<Playlist>(ptr);
 	}
 	
-	Playlist::Playlist(MediaProvider* provider, Data data)
-	: SpecialTrackCollection<PlaylistItem>(provider, data),
+	Playlist::Playlist($<MediaItem>& ptr, MediaProvider* provider, Data data)
+	: SpecialTrackCollection<PlaylistItem>(ptr, provider, data),
 	_owner(data.owner) {
 		//
 	}
@@ -93,6 +115,26 @@ namespace sh {
 			SpecialTrackCollection<PlaylistItem>::toData(options),
 			.owner=_owner
 		};
+	}
+
+	$<Playlist> Playlist::fromJson(Json json, const FromJsonOptions& options) {
+		$<MediaItem> ptr;
+		new Playlist(ptr, json, options);
+		return std::static_pointer_cast<Playlist>(ptr);
+	}
+
+	Playlist::Playlist($<MediaItem>& ptr, Json json, const FromJsonOptions& options)
+	: SpecialTrackCollection<PlaylistItem>(ptr, json, options) {
+		auto owner = json["owner"];
+		_owner = (!owner.is_null()) ? UserAccount::fromJson(owner, options) : nullptr;
+	}
+
+	Json Playlist::toJson(ToJsonOptions options) const {
+		auto json = SpecialTrackCollection<PlaylistItem>::toJson(options).object_items();
+		json.merge(Json::object{
+			{ "owner", _owner ? _owner->toJson() : Json() }
+		});
+		return json;
 	}
 
 	Playlist::MutatorDelegate* Playlist::createMutatorDelegate() {

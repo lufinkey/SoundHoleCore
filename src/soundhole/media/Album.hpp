@@ -17,12 +17,15 @@ namespace sh {
 
 	class AlbumItem: public SpecialTrackCollectionItem<Album> {
 	public:
-		static $<AlbumItem> new$($<Album> album, Data data);
 		static $<AlbumItem> new$($<SpecialTrackCollection<AlbumItem>> album, Data data);
 		
-		AlbumItem($<Album> album, Data data);
-		
 		virtual bool matchesItem(const TrackCollectionItem* item) const override;
+		
+		static $<AlbumItem> fromJson($<SpecialTrackCollection<AlbumItem>> album, Json json, const FromJsonOptions& options);
+		
+	protected:
+		AlbumItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<AlbumItem>> album, Data data);
+		AlbumItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<AlbumItem>> album, Json json, const FromJsonOptions& options);
 	};
 
 
@@ -34,8 +37,6 @@ namespace sh {
 		
 		static $<Album> new$(MediaProvider* provider, Data data);
 		
-		Album(MediaProvider* provider, Data data);
-		
 		const ArrayList<$<Artist>>& artists();
 		const ArrayList<$<const Artist>>& artists() const;
 		
@@ -44,10 +45,15 @@ namespace sh {
 		
 		Data toData(DataOptions options = DataOptions()) const;
 		
+		static $<Album> fromJson(Json json, const FromJsonOptions& options);
+		virtual Json toJson(ToJsonOptions options) const override;
+		
 	protected:
+		Album($<MediaItem>& ptr, MediaProvider* provider, Data data);
+		Album($<MediaItem>& ptr, Json json, const FromJsonOptions& options);
+		
 		virtual MutatorDelegate* createMutatorDelegate() override;
 		
-	private:
 		ArrayList<$<Artist>> _artists;
 	};
 }

@@ -53,8 +53,6 @@ namespace sh {
 			Function<MediaProvider*(const String&)> providerGetter;
 		};
 		
-		MediaItem(MediaProvider* provider, Data data);
-		MediaItem(Json json, FromJsonOptions options);
 		virtual ~MediaItem();
 		
 		const String& type() const;
@@ -75,6 +73,17 @@ namespace sh {
 		virtual Json toJson() const;
 		
 	protected:
+		MediaItem($<MediaItem>& ptr, MediaProvider* provider, Data data);
+		MediaItem($<MediaItem>& ptr, Json json, const FromJsonOptions& options);
+		
+		$<MediaItem> self();
+		$<const MediaItem> self() const;
+		template<typename T>
+		$<T> selfAs();
+		template<typename T>
+		$<const T> selfAs() const;
+		
+		w$<MediaItem> weakSelf;
 		MediaProvider* provider;
 		String _type;
 		String _name;
@@ -82,4 +91,19 @@ namespace sh {
 		Optional<ArrayList<Image>> _images;
 		Optional<Promise<void>> _itemDataPromise;
 	};
+
+
+
+
+#pragma mark - MediaItem implementation
+
+	template<typename T>
+	$<T> MediaItem::selfAs() {
+		return std::static_pointer_cast<T>(weakSelf.lock());
+	}
+
+	template<typename T>
+	$<const T> MediaItem::selfAs() const {
+		return std::static_pointer_cast<const T>(weakSelf.lock());
+	}
 }

@@ -23,7 +23,8 @@ namespace sh {
 			$<Track> track;
 		};
 		
-		TrackCollectionItem($<TrackCollection> context, Data data);
+		using FromJsonOptions = MediaItem::FromJsonOptions;
+		
 		virtual ~TrackCollectionItem() {};
 		
 		$<Track> track();
@@ -37,7 +38,20 @@ namespace sh {
 		
 		Data toData() const;
 		
+		virtual Json toJson() const;
+		
 	protected:
+		TrackCollectionItem($<TrackCollectionItem>& ptr, $<TrackCollection> context, Data data);
+		TrackCollectionItem($<TrackCollectionItem>& ptr, $<TrackCollection> context, Json json, FromJsonOptions options);
+		
+		$<TrackCollectionItem> self();
+		$<const TrackCollectionItem> self() const;
+		template<typename T>
+		$<T> selfAs();
+		template<typename T>
+		$<const T> selfAs() const;
+		
+		w$<TrackCollectionItem> weakSelf;
 		w$<TrackCollection> _context;
 		$<Track> _track;
 	};
@@ -59,13 +73,19 @@ namespace sh {
 		virtual Optional<size_t> itemCount() const = 0;
 		
 		virtual Promise<void> loadItems(size_t index, size_t count) = 0;
+		
+		virtual Json toJson() const override final;
+		struct ToJsonOptions {
+			size_t tracksOffset = 0;
+			size_t tracksLimit = (size_t)-1;
+		};
+		virtual Json toJson(ToJsonOptions options) const;
 	};
 
 
 
 	template<typename ItemType>
 	class SpecialTrackCollection: public TrackCollection,
-	public std::enable_shared_from_this<SpecialTrackCollection<ItemType>>,
 	protected AsyncList<$<ItemType>>::Delegate {
 	public:
 		using Item = ItemType;
@@ -88,7 +108,6 @@ namespace sh {
 			Optional<Tracks> tracks;
 		};
 		
-		SpecialTrackCollection(MediaProvider* provider, Data data);
 		virtual ~SpecialTrackCollection();
 		
 		virtual Optional<size_t> indexOfItem(const TrackCollectionItem* item) const override;
@@ -111,10 +130,11 @@ namespace sh {
 			size_t tracksLimit = (size_t)-1;
 		};
 		Data toData(DataOptions options = DataOptions()) const;
+		virtual Json toJson(ToJsonOptions options) const override;
 		
 	protected:
-		inline $<SpecialTrackCollection<ItemType>> self();
-		inline $<const SpecialTrackCollection<ItemType>> self() const;
+		SpecialTrackCollection($<MediaItem>& ptr, MediaProvider* provider, Data data);
+		SpecialTrackCollection($<MediaItem>& ptr, Json json, const FromJsonOptions& options);
 		
 		virtual bool areAsyncListItemsEqual(const AsyncList<$<ItemType>>* list, const $<ItemType>& item1, const $<ItemType>& item2) const override;
 		virtual Promise<void> loadAsyncListItems(typename AsyncList<$<ItemType>>::Mutator* mutator, size_t index, size_t count) override;
@@ -126,16 +146,16 @@ namespace sh {
 		inline bool tracksAreAsync() const;
 		inline LinkedList<$<ItemType>>& itemsList();
 		inline const LinkedList<$<ItemType>>& itemsList() const;
-		inline AsyncList<$<ItemType>>& asyncItemsList();
-		inline const AsyncList<$<ItemType>>& asyncItemsList() const;
+		inline $<AsyncList<$<ItemType>>> asyncItemsList();
+		inline $<const AsyncList<$<ItemType>>> asyncItemsList() const;
 		void makeTracksAsync();
 		
 		struct EmptyTracks {
 			size_t total;
 		};
 		
-		std::variant<std::nullptr_t,EmptyTracks,LinkedList<$<ItemType>>,AsyncList<$<ItemType>>*> _items;
-		std::variant<std::nullptr_t,EmptyTracks,LinkedList<$<ItemType>>,AsyncList<$<ItemType>>*> constructItems(Optional<typename Data::Tracks> tracks);
+		std::variant<std::nullptr_t,EmptyTracks,LinkedList<$<ItemType>>,$<AsyncList<$<ItemType>>>> _items;
+		std::variant<std::nullptr_t,EmptyTracks,LinkedList<$<ItemType>>,$<AsyncList<$<ItemType>>>> constructItems(Optional<typename Data::Tracks> tracks);
 		
 		MutatorDelegate* _mutatorDelegate;
 	};

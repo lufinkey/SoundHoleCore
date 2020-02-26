@@ -25,4 +25,10 @@ namespace sh {
 	$<const Track> QueueItem::track() const {
 		return std::static_pointer_cast<const Track>(_track);
 	}
+
+	Json QueueItem::toJson() const {
+		return Json::object{
+			{ "track", _track->toJson() }
+		};
+	}
 }

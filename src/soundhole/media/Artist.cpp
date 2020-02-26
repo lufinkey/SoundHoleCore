@@ -11,11 +11,13 @@
 
 namespace sh {
 	$<Artist> Artist::new$(MediaProvider* provider, Data data) {
-		return fgl::new$<Artist>(provider, data);
+		$<MediaItem> ptr;
+		new Artist(ptr, provider, data);
+		return std::static_pointer_cast<Artist>(ptr);
 	}
 
-	Artist::Artist(MediaProvider* provider, Data data)
-	: MediaItem(provider, data),
+	Artist::Artist(std::shared_ptr<MediaItem>& ptr, MediaProvider* provider, Data data)
+	: MediaItem(ptr, provider, data),
 	_description(data.description) {
 		//
 	}
@@ -49,12 +51,14 @@ namespace sh {
 
 
 
-	$<Artist> Artist::fromJson(Json json, FromJsonOptions options) {
-		return fgl::new$<Artist>(json, options);
+	$<Artist> Artist::fromJson(Json json, const FromJsonOptions& options) {
+		$<MediaItem> ptr;
+		new Artist(ptr, json, options);
+		return std::static_pointer_cast<Artist>(ptr);
 	}
 
-	Artist::Artist(Json json, FromJsonOptions options)
-	: MediaItem(json, options) {
+	Artist::Artist($<MediaItem>& ptr, Json json, const FromJsonOptions& options)
+	: MediaItem(ptr, json, options) {
 		auto description = json["description"];
 		if((!description.is_null() && !description.is_string())) {
 			throw std::invalid_argument("invalid json for Artist");

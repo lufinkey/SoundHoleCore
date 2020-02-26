@@ -23,17 +23,21 @@ namespace sh {
 		
 		static $<UserAccount> new$(MediaProvider* provider, Data data);
 		
-		UserAccount(MediaProvider* provider, Data data);
-		
 		const String& id() const;
 		const Optional<String>& displayName() const;
 		
-		virtual bool needsData() const;
-		virtual Promise<void> fetchMissingData();
+		virtual bool needsData() const override;
+		virtual Promise<void> fetchMissingData() override;
 		
 		Data toData() const;
 		
-	private:
+		static $<UserAccount> fromJson(Json json, FromJsonOptions options);
+		virtual Json toJson() const override;
+		
+	protected:
+		UserAccount($<MediaItem>& ptr, MediaProvider* provider, Data data);
+		UserAccount($<MediaItem>& ptr, Json json, FromJsonOptions options);
+		
 		String _id;
 		Optional<String> _displayName;
 	};
