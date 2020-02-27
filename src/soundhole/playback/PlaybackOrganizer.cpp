@@ -24,6 +24,134 @@ namespace sh {
 		//
 	}
 
+	
+
+	Promise<void> PlaybackOrganizer::save(String path) {
+		auto currentItem = getCurrentItem();
+		if(auto contextItemPtr = std::get_if<$<TrackCollectionItem>>(&currentItem)) {
+			auto contextItem = *contextItemPtr;
+			if(auto shuffledItem = std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(contextItem)) {
+				currentItem = shuffledItem->sourceItem();
+			}
+		}
+		auto context = this->context;
+		if(auto shuffledContext = std::dynamic_pointer_cast<ShuffledTrackCollection>(context)) {
+			context = shuffledContext->source();
+		}
+		size_t tracksOffset = 0;
+		size_t tracksLimit = 20;
+		if(sourceContextIndex) {
+			if(sourceContextIndex.value() <= 10) {
+				tracksOffset = 0;
+			} else {
+				tracksOffset = sourceContextIndex.value() - 10;
+			}
+		}
+		auto contextJson = context ? context->toJson({
+			.tracksOffset = tracksOffset,
+			.tracksLimit = tracksLimit
+		}) : Json();
+		// add current item to context if needed
+		if(!contextJson.is_null() && sourceContextIndex && currentItem.index() != 0 && std::get_if<$<TrackCollectionItem>>(&currentItem)) {
+			auto contextItem = std::get<$<TrackCollectionItem>>(currentItem);
+			auto itemsJson = contextJson["items"].object_items();
+			itemsJson.insert_or_assign(std::to_string(sourceContextIndex.value()), contextItem->toJson());
+			auto contextMap = contextJson.object_items();
+			contextMap.insert_or_assign("items", itemsJson);
+			contextJson = Json(contextMap);
+		}
+		auto json = Json(Json::object{
+			{ "currentItem", itemToJson(currentItem) },
+			{ "context", contextJson },
+			{ "contextIndex", sourceContextIndex ? Json((double)sourceContextIndex.value()) : Json() },
+			{ "queue", queue.map<Json>([&](auto& queueItem) {
+				return queueItem->toJson();
+			}) },
+			{ "shuffling", shuffling }
+		});
+		return async<void>([=]() {
+			fs::writeFile(path, json.dump());
+		});
+	}
+
+	Promise<bool> PlaybackOrganizer::load(String path, const LoadOptions& options) {
+		return async<Json>([=]() {
+			try {
+				if(!fs::exists(path)) {
+					return Json();
+				}
+				auto data = fs::readFile(path);
+				std::string error;
+				return Json::parse(data, error);
+			} catch(...) {
+				return Json();
+			}
+		}).then([=](Json json) {
+			if(json.is_null()) {
+				return Promise<bool>::resolve(false);
+			}
+			auto currentItemJson = json["currentItem"];
+			auto contextJson = json["context"];
+			auto contextIndexJson = json["contextIndex"];
+			auto contextItemJson = json["contextItem"];
+			auto queueJson = json["queue"];
+			auto shuffling = json["shuffling"].bool_value();
+			auto context = contextJson.is_null() ? $<TrackCollection>()
+				: std::dynamic_pointer_cast<TrackCollection>(
+					options.createMediaItem(contextJson));
+			$<TrackCollectionItem> contextItem;
+			ItemVariant currentItem = NoItem();
+			auto itemType = currentItemJson["type"].string_value();
+			if(itemType == "collectionItem") {
+				auto trackUri = currentItemJson["track"]["uri"].string_value();
+				if(!contextIndexJson.is_null()) {
+					auto cmpContextItem = context->itemAt((size_t)contextIndexJson.number_value());
+					if(cmpContextItem && cmpContextItem->track()->uri() == trackUri) {
+						contextItem = cmpContextItem;
+					} else {
+						contextItem = context->itemFromJson(currentItemJson, {.providerGetter=options.providerGetter});
+					}
+				} else {
+					contextItem = context->itemFromJson(currentItemJson, {.providerGetter=options.providerGetter});
+				}
+				currentItem = contextItem;
+			} else if(itemType == "queueItem") {
+				currentItem = QueueItem::fromJson(currentItemJson, {.providerGetter=options.providerGetter});
+			} else if(itemType == "track") {
+				auto track = std::dynamic_pointer_cast<Track>(options.createMediaItem(currentItemJson));
+				if(track) {
+					currentItem = track;
+				}
+			}
+			LinkedList<$<QueueItem>> queue;
+			for(auto itemJson : queueJson.array_items()) {
+				queue.pushBack(QueueItem::fromJson(itemJson, {.providerGetter=options.providerGetter}));
+			}
+			this->queue = queue;
+			if(context && contextItem) {
+				this->updateMainContext(context, contextItem, shuffling);
+			} else {
+				this->applyingItem = currentItem;
+				this->updateMainContext(nullptr, nullptr, shuffling);
+			}
+			return Promise<bool>::resolve(true);
+		});
+	}
+
+	Json PlaybackOrganizer::itemToJson(ItemVariant itemVariant) {
+		if(auto trackPtr = std::get_if<$<Track>>(&itemVariant)) {
+			auto track = *trackPtr;
+			return track->toJson();
+		} else if(auto itemPtr = std::get_if<$<TrackCollectionItem>>(&itemVariant)) {
+			auto item = *itemPtr;
+			return item->toJson();
+		} else if(auto itemPtr = std::get_if<$<QueueItem>>(&itemVariant)) {
+			auto item = *itemPtr;
+			return item->toJson();
+		}
+		return Json();
+	}
+
 
 
 	$<Track> PlaybackOrganizer::trackFromItem(ItemVariant item) {
@@ -324,10 +452,10 @@ namespace sh {
 	}
 
 	Promise<$<TrackCollectionItem>> PlaybackOrganizer::getPreviousInContext() {
-		if(!context || !contextItem) {
+		if(!context) {
 			return Promise<$<TrackCollectionItem>>::resolve(nullptr);
 		}
-		auto optContextIndex = contextItem->indexInContext();
+		auto optContextIndex = contextItem ? contextItem->indexInContext() : std::nullopt;
 		if(!optContextIndex) {
 			optContextIndex = getContextIndex();
 			if(!optContextIndex) {
@@ -343,11 +471,11 @@ namespace sh {
 	}
 
 	Promise<$<TrackCollectionItem>> PlaybackOrganizer::getNextInContext() {
-		if(!context || !contextItem) {
+		if(!context) {
 			return Promise<$<TrackCollectionItem>>::resolve(nullptr);
 		}
 		size_t nextIndex = -1;
-		auto optContextIndex = contextItem->indexInContext();
+		auto optContextIndex = contextItem ? contextItem->indexInContext() : std::nullopt;
 		if(!optContextIndex) {
 			optContextIndex = getContextIndex();
 			if(!optContextIndex) {
@@ -368,6 +496,17 @@ namespace sh {
 	}
 
 	Optional<size_t> PlaybackOrganizer::getContextIndex() const {
+		if(!contextItem) {
+			if(shuffling) {
+				return shuffledContextIndex;
+			} else {
+				return sourceContextIndex;
+			}
+		}
+		auto contextIndex = contextItem->indexInContext();
+		if(contextIndex) {
+			return contextIndex;
+		}
 		if(std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(contextItem) != nullptr) {
 			return shuffledContextIndex;
 		} else {

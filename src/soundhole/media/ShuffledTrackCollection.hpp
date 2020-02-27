@@ -21,20 +21,21 @@ namespace sh {
 			$<TrackCollectionItem> sourceItem;
 		};
 		
-		static $<ShuffledTrackCollectionItem> new$($<ShuffledTrackCollection> context, Data data);
 		static $<ShuffledTrackCollectionItem> new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Data data);
-		static $<ShuffledTrackCollectionItem> new$($<ShuffledTrackCollection> context, $<TrackCollectionItem> sourceItem);
+		static $<ShuffledTrackCollectionItem> new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, $<TrackCollectionItem> sourceItem);
 		
 		$<TrackCollectionItem> sourceItem();
 		$<const TrackCollectionItem> sourceItem() const;
 		
 		virtual bool matchesItem(const TrackCollectionItem* item) const override;
 		
+		static $<ShuffledTrackCollectionItem> fromJson($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Json json, const FromJsonOptions& options);
 		virtual Json toJson() const override;
 		
 	protected:
-		ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<ShuffledTrackCollection> context, Data data);
-		ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<ShuffledTrackCollection> context, $<TrackCollectionItem> sourceItem);
+		ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Data data);
+		ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, $<TrackCollectionItem> sourceItem);
+		ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Json json, const FromJsonOptions& options);
 		
 		$<TrackCollectionItem> _sourceItem;
 	};

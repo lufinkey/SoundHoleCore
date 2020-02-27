@@ -2,6 +2,9 @@ PODS:
   - AsyncCpp (0.1.0):
     - DataCpp
   - DataCpp (0.1.0)
+  - IOCpp (0.1.0):
+    - AsyncCpp
+    - DataCpp
   - NodeJSEmbed (0.1.0):
     - NodeMobile
   - NodeMobile (0.1.8)
@@ -9,6 +12,7 @@ PODS:
 DEPENDENCIES:
   - "AsyncCpp (from `git@github.com:lufinkey/async-cpp.git`)"
   - "DataCpp (from `git@github.com:lufinkey/data-cpp.git`)"
+  - "IOCpp (from `git@github.com:lufinkey/io-cpp.git`)"
   - "NodeJSEmbed (from `git@github.com:lufinkey/nodejs-embed.git`)"
   - NodeMobile (from `https://github.com/janeasystems/nodejs-mobile.git`)
 
@@ -17,6 +21,8 @@ EXTERNAL SOURCES:
     :git: "git@github.com:lufinkey/async-cpp.git"
   DataCpp:
     :git: "git@github.com:lufinkey/data-cpp.git"
+  IOCpp:
+    :git: "git@github.com:lufinkey/io-cpp.git"
   NodeJSEmbed:
     :git: "git@github.com:lufinkey/nodejs-embed.git"
   NodeMobile:
@@ -27,8 +33,11 @@ CHECKOUT OPTIONS:
     :commit: 64853247ca66bf935ea79e3af8d706ba27938f75
     :git: "git@github.com:lufinkey/async-cpp.git"
   DataCpp:
-    :commit: 8d352ea9feee6f5c78c9372fdfe1fc20d3453755
+    :commit: 549f6f1b2c6cf4ecf77a8433f5e826cde690e8a2
     :git: "git@github.com:lufinkey/data-cpp.git"
+  IOCpp:
+    :commit: ed9f60a776fff51a175538fe197f86484a31e34b
+    :git: "git@github.com:lufinkey/io-cpp.git"
   NodeJSEmbed:
     :commit: 598bee3bd0234f001d976fb47b47eb574e5ccd68
     :git: "git@github.com:lufinkey/nodejs-embed.git"
@@ -39,9 +48,10 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   AsyncCpp: 9ca1f8578493e41e9b449c19dc165ffc3634a33d
   DataCpp: 7e6957f3f049b1ec0992723d06f65424f81bf836
+  IOCpp: 90da441c896d1b97e5debcea050db7ea0af6b3d6
   NodeJSEmbed: ff7926e46e0ce00c856cf37e2287c34ef86fb04c
   NodeMobile: cb332628599d35759769bdb6b1501b17b5f1f287
 
-PODFILE CHECKSUM: 7b01911d4487351e9c894dfd67960bc9b04c800d
+PODFILE CHECKSUM: e2a967205056510c669396234103c838ed7d085f
 
 COCOAPODS: 1.8.4

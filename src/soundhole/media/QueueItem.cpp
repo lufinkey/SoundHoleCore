@@ -26,8 +26,19 @@ namespace sh {
 		return std::static_pointer_cast<const Track>(_track);
 	}
 
+
+	$<QueueItem> QueueItem::fromJson(Json json, const FromJsonOptions& options) {
+		return fgl::new$<QueueItem>(json, options);
+	}
+
+	QueueItem::QueueItem(Json json, const FromJsonOptions& options)
+	: _track(Track::fromJson(json["track"], options)) {
+		//
+	}
+
 	Json QueueItem::toJson() const {
 		return Json::object{
+			{ "type", "queueItem" },
 			{ "track", _track->toJson() }
 		};
 	}

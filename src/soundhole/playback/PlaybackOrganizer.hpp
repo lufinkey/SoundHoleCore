@@ -52,7 +52,11 @@ namespace sh {
 		void removeEventListener(EventListener* listener);
 		
 		Promise<void> save(String path);
-		Promise<bool> load(String path);
+		struct LoadOptions {
+			Function<$<MediaItem>(Json json)> createMediaItem;
+			Function<MediaProvider*(const String&)> providerGetter;
+		};
+		Promise<bool> load(String path, const LoadOptions& options);
 		
 		Promise<bool> previous();
 		Promise<bool> next();
@@ -97,6 +101,8 @@ namespace sh {
 		
 		Promise<ItemVariant> getValidPreviousItem();
 		Promise<ItemVariant> getValidNextItem();
+			
+		static Json itemToJson(ItemVariant itemVariant);
 		
 		Options options;
 		

@@ -11,6 +11,7 @@
 #include <memory>
 #include <fgl/data.hpp>
 #include <fgl/async.hpp>
+#include <fgl/io.hpp>
 #include <json11/json11.hpp>
 #include <embed/nodejs/NAPI_Types.hpp>
 

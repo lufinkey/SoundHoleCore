@@ -11,30 +11,24 @@
 #include <cstdlib>
 
 namespace sh {
-	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::new$($<ShuffledTrackCollection> context, Data data) {
+	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Data data) {
 		$<TrackCollectionItem> ptr;
 		new ShuffledTrackCollectionItem(ptr, context, data);
 		return std::static_pointer_cast<ShuffledTrackCollectionItem>(ptr);
 	}
 	
-	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Data data) {
-		$<TrackCollectionItem> ptr;
-		new ShuffledTrackCollectionItem(ptr, std::static_pointer_cast<ShuffledTrackCollection>(context), data);
-		return std::static_pointer_cast<ShuffledTrackCollectionItem>(ptr);
-	}
-	
-	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::new$($<ShuffledTrackCollection> context, $<TrackCollectionItem> sourceItem) {
+	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, $<TrackCollectionItem> sourceItem) {
 		$<TrackCollectionItem> ptr;
 		new ShuffledTrackCollectionItem(ptr, context, sourceItem);
 		return std::static_pointer_cast<ShuffledTrackCollectionItem>(ptr);
 	}
 	
-	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<ShuffledTrackCollection> context, Data data)
+	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Data data)
 	: SpecialTrackCollectionItem<ShuffledTrackCollection>(ptr, context, data), _sourceItem(data.sourceItem) {
 		//
 	}
 	
-	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<ShuffledTrackCollection> context, $<TrackCollectionItem> sourceItem)
+	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, $<TrackCollectionItem> sourceItem)
 	: SpecialTrackCollectionItem<ShuffledTrackCollection>(ptr, context, {.track=sourceItem->track()}), _sourceItem(sourceItem) {
 		//
 	}
@@ -52,6 +46,20 @@ namespace sh {
 			return _sourceItem->matchesItem(shuffledItem->sourceItem().get());
 		}
 		return false;
+	}
+
+	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::fromJson($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Json json, const FromJsonOptions& options) {
+		$<TrackCollectionItem> ptr;
+		new ShuffledTrackCollectionItem(ptr, context, json, options);
+		return std::static_pointer_cast<ShuffledTrackCollectionItem>(ptr);
+	}
+
+	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Json json, const FromJsonOptions& options)
+	: SpecialTrackCollectionItem<ShuffledTrackCollection>(ptr, context, json, options) {
+		auto shuffledContext = std::static_pointer_cast<ShuffledTrackCollection>(context);
+		auto sourceContext = shuffledContext->source();
+		_sourceItem = sourceContext->itemFromJson(json["sourceItem"], options);
+		_track = _sourceItem->track();
 	}
 
 	Json ShuffledTrackCollectionItem::toJson() const {

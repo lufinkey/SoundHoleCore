@@ -54,6 +54,13 @@ namespace sh {
 		};
 	}
 
+	Json TrackCollectionItem::toJson() const {
+		return Json::object{
+			{ "type", "collectionItem" },
+			{ "track", _track->toJson() }
+		};
+	}
+
 	TrackCollectionItem::TrackCollectionItem($<TrackCollectionItem>& ptr, $<TrackCollection> context, Json json, FromJsonOptions options)
 	: _context(context), _track(Track::fromJson(json, options)) {
 		ptr = $<TrackCollectionItem>(this);
@@ -71,11 +78,5 @@ namespace sh {
 			{ "itemCount", itemCount ? Json((double)itemCount.value()) : Json() }
 		});
 		return json;
-	}
-
-	Json TrackCollectionItem::toJson() const {
-		return Json::object{
-			{"track",_track->toJson()}
-		};
 	}
 }

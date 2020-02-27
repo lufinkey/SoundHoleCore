@@ -9,12 +9,14 @@ base_dir="$PWD"
 nodejs_embed=false
 data_cpp=false
 async_cpp=false
+io_cpp=false
 json11=false
 cxxurl=false
 if [ $# -eq 0 ]; then
 	nodejs_embed=true
 	data_cpp=true
 	async_cpp=true
+	io_cpp=true
 	json11=true
 	cxxurl=true
 else
@@ -25,6 +27,8 @@ else
 			data_cpp=true
 		elif [ "$arg" == "async_cpp" ]; then
 			async_cpp=true
+		elif [ "$arg" == "io_cpp" ]; then
+			io_cpp=true
 		elif [ "$arg" == "json11" ]; then
 			json11=true
 		elif [ "$arg" == "cxxurl" ]; then
@@ -54,6 +58,13 @@ if $async_cpp; then
 	if [ ! -e "external/async-cpp/.git" ]; then
 		echo "fetching async-cpp"
 		git clone --recursive "git@github.com:lufinkey/async-cpp.git" "external/async-cpp" || exit $?
+	fi
+fi
+# clone io-cpp
+if $io_cpp; then
+	if [ ! -e "external/io-cpp/.git" ]; then
+		echo "fetching io-cpp"
+		git clone --recursive "git@github.com:lufinkey/io-cpp.git"
 	fi
 fi
 # clone json11

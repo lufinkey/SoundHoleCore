@@ -45,6 +45,7 @@ Pod::Spec.new do |s|
 			"$(PODS_ROOT)/SoundHoleCore/src/soundhole/scripts/js/build",
 			"$(PODS_ROOT)/DataCpp/src",
 			"$(PODS_ROOT)/AsyncCpp/src",
+			"$(PODS_ROOT)/IOCpp/src",
 			"$(PODS_ROOT)/NodeJSEmbed/src",
 			"$(PODS_ROOT)/NodeJSEmbed/external/nodejs/build/addon-api",
 			"$(PODS_ROOT)/SoundHoleCore/external"
@@ -71,6 +72,7 @@ Pod::Spec.new do |s|
 	# s.frameworks = 'UIKit', 'MapKit'
 	s.dependency 'DataCpp' # git@github.com:lufinkey/data-cpp.git
 	s.dependency 'AsyncCpp' # git@github.com:lufinkey/async-cpp.git
+	s.dependency 'IOCpp' # git@github.com:lufinkey/io-cpp.git
 	s.dependency 'NodeJSEmbed' # git@github.com:lufinkey/nodejs-embed.git
 	
 	s.prepare_command = "./tools/fetch_shared_dependencies.sh json11 cxxurl && ./tools/fetch_header_dependencies.sh && ./src/soundhole/scripts/build.sh && rm -rf src/soundhole/scripts/js/node_modules"

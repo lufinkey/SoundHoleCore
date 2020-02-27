@@ -1,9 +1,10 @@
 
 target 'SoundHoleCoreTest-iOS' do
-	platform :ios, '12.0'
+	platform :ios, '13.0'
 
 	pod 'DataCpp', :git => 'git@github.com:lufinkey/data-cpp.git'
 	pod 'AsyncCpp', :git => 'git@github.com:lufinkey/async-cpp.git'
+	pod 'IOCpp', :git => 'git@github.com:lufinkey/io-cpp.git'
 	pod 'NodeMobile', :git => 'https://github.com/janeasystems/nodejs-mobile.git'
 	pod 'NodeJSEmbed', :git => 'git@github.com:lufinkey/nodejs-embed.git'
 end
@@ -13,6 +14,7 @@ target 'SoundHoleCoreTest-macOS' do
 
 	pod 'DataCpp', :git => 'git@github.com:lufinkey/data-cpp.git'
 	pod 'AsyncCpp', :git => 'git@github.com:lufinkey/async-cpp.git'
+	pod 'IOCpp', :git => 'git@github.com:lufinkey/io-cpp.git'
 	pod 'NodeJSEmbed', :git => 'git@github.com:lufinkey/nodejs-embed.git'
 end
 

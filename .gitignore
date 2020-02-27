@@ -87,6 +87,7 @@ py_prefix
 /external/nodejs-embed
 /external/data-cpp
 /external/async-cpp
+/external/io-cpp
 /external/httplib
 /external/json11
 /external/cxxurl
