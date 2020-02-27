@@ -23,8 +23,6 @@ namespace sh {
 			$<Track> track;
 		};
 		
-		using FromJsonOptions = MediaItem::FromJsonOptions;
-		
 		virtual ~TrackCollectionItem() {};
 		
 		$<Track> track();
@@ -42,7 +40,7 @@ namespace sh {
 		
 	protected:
 		TrackCollectionItem($<TrackCollectionItem>& ptr, $<TrackCollection> context, Data data);
-		TrackCollectionItem($<TrackCollectionItem>& ptr, $<TrackCollection> context, Json json, FromJsonOptions options);
+		TrackCollectionItem($<TrackCollectionItem>& ptr, $<TrackCollection> context, Json json, MediaProviderStash* stash);
 		
 		$<TrackCollectionItem> self();
 		$<const TrackCollectionItem> self() const;
@@ -69,7 +67,7 @@ namespace sh {
 		virtual Promise<$<TrackCollectionItem>> getItem(size_t index) = 0;
 		virtual Promise<LinkedList<$<TrackCollectionItem>>> getItems(size_t index, size_t count) = 0;
 		virtual Generator<LinkedList<$<TrackCollectionItem>>,void> generateItems(size_t startIndex=0) = 0;
-		virtual $<TrackCollectionItem> itemFromJson(Json json, const FromJsonOptions& options) = 0;
+		virtual $<TrackCollectionItem> itemFromJson(Json json, MediaProviderStash* stash) = 0;
 		
 		virtual Optional<size_t> itemCount() const = 0;
 		
@@ -121,7 +119,7 @@ namespace sh {
 		virtual Promise<$<TrackCollectionItem>> getItem(size_t index) override final;
 		virtual Promise<LinkedList<$<TrackCollectionItem>>> getItems(size_t index, size_t count) override final;
 		virtual Generator<LinkedList<$<TrackCollectionItem>>,void> generateItems(size_t startIndex=0) override final;
-		virtual $<TrackCollectionItem> itemFromJson(Json json, const FromJsonOptions& options) override;
+		virtual $<TrackCollectionItem> itemFromJson(Json json, MediaProviderStash* stash) override final;
 		
 		virtual Optional<size_t> itemCount() const override final;
 		
@@ -136,7 +134,7 @@ namespace sh {
 		
 	protected:
 		SpecialTrackCollection($<MediaItem>& ptr, MediaProvider* provider, Data data);
-		SpecialTrackCollection($<MediaItem>& ptr, Json json, const FromJsonOptions& options);
+		SpecialTrackCollection($<MediaItem>& ptr, Json json, MediaProviderStash* stash);
 		
 		virtual bool areAsyncListItemsEqual(const AsyncList<$<ItemType>>* list, const $<ItemType>& item1, const $<ItemType>& item2) const override;
 		virtual Promise<void> loadAsyncListItems(typename AsyncList<$<ItemType>>::Mutator* mutator, size_t index, size_t count) override;

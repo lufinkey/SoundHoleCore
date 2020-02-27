@@ -18,6 +18,10 @@ namespace sh {
 		//
 	}
 
+	QueueItem::~QueueItem() {
+		//
+	}
+
 	$<Track> QueueItem::track() {
 		return _track;
 	}
@@ -27,12 +31,12 @@ namespace sh {
 	}
 
 
-	$<QueueItem> QueueItem::fromJson(Json json, const FromJsonOptions& options) {
-		return fgl::new$<QueueItem>(json, options);
+	$<QueueItem> QueueItem::fromJson(Json json, MediaProviderStash* stash) {
+		return fgl::new$<QueueItem>(json, stash);
 	}
 
-	QueueItem::QueueItem(Json json, const FromJsonOptions& options)
-	: _track(Track::fromJson(json["track"], options)) {
+	QueueItem::QueueItem(Json json, MediaProviderStash* stash)
+	: _track(Track::fromJson(json["track"], stash)) {
 		//
 	}
 

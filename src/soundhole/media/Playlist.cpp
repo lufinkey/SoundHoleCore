@@ -54,16 +54,16 @@ namespace sh {
 		};
 	}
 
-	$<PlaylistItem> PlaylistItem::fromJson($<SpecialTrackCollection<PlaylistItem>> playlist, Json json, const FromJsonOptions& options) {
+	$<PlaylistItem> PlaylistItem::fromJson($<SpecialTrackCollection<PlaylistItem>> playlist, Json json, MediaProviderStash* stash) {
 		$<TrackCollectionItem> ptr;
-		new PlaylistItem(ptr, playlist, json, options);
+		new PlaylistItem(ptr, playlist, json, stash);
 		return std::static_pointer_cast<PlaylistItem>(ptr);
 	}
 
-	PlaylistItem::PlaylistItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<PlaylistItem>> playlist, Json json, const FromJsonOptions& options)
-	: SpecialTrackCollectionItem<Playlist>(ptr, playlist, json, options) {
+	PlaylistItem::PlaylistItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<PlaylistItem>> playlist, Json json, MediaProviderStash* stash)
+	: SpecialTrackCollectionItem<Playlist>(ptr, playlist, json, stash) {
 		auto addedBy = json["addedBy"];
-		_addedBy = (!addedBy.is_null()) ? UserAccount::fromJson(addedBy, options) : nullptr;
+		_addedBy = (!addedBy.is_null()) ? UserAccount::fromJson(addedBy, stash) : nullptr;
 		_addedAt = json["addedAt"].string_value();
 	}
 
@@ -117,16 +117,16 @@ namespace sh {
 		};
 	}
 
-	$<Playlist> Playlist::fromJson(Json json, const FromJsonOptions& options) {
+	$<Playlist> Playlist::fromJson(Json json, MediaProviderStash* stash) {
 		$<MediaItem> ptr;
-		new Playlist(ptr, json, options);
+		new Playlist(ptr, json, stash);
 		return std::static_pointer_cast<Playlist>(ptr);
 	}
 
-	Playlist::Playlist($<MediaItem>& ptr, Json json, const FromJsonOptions& options)
-	: SpecialTrackCollection<PlaylistItem>(ptr, json, options) {
+	Playlist::Playlist($<MediaItem>& ptr, Json json, MediaProviderStash* stash)
+	: SpecialTrackCollection<PlaylistItem>(ptr, json, stash) {
 		auto owner = json["owner"];
-		_owner = (!owner.is_null()) ? UserAccount::fromJson(owner, options) : nullptr;
+		_owner = (!owner.is_null()) ? UserAccount::fromJson(owner, stash) : nullptr;
 	}
 
 	Json Playlist::toJson(ToJsonOptions options) const {

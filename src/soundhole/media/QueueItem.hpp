@@ -14,17 +14,16 @@
 namespace sh {
 	class QueueItem: std::enable_shared_from_this<QueueItem> {
 	public:
-		using FromJsonOptions = MediaItem::FromJsonOptions;
-		
 		static $<QueueItem> new$($<Track> track);
 		
 		QueueItem($<Track> track);
-		QueueItem(Json json, const FromJsonOptions& options);
+		QueueItem(Json json, MediaProviderStash* stash);
+		virtual ~QueueItem();
 		
 		$<Track> track();
 		$<const Track> track() const;
 		
-		static $<QueueItem> fromJson(Json json, const FromJsonOptions& options);
+		static $<QueueItem> fromJson(Json json, MediaProviderStash* stash);
 		virtual Json toJson() const;
 		
 	private:

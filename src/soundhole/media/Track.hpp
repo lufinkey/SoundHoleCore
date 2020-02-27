@@ -68,12 +68,12 @@ namespace sh {
 		
 		Data toData() const;
 		
-		static $<Track> fromJson(Json json, const FromJsonOptions& options);
+		static $<Track> fromJson(Json json, MediaProviderStash* stash);
 		virtual Json toJson() const override;
 		
 	protected:
 		Track($<MediaItem>& ptr, MediaProvider* provider, Data data);
-		Track($<MediaItem>& ptr, Json json, const FromJsonOptions& options);
+		Track($<MediaItem>& ptr, Json json, MediaProviderStash* stash);
 		
 		String _albumName;
 		String _albumURI;

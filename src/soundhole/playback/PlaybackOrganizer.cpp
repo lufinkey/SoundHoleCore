@@ -74,7 +74,7 @@ namespace sh {
 		});
 	}
 
-	Promise<bool> PlaybackOrganizer::load(String path, const LoadOptions& options) {
+	Promise<bool> PlaybackOrganizer::load(String path, MediaProviderStash* stash) {
 		return async<Json>([=]() {
 			try {
 				if(!fs::exists(path)) {
@@ -98,7 +98,7 @@ namespace sh {
 			auto shuffling = json["shuffling"].bool_value();
 			auto context = contextJson.is_null() ? $<TrackCollection>()
 				: std::dynamic_pointer_cast<TrackCollection>(
-					options.createMediaItem(contextJson));
+					stash->createMediaItem(contextJson));
 			$<TrackCollectionItem> contextItem;
 			ItemVariant currentItem = NoItem();
 			auto itemType = currentItemJson["type"].string_value();
@@ -109,23 +109,23 @@ namespace sh {
 					if(cmpContextItem && cmpContextItem->track()->uri() == trackUri) {
 						contextItem = cmpContextItem;
 					} else {
-						contextItem = context->itemFromJson(currentItemJson, {.providerGetter=options.providerGetter});
+						contextItem = context->itemFromJson(currentItemJson, stash);
 					}
 				} else {
-					contextItem = context->itemFromJson(currentItemJson, {.providerGetter=options.providerGetter});
+					contextItem = context->itemFromJson(currentItemJson, stash);
 				}
 				currentItem = contextItem;
 			} else if(itemType == "queueItem") {
-				currentItem = QueueItem::fromJson(currentItemJson, {.providerGetter=options.providerGetter});
+				currentItem = QueueItem::fromJson(currentItemJson, stash);
 			} else if(itemType == "track") {
-				auto track = std::dynamic_pointer_cast<Track>(options.createMediaItem(currentItemJson));
+				auto track = std::dynamic_pointer_cast<Track>(stash->createMediaItem(currentItemJson));
 				if(track) {
 					currentItem = track;
 				}
 			}
 			LinkedList<$<QueueItem>> queue;
 			for(auto itemJson : queueJson.array_items()) {
-				queue.pushBack(QueueItem::fromJson(itemJson, {.providerGetter=options.providerGetter}));
+				queue.pushBack(QueueItem::fromJson(itemJson, stash));
 			}
 			this->queue = queue;
 			if(context && contextItem) {

@@ -49,14 +49,14 @@ namespace sh {
 
 
 
-	$<UserAccount> UserAccount::fromJson(Json json, FromJsonOptions options) {
+	$<UserAccount> UserAccount::fromJson(Json json, MediaProviderStash* stash) {
 		$<MediaItem> ptr;
-		new UserAccount(ptr, json, options);
+		new UserAccount(ptr, json, stash);
 		return std::static_pointer_cast<UserAccount>(ptr);
 	}
 
-	UserAccount::UserAccount($<MediaItem>& ptr, Json json, FromJsonOptions options)
-	: MediaItem(ptr, json, options) {
+	UserAccount::UserAccount($<MediaItem>& ptr, Json json, MediaProviderStash* stash)
+	: MediaItem(ptr, json, stash) {
 		auto id = json["id"];
 		auto displayName = json["displayName"];
 		if(!id.is_string() || (!displayName.is_null() && !displayName.is_string())) {

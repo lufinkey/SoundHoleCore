@@ -51,14 +51,14 @@ namespace sh {
 
 
 
-	$<Artist> Artist::fromJson(Json json, const FromJsonOptions& options) {
+	$<Artist> Artist::fromJson(Json json, MediaProviderStash* stash) {
 		$<MediaItem> ptr;
-		new Artist(ptr, json, options);
+		new Artist(ptr, json, stash);
 		return std::static_pointer_cast<Artist>(ptr);
 	}
 
-	Artist::Artist($<MediaItem>& ptr, Json json, const FromJsonOptions& options)
-	: MediaItem(ptr, json, options) {
+	Artist::Artist($<MediaItem>& ptr, Json json, MediaProviderStash* stash)
+	: MediaItem(ptr, json, stash) {
 		auto description = json["description"];
 		if((!description.is_null() && !description.is_string())) {
 			throw std::invalid_argument("invalid json for Artist");

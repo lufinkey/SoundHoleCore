@@ -57,7 +57,7 @@ namespace sh {
 		};
 		
 		struct Options {
-			String savePath;
+			String savePrefix;
 			double nextTrackPreloadTime = 10.0;
 			double progressSaveInterval = 1.0;
 		};

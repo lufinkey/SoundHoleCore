@@ -179,14 +179,14 @@ namespace sh {
 
 
 
-	$<Track> Track::fromJson(Json json, const FromJsonOptions& options) {
+	$<Track> Track::fromJson(Json json, MediaProviderStash* stash) {
 		$<MediaItem> ptr;
-		new Track(ptr, json, options);
+		new Track(ptr, json, stash);
 		return std::static_pointer_cast<Track>(ptr);
 	}
 
-	Track::Track($<MediaItem>& ptr, Json json, const FromJsonOptions& options)
-	: MediaItem(ptr, json, options) {
+	Track::Track($<MediaItem>& ptr, Json json, MediaProviderStash* stash)
+	: MediaItem(ptr, json, stash) {
 		auto albumName = json["albumName"];
 		auto albumURI = json["albumURI"];
 		auto artists = json["artists"];
@@ -207,7 +207,7 @@ namespace sh {
 		_artists = ArrayList<$<Artist>>();
 		_artists.reserve(artists.array_items().size());
 		for(auto artist : artists.array_items()) {
-			_artists.pushBack(Artist::fromJson(artist, options));
+			_artists.pushBack(Artist::fromJson(artist, stash));
 		}
 		if(tags.is_null()) {
 			_tags = std::nullopt;

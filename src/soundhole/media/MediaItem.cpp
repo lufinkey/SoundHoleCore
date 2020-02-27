@@ -207,7 +207,7 @@ namespace sh {
 
 
 
-	MediaItem::MediaItem($<MediaItem>& ptr, Json json, const FromJsonOptions& options) {
+	MediaItem::MediaItem($<MediaItem>& ptr, Json json, MediaProviderStash* stash) {
 		ptr = $<MediaItem>(this);
 		weakSelf = ptr;
 		auto providerName = json["provider"];
@@ -219,7 +219,7 @@ namespace sh {
 		   || !uri.is_string() || (!images.is_null() && !images.is_array())) {
 			throw std::invalid_argument("invalid json for MediaItem");
 		}
-		provider = options.providerGetter(providerName.string_value());
+		provider = stash->getMediaProvider(providerName.string_value());
 		if(provider == nullptr) {
 			throw std::invalid_argument("invalid provider name: "+providerName.string_value());
 		}

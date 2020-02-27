@@ -21,11 +21,11 @@ namespace sh {
 		
 		virtual bool matchesItem(const TrackCollectionItem* item) const override;
 		
-		static $<AlbumItem> fromJson($<SpecialTrackCollection<AlbumItem>> album, Json json, const FromJsonOptions& options);
+		static $<AlbumItem> fromJson($<SpecialTrackCollection<AlbumItem>> album, Json json, MediaProviderStash* stash);
 		
 	protected:
 		AlbumItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<AlbumItem>> album, Data data);
-		AlbumItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<AlbumItem>> album, Json json, const FromJsonOptions& options);
+		AlbumItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<AlbumItem>> album, Json json, MediaProviderStash* stash);
 	};
 
 
@@ -45,12 +45,12 @@ namespace sh {
 		
 		Data toData(DataOptions options = DataOptions()) const;
 		
-		static $<Album> fromJson(Json json, const FromJsonOptions& options);
+		static $<Album> fromJson(Json json, MediaProviderStash* stash);
 		virtual Json toJson(ToJsonOptions options) const override;
 		
 	protected:
 		Album($<MediaItem>& ptr, MediaProvider* provider, Data data);
-		Album($<MediaItem>& ptr, Json json, const FromJsonOptions& options);
+		Album($<MediaItem>& ptr, Json json, MediaProviderStash* stash);
 		
 		virtual MutatorDelegate* createMutatorDelegate() override;
 		

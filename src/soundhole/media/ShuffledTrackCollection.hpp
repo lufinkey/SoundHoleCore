@@ -29,13 +29,13 @@ namespace sh {
 		
 		virtual bool matchesItem(const TrackCollectionItem* item) const override;
 		
-		static $<ShuffledTrackCollectionItem> fromJson($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Json json, const FromJsonOptions& options);
+		static $<ShuffledTrackCollectionItem> fromJson($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Json json, MediaProviderStash* stash);
 		virtual Json toJson() const override;
 		
 	protected:
 		ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Data data);
 		ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, $<TrackCollectionItem> sourceItem);
-		ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Json json, const FromJsonOptions& options);
+		ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Json json, MediaProviderStash* stash);
 		
 		$<TrackCollectionItem> _sourceItem;
 	};

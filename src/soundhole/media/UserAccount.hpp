@@ -31,12 +31,12 @@ namespace sh {
 		
 		Data toData() const;
 		
-		static $<UserAccount> fromJson(Json json, FromJsonOptions options);
+		static $<UserAccount> fromJson(Json json, MediaProviderStash* stash);
 		virtual Json toJson() const override;
 		
 	protected:
 		UserAccount($<MediaItem>& ptr, MediaProvider* provider, Data data);
-		UserAccount($<MediaItem>& ptr, Json json, FromJsonOptions options);
+		UserAccount($<MediaItem>& ptr, Json json, MediaProviderStash* stash);
 		
 		String _id;
 		Optional<String> _displayName;

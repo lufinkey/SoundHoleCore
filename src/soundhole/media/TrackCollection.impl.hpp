@@ -391,8 +391,8 @@ namespace sh {
 
 
 	template<typename ItemType>
-	SpecialTrackCollection<ItemType>::SpecialTrackCollection($<MediaItem>& ptr, Json json, const FromJsonOptions& options)
-	: TrackCollection(ptr, json, options), _items(std::nullptr_t()), _mutatorDelegate(nullptr) {
+	SpecialTrackCollection<ItemType>::SpecialTrackCollection($<MediaItem>& ptr, Json json, MediaProviderStash* stash)
+	: TrackCollection(ptr, json, stash), _items(std::nullptr_t()), _mutatorDelegate(nullptr) {
 		std::map<size_t,$<ItemType>> items;
 		auto itemCountJson = json["itemCount"];
 		size_t itemCount = (size_t)itemCountJson.number_value();
@@ -406,7 +406,7 @@ namespace sh {
 			if(itemCount <= index) {
 				itemCount = index+1;
 			}
-			items[index] = std::static_pointer_cast<ItemType>(this->itemFromJson(pair.second, options));
+			items[index] = std::static_pointer_cast<ItemType>(this->itemFromJson(pair.second, stash));
 		}
 		bool needsAsync = false;
 		if(items.size() == itemCount) {
@@ -440,9 +440,9 @@ namespace sh {
 	}
 
 	template<typename ItemType>
-	$<TrackCollectionItem> SpecialTrackCollection<ItemType>::itemFromJson(Json json, const FromJsonOptions& options) {
+	$<TrackCollectionItem> SpecialTrackCollection<ItemType>::itemFromJson(Json json, MediaProviderStash* stash) {
 		auto self = selfAs<SpecialTrackCollection<ItemType>>();
-		return ItemType::fromJson(self, json, options);
+		return ItemType::fromJson(self, json, stash);
 	}
 
 	template<typename ItemType>

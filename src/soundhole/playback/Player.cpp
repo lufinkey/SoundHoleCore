@@ -31,6 +31,17 @@ namespace sh {
 
 
 
+
+	/*Promise<void> Player::load() {
+		// TODO load player
+	}
+
+	Promise<void> Player::save(SaveOptions options) {
+		// TODO save player
+	}*/
+
+
+
 	void Player::addEventListener(EventListener* listener) {
 		std::unique_lock<std::mutex> lock(listenersMutex);
 		listeners.pushBack(listener);

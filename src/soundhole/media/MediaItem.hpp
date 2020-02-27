@@ -9,6 +9,7 @@
 #pragma once
 
 #include <soundhole/common.hpp>
+#include "MediaProviderStash.hpp"
 
 namespace sh {
 	class MediaProvider;
@@ -49,10 +50,6 @@ namespace sh {
 			Optional<ArrayList<Image>> images;
 		};
 		
-		struct FromJsonOptions {
-			Function<MediaProvider*(const String&)> providerGetter;
-		};
-		
 		virtual ~MediaItem();
 		
 		const String& type() const;
@@ -74,7 +71,7 @@ namespace sh {
 		
 	protected:
 		MediaItem($<MediaItem>& ptr, MediaProvider* provider, Data data);
-		MediaItem($<MediaItem>& ptr, Json json, const FromJsonOptions& options);
+		MediaItem($<MediaItem>& ptr, Json json, MediaProviderStash* stash);
 		
 		$<MediaItem> self();
 		$<const MediaItem> self() const;

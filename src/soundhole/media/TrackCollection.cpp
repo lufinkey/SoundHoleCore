@@ -61,8 +61,8 @@ namespace sh {
 		};
 	}
 
-	TrackCollectionItem::TrackCollectionItem($<TrackCollectionItem>& ptr, $<TrackCollection> context, Json json, FromJsonOptions options)
-	: _context(context), _track(Track::fromJson(json, options)) {
+	TrackCollectionItem::TrackCollectionItem($<TrackCollectionItem>& ptr, $<TrackCollection> context, Json json, MediaProviderStash* stash)
+	: _context(context), _track(Track::fromJson(json, stash)) {
 		ptr = $<TrackCollectionItem>(this);
 		weakSelf = ptr;
 	}

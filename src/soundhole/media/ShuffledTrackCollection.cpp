@@ -48,17 +48,17 @@ namespace sh {
 		return false;
 	}
 
-	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::fromJson($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Json json, const FromJsonOptions& options) {
+	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::fromJson($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Json json, MediaProviderStash* stash) {
 		$<TrackCollectionItem> ptr;
-		new ShuffledTrackCollectionItem(ptr, context, json, options);
+		new ShuffledTrackCollectionItem(ptr, context, json, stash);
 		return std::static_pointer_cast<ShuffledTrackCollectionItem>(ptr);
 	}
 
-	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Json json, const FromJsonOptions& options)
-	: SpecialTrackCollectionItem<ShuffledTrackCollection>(ptr, context, json, options) {
+	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Json json, MediaProviderStash* stash)
+	: SpecialTrackCollectionItem<ShuffledTrackCollection>(ptr, context, json, stash) {
 		auto shuffledContext = std::static_pointer_cast<ShuffledTrackCollection>(context);
 		auto sourceContext = shuffledContext->source();
-		_sourceItem = sourceContext->itemFromJson(json["sourceItem"], options);
+		_sourceItem = sourceContext->itemFromJson(json["sourceItem"], stash);
 		_track = _sourceItem->track();
 	}
 

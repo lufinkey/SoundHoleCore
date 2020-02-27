@@ -32,14 +32,14 @@ namespace sh {
 		return false;
 	}
 
-	AlbumItem::AlbumItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<AlbumItem>> album, Json json, const FromJsonOptions& options)
-	: SpecialTrackCollectionItem<Album>(ptr, album, json, options) {
+	AlbumItem::AlbumItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<AlbumItem>> album, Json json, MediaProviderStash* stash)
+	: SpecialTrackCollectionItem<Album>(ptr, album, json, stash) {
 		//
 	}
 
-	$<AlbumItem> AlbumItem::fromJson($<SpecialTrackCollection<AlbumItem>> album, Json json, const FromJsonOptions& options) {
+	$<AlbumItem> AlbumItem::fromJson($<SpecialTrackCollection<AlbumItem>> album, Json json, MediaProviderStash* stash) {
 		$<TrackCollectionItem> ptr;
-		new AlbumItem(ptr, album, json, options);
+		new AlbumItem(ptr, album, json, stash);
 		return std::static_pointer_cast<AlbumItem>(ptr);
 	}
 
@@ -84,18 +84,18 @@ namespace sh {
 		};
 	}
 
-	$<Album> Album::fromJson(Json json, const FromJsonOptions& options) {
+	$<Album> Album::fromJson(Json json, MediaProviderStash* stash) {
 		$<MediaItem> ptr;
-		new Album(ptr, json, options);
+		new Album(ptr, json, stash);
 		return std::static_pointer_cast<Album>(ptr);
 	}
 
-	Album::Album($<MediaItem>& ptr, Json json, const FromJsonOptions& options)
-	: SpecialTrackCollection<AlbumItem>(ptr, json, options) {
+	Album::Album($<MediaItem>& ptr, Json json, MediaProviderStash* stash)
+	: SpecialTrackCollection<AlbumItem>(ptr, json, stash) {
 		auto artists = json["artists"];
 		_artists.reserve(artists.array_items().size());
 		for(auto& artist : artists.array_items()) {
-			_artists.pushBack(Artist::fromJson(artist, options));
+			_artists.pushBack(Artist::fromJson(artist, stash));
 		}
 	}
 
