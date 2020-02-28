@@ -50,12 +50,6 @@ namespace sh {
 			virtual void onPlayerPause($<Player> player, const Event& event) {}
 		};
 		
-		struct ProgressData {
-			String uri;
-			String providerName;
-			double position;
-		};
-		
 		struct Options {
 			String savePrefix;
 			double nextTrackPreloadTime = 10.0;
@@ -70,7 +64,7 @@ namespace sh {
 		void addEventListener(EventListener* listener);
 		void removeEventListener(EventListener* listener);
 		
-		Promise<void> load();
+		Promise<void> load(MediaProviderStash* stash);
 		struct SaveOptions {
 			bool includeMetadata = false;
 		};
@@ -113,12 +107,25 @@ namespace sh {
 		virtual void onMediaPlaybackProviderMetadataChange(MediaPlaybackProvider* provider) override;
 		
 	private:
+		String getProgressFilePath() const;
+		String getMetadataFilePath() const;
+		
+		struct ProgressData {
+			String uri;
+			String providerName;
+			double position;
+			
+			Json toJson() const;
+			static ProgressData fromJson(Json json);
+		};
+		
 		template<typename MemberFunc, typename ...Args>
 		inline void callPlayerListenerEvent(MemberFunc func, Args... args);
 		
 		void onMediaPlaybackProviderEvent();
 		
-		Promise<void> saveInBackground(SaveOptions options);
+		Promise<void> performSave(SaveOptions options);
+		void saveInBackground(SaveOptions options);
 		
 		Promise<void> prepareTrack($<Track> track);
 		Promise<void> playTrack($<Track> track);

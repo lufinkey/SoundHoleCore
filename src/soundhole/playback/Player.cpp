@@ -32,13 +32,97 @@ namespace sh {
 
 
 
-	/*Promise<void> Player::load() {
-		// TODO load player
+	String Player::getProgressFilePath() const {
+		return options.savePrefix+"/player_progress.json";
+	}
+
+	String Player::getMetadataFilePath() const {
+		return options.savePrefix+"/player_metadata.json";
+	}
+
+	Promise<void> Player::load(MediaProviderStash* stash) {
+		if(options.savePrefix.empty()) {
+			return Promise<void>::resolve();
+		}
+		auto runOptions = AsyncQueue::RunOptions{
+			.tag="load"
+		};
+		return saveQueue.run(runOptions, [=](auto task) {
+			return async<Optional<ProgressData>>([=](){
+				// load progress data
+				auto progressPath = getProgressFilePath();
+				if(fs::exists(progressPath)) {
+					auto data = fs::readFile(progressPath);
+					std::string jsonError;
+					auto json = Json::parse(data, jsonError);
+					if(!json.is_null()) {
+						return ProgressData::fromJson(json);
+					}
+				}
+				return std::nullopt;
+			}).then([=](Optional<ProgressData> progressData) {
+				// load organizer
+				auto metadataPath = getMetadataFilePath();
+				return organizer->load(metadataPath, stash).then([=]() {
+					// apply progress data
+					this->resumableProgress = progressData;
+				});
+			});
+		}).promise;
 	}
 
 	Promise<void> Player::save(SaveOptions options) {
-		// TODO save player
-	}*/
+		auto runOptions = AsyncQueue::RunOptions{
+			.tag = options.includeMetadata ? "metadata" : "progress"
+		};
+		return saveQueue.run(runOptions, [=]() {
+			return performSave(options);
+		}).promise;
+	}
+
+	void Player::saveInBackground(SaveOptions options) {
+		auto runOptions = options.includeMetadata ?
+			AsyncQueue::RunOptions{
+				.tag = "bgMetadata",
+				.cancelTags = { "bgMetadata", "bgProgress" }
+			} : AsyncQueue::RunOptions{
+				.tag = "bgProgress",
+				.cancelTags = { "bgProgress" }
+			};
+		saveQueue.run(runOptions, [=]() {
+			return performSave(options);
+		});
+	}
+
+	Promise<void> Player::performSave(SaveOptions options) {
+		auto currentTrack = organizer->getCurrentTrack();
+		auto playbackState = providerPlaybackState;
+		auto metadataPromise = Promise<void>::resolve();
+		if(options.includeMetadata) {
+			auto metadataPath = getMetadataFilePath();
+			metadataPromise = organizer->save(metadataPath);
+		}
+		return metadataPromise.then([=]() {
+			auto progressPath = getProgressFilePath();
+			if(currentTrack && playbackState) {
+				auto progressData = ProgressData{
+					.uri = currentTrack->uri(),
+					.providerName = currentTrack->mediaProvider()->name(),
+					.position = playbackState->position
+				};
+				return async<void>([=]() {
+					auto json = progressData.toJson().dump();
+					fs::writeFile(progressPath, json);
+				});
+			} else {
+				return async<void>([=]() {
+					if(fs::exists(progressPath)) {
+						fs::removeAll(progressPath);
+					}
+				});
+			}
+		});
+	}
 
 
 
