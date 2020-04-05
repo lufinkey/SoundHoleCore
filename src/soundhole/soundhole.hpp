@@ -11,3 +11,4 @@
 #include <soundhole/providers/bandcamp/BandcampProvider.hpp>
 #include <soundhole/providers/spotify/SpotifyProvider.hpp>
 #include <soundhole/providers/youtube/YoutubeProvider.hpp>
+#include <soundhole/playback/Player.hpp>
