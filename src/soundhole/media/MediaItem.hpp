@@ -44,6 +44,7 @@ namespace sh {
 		};
 		
 		struct Data {
+			bool partial;
 			String type;
 			String name;
 			String uri;
@@ -62,15 +63,16 @@ namespace sh {
 		
 		MediaProvider* mediaProvider() const;
 		
-		virtual bool needsData() const = 0;
-		virtual Promise<void> fetchMissingData() = 0;
-		Promise<void> fetchMissingDataIfNeeded();
+		bool needsData() const;
+		virtual Promise<void> fetchData() = 0;
+		Promise<void> fetchDataIfNeeded();
+		void applyData(const Data& data);
 		
 		Data toData() const;
 		virtual Json toJson() const;
 		
 	protected:
-		MediaItem($<MediaItem>& ptr, MediaProvider* provider, Data data);
+		MediaItem($<MediaItem>& ptr, MediaProvider* provider, const Data& data);
 		MediaItem($<MediaItem>& ptr, Json json, MediaProviderStash* stash);
 		
 		$<MediaItem> self();
@@ -79,9 +81,14 @@ namespace sh {
 		$<T> selfAs();
 		template<typename T>
 		$<const T> selfAs() const;
+		template<typename T>
+		$<T> weakSelfAs();
+		template<typename T>
+		$<const T> weakSelfAs();
 		
 		w$<MediaItem> weakSelf;
 		MediaProvider* provider;
+		bool _partial;
 		String _type;
 		String _name;
 		String _uri;

@@ -64,7 +64,8 @@ namespace sh {
 						: std::nullopt;
 					switch(item.type) {
 						case BandcampSearchResults::Item::Type::TRACK:
-							return std::static_pointer_cast<MediaItem>(Track::new$(this, {{
+							return std::static_pointer_cast<MediaItem>(Track::new$(this, Track::Data{{
+								.partial=true,
 								.type="track",
 								.name=item.name,
 								.uri=item.url,
@@ -73,7 +74,8 @@ namespace sh {
 								.albumName=item.albumName,
 								.albumURI=item.albumURL,
 								.artists=ArrayList<$<Artist>>{
-									Artist::new$(this, {{
+									Artist::new$(this, Artist::Data{{
+										.partial=true,
 										.type="artist",
 										.name=item.artistName,
 										.uri=item.artistURL,
@@ -90,7 +92,8 @@ namespace sh {
 							}));
 							
 						case BandcampSearchResults::Item::Type::ALBUM:
-							return std::static_pointer_cast<MediaItem>(Album::new$(this, {{{
+							return std::static_pointer_cast<MediaItem>(Album::new$(this, Album::Data{{{
+								.partial=true,
 								.type="album",
 								.name=item.name,
 								.uri=item.url,
@@ -105,7 +108,8 @@ namespace sh {
 									: std::nullopt
 								},
 								.artists=ArrayList<$<Artist>>{
-									Artist::new$(this, {{
+									Artist::new$(this, Artist::Data{{
+										.partial=true,
 										.type="artist",
 										.name=item.artistName,
 										.uri=item.artistURL,
@@ -117,7 +121,8 @@ namespace sh {
 							}));
 							
 						case BandcampSearchResults::Item::Type::ARTIST:
-							return std::static_pointer_cast<MediaItem>(Artist::new$(this, {{
+							return std::static_pointer_cast<MediaItem>(Artist::new$(this, Artist::Data{{
+								.partial=true,
 								.type="artist",
 								.name=item.name,
 								.uri=item.url,
@@ -127,7 +132,8 @@ namespace sh {
 							}));
 							
 						case BandcampSearchResults::Item::Type::LABEL:
-							return std::static_pointer_cast<MediaItem>(Artist::new$(this, {{
+							return std::static_pointer_cast<MediaItem>(Artist::new$(this, Artist::Data{{
+								.partial=true,
 								.type="label",
 								.name=item.name,
 								.uri=item.url,
@@ -137,7 +143,8 @@ namespace sh {
 							}));
 							
 						case BandcampSearchResults::Item::Type::FAN:
-							return std::static_pointer_cast<MediaItem>(UserAccount::new$(this, {{
+							return std::static_pointer_cast<MediaItem>(UserAccount::new$(this, UserAccount::Data{{
+								.partial=true,
 								.type="user",
 								.name=item.name,
 								.uri=item.url,
@@ -178,8 +185,9 @@ namespace sh {
 
 
 
-	Track::Data BandcampProvider::createTrackData(BandcampTrack track) {
+	Track::Data BandcampProvider::createTrackData(BandcampTrack track, bool partial) {
 		return Track::Data{{
+			.partial=partial,
 			.type="track",
 			.name=track.name,
 			.uri=track.url,
@@ -192,8 +200,9 @@ namespace sh {
 			.artists=ArrayList<$<Artist>>{
 				Artist::new$(this,
 					track.artist ?
-					createArtistData(track.artist.value())
+					createArtistData(track.artist.value(), partial)
 					: Artist::Data{{
+						.partial = true,
 						.type="artist",
 						.name=track.artistName,
 						.uri=track.artistURL,
@@ -220,8 +229,9 @@ namespace sh {
 		};
 	}
 
-	Artist::Data BandcampProvider::createArtistData(BandcampArtist artist) {
+	Artist::Data BandcampProvider::createArtistData(BandcampArtist artist, bool partial) {
 		return Artist::Data{{
+			.partial=partial,
 			.type="artist",
 			.name=artist.name,
 			.uri=artist.url,
@@ -233,11 +243,12 @@ namespace sh {
 		};
 	}
 
-	Album::Data BandcampProvider::createAlbumData(BandcampAlbum album) {
+	Album::Data BandcampProvider::createAlbumData(BandcampAlbum album, bool partial) {
 		auto artist = Artist::new$(this,
 			album.artist ?
-			createArtistData(album.artist.value())
+			createArtistData(album.artist.value(), partial)
 			: Artist::Data{{
+				.partial=true,
 				.type="artist",
 				.name=album.artistName,
 				.uri=album.artistURL,
@@ -247,6 +258,7 @@ namespace sh {
 			}
 		);
 		return Album::Data{{{
+			.partial=partial,
 			.type="album",
 			.name=album.name,
 			.uri=album.url,
@@ -259,7 +271,7 @@ namespace sh {
 					.total=album.tracks->size(),
 					.offset=0,
 					.items=album.tracks->map<AlbumItem::Data>([&](auto& track) {
-						auto trackData = createTrackData(track);
+						auto trackData = createTrackData(track, true);
 						if(trackData.artists.size() == 0) {
 							trackData.artists = { artist };
 						} else {
@@ -314,24 +326,28 @@ namespace sh {
 
 	Promise<Track::Data> BandcampProvider::getTrackData(String uri) {
 		return bandcamp->getTrack(uri).map<Track::Data>([=](auto track) {
-			return createTrackData(track);
+			return createTrackData(track, false);
 		});
 	}
 
 	Promise<Artist::Data> BandcampProvider::getArtistData(String uri) {
 		return bandcamp->getArtist(uri).map<Artist::Data>([=](auto artist) {
-			return createArtistData(artist);
+			return createArtistData(artist, false);
 		});
 	}
 
 	Promise<Album::Data> BandcampProvider::getAlbumData(String uri) {
 		return bandcamp->getAlbum(uri).map<Album::Data>([=](auto album) {
-			return createAlbumData(album);
+			return createAlbumData(album, false);
 		});
 	}
 
 	Promise<Playlist::Data> BandcampProvider::getPlaylistData(String uri) {
 		return Promise<Playlist::Data>::reject(std::logic_error("Bandcamp does not support playlists"));
+	}
+
+	Promise<UserAccount::Data> BandcampProvider::getUserData(String uri) {
+		return Promise<UserAccount::Data>::reject(std::logic_error("This method is not implemented yet"));
 	}
 
 

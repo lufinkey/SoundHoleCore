@@ -54,7 +54,7 @@ namespace sh {
 			};
 		} else if(tracks->offset == 0 && tracks->items.size() == tracks->total) {
 			return tracks->items.template map<$<ItemType>>([&](auto& data) {
-				return ItemType::new$(self, std::move(data));
+				return ItemType::new$(self, data);
 			});
 		} else {
 			return AsyncList<$<ItemType>>::new$({
@@ -62,7 +62,7 @@ namespace sh {
 				.chunkSize=TRACKCOLLECTION_CHUNK_SIZE,
 				.initialItemsOffset=tracks->offset,
 				.initialItems=ArrayList<$<ItemType>>(tracks->items.template map<$<ItemType>>([&](auto& data) {
-					return ItemType::new$(self, std::move(data));
+					return ItemType::new$(self, data);
 				})),
 				.initialSize=tracks->total
 			});
@@ -264,6 +264,37 @@ namespace sh {
 		}
 	}
 
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::applyData(const Data& data) {
+		TrackCollection::applyData(data);
+		if(data.tracks) {
+			auto tracks = data.tracks.value();
+			if(tracks.offset == 0 && tracks.items.size() == tracks.total) {
+				if(tracksAreAsync()) {
+					asyncItemsList()->mutate([=](auto mutator) {
+						auto self = selfAs<SpecialTrackCollection<ItemType>>();
+						mutator->applyAndResize(tracks.offset, tracks.total, tracks.items.template map<$<ItemType>>([&](auto& data) {
+							return ItemType::new$(self, data);
+						}));
+					});
+				} else {
+					// TODO merge the array
+					if(itemsList().size() != tracks.total) {
+						_items = constructItems(tracks);
+					}
+				}
+			} else {
+				makeTracksAsync();
+				asyncItemsList()->mutate([=](auto mutator) {
+					auto self = selfAs<SpecialTrackCollection<ItemType>>();
+					mutator->applyAndResize(tracks.offset, tracks.total, tracks.items.template map<$<ItemType>>([&](auto& data) {
+						return ItemType::new$(self, data);
+					}));
+				});
+			}
+		}
+	}
+
 
 
 	template<typename ItemType>
@@ -292,12 +323,12 @@ namespace sh {
 
 	template<typename ItemType>
 	bool SpecialTrackCollection<ItemType>::tracksAreEmpty() const {
-		return _items.index() == 0 || _items.index() == 1;
+		return std::get_if<std::nullptr_t>(&_items) != nullptr || std::get_if<EmptyTracks>(&_items) != nullptr;
 	}
 
 	template<typename ItemType>
 	bool SpecialTrackCollection<ItemType>::tracksAreAsync() const {
-		return _items.index() == 3;
+		return std::get_if<$<AsyncList<$<ItemType>>>>(&_items) != nullptr;
 	}
 
 	template<typename ItemType>

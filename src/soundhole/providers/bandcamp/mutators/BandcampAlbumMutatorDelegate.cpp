@@ -24,8 +24,8 @@ namespace sh {
 				throw SoundHoleError(SoundHoleError::Code::REQUEST_FAILED, "Failed to get tracks for bandcamp album");
 			}
 			mutator->lock([&]() {
-				mutator->resize(albumData.tracks->total);
-				mutator->apply(albumData.tracks->offset, albumData.tracks->items.map<$<AlbumItem>>([&](auto& albumItem) {
+				mutator->applyAndResize(albumData.tracks->offset, albumData.tracks->total,
+				   albumData.tracks->items.map<$<AlbumItem>>([&](auto& albumItem) {
 					return AlbumItem::new$(album, albumItem);
 				}));
 			});

@@ -98,16 +98,18 @@ namespace sh {
 		return std::static_pointer_cast<const UserAccount>(_owner);
 	}
 
-	bool Playlist::needsData() const {
-		return tracksAreEmpty();
+	Promise<void> Playlist::fetchData() {
+		auto self = selfAs<Playlist>();
+		return provider->getPlaylistData(_uri).then([=](Data data) {
+			self->applyData(data);
+		});
 	}
 
-	Promise<void> Playlist::fetchMissingData() {
-		return provider->getPlaylistData(_uri).then([=](Data data) {
-			if(tracksAreEmpty()) {
-				_items = constructItems(data.tracks);
-			}
-		});
+	void Playlist::applyData(const Data& data) {
+		SpecialTrackCollection<PlaylistItem>::applyData(data);
+		if(Optional<String>(_owner ? maybe(_owner->uri()) : std::nullopt) != Optional<String>(data.owner ? maybe(data.owner->uri()) : std::nullopt)) {
+			_owner = data.owner;
+		}
 	}
 
 	Playlist::Data Playlist::toData(DataOptions options) const {

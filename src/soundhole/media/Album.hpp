@@ -40,8 +40,8 @@ namespace sh {
 		const ArrayList<$<Artist>>& artists();
 		const ArrayList<$<const Artist>>& artists() const;
 		
-		virtual bool needsData() const override;
-		virtual Promise<void> fetchMissingData() override;
+		virtual Promise<void> fetchData() override;
+		void applyData(const Data& data);
 		
 		Data toData(DataOptions options = DataOptions()) const;
 		

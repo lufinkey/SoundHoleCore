@@ -22,9 +22,9 @@ namespace sh {
 		}
 	}
 
-	MediaItem::MediaItem($<MediaItem>& ptr, MediaProvider* provider, Data data)
+	MediaItem::MediaItem($<MediaItem>& ptr, MediaProvider* provider, const Data& data)
 	: provider(provider),
-	_type(data.type), _name(data.name), _uri(data.uri), _images(data.images) {
+	_partial(data.partial), _type(data.type), _name(data.name), _uri(data.uri), _images(data.images) {
 		ptr = $<MediaItem>(this);
 		weakSelf = ptr;
 	}
@@ -32,6 +32,8 @@ namespace sh {
 	MediaItem::~MediaItem() {
 		//
 	}
+
+
 
 	$<MediaItem> MediaItem::self() {
 		return weakSelf.lock();
@@ -96,17 +98,18 @@ namespace sh {
 	}
 
 	bool MediaItem::needsData() const {
-		return false;
+		return _partial;
 	}
 
-	Promise<void> MediaItem::fetchMissingData() {
-		return Promise<void>::resolve();
-	}
-
-	Promise<void> MediaItem::fetchMissingDataIfNeeded() {
+	Promise<void> MediaItem::fetchDataIfNeeded() {
+		auto weakSelf = this->weakSelf;
 		if(DispatchQueue::local() != getDefaultPromiseQueue()) {
 			return Promise<void>::resolve().then([=]() -> Promise<void> {
-				return fetchMissingDataIfNeeded();
+				auto self = weakSelf.lock();
+				if(!self) {
+					return Promise<void>::resolve();
+				}
+				return self->fetchDataIfNeeded();
 			});
 		}
 		if(!needsData()) {
@@ -115,15 +118,38 @@ namespace sh {
 		if(_itemDataPromise.has_value()) {
 			return _itemDataPromise.value();
 		}
-		auto promise = fetchMissingData().finally([=]() {
-			_itemDataPromise.reset();
+		auto promise = fetchData().then([=]() {
+			auto self = weakSelf.lock();
+			if(!self) {
+				return;
+			}
+			self->_partial = false;
+		}).finally([=]() {
+			auto self = weakSelf.lock();
+			if(!self) {
+				return;
+			}
+			self->_itemDataPromise.reset();
 		});
-		_itemDataPromise = promise;
+		if(!promise.isComplete()) {
+			_itemDataPromise = promise;
+		}
 		return promise;
+	}
+
+	void MediaItem::applyData(const Data& data) {
+		_partial = data.partial;
+		_type = data.type;
+		_name = data.name;
+		_uri = data.uri;
+		if(data.images) {
+			_images = data.images;
+		}
 	}
 
 	MediaItem::Data MediaItem::toData() const {
 		return {
+			.partial=_partial,
 			.type=_type,
 			.name=_name,
 			.uri=_uri,
@@ -211,6 +237,7 @@ namespace sh {
 		ptr = $<MediaItem>(this);
 		weakSelf = ptr;
 		auto providerName = json["provider"];
+		auto partial = json["partial"];
 		auto type = json["type"];
 		auto name = json["name"];
 		auto uri = json["uri"];
@@ -223,6 +250,7 @@ namespace sh {
 		if(provider == nullptr) {
 			throw std::invalid_argument("invalid provider name: "+providerName.string_value());
 		}
+		_partial = partial.is_bool() ? partial.bool_value() : true;
 		_type = type.string_value();
 		_name = name.string_value();
 		_uri = uri.string_value();
@@ -240,6 +268,7 @@ namespace sh {
 	Json MediaItem::toJson() const {
 		return Json::object{
 			{"provider",(std::string)provider->name()},
+			{"partial",_partial},
 			{"type",(std::string)_type},
 			{"name",(std::string)_name},
 			{"uri",(std::string)_uri},

@@ -7,6 +7,7 @@
 //
 
 #include "UserAccount.hpp"
+#include "MediaProvider.hpp"
 
 namespace sh {
 	$<UserAccount> UserAccount::new$(MediaProvider* provider, Data data) {
@@ -29,14 +30,19 @@ namespace sh {
 		return _displayName;
 	}
 
-	bool UserAccount::needsData() const {
-		// TODO implement needsData
-		return false;
+	Promise<void> UserAccount::fetchData() {
+		auto self = selfAs<UserAccount>();
+		return provider->getUserData(_uri).then([=](Data data) {
+			self->applyData(data);
+		});
 	}
 
-	Promise<void> UserAccount::fetchMissingData() {
-		// TODO implement fetchMissingData
-		return Promise<void>::reject(std::runtime_error("not implemented"));
+	void UserAccount::applyData(const Data& data) {
+		MediaItem::applyData(data);
+		_id = data.id;
+		if(data.displayName) {
+			_displayName = data.displayName;
+		}
 	}
 
 	UserAccount::Data UserAccount::toData() const {

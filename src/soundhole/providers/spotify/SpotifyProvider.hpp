@@ -44,6 +44,7 @@ namespace sh {
 		virtual Promise<Artist::Data> getArtistData(String uri) override;
 		virtual Promise<Album::Data> getAlbumData(String uri) override;
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) override;
+		virtual Promise<UserAccount::Data> getUserData(String uri) override;
 		
 		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album) override;
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) override;
@@ -52,12 +53,12 @@ namespace sh {
 		virtual const SpotifyPlaybackProvider* player() const override;
 		
 	protected:
-		Track::Data createTrackData(SpotifyTrack track);
-		Artist::Data createArtistData(SpotifyArtist artist);
-		Album::Data createAlbumData(SpotifyAlbum album);
-		Playlist::Data createPlaylistData(SpotifyPlaylist playlist);
+		Track::Data createTrackData(SpotifyTrack track, bool partial);
+		Artist::Data createArtistData(SpotifyArtist artist, bool partial);
+		Album::Data createAlbumData(SpotifyAlbum album, bool partial);
+		Playlist::Data createPlaylistData(SpotifyPlaylist playlist, bool partial);
 		PlaylistItem::Data createPlaylistItemData(SpotifyPlaylist::Item playlistItem);
-		UserAccount::Data createUserAccountData(SpotifyUser user);
+		UserAccount::Data createUserAccountData(SpotifyUser user, bool partial);
 		
 	private:
 		static String idFromURI(String uri);

@@ -26,7 +26,7 @@ namespace sh {
 	}
 	
 	Promise<void> SpotifyPlaybackProvider::prepare($<Track> track) {
-		return track->fetchMissingDataIfNeeded();
+		return track->fetchDataIfNeeded();
 	}
 
 	Promise<void> SpotifyPlaybackProvider::play($<Track> track, double position) {
@@ -35,7 +35,7 @@ namespace sh {
 		return playQueue.run([=](auto task) {
 			return generate_items<void>({
 				[=]() {
-					return track->fetchMissingDataIfNeeded();
+					return track->fetchDataIfNeeded();
 				},
 				[=]() {
 					return provider->spotify->playURI(track->uri(), {
@@ -138,6 +138,7 @@ namespace sh {
 
 	Track::Data SpotifyPlaybackProvider::createTrackData(SpotifyPlayer::Track track) const {
 		return Track::Data{{
+			.partial=true,
 			.type="track",
 			.name=track.name,
 			.uri=track.uri,
@@ -152,7 +153,8 @@ namespace sh {
 			.albumName=track.albumName,
 			.albumURI=track.albumURI,
 			.artists=ArrayList<$<Artist>>{
-				Artist::new$(provider, {{
+				Artist::new$(provider, Artist::Data{{
+					.partial=true,
 					.type="artist",
 					.name=track.artistName,
 					.uri=track.artistURI,

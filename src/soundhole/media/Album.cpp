@@ -65,15 +65,21 @@ namespace sh {
 		return *((const ArrayList<$<const Artist>>*)(&_artists));
 	}
 
-	bool Album::needsData() const {
-		return tracksAreEmpty();
+	Promise<void> Album::fetchData() {
+		auto self = selfAs<Album>();
+		return provider->getAlbumData(_uri).then([=](Data data) {
+			self->applyData(data);
+		});
 	}
 
-	Promise<void> Album::fetchMissingData() {
-		return provider->getAlbumData(_uri).then([=](Data data) {
-			if(tracksAreEmpty()) {
-				_items = constructItems(data.tracks);
+	void Album::applyData(const Data& data) {
+		SpecialTrackCollection<AlbumItem>::applyData(data);
+		_artists = data.artists.map<$<Artist>>([&](auto& artist) {
+			auto cmpArtist = _artists.firstWhere([&](auto& cmpArtist) { return artist->uri() == cmpArtist->uri(); }, nullptr);
+			if(cmpArtist) {
+				return cmpArtist;
 			}
+			return artist;
 		});
 	}
 

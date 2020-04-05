@@ -32,4 +32,10 @@ namespace sh {
 			return Playlist::new$(this, data);
 		});
 	}
+
+	Promise<$<UserAccount>> MediaProvider::getUser(String uri) {
+		return getUserData(uri).map<$<UserAccount>>(nullptr, [=](auto data) {
+			return UserAccount::new$(this, data);
+		});
+	}
 }

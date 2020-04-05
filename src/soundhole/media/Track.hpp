@@ -39,7 +39,7 @@ namespace sh {
 			bool playable;
 		};
 		
-		static $<Track> new$(MediaProvider* provider, Data data);
+		static $<Track> new$(MediaProvider* provider, const Data& data);
 		
 		const String& albumName() const;
 		const String& albumURI() const;
@@ -60,11 +60,11 @@ namespace sh {
 			Optional<double> videoBitrate;
 			bool allowFallback = true;
 		};
-		Optional<AudioSource> findAudioSource(FindAudioSourceOptions options = {.bitrate=128.0,.allowFallback=true}) const;
+		Optional<AudioSource> findAudioSource(FindAudioSourceOptions options = FindAudioSourceOptions{.bitrate=128.0,.allowFallback=true}) const;
 		bool isPlayable() const;
 		
-		virtual bool needsData() const override;
-		virtual Promise<void> fetchMissingData() override;
+		virtual Promise<void> fetchData() override;
+		void applyData(const Data& data);
 		
 		Data toData() const;
 		
@@ -72,7 +72,7 @@ namespace sh {
 		virtual Json toJson() const override;
 		
 	protected:
-		Track($<MediaItem>& ptr, MediaProvider* provider, Data data);
+		Track($<MediaItem>& ptr, MediaProvider* provider, const Data& data);
 		Track($<MediaItem>& ptr, Json json, MediaProviderStash* stash);
 		
 		String _albumName;

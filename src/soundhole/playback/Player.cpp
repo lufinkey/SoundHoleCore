@@ -48,7 +48,7 @@ namespace sh {
 			.tag="load"
 		};
 		return saveQueue.run(runOptions, [=](auto task) {
-			return async<Optional<ProgressData>>([=](){
+			return async<Optional<ProgressData>>([=]() -> Optional<ProgressData> {
 				// load progress data
 				auto progressPath = getProgressFilePath();
 				if(fs::exists(progressPath)) {
@@ -63,7 +63,7 @@ namespace sh {
 			}).then([=](Optional<ProgressData> progressData) {
 				// load organizer
 				auto metadataPath = getMetadataFilePath();
-				return organizer->load(metadataPath, stash).then([=]() {
+				return organizer->load(metadataPath, stash).then([=](bool loaded) {
 					// apply progress data
 					this->resumableProgress = progressData;
 				});
@@ -75,7 +75,7 @@ namespace sh {
 		auto runOptions = AsyncQueue::RunOptions{
 			.tag = options.includeMetadata ? "metadata" : "progress"
 		};
-		return saveQueue.run(runOptions, [=]() {
+		return saveQueue.run(runOptions, [=](auto task) {
 			return performSave(options);
 		}).promise;
 	}
@@ -89,7 +89,7 @@ namespace sh {
 				.tag = "bgProgress",
 				.cancelTags = { "bgProgress" }
 			};
-		saveQueue.run(runOptions, [=]() {
+		saveQueue.run(runOptions, [=](auto task) {
 			return performSave(options);
 		});
 	}

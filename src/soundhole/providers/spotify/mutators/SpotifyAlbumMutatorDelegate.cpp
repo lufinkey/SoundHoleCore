@@ -25,12 +25,11 @@ namespace sh {
 		}).then([=](SpotifyPage<SpotifyTrack> page) -> void {
 			auto items = page.items.map<$<AlbumItem>>([&](auto& track) {
 				return AlbumItem::new$(album, {
-					.track=Track::new$(provider, provider->createTrackData(track))
+					.track=Track::new$(provider, provider->createTrackData(track, true))
 				});
 			});
 			mutator->lock([&]() {
-				mutator->resize(page.total);
-				mutator->apply(page.offset, items);
+				mutator->applyAndResize(page.offset, page.total, items);
 			});
 		});
 	}

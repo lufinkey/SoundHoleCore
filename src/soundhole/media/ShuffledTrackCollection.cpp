@@ -81,10 +81,11 @@ namespace sh {
 
 	ShuffledTrackCollection::ShuffledTrackCollection($<MediaItem>& ptr, $<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems)
 	: SpecialTrackCollection<ShuffledTrackCollectionItem>(ptr, source->mediaProvider(), SpecialTrackCollection<ShuffledTrackCollectionItem>::Data{{
+		.partial=source->needsData(),
 		.type="shuffled-collection",
 		.name=source->name(),
 		.uri=source->uri(),
-		.images=std::nullopt
+		.images=std::nullopt,
 		},
 		.tracks=SpecialTrackCollection<ShuffledTrackCollectionItem>::Data::Tracks{
 			.total=source->itemCount().value_or(initialItems.size()),
@@ -140,12 +141,12 @@ namespace sh {
 		return std::static_pointer_cast<const TrackCollection>(_source);
 	}
 
-	bool ShuffledTrackCollection::needsData() const {
-		return _source->needsData();
-	}
-
-	Promise<void> ShuffledTrackCollection::fetchMissingData() {
-		return _source->fetchMissingData();
+	Promise<void> ShuffledTrackCollection::fetchData() {
+		auto self = selfAs<ShuffledTrackCollection>();
+		return _source->fetchDataIfNeeded().then([=]() {
+			self->_name = self->_source->name();
+			self->_images = self->_source->images();
+		});
 	}
 
 	ShuffledTrackCollection::MutatorDelegate* ShuffledTrackCollection::createMutatorDelegate() {

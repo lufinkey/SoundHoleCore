@@ -122,8 +122,9 @@ namespace sh {
 		virtual $<TrackCollectionItem> itemFromJson(Json json, MediaProviderStash* stash) override final;
 		
 		virtual Optional<size_t> itemCount() const override final;
-		
 		virtual Promise<void> loadItems(size_t index, size_t count) override final;
+		
+		void applyData(const Data& data);
 		
 		struct DataOptions {
 			size_t tracksOffset = 0;

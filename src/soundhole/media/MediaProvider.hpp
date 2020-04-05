@@ -37,11 +37,13 @@ namespace sh {
 		virtual Promise<Artist::Data> getArtistData(String uri) = 0;
 		virtual Promise<Album::Data> getAlbumData(String uri) = 0;
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) = 0;
+		virtual Promise<UserAccount::Data> getUserData(String uri) = 0;
 		
 		virtual Promise<$<Track>> getTrack(String uri);
 		virtual Promise<$<Artist>> getArtist(String uri);
 		virtual Promise<$<Album>> getAlbum(String uri);
 		virtual Promise<$<Playlist>> getPlaylist(String uri);
+		virtual Promise<$<UserAccount>> getUser(String uri);
 		
 		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album) = 0;
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) = 0;

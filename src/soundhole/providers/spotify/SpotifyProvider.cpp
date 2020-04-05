@@ -56,22 +56,22 @@ namespace sh {
 			return SearchResults{
 				.tracks = searchResults.tracks ?
 					maybe(searchResults.tracks->template map<$<Track>>([&](auto& track) {
-						return Track::new$(this, createTrackData(track));
+						return Track::new$(this, createTrackData(track, false));
 					}))
 					: std::nullopt,
 				.albums = searchResults.albums ?
 					maybe(searchResults.albums->template map<$<Album>>([&](auto& album) {
-						return Album::new$(this, createAlbumData(album));
+						return Album::new$(this, createAlbumData(album, true));
 					}))
 					: std::nullopt,
 				.artists = searchResults.artists ?
 					maybe(searchResults.artists->template map<$<Artist>>([&](auto& artist) {
-						return Artist::new$(this, createArtistData(artist));
+						return Artist::new$(this, createArtistData(artist, false));
 					}))
 					: std::nullopt,
 				.playlists = searchResults.playlists ?
 					maybe(searchResults.playlists->template map<$<Playlist>>([&](auto& playlist) {
-						return Playlist::new$(this, createPlaylistData(playlist));
+						return Playlist::new$(this, createPlaylistData(playlist, true));
 					}))
 					: std::nullopt,
 			};
@@ -90,8 +90,9 @@ namespace sh {
 
 
 
-	Track::Data SpotifyProvider::createTrackData(SpotifyTrack track) {
+	Track::Data SpotifyProvider::createTrackData(SpotifyTrack track, bool partial) {
 		return Track::Data{{
+			.partial=partial,
 			.type=track.type,
 			.name=track.name,
 			.uri=track.uri,
@@ -104,7 +105,7 @@ namespace sh {
 			.albumName=(track.album ? track.album->name : ""),
 			.albumURI=(track.album ? track.album->uri : ""),
 			.artists=track.artists.map<$<Artist>>([&](SpotifyArtist& artist) {
-				return Artist::new$(this, createArtistData(std::move(artist)));
+				return Artist::new$(this, createArtistData(std::move(artist), true));
 			}),
 			.tags=ArrayList<String>(),
 			.discNumber=track.discNumber,
@@ -115,8 +116,9 @@ namespace sh {
 		};
 	}
 
-	Artist::Data SpotifyProvider::createArtistData(SpotifyArtist artist) {
+	Artist::Data SpotifyProvider::createArtistData(SpotifyArtist artist, bool partial) {
 		return Artist::Data{{
+			.partial=partial,
 			.type=artist.type,
 			.name=artist.name,
 			.uri=artist.uri,
@@ -130,11 +132,12 @@ namespace sh {
 		};
 	}
 
-	Album::Data SpotifyProvider::createAlbumData(SpotifyAlbum album) {
+	Album::Data SpotifyProvider::createAlbumData(SpotifyAlbum album, bool partial) {
 		auto artists = album.artists.map<$<Artist>>([&](SpotifyArtist& artist) {
-			return Artist::new$(this, createArtistData(artist));
+			return Artist::new$(this, createArtistData(artist, true));
 		});
 		return Album::Data{{{
+			.partial=partial,
 			.type=album.type,
 			.name=album.name,
 			.uri=album.uri,
@@ -147,7 +150,7 @@ namespace sh {
 					.total=album.tracks->total,
 					.offset=album.tracks->offset,
 					.items=album.tracks->items.map<AlbumItem::Data>([&](SpotifyTrack& track) {
-						auto trackData = createTrackData(track);
+						auto trackData = createTrackData(track, true);
 						for(size_t i=0; i<trackData.artists.size(); i++) {
 							auto cmpArtist = trackData.artists[i];
 							auto artist = artists.firstWhere([&](auto artist) {
@@ -168,8 +171,9 @@ namespace sh {
 		};
 	}
 
-	Playlist::Data SpotifyProvider::createPlaylistData(SpotifyPlaylist playlist) {
+	Playlist::Data SpotifyProvider::createPlaylistData(SpotifyPlaylist playlist, bool partial) {
 		return Playlist::Data{{{
+			.partial=partial,
 			.type=playlist.type,
 			.name=playlist.name,
 			.uri=playlist.uri,
@@ -182,29 +186,30 @@ namespace sh {
 				.offset=playlist.tracks.offset,
 				.items=playlist.tracks.items.map<PlaylistItem::Data>([&](SpotifyPlaylist::Item& item) {
 					return PlaylistItem::Data{{
-						.track=Track::new$(this, createTrackData(item.track))
+						.track=Track::new$(this, createTrackData(item.track, true))
 						},
 						.addedAt=item.addedAt,
-						.addedBy=UserAccount::new$(this, createUserAccountData(item.addedBy))
+						.addedBy=UserAccount::new$(this, createUserAccountData(item.addedBy, true))
 					};
 				})
 			}
 			},
-			.owner=UserAccount::new$(this, createUserAccountData(playlist.owner))
+			.owner=UserAccount::new$(this, createUserAccountData(playlist.owner, true))
 		};
 	}
 
 	PlaylistItem::Data SpotifyProvider::createPlaylistItemData(SpotifyPlaylist::Item playlistItem) {
 		return PlaylistItem::Data{{
-			.track=Track::new$(this, createTrackData(playlistItem.track))
+			.track=Track::new$(this, createTrackData(playlistItem.track, true))
 			},
 			.addedAt=playlistItem.addedAt,
-			.addedBy=UserAccount::new$(this, createUserAccountData(playlistItem.addedBy))
+			.addedBy=UserAccount::new$(this, createUserAccountData(playlistItem.addedBy, true))
 		};
 	}
 
-	UserAccount::Data SpotifyProvider::createUserAccountData(SpotifyUser user) {
+	UserAccount::Data SpotifyProvider::createUserAccountData(SpotifyUser user, bool partial) {
 		return UserAccount::Data{{
+			.partial=partial,
 			.type=user.type,
 			.name=user.displayName.value_or(user.id),
 			.uri=user.uri,
@@ -230,26 +235,30 @@ namespace sh {
 
 	Promise<Track::Data> SpotifyProvider::getTrackData(String uri) {
 		return spotify->getTrack(idFromURI(uri)).map<Track::Data>([=](SpotifyTrack track) {
-			return createTrackData(track);
+			return createTrackData(track, false);
 		});
 	}
 
 	Promise<Artist::Data> SpotifyProvider::getArtistData(String uri) {
 		return spotify->getArtist(idFromURI(uri)).map<Artist::Data>([=](SpotifyArtist artist) {
-			return createArtistData(artist);
+			return createArtistData(artist, false);
 		});
 	}
 
 	Promise<Album::Data> SpotifyProvider::getAlbumData(String uri) {
 		return spotify->getAlbum(idFromURI(uri)).map<Album::Data>([=](SpotifyAlbum album) {
-			return createAlbumData(album);
+			return createAlbumData(album, false);
 		});
 	}
 
 	Promise<Playlist::Data> SpotifyProvider::getPlaylistData(String uri) {
 		return spotify->getPlaylist(idFromURI(uri)).map<Playlist::Data>([=](SpotifyPlaylist playlist) {
-			return createPlaylistData(playlist);
+			return createPlaylistData(playlist, false);
 		});
+	}
+
+	Promise<UserAccount::Data> SpotifyProvider::getUserData(String uri) {
+		return Promise<UserAccount::Data>::reject(std::logic_error("This method is not implemented"));
 	}
 
 

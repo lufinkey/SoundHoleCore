@@ -28,16 +28,18 @@ namespace sh {
 
 
 
-	bool Artist::needsData() const {
-		// TODO implement Artist::needsData
-		return false;
+	Promise<void> Artist::fetchData() {
+		auto self = selfAs<Artist>();
+		return provider->getArtistData(_uri).then([=](Data data) {
+			self->applyData(data);
+		});
 	}
 
-	Promise<void> Artist::fetchMissingData() {
-		return provider->getArtistData(_uri).then([=](Data data) {
-			_name = data.name;
+	void Artist::applyData(const Data& data) {
+		MediaItem::applyData(data);
+		if(data.description) {
 			_description = data.description;
-		});
+		}
 	}
 
 

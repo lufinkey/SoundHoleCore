@@ -39,6 +39,7 @@ namespace sh {
 		virtual Promise<Artist::Data> getArtistData(String uri) override;
 		virtual Promise<Album::Data> getAlbumData(String uri) override;
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) override;
+		virtual Promise<UserAccount::Data> getUserData(String uri) override;
 		
 		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album) override;
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) override;
@@ -47,9 +48,9 @@ namespace sh {
 		virtual const BandcampPlaybackProvider* player() const override;
 		
 	protected:
-		Track::Data createTrackData(BandcampTrack track);
-		Artist::Data createArtistData(BandcampArtist artist);
-		Album::Data createAlbumData(BandcampAlbum album);
+		Track::Data createTrackData(BandcampTrack track, bool partial);
+		Artist::Data createArtistData(BandcampArtist artist, bool partial);
+		Album::Data createAlbumData(BandcampAlbum album, bool partial);
 		
 	private:
 		static MediaItem::Image createImage(BandcampImage image);

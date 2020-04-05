@@ -39,7 +39,7 @@ namespace sh {
 						if(track->audioSources().has_value()) {
 							return Promise<void>::resolve();
 						}
-						return track->fetchMissingDataIfNeeded();
+						return track->fetchDataIfNeeded();
 					});
 				},
 				[=]() {
@@ -64,7 +64,7 @@ namespace sh {
 		return playQueue.run({.cancelAll=true}, [=](auto task) {
 			return generate_items<void>({
 				[=]() {
-					return track->fetchMissingDataIfNeeded();
+					return track->fetchDataIfNeeded();
 				},
 				[=]() {
 					if(!track->audioSources().has_value() || track->audioSources()->size() == 0) {

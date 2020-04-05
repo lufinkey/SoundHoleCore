@@ -174,7 +174,8 @@ namespace sh {
 					return createImage(image);
 				});
 				if(item.kind == "youtube#video") {
-					return std::static_pointer_cast<MediaItem>(Track::new$(this, {{
+					return std::static_pointer_cast<MediaItem>(Track::new$(this, Track::Data{{
+						.partial=true,
 						.type="track",
 						.name=item.snippet.title,
 						.uri=createURI("video", item.id.videoId.value()),
@@ -183,7 +184,8 @@ namespace sh {
 						.albumName="",
 						.albumURI="",
 						.artists=ArrayList<$<Artist>>{
-							Artist::new$(this, {{
+							Artist::new$(this, Artist::Data{{
+								.partial=true,
 								.type="artist",
 								.name=item.snippet.channelTitle,
 								.uri=createURI("channel", item.snippet.channelId),
@@ -199,7 +201,8 @@ namespace sh {
 						.audioSources=std::nullopt
 					}));
 				} else if(item.kind == "youtube#channel") {
-					return std::static_pointer_cast<MediaItem>(Artist::new$(this, {{
+					return std::static_pointer_cast<MediaItem>(Artist::new$(this, Artist::Data{{
+						.partial=true,
 						.type="artist",
 						.name=item.snippet.title,
 						.uri=createURI("channel", item.id.channelId.value()),
@@ -208,7 +211,8 @@ namespace sh {
 						.description=item.snippet.description
 					}));
 				} else if(item.kind == "youtube#playlist") {
-					return std::static_pointer_cast<MediaItem>(Playlist::new$(this, {{{
+					return std::static_pointer_cast<MediaItem>(Playlist::new$(this, Playlist::Data{{{
+						.partial=true,
 						.type="playlist",
 						.name=item.snippet.title,
 						.uri=createURI("playlist", item.id.playlistId.value()),
@@ -216,7 +220,8 @@ namespace sh {
 						},
 						.tracks=std::nullopt
 						},
-						.owner=UserAccount::new$(this, {{
+						.owner=UserAccount::new$(this, UserAccount::Data{{
+							.partial=true,
 							.type="user",
 							.name=item.snippet.channelTitle,
 							.uri=createURI("channel", item.snippet.channelId),
@@ -237,6 +242,7 @@ namespace sh {
 
 	Track::Data YoutubeProvider::createTrackData(YoutubeVideo video) {
 		return Track::Data{{
+			.partial=true,
 			.type="track",
 			.name=video.snippet.title,
 			.uri=createURI("video", video.id),
@@ -248,6 +254,7 @@ namespace sh {
 			.albumURI="",
 			.artists=ArrayList<$<Artist>>{
 				Artist::new$(this, Artist::Data{{
+					.partial=true,
 					.type="artist",
 					.name=video.snippet.channelTitle,
 					.uri=createURI("channel", video.snippet.channelId),
@@ -284,6 +291,7 @@ namespace sh {
 			throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "ytdl response is missing crucial video information");
 		}
 		return Track::Data{{
+			.partial=false,
 			.type="track",
 			.name=title,
 			.uri=createURI("video", videoId),
@@ -318,6 +326,7 @@ namespace sh {
 				ArrayList<$<Artist>> artists;
 				if(video.author && !video.author->id.empty()) {
 					artists.pushBack(Artist::new$(this, Artist::Data{{
+						.partial=true,
 						.type="artist",
 						.name=video.author->name,
 						.uri=createURI("channel", video.playerResponse->videoDetails->channelId),
@@ -338,6 +347,7 @@ namespace sh {
 					}));
 				} else if(video.playerResponse && video.playerResponse->videoDetails && !video.playerResponse->videoDetails->channelId.empty()) {
 					artists.pushBack(Artist::new$(this, Artist::Data{{
+						.partial=true,
 						.type="artist",
 						.name=video.playerResponse->videoDetails->author,
 						.uri=createURI("channel", video.playerResponse->videoDetails->channelId),
@@ -361,6 +371,7 @@ namespace sh {
 					}
 					if(artistURI.empty() || !artists.containsWhere([&](auto& cmpArtist) { return (artistURI == cmpArtist->uri()); })) {
 						artists.pushBack(Artist::new$(this, Artist::Data{{
+							.partial=true,
 							.type="artist",
 							.name=video.playerResponse->videoDetails->author,
 							.uri=createURI("channel", video.playerResponse->videoDetails->channelId),
@@ -402,6 +413,7 @@ namespace sh {
 
 	Artist::Data YoutubeProvider::createArtistData(YoutubeChannel channel) {
 		return Artist::Data{{
+			.partial=false,
 			.type="artist",
 			.name=channel.snippet.title,
 			.uri=createURI("channel", channel.id),
@@ -415,6 +427,7 @@ namespace sh {
 
 	Playlist::Data YoutubeProvider::createPlaylistData(YoutubePlaylist playlist) {
 		return Playlist::Data{{{
+			.partial=false,
 			.type="playlist",
 			.name=playlist.snippet.title,
 			.uri=createURI("playlist", playlist.id),
@@ -425,6 +438,7 @@ namespace sh {
 			.tracks=std::nullopt,
 			},
 			.owner=UserAccount::new$(this, UserAccount::Data{{
+				.partial=true,
 				.type="user",
 				.name=playlist.snippet.channelTitle,
 				.uri=createURI("channel", playlist.snippet.channelId)
@@ -437,7 +451,8 @@ namespace sh {
 
 	PlaylistItem::Data YoutubeProvider::createPlaylistItemData(YoutubePlaylistItem playlistItem) {
 		return PlaylistItem::Data{{
-			.track=Track::new$(this, {{
+			.track=Track::new$(this, Track::Data{{
+				.partial=true,
 				.type="track",
 				.name=playlistItem.snippet.title,
 				.uri=createURI("video", playlistItem.snippet.resourceId.videoId),
@@ -449,6 +464,7 @@ namespace sh {
 				.albumURI="",
 				.artists=ArrayList<$<Artist>>{
 					Artist::new$(this, Artist::Data{{
+						.partial=true,
 						.type="artist",
 						.name=playlistItem.snippet.channelTitle,
 						.uri=createURI("channel", playlistItem.snippet.channelId),
@@ -465,7 +481,8 @@ namespace sh {
 			})
 			},
 			.addedAt=playlistItem.snippet.publishedAt,
-			.addedBy=UserAccount::new$(this, {{
+			.addedBy=UserAccount::new$(this, UserAccount::Data{{
+				.partial=true,
 				.type="user",
 				.name=playlistItem.snippet.channelTitle,
 				.uri=createURI("channel", playlistItem.snippet.channelId),
@@ -536,6 +553,10 @@ namespace sh {
 		return youtube->getPlaylist(uri).map<Playlist::Data>([=](auto playlist) {
 			return createPlaylistData(playlist);
 		});
+	}
+
+	Promise<UserAccount::Data> YoutubeProvider::getUserData(String uri) {
+		return Promise<UserAccount::Data>::reject(std::logic_error("This method is not implemented yet"));
 	}
 
 

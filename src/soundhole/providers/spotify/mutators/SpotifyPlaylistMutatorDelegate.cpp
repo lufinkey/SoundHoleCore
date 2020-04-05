@@ -27,8 +27,7 @@ namespace sh {
 				return PlaylistItem::new$(playlist, provider->createPlaylistItemData(item));
 			});
 			mutator->lock([&]() {
-				mutator->resize(page.total);
-				mutator->apply(page.offset, items);
+				mutator->applyAndResize(page.offset, page.total, items);
 			});
 		});
 	}

@@ -10,13 +10,13 @@
 #include "MediaProvider.hpp"
 
 namespace sh {
-	$<Track> Track::new$(MediaProvider* provider, Data data) {
+	$<Track> Track::new$(MediaProvider* provider, const Data& data) {
 		$<MediaItem> ptr;
 		new Track(ptr, provider, data);
 		return std::static_pointer_cast<Track>(ptr);
 	}
 
-	Track::Track($<MediaItem>& ptr, MediaProvider* provider, Data data)
+	Track::Track($<MediaItem>& ptr, MediaProvider* provider, const Data& data)
 	: MediaItem(ptr, provider, data),
 	_albumName(data.albumName), _albumURI(data.albumURI), _artists(data.artists),
 	_tags(data.tags), _discNumber(data.discNumber), _trackNumber(data.trackNumber),
@@ -116,20 +116,31 @@ namespace sh {
 
 
 
-	bool Track::needsData() const {
-		return (!_duration.has_value() || (provider->player()->usesPublicAudioStreams() && !_audioSources.has_value()));
+	Promise<void> Track::fetchData() {
+		auto self = selfAs<Track>();
+		return provider->getTrackData(_uri).then([=](Data data) {
+			self->applyData(data);
+		});
 	}
 
-	Promise<void> Track::fetchMissingData() {
-		return provider->getTrackData(_uri).then([=](Data data) {
-			_albumName = data.albumName;
-			_albumURI = data.albumURI;
-			_tags = data.tags;
+	void Track::applyData(const Data& data) {
+		MediaItem::applyData(data);
+		_albumName = data.albumName;
+		_albumURI = data.albumURI;
+		_tags = data.tags;
+		if(data.discNumber) {
 			_discNumber = data.discNumber;
+		}
+		if(data.trackNumber) {
 			_trackNumber = data.trackNumber;
+		}
+		if(data.duration) {
 			_duration = data.duration;
+		}
+		if(data.audioSources) {
 			_audioSources = data.audioSources;
-		});
+		}
+		_playable = data.playable;
 	}
 
 

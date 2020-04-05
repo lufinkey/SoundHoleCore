@@ -170,14 +170,14 @@ namespace sh {
 						insertItems.pushBack(playlistItem);
 						prevIndex = item.snippet.position;
 					} else {
-						mutator->apply(insertStartIndex, insertItems);
+						mutator->applyAndResize(insertStartIndex, page.pageInfo.totalResults, insertItems);
 						insertItems.clear();
 						insertItems.pushBack(playlistItem);
 						insertStartIndex = item.snippet.position;
 					}
 				}
 				if(insertItems.size() > 0) {
-					mutator->apply(insertStartIndex, insertItems);
+					mutator->applyAndResize(insertStartIndex, page.pageInfo.totalResults, insertItems);
 				}
 			});
 			return Promise<LoadPager>::resolve(LoadPager{

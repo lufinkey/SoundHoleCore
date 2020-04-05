@@ -35,13 +35,14 @@ namespace sh {
 		virtual Promise<Artist::Data> getArtistData(String uri) override;
 		virtual Promise<Album::Data> getAlbumData(String uri) override;
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) override;
+		virtual Promise<UserAccount::Data> getUserData(String uri) override;
 		
 		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album) override;
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) override;
 		
 		virtual YoutubePlaybackProvider* player() override;
 		virtual const YoutubePlaybackProvider* player() const override;
-			
+		
 	protected:
 		Track::Data createTrackData(YoutubeVideo video);
 		Track::Data createTrackData(YoutubeVideoInfo video);

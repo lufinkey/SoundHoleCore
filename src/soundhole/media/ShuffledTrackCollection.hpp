@@ -48,8 +48,7 @@ namespace sh {
 		$<TrackCollection> source();
 		$<const TrackCollection> source() const;
 		
-		virtual bool needsData() const override;
-		virtual Promise<void> fetchMissingData() override;
+		virtual Promise<void> fetchData() override;
 		
 		virtual Json toJson(ToJsonOptions options) const override;
 		
