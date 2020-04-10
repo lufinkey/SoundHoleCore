@@ -577,4 +577,22 @@ namespace sh {
 			.queue=this->organizer->getQueue()
 		};
 	}
+
+
+
+	Json Player::ProgressData::toJson() const {
+		return Json::object{
+			{ "uri", (std::string)uri },
+			{ "providerName", (std::string)providerName },
+			{ "position", position }
+		};
+	}
+
+	Player::ProgressData Player::ProgressData::fromJson(Json json) {
+		return ProgressData{
+			.uri = json["uri"].string_value(),
+			.providerName = json["providerName"].string_value(),
+			.position = json["position"].number_value()
+		};
+	}
 }
