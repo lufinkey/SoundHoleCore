@@ -679,6 +679,7 @@ namespace sh {
 								}
 							}
 						}
+						return;
 					}
 					catch(...) {
 						printf("Failed to play track %s: %s\n",
