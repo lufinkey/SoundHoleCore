@@ -67,9 +67,11 @@ namespace sh {
 		
 		void addEventListener(EventListener* listener);
 		void removeEventListener(EventListener* listener);
+		bool hasEventListener(EventListener* listener);
 		#if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
 		void addEventListener(id<SHPlayerEventListener> listener);
 		void removeEventListener(id<SHPlayerEventListener> listener);
+		bool hasEventListener(id<SHPlayerEventListener> listener);
 		#endif
 		
 		Promise<void> load(MediaProviderStash* stash);

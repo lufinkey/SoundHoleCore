@@ -139,6 +139,11 @@ namespace sh {
 		listeners.removeLastEqual(listener);
 	}
 
+	bool Player::hasEventListener(EventListener* listener) {
+		std::unique_lock<std::mutex> lock(listenersMutex);
+		return listeners.contains(listener);
+	}
+
 
 
 	Promise<void> Player::play($<Track> track) {

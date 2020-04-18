@@ -65,18 +65,28 @@ namespace sh {
 	
 	void Player::removeEventListener(id<SHPlayerEventListener> listener) {
 		std::unique_lock<std::mutex> lock(listenersMutex);
-		auto listenerWrapper = listeners.firstWhere([&](auto& cmpListener) {
+		auto listenerWrapperIt = listeners.findWhere([&](auto& cmpListener) {
 			if(auto cmpListenerWrapper = dynamic_cast<SHPlayerEventListenerWrapper*>(cmpListener)) {
 				return (cmpListenerWrapper->getObjCListener() == listener);
 			}
 			return false;
-		}, nullptr);
-		if(listenerWrapper == nullptr) {
+		});
+		if(listenerWrapperIt == listeners.end()) {
 			return;
 		}
-		lock.unlock();
-		removeEventListener(listenerWrapper);
+		auto listenerWrapper = *listenerWrapperIt;
+		listeners.erase(listenerWrapperIt);
 		delete listenerWrapper;
+	}
+
+	bool Player::hasEventListener(id<SHPlayerEventListener> listener) {
+		std::unique_lock<std::mutex> lock(listenersMutex);
+		return listeners.containsWhere([&](auto cmpListener) {
+			if(auto cmpListenerWrapper = dynamic_cast<SHPlayerEventListenerWrapper*>(cmpListener)) {
+				return (cmpListenerWrapper->getObjCListener() == listener);
+			}
+			return false;
+		});
 	}
 	
 	void Player::deleteObjcListenerWrappers() {
