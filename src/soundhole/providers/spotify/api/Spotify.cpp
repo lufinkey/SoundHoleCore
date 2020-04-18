@@ -164,19 +164,19 @@ namespace sh {
 	
 	Promise<void> Spotify::setPlaying(bool playing) {
 		return prepareForPlayer().then([=]() -> Promise<void> {
-			return setPlaying(playing);
+			return player->setPlaying(playing);
 		});
 	}
 	
 	Promise<void> Spotify::setShuffling(bool shuffling) {
 		return prepareForPlayer().then([=]() -> Promise<void> {
-			return setShuffling(shuffling);
+			return player->setShuffling(shuffling);
 		});
 	}
 	
 	Promise<void> Spotify::setRepeating(bool repeating) {
 		return prepareForPlayer().then([=]() -> Promise<void> {
-			return setRepeating(repeating);
+			return player->setRepeating(repeating);
 		});
 	}
 	
