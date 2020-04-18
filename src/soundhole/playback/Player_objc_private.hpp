@@ -32,8 +32,4 @@ namespace sh {
 	};
 }
 
-#else
-namespace sh {
-	class SHPlayerEventListenerWrapper;
-}
 #endif
