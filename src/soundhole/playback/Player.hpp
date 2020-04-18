@@ -12,6 +12,10 @@
 #include <soundhole/media/MediaProvider.hpp>
 #include "PlaybackOrganizer.hpp"
 
+#ifdef __OBJC__
+@protocol SHPlayerEventListener;
+#endif
+
 namespace sh {
 	class Player: public std::enable_shared_from_this<Player>, protected PlaybackOrganizer::Delegate, protected PlaybackOrganizer::EventListener, protected MediaPlaybackProvider::EventListener {
 	public:
@@ -63,6 +67,10 @@ namespace sh {
 		
 		void addEventListener(EventListener* listener);
 		void removeEventListener(EventListener* listener);
+		#if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
+		void addEventListener(id<SHPlayerEventListener> listener);
+		void removeEventListener(id<SHPlayerEventListener> listener);
+		#endif
 		
 		Promise<void> load(MediaProviderStash* stash);
 		struct SaveOptions {
@@ -136,6 +144,10 @@ namespace sh {
 		void onPlayerStateInterval();
 		
 		Event createEvent();
+		
+		#if defined(TARGETPLATFORM_IOS)
+		void deleteObjcListenerWrappers();
+		#endif
 		
 		Options options;
 		

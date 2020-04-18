@@ -12,3 +12,6 @@
 #include <soundhole/providers/spotify/SpotifyProvider.hpp>
 #include <soundhole/providers/youtube/YoutubeProvider.hpp>
 #include <soundhole/playback/Player.hpp>
+#ifdef __OBJC__
+#include <soundhole/playback/Player_objc.hpp>
+#endif

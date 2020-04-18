@@ -8,6 +8,7 @@
 
 #include "Player.hpp"
 #include <soundhole/utils/Utils.hpp>
+#include "Player_objc_private.hpp"
 
 namespace sh {
 	$<Player> Player::new$(Options options) {
@@ -27,8 +28,10 @@ namespace sh {
 		organizer->stop();
 		setMediaProvider(nullptr);
 		stopPlayerStateInterval();
+		#if defined(TARGETPLATFORM_IOS)
+		deleteObjcListenerWrappers();
+		#endif
 	}
-
 
 
 

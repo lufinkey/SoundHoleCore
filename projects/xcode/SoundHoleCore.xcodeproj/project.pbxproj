@@ -178,6 +178,9 @@
 		A5E851CE235DFEBC0001F74D /* BandcampMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5E851CC235DFEBC0001F74D /* BandcampMediaTypes.cpp */; };
 		A5E851CF235DFEBC0001F74D /* BandcampMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5E851CC235DFEBC0001F74D /* BandcampMediaTypes.cpp */; };
 		A5E851D0235DFEBC0001F74D /* BandcampMediaTypes.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5E851CD235DFEBC0001F74D /* BandcampMediaTypes.hpp */; };
+		A5F9F63E244AB6CE00E80C7A /* Player_objc.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5F9F63C244AB6CE00E80C7A /* Player_objc.hpp */; };
+		A5F9F63F244AB6CE00E80C7A /* Player_objc.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5F9F63D244AB6CE00E80C7A /* Player_objc.mm */; };
+		A5F9F640244AB6CE00E80C7A /* Player_objc.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5F9F63D244AB6CE00E80C7A /* Player_objc.mm */; };
 		CD1A74B29839C57A94EAACD7 /* libPods-SoundHoleCoreTest-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */; };
 /* End PBXBuildFile section */
 
@@ -359,6 +362,9 @@
 		A5E851C7235A56BD0001F74D /* YoutubeError.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = YoutubeError.hpp; sourceTree = "<group>"; };
 		A5E851CC235DFEBC0001F74D /* BandcampMediaTypes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampMediaTypes.cpp; sourceTree = "<group>"; };
 		A5E851CD235DFEBC0001F74D /* BandcampMediaTypes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BandcampMediaTypes.hpp; sourceTree = "<group>"; };
+		A5F9F63C244AB6CE00E80C7A /* Player_objc.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Player_objc.hpp; sourceTree = "<group>"; };
+		A5F9F63D244AB6CE00E80C7A /* Player_objc.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Player_objc.mm; sourceTree = "<group>"; };
+		A5F9F641244AB8E200E80C7A /* Player_objc_private.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Player_objc_private.hpp; sourceTree = "<group>"; };
 		AFF721677F756E337195FAB1 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -595,6 +601,9 @@
 			children = (
 				A52826E123F09B6200360508 /* Player.hpp */,
 				A52826E023F09B6200360508 /* Player.cpp */,
+				A5F9F63C244AB6CE00E80C7A /* Player_objc.hpp */,
+				A5F9F641244AB8E200E80C7A /* Player_objc_private.hpp */,
+				A5F9F63D244AB6CE00E80C7A /* Player_objc.mm */,
 				A578785423DE547F00B6B0A5 /* PlaybackOrganizer.hpp */,
 				A578785323DE547F00B6B0A5 /* PlaybackOrganizer.cpp */,
 				A54F2546239DAA2700C81E1C /* StreamPlayer.hpp */,
@@ -833,6 +842,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A5F9F63E244AB6CE00E80C7A /* Player_objc.hpp in Headers */,
 				A513ED93232DA20B000DCAC7 /* MediaProvider.hpp in Headers */,
 				A5E851D0235DFEBC0001F74D /* BandcampMediaTypes.hpp in Headers */,
 				A57378A423D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.hpp in Headers */,
@@ -1161,6 +1171,7 @@
 				A5AB5BC42368B1630028851A /* YoutubeMediaTypes.cpp in Sources */,
 				A5E851C8235A56BD0001F74D /* YoutubeError.cpp in Sources */,
 				A52826E223F09B6200360508 /* Player.cpp in Sources */,
+				A5F9F63F244AB6CE00E80C7A /* Player_objc.mm in Sources */,
 				A513ED8D232DA20B000DCAC7 /* MediaProvider.cpp in Sources */,
 				A571E12E2332C5A300603E14 /* SpotifyProvider.cpp in Sources */,
 				A5B7A7C5233EA8CC00301FC0 /* SHProgressView_iOS.mm in Sources */,
@@ -1194,6 +1205,7 @@
 				A5B7A78F2335C91800301FC0 /* SoundHoleError.cpp in Sources */,
 				A57378A323D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp in Sources */,
 				A578785123DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp in Sources */,
+				A5F9F640244AB6CE00E80C7A /* Player_objc.mm in Sources */,
 				A5B9736623822C0100FB3F1C /* TrackCollection.cpp in Sources */,
 				A5485A1F238CCB5F00CB7749 /* UserAccount.cpp in Sources */,
 				A5E851A62357B1660001F74D /* Bandcamp.cpp in Sources */,
