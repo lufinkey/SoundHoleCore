@@ -52,7 +52,6 @@ namespace sh {
 		virtual SpotifyPlaybackProvider* player() override;
 		virtual const SpotifyPlaybackProvider* player() const override;
 		
-	protected:
 		Track::Data createTrackData(SpotifyTrack track, bool partial);
 		Artist::Data createArtistData(SpotifyArtist artist, bool partial);
 		Album::Data createAlbumData(SpotifyAlbum album, bool partial);

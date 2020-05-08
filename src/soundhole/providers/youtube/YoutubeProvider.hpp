@@ -43,7 +43,6 @@ namespace sh {
 		virtual YoutubePlaybackProvider* player() override;
 		virtual const YoutubePlaybackProvider* player() const override;
 		
-	protected:
 		Track::Data createTrackData(YoutubeVideo video);
 		Track::Data createTrackData(YoutubeVideoInfo video);
 		Artist::Data createArtistData(YoutubeChannel channel);

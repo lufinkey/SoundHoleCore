@@ -31,9 +31,9 @@ namespace sh {
 		virtual State state() const override;
 		virtual Metadata metadata() const override;
 		
-	protected:
 		Track::Data createTrackData(SpotifyPlayer::Track track) const;
 		
+	protected:
 		virtual void onSpotifyPlaybackEvent(SpotifyPlayer* player, SpotifyPlaybackEvent event) override;
 		
 	private:

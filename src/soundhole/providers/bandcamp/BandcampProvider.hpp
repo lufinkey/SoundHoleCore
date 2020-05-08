@@ -47,7 +47,6 @@ namespace sh {
 		virtual BandcampPlaybackProvider* player() override;
 		virtual const BandcampPlaybackProvider* player() const override;
 		
-	protected:
 		Track::Data createTrackData(BandcampTrack track, bool partial);
 		Artist::Data createArtistData(BandcampArtist artist, bool partial);
 		Album::Data createAlbumData(BandcampAlbum album, bool partial);
