@@ -21,8 +21,24 @@ namespace sh {
 			CHANNEL,
 			PLAYLIST
 		};
-		
 		static String MediaType_toString(MediaType);
+		
+		enum class ResultPart {
+			ID,
+			SNIPPET,
+			CONTENT_DETAILS
+		};
+		static String ResultPart_toString(ResultPart);
+		
+		enum class SearchOrder {
+			RELEVANCE,
+			DATE,
+			RATING,
+			TITLE,
+			VIDEO_COUNT,
+			VIEW_COUNT
+		};
+		static String SearchOrder_toString(SearchOrder);
 		
 		struct Options {
 			String apiKey;
@@ -37,15 +53,23 @@ namespace sh {
 		Promise<Json> sendApiRequest(utils::HttpMethod method, String endpoint, std::map<String,String> query, Json body);
 		
 		struct SearchOptions {
-			String pageToken;
 			ArrayList<MediaType> types;
+			Optional<size_t> maxResults;
+			String pageToken;
+			String channelId;
+			Optional<SearchOrder> order;
 		};
 		Promise<YoutubePage<YoutubeSearchResult>> search(String query, SearchOptions options);
 		
 		Promise<YoutubeVideoInfo> getVideoInfo(String id);
 		
 		Promise<YoutubeVideo> getVideo(String id);
-		Promise<YoutubeChannel> getChannel(String id);
+		
+		struct GetChannelOptions {
+			ArrayList<ResultPart> parts = { ResultPart::ID, ResultPart::SNIPPET };
+		};
+		Promise<YoutubeChannel> getChannel(String id, GetChannelOptions options = GetChannelOptions{.parts={ResultPart::ID,ResultPart::SNIPPET}});
+		
 		Promise<YoutubePlaylist> getPlaylist(String id);
 		
 		struct GetPlaylistItemsOptions {

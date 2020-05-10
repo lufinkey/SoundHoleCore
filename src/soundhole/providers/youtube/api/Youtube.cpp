@@ -23,8 +23,39 @@ namespace sh {
 			case MediaType::PLAYLIST:
 				return "playlist";
 		}
-		throw std::runtime_error("invalid MediaType value");
+		throw std::invalid_argument("invalid Youtube::MediaType value");
 	}
+
+	String Youtube::ResultPart_toString(ResultPart part) {
+		switch(part) {
+			case ResultPart::ID:
+				return "id";
+			case ResultPart::SNIPPET:
+				return "snippet";
+			case ResultPart::CONTENT_DETAILS:
+				return "contentDetails";
+		}
+		throw std::invalid_argument("invalid Youtube::ResultPart value");
+	}
+
+	String Youtube::SearchOrder_toString(SearchOrder order) {
+		switch(order) {
+			case SearchOrder::RELEVANCE:
+				return "relevance";
+			case SearchOrder::DATE:
+				return "date";
+			case SearchOrder::RATING:
+				return "rating";
+			case SearchOrder::TITLE:
+				return "title";
+			case SearchOrder::VIDEO_COUNT:
+				return "videoCount";
+			case SearchOrder::VIEW_COUNT:
+				return "viewCount";
+		}
+		throw std::invalid_argument("invalid Youtube::SearchOrder value");
+	}
+
 
 
 	Youtube::Youtube(Options options)
@@ -83,16 +114,27 @@ namespace sh {
 
 	Promise<YoutubePage<YoutubeSearchResult>> Youtube::search(String query, SearchOptions options) {
 		auto params = std::map<String,String>{
-			{ "q", query },
 			{ "part", "id,snippet" }
 		};
+		if(!query.empty()) {
+			params["q"] = query;
+		}
 		if(options.types.size() > 0) {
 			params["type"] = String::join(options.types.map<String>([](auto& type) -> String {
 				return MediaType_toString(type);
 			}), ",");
 		}
+		if(options.maxResults.has_value()) {
+			params["maxResults"] = std::to_string(options.maxResults.value());
+		}
 		if(!options.pageToken.empty()) {
 			params["pageToken"] = options.pageToken;
+		}
+		if(!options.channelId.empty()) {
+			params["channelId"] = options.channelId;
+		}
+		if(options.order.has_value()) {
+			params["order"] = SearchOrder_toString(options.order.value());
 		}
 		return sendApiRequest(utils::HttpMethod::GET, "search", params, nullptr)
 		.map<YoutubePage<YoutubeSearchResult>>([](auto json) {
@@ -135,10 +177,12 @@ namespace sh {
 		});
 	}
 
-	Promise<YoutubeChannel> Youtube::getChannel(String id) {
+	Promise<YoutubeChannel> Youtube::getChannel(String id, GetChannelOptions options) {
 		return sendApiRequest(utils::HttpMethod::GET, "channels", {
 			{ "id", id },
-			{ "part", "id,snippet" }
+			{ "part", String::join(options.parts.map<String>([](auto part) {
+				return ResultPart_toString(part);
+			}), ",") }
 		}, nullptr).map<YoutubeChannel>([](auto json) {
 			return YoutubeChannel::fromJson(json);
 		});

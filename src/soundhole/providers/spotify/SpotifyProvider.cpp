@@ -11,6 +11,8 @@
 #include "mutators/SpotifyPlaylistMutatorDelegate.hpp"
 
 namespace sh {
+#define FROM_TOKEN "from_token"
+
 	SpotifyProvider::SpotifyProvider(Options options)
 	: spotify(new Spotify(options)),
 	_player(new SpotifyPlaybackProvider(this)) {
@@ -259,6 +261,44 @@ namespace sh {
 
 	Promise<UserAccount::Data> SpotifyProvider::getUserData(String uri) {
 		return Promise<UserAccount::Data>::reject(std::logic_error("This method is not implemented"));
+	}
+
+
+
+
+	Promise<ArrayList<$<Track>>> SpotifyProvider::getArtistTopTracks(String artistURI) {
+		return spotify->getArtistTopTracks(idFromURI(artistURI), FROM_TOKEN).map<ArrayList<$<Track>>>(nullptr, [=](ArrayList<SpotifyTrack> tracks) {
+			return tracks.map<$<Track>>([=](auto track) {
+				return Track::new$(this, createTrackData(track, false));
+			});
+		});
+	}
+
+	ContinuousGenerator<SpotifyProvider::LoadBatch<$<Album>>,void> SpotifyProvider::getArtistAlbums(String artistURI) {
+		String artistId = idFromURI(artistURI);
+		struct SharedData {
+			size_t offset = 0;
+		};
+		auto sharedData = fgl::new$<SharedData>();
+		using YieldResult = typename ContinuousGenerator<LoadBatch<$<Album>>,void>::YieldResult;
+		return ContinuousGenerator<LoadBatch<$<Album>>,void>([=]() {
+			return spotify->getArtistAlbums(artistId, {
+				.offset=sharedData->offset
+			}).map<YieldResult>([=](auto page) {
+				auto loadBatch = LoadBatch<$<Album>>{
+					.items=page.items.template map<$<Album>>([=](auto album) {
+						return Album::new$(this, createAlbumData(album,true));
+					}),
+					.total=page.total
+				};
+				sharedData->offset += page.items.size();
+				bool done = (sharedData->offset >= page.total);
+				return YieldResult{
+					.value=loadBatch,
+					.done=done
+				};
+			});
+		});
 	}
 
 

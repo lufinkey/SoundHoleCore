@@ -147,11 +147,14 @@ namespace sh {
 
 
 	YoutubeChannel YoutubeChannel::fromJson(const Json& json) {
+		auto snippetJson = json["snippet"];
+		auto contentDetailsJson = json["contentDetails"];
 		return YoutubeChannel{
 			.kind = json["kind"].string_value(),
 			.etag = json["etag"].string_value(),
 			.id = json["id"].string_value(),
-			.snippet = Snippet::fromJson(json["snippet"])
+			.snippet = snippetJson.is_null() ? std::nullopt : maybe(Snippet::fromJson(json["snippet"])),
+			.contentDetails = contentDetailsJson.is_null() ? std::nullopt : maybe(ContentDetails::fromJson(json["contentDetails"]))
 		};
 	}
 
@@ -182,6 +185,22 @@ namespace sh {
 			}
 		}
 		return std::nullopt;
+	}
+
+	YoutubeChannel::ContentDetails YoutubeChannel::ContentDetails::fromJson(const Json& json) {
+		return ContentDetails{
+			.relatedPlaylists=RelatedPlaylists::fromJson(json["relatedPlaylists"])
+		};
+	}
+
+	YoutubeChannel::ContentDetails::RelatedPlaylists YoutubeChannel::ContentDetails::RelatedPlaylists::fromJson(const Json& json) {
+		return RelatedPlaylists{
+			.likes = json["liked"].string_value(),
+			.favorites = json["favorites"].string_value(),
+			.uploads = json["uploads"].string_value(),
+			.watchHistory = json["watchHistory"].string_value(),
+			.watchLater = json["watchLater"].string_value()
+		};
 	}
 
 

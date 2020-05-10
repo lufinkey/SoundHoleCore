@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <tuple>
 #include <soundhole/common.hpp>
 #include <soundhole/media/MediaProvider.hpp>
 #include "BandcampPlaybackProvider.hpp"
@@ -30,7 +31,7 @@ namespace sh {
 		struct SearchResults {
 			String prevURL;
 			String nextURL;
-			ArrayList<$<MediaItem>> items;
+			LinkedList<$<MediaItem>> items;
 		};
 		using SearchOptions = Bandcamp::SearchOptions;
 		Promise<SearchResults> search(String query, SearchOptions options={.page=0});
@@ -40,6 +41,10 @@ namespace sh {
 		virtual Promise<Album::Data> getAlbumData(String uri) override;
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) override;
 		virtual Promise<UserAccount::Data> getUserData(String uri) override;
+		
+		virtual Promise<ArrayList<$<Track>>> getArtistTopTracks(String artistURI) override;
+		Promise<std::tuple<$<Artist>,LinkedList<$<Album>>>> getArtistAndAlbums(String artistURI);
+		virtual ContinuousGenerator<LoadBatch<$<Album>>,void> getArtistAlbums(String artistURI) override;
 		
 		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album) override;
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) override;

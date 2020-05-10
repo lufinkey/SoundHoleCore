@@ -37,6 +37,9 @@ namespace sh {
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) override;
 		virtual Promise<UserAccount::Data> getUserData(String uri) override;
 		
+		virtual Promise<ArrayList<$<Track>>> getArtistTopTracks(String artistURI) override;
+		virtual ContinuousGenerator<LoadBatch<$<Album>>,void> getArtistAlbums(String artistURI) override;
+		
 		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album) override;
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) override;
 		
@@ -48,6 +51,7 @@ namespace sh {
 		Artist::Data createArtistData(YoutubeChannel channel);
 		Playlist::Data createPlaylistData(YoutubePlaylist playlist);
 		PlaylistItem::Data createPlaylistItemData(YoutubePlaylistItem playlistItem);
+		$<MediaItem> createMediaItem(YoutubeSearchResult searchResult);
 		
 	private:
 		struct URI {

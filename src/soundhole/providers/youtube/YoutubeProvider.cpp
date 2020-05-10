@@ -170,69 +170,7 @@ namespace sh {
 	Promise<YoutubePage<$<MediaItem>>> YoutubeProvider::search(String query, SearchOptions options) {
 		return youtube->search(query, options).map<YoutubePage<$<MediaItem>>>([=](YoutubePage<YoutubeSearchResult> searchResults) {
 			return searchResults.template map<$<MediaItem>>([&](auto& item) {
-				auto images = item.snippet.thumbnails.template map<MediaItem::Image>([&](auto& image) {
-					return createImage(image);
-				});
-				if(item.kind == "youtube#video") {
-					return std::static_pointer_cast<MediaItem>(Track::new$(this, Track::Data{{
-						.partial=true,
-						.type="track",
-						.name=item.snippet.title,
-						.uri=createURI("video", item.id.videoId.value()),
-						.images=images
-						},
-						.albumName="",
-						.albumURI="",
-						.artists=ArrayList<$<Artist>>{
-							Artist::new$(this, Artist::Data{{
-								.partial=true,
-								.type="artist",
-								.name=item.snippet.channelTitle,
-								.uri=createURI("channel", item.snippet.channelId),
-								.images=std::nullopt
-								},
-								.description=std::nullopt
-							})
-						},
-						.tags=std::nullopt,
-						.discNumber=std::nullopt,
-						.trackNumber=std::nullopt,
-						.duration=std::nullopt,
-						.audioSources=std::nullopt
-					}));
-				} else if(item.kind == "youtube#channel") {
-					return std::static_pointer_cast<MediaItem>(Artist::new$(this, Artist::Data{{
-						.partial=true,
-						.type="artist",
-						.name=item.snippet.title,
-						.uri=createURI("channel", item.id.channelId.value()),
-						.images=images
-						},
-						.description=item.snippet.description
-					}));
-				} else if(item.kind == "youtube#playlist") {
-					return std::static_pointer_cast<MediaItem>(Playlist::new$(this, Playlist::Data{{{
-						.partial=true,
-						.type="playlist",
-						.name=item.snippet.title,
-						.uri=createURI("playlist", item.id.playlistId.value()),
-						.images=images
-						},
-						.tracks=std::nullopt
-						},
-						.owner=UserAccount::new$(this, UserAccount::Data{{
-							.partial=true,
-							.type="user",
-							.name=item.snippet.channelTitle,
-							.uri=createURI("channel", item.snippet.channelId),
-							.images=std::nullopt
-							},
-							.id=item.snippet.channelId,
-							.displayName=item.snippet.channelTitle
-						})
-					}));
-				}
-				throw std::logic_error("Invalid youtube item kind "+item.kind);
+				return createMediaItem(item);
 			});
 		});
 	}
@@ -412,16 +350,19 @@ namespace sh {
 	}
 
 	Artist::Data YoutubeProvider::createArtistData(YoutubeChannel channel) {
+		if(!channel.snippet.has_value()) {
+			throw std::invalid_argument("YoutubeChannel is missing snippet value");
+		}
 		return Artist::Data{{
 			.partial=false,
 			.type="artist",
-			.name=channel.snippet.title,
+			.name=channel.snippet->title,
 			.uri=createURI("channel", channel.id),
-			.images=channel.snippet.thumbnails.map<MediaItem::Image>([&](auto image) {
+			.images=channel.snippet->thumbnails.map<MediaItem::Image>([&](auto image) {
 				return createImage(image);
 			})
 			},
-			.description=channel.snippet.description
+			.description=channel.snippet->description
 		};
 	}
 
@@ -522,13 +463,79 @@ namespace sh {
 		};
 	}
 
+	$<MediaItem> YoutubeProvider::createMediaItem(YoutubeSearchResult searchResult) {
+		auto images = searchResult.snippet.thumbnails.template map<MediaItem::Image>([&](auto& image) {
+			return createImage(image);
+		});
+		if(searchResult.kind == "youtube#video") {
+			return std::static_pointer_cast<MediaItem>(Track::new$(this, Track::Data{{
+				.partial=true,
+				.type="track",
+				.name=searchResult.snippet.title,
+				.uri=createURI("video", searchResult.id.videoId.value()),
+				.images=images
+				},
+				.albumName="",
+				.albumURI="",
+				.artists=ArrayList<$<Artist>>{
+					Artist::new$(this, Artist::Data{{
+						.partial=true,
+						.type="artist",
+						.name=searchResult.snippet.channelTitle,
+						.uri=createURI("channel", searchResult.snippet.channelId),
+						.images=std::nullopt
+						},
+						.description=std::nullopt
+					})
+				},
+				.tags=std::nullopt,
+				.discNumber=std::nullopt,
+				.trackNumber=std::nullopt,
+				.duration=std::nullopt,
+				.audioSources=std::nullopt
+			}));
+		} else if(searchResult.kind == "youtube#channel") {
+			return std::static_pointer_cast<MediaItem>(Artist::new$(this, Artist::Data{{
+				.partial=true,
+				.type="artist",
+				.name=searchResult.snippet.title,
+				.uri=createURI("channel", searchResult.id.channelId.value()),
+				.images=images
+				},
+				.description=searchResult.snippet.description
+			}));
+		} else if(searchResult.kind == "youtube#playlist") {
+			return std::static_pointer_cast<MediaItem>(Playlist::new$(this, Playlist::Data{{{
+				.partial=true,
+				.type="playlist",
+				.name=searchResult.snippet.title,
+				.uri=createURI("playlist", searchResult.id.playlistId.value()),
+				.images=images
+				},
+				.tracks=std::nullopt
+				},
+				.owner=UserAccount::new$(this, UserAccount::Data{{
+					.partial=true,
+					.type="user",
+					.name=searchResult.snippet.channelTitle,
+					.uri=createURI("channel", searchResult.snippet.channelId),
+					.images=std::nullopt
+					},
+					.id=searchResult.snippet.channelId,
+					.displayName=searchResult.snippet.channelTitle
+				})
+			}));
+		}
+		throw std::logic_error("Invalid youtube item kind "+searchResult.kind);
+	}
+
 
 
 
 	Promise<Track::Data> YoutubeProvider::getTrackData(String uri) {
 		auto uriParts = parseURI(uri);
 		if(uriParts.type != "video") {
-			throw std::invalid_argument("invalid uri type "+uriParts.type);
+			throw std::invalid_argument(uri+" is not a video URI");
 		}
 		return youtube->getVideoInfo(uriParts.id).map<Track::Data>([=](auto track) {
 			return createTrackData(track);
@@ -537,10 +544,12 @@ namespace sh {
 
 	Promise<Artist::Data> YoutubeProvider::getArtistData(String uri) {
 		auto uriParts = parseURI(uri);
-		if(uriParts.type == "channel") {
-			throw std::invalid_argument("invalid uri type "+uriParts.type);
+		if(uriParts.type != "channel") {
+			throw std::invalid_argument(uri+" is not a channel URI");
 		}
-		return youtube->getChannel(uri).map<Artist::Data>([=](auto channel) {
+		return youtube->getChannel(uri, {
+			.parts={Youtube::ResultPart::ID, Youtube::ResultPart::SNIPPET}
+		}).map<Artist::Data>([=](auto channel) {
 			return createArtistData(channel);
 		});
 	}
@@ -557,6 +566,33 @@ namespace sh {
 
 	Promise<UserAccount::Data> YoutubeProvider::getUserData(String uri) {
 		return Promise<UserAccount::Data>::reject(std::logic_error("This method is not implemented yet"));
+	}
+
+
+
+	Promise<ArrayList<$<Track>>> YoutubeProvider::getArtistTopTracks(String artistURI) {
+		auto uriParts = parseURI(artistURI);
+		if(uriParts.type != "channel") {
+			throw std::invalid_argument(artistURI+" is not a channel URI");
+		}
+		return youtube->search("", {
+			.types={ Youtube::MediaType::VIDEO },
+			.maxResults=10
+		}).map<ArrayList<$<Track>>>([=](auto page) {
+			return page.items.template map<$<Track>>([&](auto searchResult) {
+				if(searchResult.kind != "youtube#video") {
+					throw std::invalid_argument("Youtube::search returned unexpected item kind "+searchResult.kind);
+				}
+				return std::static_pointer_cast<Track>(createMediaItem(searchResult));
+			});
+		});
+	}
+
+	ContinuousGenerator<YoutubeProvider::LoadBatch<$<Album>>,void> YoutubeProvider::getArtistAlbums(String artistURI) {
+		using YieldResult = typename ContinuousGenerator<YoutubeProvider::LoadBatch<$<Album>>,void>::YieldResult;
+		return ContinuousGenerator<LoadBatch<$<Album>>,void>([=]() {
+			return Promise<YieldResult>::reject(std::logic_error("Youtube does not support albums"));
+		});
 	}
 
 

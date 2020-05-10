@@ -353,6 +353,54 @@ namespace sh {
 
 
 
+	Promise<ArrayList<$<Track>>> BandcampProvider::getArtistTopTracks(String artistURI) {
+		return Promise<ArrayList<$<Track>>>::reject(std::runtime_error("Bandcamp does not have Top Tracks"));
+	}
+
+	Promise<std::tuple<$<Artist>,LinkedList<$<Album>>>> BandcampProvider::getArtistAndAlbums(String artistURI) {
+		using ArtistAlbumsTuple = std::tuple<$<Artist>,LinkedList<$<Album>>>;
+		return bandcamp->getArtist(artistURI).map<ArtistAlbumsTuple>([=](auto bcArtist) {
+			if(!bcArtist.albums) {
+				throw std::runtime_error("Failed to parse bandcamp artist's albums");
+			}
+			auto artist = Artist::new$(this, createArtistData(bcArtist, false));
+			return ArtistAlbumsTuple{
+				artist,
+				bcArtist.albums->template map<$<Album>>([=](auto bcAlbum) {
+					auto data = createAlbumData(bcAlbum, true);
+					for(size_t i=0; i<data.artists.size(); i++) {
+						auto cmpArtist = data.artists[i];
+						if(cmpArtist->uri() == artist->uri()) {
+							data.artists[i] = artist;
+							break;
+						}
+					}
+					return Album::new$(this,data);
+				})
+			};
+		});
+	}
+
+	ContinuousGenerator<BandcampProvider::LoadBatch<$<Album>>,void> BandcampProvider::getArtistAlbums(String artistURI) {
+		using YieldResult = typename Generator<LoadBatch<$<Album>>,void>::YieldResult;
+		return ContinuousGenerator<LoadBatch<$<Album>>,void>([=]() {
+			return getArtistAndAlbums(artistURI).map<YieldResult>([=](auto tuple) {
+				auto& albums = std::get<LinkedList<$<Album>>>(tuple);
+				size_t total = albums.size();
+				return YieldResult{
+					.value=LoadBatch<$<Album>>{
+						.items=std::move(albums),
+						.total=total
+					},
+					.done=true
+				};
+			});
+		});
+	}
+
+
+
+
 	Album::MutatorDelegate* BandcampProvider::createAlbumMutatorDelegate($<Album> album) {
 		return new BandcampAlbumMutatorDelegate(album);
 	}

@@ -20,6 +20,12 @@
 namespace sh {
 	class MediaProvider {
 	public:
+		template<typename T>
+		struct LoadBatch {
+			LinkedList<T> items;
+			Optional<size_t> total;
+		};
+		
 		MediaProvider(const MediaProvider&) = delete;
 		MediaProvider& operator=(const MediaProvider&) = delete;
 		
@@ -44,6 +50,9 @@ namespace sh {
 		virtual Promise<$<Album>> getAlbum(String uri);
 		virtual Promise<$<Playlist>> getPlaylist(String uri);
 		virtual Promise<$<UserAccount>> getUser(String uri);
+		
+		virtual Promise<ArrayList<$<Track>>> getArtistTopTracks(String artistURI) = 0;
+		virtual ContinuousGenerator<LoadBatch<$<Album>>,void> getArtistAlbums(String artistURI) = 0;
 		
 		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album) = 0;
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) = 0;
