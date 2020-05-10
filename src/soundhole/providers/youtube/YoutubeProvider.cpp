@@ -577,7 +577,9 @@ namespace sh {
 		}
 		return youtube->search("", {
 			.types={ Youtube::MediaType::VIDEO },
-			.maxResults=10
+			.maxResults=10,
+			.channelId=uriParts.id,
+			.order=Youtube::SearchOrder::VIEW_COUNT
 		}).map<ArrayList<$<Track>>>([=](auto page) {
 			return page.items.template map<$<Track>>([&](auto searchResult) {
 				if(searchResult.kind != "youtube#video") {
