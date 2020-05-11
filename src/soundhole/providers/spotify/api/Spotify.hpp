@@ -130,6 +130,14 @@ namespace sh {
 		Promise<SpotifyPage<SpotifyPlaylist::Item>> getPlaylistTracks(String playlistId, GetPlaylistTracksOptions options = {});
 		
 		
+		Promise<SpotifyUser> getUser(String userId);
+		struct GetUserPlaylistsOptions {
+			Optional<size_t> limit;
+			Optional<size_t> offset;
+		};
+		Promise<SpotifyPage<SpotifyPlaylist>> getUserPlaylists(String userId, GetUserPlaylistsOptions options = {});
+		
+		
 	private:
 		Promise<void> prepareForPlayer();
 		Promise<void> prepareForRequest();

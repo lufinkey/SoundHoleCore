@@ -593,4 +593,37 @@ namespace sh {
 			return SpotifyPage<SpotifyPlaylist::Item>::fromJson(json);
 		});
 	}
+
+	Promise<SpotifyUser> Spotify::getUser(String userId) {
+		if(userId.empty()) {
+			return Promise<SpotifyUser>::reject(
+				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "userId cannot be empty")
+			);
+		}
+		return sendRequest(utils::HttpMethod::GET, "v1/users/"+userId).map<SpotifyUser>([](auto json) {
+			return SpotifyUser::fromJson(json);
+		});
+	}
+
+	struct GetUserPlaylistsOptions {
+		Optional<size_t> limit;
+		Optional<size_t> offset;
+	};
+	Promise<SpotifyPage<SpotifyPlaylist>> Spotify::getUserPlaylists(String userId, GetUserPlaylistsOptions options) {
+		if(userId.empty()) {
+			return Promise<SpotifyPage<SpotifyPlaylist>>::reject(
+				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "userId cannot be empty")
+			);
+		}
+		std::map<std::string,Json> params;
+		if(options.limit.has_value()) {
+			params["limit"] = std::to_string(options.limit.value());
+		}
+		if(options.offset.has_value()) {
+			params["offset"] = std::to_string(options.offset.value());
+		}
+		return sendRequest(utils::HttpMethod::GET, "v1/users/"+userId+"/playlists", params).map<SpotifyPage<SpotifyPlaylist>>([](auto json) {
+			return SpotifyPage<SpotifyPlaylist>::fromJson(json);
+		});
+	}
 }

@@ -62,16 +62,19 @@ namespace sh {
 		Promise<YoutubePage<YoutubeSearchResult>> search(String query, SearchOptions options);
 		
 		Promise<YoutubeVideoInfo> getVideoInfo(String id);
-		
 		Promise<YoutubeVideo> getVideo(String id);
 		
 		struct GetChannelOptions {
 			ArrayList<ResultPart> parts = { ResultPart::ID, ResultPart::SNIPPET };
 		};
 		Promise<YoutubeChannel> getChannel(String id, GetChannelOptions options = GetChannelOptions{.parts={ResultPart::ID,ResultPart::SNIPPET}});
+		struct GetChannelPlaylistsOptions {
+			Optional<size_t> maxResults;
+			String pageToken;
+		};
+		Promise<YoutubePage<YoutubePlaylist>> getChannelPlaylists(String id, GetChannelPlaylistsOptions options = GetChannelPlaylistsOptions());
 		
 		Promise<YoutubePlaylist> getPlaylist(String id);
-		
 		struct GetPlaylistItemsOptions {
 			Optional<size_t> maxResults;
 			String pageToken;

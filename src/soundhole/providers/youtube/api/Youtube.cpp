@@ -188,6 +188,15 @@ namespace sh {
 		});
 	}
 
+	Promise<YoutubePage<YoutubePlaylist>> Youtube::getChannelPlaylists(String id, GetChannelPlaylistsOptions options) {
+		return sendApiRequest(utils::HttpMethod::GET, "playlists", {
+			{ "id", id },
+			{ "part", "id,snippet" },
+		}, nullptr).map<YoutubePage<YoutubePlaylist>>([](auto json) {
+			return YoutubePage<YoutubePlaylist>::fromJson(json);
+		});
+	}
+
 	Promise<YoutubePlaylist> Youtube::getPlaylist(String id) {
 		return sendApiRequest(utils::HttpMethod::GET, "playlists", {
 			{ "id", id },

@@ -54,6 +54,8 @@ namespace sh {
 		virtual Promise<ArrayList<$<Track>>> getArtistTopTracks(String artistURI) = 0;
 		virtual ContinuousGenerator<LoadBatch<$<Album>>,void> getArtistAlbums(String artistURI) = 0;
 		
+		virtual ContinuousGenerator<LoadBatch<$<Playlist>>,void> getUserPlaylists(String userURI) = 0;
+		
 		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album) = 0;
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) = 0;
 		

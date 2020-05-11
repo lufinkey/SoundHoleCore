@@ -599,6 +599,40 @@ namespace sh {
 
 
 
+	ContinuousGenerator<YoutubeProvider::LoadBatch<$<Playlist>>,void> YoutubeProvider::getUserPlaylists(String userURI) {
+		auto uriParts = parseURI(userURI);
+		if(uriParts.type != "channel") {
+			throw std::invalid_argument(userURI+" is not a channel URI");
+		}
+		String channelId = uriParts.id;
+		struct SharedData {
+			String pageToken;
+		};
+		auto sharedData = fgl::new$<SharedData>();
+		using YieldResult = typename ContinuousGenerator<LoadBatch<$<Playlist>>,void>::YieldResult;
+		return ContinuousGenerator<LoadBatch<$<Playlist>>,void>([=]() {
+			return youtube->getChannelPlaylists(channelId, {
+				.maxResults=20,
+				.pageToken=sharedData->pageToken
+			}).map<YieldResult>([=](auto page) {
+				auto loadBatch = LoadBatch<$<Playlist>>{
+					.items=page.items.template map<$<Playlist>>([=](auto playlist) {
+						return Playlist::new$(this, createPlaylistData(playlist));
+					}),
+					.total=page.pageInfo.totalResults
+				};
+				sharedData->pageToken = page.nextPageToken;
+				bool done = sharedData->pageToken.empty();
+				return YieldResult{
+					.value=loadBatch,
+					.done=done
+				};
+			});
+		});
+	}
+
+
+
 	Album::MutatorDelegate* YoutubeProvider::createAlbumMutatorDelegate($<Album> album) {
 		throw std::logic_error("Youtube does not support albums");
 	}

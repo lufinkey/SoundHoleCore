@@ -398,6 +398,13 @@ namespace sh {
 		});
 	}
 
+	ContinuousGenerator<BandcampProvider::LoadBatch<$<Playlist>>,void> BandcampProvider::getUserPlaylists(String userURI) {
+		using YieldResult = typename Generator<LoadBatch<$<Playlist>>,void>::YieldResult;
+		return ContinuousGenerator<LoadBatch<$<Playlist>>,void>([=]() {
+			return Promise<YieldResult>::reject(std::runtime_error("Bandcamp does not have user playlists"));
+		});
+	}
+
 
 
 
