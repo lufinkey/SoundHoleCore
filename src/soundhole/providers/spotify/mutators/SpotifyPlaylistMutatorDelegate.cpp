@@ -20,6 +20,7 @@ namespace sh {
 		auto provider = (SpotifyProvider*)playlist->mediaProvider();
 		auto id = provider->idFromURI(playlist->uri());
 		return provider->spotify->getPlaylistTracks(id, {
+			.market="from_token",
 			.offset=index,
 			.limit=count
 		}).then([=](SpotifyPage<SpotifyPlaylist::Item> page) -> void {

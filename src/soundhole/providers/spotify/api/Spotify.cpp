@@ -438,8 +438,8 @@ namespace sh {
 			);
 		}
 		std::map<std::string,Json> params;
-		if(!options.market.empty()) {
-			params["market"] = (std::string)options.market;
+		if(!options.country.empty()) {
+			params["country"] = (std::string)options.country;
 		}
 		if(!options.includeGroups.empty()) {
 			params["include_groups"] = (std::string)String::join(options.includeGroups, ",");
@@ -455,7 +455,7 @@ namespace sh {
 		});
 	}
 	
-	Promise<ArrayList<SpotifyTrack>> Spotify::getArtistTopTracks(String artistId, String country, GetArtistTopTracksOptions options) {
+	Promise<ArrayList<SpotifyTrack>> Spotify::getArtistTopTracks(String artistId, String country) {
 		if(artistId.empty()) {
 			return Promise<ArrayList<SpotifyTrack>>::reject(
 				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "artistId cannot be empty")
@@ -465,11 +465,9 @@ namespace sh {
 				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "country cannot be empty")
 			);
 		}
-		std::map<std::string,Json> params;
-		if(!options.market.empty()) {
-			params["market"] = (std::string)options.market;
-		}
-		params["country"] = (std::string)country;
+		std::map<std::string,Json> params = {
+			{"country", (std::string)country}
+		};
 		return sendRequest(utils::HttpMethod::GET, "v1/artists/"+artistId+"/top-tracks", params).map<ArrayList<SpotifyTrack>>([](auto json) {
 			auto trackItems = json["tracks"].array_items();
 			ArrayList<SpotifyTrack> tracks;

@@ -20,6 +20,7 @@ namespace sh {
 		auto provider = (SpotifyProvider*)album->mediaProvider();
 		auto id = provider->idFromURI(album->uri());
 		return provider->spotify->getAlbumTracks(id, {
+			.market="from_token",
 			.offset=index,
 			.limit=count
 		}).then([=](SpotifyPage<SpotifyTrack> page) -> void {

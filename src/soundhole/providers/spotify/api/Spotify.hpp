@@ -74,14 +74,13 @@ namespace sh {
 		};
 		Promise<SpotifySearchResults> search(String query, SearchOptions options = {});
 		
-		
-		struct GetOptions {
+		struct GetAlbumOptions {
 			String market;
 		};
-		
-		using GetAlbumOptions = GetOptions;
 		Promise<SpotifyAlbum> getAlbum(String albumId, GetAlbumOptions options = {});
-		using GetAlbumsOptions = GetOptions;
+		struct GetAlbumsOptions {
+			String market;
+		};
 		Promise<ArrayList<SpotifyAlbum>> getAlbums(ArrayList<String> albumIds, GetAlbumsOptions options = {});
 		struct GetAlbumTracksOptions {
 			String market;
@@ -94,20 +93,23 @@ namespace sh {
 		Promise<SpotifyArtist> getArtist(String artistId);
 		Promise<ArrayList<SpotifyArtist>> getArtists(ArrayList<String> artistIds);
 		struct GetArtistAlbumsOptions {
-			String market;
+			String country;
 			ArrayList<String> includeGroups;
 			Optional<size_t> limit;
 			Optional<size_t> offset;
 		};
 		Promise<SpotifyPage<SpotifyAlbum>> getArtistAlbums(String artistId, GetArtistAlbumsOptions options = {});
-		using GetArtistTopTracksOptions = GetOptions;
-		Promise<ArrayList<SpotifyTrack>> getArtistTopTracks(String artistId, String country, GetArtistTopTracksOptions options = {});
+		Promise<ArrayList<SpotifyTrack>> getArtistTopTracks(String artistId, String country);
 		Promise<ArrayList<SpotifyArtist>> getArtistRelatedArtists(String artistId);
 		
 		
-		using GetTrackOptions = GetOptions;
+		struct GetTrackOptions {
+			String market;
+		};
 		Promise<SpotifyTrack> getTrack(String trackId, GetTrackOptions options = {});
-		using GetTracksOptions = GetOptions;
+		struct GetTracksOptions {
+			String market;
+		};
 		Promise<ArrayList<SpotifyTrack>> getTracks(ArrayList<String> trackIds, GetTracksOptions options = {});
 		Promise<Json> getTrackAudioAnalysis(String trackId);
 		Promise<Json> getTrackAudioFeatures(String trackId);

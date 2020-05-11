@@ -31,7 +31,11 @@ namespace sh {
 		virtual void logout() override;
 		bool isLoggedIn() const override;
 		
-		using SearchOptions = Spotify::SearchOptions;
+		struct SearchOptions {
+			ArrayList<String> types;
+			Optional<size_t> limit;
+			Optional<size_t> offset;
+		};
 		struct SearchResults {
 			Optional<SpotifyPage<$<Track>>> tracks;
 			Optional<SpotifyPage<$<Album>>> albums;

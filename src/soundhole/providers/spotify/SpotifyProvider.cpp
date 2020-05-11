@@ -11,8 +11,6 @@
 #include "mutators/SpotifyPlaylistMutatorDelegate.hpp"
 
 namespace sh {
-#define FROM_TOKEN "from_token"
-
 	SpotifyProvider::SpotifyProvider(Options options)
 	: spotify(new Spotify(options)),
 	_player(new SpotifyPlaybackProvider(this)) {
@@ -54,7 +52,13 @@ namespace sh {
 
 
 	Promise<SpotifyProvider::SearchResults> SpotifyProvider::search(String query, SearchOptions options) {
-		return spotify->search(query, options).map<SpotifyProvider::SearchResults>([=](auto searchResults) {
+		Spotify::SearchOptions searchOptions = {
+			.types=options.types,
+			.market="from_token",
+			.limit=options.limit,
+			.offset=options.offset
+		};
+		return spotify->search(query,searchOptions).map<SpotifyProvider::SearchResults>([=](auto searchResults) {
 			return SearchResults{
 				.tracks = searchResults.tracks ?
 					maybe(searchResults.tracks->template map<$<Track>>([&](auto& track) {
@@ -236,7 +240,7 @@ namespace sh {
 
 
 	Promise<Track::Data> SpotifyProvider::getTrackData(String uri) {
-		return spotify->getTrack(idFromURI(uri)).map<Track::Data>([=](SpotifyTrack track) {
+		return spotify->getTrack(idFromURI(uri),{.market="from_token"}).map<Track::Data>([=](SpotifyTrack track) {
 			return createTrackData(track, false);
 		});
 	}
@@ -248,13 +252,13 @@ namespace sh {
 	}
 
 	Promise<Album::Data> SpotifyProvider::getAlbumData(String uri) {
-		return spotify->getAlbum(idFromURI(uri)).map<Album::Data>([=](SpotifyAlbum album) {
+		return spotify->getAlbum(idFromURI(uri),{.market="from_token"}).map<Album::Data>([=](SpotifyAlbum album) {
 			return createAlbumData(album, false);
 		});
 	}
 
 	Promise<Playlist::Data> SpotifyProvider::getPlaylistData(String uri) {
-		return spotify->getPlaylist(idFromURI(uri)).map<Playlist::Data>([=](SpotifyPlaylist playlist) {
+		return spotify->getPlaylist(idFromURI(uri),{.market="from_token"}).map<Playlist::Data>([=](SpotifyPlaylist playlist) {
 			return createPlaylistData(playlist, false);
 		});
 	}
@@ -267,7 +271,7 @@ namespace sh {
 
 
 	Promise<ArrayList<$<Track>>> SpotifyProvider::getArtistTopTracks(String artistURI) {
-		return spotify->getArtistTopTracks(idFromURI(artistURI), FROM_TOKEN).map<ArrayList<$<Track>>>(nullptr, [=](ArrayList<SpotifyTrack> tracks) {
+		return spotify->getArtistTopTracks(idFromURI(artistURI),"from_token").map<ArrayList<$<Track>>>(nullptr, [=](ArrayList<SpotifyTrack> tracks) {
 			return tracks.map<$<Track>>([=](auto track) {
 				return Track::new$(this, createTrackData(track, false));
 			});
@@ -283,6 +287,7 @@ namespace sh {
 		using YieldResult = typename ContinuousGenerator<LoadBatch<$<Album>>,void>::YieldResult;
 		return ContinuousGenerator<LoadBatch<$<Album>>,void>([=]() {
 			return spotify->getArtistAlbums(artistId, {
+				.country="from_token",
 				.offset=sharedData->offset
 			}).map<YieldResult>([=](auto page) {
 				auto loadBatch = LoadBatch<$<Album>>{
