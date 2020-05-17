@@ -15,3 +15,5 @@
 #ifdef __OBJC__
 #include <soundhole/playback/Player_objc.hpp>
 #endif
+#include <soundhole/utils/Utils.hpp>
+#include <soundhole/utils/SoundHoleError.hpp>
