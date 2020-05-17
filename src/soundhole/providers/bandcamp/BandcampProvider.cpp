@@ -381,9 +381,9 @@ namespace sh {
 		});
 	}
 
-	ContinuousGenerator<BandcampProvider::LoadBatch<$<Album>>,void> BandcampProvider::getArtistAlbums(String artistURI) {
-		using YieldResult = typename Generator<LoadBatch<$<Album>>,void>::YieldResult;
-		return ContinuousGenerator<LoadBatch<$<Album>>,void>([=]() {
+	BandcampProvider::ArtistAlbumsGenerator BandcampProvider::getArtistAlbums(String artistURI) {
+		using YieldResult = ArtistAlbumsGenerator::YieldResult;
+		return ArtistAlbumsGenerator([=]() {
 			return getArtistAndAlbums(artistURI).map<YieldResult>([=](auto tuple) {
 				auto& albums = std::get<LinkedList<$<Album>>>(tuple);
 				size_t total = albums.size();
@@ -398,9 +398,9 @@ namespace sh {
 		});
 	}
 
-	ContinuousGenerator<BandcampProvider::LoadBatch<$<Playlist>>,void> BandcampProvider::getUserPlaylists(String userURI) {
-		using YieldResult = typename Generator<LoadBatch<$<Playlist>>,void>::YieldResult;
-		return ContinuousGenerator<LoadBatch<$<Playlist>>,void>([=]() {
+	BandcampProvider::UserPlaylistsGenerator BandcampProvider::getUserPlaylists(String userURI) {
+		using YieldResult = typename UserPlaylistsGenerator::YieldResult;
+		return UserPlaylistsGenerator([=]() {
 			return Promise<YieldResult>::reject(std::runtime_error("Bandcamp does not have user playlists"));
 		});
 	}

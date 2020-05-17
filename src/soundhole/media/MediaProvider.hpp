@@ -26,6 +26,9 @@ namespace sh {
 			Optional<size_t> total;
 		};
 		
+		using ArtistAlbumsGenerator = ContinuousGenerator<LoadBatch<$<Album>>,void>;
+		using UserPlaylistsGenerator = ContinuousGenerator<LoadBatch<$<Playlist>>,void>;
+		
 		MediaProvider(const MediaProvider&) = delete;
 		MediaProvider& operator=(const MediaProvider&) = delete;
 		
@@ -52,9 +55,9 @@ namespace sh {
 		virtual Promise<$<UserAccount>> getUser(String uri);
 		
 		virtual Promise<ArrayList<$<Track>>> getArtistTopTracks(String artistURI) = 0;
-		virtual ContinuousGenerator<LoadBatch<$<Album>>,void> getArtistAlbums(String artistURI) = 0;
+		virtual ArtistAlbumsGenerator getArtistAlbums(String artistURI) = 0;
 		
-		virtual ContinuousGenerator<LoadBatch<$<Playlist>>,void> getUserPlaylists(String userURI) = 0;
+		virtual UserPlaylistsGenerator getUserPlaylists(String userURI) = 0;
 		
 		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album) = 0;
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) = 0;

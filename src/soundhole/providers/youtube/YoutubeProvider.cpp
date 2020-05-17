@@ -590,16 +590,16 @@ namespace sh {
 		});
 	}
 
-	ContinuousGenerator<YoutubeProvider::LoadBatch<$<Album>>,void> YoutubeProvider::getArtistAlbums(String artistURI) {
-		using YieldResult = typename ContinuousGenerator<YoutubeProvider::LoadBatch<$<Album>>,void>::YieldResult;
-		return ContinuousGenerator<LoadBatch<$<Album>>,void>([=]() {
+	YoutubeProvider::ArtistAlbumsGenerator YoutubeProvider::getArtistAlbums(String artistURI) {
+		using YieldResult = typename ArtistAlbumsGenerator::YieldResult;
+		return ArtistAlbumsGenerator([=]() {
 			return Promise<YieldResult>::reject(std::logic_error("Youtube does not support albums"));
 		});
 	}
 
 
 
-	ContinuousGenerator<YoutubeProvider::LoadBatch<$<Playlist>>,void> YoutubeProvider::getUserPlaylists(String userURI) {
+	YoutubeProvider::UserPlaylistsGenerator YoutubeProvider::getUserPlaylists(String userURI) {
 		auto uriParts = parseURI(userURI);
 		if(uriParts.type != "channel") {
 			throw std::invalid_argument(userURI+" is not a channel URI");
@@ -609,8 +609,8 @@ namespace sh {
 			String pageToken;
 		};
 		auto sharedData = fgl::new$<SharedData>();
-		using YieldResult = typename ContinuousGenerator<LoadBatch<$<Playlist>>,void>::YieldResult;
-		return ContinuousGenerator<LoadBatch<$<Playlist>>,void>([=]() {
+		using YieldResult = typename UserPlaylistsGenerator::YieldResult;
+		return UserPlaylistsGenerator([=]() {
 			return youtube->getChannelPlaylists(channelId, {
 				.maxResults=20,
 				.pageToken=sharedData->pageToken

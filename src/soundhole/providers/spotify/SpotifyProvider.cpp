@@ -280,14 +280,14 @@ namespace sh {
 		});
 	}
 
-	ContinuousGenerator<SpotifyProvider::LoadBatch<$<Album>>,void> SpotifyProvider::getArtistAlbums(String artistURI) {
+	SpotifyProvider::ArtistAlbumsGenerator SpotifyProvider::getArtistAlbums(String artistURI) {
 		String artistId = idFromURI(artistURI);
 		struct SharedData {
 			size_t offset = 0;
 		};
 		auto sharedData = fgl::new$<SharedData>();
-		using YieldResult = typename ContinuousGenerator<LoadBatch<$<Album>>,void>::YieldResult;
-		return ContinuousGenerator<LoadBatch<$<Album>>,void>([=]() {
+		using YieldResult = typename ArtistAlbumsGenerator::YieldResult;
+		return ArtistAlbumsGenerator([=]() {
 			return spotify->getArtistAlbums(artistId, {
 				.country="from_token",
 				.limit=20,
@@ -309,14 +309,14 @@ namespace sh {
 		});
 	}
 
-	ContinuousGenerator<SpotifyProvider::LoadBatch<$<Playlist>>,void> SpotifyProvider::getUserPlaylists(String userURI) {
+	SpotifyProvider::UserPlaylistsGenerator SpotifyProvider::getUserPlaylists(String userURI) {
 		String userId = idFromURI(userURI);
 		struct SharedData {
 			size_t offset = 0;
 		};
 		auto sharedData = fgl::new$<SharedData>();
-		using YieldResult = typename ContinuousGenerator<LoadBatch<$<Playlist>>,void>::YieldResult;
-		return ContinuousGenerator<LoadBatch<$<Playlist>>,void>([=]() {
+		using YieldResult = typename UserPlaylistsGenerator::YieldResult;
+		return UserPlaylistsGenerator([=]() {
 			return spotify->getUserPlaylists(userId, {
 				.limit=20,
 				.offset=sharedData->offset

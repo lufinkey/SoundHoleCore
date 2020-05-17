@@ -44,9 +44,9 @@ namespace sh {
 		
 		virtual Promise<ArrayList<$<Track>>> getArtistTopTracks(String artistURI) override;
 		Promise<std::tuple<$<Artist>,LinkedList<$<Album>>>> getArtistAndAlbums(String artistURI);
-		virtual ContinuousGenerator<LoadBatch<$<Album>>,void> getArtistAlbums(String artistURI) override;
+		virtual ArtistAlbumsGenerator getArtistAlbums(String artistURI) override;
 		
-		virtual ContinuousGenerator<LoadBatch<$<Playlist>>,void> getUserPlaylists(String userURI) override;
+		virtual UserPlaylistsGenerator getUserPlaylists(String userURI) override;
 		
 		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album) override;
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) override;
