@@ -197,7 +197,7 @@ namespace sh {
 						auto track = player->getMetadata().currentTrack;
 						auto state = player->getState();
 						double duration = track ? track->duration : 0;
-						double remainingTime = (((duration - state.position) - 2) * 1000);
+						double remainingTime = (((duration - state.position) - 1) * 1000);
 						if(!track || track->uri != currentTrack->uri || state.position < position || duration <= 0 || remainingTime < 2) {
 							await(Promise<void>::resolve().then([=]() {
 								callListenerEvent(&EventListener::onMediaPlaybackProviderTrackFinish, this);
