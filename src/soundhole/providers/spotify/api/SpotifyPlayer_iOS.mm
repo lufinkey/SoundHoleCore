@@ -14,6 +14,8 @@
 #import <AVFoundation/AVFoundation.h>
 
 namespace sh {
+#define DEFAULT_CACHE_SIZE (1024 * 1024 * 64)
+	
 	SpotifyPlayer::SpotifyPlayer()
 	: auth(nullptr), player(SPTAudioStreamingController.sharedInstance),
 	playerEventHandler([[SpotifyPlayerEventHandler alloc] init]),
@@ -121,6 +123,7 @@ namespace sh {
 				}
 				player.delegate = playerEventHandler;
 				player.playbackDelegate = playerEventHandler;
+				player.diskCache = [[SPTDiskCache alloc] initWithCapacity:DEFAULT_CACHE_SIZE];
 				resolve();
 			}).then([=]() {
 				std::unique_lock<std::recursive_mutex> lock(startMutex);
