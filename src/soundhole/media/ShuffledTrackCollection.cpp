@@ -163,9 +163,15 @@ namespace sh {
 		for(size_t i=index; i<endIndex; i++) {
 			auto existingItem = itemAt(i);
 			if(existingItem) {
-				promise = promise.then([=]() {
-					items->pushBack(ShuffledTrackCollectionItem::new$(self, existingItem));
-				});
+				if(auto shuffledItem = std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(existingItem)) {
+					promise = promise.then([=]() {
+						items->pushBack(shuffledItem);
+					});
+				} else {
+					promise = promise.then([=]() {
+						items->pushBack(ShuffledTrackCollectionItem::new$(self, existingItem));
+					});
+				}
 			} else {
 				if(tmpRemainingIndexes.empty()) {
 					break;
