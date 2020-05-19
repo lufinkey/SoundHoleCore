@@ -184,36 +184,7 @@ namespace sh {
 		} else if(event == SpotifyPlaybackEvent::METADATA_CHANGE) {
 			callListenerEvent(&EventListener::onMediaPlaybackProviderMetadataChange, this);
 		} else if(event == SpotifyPlaybackEvent::TRACK_DELIVERED) {
-			// wait until track is actually finished
-			auto state = player->getState();
-			auto currentTrack = player->getMetadata().currentTrack;
-			double duration = currentTrack ? currentTrack->duration : 0;
-			double position = state.position;
-			double remainingTime = (duration - position) * 1000;
-			if(duration > 0 && remainingTime > 2) {
-				playQueue.cancelAllTasks();
-				playQueue.run([=](auto task) {
-					return generate<void>([=](auto yield) {
-						auto track = player->getMetadata().currentTrack;
-						auto state = player->getState();
-						double duration = track ? track->duration : 0;
-						double remainingTime = (((duration - state.position) - 1) * 1000);
-						if(!track || track->uri != currentTrack->uri || state.position < position || duration <= 0 || remainingTime < 2) {
-							await(Promise<void>::resolve().then([=]() {
-								callListenerEvent(&EventListener::onMediaPlaybackProviderTrackFinish, this);
-							}));
-							return;
-						}
-						std::this_thread::sleep_for(std::chrono::milliseconds((unsigned long)remainingTime));
-						yield();
-						await(Promise<void>::resolve().then([=]() {
-							callListenerEvent(&EventListener::onMediaPlaybackProviderTrackFinish, this);
-						}));
-					});
-				});
-			} else {
-				callListenerEvent(&EventListener::onMediaPlaybackProviderTrackFinish, this);
-			}
+			callListenerEvent(&EventListener::onMediaPlaybackProviderTrackFinish, this);
 		}
 	}
 }
