@@ -25,12 +25,12 @@ namespace sh {
 	
 	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Data data)
 	: SpecialTrackCollectionItem<ShuffledTrackCollection>(ptr, context, data), _sourceItem(data.sourceItem) {
-		//
+		FGL_ASSERT(std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(data.sourceItem) == nullptr, "Cannot create ShuffledTrackCollectionItem with another ShuffledTrackCollectionItem");
 	}
 	
 	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, $<TrackCollectionItem> sourceItem)
 	: SpecialTrackCollectionItem<ShuffledTrackCollection>(ptr, context, {.track=sourceItem->track()}), _sourceItem(sourceItem) {
-		//
+		FGL_ASSERT(std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(sourceItem) == nullptr, "Cannot create ShuffledTrackCollectionItem with another ShuffledTrackCollectionItem");
 	}
 	
 	$<TrackCollectionItem> ShuffledTrackCollectionItem::sourceItem() {
