@@ -26,17 +26,14 @@ namespace sh {
 
 	template<typename ItemType>
 	SpecialTrackCollection<ItemType>::SpecialTrackCollection($<MediaItem>& ptr, MediaProvider* provider, Data data)
-	: TrackCollection(ptr, provider, data), _items(constructItems(data.tracks)), _mutatorDelegate(nullptr) {
+	: TrackCollection(ptr, provider, data), _items(constructItems(data.tracks)), _mutatorDelegate(nullptr), autoDeleteMutatorDelegate(true) {
 		//
 	}
 
 	template<typename ItemType>
 	SpecialTrackCollection<ItemType>::~SpecialTrackCollection() {
-		if(_mutatorDelegate != nullptr) {
-			auto selfTest = dynamic_cast<MutatorDelegate*>(this);
-			if(selfTest != _mutatorDelegate) {
-				delete _mutatorDelegate;
-			}
+		if(_mutatorDelegate != nullptr && autoDeleteMutatorDelegate) {
+			delete _mutatorDelegate;
 		}
 	}
 
@@ -315,6 +312,9 @@ namespace sh {
 			if(_mutatorDelegate == nullptr) {
 				throw std::logic_error("createMutatorDelegate returned null");
 			}
+			if(dynamic_cast<MutatorDelegate*>(this) == _mutatorDelegate) {
+				autoDeleteMutatorDelegate = false;
+			}
 		}
 		return _mutatorDelegate;
 	}
@@ -423,7 +423,7 @@ namespace sh {
 
 	template<typename ItemType>
 	SpecialTrackCollection<ItemType>::SpecialTrackCollection($<MediaItem>& ptr, Json json, MediaProviderStash* stash)
-	: TrackCollection(ptr, json, stash), _items(std::nullptr_t()), _mutatorDelegate(nullptr) {
+	: TrackCollection(ptr, json, stash), _items(std::nullptr_t()), _mutatorDelegate(nullptr), autoDeleteMutatorDelegate(true) {
 		std::map<size_t,$<ItemType>> items;
 		auto itemCountJson = json["itemCount"];
 		size_t itemCount = (size_t)itemCountJson.number_value();
