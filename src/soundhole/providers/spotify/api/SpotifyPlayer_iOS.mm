@@ -73,10 +73,12 @@ namespace sh {
 			}
 		};
 		playerEventHandler.onChangePlaybackStatus = ^(BOOL isPlaying) {
-			if(isPlaying) {
-				activateAudioSession();
-			} else {
-				deactivateAudioSession();
+			if(!options.ios.audioSessionCategory.empty()) {
+				if(isPlaying) {
+					activateAudioSession();
+				} else {
+					deactivateAudioSession();
+				}
 			}
 		};
 	}

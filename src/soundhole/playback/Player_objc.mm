@@ -12,6 +12,10 @@
 
 #ifdef __OBJC__
 
+#if defined(TARGETPLATFORM_IOS)
+#import <AVFoundation/AVFoundation.h>
+#endif
+
 namespace sh {
 	SHPlayerEventListenerWrapper::SHPlayerEventListenerWrapper(id<SHPlayerEventListener> listener)
 	: objcListener(listener) {
@@ -96,6 +100,37 @@ namespace sh {
 			}
 		}
 	}
+
+
+	#if defined(TARGETPLATFORM_IOS)
+
+	void Player::activateAudioSession() {
+		AVAudioSession* audioSession = [AVAudioSession sharedInstance];
+		NSError* error = nil;
+		NSString* audioSessionCategory = AVAudioSessionCategoryPlayback;
+		if(![audioSessionCategory isEqualToString:audioSession.category]) {
+			[audioSession setCategory:audioSessionCategory error:&error];
+			if(error != nil) {
+				printf("Error setting spotify audio session category: %s\n", error.description.UTF8String);
+			}
+		}
+		error = nil;
+		[audioSession setActive:YES error:&error];
+		if(error != nil) {
+			printf("Error setting spotify audio session active: %s\n", error.description.UTF8String);
+		}
+	}
+
+	void Player::deactivateAudioSession() {
+		AVAudioSession* audioSession = [AVAudioSession sharedInstance];
+		NSError* error = nil;
+		[audioSession setActive:NO error:&error];
+		if(error != nil) {
+			printf("Error setting spotify audio session inactive: %s\n", error.description.UTF8String);
+		}
+	}
+
+	#endif
 }
 
 #endif

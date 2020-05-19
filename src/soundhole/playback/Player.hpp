@@ -151,6 +151,11 @@ namespace sh {
 		void deleteObjcListenerWrappers();
 		#endif
 		
+		#if defined(TARGETPLATFORM_IOS)
+		void activateAudioSession();
+		void deactivateAudioSession();
+		#endif
+		
 		Options options;
 		
 		$<PlaybackOrganizer> organizer;

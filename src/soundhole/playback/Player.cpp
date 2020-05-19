@@ -512,6 +512,9 @@ namespace sh {
 		auto self = shared_from_this();
 		onMediaPlaybackProviderEvent();
 		startPlayerStateInterval();
+		#if defined(TARGETPLATFORM_IOS)
+			activateAudioSession();
+		#endif
 		// emit state change event
 		auto event = createEvent();
 		callPlayerListenerEvent(&EventListener::onPlayerStateChange, self, event);
@@ -523,6 +526,9 @@ namespace sh {
 		auto self = shared_from_this();
 		onMediaPlaybackProviderEvent();
 		stopPlayerStateInterval();
+		#if defined(TARGETPLATFORM_IOS)
+			deactivateAudioSession();
+		#endif
 		// emit state change event
 		auto event = createEvent();
 		callPlayerListenerEvent(&EventListener::onPlayerStateChange, self, event);
@@ -539,7 +545,13 @@ namespace sh {
 		// emit track finish event
 		callPlayerListenerEvent(&EventListener::onPlayerTrackFinish, self, createEvent());
 		
-		organizer->next().toVoid().except([=](std::exception_ptr error) {
+		organizer->next().then([=](bool hasNext) {
+			#if defined(TARGETPLATFORM_IOS)
+				if(!hasNext) {
+					deactivateAudioSession();
+				}
+			#endif
+		}).except([=](std::exception_ptr error) {
 			printf("Unable to continue to next track: %s\n", utils::getExceptionDetails(error).c_str());
 		});
 	}

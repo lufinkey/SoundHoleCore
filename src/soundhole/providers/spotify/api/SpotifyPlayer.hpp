@@ -29,7 +29,7 @@ namespace sh {
 		
 		struct Options {
 			struct iOS {
-				String audioSessionCategory = "AVAudioSessionCategoryPlayback";
+				String audioSessionCategory;
 			} ios;
 		};
 		
