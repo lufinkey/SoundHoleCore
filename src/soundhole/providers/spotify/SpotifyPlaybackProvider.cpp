@@ -192,7 +192,7 @@ namespace sh {
 			double remainingTime = (duration - position) * 1000;
 			if(duration > 0 && remainingTime > 2) {
 				playQueue.cancelAllTasks();
-				playQueue.run([=]() {
+				playQueue.run([=](auto task) {
 					return generate<void>([=](auto yield) {
 						auto track = player->getMetadata().currentTrack;
 						auto state = player->getState();
