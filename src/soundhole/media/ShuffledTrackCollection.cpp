@@ -99,7 +99,7 @@ namespace sh {
 			})
 		}
 	}), _source(source) {
-		FGL_ASSERT(std::dynamic_pointer_cast<ShuffledTrackCollection>(source) != nullptr, "Cannot create ShuffledTrackCollection with another ShuffledTrackCollection");
+		FGL_ASSERT(std::dynamic_pointer_cast<ShuffledTrackCollection>(source) == nullptr, "Cannot create ShuffledTrackCollection with another ShuffledTrackCollection");
 		
 		// get indexes of initialItems
 		LinkedList<size_t> initialIndexes = {};

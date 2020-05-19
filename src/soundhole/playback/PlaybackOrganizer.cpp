@@ -744,7 +744,7 @@ namespace sh {
 				else {
 					sourceContext = context;
 					sourceContextItem = contextItem;
-					shuffledContext = ShuffledTrackCollection::new$(context, { contextItem });
+					shuffledContext = ShuffledTrackCollection::new$(sourceContext, { sourceContextItem });
 					shuffledContextItem = std::static_pointer_cast<ShuffledTrackCollectionItem>(shuffledContext->itemAt(0));
 					FGL_ASSERT(shuffledContextItem != nullptr, "First item in shuffled context cannot be null");
 					context = shuffledContext;
