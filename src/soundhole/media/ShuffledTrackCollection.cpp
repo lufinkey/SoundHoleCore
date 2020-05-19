@@ -156,7 +156,7 @@ namespace sh {
 	Promise<void> ShuffledTrackCollection::loadItems(Mutator* mutator, size_t index, size_t count) {
 		auto self = this->selfAs<ShuffledTrackCollection>();
 		size_t endIndex = index+count;
-		$<LinkedList<$<ShuffledTrackCollectionItem>>> items;
+		auto items = fgl::new$<LinkedList<$<ShuffledTrackCollectionItem>>>();
 		auto promise = Promise<void>::resolve();
 		auto tmpRemainingIndexes = _remainingIndexes;
 		auto chosenIndexes = LinkedList<$<RandomIndex>>();
