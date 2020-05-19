@@ -736,8 +736,8 @@ namespace sh {
 				if(auto castShuffledContext = std::dynamic_pointer_cast<ShuffledTrackCollection>(context)) {
 					auto castShuffledItem = std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(contextItem);
 					FGL_ASSERT(castShuffledItem != nullptr, "contextItem of ShuffledTrackCollection must be a ShuffledTrackCollectionItem");
-					sourceContext = shuffledContext->source();
-					sourceContextItem = shuffledContextItem->sourceItem();
+					sourceContext = castShuffledContext->source();
+					sourceContextItem = castShuffledItem->sourceItem();
 					shuffledContext = castShuffledContext;
 					shuffledContextItem = castShuffledItem;
 				}

@@ -117,7 +117,7 @@ namespace sh {
 			if(it != initialIndexes.end()) {
 				initialIndexes.erase(it);
 			} else {
-				indexes.pushBack(*it);
+				indexes.pushBack(i);
 			}
 		}
 		
@@ -163,7 +163,7 @@ namespace sh {
 		for(size_t i=index; i<endIndex; i++) {
 			auto existingItem = itemAt(i);
 			if(existingItem) {
-				promise.then([=]() {
+				promise = promise.then([=]() {
 					items->pushBack(ShuffledTrackCollectionItem::new$(self, existingItem));
 				});
 			} else {
@@ -180,17 +180,19 @@ namespace sh {
 			}
 		}
 		return promise.then([=]() {
-			for(auto randomIndex : chosenIndexes) {
-				auto it = self->_remainingIndexes.findEqual(randomIndex);
-				if(it != self->_remainingIndexes.end()) {
-					self->_remainingIndexes.erase(it);
+			mutator->lock([&]() {
+				for(auto randomIndex : chosenIndexes) {
+					auto it = self->_remainingIndexes.findEqual(randomIndex);
+					if(it != self->_remainingIndexes.end()) {
+						self->_remainingIndexes.erase(it);
+					}
 				}
-			}
-			auto itemCount = self->_source->itemCount();
-			if(itemCount) {
-				mutator->resize(itemCount.value());
-			}
-			mutator->apply(index, *items);
+				auto itemCount = self->_source->itemCount();
+				if(itemCount) {
+					mutator->resize(itemCount.value());
+				}
+				mutator->apply(index, *items);
+			});
 		});
 	}
 
