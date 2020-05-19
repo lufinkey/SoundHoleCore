@@ -379,7 +379,9 @@ namespace sh {
 					resumableProgress = std::nullopt;
 				}
 			}
-			return playbackProvider->play(track, position).then([=]() {
+			return Promise<void>::resolve().then([=]() {
+				return playbackProvider->play(track, position);
+			}).then([=]() {
 				this->resumableProgress = std::nullopt;
 				saveInBackground({.includeMetadata=true});
 			});
