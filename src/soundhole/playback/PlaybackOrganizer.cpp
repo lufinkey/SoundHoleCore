@@ -481,7 +481,7 @@ namespace sh {
 			if(!optContextIndex) {
 				return Promise<$<TrackCollectionItem>>::resolve(nullptr);
 			} else {
-				nextIndex = optContextIndex.value();
+				nextIndex = optContextIndex.value() + 1;
 			}
 		} else {
 			nextIndex = optContextIndex.value() + 1;
