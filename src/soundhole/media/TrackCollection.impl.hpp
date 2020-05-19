@@ -310,7 +310,7 @@ namespace sh {
 
 	template<typename ItemType>
 	typename SpecialTrackCollection<ItemType>::MutatorDelegate* SpecialTrackCollection<ItemType>::mutatorDelegate() {
-		if(_mutatorDelegate != nullptr) {
+		if(_mutatorDelegate == nullptr) {
 			_mutatorDelegate = createMutatorDelegate();
 			if(_mutatorDelegate == nullptr) {
 				throw std::logic_error("createMutatorDelegate returned null");
