@@ -41,7 +41,7 @@ namespace sh {
 	};
 
 
-	class ShuffledTrackCollection: public SpecialTrackCollection<ShuffledTrackCollectionItem>, protected SpecialTrackCollection<ShuffledTrackCollectionItem>::MutatorDelegate {
+	class ShuffledTrackCollection: public SpecialTrackCollection<ShuffledTrackCollectionItem>, public SpecialTrackCollection<ShuffledTrackCollectionItem>::MutatorDelegate {
 	public:
 		static $<ShuffledTrackCollection> new$($<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems={});
 		

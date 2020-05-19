@@ -33,7 +33,7 @@ namespace sh {
 	template<typename ItemType>
 	SpecialTrackCollection<ItemType>::~SpecialTrackCollection() {
 		if(_mutatorDelegate != nullptr) {
-			auto selfTest = dynamic_cast<typename SpecialTrackCollection<ItemType>::MutatorDelegate*>(this);
+			auto selfTest = dynamic_cast<MutatorDelegate*>(this);
 			if(selfTest != _mutatorDelegate) {
 				delete _mutatorDelegate;
 			}
