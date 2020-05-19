@@ -114,10 +114,12 @@ namespace sh {
 				printf("Error setting spotify audio session category: %s\n", error.description.UTF8String);
 			}
 		}
-		error = nil;
-		[audioSession setActive:YES error:&error];
-		if(error != nil) {
-			printf("Error setting spotify audio session active: %s\n", error.description.UTF8String);
+		if(audioSession.isOtherAudioPlaying) {
+			error = nil;
+			[audioSession setActive:YES error:&error];
+			if(error != nil) {
+				printf("Error setting spotify audio session active: %s\n", error.description.UTF8String);
+			}
 		}
 	}
 

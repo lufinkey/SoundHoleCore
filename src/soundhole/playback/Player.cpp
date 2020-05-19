@@ -147,23 +147,48 @@ namespace sh {
 
 
 	Promise<void> Player::play($<Track> track) {
+		#ifdef TARGETPLATFORM_IOS
+		if(track) {
+			activateAudioSession();
+		}
+		#endif
 		return organizer->play(track);
 	}
 
 	Promise<void> Player::play($<TrackCollectionItem> item) {
+		#ifdef TARGETPLATFORM_IOS
+		if(item) {
+			activateAudioSession();
+		}
+		#endif
 		return organizer->play(item);
 	}
 
 	Promise<void> Player::play($<QueueItem> queueItem) {
+		#ifdef TARGETPLATFORM_IOS
+		if(queueItem) {
+			activateAudioSession();
+		}
+		#endif
 		return organizer->play(queueItem);
 	}
 
 	Promise<void> Player::play(ItemVariant item) {
+		#ifdef TARGETPLATFORM_IOS
+			if(std::get_if<NoItem>(&item) == nullptr) {
+				activateAudioSession();
+			}
+		#endif
 		return organizer->play(item);
 	}
 
 	Promise<void> Player::playAtQueueIndex(size_t index) {
 		auto item = organizer->getQueueItem(index);
+		#ifdef TARGETPLATFORM_IOS
+		if(item) {
+			activateAudioSession();
+		}
+		#endif
 		return organizer->play(item);
 	}
 
@@ -526,9 +551,6 @@ namespace sh {
 		auto self = shared_from_this();
 		onMediaPlaybackProviderEvent();
 		stopPlayerStateInterval();
-		#if defined(TARGETPLATFORM_IOS)
-			deactivateAudioSession();
-		#endif
 		// emit state change event
 		auto event = createEvent();
 		callPlayerListenerEvent(&EventListener::onPlayerStateChange, self, event);
@@ -545,10 +567,12 @@ namespace sh {
 		// emit track finish event
 		callPlayerListenerEvent(&EventListener::onPlayerTrackFinish, self, createEvent());
 		
+		w$<Player> weakSelf = self;
 		organizer->next().then([=](bool hasNext) {
 			#if defined(TARGETPLATFORM_IOS)
-				if(!hasNext) {
-					deactivateAudioSession();
+				auto self = weakSelf.lock();
+				if(self && !hasNext && !self->state().playing) {
+					self->deactivateAudioSession();
 				}
 			#endif
 		}).except([=](std::exception_ptr error) {
