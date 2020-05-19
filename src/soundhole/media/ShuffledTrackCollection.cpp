@@ -173,7 +173,7 @@ namespace sh {
 				auto randomIndex = tmpRemainingIndexes.extractFront();
 				chosenIndexes.pushBack(randomIndex);
 				promise = promise.then([=]() {
-					return _source->getItem(randomIndex->index).then([=]($<TrackCollectionItem> item) {
+					return self->_source->getItem(randomIndex->index).then([=]($<TrackCollectionItem> item) {
 						items->pushBack(ShuffledTrackCollectionItem::new$(self, item));
 					});
 				});
@@ -181,10 +181,14 @@ namespace sh {
 		}
 		return promise.then([=]() {
 			for(auto randomIndex : chosenIndexes) {
-				auto it = _remainingIndexes.findEqual(randomIndex);
-				if(it != _remainingIndexes.end()) {
-					_remainingIndexes.erase(it);
+				auto it = self->_remainingIndexes.findEqual(randomIndex);
+				if(it != self->_remainingIndexes.end()) {
+					self->_remainingIndexes.erase(it);
 				}
+			}
+			auto itemCount = self->_source->itemCount();
+			if(itemCount) {
+				mutator->resize(itemCount.value());
 			}
 			mutator->apply(index, *items);
 		});
