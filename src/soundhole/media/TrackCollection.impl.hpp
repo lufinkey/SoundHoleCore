@@ -10,7 +10,7 @@
 
 #include <soundhole/common.hpp>
 
-#define TRACKCOLLECTION_CHUNK_SIZE 12
+#define TRACKCOLLECTION_CHUNK_SIZE 18
 
 namespace sh {
 	template<typename T>
@@ -201,7 +201,7 @@ namespace sh {
 	}
 
 	template<typename ItemType>
-	Generator<LinkedList<$<TrackCollectionItem>>,void> SpecialTrackCollection<ItemType>::generateItems(size_t startIndex) {
+	typename TrackCollection::ItemGenerator SpecialTrackCollection<ItemType>::generateItems(size_t startIndex) {
 		if(tracksAreEmpty()) {
 			makeTracksAsync();
 		}
@@ -214,8 +214,8 @@ namespace sh {
 		} else {
 			size_t chunkSize = TRACKCOLLECTION_CHUNK_SIZE;
 			auto items = new$<LinkedList<$<ItemType>>>(itemsList());
-			return Generator<LinkedList<$<TrackCollectionItem>>,void>([=]() {
-				using YieldResult = typename Generator<LinkedList<$<TrackCollectionItem>>,void>::YieldResult;
+			return ItemGenerator([=]() {
+				using YieldResult = typename ItemGenerator::YieldResult;
 				LinkedList<$<TrackCollectionItem>> genItems;
 				while(genItems.size() < chunkSize && items->size() > 0) {
 					genItems.pushBack(std::static_pointer_cast<TrackCollectionItem>(items->front()));
