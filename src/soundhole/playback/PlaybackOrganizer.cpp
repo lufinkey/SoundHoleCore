@@ -625,6 +625,9 @@ namespace sh {
 				auto track = trackFromItem(item);
 				while(true) {
 					try {
+						if(track->needsData()) {
+							await(track->fetchDataIfNeeded());
+						}
 						if(track->isPlayable()) {
 							// play track
 							if(self->options.delegate != nullptr) {
