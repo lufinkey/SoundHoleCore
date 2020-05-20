@@ -216,8 +216,8 @@ namespace sh {
 			.discNumber=std::nullopt,
 			.trackNumber=std::nullopt,
 			.duration=track.duration,
-			.audioSources=
-				((track.audioURL.has_value() && !track.audioURL->empty()) ?
+			.audioSources=(track.audioURL.has_value() ?
+				maybe((!track.audioURL->empty()) ?
 					ArrayList<Track::AudioSource>{
 						Track::AudioSource{
 							.url=track.audioURL.value(),
@@ -225,7 +225,8 @@ namespace sh {
 							.bitrate=128.0
 						}
 					}
-					: ArrayList<Track::AudioSource>{}),
+					: ArrayList<Track::AudioSource>{})
+				: std::nullopt),
 			.playable=track.playable.value_or(true)
 		};
 	}
