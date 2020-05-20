@@ -392,7 +392,7 @@ namespace sh {
 			}
 			auto currentPlaybackProvider = (self->mediaProvider != nullptr) ? self->mediaProvider->player() : nullptr;
 			if(currentPlaybackProvider != nullptr && currentPlaybackProvider != playbackProvider) {
-				playbackProvider->stop();
+				currentPlaybackProvider->stop();
 			}
 			setMediaProvider(provider);
 			double position = 0;

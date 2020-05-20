@@ -26,7 +26,10 @@ namespace sh {
 	}
 	
 	Promise<void> SpotifyPlaybackProvider::prepare($<Track> track) {
-		return track->fetchDataIfNeeded();
+		return Promise<void>::all({
+			track->fetchDataIfNeeded(),
+			provider->spotify->startPlayer()
+		});
 	}
 
 	Promise<void> SpotifyPlaybackProvider::play($<Track> track, double position) {
