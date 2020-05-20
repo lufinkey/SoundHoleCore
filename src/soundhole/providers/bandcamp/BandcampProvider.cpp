@@ -216,15 +216,16 @@ namespace sh {
 			.discNumber=std::nullopt,
 			.trackNumber=std::nullopt,
 			.duration=track.duration,
-			.audioSources=(track.playable.has_value() ?
-				maybe(track.playable.value() ? ArrayList<Track::AudioSource>{
-					Track::AudioSource{
-						.url=track.audioURL.value(),
-						.encoding="mp3",
-						.bitrate=128.0
+			.audioSources=
+				((track.audioURL.has_value() && !track.audioURL->empty()) ?
+					ArrayList<Track::AudioSource>{
+						Track::AudioSource{
+							.url=track.audioURL.value(),
+							.encoding="mp3",
+							.bitrate=128.0
+						}
 					}
-				} : ArrayList<Track::AudioSource>{})
-				: std::nullopt),
+					: ArrayList<Track::AudioSource>{}),
 			.playable=track.playable.value_or(true)
 		};
 	}
