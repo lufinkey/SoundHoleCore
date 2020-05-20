@@ -388,6 +388,7 @@ namespace sh {
 			auto playbackProvider = provider->player();
 			auto preparedPlaybackProvider = (self->preparedMediaProvider != nullptr) ? self->preparedMediaProvider->player() : nullptr;
 			if(preparedPlaybackProvider != nullptr && preparedPlaybackProvider != playbackProvider) {
+				preparedPlaybackProvider->stop();
 				preparedMediaProvider = nullptr;
 			}
 			auto currentPlaybackProvider = (self->mediaProvider != nullptr) ? self->mediaProvider->player() : nullptr;
@@ -424,6 +425,9 @@ namespace sh {
 			stopPlayerStateInterval();
 		}
 		this->mediaProvider = provider;
+		if(this->mediaProvider != nullptr && this->mediaProvider == this->preparedMediaProvider) {
+			this->preparedMediaProvider = nullptr;
+		}
 		if (playbackProvider != nullptr) {
 			playbackProvider->addEventListener(this);
 			if(playbackProvider->state().playing) {
