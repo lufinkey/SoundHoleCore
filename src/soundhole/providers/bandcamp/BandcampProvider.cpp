@@ -226,7 +226,10 @@ namespace sh {
 						}
 					}
 					: ArrayList<Track::AudioSource>{})
-				: std::nullopt),
+				: ((track.playable.has_value() && !track.playable.value()) ?
+				   maybe(ArrayList<Track::AudioSource>{})
+				   : std::nullopt
+				)),
 			.playable=track.playable.value_or(true)
 		};
 	}
