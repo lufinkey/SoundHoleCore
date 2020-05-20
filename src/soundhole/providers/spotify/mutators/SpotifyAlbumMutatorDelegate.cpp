@@ -25,8 +25,11 @@ namespace sh {
 			.limit=count
 		}).then([=](SpotifyPage<SpotifyTrack> page) -> void {
 			auto items = page.items.map<$<AlbumItem>>([&](auto& track) {
+				auto trackData = provider->createTrackData(track, true);
+				trackData.albumName = album->name();
+				trackData.albumURI = album->uri();
 				return AlbumItem::new$(album, {
-					.track=Track::new$(provider, provider->createTrackData(track, true))
+					.track=Track::new$(provider, trackData)
 				});
 			});
 			mutator->lock([&]() {

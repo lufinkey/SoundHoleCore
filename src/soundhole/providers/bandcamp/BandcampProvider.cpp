@@ -277,6 +277,8 @@ namespace sh {
 					.offset=0,
 					.items=album.tracks->map<AlbumItem::Data>([&](auto& track) {
 						auto trackData = createTrackData(track, true);
+						trackData.albumName = album.name;
+						trackData.albumURI = album.url;
 						if(trackData.artists.size() == 0) {
 							trackData.artists = { artist };
 						} else {

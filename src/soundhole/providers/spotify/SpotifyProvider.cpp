@@ -157,6 +157,8 @@ namespace sh {
 					.offset=album.tracks->offset,
 					.items=album.tracks->items.map<AlbumItem::Data>([&](SpotifyTrack& track) {
 						auto trackData = createTrackData(track, true);
+						trackData.albumName = album.name;
+						trackData.albumURI = album.uri;
 						for(size_t i=0; i<trackData.artists.size(); i++) {
 							auto cmpArtist = trackData.artists[i];
 							auto artist = artists.firstWhere([&](auto artist) {
