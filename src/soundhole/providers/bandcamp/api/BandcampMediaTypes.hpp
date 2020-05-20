@@ -135,6 +135,8 @@ namespace sh {
 		#ifdef NODE_API_MODULE
 		static BandcampAlbum fromNapiObject(Napi::Object);
 		#endif
+		
+		static BandcampAlbum fromSingle(BandcampTrack track);
 	};
 
 

@@ -85,12 +85,12 @@ namespace sh {
 				promise.Get("then").As<Napi::Function>().Call(promise, {
 					// then
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
-						auto track = info[0].As<Napi::Object>();
-						auto mediaType = track.Get("type").ToString().Utf8Value();
+						auto obj = info[0].As<Napi::Object>();
+						auto mediaType = obj.Get("type").ToString().Utf8Value();
 						if(mediaType != "track") {
 							reject(BandcampError(BandcampError::Code::MEDIATYPE_MISMATCH, "Bandcamp item is " + mediaType + ", not track"));
 						} else {
-							resolve(BandcampTrack::fromNapiObject(track));
+							resolve(BandcampTrack::fromNapiObject(obj));
 						}
 					}),
 					// catch
@@ -117,12 +117,25 @@ namespace sh {
 				promise.Get("then").As<Napi::Function>().Call(promise, {
 					// then
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
-						auto album = info[0].As<Napi::Object>();
-						auto mediaType = album.Get("type").ToString().Utf8Value();
-						if(mediaType != "album") {
+						auto obj = info[0].As<Napi::Object>();
+						auto mediaType = obj.Get("type").ToString().Utf8Value();
+						if(mediaType == "track") {
+							auto track = BandcampTrack::fromNapiObject(obj);
+							if(track.url.empty() || track.url != track.albumURL) {
+								reject(BandcampError(BandcampError::Code::MEDIATYPE_MISMATCH, "Bandcamp item is " + mediaType + ", not album"));
+							}
+							BandcampAlbum album;
+							try {
+								album = BandcampAlbum::fromSingle(track);
+							} catch(...) {
+								reject(std::current_exception());
+								return;
+							}
+							resolve(album);
+						} else if(mediaType != "album") {
 							reject(BandcampError(BandcampError::Code::MEDIATYPE_MISMATCH, "Bandcamp item is " + mediaType + ", not album"));
 						} else {
-							resolve(BandcampAlbum::fromNapiObject(album));
+							resolve(BandcampAlbum::fromNapiObject(obj));
 						}
 					}),
 					// catch
@@ -149,12 +162,12 @@ namespace sh {
 				promise.Get("then").As<Napi::Function>().Call(promise, {
 					// then
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
-						auto artist = info[0].As<Napi::Object>();
-						auto mediaType = artist.Get("type").ToString().Utf8Value();
+						auto obj = info[0].As<Napi::Object>();
+						auto mediaType = obj.Get("type").ToString().Utf8Value();
 						if(mediaType != "artist") {
 							reject(BandcampError(BandcampError::Code::MEDIATYPE_MISMATCH, "Bandcamp item is " + mediaType + ", not artist"));
 						} else {
-							resolve(BandcampArtist::fromNapiObject(artist));
+							resolve(BandcampArtist::fromNapiObject(obj));
 						}
 					}),
 					// catch

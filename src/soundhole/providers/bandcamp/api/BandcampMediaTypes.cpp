@@ -8,6 +8,7 @@
 
 #include <napi.h>
 #include "BandcampMediaTypes.hpp"
+#include "BandcampError.hpp"
 #include <soundhole/utils/js/JSUtils.hpp>
 
 namespace sh {
@@ -180,6 +181,26 @@ namespace sh {
 				return tag.ToString();
 			}),
 			.description = jsutils::optStringFromNapiValue(album.Get("description"))
+		};
+	}
+
+	BandcampAlbum BandcampAlbum::fromSingle(BandcampTrack track) {
+		if(track.url.empty() || track.url != track.albumURL) {
+			throw BandcampError(BandcampError::Code::MEDIATYPE_MISMATCH, "Bandcamp track is not a single");
+		}
+		return BandcampAlbum{
+			.url=track.albumURL,
+			.name=track.albumName,
+			.images=track.images,
+			.artistName=track.artistName,
+			.artistURL=track.artistURL,
+			.artist=track.artist,
+			.tracks=ArrayList<BandcampTrack>{
+				track
+			},
+			.numTracks=1,
+			.tags=track.tags,
+			.description=track.description
 		};
 	}
 
