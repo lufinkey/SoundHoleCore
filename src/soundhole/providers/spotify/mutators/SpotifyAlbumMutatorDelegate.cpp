@@ -28,6 +28,9 @@ namespace sh {
 				auto trackData = provider->createTrackData(track, true);
 				trackData.albumName = album->name();
 				trackData.albumURI = album->uri();
+				if(!trackData.images) {
+					trackData.images = album->images();
+				}
 				return AlbumItem::new$(album, {
 					.track=Track::new$(provider, trackData)
 				});

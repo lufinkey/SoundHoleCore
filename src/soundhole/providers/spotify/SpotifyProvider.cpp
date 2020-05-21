@@ -142,14 +142,15 @@ namespace sh {
 		auto artists = album.artists.map<$<Artist>>([&](SpotifyArtist& artist) {
 			return Artist::new$(this, createArtistData(artist, true));
 		});
+		auto albumImages = album.images.map<MediaItem::Image>([&](SpotifyImage& image) {
+			return createImage(std::move(image));
+		});
 		return Album::Data{{{
 			.partial=partial,
 			.type=album.type,
 			.name=album.name,
 			.uri=album.uri,
-			.images=album.images.map<MediaItem::Image>([&](SpotifyImage& image) {
-				return createImage(std::move(image));
-			})
+			.images=albumImages
 			},
 			.tracks=(album.tracks ?
 				maybe(Album::Data::Tracks{
@@ -159,6 +160,9 @@ namespace sh {
 						auto trackData = createTrackData(track, true);
 						trackData.albumName = album.name;
 						trackData.albumURI = album.uri;
+						if(!trackData.images) {
+							trackData.images = albumImages;
+						}
 						for(size_t i=0; i<trackData.artists.size(); i++) {
 							auto cmpArtist = trackData.artists[i];
 							auto artist = artists.firstWhere([&](auto artist) {
