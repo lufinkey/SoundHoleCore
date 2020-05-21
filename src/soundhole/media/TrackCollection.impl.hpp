@@ -215,6 +215,7 @@ namespace sh {
 			size_t i=0;
 			while(startIt != sourceList.end() && i < startIndex) {
 				startIt++;
+				i++;
 			}
 			auto items = fgl::new$<LinkedList<$<ItemType>>>(startIt, sourceList.end());
 			return ItemGenerator([=]() {
