@@ -288,16 +288,13 @@ namespace sh {
 
 	SpotifyProvider::ArtistAlbumsGenerator SpotifyProvider::getArtistAlbums(String artistURI) {
 		String artistId = idFromURI(artistURI);
-		struct SharedData {
-			size_t offset = 0;
-		};
-		auto sharedData = fgl::new$<SharedData>();
+		auto offset = fgl::new$<size_t>(0);
 		using YieldResult = typename ArtistAlbumsGenerator::YieldResult;
 		return ArtistAlbumsGenerator([=]() {
 			return spotify->getArtistAlbums(artistId, {
 				.country="from_token",
 				.limit=20,
-				.offset=sharedData->offset
+				.offset=*offset
 			}).map<YieldResult>([=](auto page) {
 				auto loadBatch = LoadBatch<$<Album>>{
 					.items=page.items.template map<$<Album>>([=](auto album) {
@@ -305,8 +302,8 @@ namespace sh {
 					}),
 					.total=page.total
 				};
-				sharedData->offset += page.items.size();
-				bool done = (sharedData->offset >= page.total);
+				*offset += page.items.size();
+				bool done = (*offset >= page.total || page.next.empty());
 				return YieldResult{
 					.value=loadBatch,
 					.done=done
@@ -317,15 +314,12 @@ namespace sh {
 
 	SpotifyProvider::UserPlaylistsGenerator SpotifyProvider::getUserPlaylists(String userURI) {
 		String userId = idFromURI(userURI);
-		struct SharedData {
-			size_t offset = 0;
-		};
-		auto sharedData = fgl::new$<SharedData>();
+		auto offset = fgl::new$<size_t>(0);
 		using YieldResult = typename UserPlaylistsGenerator::YieldResult;
 		return UserPlaylistsGenerator([=]() {
 			return spotify->getUserPlaylists(userId, {
 				.limit=20,
-				.offset=sharedData->offset
+				.offset=*offset
 			}).map<YieldResult>([=](auto page) {
 				auto loadBatch = LoadBatch<$<Playlist>>{
 					.items=page.items.template map<$<Playlist>>([=](auto playlist) {
@@ -333,8 +327,8 @@ namespace sh {
 					}),
 					.total=page.total
 				};
-				sharedData->offset += page.items.size();
-				bool done = (sharedData->offset >= page.total);
+				*offset += page.items.size();
+				bool done = (*offset >= page.total || page.next.empty());
 				return YieldResult{
 					.value=loadBatch,
 					.done=done
@@ -352,6 +346,108 @@ namespace sh {
 
 	Playlist::MutatorDelegate* SpotifyProvider::createPlaylistMutatorDelegate($<Playlist> playlist) {
 		return new SpotifyPlaylistMutatorDelegate(playlist);
+	}
+
+
+
+
+	SpotifyProvider::LibraryItemGenerator SpotifyProvider::generateLibrary() {
+		auto type = fgl::new$<size_t>(0);
+		auto offset = fgl::new$<size_t>(0);
+		using YieldResult = typename LibraryItemGenerator::YieldResult;
+		return LibraryItemGenerator([=]() {
+			switch(*type) {
+				// saved albums
+				case 0: {
+					return spotify->getMyAlbums({
+						.market="from_token",
+						.limit=50,
+						.offset=*offset
+					}).map<YieldResult>([=](auto page) {
+						auto loadBatch = LoadBatch<LibraryItem>{
+							.items=page.items.template map<LibraryItem>([=](auto item) {
+								return LibraryItem{
+									.libraryProvider=this,
+									.mediaItem=Album::new$(this, createAlbumData(item.album, false)),
+									.addedAt=item.addedAt
+								};
+							}),
+							.total=page.total
+						};
+						*offset += page.items.size();
+						bool done = (*offset >= page.total || page.next.empty());
+						if(done) {
+							*offset = 0;
+							*type += 1;
+						}
+						return YieldResult{
+							.value=loadBatch,
+							.done=false
+						};
+					});
+				}
+				// saved playlists
+				case 1: {
+					return spotify->getMyPlaylists({
+						.limit=50,
+						.offset=*offset
+					}).map<YieldResult>([=](auto page) {
+						auto loadBatch = LoadBatch<LibraryItem>{
+							.items=page.items.template map<LibraryItem>([=](auto item) {
+								return LibraryItem{
+									.libraryProvider=this,
+									.mediaItem=Playlist::new$(this, createPlaylistData(item, false)),
+									.addedAt=String()
+								};
+							}),
+							.total=page.total
+						};
+						*offset += page.items.size();
+						bool done = (*offset >= page.total || page.next.empty());
+						if(done) {
+							*offset = 0;
+							*type += 1;
+						}
+						return YieldResult{
+							.value=loadBatch,
+							.done=false
+						};
+					});
+				}
+				// saved tracks
+				case 2: {
+					return spotify->getMyTracks({
+						.market="from_token",
+						.limit=50,
+						.offset=*offset
+					}).map<YieldResult>([=](auto page) {
+						auto loadBatch = LoadBatch<LibraryItem>{
+							.items=page.items.template map<LibraryItem>([=](auto item) {
+								return LibraryItem{
+									.libraryProvider=this,
+									.mediaItem=Track::new$(this, createTrackData(item.track, false)),
+									.addedAt=item.addedAt
+								};
+							}),
+							.total=page.total
+						};
+						*offset += page.items.size();
+						bool done = (*offset >= page.total || page.next.empty());
+						if(done) {
+							*offset = 0;
+							*type += 1;
+						}
+						return YieldResult{
+							.value=loadBatch,
+							.done=done
+						};
+					});
+				}
+			}
+			return Promise<YieldResult>::resolve(YieldResult{
+				.done=true
+			});
+		});
 	}
 
 

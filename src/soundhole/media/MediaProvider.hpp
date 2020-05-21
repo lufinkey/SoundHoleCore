@@ -20,6 +20,12 @@
 namespace sh {
 	class MediaProvider {
 	public:
+		struct LibraryItem {
+			MediaProvider* libraryProvider;
+			$<MediaItem> mediaItem;
+			String addedAt;
+		};
+		
 		template<typename T>
 		struct LoadBatch {
 			LinkedList<T> items;
@@ -28,6 +34,7 @@ namespace sh {
 		
 		using ArtistAlbumsGenerator = ContinuousGenerator<LoadBatch<$<Album>>,void>;
 		using UserPlaylistsGenerator = ContinuousGenerator<LoadBatch<$<Playlist>>,void>;
+		using LibraryItemGenerator = ContinuousGenerator<LoadBatch<LibraryItem>,void>;
 		
 		MediaProvider(const MediaProvider&) = delete;
 		MediaProvider& operator=(const MediaProvider&) = delete;
@@ -61,6 +68,8 @@ namespace sh {
 		
 		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album) = 0;
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) = 0;
+		
+		virtual LibraryItemGenerator generateLibrary() = 0;
 		
 		virtual MediaPlaybackProvider* player() = 0;
 		virtual const MediaPlaybackProvider* player() const = 0;

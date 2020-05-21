@@ -137,11 +137,13 @@ namespace sh {
 	protected:
 		SpecialTrackCollection($<MediaItem>& ptr, MediaProvider* provider, Data data);
 		SpecialTrackCollection($<MediaItem>& ptr, Json json, MediaProviderStash* stash);
+		SpecialTrackCollection($<MediaItem>& ptr, MediaProvider* provider, Data data, MutatorDelegate* mutatorDelegate, bool autoDeleteMutatorDelegate);
+		SpecialTrackCollection($<MediaItem>& ptr, Json json, MediaProviderStash* stash, MutatorDelegate* mutatorDelegate, bool autoDeleteMutatorDelegate);
 		
 		virtual bool areAsyncListItemsEqual(const AsyncList<$<ItemType>>* list, const $<ItemType>& item1, const $<ItemType>& item2) const override;
 		virtual Promise<void> loadAsyncListItems(typename AsyncList<$<ItemType>>::Mutator* mutator, size_t index, size_t count) override;
 		
-		virtual MutatorDelegate* createMutatorDelegate() = 0;
+		virtual MutatorDelegate* createMutatorDelegate();
 		MutatorDelegate* mutatorDelegate();
 		
 		inline bool tracksAreEmpty() const;

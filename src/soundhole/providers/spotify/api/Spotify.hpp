@@ -64,6 +64,23 @@ namespace sh {
 		Promise<Json> sendRequest(utils::HttpMethod method, String endpoint, Json params = Json());
 		
 		Promise<SpotifyUser> getMe();
+		struct GetMyTracksOptions {
+			String market;
+			Optional<size_t> limit;
+			Optional<size_t> offset;
+		};
+		Promise<SpotifyPage<SpotifySavedTrack>> getMyTracks(GetMyTracksOptions options = {});
+		struct GetMyAlbumsOptions {
+			String market;
+			Optional<size_t> limit;
+			Optional<size_t> offset;
+		};
+		Promise<SpotifyPage<SpotifySavedAlbum>> getMyAlbums(GetMyAlbumsOptions options = {});
+		struct GetMyPlaylistsOptions {
+		   Optional<size_t> limit;
+		   Optional<size_t> offset;
+		};
+		Promise<SpotifyPage<SpotifyPlaylist>> getMyPlaylists(GetMyPlaylistsOptions options = {});
 		
 		
 		struct SearchOptions {

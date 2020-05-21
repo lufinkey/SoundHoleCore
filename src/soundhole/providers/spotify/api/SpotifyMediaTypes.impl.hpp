@@ -14,13 +14,15 @@
 namespace sh {
 	template<typename T>
 	SpotifyPage<T> SpotifyPage<T>::fromJson(const Json& json) {
+		auto previousString = json["previous"].string_value();
+		auto nextString = json["next"].string_value();
 		return SpotifyPage<T>{
 			.href = json["href"].string_value(),
 			.limit = (size_t)json["limit"].number_value(),
 			.offset = (size_t)json["offset"].number_value(),
 			.total = (size_t)json["total"].number_value(),
-			.previous = json["previous"].string_value(),
-			.next = json["next"].string_value(),
+			.previous = (previousString != "null") ? nextString : "",
+			.next = (nextString != "null") ? nextString : "",
 			.items = jsutils::arrayListFromJson<T>(json["items"], [](auto& item) -> T {
 				return T::fromJson(item);
 			})

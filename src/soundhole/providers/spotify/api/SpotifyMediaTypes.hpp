@@ -212,6 +212,21 @@ namespace sh {
 		
 		static SpotifyPlaylist fromJson(const Json&);
 	};
+
+
+	struct SpotifySavedTrack {
+		String addedAt;
+		SpotifyTrack track;
+		
+		static SpotifySavedTrack fromJson(const Json&);
+	};
+
+	struct SpotifySavedAlbum {
+		String addedAt;
+		SpotifyAlbum album;
+		
+		static SpotifySavedAlbum fromJson(const Json&);
+	};
 }
 
 

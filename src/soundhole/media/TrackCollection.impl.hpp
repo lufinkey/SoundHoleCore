@@ -313,6 +313,11 @@ namespace sh {
 	}
 
 	template<typename ItemType>
+	typename SpecialTrackCollection<ItemType>::MutatorDelegate* SpecialTrackCollection<ItemType>::createMutatorDelegate() {
+		return nullptr;
+	}
+
+	template<typename ItemType>
 	typename SpecialTrackCollection<ItemType>::MutatorDelegate* SpecialTrackCollection<ItemType>::mutatorDelegate() {
 		if(_mutatorDelegate == nullptr) {
 			_mutatorDelegate = createMutatorDelegate();

@@ -252,4 +252,19 @@ namespace sh {
 			.track = SpotifyTrack::fromJson(json["track"])
 		};
 	}
+
+
+	SpotifySavedTrack SpotifySavedTrack::fromJson(const Json& json) {
+		return SpotifySavedTrack{
+			.addedAt = json["added_at"].string_value(),
+			.track = SpotifyTrack::fromJson(json["track"])
+		};
+	}
+
+	SpotifySavedAlbum SpotifySavedAlbum::fromJson(const Json& json) {
+		return SpotifySavedAlbum{
+			.addedAt = json["added_at"].string_value(),
+			.album = SpotifyAlbum::fromJson(json["album"])
+		};
+	}
 }

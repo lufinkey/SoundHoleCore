@@ -58,6 +58,8 @@ namespace sh {
 		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album) override;
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) override;
 		
+		virtual LibraryItemGenerator generateLibrary() override;
+		
 		virtual SpotifyPlaybackProvider* player() override;
 		virtual const SpotifyPlaybackProvider* player() const override;
 		

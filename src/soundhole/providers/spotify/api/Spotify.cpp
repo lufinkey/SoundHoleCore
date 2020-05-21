@@ -330,6 +330,53 @@ namespace sh {
 			return SpotifyUser::fromJson(json);
 		});
 	}
+
+	Promise<SpotifyPage<SpotifySavedTrack>> Spotify::getMyTracks(GetMyTracksOptions options) {
+		std::map<std::string,Json> params;
+		if(!options.market.empty()) {
+			params["market"] = (std::string)options.market;
+		}
+		if(options.limit.has_value()) {
+			params["limit"] = std::to_string(options.limit.value());
+		}
+		if(options.offset.has_value()) {
+			params["offset"] = std::to_string(options.offset.value());
+		}
+		return sendRequest(utils::HttpMethod::GET, "v1/me/tracks", params).map<SpotifyPage<SpotifySavedTrack>>([](auto json) {
+			return SpotifyPage<SpotifySavedTrack>::fromJson(json);
+		});
+	}
+
+	Promise<SpotifyPage<SpotifySavedAlbum>> Spotify::getMyAlbums(GetMyAlbumsOptions options) {
+		std::map<std::string,Json> params;
+		if(!options.market.empty()) {
+			params["market"] = (std::string)options.market;
+		}
+		if(options.limit.has_value()) {
+			params["limit"] = std::to_string(options.limit.value());
+		}
+		if(options.offset.has_value()) {
+			params["offset"] = std::to_string(options.offset.value());
+		}
+		return sendRequest(utils::HttpMethod::GET, "v1/me/albums", params).map<SpotifyPage<SpotifySavedAlbum>>([](auto json) {
+			return SpotifyPage<SpotifySavedAlbum>::fromJson(json);
+		});
+	}
+
+	Promise<SpotifyPage<SpotifyPlaylist>> Spotify::getMyPlaylists(GetMyPlaylistsOptions options) {
+		std::map<std::string,Json> params;
+		if(options.limit.has_value()) {
+			params["limit"] = std::to_string(options.limit.value());
+		}
+		if(options.offset.has_value()) {
+			params["offset"] = std::to_string(options.offset.value());
+		}
+		return sendRequest(utils::HttpMethod::GET, "v1/me/playlists", params).map<SpotifyPage<SpotifyPlaylist>>([](auto json) {
+			return SpotifyPage<SpotifyPlaylist>::fromJson(json);
+		});
+	}
+
+
 	
 	Promise<SpotifySearchResults> Spotify::search(String query, SearchOptions options) {
 		std::map<std::string,Json> params;
