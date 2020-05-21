@@ -452,41 +452,19 @@ namespace sh {
 	}
 
 	Promise<$<TrackCollectionItem>> PlaybackOrganizer::getPreviousInContext() {
-		if(!context) {
+		auto prevIndex = getPreviousContextIndex();
+		if(!prevIndex) {
 			return Promise<$<TrackCollectionItem>>::resolve(nullptr);
 		}
-		auto optContextIndex = contextItem ? contextItem->indexInContext() : std::nullopt;
-		if(!optContextIndex) {
-			optContextIndex = getContextIndex();
-			if(!optContextIndex) {
-				return Promise<$<TrackCollectionItem>>::resolve(nullptr);
-			}
-		}
-		size_t contextIndex = optContextIndex.value();
-		if(contextIndex == 0) {
-			return Promise<$<TrackCollectionItem>>::resolve(nullptr);
-		}
-		size_t prevIndex = contextIndex - 1;
-		return context->getItem(prevIndex);
+		return context->getItem(prevIndex.value());
 	}
 
 	Promise<$<TrackCollectionItem>> PlaybackOrganizer::getNextInContext() {
-		if(!context) {
+		auto nextIndex = getNextContextIndex();
+		if(!nextIndex) {
 			return Promise<$<TrackCollectionItem>>::resolve(nullptr);
 		}
-		size_t nextIndex = -1;
-		auto optContextIndex = contextItem ? contextItem->indexInContext() : std::nullopt;
-		if(!optContextIndex) {
-			optContextIndex = getContextIndex();
-			if(!optContextIndex) {
-				return Promise<$<TrackCollectionItem>>::resolve(nullptr);
-			} else {
-				nextIndex = optContextIndex.value() + 1;
-			}
-		} else {
-			nextIndex = optContextIndex.value() + 1;
-		}
-		return context->getItem(nextIndex);
+		return context->getItem(nextIndex.value());
 	}
 
 
@@ -512,6 +490,44 @@ namespace sh {
 		} else {
 			return sourceContextIndex;
 		}
+	}
+
+	Optional<size_t> PlaybackOrganizer::getPreviousContextIndex() const {
+		if(!context) {
+			return std::nullopt;
+		}
+		auto optContextIndex = contextItem ? contextItem->indexInContext() : std::nullopt;
+		if(!optContextIndex) {
+			optContextIndex = getContextIndex();
+			if(!optContextIndex) {
+				return std::nullopt;
+			}
+		}
+		size_t contextIndex = optContextIndex.value();
+		if(contextIndex == 0) {
+			return std::nullopt;
+		}
+		size_t prevIndex = contextIndex - 1;
+		return prevIndex;
+	}
+
+	Optional<size_t> PlaybackOrganizer::getNextContextIndex() const {
+		if(!context) {
+			return std::nullopt;
+		}
+		size_t nextIndex = -1;
+		auto optContextIndex = contextItem ? contextItem->indexInContext() : std::nullopt;
+		if(!optContextIndex) {
+			optContextIndex = getContextIndex();
+			if(!optContextIndex) {
+				return std::nullopt;
+			} else {
+				nextIndex = optContextIndex.value();
+			}
+		} else {
+			nextIndex = optContextIndex.value() + 1;
+		}
+		return nextIndex;
 	}
 
 	LinkedList<$<QueueItem>> PlaybackOrganizer::getQueue() const {

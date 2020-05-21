@@ -80,6 +80,8 @@ namespace sh {
 		
 		$<TrackCollection> getContext() const;
 		Optional<size_t> getContextIndex() const;
+		Optional<size_t> getPreviousContextIndex() const;
+		Optional<size_t> getNextContextIndex() const;
 		LinkedList<$<QueueItem>> getQueue() const;
 		$<QueueItem> getQueueItem(size_t index) const;
 		size_t getQueueLength() const;

@@ -102,6 +102,8 @@ namespace sh {
 		
 		$<TrackCollection> context() const;
 		Optional<size_t> contextIndex() const;
+		Optional<size_t> previousContextIndex() const;
+		Optional<size_t> nextContextIndex() const;
 		
 		LinkedList<$<QueueItem>> queueItems() const;
 		

@@ -343,7 +343,15 @@ namespace sh {
 	Optional<size_t> Player::contextIndex() const {
 		return organizer->getContextIndex();
 	}
-	
+
+	Optional<size_t> Player::previousContextIndex() const {
+		return organizer->getPreviousContextIndex();
+	}
+
+	Optional<size_t> Player::nextContextIndex() const {
+		return organizer->getNextContextIndex();
+	}
+
 	LinkedList<$<QueueItem>> Player::queueItems() const {
 		return organizer->getQueue();
 	}
