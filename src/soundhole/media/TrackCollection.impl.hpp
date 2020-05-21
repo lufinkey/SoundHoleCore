@@ -210,7 +210,13 @@ namespace sh {
 			});
 		} else {
 			size_t chunkSize = TRACKCOLLECTION_CHUNK_SIZE;
-			auto items = new$<LinkedList<$<ItemType>>>(itemsList());
+			auto& sourceList = itemsList();
+			auto startIt = sourceList.begin();
+			size_t i=0;
+			while(startIt != sourceList.end() && i < startIndex) {
+				startIt++;
+			}
+			auto items = fgl::new$<LinkedList<$<ItemType>>>(startIt, sourceList.end());
 			return ItemGenerator([=]() {
 				using YieldResult = typename ItemGenerator::YieldResult;
 				LinkedList<$<TrackCollectionItem>> genItems;
