@@ -220,6 +220,24 @@ String trackTuple(LinkedList<Any>& params, $<Track> track, TupleOptions options)
 	")" });
 }
 
+ArrayList<String> albumTupleFromTrackColumns() {
+	return { "uri", "provider", "type", "name", "updateTime" };
+}
+String albumTupleFromTrack(LinkedList<Any>& params, $<Track> track, TupleOptions options) {
+	return String::join(ArrayList<String>{ "(",
+		// uri
+		sqlParam(params, track->albumURI()),",",
+		// provider
+		sqlParam(params, track->mediaProvider()->name()),",",
+		// type
+		sqlParam(params, String("album")),",",
+		// name
+		sqlParam(params, track->albumName()),",",
+		// updateTime
+		"CURRENT_TIMESTAMP",
+	")" });
+}
+
 ArrayList<String> trackArtistTupleColumns() {
 	return { "trackURI", "artistURI", "updateTime" };
 }

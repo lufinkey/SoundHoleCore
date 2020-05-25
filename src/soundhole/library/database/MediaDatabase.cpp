@@ -7,6 +7,8 @@
 //
 
 #include "MediaDatabase.hpp"
+#include "MediaDatabaseSQL.hpp"
+#include "SQLiteTransaction.hpp"
 #include <sqlite3.h>
 
 namespace sh {
@@ -51,5 +53,49 @@ namespace sh {
 			throw std::runtime_error(sqlite3_errstr(retVal));
 		}
 		db = nullptr;
+	}
+
+	Promise<void> MediaDatabase::initialize(InitializeOptions options) {
+		return Promise<void>([=](auto resolve, auto reject) {
+			if(db == nullptr || queue == nullptr) {
+				reject(std::runtime_error("Cannot initialize an unopened database"));
+				return;
+			}
+			queue->async([=]() {
+				try {
+					auto tx = SQLiteTransaction(db);
+					if(options.purge) {
+						tx.addSQL(sql::purgeDB(), {});
+					}
+					tx.addSQL(sql::createDB(), {});
+					tx.execute();
+				} catch(...) {
+					reject(std::current_exception());
+					return;
+				}
+				resolve();
+			});
+		});
+	}
+
+	Promise<void> MediaDatabase::reset() {
+		return Promise<void>([=](auto resolve, auto reject) {
+			if(db == nullptr || queue == nullptr) {
+				reject(std::runtime_error("Cannot initialize an unopened database"));
+				return;
+			}
+			queue->async([=]() {
+				try {
+					auto tx = SQLiteTransaction(db);
+					tx.addSQL(sql::purgeDB(), {});
+					tx.addSQL(sql::createDB(), {});
+					tx.execute();
+				} catch(...) {
+					reject(std::current_exception());
+					return;
+				}
+				resolve();
+			});
+		});
 	}
 }

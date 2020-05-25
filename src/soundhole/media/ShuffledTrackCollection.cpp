@@ -63,11 +63,13 @@ namespace sh {
 	}
 
 	Json ShuffledTrackCollectionItem::toJson() const {
+		auto json = SpecialTrackCollectionItem<ShuffledTrackCollection>::toJson().object_items();
 		auto sourceIndex = _sourceItem->indexInContext();
-		return Json::object{
+		json.merge(Json::object{
 			{ "sourceItem", _sourceItem->toJson() },
 			{ "sourceIndex", sourceIndex ? Json((double)sourceIndex.value()) : Json() }
-		};
+		});
+		return json;
 	}
 
 

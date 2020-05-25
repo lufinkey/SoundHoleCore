@@ -24,6 +24,9 @@ struct TupleOptions {
 ArrayList<String> trackTupleColumns();
 String trackTuple(LinkedList<Any>& params, $<Track> track, TupleOptions options);
 
+ArrayList<String> albumTupleFromTrackColumns();
+String albumTupleFromTrack(LinkedList<Any>& params, $<Track> track, TupleOptions options);
+
 struct TrackArtist {
 	String trackURI;
 	String artistURI;

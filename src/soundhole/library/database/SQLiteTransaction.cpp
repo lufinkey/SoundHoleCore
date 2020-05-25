@@ -34,12 +34,12 @@ namespace sh {
 					results[block.outKey] = blockResults;
 				}
 			}
-			executeSQL("END TRANSACTION;", {});
+			executeSQL("END TRANSACTION;", {}, {.waitIfBusy=true});
 		}
 		catch(...) {
 			auto error = std::current_exception();
 			try {
-				executeSQL("ROLLBACK TRANSACTION", {});
+				executeSQL("ROLLBACK TRANSACTION;", {});
 			} catch(std::exception& e) {
 				FGL_WARN((String)"Error while rolling back transaction: "+e.what());
 			}
