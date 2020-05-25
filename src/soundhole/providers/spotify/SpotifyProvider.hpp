@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <soundhole/common.hpp>
 #include <soundhole/media/MediaProvider.hpp>
 #include "SpotifyPlaybackProvider.hpp"

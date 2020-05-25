@@ -94,6 +94,12 @@ namespace sh {
 		return parts.back();
 	}
 
+	time_t SpotifyProvider::timeFromString(String time) {
+		tm timeData;
+		strptime(time.c_str(), "%Y-%m-%dT%H:%M:%SZ", &timeData);
+		return mktime(&timeData);
+	}
+
 
 
 	Track::Data SpotifyProvider::createTrackData(SpotifyTrack track, bool partial) {

@@ -426,6 +426,19 @@ namespace sh {
 
 
 
+	BandcampProvider::LibraryItemGenerator BandcampProvider::generateLibrary(GenerateLibraryOptions options) {
+		using YieldResult = typename LibraryItemGenerator::YieldResult;
+		return LibraryItemGenerator([=]() {
+			// TODO implement BandcampProvider::generateLibrary
+			return Promise<YieldResult>::resolve(YieldResult{
+				.done=true
+			});
+		});
+	}
+
+
+
+
 	BandcampPlaybackProvider* BandcampProvider::player() {
 		return _player;
 	}

@@ -45,6 +45,8 @@ namespace sh {
 		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album) override;
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) override;
 		
+		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options = GenerateLibraryOptions()) override;
+		
 		virtual YoutubePlaybackProvider* player() override;
 		virtual const YoutubePlaybackProvider* player() const override;
 		

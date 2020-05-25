@@ -643,6 +643,19 @@ namespace sh {
 
 
 
+
+	YoutubeProvider::LibraryItemGenerator YoutubeProvider::generateLibrary(GenerateLibraryOptions options) {
+		using YieldResult = typename LibraryItemGenerator::YieldResult;
+		return LibraryItemGenerator([=]() {
+			// TODO implement YoutubeProvider::generateLibrary
+			return Promise<YieldResult>::resolve(YieldResult{
+				.done=true
+			});
+		});
+	}
+
+
+
 	YoutubePlaybackProvider* YoutubeProvider::player() {
 		return _player;
 	}
