@@ -74,6 +74,7 @@ Pod::Spec.new do |s|
 	s.dependency 'AsyncCpp' # git@github.com:lufinkey/async-cpp.git
 	s.dependency 'IOCpp' # git@github.com:lufinkey/io-cpp.git
 	s.dependency 'NodeJSEmbed' # git@github.com:lufinkey/nodejs-embed.git
+	s.dependency 'sqlite3'
 	
 	s.prepare_command = "./tools/fetch_shared_dependencies.sh json11 cxxurl && ./tools/fetch_header_dependencies.sh && ./src/soundhole/scripts/build.sh && rm -rf src/soundhole/scripts/js/node_modules"
 end

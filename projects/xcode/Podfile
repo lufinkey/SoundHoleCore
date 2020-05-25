@@ -7,6 +7,7 @@ target 'SoundHoleCoreTest-iOS' do
 	pod 'IOCpp', :git => 'git@github.com:lufinkey/io-cpp.git'
 	pod 'NodeMobile', :git => 'https://github.com/janeasystems/nodejs-mobile.git'
 	pod 'NodeJSEmbed', :git => 'git@github.com:lufinkey/nodejs-embed.git'
+	pod 'sqlite3'
 end
 
 target 'SoundHoleCoreTest-macOS' do
@@ -16,6 +17,7 @@ target 'SoundHoleCoreTest-macOS' do
 	pod 'AsyncCpp', :git => 'git@github.com:lufinkey/async-cpp.git'
 	pod 'IOCpp', :git => 'git@github.com:lufinkey/io-cpp.git'
 	pod 'NodeJSEmbed', :git => 'git@github.com:lufinkey/nodejs-embed.git'
+	pod 'sqlite3'
 end
 
 post_install do |installer|
