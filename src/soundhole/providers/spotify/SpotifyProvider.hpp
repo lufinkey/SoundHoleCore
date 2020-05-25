@@ -58,7 +58,30 @@ namespace sh {
 		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album) override;
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) override;
 		
-		virtual LibraryItemGenerator generateLibrary() override;
+		struct GenerateLibraryResumeData {
+			struct Item {
+				String uri;
+				String addedAt;
+				
+				Json toJson() const;
+				static Optional<Item> maybeFromJson(const Json&);
+			};
+			
+			Optional<time_t> mostRecentTrackSave;
+			Optional<time_t> mostRecentAlbumSave;
+			
+			String syncCurrentType;
+			Optional<time_t> syncMostRecentSave;
+			Optional<size_t> syncLastItemOffset;
+			Optional<Item> syncLastItem;
+			
+			Json toJson() const;
+			
+			static GenerateLibraryResumeData fromJson(const Json&);
+			static String typeFromSyncIndex(size_t index);
+			static Optional<size_t> syncIndexFromType(String type);
+		};
+		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options = GenerateLibraryOptions()) override;
 		
 		virtual SpotifyPlaybackProvider* player() override;
 		virtual const SpotifyPlaybackProvider* player() const override;
@@ -72,6 +95,7 @@ namespace sh {
 		
 	private:
 		static String idFromURI(String uri);
+		static time_t timeFromString(String time);
 		
 		static MediaItem::Image createImage(SpotifyImage image);
 		

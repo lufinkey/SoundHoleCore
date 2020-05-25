@@ -32,9 +32,15 @@ namespace sh {
 			Optional<size_t> total;
 		};
 		
+		struct GenerateLibraryResults {
+			Json resumeData;
+			LinkedList<LibraryItem> items;
+			double progress;
+		};
+		
 		using ArtistAlbumsGenerator = ContinuousGenerator<LoadBatch<$<Album>>,void>;
 		using UserPlaylistsGenerator = ContinuousGenerator<LoadBatch<$<Playlist>>,void>;
-		using LibraryItemGenerator = ContinuousGenerator<LoadBatch<LibraryItem>,void>;
+		using LibraryItemGenerator = ContinuousGenerator<GenerateLibraryResults,void>;
 		
 		MediaProvider(const MediaProvider&) = delete;
 		MediaProvider& operator=(const MediaProvider&) = delete;
@@ -69,7 +75,10 @@ namespace sh {
 		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album) = 0;
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) = 0;
 		
-		virtual LibraryItemGenerator generateLibrary() = 0;
+		struct GenerateLibraryOptions {
+			Json resumeData;
+		};
+		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options = GenerateLibraryOptions()) = 0;
 		
 		virtual MediaPlaybackProvider* player() = 0;
 		virtual const MediaPlaybackProvider* player() const = 0;
