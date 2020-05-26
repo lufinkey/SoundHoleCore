@@ -38,13 +38,13 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   AsyncCpp:
-    :commit: b98a6f4c1cbe6bb68b973af606b4b29f40b151d9
+    :commit: 0250601e98950b8749a867d0f217a22c31936685
     :git: "git@github.com:lufinkey/async-cpp.git"
   DataCpp:
     :commit: ab4b1ec67ea2877a684969af545853ae3bf412fd
     :git: "git@github.com:lufinkey/data-cpp.git"
   IOCpp:
-    :commit: d3c760063c4db4000c6ed0f25379ceb05f74e686
+    :commit: 1f1467053b5ec9a4aa84ef388977b884e43a5f47
     :git: "git@github.com:lufinkey/io-cpp.git"
   NodeJSEmbed:
     :commit: 598bee3bd0234f001d976fb47b47eb574e5ccd68

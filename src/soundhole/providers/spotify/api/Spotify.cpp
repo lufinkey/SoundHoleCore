@@ -381,7 +381,7 @@ namespace sh {
 	Promise<SpotifySearchResults> Spotify::search(String query, SearchOptions options) {
 		std::map<std::string,Json> params;
 		if(options.types.empty()) {
-			params["type"] = (std::string)String::join(ArrayList<String>{ "track", "artist", "album", "playlist" }, ",");
+			params["type"] = (std::string)String::join({ "track", "artist", "album", "playlist" }, ",");
 		} else {
 			params["type"] = (std::string)String::join(options.types, ",");
 		}

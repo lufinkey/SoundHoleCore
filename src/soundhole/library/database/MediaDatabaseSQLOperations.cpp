@@ -26,7 +26,7 @@ void insertOrReplaceArtists(SQLiteTransaction& tx, const ArrayList<$<Artist>>& a
 		}
 	}
 	if(fullArtistTuples.size() > 0) {
-		tx.addSQL(String::join(ArrayList<String>{
+		tx.addSQL(String::join({
 			"INSERT OR REPLACE INTO Artist (",
 			String::join(artistTupleColumns(), ", "),
 			") VALUES ",
@@ -34,7 +34,7 @@ void insertOrReplaceArtists(SQLiteTransaction& tx, const ArrayList<$<Artist>>& a
 		}), fullArtistParams);
 	}
 	if(partialArtistTuples.size() > 0) {
-		tx.addSQL(String::join(ArrayList<String>{
+		tx.addSQL(String::join({
 			"INSERT OR REPLACE INTO Artist (",
 			String::join(artistTupleColumns(), ", "),
 			") VALUES ",
@@ -86,7 +86,7 @@ void addTrackTuples($<Track> track, TrackTuplesAndParams& tuples, bool includeAl
 
 void applyTrackTuples(SQLiteTransaction& tx, TrackTuplesAndParams& tuples) {
 	if(tuples.fullArtistTuples.size() > 0) {
-		tx.addSQL(String::join(ArrayList<String>{
+		tx.addSQL(String::join({
 			"INSERT OR REPLACE INTO Artist (",
 			String::join(artistTupleColumns(), ", "),
 			") VALUES ",
@@ -94,7 +94,7 @@ void applyTrackTuples(SQLiteTransaction& tx, TrackTuplesAndParams& tuples) {
 		}), tuples.fullArtistParams);
 	}
 	if(tuples.partialArtistTuples.size() > 0) {
-		tx.addSQL(String::join(ArrayList<String>{
+		tx.addSQL(String::join({
 			"INSERT OR REPLACE INTO Artist (",
 			String::join(artistTupleColumns(), ", "),
 			") VALUES ",
@@ -102,7 +102,7 @@ void applyTrackTuples(SQLiteTransaction& tx, TrackTuplesAndParams& tuples) {
 		}), tuples.partialArtistParams);
 	}
 	if(tuples.albumTuples.size() > 0) {
-		tx.addSQL(String::join(ArrayList<String>{
+		tx.addSQL(String::join({
 			"INSERT OR REPLACE INTO TrackCollection (",
 			String::join(albumTupleFromTrackColumns(), ", "),
 			") VALUES ",
@@ -110,7 +110,7 @@ void applyTrackTuples(SQLiteTransaction& tx, TrackTuplesAndParams& tuples) {
 		}), tuples.albumParams);
 	}
 	if(tuples.trackTuples.size() > 0) {
-		tx.addSQL(String::join(ArrayList<String>{
+		tx.addSQL(String::join({
 			"INSERT OR REPLACE INTO Track (",
 			String::join(trackTupleColumns(), ", "),
 			") VALUES ",
@@ -118,7 +118,7 @@ void applyTrackTuples(SQLiteTransaction& tx, TrackTuplesAndParams& tuples) {
 		}), tuples.trackParams);
 	}
 	if(tuples.trackArtistTuples.size() > 0) {
-		tx.addSQL(String::join(ArrayList<String>{
+		tx.addSQL(String::join({
 			"INSERT OR REPLACE INTO TrackArtist (",
 			String::join(trackArtistTupleColumns(), ", "),
 			") VALUES ",
@@ -126,7 +126,7 @@ void applyTrackTuples(SQLiteTransaction& tx, TrackTuplesAndParams& tuples) {
 		}), tuples.trackArtistParams);
 	}
 	if(tuples.albumItemTuples.size() > 0) {
-		tx.addSQL(String::join(ArrayList<String>{
+		tx.addSQL(String::join({
 			"INSERT OR REPLACE INTO TrackCollectionItem (",
 			String::join(albumItemTupleFromTrackColumns(), ", "),
 			") VALUES ",
@@ -178,7 +178,7 @@ void addTrackCollectionTuples($<TrackCollection> collection, TrackCollectionTupl
 
 void applyTrackCollectionTuples(SQLiteTransaction& tx, TrackCollectionTuplesAndParams& tuples) {
 	if(tuples.fullArtistTuples.size() > 0) {
-		tx.addSQL(String::join(ArrayList<String>{
+		tx.addSQL(String::join({
 			"INSERT OR REPLACE INTO Artist (",
 			String::join(artistTupleColumns(), ", "),
 			") VALUES ",
@@ -186,7 +186,7 @@ void applyTrackCollectionTuples(SQLiteTransaction& tx, TrackCollectionTuplesAndP
 		}), tuples.fullArtistParams);
 	}
 	if(tuples.partialArtistTuples.size() > 0) {
-		tx.addSQL(String::join(ArrayList<String>{
+		tx.addSQL(String::join({
 			"INSERT OR REPLACE INTO Artist (",
 			String::join(artistTupleColumns(), ", "),
 			") VALUES ",
@@ -194,7 +194,7 @@ void applyTrackCollectionTuples(SQLiteTransaction& tx, TrackCollectionTuplesAndP
 		}), tuples.partialArtistParams);
 	}
 	if(tuples.collectionTuples.size() > 0) {
-		tx.addSQL(String::join(ArrayList<String>{
+		tx.addSQL(String::join({
 			"INSERT OR REPLACE INTO TrackCollection (",
 			String::join(trackCollectionTupleColumns(), ", "),
 			") VALUES ",
@@ -202,7 +202,7 @@ void applyTrackCollectionTuples(SQLiteTransaction& tx, TrackCollectionTuplesAndP
 		}), tuples.collectionParams);
 	}
 	if(tuples.collectionArtistTuples.size() > 0) {
-		tx.addSQL(String::join(ArrayList<String>{
+		tx.addSQL(String::join({
 			"INSERT OR REPLACE INTO TrackCollectionArtist (",
 			String::join(trackCollectionArtistTupleColumns(), ", "),
 			") VALUES ",
@@ -242,7 +242,7 @@ void insertOrReplaceItemsFromTrackCollection(SQLiteTransaction& tx, $<TrackColle
 	}
 	applyTrackTuples(tx, tuples);
 	if(collectionItemTuples.size() > 0) {
-		tx.addSQL(String::join(ArrayList<String>{
+		tx.addSQL(String::join({
 			"INSERT OR REPLACE INTO TrackCollectionItem (",
 			String::join(trackCollectionItemTupleColumns(), ", "),
 			") VALUES ",
@@ -292,7 +292,7 @@ void insertOrReplaceLibraryItems(SQLiteTransaction& tx, const ArrayList<MediaPro
 	applyTrackTuples(tx, trackTuples);
 	applyTrackCollectionTuples(tx, collectionTuples);
 	if(savedTrackTuples.size() > 0) {
-		tx.addSQL(String::join(ArrayList<String>{
+		tx.addSQL(String::join({
 			"INSERT OR REPLACE INTO SavedTrack (",
 			String::join(savedTrackTupleColumns(), ", "),
 			") VALUES ",
@@ -300,7 +300,7 @@ void insertOrReplaceLibraryItems(SQLiteTransaction& tx, const ArrayList<MediaPro
 		}), savedTrackParams);
 	}
 	if(savedAlbumTuples.size() > 0) {
-		tx.addSQL(String::join(ArrayList<String>{
+		tx.addSQL(String::join({
 			"INSERT OR REPLACE INTO SavedAlbum (",
 			String::join(savedAlbumTupleColumns(), ", "),
 			") VALUES ",
@@ -308,7 +308,7 @@ void insertOrReplaceLibraryItems(SQLiteTransaction& tx, const ArrayList<MediaPro
 		}), savedAlbumParams);
 	}
 	if(savedPlaylistTuples.size() > 0) {
-		tx.addSQL(String::join(ArrayList<String>{
+		tx.addSQL(String::join({
 			"INSERT OR REPLACE INTO SavedPlaylist (",
 			String::join(savedPlaylistTupleColumns(), ", "),
 			") VALUES ",
@@ -324,7 +324,7 @@ void insertOrReplaceDBStates(SQLiteTransaction& tx, const ArrayList<DBState>& st
 		dbStateTuples.pushBack(dbStateTuple(dbStateParams, dbState));
 	}
 	if(dbStateTuples.size() > 0) {
-		tx.addSQL(String::join(ArrayList<String>{
+		tx.addSQL(String::join({
 			"INSERT OR REPLACE DBState (",
 			String::join(dbStateTupleColumns(), ", "),
 			") VALUES ",
