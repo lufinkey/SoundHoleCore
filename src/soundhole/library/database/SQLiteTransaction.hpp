@@ -16,9 +16,9 @@ namespace sh {
 	class SQLiteTransaction {
 	public:
 		struct Options {
-			bool useTransaction = true;
+			bool useSQLTransaction = true;
 		};
-		SQLiteTransaction(sqlite3* db, Options options = Options{.useTransaction=true});
+		SQLiteTransaction(sqlite3* db, Options options = Options{.useSQLTransaction=true});
 		
 		struct AddSQLOptions {
 			String outKey;
@@ -31,8 +31,9 @@ namespace sh {
 		struct ExecuteSQLOptions {
 			Function<Json(Json)> mapper;
 			bool waitIfBusy = false;
+			bool returnResults = true;
 		};
-		LinkedList<Json> executeSQL(String sql, LinkedList<Any> params, ExecuteSQLOptions options = ExecuteSQLOptions{.waitIfBusy=false});
+		LinkedList<Json> executeSQL(String sql, LinkedList<Any> params, ExecuteSQLOptions options = ExecuteSQLOptions{.waitIfBusy=false,.returnResults=true});
 		
 		struct Block {
 			String sql;

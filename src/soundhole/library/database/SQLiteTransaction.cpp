@@ -26,26 +26,27 @@ namespace sh {
 	}
 
 	std::map<String,LinkedList<Json>> SQLiteTransaction::execute() {
-		if(options.useTransaction) {
+		if(options.useSQLTransaction) {
 			executeSQL("BEGIN TRANSACTION;", {});
 		}
 		std::map<String,LinkedList<Json>> results;
 		try {
 			for(auto& block : blocks) {
 				auto blockResults = executeSQL(block.sql, block.params, {
-					.mapper=block.mapper
+					.mapper=block.mapper,
+					.returnResults=(!block.outKey.empty())
 				});
 				if(!block.outKey.empty()) {
 					results[block.outKey] = blockResults;
 				}
 			}
-			if(options.useTransaction) {
+			if(options.useSQLTransaction) {
 				executeSQL("END TRANSACTION;", {}, {.waitIfBusy=true});
 			}
 		}
 		catch(...) {
 			auto error = std::current_exception();
-			if(options.useTransaction) {
+			if(options.useSQLTransaction) {
 				try {
 					executeSQL("ROLLBACK TRANSACTION;", {});
 				} catch(std::exception& e) {
@@ -118,40 +119,42 @@ namespace sh {
 		while(true) {
 			retVal = sqlite3_step(stmt);
 			if(retVal == SQLITE_ROW) {
-				Json::object row;
-				int colCount = sqlite3_column_count(stmt);
-				for(int i=0; i<colCount; i++) {
-					String columnName = sqlite3_column_name(stmt, i);
-					auto sqlType = sqlite3_column_type(stmt, i);
-					switch(sqlType) {
-						case SQLITE_NULL: {
-							row[columnName] = Json();
-						} break;
-						case SQLITE_INTEGER: {
-							row[columnName] = (double)sqlite3_column_int64(stmt, i);
-						} break;
-						case SQLITE_FLOAT: {
-							row[columnName] = sqlite3_column_double(stmt, i);
-						} break;
-						case SQLITE_TEXT: {
-							auto text = sqlite3_column_text(stmt, i);
-							row[columnName] = (text != nullptr) ? Json(String(text)) : Json();
-						} break;
-						case SQLITE_BLOB: {
-							auto blob = sqlite3_column_blob(stmt, i);
-							auto bytes = sqlite3_column_bytes(stmt, i);
-							row[columnName] = Json(String((const char*)blob, (size_t)bytes));
-						} break;
-						default: {
-							sqlite3_finalize(stmt);
-							throw std::runtime_error((String)"Invalid sql type "+sqlType+" for column \""+columnName+"\"");
-						} break;
+				if(options.returnResults) {
+					Json::object row;
+					int colCount = sqlite3_column_count(stmt);
+					for(int i=0; i<colCount; i++) {
+						String columnName = sqlite3_column_name(stmt, i);
+						auto sqlType = sqlite3_column_type(stmt, i);
+						switch(sqlType) {
+							case SQLITE_NULL: {
+								row[columnName] = Json();
+							} break;
+							case SQLITE_INTEGER: {
+								row[columnName] = (double)sqlite3_column_int64(stmt, i);
+							} break;
+							case SQLITE_FLOAT: {
+								row[columnName] = sqlite3_column_double(stmt, i);
+							} break;
+							case SQLITE_TEXT: {
+								auto text = sqlite3_column_text(stmt, i);
+								row[columnName] = (text != nullptr) ? Json(String(text)) : Json();
+							} break;
+							case SQLITE_BLOB: {
+								auto blob = sqlite3_column_blob(stmt, i);
+								auto bytes = sqlite3_column_bytes(stmt, i);
+								row[columnName] = Json(String((const char*)blob, (size_t)bytes));
+							} break;
+							default: {
+								sqlite3_finalize(stmt);
+								throw std::runtime_error((String)"Invalid sql type "+sqlType+" for column \""+columnName+"\"");
+							} break;
+						}
 					}
-				}
-				if(options.mapper) {
-					rows.pushBack(options.mapper(row));
-				} else {
-					rows.pushBack(row);
+					if(options.mapper) {
+						rows.pushBack(options.mapper(row));
+					} else {
+						rows.pushBack(row);
+					}
 				}
 			}
 			else if(retVal == SQLITE_DONE) {

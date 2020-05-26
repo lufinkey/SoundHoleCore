@@ -55,47 +55,53 @@ namespace sh {
 		db = nullptr;
 	}
 
-	Promise<void> MediaDatabase::initialize(InitializeOptions options) {
-		return Promise<void>([=](auto resolve, auto reject) {
+	Promise<std::map<String,LinkedList<Json>>> MediaDatabase::transaction(TransactionOptions options, Function<void(SQLiteTransaction&)> executor) {
+		return Promise<std::map<String,LinkedList<Json>>>([=](auto resolve, auto reject) {
 			if(db == nullptr || queue == nullptr) {
-				reject(std::runtime_error("Cannot initialize an unopened database"));
+				reject(std::runtime_error("Cannot query an unopened database"));
+				return;
+			}
+			auto tx = SQLiteTransaction(db, {
+				.useSQLTransaction=options.useSQLTransaction
+			});
+			try {
+				executor(tx);
+			}
+			catch(...) {
+				reject(std::current_exception());
 				return;
 			}
 			queue->async([=]() {
+				auto exTx = std::move(tx);
+				std::map<String,LinkedList<Json>> results;
 				try {
-					auto tx = SQLiteTransaction(db);
-					if(options.purge) {
-						tx.addSQL(sql::purgeDB(), {});
-					}
-					tx.addSQL(sql::createDB(), {});
-					tx.execute();
+					results = exTx.execute();
 				} catch(...) {
 					reject(std::current_exception());
 					return;
 				}
-				resolve();
+				resolve(results);
 			});
 		});
 	}
 
-	Promise<void> MediaDatabase::reset() {
-		return Promise<void>([=](auto resolve, auto reject) {
-			if(db == nullptr || queue == nullptr) {
-				reject(std::runtime_error("Cannot initialize an unopened database"));
-				return;
+	Promise<std::map<String,LinkedList<Json>>> MediaDatabase::transaction(Function<void(SQLiteTransaction&)> executor) {
+		return transaction(TransactionOptions(), executor);
+	}
+
+	Promise<void> MediaDatabase::initialize(InitializeOptions options) {
+		return transaction([=](auto& tx) {
+			if(options.purge) {
+				tx.addSQL(sql::purgeDB(), {});
 			}
-			queue->async([=]() {
-				try {
-					auto tx = SQLiteTransaction(db);
-					tx.addSQL(sql::purgeDB(), {});
-					tx.addSQL(sql::createDB(), {});
-					tx.execute();
-				} catch(...) {
-					reject(std::current_exception());
-					return;
-				}
-				resolve();
-			});
-		});
+			tx.addSQL(sql::createDB(), {});
+		}).toVoid();
+	}
+
+	Promise<void> MediaDatabase::reset() {
+		return transaction([=](auto& tx) {
+			tx.addSQL(sql::purgeDB(), {});
+			tx.addSQL(sql::createDB(), {});
+		}).toVoid();
 	}
 }

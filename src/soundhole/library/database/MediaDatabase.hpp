@@ -36,6 +36,12 @@ namespace sh {
 		bool isOpen() const;
 		void close();
 		
+		struct TransactionOptions {
+			bool useSQLTransaction = true;
+		};
+		Promise<std::map<String,LinkedList<Json>>> transaction(Function<void(SQLiteTransaction&)> executor);
+		Promise<std::map<String,LinkedList<Json>>> transaction(TransactionOptions options, Function<void(SQLiteTransaction&)> executor);
+		
 		struct InitializeOptions {
 			bool purge = false;
 		};
