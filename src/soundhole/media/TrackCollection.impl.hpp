@@ -247,7 +247,7 @@ namespace sh {
 		} else if(_items.index() == 2) {
 			return std::get<LinkedList<$<ItemType>>>(_items).size();
 		} else if(_items.index() == 3) {
-			auto asyncItems = std::get<$<AsyncList<$<ItemType>>>>(_items);
+			auto asyncItems = asyncItemsList();
 			if(asyncItems->sizeIsKnown()) {
 				return asyncItems->size();
 			}
@@ -265,6 +265,88 @@ namespace sh {
 			return asyncItemsList()->getItems(index,count).toVoid();
 		} else {
 			return Promise<void>::resolve();
+		}
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::forEach(Function<void($<TrackCollectionItem>,size_t)> executor) {
+		if(tracksAreEmpty()) {
+			return;
+		}
+		if(tracksAreAsync()) {
+			auto asyncItems = asyncItemsList();
+			asyncItems->forEach(executor);
+		} else {
+			size_t i=0;
+			for(auto& item : itemsList()) {
+				executor(item, i);
+				i++;
+			}
+		}
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::forEach(Function<void($<const TrackCollectionItem>,size_t)> executor) const {
+		if(tracksAreEmpty()) {
+			return;
+		}
+		if(tracksAreAsync()) {
+			auto asyncItems = asyncItemsList();
+			asyncItems->forEach(executor);
+		} else {
+			size_t i=0;
+			for(auto& item : itemsList()) {
+				executor(item, i);
+				i++;
+			}
+		}
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::forEachInRange(size_t startIndex, size_t endIndex, Function<void($<TrackCollectionItem>,size_t)> executor) {
+		if(tracksAreEmpty()) {
+			return;
+		}
+		if(tracksAreAsync()) {
+			auto asyncItems = asyncItemsList();
+			asyncItems->forEachInRange(startIndex, endIndex, executor);
+		} else {
+			size_t i=0;
+			for(auto& item : itemsList()) {
+				if(i < startIndex) {
+					i++;
+					continue;
+				}
+				if(i >= endIndex) {
+					break;
+				}
+				executor(item, i);
+				i++;
+			}
+		}
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::forEachInRange(size_t startIndex, size_t endIndex, Function<void($<const TrackCollectionItem>,size_t)> executor) const {
+		if(tracksAreEmpty()) {
+			return;
+		}
+		if(tracksAreAsync()) {
+			auto asyncItems = asyncItemsList();
+			asyncItems->forEachInRange(startIndex, endIndex, executor);
+		} else {
+			size_t i=0;
+			for(auto& item : itemsList()) {
+				if(i < startIndex) {
+					i++;
+					continue;
+				}
+				if(i >= endIndex) {
+					break;
+				}
+				executor(item, i);
+				i++;
+			}
 		}
 	}
 
@@ -504,7 +586,7 @@ namespace sh {
 				endIndex = -1;
 			}
 			Json::object itemsJson;
-			asyncItems->forValidInRange(options.tracksOffset, endIndex, [&](auto& item, size_t index) {
+			asyncItems->forEachInRange(options.tracksOffset, endIndex, [&](auto& item, size_t index) {
 				itemsJson[std::to_string(index)] = item->toJson();
 			});
 			json.merge(Json::object{

@@ -71,8 +71,12 @@ namespace sh {
 		virtual $<TrackCollectionItem> itemFromJson(Json json, MediaProviderStash* stash) = 0;
 		
 		virtual Optional<size_t> itemCount() const = 0;
-		
 		virtual Promise<void> loadItems(size_t index, size_t count) = 0;
+		
+		virtual void forEach(Function<void($<TrackCollectionItem>,size_t)>) = 0;
+		virtual void forEach(Function<void($<const TrackCollectionItem>,size_t)>) const = 0;
+		virtual void forEachInRange(size_t startIndex, size_t endIndex, Function<void($<TrackCollectionItem>,size_t)>) = 0;
+		virtual void forEachInRange(size_t startIndex, size_t endIndex, Function<void($<const TrackCollectionItem>,size_t)>) const = 0;
 		
 		virtual Json toJson() const override final;
 		struct ToJsonOptions {
@@ -124,6 +128,11 @@ namespace sh {
 		
 		virtual Optional<size_t> itemCount() const override final;
 		virtual Promise<void> loadItems(size_t index, size_t count) override final;
+		
+		virtual void forEach(Function<void($<TrackCollectionItem>,size_t)>) override final;
+		virtual void forEach(Function<void($<const TrackCollectionItem>,size_t)>) const override final;
+		virtual void forEachInRange(size_t startIndex, size_t endIndex, Function<void($<TrackCollectionItem>,size_t)>) override final;
+		virtual void forEachInRange(size_t startIndex, size_t endIndex, Function<void($<const TrackCollectionItem>,size_t)>) const override final;
 		
 		void applyData(const Data& data);
 		

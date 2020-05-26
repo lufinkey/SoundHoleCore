@@ -108,6 +108,9 @@
 		A5AE3F1C247C593100FB9AFF /* SQLiteTransaction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AE3F1A247C593100FB9AFF /* SQLiteTransaction.cpp */; };
 		A5AE3F1D247C593100FB9AFF /* SQLiteTransaction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AE3F1A247C593100FB9AFF /* SQLiteTransaction.cpp */; };
 		A5AE3F1E247C593100FB9AFF /* SQLiteTransaction.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5AE3F1B247C593100FB9AFF /* SQLiteTransaction.hpp */; };
+		A5AE3F23247C937400FB9AFF /* MediaDatabaseSQLOperations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AE3F21247C937400FB9AFF /* MediaDatabaseSQLOperations.cpp */; };
+		A5AE3F24247C937400FB9AFF /* MediaDatabaseSQLOperations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AE3F21247C937400FB9AFF /* MediaDatabaseSQLOperations.cpp */; };
+		A5AE3F25247C937400FB9AFF /* MediaDatabaseSQLOperations.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5AE3F22247C937400FB9AFF /* MediaDatabaseSQLOperations.hpp */; };
 		A5B2BBF82360E84C00ED010C /* SpotifyMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B2BBF62360E84C00ED010C /* SpotifyMediaTypes.cpp */; };
 		A5B2BBF92360E84C00ED010C /* SpotifyMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B2BBF62360E84C00ED010C /* SpotifyMediaTypes.cpp */; };
 		A5B2BBFA2360E84C00ED010C /* SpotifyMediaTypes.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5B2BBF72360E84C00ED010C /* SpotifyMediaTypes.hpp */; };
@@ -314,6 +317,8 @@
 		A5AE3F08247BA5B700FB9AFF /* MediaDatabaseSQL.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaDatabaseSQL.hpp; sourceTree = "<group>"; };
 		A5AE3F1A247C593100FB9AFF /* SQLiteTransaction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SQLiteTransaction.cpp; sourceTree = "<group>"; };
 		A5AE3F1B247C593100FB9AFF /* SQLiteTransaction.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SQLiteTransaction.hpp; sourceTree = "<group>"; };
+		A5AE3F21247C937400FB9AFF /* MediaDatabaseSQLOperations.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MediaDatabaseSQLOperations.cpp; sourceTree = "<group>"; };
+		A5AE3F22247C937400FB9AFF /* MediaDatabaseSQLOperations.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaDatabaseSQLOperations.hpp; sourceTree = "<group>"; };
 		A5B2BBF62360E84C00ED010C /* SpotifyMediaTypes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyMediaTypes.cpp; sourceTree = "<group>"; };
 		A5B2BBF72360E84C00ED010C /* SpotifyMediaTypes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyMediaTypes.hpp; sourceTree = "<group>"; };
 		A5B2BBFB2360F1E900ED010C /* SpotifyMediaTypes.impl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyMediaTypes.impl.hpp; sourceTree = "<group>"; };
@@ -788,6 +793,8 @@
 				A5AE3F02247B890000FB9AFF /* MediaDatabase.cpp */,
 				A5AE3F08247BA5B700FB9AFF /* MediaDatabaseSQL.hpp */,
 				A5AE3F07247BA5B700FB9AFF /* MediaDatabaseSQL.cpp */,
+				A5AE3F22247C937400FB9AFF /* MediaDatabaseSQLOperations.hpp */,
+				A5AE3F21247C937400FB9AFF /* MediaDatabaseSQLOperations.cpp */,
 				A5AE3F1B247C593100FB9AFF /* SQLiteTransaction.hpp */,
 				A5AE3F1A247C593100FB9AFF /* SQLiteTransaction.cpp */,
 			);
@@ -911,6 +918,7 @@
 				A5485A2A23942EB800CB7749 /* MediaPlaybackProvider.hpp in Headers */,
 				A5AB5BC62368B1630028851A /* YoutubeMediaTypes.hpp in Headers */,
 				A5AE3F1E247C593100FB9AFF /* SQLiteTransaction.hpp in Headers */,
+				A5AE3F25247C937400FB9AFF /* MediaDatabaseSQLOperations.hpp in Headers */,
 				A571E1332332C65000603E14 /* SpotifyProvider.hpp in Headers */,
 				A513ED9C232DA20C000DCAC7 /* MediaItem.hpp in Headers */,
 				A5485A2F239432CE00CB7749 /* SpotifyPlaybackProvider.hpp in Headers */,
@@ -1165,6 +1173,7 @@
 				A571E16A2333305D00603E14 /* Scripts.cpp in Sources */,
 				A578785523DE547F00B6B0A5 /* PlaybackOrganizer.cpp in Sources */,
 				A5B7A79D2336C28B00301FC0 /* SpotifyError_iOS.mm in Sources */,
+				A5AE3F23247C937400FB9AFF /* MediaDatabaseSQLOperations.cpp in Sources */,
 				A5E51BB523A3EE24006E061F /* StreamPlayer_iOS.mm in Sources */,
 				A538982323CD3D36008638D1 /* BandcampPlaybackProvider.cpp in Sources */,
 				A5B9736A23823BFE00FB3F1C /* Playlist.cpp in Sources */,
@@ -1287,6 +1296,7 @@
 				A54F2548239DAA2700C81E1C /* StreamPlayer.cpp in Sources */,
 				A5E851CF235DFEBC0001F74D /* BandcampMediaTypes.cpp in Sources */,
 				A571E1322332C64500603E14 /* SpotifyProvider.cpp in Sources */,
+				A5AE3F24247C937400FB9AFF /* MediaDatabaseSQLOperations.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

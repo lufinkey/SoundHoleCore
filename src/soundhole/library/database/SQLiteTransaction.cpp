@@ -11,8 +11,8 @@
 #include <sqlite3.h>
 
 namespace sh {
-	SQLiteTransaction::SQLiteTransaction(sqlite3* db)
-	: db(db) {
+	SQLiteTransaction::SQLiteTransaction(sqlite3* db, Options options)
+	: db(db), options(options) {
 		//
 	}
 
@@ -25,7 +25,9 @@ namespace sh {
 	}
 
 	std::map<String,LinkedList<Json>> SQLiteTransaction::execute() {
-		executeSQL("BEGIN TRANSACTION;", {});
+		if(options.useTransaction) {
+			executeSQL("BEGIN TRANSACTION;", {});
+		}
 		std::map<String,LinkedList<Json>> results;
 		try {
 			for(auto& block : blocks) {
@@ -34,14 +36,18 @@ namespace sh {
 					results[block.outKey] = blockResults;
 				}
 			}
-			executeSQL("END TRANSACTION;", {}, {.waitIfBusy=true});
+			if(options.useTransaction) {
+				executeSQL("END TRANSACTION;", {}, {.waitIfBusy=true});
+			}
 		}
 		catch(...) {
 			auto error = std::current_exception();
-			try {
-				executeSQL("ROLLBACK TRANSACTION;", {});
-			} catch(std::exception& e) {
-				FGL_WARN((String)"Error while rolling back transaction: "+e.what());
+			if(options.useTransaction) {
+				try {
+					executeSQL("ROLLBACK TRANSACTION;", {});
+				} catch(std::exception& e) {
+					FGL_WARN((String)"Error while rolling back transaction: "+e.what());
+				}
 			}
 			std::rethrow_exception(error);
 		}

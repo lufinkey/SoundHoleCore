@@ -35,7 +35,7 @@ Any sqlStringOrNull(String str) {
 #define COALESCE_FIELD(params, coalesce, field, table, item, value) \
 	(coalesce ? \
 		sqlOptParam(params, value, \
-			"(SELECT " field " FROM " table " WHERE uri=?)", { Any(item->uri()) }) \
+			"(SELECT " field " FROM " table " WHERE uri = ?)", { Any(item->uri()) }) \
 		: sqlParam(params, value))
 
 
@@ -176,14 +176,14 @@ Any imagesJson(Optional<ArrayList<MediaItem::Image>> images) {
 	return sqlStringOrNull(Json(arr).dump());
 }
 
-ArrayList<$<Artist>> collectionArtists($<TrackCollection> collection) {
+ArrayList<$<Artist>> trackCollectionArtists($<TrackCollection> collection) {
 	if(auto album = std::dynamic_pointer_cast<Album>(collection)) {
 		return album->artists();
 	}
 	return {};
 }
 
-String collectionItemAddedAt($<TrackCollectionItem> item) {
+String trackCollectionItemAddedAt($<TrackCollectionItem> item) {
 	if(auto playlistItem = std::dynamic_pointer_cast<PlaylistItem>(item)) {
 		return playlistItem->addedAt();
 	}
@@ -224,6 +224,9 @@ ArrayList<String> albumTupleFromTrackColumns() {
 	return { "uri", "provider", "type", "name", "updateTime" };
 }
 String albumTupleFromTrack(LinkedList<Any>& params, $<Track> track, TupleOptions options) {
+	if(track->albumURI().empty()) {
+		throw std::runtime_error("Cannot create album from track with empty album URI");
+	}
 	return String::join(ArrayList<String>{ "(",
 		// uri
 		sqlParam(params, track->albumURI()),",",
@@ -268,7 +271,7 @@ String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collecti
 		// itemCount
 		COALESCE_FIELD(params, options.coalesce, "itemCount", "TrackCollection", collection, collection->itemCount().toAny()),",",
 		// artists
-		COALESCE_FIELD(params, options.coalesce, "artists", "TrackCollection", collection, nonEmptyArtistsJson(collectionArtists(collection))),",",
+		COALESCE_FIELD(params, options.coalesce, "artists", "TrackCollection", collection, nonEmptyArtistsJson(trackCollectionArtists(collection))),",",
 		// images
 		COALESCE_FIELD(params, options.coalesce, "images", "TrackCollection", collection, imagesJson(collection->images())),",",
 		// updateTime
@@ -279,7 +282,7 @@ String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collecti
 ArrayList<String> trackCollectionItemTupleColumns() {
 	return { "collectionURI", "indexNum", "trackURI", "addedAt", "updateTime" };
 }
-String trackCollectionItemTuple(LinkedList<Any>& params, $<TrackCollectionItem> item, TupleOptions options) {
+String trackCollectionItemTuple(LinkedList<Any>& params, $<TrackCollectionItem> item) {
 	auto collection = item->context().lock();
 	if(!collection) {
 		throw std::invalid_argument("Cannot create track collection item tuple without valid collection");
@@ -296,7 +299,7 @@ String trackCollectionItemTuple(LinkedList<Any>& params, $<TrackCollectionItem> 
 		// trackURI
 		sqlParam(params, item->track()->uri()),",",
 		// addedAt
-		sqlParam(params, sqlStringOrNull(collectionItemAddedAt(item))),",",
+		sqlParam(params, sqlStringOrNull(trackCollectionItemAddedAt(item))),",",
 		// updateTime
 		"CURRENT_TIMESTAMP",
 	")" });
@@ -305,7 +308,7 @@ String trackCollectionItemTuple(LinkedList<Any>& params, $<TrackCollectionItem> 
 ArrayList<String> albumItemTupleFromTrackColumns() {
 	return { "collectionURI", "indexNum", "trackURI", "updateTime" };
 }
-String albumItemTupleFromTrack(LinkedList<Any>& params, $<Track> track, TupleOptions options) {
+String albumItemTupleFromTrack(LinkedList<Any>& params, $<Track> track) {
 	auto albumURI = track->albumURI();
 	if(albumURI.empty()) {
 		throw std::invalid_argument("Cannot create album item tuple without albumURI");
@@ -365,7 +368,7 @@ String artistTuple(LinkedList<Any>& params, $<Artist> artist, TupleOptions optio
 ArrayList<String> savedTrackTupleColumns() {
 	return { "trackURI", "libraryProvider", "addedAt", "updateTime" };
 }
-String savedTrackTuple(LinkedList<Any>& params, SavedTrack track, TupleOptions options) {
+String savedTrackTuple(LinkedList<Any>& params, SavedTrack track) {
 	return String::join(ArrayList<String>{ "(",
 		// trackURI
 		sqlParam(params, track.track->uri()),",",
@@ -381,7 +384,7 @@ String savedTrackTuple(LinkedList<Any>& params, SavedTrack track, TupleOptions o
 ArrayList<String> savedAlbumTupleColumns() {
 	return { "albumURI", "libraryProvider", "addedAt", "updateTime" };
 }
-String savedAlbumTuple(LinkedList<Any>& params, SavedAlbum album, TupleOptions options) {
+String savedAlbumTuple(LinkedList<Any>& params, SavedAlbum album) {
 	return String::join(ArrayList<String>{ "(",
 		// albumURI
 		sqlParam(params, album.album->uri()),",",
@@ -397,7 +400,7 @@ String savedAlbumTuple(LinkedList<Any>& params, SavedAlbum album, TupleOptions o
 ArrayList<String> savedPlaylistTupleColumns() {
 	return { "playlistURI", "libraryProvider", "addedAt", "updateTime" };
 }
-String savedPlaylistTuple(LinkedList<Any>& params, SavedPlaylist playlist, TupleOptions options) {
+String savedPlaylistTuple(LinkedList<Any>& params, SavedPlaylist playlist) {
 	return String::join(ArrayList<String>{ "(",
 		// playlistURI
 		sqlParam(params, playlist.playlist->uri()),",",

@@ -15,7 +15,10 @@ struct sqlite3;
 namespace sh {
 	class SQLiteTransaction {
 	public:
-		SQLiteTransaction(sqlite3* db);
+		struct Options {
+			bool useTransaction = true;
+		};
+		SQLiteTransaction(sqlite3* db, Options options = Options{.useTransaction=true});
 		
 		void addSQL(String sql, LinkedList<Any> params, String resultKey = String());
 		std::map<String,LinkedList<Json>> execute();
@@ -33,6 +36,7 @@ namespace sh {
 		};
 		
 		sqlite3* db;
+		Options options;
 		LinkedList<Block> blocks;
 	};
 }

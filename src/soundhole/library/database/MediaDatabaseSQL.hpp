@@ -10,9 +10,16 @@
 
 #include <soundhole/common.hpp>
 #include <soundhole/media/Track.hpp>
+#include <soundhole/media/TrackCollection.hpp>
+#include <soundhole/media/Album.hpp>
+#include <soundhole/media/Playlist.hpp>
+#include <soundhole/media/Artist.hpp>
 #include <soundhole/media/MediaProvider.hpp>
 
 namespace sh::sql {
+
+ArrayList<$<Artist>> trackCollectionArtists($<TrackCollection> collection);
+String trackCollectionItemAddedAt($<TrackCollectionItem> item);
 
 String createDB();
 String purgeDB();
@@ -37,9 +44,9 @@ String trackArtistTuple(LinkedList<Any>& params, TrackArtist trackArtist);
 ArrayList<String> trackCollectionTupleColumns();
 String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collection, TupleOptions options);
 ArrayList<String> trackCollectionItemTupleColumns();
-String trackCollectionItemTuple(LinkedList<Any>& params, $<TrackCollectionItem> item, TupleOptions options);
+String trackCollectionItemTuple(LinkedList<Any>& params, $<TrackCollectionItem> item);
 ArrayList<String> albumItemTupleFromTrackColumns();
-String albumItemTupleFromTrack(LinkedList<Any>& params, $<Track> track, TupleOptions options);
+String albumItemTupleFromTrack(LinkedList<Any>& params, $<Track> track);
 
 struct TrackCollectionArtist {
 	String collectionURI;
@@ -57,7 +64,7 @@ struct SavedTrack {
 	String addedAt;
 };
 ArrayList<String> savedTrackTupleColumns();
-String savedTrackTuple(LinkedList<Any>& params, SavedTrack track, TupleOptions options);
+String savedTrackTuple(LinkedList<Any>& params, SavedTrack track);
 
 struct SavedAlbum {
 	$<Album> album;
@@ -65,7 +72,7 @@ struct SavedAlbum {
 	String addedAt;
 };
 ArrayList<String> savedAlbumTupleColumns();
-String savedAlbumTuple(LinkedList<Any>& params, SavedAlbum album, TupleOptions options);
+String savedAlbumTuple(LinkedList<Any>& params, SavedAlbum album);
 
 struct SavedPlaylist {
 	$<Playlist> playlist;
@@ -73,7 +80,7 @@ struct SavedPlaylist {
 	String addedAt;
 };
 ArrayList<String> savedPlaylistTupleColumns();
-String savedPlaylistTuple(LinkedList<Any>& params, SavedPlaylist playlist, TupleOptions options);
+String savedPlaylistTuple(LinkedList<Any>& params, SavedPlaylist playlist);
 
 struct DBState {
 	String stateKey;
