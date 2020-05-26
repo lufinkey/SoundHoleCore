@@ -19,6 +19,12 @@ struct IndexRange {
 	size_t endIndex;
 };
 
+enum class Order {
+	NONE,
+	ASC,
+	DESC
+};
+
 void insertOrReplaceArtists(SQLiteTransaction& tx, const ArrayList<$<Artist>>& artists);
 void insertOrReplaceTracks(SQLiteTransaction& tx, const ArrayList<$<Track>>& tracks, bool includeAlbums = false);
 void insertOrReplaceTrackCollections(SQLiteTransaction& tx, const ArrayList<$<TrackCollection>>& collections);
@@ -34,11 +40,11 @@ void selectArtist(SQLiteTransaction& tx, String outKey, String uri);
 struct LibraryItemSelectOptions {
 	String libraryProvider;
 	Optional<IndexRange> range;
-	String order;
+	Order order = Order::NONE;
 };
-void selectSavedTracks(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
-void selectSavedAlbums(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
-void selectSavedPlaylists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
+void selectSavedTracksAndTracks(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
+void selectSavedAlbumsAndAlbums(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
+void selectSavedPlaylistsAndPlaylists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
 void selectLibraryArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
 void selectDBState(SQLiteTransaction& tx, String outKey, String stateKey);
 

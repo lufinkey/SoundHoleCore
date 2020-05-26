@@ -18,10 +18,17 @@
 
 namespace sh::sql {
 
+String sqlParam(LinkedList<Any>& params, Any param);
+String sqlOptParam(LinkedList<Any>& params, Any param, String defaultQuery, ArrayList<Any> defaultParams);
+Any sqlStringOrNull(String str);
+
 ArrayList<String> artistColumns();
 ArrayList<String> trackColumns();
 ArrayList<String> trackCollectionColumns();
 ArrayList<String> trackCollectionItemColumns();
+ArrayList<String> savedTrackColumns();
+ArrayList<String> savedAlbumColumns();
+ArrayList<String> savedPlaylistColumns();
 
 String createDB();
 String purgeDB();

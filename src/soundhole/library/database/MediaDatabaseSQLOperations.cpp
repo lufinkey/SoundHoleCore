@@ -10,6 +10,39 @@
 
 namespace sh::sql {
 
+struct JoinTable {
+	String name;
+	String prefix;
+	ArrayList<String> columns;
+};
+
+String joinedTableColumns(ArrayList<JoinTable> tables) {
+	return String::join(tables.reduce(LinkedList<String>{}, [](auto list, auto& table, auto index, auto self) {
+		for(auto& column : table.columns) {
+			list.pushBack(String::join({ table.name,".",column," as ",table.prefix,column }));
+		}
+		return list;
+	}), ", ");
+}
+
+ArrayList<Json> splitJoinedResults(ArrayList<JoinTable> tables, Json row) {
+	ArrayList<Json> splitRows;
+	splitRows.reserve(tables.size());
+	for(auto& table : tables) {
+		Json::object tableRow;
+		for(auto& column : table.columns) {
+			auto entry = row[table.prefix+column];
+			if(!entry.is_null()) {
+				tableRow[column] = entry;
+			}
+		}
+		splitRows.pushBack(tableRow);
+	}
+	return splitRows;
+}
+
+
+
 void insertOrReplaceArtists(SQLiteTransaction& tx, const ArrayList<$<Artist>>& artists) {
 	if(artists.size() == 0) {
 		return;
@@ -345,17 +378,202 @@ void selectTrackCollection(SQLiteTransaction& tx, String outKey, String uri) {
 	tx.addSQL("SELECT * FROM TrackCollection WHERE uri = ?", { uri }, { .outKey=outKey });
 }
 
-/*void selectTrackCollectionItemsAndTracks(SQLiteTransaction& tx, String outKey, String collectionURI, Optional<IndexRange> range);
-void selectArtist(SQLiteTransaction& tx, String outKey, String uri);
-struct LibraryItemSelectOptions {
-	String libraryProvider;
-	Optional<IndexRange> range;
-	String order;
-};
-void selectSavedTracks(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
-void selectSavedAlbums(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
-void selectSavedPlaylists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
-void selectLibraryArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
-void selectDBState(SQLiteTransaction& tx, String outKey, String stateKey);*/
+void selectTrackCollectionItemsAndTracks(SQLiteTransaction& tx, String outKey, String collectionURI, Optional<IndexRange> range) {
+	auto joinTables = ArrayList<JoinTable>{
+		{
+			.name = "TrackCollectionItem",
+			.prefix = "r1_",
+			.columns = trackCollectionItemColumns()
+		}, {
+			.name = "Track",
+			.prefix = "r2_",
+			.columns = trackColumns()
+		}
+	};
+	auto columns = joinedTableColumns(joinTables);
+	LinkedList<Any> params;
+	auto query = String::join({
+		"SELECT ",columns," FROM TrackCollectionItem, Track WHERE TrackCollectionItem.collectionURI = ",sqlParam(params,collectionURI),
+		" AND TrackCollectionItem.trackURI = Track.uri",
+		(range ? (
+			String::join({
+				" AND TrackCollectionItem.indexNum >= ",sqlParam(params, range->startIndex),
+				" AND TrackCollectionItem.indexNum < ",sqlParam(params, range->endIndex)
+			})
+		) : ""),
+		" ORDER BY indexNum ASC"
+	});
+	tx.addSQL(query, params, {
+		.outKey=outKey,
+		.mapper=[=](auto row) {
+			return Json(splitJoinedResults(joinTables, row));
+		}
+	});
+}
+
+void selectArtist(SQLiteTransaction& tx, String outKey, String uri) {
+	tx.addSQL("SELECT * FROM Artist WHERE uri = ?", { uri }, { .outKey=outKey });
+}
+
+void selectSavedTracksAndTracks(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options) {
+	auto joinTables = ArrayList<JoinTable>{
+		{
+			.name = "SavedTrack",
+			.prefix = "r1_",
+			.columns = savedTrackColumns()
+		}, {
+			.name = "Track",
+			.prefix = "r2_",
+			.columns = trackColumns()
+		}
+	};
+	auto columns = joinedTableColumns(joinTables);
+	LinkedList<Any> params;
+	auto query = String::join({
+		"SELECT ",columns," FROM SavedTrack, Track WHERE SavedTrack.trackURI = Track.uri",
+		(options.libraryProvider.empty()) ?
+			String()
+			: String::join({
+				" AND libraryProvider = ",sqlParam(params, options.libraryProvider),
+			}),
+		" ORDER BY addedAt",([&]() {
+			switch(options.order) {
+				case Order::NONE:
+					return "";
+				case Order::ASC:
+					return " ASC";
+				case Order::DESC:
+					return " DESC";
+			}
+			return "";
+		})(),
+		(options.range ?
+			String::join({
+				" LIMIT ",sqlParam(params, (options.range->endIndex - options.range->startIndex))," OFFSET ",sqlParam(params, options.range->startIndex)
+			})
+			: "")
+	});
+	tx.addSQL(query, params, {
+		.outKey=outKey,
+		.mapper=[=](auto row) {
+			return Json(splitJoinedResults(joinTables, row));
+		}
+	});
+}
+
+void selectSavedAlbumsAndAlbums(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options) {
+	auto joinTables = ArrayList<JoinTable>{
+		{
+			.name = "SavedAlbum",
+			.prefix = "r1_",
+			.columns = savedAlbumColumns()
+		}, {
+			.name = "TrackCollection",
+			.prefix = "r2_",
+			.columns = trackCollectionColumns()
+		}
+	};
+	auto columns = joinedTableColumns(joinTables);
+	LinkedList<Any> params;
+	auto query = String::join({
+		"SELECT ",columns," FROM SavedAlbum, TrackCollection WHERE SavedAlbum.albumURI = TrackCollection.uri",
+		(options.libraryProvider.empty()) ?
+			String()
+			: String::join({
+				" AND libraryProvider = ",sqlParam(params, options.libraryProvider),
+			}),
+		" ORDER BY addedAt",([&]() {
+			switch(options.order) {
+				case Order::NONE:
+					return "";
+				case Order::ASC:
+					return " ASC";
+				case Order::DESC:
+					return " DESC";
+			}
+			return "";
+		})(),
+		(options.range ?
+			String::join({
+				" LIMIT ",sqlParam(params, (options.range->endIndex - options.range->startIndex))," OFFSET ",sqlParam(params, options.range->startIndex)
+			})
+			: "")
+	});
+	tx.addSQL(query, params, {
+		.outKey=outKey,
+		.mapper=[=](auto row) {
+			return Json(splitJoinedResults(joinTables, row));
+		}
+	});
+}
+
+void selectSavedPlaylistsAndPlaylists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options) {
+	auto joinTables = ArrayList<JoinTable>{
+		{
+			.name = "SavedPlaylist",
+			.prefix = "r1_",
+			.columns = savedTrackColumns()
+		}, {
+			.name = "TrackCollection",
+			.prefix = "r2_",
+			.columns = trackCollectionColumns()
+		}
+	};
+	auto columns = joinedTableColumns(joinTables);
+	LinkedList<Any> params;
+	auto query = String::join({
+		"SELECT ",columns," FROM SavedPlaylist, TrackCollection WHERE SavedPlaylist.trackURI = TrackCollection.uri",
+		(options.libraryProvider.empty()) ?
+			String()
+			: String::join({
+				" AND libraryProvider = ",sqlParam(params, options.libraryProvider),
+			}),
+		" ORDER BY addedAt",([&]() {
+			switch(options.order) {
+				case Order::NONE:
+					return "";
+				case Order::ASC:
+					return " ASC";
+				case Order::DESC:
+					return " DESC";
+			}
+			return "";
+		})(),
+		(options.range ?
+			String::join({
+				" LIMIT ",sqlParam(params, (options.range->endIndex - options.range->startIndex))," OFFSET ",sqlParam(params, options.range->startIndex)
+			})
+			: "")
+	});
+	tx.addSQL(query, params, {
+		.outKey=outKey,
+		.mapper=[=](auto row) {
+			return Json(splitJoinedResults(joinTables, row));
+		}
+	});
+}
+
+void selectLibraryArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options) {
+	LinkedList<Any> params;
+	auto query = String::join({
+		"SELECT DISTINCT Artist.* FROM Artist, TrackArtist, SavedTrack WHERE SavedTrack.trackURI = TrackArtist.trackURI AND TrackArtist.artistURI = Artist.uri",
+		(options.libraryProvider.empty()) ?
+			String()
+			: String::join({
+				" AND libraryProvider = ",sqlParam(params, options.libraryProvider),
+			}),
+		" GROUP BY Artist.uri ORDER BY Artist.name ASC",
+		(options.range ?
+			String::join({
+				" LIMIT ",sqlParam(params, (options.range->endIndex - options.range->startIndex))," OFFSET ",sqlParam(params, options.range->startIndex)
+			})
+			: "")
+	});
+	tx.addSQL(query, params, { .outKey=outKey });
+}
+
+void selectDBState(SQLiteTransaction& tx, String outKey, String stateKey) {
+	tx.addSQL("SELECT * FROM DBState WHERE stateKey = ?", { stateKey }, { .outKey=outKey });
+}
 
 }
