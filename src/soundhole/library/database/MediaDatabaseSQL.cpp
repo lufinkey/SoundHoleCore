@@ -40,6 +40,20 @@ Any sqlStringOrNull(String str) {
 
 
 
+ArrayList<String> artistColumns() {
+	return { "uri", "provider", "type", "name", "images", "updateTime" };
+}
+ArrayList<String> trackColumns() {
+	return { "uri", "provider", "name", "albumName", "albumURI", "artists", "images", "duration", "playable", "updateTime" };
+}
+ArrayList<String> trackCollectionColumns() {
+	return { "uri", "provider", "type", "name", "itemCount", "artists", "images", "updateTime" };
+}
+ArrayList<String> trackCollectionItemColumns() {
+	return { "collectionURI", "indexNum", "trackURI", "addedAt", "updateTime" };
+}
+
+
 
 String createDB() {
 	return R"SQL(
@@ -63,6 +77,14 @@ CREATE TABLE IF NOT EXISTS TrackCollection (
 	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(uri)
 );
+CREATE TABLE IF NOT EXISTS TrackCollectionArtist (
+	collectionURI TEXT NOT NULL,
+	artistURI TEXT NOT NULL,
+	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY(collectionURI, artistURI),
+	FOREIGN KEY(collectionURI) REFERENCES TrackCollection(uri),
+	FOREIGN KEY(artistURI) REFERENCES Artist(uri)
+);
 CREATE TABLE IF NOT EXISTS Track (
 	uri text NOT NULL UNIQUE,
 	provider text NOT NULL,
@@ -74,7 +96,16 @@ CREATE TABLE IF NOT EXISTS Track (
 	duration REAL,
 	playable INT(1),
 	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY(uri)
+	PRIMARY KEY(uri),
+	FOREIGN KEY(albumURI) REFERENCES TrackCollection(uri)
+);
+CREATE TABLE IF NOT EXISTS TrackArtist (
+	trackURI TEXT NOT NULL,
+	artistURI TEXT NOT NULL,
+	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY(trackURI, artistURI),
+	FOREIGN KEY(trackURI) REFERENCES Track(uri),
+	FOREIGN KEY(artistURI) REFERENCES Artist(uri)
 );
 CREATE TABLE IF NOT EXISTS TrackCollectionItem (
 	collectionURI TEXT NOT NULL,
@@ -85,22 +116,6 @@ CREATE TABLE IF NOT EXISTS TrackCollectionItem (
 	PRIMARY KEY(collectionURI, indexNum),
 	FOREIGN KEY(collectionURI) REFERENCES TrackCollection(uri),
 	FOREIGN KEY(trackURI) REFERENCES Track(uri)
-);
-CREATE TABLE IF NOT EXISTS TrackArtist (
-	trackURI TEXT NOT NULL,
-	artistURI TEXT NOT NULL,
-	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY(trackURI, artistURI),
-	FOREIGN KEY(trackURI) REFERENCES Track(uri),
-	FOREIGN KEY(artistURI) REFERENCES Artist(uri)
-);
-CREATE TABLE IF NOT EXISTS TrackCollectionArtist (
-	collectionURI TEXT NOT NULL,
-	artistURI TEXT NOT NULL,
-	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY(collectionURI, artistURI),
-	FOREIGN KEY(collectionURI) REFERENCES TrackCollection(uri),
-	FOREIGN KEY(artistURI) REFERENCES Artist(uri)
 );
 CREATE TABLE IF NOT EXISTS SavedTrack (
 	trackURI TEXT NOT NULL,
@@ -131,15 +146,15 @@ CREATE TABLE IF NOT EXISTS SavedPlaylist (
 
 String purgeDB() {
 	return R"SQL(
-DROP TABLE IF EXISTS TrackCollection;
-DROP TABLE IF EXISTS Track;
-DROP TABLE IF EXISTS TrackCollectionItem;
-DROP TABLE IF EXISTS Artist;
-DROP TABLE IF EXISTS TrackArtist;
-DROP TABLE IF EXISTS TrackCollectionArtist;
-DROP TABLE IF EXISTS SavedTrack;
 DROP TABLE IF EXISTS SavedAlbum;
 DROP TABLE IF EXISTS SavedPlaylist;
+DROP TABLE IF EXISTS SavedTrack;
+DROP TABLE IF EXISTS TrackArtist;
+DROP TABLE IF EXISTS TrackCollectionArtist;
+DROP TABLE IF EXISTS TrackCollectionItem;
+DROP TABLE IF EXISTS Track;
+DROP TABLE IF EXISTS TrackCollection;
+DROP TABLE IF EXISTS Artist;
 DROP TABLE IF EXISTS DBState;
 )SQL";
 }

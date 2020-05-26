@@ -9,6 +9,23 @@
 #include "MediaProvider.hpp"
 
 namespace sh {
+	MediaProvider::LibraryItem MediaProvider::LibraryItem::fromJson(Json json, MediaProviderStash* stash) {
+		FGL_ASSERT(stash != nullptr, "stash cannot be null");
+		auto libraryProvider = json["libraryProvider"];
+		if(!libraryProvider.is_string()) {
+			throw std::invalid_argument("libraryProvider must be a string");
+		}
+		auto mediaItem = json["mediaItem"];
+		if(!mediaItem.is_object()) {
+			throw std::invalid_argument("mediaItem must be an object");
+		}
+		return LibraryItem{
+			.libraryProvider=stash->getMediaProvider(libraryProvider.string_value()),
+			.mediaItem=stash->createMediaItem(mediaItem),
+			.addedAt=json["addedAt"].string_value()
+		};
+	}
+
 	Promise<$<Track>> MediaProvider::getTrack(String uri) {
 		return getTrackData(uri).map<$<Track>>(nullptr, [=](auto data) {
 			return Track::new$(this, data);

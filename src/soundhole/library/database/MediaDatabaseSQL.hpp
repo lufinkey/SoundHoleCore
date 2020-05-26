@@ -18,8 +18,10 @@
 
 namespace sh::sql {
 
-ArrayList<$<Artist>> trackCollectionArtists($<TrackCollection> collection);
-String trackCollectionItemAddedAt($<TrackCollectionItem> item);
+ArrayList<String> artistColumns();
+ArrayList<String> trackColumns();
+ArrayList<String> trackCollectionColumns();
+ArrayList<String> trackCollectionItemColumns();
 
 String createDB();
 String purgeDB();
@@ -40,6 +42,9 @@ struct TrackArtist {
 };
 ArrayList<String> trackArtistTupleColumns();
 String trackArtistTuple(LinkedList<Any>& params, TrackArtist trackArtist);
+
+ArrayList<$<Artist>> trackCollectionArtists($<TrackCollection> collection);
+String trackCollectionItemAddedAt($<TrackCollectionItem> item);
 
 ArrayList<String> trackCollectionTupleColumns();
 String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collection, TupleOptions options);

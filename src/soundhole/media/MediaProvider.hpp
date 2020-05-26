@@ -18,12 +18,16 @@
 #include "UserAccount.hpp"
 
 namespace sh {
+	class MediaProviderStash;
+
 	class MediaProvider {
 	public:
 		struct LibraryItem {
 			MediaProvider* libraryProvider;
 			$<MediaItem> mediaItem;
 			String addedAt;
+			
+			static LibraryItem fromJson(Json json, MediaProviderStash* stash);
 		};
 		
 		template<typename T>

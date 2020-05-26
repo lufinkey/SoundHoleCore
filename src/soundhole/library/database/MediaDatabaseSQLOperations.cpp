@@ -333,13 +333,19 @@ void insertOrReplaceDBStates(SQLiteTransaction& tx, const ArrayList<DBState>& st
 	}
 }
 
-/*void selectTrack(SQLiteTransaction& tx, String outKey, String uri) {
-	//
+void selectTrack(SQLiteTransaction& tx, String outKey, String uri) {
+	tx.addSQL("SELECT * FROM Track WHERE uri = ?", { uri }, { .outKey=outKey });
 }
 
-void selectTrackCount(SQLiteTransaction& tx, String outKey);
-void selectTrackCollection(SQLiteTransaction& tx, String outKey, String uri);
-void selectTrackCollectionItemsAndTracks(SQLiteTransaction& tx, String outKey, String collectionURI, Optional<IndexRange> range);
+void selectTrackCount(SQLiteTransaction& tx, String outKey) {
+	tx.addSQL("SELECT count(*) AS total FROM Track", {}, { .outKey=outKey });
+}
+
+void selectTrackCollection(SQLiteTransaction& tx, String outKey, String uri) {
+	tx.addSQL("SELECT * FROM TrackCollection WHERE uri = ?", { uri }, { .outKey=outKey });
+}
+
+/*void selectTrackCollectionItemsAndTracks(SQLiteTransaction& tx, String outKey, String collectionURI, Optional<IndexRange> range);
 void selectArtist(SQLiteTransaction& tx, String outKey, String uri);
 struct LibraryItemSelectOptions {
 	String libraryProvider;
