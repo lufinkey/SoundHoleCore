@@ -16,11 +16,12 @@ namespace sh {
 		//
 	}
 
-	void SQLiteTransaction::addSQL(String sql, LinkedList<Any> params, String outKey) {
+	void SQLiteTransaction::addSQL(String sql, LinkedList<Any> params, AddSQLOptions options) {
 		blocks.pushBack({
 			.sql=sql,
 			.params=params,
-			.outKey=outKey
+			.outKey=options.outKey,
+			.mapper=options.mapper
 		});
 	}
 
@@ -31,7 +32,9 @@ namespace sh {
 		std::map<String,LinkedList<Json>> results;
 		try {
 			for(auto& block : blocks) {
-				auto blockResults = executeSQL(block.sql, block.params);
+				auto blockResults = executeSQL(block.sql, block.params, {
+					.mapper=block.mapper
+				});
 				if(!block.outKey.empty()) {
 					results[block.outKey] = blockResults;
 				}
@@ -145,7 +148,11 @@ namespace sh {
 						} break;
 					}
 				}
-				rows.pushBack(row);
+				if(options.mapper) {
+					rows.pushBack(options.mapper(row));
+				} else {
+					rows.pushBack(row);
+				}
 			}
 			else if(retVal == SQLITE_DONE) {
 				break;

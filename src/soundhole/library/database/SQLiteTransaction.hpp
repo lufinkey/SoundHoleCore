@@ -20,11 +20,16 @@ namespace sh {
 		};
 		SQLiteTransaction(sqlite3* db, Options options = Options{.useTransaction=true});
 		
-		void addSQL(String sql, LinkedList<Any> params, String resultKey = String());
+		struct AddSQLOptions {
+			String outKey;
+			Function<Json(Json)> mapper;
+		};
+		void addSQL(String sql, LinkedList<Any> params, AddSQLOptions options = AddSQLOptions());
 		std::map<String,LinkedList<Json>> execute();
 		
 	private:
 		struct ExecuteSQLOptions {
+			Function<Json(Json)> mapper;
 			bool waitIfBusy = false;
 		};
 		LinkedList<Json> executeSQL(String sql, LinkedList<Any> params, ExecuteSQLOptions options = ExecuteSQLOptions{.waitIfBusy=false});
@@ -33,6 +38,7 @@ namespace sh {
 			String sql;
 			LinkedList<Any> params;
 			String outKey;
+			Function<Json(Json)> mapper;
 		};
 		
 		sqlite3* db;

@@ -29,7 +29,7 @@ void insertOrReplaceDBStates(SQLiteTransaction& tx, const ArrayList<DBState>& st
 void selectTrack(SQLiteTransaction& tx, String outKey, String uri);
 void selectTrackCount(SQLiteTransaction& tx, String outKey);
 void selectTrackCollection(SQLiteTransaction& tx, String outKey, String uri);
-void selectTrackCollectionItemsAndTracks(SQLiteTransaction& tx, String outKey, String collectionURI, Optional<IndexRange> range, bool includeTrackAlbums);
+void selectTrackCollectionItemsAndTracks(SQLiteTransaction& tx, String outKey, String collectionURI, Optional<IndexRange> range);
 void selectArtist(SQLiteTransaction& tx, String outKey, String uri);
 struct LibraryItemSelectOptions {
 	String libraryProvider;
