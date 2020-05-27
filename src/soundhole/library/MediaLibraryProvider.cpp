@@ -97,7 +97,7 @@ namespace sh {
 		if(type == "track") {
 			return Track::fromJson(json, this);
 		}
-		else if(type == "artist") {
+		else if(type == "artist" || type == "label") {
 			return Artist::fromJson(json, this);
 		}
 		else if(type == "album") {
@@ -111,6 +111,14 @@ namespace sh {
 
 	ArrayList<MediaProvider*> MediaLibraryProvider::getMediaProviders() {
 		return mediaProviders;
+	}
+
+	void MediaLibraryProvider::addMediaProvider(MediaProvider* mediaProvider) {
+		mediaProviders.pushBack(mediaProvider);
+	}
+
+	void MediaLibraryProvider::removeMediaProvider(MediaProvider* mediaProvider) {
+		mediaProviders.removeLastEqual(mediaProvider);
 	}
 
 	MediaProvider* MediaLibraryProvider::getMediaProvider(const String& name) {

@@ -48,6 +48,8 @@ namespace sh {
 		
 		virtual $<MediaItem> createMediaItem(Json json) override;
 		ArrayList<MediaProvider*> getMediaProviders();
+		void addMediaProvider(MediaProvider*);
+		void removeMediaProvider(MediaProvider*);
 		virtual MediaProvider* getMediaProvider(const String& name) override;
 		
 	private:
