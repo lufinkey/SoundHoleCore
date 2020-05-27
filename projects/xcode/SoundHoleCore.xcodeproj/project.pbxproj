@@ -542,6 +542,7 @@
 			children = (
 				A513ED86232DA20A000DCAC7 /* soundhole.hpp */,
 				A513DB6E232DA1F8000DCAC7 /* common.hpp */,
+				A5AE3F01247B88D600FB9AFF /* database */,
 				A5AE3F00247B88C500FB9AFF /* library */,
 				A513ED83232DA20A000DCAC7 /* media */,
 				A513DB6F232DA1F8000DCAC7 /* providers */,
@@ -785,7 +786,6 @@
 		A5AE3F00247B88C500FB9AFF /* library */ = {
 			isa = PBXGroup;
 			children = (
-				A5AE3F01247B88D600FB9AFF /* database */,
 			);
 			path = library;
 			sourceTree = "<group>";
