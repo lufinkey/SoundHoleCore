@@ -461,6 +461,19 @@ void selectSavedTracksAndTracks(SQLiteTransaction& tx, String outKey, LibraryIte
 	});
 }
 
+void selectSavedTrackCount(SQLiteTransaction& tx, String outKey, String libraryProvider) {
+	LinkedList<Any> params;
+	auto query = String::join({
+		"SELECT count(*) AS total FROM SavedTrack",
+		(libraryProvider.empty()) ?
+			String()
+			: String::join({
+				" WHERE libraryProvider = ",sqlParam(params, libraryProvider),
+			})
+	});
+	tx.addSQL(query, params, { .outKey=outKey });
+}
+
 void selectSavedAlbumsAndAlbums(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options) {
 	auto joinTables = ArrayList<JoinTable>{
 		{
@@ -505,6 +518,19 @@ void selectSavedAlbumsAndAlbums(SQLiteTransaction& tx, String outKey, LibraryIte
 			return Json(splitJoinedResults(joinTables, row));
 		}
 	});
+}
+
+void selectSavedAlbumCount(SQLiteTransaction& tx, String outKey, String libraryProvider) {
+	LinkedList<Any> params;
+	auto query = String::join({
+		"SELECT count(*) AS total FROM SavedAlbum",
+		(libraryProvider.empty()) ?
+			String()
+			: String::join({
+				" WHERE libraryProvider = ",sqlParam(params, libraryProvider),
+			})
+	});
+	tx.addSQL(query, params, { .outKey=outKey });
 }
 
 void selectSavedPlaylistsAndPlaylists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options) {
@@ -553,10 +579,23 @@ void selectSavedPlaylistsAndPlaylists(SQLiteTransaction& tx, String outKey, Libr
 	});
 }
 
+void selectSavedPlaylistCount(SQLiteTransaction& tx, String outKey, String libraryProvider) {
+	LinkedList<Any> params;
+	auto query = String::join({
+		"SELECT count(*) AS total FROM SavedPlaylist",
+		(libraryProvider.empty()) ?
+			String()
+			: String::join({
+				" WHERE libraryProvider = ",sqlParam(params, libraryProvider),
+			})
+	});
+	tx.addSQL(query, params, { .outKey=outKey });
+}
+
 void selectLibraryArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options) {
 	LinkedList<Any> params;
 	auto query = String::join({
-		"SELECT DISTINCT Artist.* FROM Artist, TrackArtist, SavedTrack WHERE SavedTrack.trackURI = TrackArtist.trackURI AND TrackArtist.artistURI = Artist.uri",
+		"SELECT Artist.* FROM Artist, TrackArtist, SavedTrack WHERE SavedTrack.trackURI = TrackArtist.trackURI AND TrackArtist.artistURI = Artist.uri",
 		(options.libraryProvider.empty()) ?
 			String()
 			: String::join({
@@ -568,6 +607,20 @@ void selectLibraryArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelec
 				" LIMIT ",sqlParam(params, (options.range->endIndex - options.range->startIndex))," OFFSET ",sqlParam(params, options.range->startIndex)
 			})
 			: "")
+	});
+	tx.addSQL(query, params, { .outKey=outKey });
+}
+
+void selectLibraryArtistCount(SQLiteTransaction& tx, String outKey, String libraryProvider) {
+	LinkedList<Any> params;
+	auto query = String::join({
+		"SELECT count(*) AS total FROM Artist, TrackArtist, SavedTrack WHERE SavedTrack.trackURI = TrackArtist.trackURI AND TrackArtist.artistURI = Artist.uri",
+		(libraryProvider.empty()) ?
+			String()
+			: String::join({
+				" AND libraryProvider = ",sqlParam(params, libraryProvider),
+			}),
+		" GROUP BY Artist.uri",
 	});
 	tx.addSQL(query, params, { .outKey=outKey });
 }

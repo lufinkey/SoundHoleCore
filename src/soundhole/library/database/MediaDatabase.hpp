@@ -16,6 +16,8 @@
 #include <soundhole/media/Playlist.hpp>
 #include <soundhole/media/MediaProvider.hpp>
 #include <soundhole/media/MediaProviderStash.hpp>
+#include "SQLIndexRange.hpp"
+#include "SQLOrder.hpp"
 
 struct sqlite3;
 
@@ -29,6 +31,7 @@ namespace sh {
 			String location;
 			MediaProviderStash* stash;
 		};
+		
 		MediaDatabase(Options);
 		~MediaDatabase();
 		
@@ -39,7 +42,6 @@ namespace sh {
 		struct TransactionOptions {
 			bool useSQLTransaction = true;
 		};
-		Promise<std::map<String,LinkedList<Json>>> transaction(Function<void(SQLiteTransaction&)> executor);
 		Promise<std::map<String,LinkedList<Json>>> transaction(TransactionOptions options, Function<void(SQLiteTransaction&)> executor);
 		
 		struct InitializeOptions {
@@ -52,23 +54,17 @@ namespace sh {
 			std::map<std::string,std::string> dbState;
 		};
 		
-		struct CacheTracksOptions {
-			bool includeAlbums = false;
-			std::map<std::string,std::string> dbState;
-		};
-		Promise<void> cacheTracks(ArrayList<$<Track>> tracks, CacheTracksOptions options = CacheTracksOptions{.includeAlbums=false});
+		Promise<void> cacheTracks(ArrayList<$<Track>> tracks, CacheOptions options = CacheOptions());
 		Promise<LinkedList<Json>> getTracksJson(ArrayList<String> uris);
 		Promise<Json> getTrackJson(String uri);
 		Promise<size_t> getTrackCount();
 		
 		Promise<void> cacheTrackCollections(ArrayList<$<TrackCollection>> collections, CacheOptions options = CacheOptions());
 		Promise<LinkedList<Json>> getTrackCollectionsJson(ArrayList<String> uris);
-		struct GetTrackCollectionJsonOptions {
-			Optional<size_t> itemsOffset;
-			Optional<size_t> itemsCount;
-		};
-		Promise<Json> getTrackCollectionJson(String uri, GetTrackCollectionJsonOptions options);
-		Promise<std::map<size_t,Json>> getTrackCollectionItemsJson(String collectionURI, size_t offset, size_t count);
+		Promise<Json> getTrackCollectionJson(String uri, Optional<sql::IndexRange> itemsRange = std::nullopt);
+		
+		Promise<void> cacheTrackCollectionItems($<TrackCollection> collection, Optional<sql::IndexRange> itemsRange = std::nullopt, CacheOptions options = CacheOptions());
+		Promise<std::map<size_t,Json>> getTrackCollectionItemsJson(String collectionURI, sql::IndexRange range);
 		
 		Promise<void> cacheArtists(ArrayList<$<Artist>> artists, CacheOptions options = CacheOptions());
 		Promise<LinkedList<Json>> getArtistsJson(ArrayList<String> uris);
@@ -83,7 +79,7 @@ namespace sh {
 		struct GetSavedTracksJsonOptions {
 			String libraryProvider;
 		};
-		Promise<LinkedList<Json>> getSavedTracksJson(size_t offset, size_t count, GetSavedTracksJsonOptions options = GetSavedTracksJsonOptions());
+		Promise<LinkedList<Json>> getSavedTracksJson(sql::IndexRange range, GetSavedTracksJsonOptions options = GetSavedTracksJsonOptions());
 		
 		struct GetSavedAlbumsCountOptions {
 			String libraryProvider;
@@ -92,7 +88,7 @@ namespace sh {
 		struct GetSavedAlbumsJsonOptions {
 			String libraryProvider;
 		};
-		Promise<LinkedList<Json>> getSavedAlbumsJson(size_t offset, size_t count, GetSavedAlbumsJsonOptions options = GetSavedAlbumsJsonOptions());
+		Promise<LinkedList<Json>> getSavedAlbumsJson(sql::IndexRange range, GetSavedAlbumsJsonOptions options = GetSavedAlbumsJsonOptions());
 		
 		struct GetSavedPlaylistsCountOptions {
 			String libraryProvider;
@@ -101,13 +97,18 @@ namespace sh {
 		struct GetSavedPlaylistsJsonOptions {
 			String libraryProvider;
 		};
-		Promise<LinkedList<Json>> getSavedPlaylistsJson(size_t offset, size_t count, GetSavedPlaylistsJsonOptions options = GetSavedPlaylistsJsonOptions());
+		Promise<LinkedList<Json>> getSavedPlaylistsJson(sql::IndexRange range, GetSavedPlaylistsJsonOptions options = GetSavedPlaylistsJsonOptions());
 		
 	private:
 		void applyDBState(SQLiteTransaction& tx, std::map<std::string,std::string> state);
 		
-		Json transformDBTrack(Json json);
-		Json transformDBTrackCollection(Json json);
+		static Json transformDBTrack(Json json);
+		static Json transformDBTrackCollection(Json json, LinkedList<Json> items = {});
+		static Json transformDBTrackCollectionItem(Json collectionJson, Json trackJson);
+		static Json transformDBArtist(Json json);
+		static Json transformDBSavedTrack(Json savedTrackJson, Json trackJson);
+		static Json transformDBSavedAlbum(Json savedAlbumJson, Json albumJson);
+		static Json transformDBSavedPlaylist(Json savedPlaylistJson, Json playlistJson);
 		
 		Options options;
 		sqlite3* db;

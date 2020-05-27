@@ -111,6 +111,8 @@
 		A5AE3F23247C937400FB9AFF /* MediaDatabaseSQLOperations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AE3F21247C937400FB9AFF /* MediaDatabaseSQLOperations.cpp */; };
 		A5AE3F24247C937400FB9AFF /* MediaDatabaseSQLOperations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AE3F21247C937400FB9AFF /* MediaDatabaseSQLOperations.cpp */; };
 		A5AE3F25247C937400FB9AFF /* MediaDatabaseSQLOperations.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5AE3F22247C937400FB9AFF /* MediaDatabaseSQLOperations.hpp */; };
+		A5AE3F2E247DCF3600FB9AFF /* SQLIndexRange.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5AE3F2D247DCF3600FB9AFF /* SQLIndexRange.hpp */; };
+		A5AE3F30247DE0B800FB9AFF /* SQLOrder.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5AE3F2F247DE0B800FB9AFF /* SQLOrder.hpp */; };
 		A5B2BBF82360E84C00ED010C /* SpotifyMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B2BBF62360E84C00ED010C /* SpotifyMediaTypes.cpp */; };
 		A5B2BBF92360E84C00ED010C /* SpotifyMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B2BBF62360E84C00ED010C /* SpotifyMediaTypes.cpp */; };
 		A5B2BBFA2360E84C00ED010C /* SpotifyMediaTypes.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5B2BBF72360E84C00ED010C /* SpotifyMediaTypes.hpp */; };
@@ -319,6 +321,8 @@
 		A5AE3F1B247C593100FB9AFF /* SQLiteTransaction.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SQLiteTransaction.hpp; sourceTree = "<group>"; };
 		A5AE3F21247C937400FB9AFF /* MediaDatabaseSQLOperations.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MediaDatabaseSQLOperations.cpp; sourceTree = "<group>"; };
 		A5AE3F22247C937400FB9AFF /* MediaDatabaseSQLOperations.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaDatabaseSQLOperations.hpp; sourceTree = "<group>"; };
+		A5AE3F2D247DCF3600FB9AFF /* SQLIndexRange.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SQLIndexRange.hpp; sourceTree = "<group>"; };
+		A5AE3F2F247DE0B800FB9AFF /* SQLOrder.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SQLOrder.hpp; sourceTree = "<group>"; };
 		A5B2BBF62360E84C00ED010C /* SpotifyMediaTypes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyMediaTypes.cpp; sourceTree = "<group>"; };
 		A5B2BBF72360E84C00ED010C /* SpotifyMediaTypes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyMediaTypes.hpp; sourceTree = "<group>"; };
 		A5B2BBFB2360F1E900ED010C /* SpotifyMediaTypes.impl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyMediaTypes.impl.hpp; sourceTree = "<group>"; };
@@ -789,6 +793,8 @@
 		A5AE3F01247B88D600FB9AFF /* database */ = {
 			isa = PBXGroup;
 			children = (
+				A5AE3F2D247DCF3600FB9AFF /* SQLIndexRange.hpp */,
+				A5AE3F2F247DE0B800FB9AFF /* SQLOrder.hpp */,
 				A5AE3F03247B890000FB9AFF /* MediaDatabase.hpp */,
 				A5AE3F02247B890000FB9AFF /* MediaDatabase.cpp */,
 				A5AE3F08247BA5B700FB9AFF /* MediaDatabaseSQL.hpp */,
@@ -905,6 +911,7 @@
 				A5485A25238DFB1300CB7749 /* Utils.hpp in Headers */,
 				A5C0A8F123D1735F00CDB59E /* BandcampAlbumMutatorDelegate.hpp in Headers */,
 				A513ED89232DA20B000DCAC7 /* SoundHoleCoreTest.hpp in Headers */,
+				A5AE3F2E247DCF3600FB9AFF /* SQLIndexRange.hpp in Headers */,
 				A5C0A8EA23CFE59100CDB59E /* SpotifyPlaylistMutatorDelegate.hpp in Headers */,
 				A571E1A8233440A800603E14 /* HttpClient.hpp in Headers */,
 				A578785723DE547F00B6B0A5 /* PlaybackOrganizer.hpp in Headers */,
@@ -934,6 +941,7 @@
 				A5E851CA235A56BD0001F74D /* YoutubeError.hpp in Headers */,
 				A5E851C3235A505B0001F74D /* Youtube.hpp in Headers */,
 				A578785223DD4E4200B6B0A5 /* ShuffledTrackCollection.hpp in Headers */,
+				A5AE3F30247DE0B800FB9AFF /* SQLOrder.hpp in Headers */,
 				A578785C23E37A7B00B6B0A5 /* QueueItem.hpp in Headers */,
 				A5B973582381F91900FB3F1C /* Track.hpp in Headers */,
 				A52826E423F09B6200360508 /* Player.hpp in Headers */,

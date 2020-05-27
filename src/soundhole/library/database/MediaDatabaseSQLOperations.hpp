@@ -11,22 +11,13 @@
 #include <soundhole/common.hpp>
 #include "MediaDatabaseSQL.hpp"
 #include "SQLiteTransaction.hpp"
+#include "SQLIndexRange.hpp"
+#include "SQLOrder.hpp"
 
 namespace sh::sql {
 
-struct IndexRange {
-	size_t startIndex;
-	size_t endIndex;
-};
-
-enum class Order {
-	NONE,
-	ASC,
-	DESC
-};
-
 void insertOrReplaceArtists(SQLiteTransaction& tx, const ArrayList<$<Artist>>& artists);
-void insertOrReplaceTracks(SQLiteTransaction& tx, const ArrayList<$<Track>>& tracks, bool includeAlbums = false);
+void insertOrReplaceTracks(SQLiteTransaction& tx, const ArrayList<$<Track>>& tracks, bool includeAlbums);
 void insertOrReplaceTrackCollections(SQLiteTransaction& tx, const ArrayList<$<TrackCollection>>& collections);
 void insertOrReplaceItemsFromTrackCollection(SQLiteTransaction& tx, $<TrackCollection> collection, Optional<IndexRange> range);
 void insertOrReplaceLibraryItems(SQLiteTransaction& tx, const ArrayList<MediaProvider::LibraryItem>& items);
@@ -43,9 +34,13 @@ struct LibraryItemSelectOptions {
 	Order order = Order::NONE;
 };
 void selectSavedTracksAndTracks(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
+void selectSavedTrackCount(SQLiteTransaction& tx, String outKey, String libraryProvider = String());
 void selectSavedAlbumsAndAlbums(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
+void selectSavedAlbumCount(SQLiteTransaction& tx, String outKey, String libraryProvider = String());
 void selectSavedPlaylistsAndPlaylists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
+void selectSavedPlaylistCount(SQLiteTransaction& tx, String outKey, String libraryProvider = String());
 void selectLibraryArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
+void selectLibraryArtistCount(SQLiteTransaction& tx, String outKey, String libraryProvider = String());
 void selectDBState(SQLiteTransaction& tx, String outKey, String stateKey);
 
 }
