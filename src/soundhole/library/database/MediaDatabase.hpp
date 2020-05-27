@@ -100,11 +100,13 @@ namespace sh {
 		Promise<LinkedList<Json>> getSavedPlaylistsJson(sql::IndexRange range, GetSavedPlaylistsJsonOptions options = GetSavedPlaylistsJsonOptions());
 		
 	private:
-		void applyDBState(SQLiteTransaction& tx, std::map<std::string,std::string> state);
+		static void applyDBState(SQLiteTransaction& tx, std::map<std::string,std::string> state);
 		
 		static Json transformDBTrack(Json json);
-		static Json transformDBTrackCollection(Json json, LinkedList<Json> items = {});
-		static Json transformDBTrackCollectionItem(Json collectionJson, Json trackJson);
+		static Json transformDBTrackCollection(Json json);
+		static Json transformDBTrackCollectionAndItemsAndTracks(Json collectionJson, LinkedList<Json> itemsAndTracksJson);
+		static Json transformDBTrackCollectionItem(Json collectionItemJson, Json trackJson);
+		static Json transformDBTrackCollectionItemAndTrack(Json itemAndTrackJson);
 		static Json transformDBArtist(Json json);
 		static Json transformDBSavedTrack(Json savedTrackJson, Json trackJson);
 		static Json transformDBSavedAlbum(Json savedAlbumJson, Json albumJson);

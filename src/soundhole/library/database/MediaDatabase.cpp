@@ -199,7 +199,7 @@ namespace sh {
 			if(collectionRows.size() == 0) {
 				throw std::runtime_error("TrackCollection not found in database for uri "+uri);
 			}
-			return transformDBTrackCollection(collectionRows.front(), results["items"]);
+			return transformDBTrackCollectionAndItemsAndTracks(collectionRows.front(), results["items"]);
 		});
 	}
 
@@ -219,17 +219,12 @@ namespace sh {
 			std::map<size_t,Json> items;
 			auto itemsJson = results["items"];
 			for(auto& json : itemsJson) {
-				auto jsonArray = json.array_items();
-				if(jsonArray.size() < 2) {
-					continue;
-				}
-				auto collectionItemJson = jsonArray[0];
-				auto trackJson = jsonArray[1];
-				auto indexNum = collectionItemJson["indexNum"];
+				auto itemJson = transformDBTrackCollectionItemAndTrack(json);
+				auto indexNum = itemJson["indexNum"];
 				if(!indexNum.is_number()) {
 					continue;
 				}
-				items[(size_t)indexNum.number_value()] = transformDBTrackCollectionItem(collectionItemJson, trackJson);
+				items[(size_t)indexNum.number_value()] = itemJson;
 			}
 			return items;
 		});
@@ -389,5 +384,129 @@ namespace sh {
 			}
 			return rows;
 		});
+	}
+
+
+
+	void MediaDatabase::applyDBState(SQLiteTransaction& tx, std::map<std::string,std::string> state) {
+		if(state.size() == 0) {
+			return;
+		}
+		ArrayList<sql::DBState> states;
+		states.reserve(state.size());
+		for(auto& pair : state) {
+			states.pushBack({
+				.stateKey=pair.first,
+				.stateValue=pair.second
+			});
+		}
+		sql::insertOrReplaceDBStates(tx, states);
+	}
+	
+	Json MediaDatabase::transformDBTrack(Json json) {
+		auto obj = json.object_items();
+		if(obj.find("type") == obj.end()) {
+			obj["type"] = "track";
+		}
+		auto artistsJson = obj["artists"];
+		if(artistsJson.is_string()) {
+			std::string error;
+			obj["artists"] = Json::parse(artistsJson.string_value(), error);
+			if(!error.empty()) {
+				throw std::invalid_argument("Failed to parse artists json: "+error);
+			}
+		}
+		auto imagesJson = obj["images"];
+		if(imagesJson.is_string()) {
+			std::string error;
+			obj["images"] = Json::parse(imagesJson.string_value(), error);
+			if(!error.empty()) {
+				throw std::invalid_argument("Failed to parse images json: "+error);
+			}
+		}
+		return obj;
+	}
+
+	Json MediaDatabase::transformDBTrackCollection(Json json) {
+		auto obj = json.object_items();
+		auto artistsJson = obj["artists"];
+		if(artistsJson.is_string()) {
+			std::string error;
+			obj["artists"] = Json::parse(artistsJson.string_value(), error);
+			if(!error.empty()) {
+				throw std::invalid_argument("Failed to parse artists json: "+error);
+			}
+		}
+		auto imagesJson = obj["images"];
+		if(imagesJson.is_string()) {
+			std::string error;
+			obj["images"] = Json::parse(imagesJson.string_value(), error);
+			if(!error.empty()) {
+				throw std::invalid_argument("Failed to parse images json: "+error);
+			}
+		}
+		return obj;
+	}
+
+	Json MediaDatabase::transformDBTrackCollectionAndItemsAndTracks(Json collectionJson, LinkedList<Json> itemsAndTracksJson) {
+		auto obj = transformDBTrackCollection(collectionJson).object_items();
+		Json::object itemsJson;
+		for(auto& itemAndTrackJson : itemsAndTracksJson) {
+			auto itemJson = transformDBTrackCollectionItemAndTrack(itemAndTrackJson);
+			auto indexNum = itemJson["indexNum"];
+			if(!indexNum.is_number()) {
+				continue;
+			}
+			itemsJson[std::to_string((size_t)indexNum.number_value())] = itemJson;
+		}
+		obj["items"] = itemsJson;
+		return obj;
+	}
+
+	Json MediaDatabase::transformDBTrackCollectionItem(Json collectionItemJson, Json trackJson) {
+		auto obj = collectionItemJson.object_items();
+		obj["track"] = transformDBTrack(trackJson);
+		return obj;
+	}
+
+	Json MediaDatabase::transformDBTrackCollectionItemAndTrack(Json itemAndTrackJson) {
+		auto jsonArray = itemAndTrackJson.array_items();
+		if(jsonArray.size() < 2) {
+			throw std::runtime_error("invalid TrackCollectionItem and Track json object");
+		}
+		auto collectionItemJson = jsonArray[0];
+		auto trackJson = jsonArray[1];
+		return transformDBTrackCollectionItem(collectionItemJson, trackJson);
+	}
+
+	Json MediaDatabase::transformDBArtist(Json json) {
+		auto obj = json.object_items();
+		auto imagesJson = obj["images"];
+		if(imagesJson.is_string()) {
+			std::string error;
+			obj["images"] = Json::parse(imagesJson.string_value(), error);
+			if(!error.empty()) {
+				throw std::invalid_argument("Failed to parse images json: "+error);
+			}
+		}
+		return obj;
+	}
+
+	Json MediaDatabase::transformDBSavedTrack(Json savedTrackJson, Json trackJson) {
+		auto obj = savedTrackJson.object_items();
+		obj["mediaItem"] = transformDBTrack(trackJson);
+		return obj;
+	}
+
+	Json MediaDatabase::transformDBSavedAlbum(Json savedAlbumJson, Json albumJson) {
+		auto obj = savedAlbumJson.object_items();
+		obj["mediaItem"] = transformDBTrackCollection(albumJson);
+		return obj;
+	}
+
+	Json MediaDatabase::transformDBSavedPlaylist(Json savedPlaylistJson, Json playlistJson) {
+		auto obj = savedPlaylistJson.object_items();
+		obj["mediaItem"] = transformDBTrackCollection(playlistJson);
+		return obj;
 	}
 }

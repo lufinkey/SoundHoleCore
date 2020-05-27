@@ -521,17 +521,31 @@ namespace sh {
 		std::map<size_t,$<ItemType>> items;
 		auto itemCountJson = json["itemCount"];
 		size_t itemCount = (size_t)itemCountJson.number_value();
-		for(auto& pair : json["items"].object_items()) {
-			size_t index;
-			try {
-				index = (size_t)std::stod(pair.first);
-			} catch(std::exception&) {
-				continue;
+		auto itemsJson = json["items"];
+		if(itemsJson.is_object()) {
+			for(auto& pair : itemsJson.object_items()) {
+				size_t index;
+				try {
+					index = (size_t)std::stod(pair.first);
+				} catch(std::exception&) {
+					continue;
+				}
+				if(itemCount <= index) {
+					itemCount = index+1;
+				}
+				items[index] = std::static_pointer_cast<ItemType>(this->itemFromJson(pair.second, stash));
 			}
-			if(itemCount <= index) {
-				itemCount = index+1;
+		}
+		else if(itemsJson.is_array()) {
+			size_t i = 0;
+			for(auto& itemJson : itemsJson.array_items()) {
+				if(itemJson.is_null()) {
+					i++;
+					continue;
+				}
+				items[i] = std::static_pointer_cast<ItemType>(this->itemFromJson(itemJson, stash));
+				i++;
 			}
-			items[index] = std::static_pointer_cast<ItemType>(this->itemFromJson(pair.second, stash));
 		}
 		bool needsAsync = false;
 		if(items.size() == itemCount) {
