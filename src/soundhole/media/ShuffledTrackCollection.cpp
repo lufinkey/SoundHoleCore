@@ -155,7 +155,7 @@ namespace sh {
 		return this;
 	}
 
-	Promise<void> ShuffledTrackCollection::loadItems(Mutator* mutator, size_t index, size_t count) {
+	Promise<void> ShuffledTrackCollection::loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) {
 		auto self = this->selfAs<ShuffledTrackCollection>();
 		size_t endIndex = index+count;
 		auto items = fgl::new$<LinkedList<$<ShuffledTrackCollectionItem>>>();
@@ -181,7 +181,7 @@ namespace sh {
 				auto randomIndex = tmpRemainingIndexes.extractFront();
 				chosenIndexes.pushBack(randomIndex);
 				promise = promise.then([=]() {
-					return self->_source->getItem(randomIndex->index).then([=]($<TrackCollectionItem> item) {
+					return self->_source->getItem(randomIndex->index, options).then([=]($<TrackCollectionItem> item) {
 						items->pushBack(ShuffledTrackCollectionItem::new$(self, item));
 					});
 				});

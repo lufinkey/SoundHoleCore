@@ -67,6 +67,24 @@ namespace sh {
 		weakSelf = ptr;
 	}
 
+
+
+	std::map<String,Any> TrackCollection::LoadItemOptions::toDict() const {
+		return {
+			{ "offline", offline }
+		};
+	}
+
+	TrackCollection::LoadItemOptions TrackCollection::LoadItemOptions::fromDict(std::map<String,Any> dict) {
+		return {
+			.offline=dict["offline"].maybeAs<bool>().valueOr(false)
+		};
+	}
+
+	TrackCollection::LoadItemOptions TrackCollection::LoadItemOptions::defaultOptions() {
+		return LoadItemOptions();
+	}
+
 	Json TrackCollection::toJson() const {
 		return toJson(ToJsonOptions());
 	}

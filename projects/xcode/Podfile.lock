@@ -38,10 +38,10 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   AsyncCpp:
-    :commit: 227992dae830487f232cf5ae9f148799c25fa37a
+    :commit: d6337ae94cd57c669857d21621192b86d14171fd
     :git: "git@github.com:lufinkey/async-cpp.git"
   DataCpp:
-    :commit: 691d90e989e19c84de123440fa0bf683eb296f50
+    :commit: 06077cb70f44adef3eab159f698355f5efcfab02
     :git: "git@github.com:lufinkey/data-cpp.git"
   IOCpp:
     :commit: d15dff7d25af6ed3d1eedfb71dd9cd5202538514

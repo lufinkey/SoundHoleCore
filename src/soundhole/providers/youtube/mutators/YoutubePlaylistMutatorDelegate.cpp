@@ -104,7 +104,7 @@ namespace sh {
 		}
 	}
 
-	Promise<void> YoutubePlaylistMutatorDelegate::loadItems(Mutator* mutator, size_t index, size_t count) {
+	Promise<void> YoutubePlaylistMutatorDelegate::loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) {
 		if(count == 0) {
 			return Promise<void>::resolve();
 		}

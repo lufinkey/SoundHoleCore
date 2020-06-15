@@ -159,7 +159,7 @@ namespace sh {
 	}
 
 	template<typename ItemType>
-	Promise<$<TrackCollectionItem>> SpecialTrackCollection<ItemType>::getItem(size_t index) {
+	Promise<$<TrackCollectionItem>> SpecialTrackCollection<ItemType>::getItem(size_t index, LoadItemOptions options) {
 		if(!tracksAreEmpty() && !tracksAreAsync()) {
 			auto& items = itemsList();
 			if(index >= items.size()) {
@@ -169,13 +169,16 @@ namespace sh {
 				std::static_pointer_cast<TrackCollectionItem>(*std::next(items.begin(), index)));
 		}
 		makeTracksAsync();
-		return asyncItemsList()->getItem(index).template map<$<TrackCollectionItem>>(nullptr, [](auto item) {
+		return asyncItemsList()->getItem(index, {
+			.trackIndexChanges = true,
+			.loadOptions = options.toDict()
+		}).template map<$<TrackCollectionItem>>(nullptr, [](auto item) {
 			return std::static_pointer_cast<TrackCollectionItem>(item.value_or(nullptr));
 		});
 	}
 
 	template<typename ItemType>
-	Promise<LinkedList<$<TrackCollectionItem>>> SpecialTrackCollection<ItemType>::getItems(size_t index, size_t count) {
+	Promise<LinkedList<$<TrackCollectionItem>>> SpecialTrackCollection<ItemType>::getItems(size_t index, size_t count, LoadItemOptions options) {
 		if(!tracksAreEmpty() && !tracksAreAsync()) {
 			auto& items = itemsList();
 			if(index >= items.size()) {
@@ -190,7 +193,10 @@ namespace sh {
 			return Promise<LinkedList<$<TrackCollectionItem>>>::resolve(loadedItems);
 		}
 		makeTracksAsync();
-		return this->asyncItemsList()->getItems(index, count).template map<LinkedList<$<TrackCollectionItem>>>(nullptr, [](auto items) {
+		return this->asyncItemsList()->getItems(index, count, {
+			.trackIndexChanges = true,
+			.loadOptions = options.toDict()
+		}).template map<LinkedList<$<TrackCollectionItem>>>(nullptr, [](auto items) {
 			return items.template map<$<TrackCollectionItem>>([](auto& item) {
 				return std::static_pointer_cast<TrackCollectionItem>(item);
 			});
@@ -198,12 +204,14 @@ namespace sh {
 	}
 
 	template<typename ItemType>
-	typename TrackCollection::ItemGenerator SpecialTrackCollection<ItemType>::generateItems(size_t startIndex) {
+	typename TrackCollection::ItemGenerator SpecialTrackCollection<ItemType>::generateItems(size_t startIndex, LoadItemOptions options) {
 		if(tracksAreEmpty()) {
 			makeTracksAsync();
 		}
 		if(tracksAreAsync()) {
-			return asyncItemsList()->generateItems(startIndex).template map<LinkedList<$<TrackCollectionItem>>>([](auto items) {
+			return asyncItemsList()->generateItems(startIndex, {
+				.loadOptions = options.toDict()
+			}).template map<LinkedList<$<TrackCollectionItem>>>([](auto items) {
 				return items.template map<$<TrackCollectionItem>>([](auto& item) {
 					return std::static_pointer_cast<TrackCollectionItem>(item);
 				});
@@ -257,12 +265,15 @@ namespace sh {
 	}
 	
 	template<typename ItemType>
-	Promise<void> SpecialTrackCollection<ItemType>::loadItems(size_t index, size_t count) {
+	Promise<void> SpecialTrackCollection<ItemType>::loadItems(size_t index, size_t count, LoadItemOptions options) {
 		if(tracksAreEmpty()) {
 			makeTracksAsync();
 		}
 		if(tracksAreAsync()) {
-			return asyncItemsList()->getItems(index,count).toVoid();
+			return asyncItemsList()->getItems(index,count, {
+				.trackIndexChanges = true,
+				.loadOptions = options.toDict()
+			}).toVoid();
 		} else {
 			return Promise<void>::resolve();
 		}
@@ -389,9 +400,9 @@ namespace sh {
 	}
 
 	template<typename ItemType>
-	Promise<void> SpecialTrackCollection<ItemType>::loadAsyncListItems(typename AsyncList<$<ItemType>>::Mutator* mutator, size_t index, size_t count) {
+	Promise<void> SpecialTrackCollection<ItemType>::loadAsyncListItems(typename AsyncList<$<ItemType>>::Mutator* mutator, size_t index, size_t count, std::map<String,Any> options) {
 		auto delegate = mutatorDelegate();
-		return delegate->loadItems(mutator, index, count);
+		return delegate->loadItems(mutator, index, count, LoadItemOptions::fromDict(options));
 	}
 
 	template<typename ItemType>

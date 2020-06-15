@@ -43,6 +43,8 @@ namespace sh {
 
 	class ShuffledTrackCollection: public SpecialTrackCollection<ShuffledTrackCollectionItem>, public SpecialTrackCollection<ShuffledTrackCollectionItem>::MutatorDelegate {
 	public:
+		using LoadItemOptions = TrackCollection::LoadItemOptions;
+		
 		static $<ShuffledTrackCollection> new$($<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems={});
 		
 		$<TrackCollection> source();
@@ -62,7 +64,7 @@ namespace sh {
 		};
 		
 		virtual MutatorDelegate* createMutatorDelegate() override;
-		virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count) override;
+		virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) override;
 		
 		$<TrackCollection> _source;
 		LinkedList<$<RandomIndex>> _remainingIndexes;

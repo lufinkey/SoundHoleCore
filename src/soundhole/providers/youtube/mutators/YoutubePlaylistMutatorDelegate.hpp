@@ -17,7 +17,7 @@ namespace sh {
 	class YoutubePlaylistMutatorDelegate: public Playlist::MutatorDelegate {
 		friend class YoutubeProvider;
 	public:
-		virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count) override;
+		virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) override;
 		
 	private:
 		YoutubePlaylistMutatorDelegate($<Playlist> playlist);

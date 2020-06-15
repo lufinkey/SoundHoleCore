@@ -16,7 +16,7 @@ namespace sh {
 		//
 	}
 
-	Promise<void> BandcampAlbumMutatorDelegate::loadItems(Mutator* mutator, size_t index, size_t count) {
+	Promise<void> BandcampAlbumMutatorDelegate::loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) {
 		auto album = this->album.lock();
 		auto provider = (BandcampProvider*)album->mediaProvider();
 		return provider->getAlbumData(album->uri()).then([=](Album::Data albumData) {

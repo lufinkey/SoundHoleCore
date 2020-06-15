@@ -15,7 +15,7 @@ namespace sh {
 		//
 	}
 
-	Promise<void> SpotifyAlbumMutatorDelegate::loadItems(Mutator* mutator, size_t index, size_t count) {
+	Promise<void> SpotifyAlbumMutatorDelegate::loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) {
 		auto album = this->album.lock();
 		auto provider = (SpotifyProvider*)album->mediaProvider();
 		auto id = provider->idFromURI(album->uri());

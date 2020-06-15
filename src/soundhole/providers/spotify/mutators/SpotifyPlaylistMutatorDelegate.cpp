@@ -15,7 +15,7 @@ namespace sh {
 		//
 	}
 
-	Promise<void> SpotifyPlaylistMutatorDelegate::loadItems(Mutator* mutator, size_t index, size_t count) {
+	Promise<void> SpotifyPlaylistMutatorDelegate::loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) {
 		auto playlist = this->playlist.lock();
 		auto provider = (SpotifyProvider*)playlist->mediaProvider();
 		auto id = provider->idFromURI(playlist->uri());

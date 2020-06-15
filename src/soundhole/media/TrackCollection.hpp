@@ -60,18 +60,26 @@ namespace sh {
 	public:
 		using MediaItem::MediaItem;
 		using ItemGenerator = ContinuousGenerator<LinkedList<$<TrackCollectionItem>>,void>;
+		struct LoadItemOptions {
+			bool offline = false;
+			
+			std::map<String,Any> toDict() const;
+			static LoadItemOptions fromDict(std::map<String,Any> dict);
+			
+			static LoadItemOptions defaultOptions();
+		};
 		
 		virtual Optional<size_t> indexOfItem(const TrackCollectionItem* item) const = 0;
 		virtual Optional<size_t> indexOfItemInstance(const TrackCollectionItem* item) const = 0;
 		virtual $<TrackCollectionItem> itemAt(size_t index) = 0;
 		virtual $<const TrackCollectionItem> itemAt(size_t index) const = 0;
-		virtual Promise<$<TrackCollectionItem>> getItem(size_t index) = 0;
-		virtual Promise<LinkedList<$<TrackCollectionItem>>> getItems(size_t index, size_t count) = 0;
-		virtual ItemGenerator generateItems(size_t startIndex=0) = 0;
+		virtual Promise<$<TrackCollectionItem>> getItem(size_t index, LoadItemOptions options = LoadItemOptions::defaultOptions()) = 0;
+		virtual Promise<LinkedList<$<TrackCollectionItem>>> getItems(size_t index, size_t count, LoadItemOptions options = LoadItemOptions::defaultOptions()) = 0;
+		virtual ItemGenerator generateItems(size_t startIndex=0, LoadItemOptions options = LoadItemOptions::defaultOptions()) = 0;
 		virtual $<TrackCollectionItem> itemFromJson(Json json, MediaProviderStash* stash) = 0;
 		
 		virtual Optional<size_t> itemCount() const = 0;
-		virtual Promise<void> loadItems(size_t index, size_t count) = 0;
+		virtual Promise<void> loadItems(size_t index, size_t count, LoadItemOptions options = LoadItemOptions::defaultOptions()) = 0;
 		
 		virtual void forEach(Function<void($<TrackCollectionItem>,size_t)>) = 0;
 		virtual void forEach(Function<void($<const TrackCollectionItem>,size_t)>) const = 0;
@@ -97,9 +105,11 @@ namespace sh {
 		class MutatorDelegate {
 		public:
 			using Mutator = typename AsyncList<$<ItemType>>::Mutator;
+			using LoadItemOptions = TrackCollection::LoadItemOptions;
+			
 			virtual ~MutatorDelegate() {}
 			
-			virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count) = 0;
+			virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) = 0;
 		};
 		
 		struct Data: public TrackCollection::Data {
@@ -121,13 +131,13 @@ namespace sh {
 		
 		virtual $<TrackCollectionItem> itemAt(size_t index) override final;
 		virtual $<const TrackCollectionItem> itemAt(size_t index) const override final;
-		virtual Promise<$<TrackCollectionItem>> getItem(size_t index) override final;
-		virtual Promise<LinkedList<$<TrackCollectionItem>>> getItems(size_t index, size_t count) override final;
-		virtual ItemGenerator generateItems(size_t startIndex=0) override final;
+		virtual Promise<$<TrackCollectionItem>> getItem(size_t index, LoadItemOptions options = LoadItemOptions::defaultOptions()) override final;
+		virtual Promise<LinkedList<$<TrackCollectionItem>>> getItems(size_t index, size_t count, LoadItemOptions options = LoadItemOptions::defaultOptions()) override final;
+		virtual ItemGenerator generateItems(size_t startIndex=0, LoadItemOptions options = LoadItemOptions::defaultOptions()) override final;
 		virtual $<TrackCollectionItem> itemFromJson(Json json, MediaProviderStash* stash) override final;
 		
 		virtual Optional<size_t> itemCount() const override final;
-		virtual Promise<void> loadItems(size_t index, size_t count) override final;
+		virtual Promise<void> loadItems(size_t index, size_t count, LoadItemOptions options = LoadItemOptions::defaultOptions()) override final;
 		
 		virtual void forEach(Function<void($<TrackCollectionItem>,size_t)>) override final;
 		virtual void forEach(Function<void($<const TrackCollectionItem>,size_t)>) const override final;
@@ -150,7 +160,7 @@ namespace sh {
 		SpecialTrackCollection($<MediaItem>& ptr, Json json, MediaProviderStash* stash, MutatorDelegate* mutatorDelegate, bool autoDeleteMutatorDelegate);
 		
 		virtual bool areAsyncListItemsEqual(const AsyncList<$<ItemType>>* list, const $<ItemType>& item1, const $<ItemType>& item2) const override;
-		virtual Promise<void> loadAsyncListItems(typename AsyncList<$<ItemType>>::Mutator* mutator, size_t index, size_t count) override;
+		virtual Promise<void> loadAsyncListItems(typename AsyncList<$<ItemType>>::Mutator* mutator, size_t index, size_t count, std::map<String,Any> options) override;
 		
 		virtual MutatorDelegate* createMutatorDelegate();
 		MutatorDelegate* mutatorDelegate();

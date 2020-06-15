@@ -17,7 +17,7 @@ namespace sh {
 	class BandcampAlbumMutatorDelegate: public Album::MutatorDelegate {
 		friend class BandcampProvider;
 	public:
-		virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count) override;
+		virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) override;
 		
 	private:
 		BandcampAlbumMutatorDelegate($<Album> album);
