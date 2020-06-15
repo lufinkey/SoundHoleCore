@@ -52,6 +52,15 @@ ArrayList<String> trackCollectionColumns() {
 ArrayList<String> trackCollectionItemColumns() {
 	return { "collectionURI", "indexNum", "trackURI", "addedAt", "updateTime" };
 }
+ArrayList<String> savedTrackColumns() {
+	return { "trackURI", "libraryProvider", "addedAt", "updateTime" };
+}
+ArrayList<String> savedAlbumColumns() {
+	return { "albumURI", "libraryProvider", "addedAt", "updateTime" };
+}
+ArrayList<String> savedPlaylistColumns() {
+	return { "playlistURI", "libraryProvider", "addedAt", "updateTime" };
+}
 
 
 
@@ -146,8 +155,8 @@ CREATE TABLE IF NOT EXISTS SavedPlaylist (
 
 String purgeDB() {
 	return R"SQL(
-DROP TABLE IF EXISTS SavedAlbum;
 DROP TABLE IF EXISTS SavedPlaylist;
+DROP TABLE IF EXISTS SavedAlbum;
 DROP TABLE IF EXISTS SavedTrack;
 DROP TABLE IF EXISTS TrackArtist;
 DROP TABLE IF EXISTS TrackCollectionArtist;

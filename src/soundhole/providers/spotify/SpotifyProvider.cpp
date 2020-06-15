@@ -417,6 +417,27 @@ namespace sh {
 		return std::nullopt;
 	}
 
+	Optional<SpotifyProvider::GenerateLibraryResumeData::Item> SpotifyProvider::GenerateLibraryResumeData::Item::maybeFromJson(const Json& json) {
+		if(!json.is_object()) {
+			return std::nullopt;
+		}
+		auto uri = json["uri"].string_value();
+		if(uri.empty()) {
+			return std::nullopt;
+		}
+		return Item{
+			.uri = uri,
+			.addedAt = json["addedAt"].string_value()
+		};
+	}
+
+	Json SpotifyProvider::GenerateLibraryResumeData::Item::toJson() const {
+		return Json::object{
+			{ "uri", Json(uri) },
+			{ "addedAt", Json(addedAt) }
+		};
+	}
+
 	bool SpotifyProvider::hasLibrary() const {
 		return true;
 	}

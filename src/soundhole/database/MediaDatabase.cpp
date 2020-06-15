@@ -207,7 +207,10 @@ namespace sh {
 
 	Promise<void> MediaDatabase::cacheTrackCollectionItems($<TrackCollection> collection, Optional<sql::IndexRange> itemsRange, CacheOptions options) {
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
-			sql::insertOrReplaceItemsFromTrackCollection(tx, collection, itemsRange);
+			sql::insertOrReplaceItemsFromTrackCollection(tx, collection, {
+				.range = itemsRange,
+				.includeTrackAlbums = false
+			});
 			applyDBState(tx, options.dbState);
 		}).toVoid();
 	}

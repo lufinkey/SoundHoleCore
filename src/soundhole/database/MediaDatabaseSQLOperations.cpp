@@ -255,7 +255,7 @@ void insertOrReplaceTrackCollections(SQLiteTransaction& tx, const ArrayList<$<Tr
 	applyTrackCollectionTuples(tx, tuples);
 }
 
-void insertOrReplaceItemsFromTrackCollection(SQLiteTransaction& tx, $<TrackCollection> collection, Optional<IndexRange> range, bool includeTrackAlbums) {
+void insertOrReplaceItemsFromTrackCollection(SQLiteTransaction& tx, $<TrackCollection> collection, InsertTrackCollectionItemsOptions options) {
 	if(collection->itemCount()) {
 		tx.addSQL(
 			"DELETE FROM TrackCollectionItem WHERE collectionURI = ? AND indexNum >= ?",
@@ -264,13 +264,13 @@ void insertOrReplaceItemsFromTrackCollection(SQLiteTransaction& tx, $<TrackColle
 	TrackTuplesAndParams tuples;
 	LinkedList<String> collectionItemTuples;
 	LinkedList<Any> collectionItemParams;
-	if(range) {
-		collection->forEachInRange(range->startIndex, range->endIndex, [&]($<TrackCollectionItem> item, size_t index) {
+	if(options.range) {
+		collection->forEachInRange(options.range->startIndex, options.range->endIndex, [&]($<TrackCollectionItem> item, size_t index) {
 			if(!item) {
 				return;
 			}
 			collectionItemTuples.pushBack(trackCollectionItemTuple(collectionItemParams, item));
-			addTrackTuples(item->track(), tuples, includeTrackAlbums);
+			addTrackTuples(item->track(), tuples, options.includeTrackAlbums);
 		});
 	}
 	applyTrackTuples(tx, tuples);

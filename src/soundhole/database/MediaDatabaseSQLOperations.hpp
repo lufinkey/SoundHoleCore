@@ -19,7 +19,11 @@ namespace sh::sql {
 void insertOrReplaceArtists(SQLiteTransaction& tx, const ArrayList<$<Artist>>& artists);
 void insertOrReplaceTracks(SQLiteTransaction& tx, const ArrayList<$<Track>>& tracks, bool includeAlbums);
 void insertOrReplaceTrackCollections(SQLiteTransaction& tx, const ArrayList<$<TrackCollection>>& collections);
-void insertOrReplaceItemsFromTrackCollection(SQLiteTransaction& tx, $<TrackCollection> collection, Optional<IndexRange> range);
+struct InsertTrackCollectionItemsOptions {
+	Optional<IndexRange> range;
+	bool includeTrackAlbums = false;
+};
+void insertOrReplaceItemsFromTrackCollection(SQLiteTransaction& tx, $<TrackCollection> collection, InsertTrackCollectionItemsOptions options = InsertTrackCollectionItemsOptions());
 void insertOrReplaceLibraryItems(SQLiteTransaction& tx, const ArrayList<MediaProvider::LibraryItem>& items);
 void insertOrReplaceDBStates(SQLiteTransaction& tx, const ArrayList<DBState>& states);
 
