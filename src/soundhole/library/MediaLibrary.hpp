@@ -26,6 +26,8 @@ namespace sh {
 		MediaLibrary(Options);
 		~MediaLibrary();
 		
+		Promise<void> initialize();
+		
 		MediaProvider* getMediaProvider(String name);
 		
 		bool isSynchronizingLibrary(String libraryProviderName);

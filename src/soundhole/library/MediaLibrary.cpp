@@ -25,6 +25,13 @@ namespace sh {
 		delete db;
 		delete libraryProvider;
 	}
+
+	Promise<void> MediaLibrary::initialize() {
+		return Promise<void>::resolve().then([=]() {
+			db->open();
+			return db->initialize();
+		});
+	}
 	
 	MediaProvider* MediaLibrary::getMediaProvider(String name) {
 		return libraryProvider->getMediaProvider(name);
