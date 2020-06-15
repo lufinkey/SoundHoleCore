@@ -15,6 +15,7 @@
 
 namespace sh {
 	class TrackCollection;
+	class MediaDatabase;
 
 
 	class TrackCollectionItem {
@@ -61,7 +62,7 @@ namespace sh {
 		using MediaItem::MediaItem;
 		using ItemGenerator = ContinuousGenerator<LinkedList<$<TrackCollectionItem>>,void>;
 		struct LoadItemOptions {
-			bool offline = false;
+			MediaDatabase* database = nullptr;
 			
 			std::map<String,Any> toDict() const;
 			static LoadItemOptions fromDict(std::map<String,Any> dict);

@@ -7,6 +7,7 @@
 //
 
 #include "TrackCollection.hpp"
+#include <soundhole/database/MediaDatabase.hpp>
 
 namespace sh {
 	TrackCollectionItem::TrackCollectionItem($<TrackCollectionItem>& ptr, $<TrackCollection> context, Data data)
@@ -71,13 +72,13 @@ namespace sh {
 
 	std::map<String,Any> TrackCollection::LoadItemOptions::toDict() const {
 		return {
-			{ "offline", offline }
+			{ "database", database }
 		};
 	}
 
 	TrackCollection::LoadItemOptions TrackCollection::LoadItemOptions::fromDict(std::map<String,Any> dict) {
 		return {
-			.offline=dict["offline"].maybeAs<bool>().valueOr(false)
+			.database=dict["database"].maybeAs<MediaDatabase*>().valueOr(nullptr)
 		};
 	}
 
