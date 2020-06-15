@@ -102,6 +102,9 @@ namespace sh {
 		Promise<std::map<String,String>> getState(ArrayList<String> keys);
 		Promise<String> getStateValue(String key, String defaultValue);
 		
+		Promise<void> loadAlbumItems($<Album> album, Album::MutatorDelegate::Mutator* mutator, size_t index, size_t count);
+		Promise<void> loadPlaylistItems($<Playlist> playlist, Playlist::MutatorDelegate::Mutator* mutator, size_t index, size_t count);
+		
 	private:
 		static void applyDBState(SQLiteTransaction& tx, std::map<String,String> state);
 		

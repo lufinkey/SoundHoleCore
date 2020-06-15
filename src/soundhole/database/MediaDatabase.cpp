@@ -547,4 +547,60 @@ namespace sh {
 		obj["mediaItem"] = transformDBTrackCollection(playlistJson);
 		return obj;
 	}
+
+
+
+	Promise<void> MediaDatabase::loadAlbumItems($<Album> album, Album::MutatorDelegate::Mutator* mutator, size_t index, size_t count) {
+		return getTrackCollectionItemsJson(album->uri(), {
+			.startIndex=index,
+			.endIndex=(index+count)
+		}).then([=](std::map<size_t,Json> items) {
+			mutator->lock([&]() {
+				LinkedList<$<AlbumItem>> albumItems;
+				size_t albumItemsStartIndex = index;
+				size_t nextIndex = index;
+				for(auto& pair : items) {
+					if(pair.first != nextIndex && albumItems.size() > 0) {
+						mutator->apply(albumItemsStartIndex, albumItems);
+						albumItems.clear();
+					}
+					if(albumItems.size() == 0) {
+						albumItemsStartIndex = pair.first;
+					}
+					albumItems.pushBack(std::static_pointer_cast<AlbumItem>(album->itemFromJson(pair.second, options.stash)));
+					nextIndex = pair.first + 1;
+				}
+				if(albumItems.size() > 0) {
+					mutator->apply(albumItemsStartIndex, albumItems);
+				}
+			});
+		});
+	}
+
+	Promise<void> MediaDatabase::loadPlaylistItems($<Playlist> playlist, Playlist::MutatorDelegate::Mutator* mutator, size_t index, size_t count) {
+		return getTrackCollectionItemsJson(playlist->uri(), {
+			.startIndex=index,
+			.endIndex=(index+count)
+		}).then([=](std::map<size_t,Json> items) {
+			mutator->lock([&]() {
+				LinkedList<$<PlaylistItem>> playlistItems;
+				size_t playlistItemsStartIndex = index;
+				size_t nextIndex = index;
+				for(auto& pair : items) {
+					if(pair.first != nextIndex && playlistItems.size() > 0) {
+						mutator->apply(playlistItemsStartIndex, playlistItems);
+						playlistItems.clear();
+					}
+					if(playlistItems.size() == 0) {
+						playlistItemsStartIndex = pair.first;
+					}
+					playlistItems.pushBack(std::static_pointer_cast<PlaylistItem>(playlist->itemFromJson(pair.second, options.stash)));
+					nextIndex = pair.first + 1;
+				}
+				if(playlistItems.size() > 0) {
+					mutator->apply(playlistItemsStartIndex, playlistItems);
+				}
+			});
+		});
+	}
 }

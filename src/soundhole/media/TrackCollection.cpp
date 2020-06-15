@@ -78,7 +78,7 @@ namespace sh {
 
 	TrackCollection::LoadItemOptions TrackCollection::LoadItemOptions::fromDict(std::map<String,Any> dict) {
 		return {
-			.database=dict["database"].maybeAs<MediaDatabase*>().valueOr(nullptr)
+			.database = dict["database"].maybeAs<MediaDatabase*>().valueOr(nullptr)
 		};
 	}
 

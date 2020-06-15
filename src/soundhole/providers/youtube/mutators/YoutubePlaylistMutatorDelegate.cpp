@@ -8,6 +8,7 @@
 
 #include "YoutubePlaylistMutatorDelegate.hpp"
 #include <soundhole/providers/youtube/YoutubeProvider.hpp>
+#include <soundhole/database/MediaDatabase.hpp>
 #include <soundhole/utils/SoundHoleError.hpp>
 
 namespace sh {
@@ -108,44 +109,51 @@ namespace sh {
 		if(count == 0) {
 			return Promise<void>::resolve();
 		}
-		auto range = Range{.index=index,.count=count};
 		auto playlist = this->playlist.lock();
-		auto pageTokens = this->pageTokens + LinkedList<PageToken>{ PageToken{"", 0} };
-		Optional<std::pair<PageToken,ArrayList<Dist>>> closestPageToken;
-		size_t closestDistTotal = -1;
-		for(auto& pageToken : pageTokens) {
-			auto tokenRange = Range{
-				.index=pageToken.offset,
-				.count=pageSize
-			};
-			auto dists = coverRangeDist(range, tokenRange);
-			size_t distTotal = 0;
-			for(auto& dist : dists) {
-				distTotal += dist.count;
-			}
-			if(!closestPageToken || distTotal < closestDistTotal) {
-				closestPageToken = { pageToken, dists };
-				closestDistTotal = distTotal;
-			}
-		}
-		FGL_ASSERT(closestPageToken->second.size() > 0, "for some reason we have 0 dists");
-		closestPageToken->second.stableSort([](auto& a, auto& b) {
-			if(a.reverse == b.reverse || (a.reverse && !b.reverse)) {
-				return true;
-			}
-			return false;
-		});
-		auto promise = Promise<void>::resolve();
-		for(auto& dist : closestPageToken->second) {
-			promise = promise.then([=]() {
-				if(dist.reverse) {
-					return loadItemsToIndex(mutator, index, closestPageToken->first.value, closestPageToken->first.offset, true);
-				} else {
-					return loadItemsToIndex(mutator, (index+count-1), closestPageToken->first.value, closestPageToken->first.offset, false);
+		if(options.database == nullptr) {
+			// online load
+			auto range = Range{.index=index,.count=count};
+			auto pageTokens = this->pageTokens + LinkedList<PageToken>{ PageToken{"", 0} };
+			Optional<std::pair<PageToken,ArrayList<Dist>>> closestPageToken;
+			size_t closestDistTotal = -1;
+			for(auto& pageToken : pageTokens) {
+				auto tokenRange = Range{
+					.index=pageToken.offset,
+					.count=pageSize
+				};
+				auto dists = coverRangeDist(range, tokenRange);
+				size_t distTotal = 0;
+				for(auto& dist : dists) {
+					distTotal += dist.count;
 				}
+				if(!closestPageToken || distTotal < closestDistTotal) {
+					closestPageToken = { pageToken, dists };
+					closestDistTotal = distTotal;
+				}
+			}
+			FGL_ASSERT(closestPageToken->second.size() > 0, "for some reason we have 0 dists");
+			closestPageToken->second.stableSort([](auto& a, auto& b) {
+				if(a.reverse == b.reverse || (a.reverse && !b.reverse)) {
+					return true;
+				}
+				return false;
 			});
+			auto promise = Promise<void>::resolve();
+			for(auto& dist : closestPageToken->second) {
+				promise = promise.then([=]() {
+					if(dist.reverse) {
+						return loadItemsToIndex(mutator, index, closestPageToken->first.value, closestPageToken->first.offset, true);
+					} else {
+						return loadItemsToIndex(mutator, (index+count-1), closestPageToken->first.value, closestPageToken->first.offset, false);
+					}
+				});
+			}
+			return promise;
 		}
-		return promise;
+		else {
+			// offline load
+			return options.database->loadPlaylistItems(playlist, mutator, index, count);
+		}
 	}
 
 	Promise<YoutubePlaylistMutatorDelegate::LoadPager> YoutubePlaylistMutatorDelegate::loadItems(Mutator* mutator, String pageToken) {
