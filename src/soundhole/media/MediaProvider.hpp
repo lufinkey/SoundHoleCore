@@ -79,6 +79,7 @@ namespace sh {
 		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album) = 0;
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) = 0;
 		
+		virtual bool hasLibrary() const = 0;
 		struct GenerateLibraryOptions {
 			Json resumeData;
 		};

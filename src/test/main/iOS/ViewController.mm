@@ -26,10 +26,8 @@
 	_tested = YES;
 	sh::test::testSpotify().then([=]() {
 		return sh::test::testStreamPlayer();
-	}).except([=](fgl::Error& error) {
-		printf("error: %s\n", error.toString().c_str());
-	}).except([=](std::exception& error) {
-		printf("error: %s\n", error.what());
+	}).except([=](std::exception_ptr error) {
+		fgl::console::error("error: ", sh::utils::getExceptionDetails(error).fullDescription);
 	});
 }
 

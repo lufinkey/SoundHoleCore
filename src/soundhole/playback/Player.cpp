@@ -244,7 +244,7 @@ namespace sh {
 				});
 			}).promise.except([=](std::exception_ptr error) {
 				// error
-				printf("Error while player was auto-starting from queue: %s\n", utils::getExceptionDetails(error).c_str());
+				console::error("Error while player was auto-starting from queue: ", utils::getExceptionDetails(error).fullDescription);
 			});
 		}
 		return queueItem;
@@ -481,7 +481,7 @@ namespace sh {
 			// prepare next track
 			organizer->prepareNextIfNeeded().except([=](std::exception_ptr error) {
 				// error
-				printf("Error preparing next track: %s\n", utils::getExceptionDetails(error).c_str());
+				console::error("Error preparing next track: ", utils::getExceptionDetails(error).fullDescription);
 			});
 		}
 		// save player state if needed
@@ -521,7 +521,7 @@ namespace sh {
 				// emit metadata change event
 				callPlayerListenerEvent(&EventListener::onPlayerMetadataChange, self, createEvent());
 			}).except([=](std::exception_ptr error) {
-				printf("Unable to load previous track from organizer: %s\n", utils::getExceptionDetails(error).c_str());
+				console::error("Unable to load previous track from organizer: ", utils::getExceptionDetails(error).fullDescription);
 			});
 		}
 		if(!nextTrackPromise.isComplete()) {
@@ -534,7 +534,7 @@ namespace sh {
 				// emit metadata change event
 				callPlayerListenerEvent(&EventListener::onPlayerMetadataChange, self, createEvent());
 			}).except([=](std::exception_ptr error) {
-				printf("Unable to load next track from organizer: %s\n", utils::getExceptionDetails(error).c_str());
+				console::error("Unable to load next track from organizer: ", utils::getExceptionDetails(error).fullDescription);
 			});
 		}
 	}
@@ -588,7 +588,7 @@ namespace sh {
 				}
 			#endif
 		}).except([=](std::exception_ptr error) {
-			printf("Unable to continue to next track: %s\n", utils::getExceptionDetails(error).c_str());
+			console::error("Unable to continue to next track: ", utils::getExceptionDetails(error).fullDescription);
 		});
 	}
 

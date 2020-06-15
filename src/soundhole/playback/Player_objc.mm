@@ -111,14 +111,14 @@ namespace sh {
 		if(![audioSessionCategory isEqualToString:audioSession.category]) {
 			[audioSession setCategory:audioSessionCategory error:&error];
 			if(error != nil) {
-				printf("Error setting spotify audio session category: %s\n", error.description.UTF8String);
+				console::error("Error setting spotify audio session category: ", error.description.UTF8String);
 			}
 		}
 		if(audioSession.isOtherAudioPlaying) {
 			error = nil;
 			[audioSession setActive:YES error:&error];
 			if(error != nil) {
-				printf("Error setting spotify audio session active: %s\n", error.description.UTF8String);
+				console::error("Error setting spotify audio session active: ", error.description.UTF8String);
 			}
 		}
 	}
@@ -128,7 +128,7 @@ namespace sh {
 		NSError* error = nil;
 		[audioSession setActive:NO error:&error];
 		if(error != nil) {
-			printf("Error setting spotify audio session inactive: %s\n", error.description.UTF8String);
+			console::error("Error setting spotify audio session inactive: ", error.description.UTF8String);
 		}
 	}
 

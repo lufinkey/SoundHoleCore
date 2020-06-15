@@ -9,14 +9,23 @@
 #include "Utils.hpp"
 
 namespace sh::utils {
-	String getExceptionDetails(std::exception_ptr error) {
+	ExceptionDetails getExceptionDetails(std::exception_ptr error) {
 		try {
 			std::rethrow_exception(error);
-			return "";
+			return {
+				.fullDescription="",
+				.message=""
+			};
 		} catch(Error& error) {
-			return error.toString();
+			return {
+				.fullDescription = error.toString(),
+				.message = error.getMessage()
+			};
 		} catch(std::exception& error) {
-			return error.what();
+			return {
+				.fullDescription=error.what(),
+				.message=error.what()
+			};
 		}
 	}
 }

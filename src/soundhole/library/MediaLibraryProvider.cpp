@@ -73,6 +73,10 @@ namespace sh {
 	Playlist::MutatorDelegate* MediaLibraryProvider::createPlaylistMutatorDelegate($<Playlist> playlist) {
 		return nullptr;
 	}
+
+	bool MediaLibraryProvider::hasLibrary() const {
+		return false;
+	}
 	
 	MediaLibraryProvider::LibraryItemGenerator MediaLibraryProvider::generateLibrary(GenerateLibraryOptions options) {
 		throw std::runtime_error("MediaLibraryProvider cannot generate library");

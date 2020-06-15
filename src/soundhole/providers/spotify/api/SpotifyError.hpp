@@ -74,7 +74,7 @@ namespace sh {
 		
 		Code getCode() const;
 		const std::map<String,Any>& getDetails() const;
-		Any getDetail(const String& key) const;
+		Any getDetail(const String& key) const override;
 		
 		virtual String getMessage() const override;
 		virtual String toString() const override;

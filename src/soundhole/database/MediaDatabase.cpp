@@ -29,7 +29,7 @@ namespace sh {
 			return;
 		}
 		sqlite3* tmpDb;
-		int retVal = sqlite3_open(options.location.c_str(), &tmpDb);
+		int retVal = sqlite3_open(options.path.c_str(), &tmpDb);
 		if(retVal != 0) {
 			sqlite3_close(tmpDb);
 			String errorMsg = sqlite3_errstr(retVal);
@@ -386,9 +386,44 @@ namespace sh {
 		});
 	}
 
+	Promise<void> MediaDatabase::setState(std::map<String,String> state) {
+		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
+			applyDBState(tx, state);
+		}).toVoid();
+	}
 
+	Promise<std::map<String,String>> MediaDatabase::getState(ArrayList<String> keys) {
+		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
+			for(auto& key : keys) {
+				sql::selectDBState(tx, key, key);
+			}
+		}).map<std::map<String,String>>(nullptr, [=](auto results) {
+			std::map<String,String> state;
+			for(auto& key : keys) {
+				auto it = results.find(key);
+				if(it != results.end() && it->second.size() > 0) {
+					auto row = it->second.front();
+					auto value = row["stateValue"];
+					if(value.is_string()) {
+						state[key] = value.string_value();
+					}
+				}
+			}
+			return state;
+		});
+	}
 
-	void MediaDatabase::applyDBState(SQLiteTransaction& tx, std::map<std::string,std::string> state) {
+	Promise<String> MediaDatabase::getStateValue(String key, String defaultValue) {
+		return getState({ key }).map<String>(nullptr, [=](auto state) {
+			auto it = state.find(key);
+			if(it == state.end()) {
+				return defaultValue;
+			}
+			return it->second;
+		});
+	}
+
+	void MediaDatabase::applyDBState(SQLiteTransaction& tx, std::map<String,String> state) {
 		if(state.size() == 0) {
 			return;
 		}
@@ -402,7 +437,10 @@ namespace sh {
 		}
 		sql::insertOrReplaceDBStates(tx, states);
 	}
-	
+
+
+
+
 	Json MediaDatabase::transformDBTrack(Json json) {
 		auto obj = json.object_items();
 		if(obj.find("type") == obj.end()) {

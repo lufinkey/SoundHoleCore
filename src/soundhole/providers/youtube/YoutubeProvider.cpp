@@ -643,6 +643,9 @@ namespace sh {
 
 
 
+	bool YoutubeProvider::hasLibrary() const {
+		return false;
+	}
 
 	YoutubeProvider::LibraryItemGenerator YoutubeProvider::generateLibrary(GenerateLibraryOptions options) {
 		using YieldResult = typename LibraryItemGenerator::YieldResult;

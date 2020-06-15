@@ -225,8 +225,8 @@ namespace sh {
 	}
 
 	Promise<void> PlaybackOrganizer::prepareNextIfNeeded() {
-		if(continuousPlayQueue.getTaskWithTag("prepare")) {
-			return continuousPlayQueue.waitForTasksWithTag("prepare");
+		if(auto taskNode = continuousPlayQueue.getTaskWithTag("prepare")) {
+			return taskNode->promise;
 		}
 		auto runOptions = AsyncQueue::RunOptions{
 			.tag = "prepare",
@@ -669,7 +669,7 @@ namespace sh {
 									break;
 								}
 								catch(...) {
-									printf("Failed to load next tracks in context: %s\n", utils::getExceptionDetails(std::current_exception()).c_str());
+									console::error("Failed to load next tracks in context: ", utils::getExceptionDetails(std::current_exception()).fullDescription);
 									// ignore error and try again
 									yield();
 									for(size_t i=0; i<10; i++) {
@@ -687,8 +687,8 @@ namespace sh {
 									break;
 								}
 								catch(...) {
-									printf("Failed to skip to next track after %s: %s\n",
-										   track->name().c_str(), utils::getExceptionDetails(std::current_exception()).c_str());
+									console::error("Failed to skip to next track after ",
+										   track->name().c_str(), ": ", utils::getExceptionDetails(std::current_exception()).fullDescription);
 									// ignore error and try again
 									yield();
 									for(size_t i=0; i<4; i++) {
@@ -701,8 +701,8 @@ namespace sh {
 						return;
 					}
 					catch(...) {
-						printf("Failed to play track %s: %s\n",
-							   track->name().c_str(), utils::getExceptionDetails(std::current_exception()).c_str());
+						console::error("Failed to play track ",
+							   track->name().c_str(), ": ", utils::getExceptionDetails(std::current_exception()).fullDescription);
 						// ignore error and try again
 						yield();
 						for(size_t i=0; i<sleepCount; i++) {
@@ -816,7 +816,7 @@ namespace sh {
 		if(context && context != this->context && contextIndex) {
 			// TODO log error in logger
 			prepareCollectionTracks(context, contextIndex.value()).except([=](std::exception_ptr error) {
-				printf("Error preparing collection tracks: %s\n", utils::getExceptionDetails(error).c_str());
+				console::error("Error preparing collection tracks: ", utils::getExceptionDetails(error).fullDescription);
 			});
 		}
 		

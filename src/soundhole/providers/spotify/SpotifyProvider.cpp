@@ -417,6 +417,10 @@ namespace sh {
 		return std::nullopt;
 	}
 
+	bool SpotifyProvider::hasLibrary() const {
+		return true;
+	}
+
 	SpotifyProvider::LibraryItemGenerator SpotifyProvider::generateLibrary(GenerateLibraryOptions options) {
 		auto resumeData = GenerateLibraryResumeData::fromJson(options.resumeData);
 		struct SharedData {

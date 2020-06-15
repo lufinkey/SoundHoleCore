@@ -426,6 +426,10 @@ namespace sh {
 
 
 
+	bool BandcampProvider::hasLibrary() const {
+		return false;
+	}
+
 	BandcampProvider::LibraryItemGenerator BandcampProvider::generateLibrary(GenerateLibraryOptions options) {
 		using YieldResult = typename LibraryItemGenerator::YieldResult;
 		return LibraryItemGenerator([=]() {

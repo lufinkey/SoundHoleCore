@@ -27,8 +27,7 @@ namespace sh {
 	class MediaDatabase {
 	public:
 		struct Options {
-			String name;
-			String location;
+			String path;
 			MediaProviderStash* stash;
 		};
 		
@@ -51,7 +50,7 @@ namespace sh {
 		Promise<void> reset();
 		
 		struct CacheOptions {
-			std::map<std::string,std::string> dbState;
+			std::map<String,String> dbState;
 		};
 		
 		Promise<void> cacheTracks(ArrayList<$<Track>> tracks, CacheOptions options = CacheOptions());
@@ -99,8 +98,12 @@ namespace sh {
 		};
 		Promise<LinkedList<Json>> getSavedPlaylistsJson(sql::IndexRange range, GetSavedPlaylistsJsonOptions options = GetSavedPlaylistsJsonOptions());
 		
+		Promise<void> setState(std::map<String,String> state);
+		Promise<std::map<String,String>> getState(ArrayList<String> keys);
+		Promise<String> getStateValue(String key, String defaultValue);
+		
 	private:
-		static void applyDBState(SQLiteTransaction& tx, std::map<std::string,std::string> state);
+		static void applyDBState(SQLiteTransaction& tx, std::map<String,String> state);
 		
 		static Json transformDBTrack(Json json);
 		static Json transformDBTrackCollection(Json json);

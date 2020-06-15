@@ -8,6 +8,7 @@
 
 #include "SpotifyPlaybackProvider.hpp"
 #include "SpotifyProvider.hpp"
+#include <soundhole/utils/Utils.hpp>
 
 namespace sh {
 	SpotifyPlaybackProvider::SpotifyPlaybackProvider(SpotifyProvider* provider)
@@ -124,11 +125,8 @@ namespace sh {
 						return;
 					} catch(GenerateDestroyedNotifier&) {
 						std::rethrow_exception(std::current_exception());
-					} catch(Error& error) {
-						printf("Error attempting to play Spotify player: %s", error.toString().c_str());
-						// continue trying...
-					} catch(std::exception& error) {
-						printf("Error attempting to play Spotify player: %s", error.what());
+					} catch(...) {
+						console::error("Error attempting to play Spotify player: ", utils::getExceptionDetails(std::current_exception()).fullDescription);
 						// continue trying...
 					}
 					yield();

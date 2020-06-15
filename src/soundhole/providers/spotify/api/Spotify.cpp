@@ -310,7 +310,7 @@ namespace sh {
 								if(!retryAfter.empty()) {
 									errorMessage += ". Retry after "+retryAfter+" seconds";
 								}
-								details["retryAfter"] = retryAfter.toArithmeticValue<int>();
+								details["retryAfter"] = retryAfter.toArithmeticValue<double>();
 							}
 							throw SpotifyError(SpotifyError::Code::REQUEST_FAILED, errorMessage, details);
 						} else {
