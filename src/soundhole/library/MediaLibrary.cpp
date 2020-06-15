@@ -145,11 +145,32 @@ namespace sh {
 		return synchronizeAllQueue.runSingle(runOptions, [=](auto task) {
 			auto successCount = fgl::new$<size_t>(0);
 			auto providers = fgl::new$<LinkedList<MediaProvider*>>();
+			
+			// get providers to synchronize
+			struct QueuedProviderNode {
+				size_t index;
+				MediaProvider* provider;
+			};
+			LinkedList<QueuedProviderNode> queuedProviders;
 			for(auto provider : libraryProvider->getMediaProviders()) {
 				if(provider->hasLibrary()) {
-					providers->pushBack(provider);
+					String taskTag = "sync:"+provider->name();
+					auto taskNode = synchronizeQueue.getTaskWithTag(taskTag);
+					auto taskIndex = synchronizeQueue.indexOfTaskWithTag(taskTag);
+					if(taskNode && !taskNode->task->isDone() && !taskNode->task->isCancelled() && taskIndex) {
+						queuedProviders.pushBack({ taskIndex.value(), provider });
+					} else {
+						providers->pushBack(provider);
+					}
 				}
 			}
+			queuedProviders.sort([](auto& a, auto& b) {
+				return a.index <= b.index;
+			});
+			providers->insert(providers->begin(), queuedProviders.template map<MediaProvider*>([](auto& node) {
+				return node.provider;
+			}));
+			
 			size_t providerCount = providers->size();
 			return Generator<void,void>([=]() {
 				using YieldResult = typename Generator<void,void>::YieldResult;

@@ -132,7 +132,7 @@ namespace sh {
 				}
 			}
 			FGL_ASSERT(closestPageToken->second.size() > 0, "for some reason we have 0 dists");
-			closestPageToken->second.stableSort([](auto& a, auto& b) {
+			closestPageToken->second.sort([](auto& a, auto& b) {
 				if(a.reverse == b.reverse || (a.reverse && !b.reverse)) {
 					return true;
 				}
