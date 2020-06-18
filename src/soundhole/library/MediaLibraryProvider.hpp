@@ -19,6 +19,7 @@ namespace sh {
 	class MediaLibraryProvider: public MediaProvider, public MediaProviderStash {
 	public:
 		MediaLibraryProvider(ArrayList<MediaProvider*> mediaProviders);
+		virtual ~MediaLibraryProvider();
 		
 		virtual String name() const override;
 		virtual String displayName() const override;

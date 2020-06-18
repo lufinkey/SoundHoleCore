@@ -14,6 +14,12 @@ namespace sh {
 		//
 	}
 
+	MediaLibraryProvider::~MediaLibraryProvider() {
+		for(auto provider : mediaProviders) {
+			delete provider;
+		}
+	}
+
 	String MediaLibraryProvider::name() const {
 		return "medialibrary";
 	}
