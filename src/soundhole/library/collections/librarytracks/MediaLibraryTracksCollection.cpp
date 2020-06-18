@@ -31,6 +31,13 @@ namespace sh {
 		return false;
 	}
 
+	MediaLibraryTracksCollectionItem::Data MediaLibraryTracksCollectionItem::toData() const {
+		return {
+			SpecialTrackCollectionItem<MediaLibraryTracksCollection>::toData(),
+			.addedAt=_addedAt
+		};
+	}
+
 	$<MediaLibraryTracksCollectionItem> MediaLibraryTracksCollectionItem::fromJson($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> context, Json json, MediaProviderStash* stash) {
 		$<TrackCollectionItem> ptr;
 		new MediaLibraryTracksCollectionItem(ptr, context, json, stash);
