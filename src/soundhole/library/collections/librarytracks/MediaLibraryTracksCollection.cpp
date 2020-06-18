@@ -85,14 +85,15 @@ namespace sh {
 		};
 	}
 
-	$<MediaLibraryTracksCollection> MediaLibraryTracksCollection::fromJson(Json json, MediaDatabase* database, MediaProviderStash* stash) {
+	$<MediaLibraryTracksCollection> MediaLibraryTracksCollection::fromJson(Json json, MediaDatabase* database) {
 		$<MediaItem> ptr;
-		new MediaLibraryTracksCollection(ptr, json, database, stash);
+		new MediaLibraryTracksCollection(ptr, json, database);
 		return std::static_pointer_cast<MediaLibraryTracksCollection>(ptr);
 	}
 
-	MediaLibraryTracksCollection::MediaLibraryTracksCollection($<MediaItem>& ptr, Json json, MediaDatabase* database, MediaProviderStash* stash)
-	: SpecialTrackCollection<MediaLibraryTracksCollectionItem>(ptr, json, stash) {
+	MediaLibraryTracksCollection::MediaLibraryTracksCollection($<MediaItem>& ptr, Json json, MediaDatabase* database)
+	: SpecialTrackCollection<MediaLibraryTracksCollectionItem>(ptr, json, database->getProviderStash()),
+	_database(database) {
 		_libraryProviderName = json["libraryProviderName"].string_value();
 	}
 

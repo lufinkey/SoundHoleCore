@@ -244,7 +244,7 @@ namespace sh {
 				{ "itemCount", Json((double)results.total) },
 				{ "items", Json::array(results.items.begin(), results.items.end()) }
 			};
-			return MediaLibraryTracksCollection::fromJson(json, db, db->getProviderStash());
+			return MediaLibraryTracksCollection::fromJson(json, db);
 		});
 	}
 }

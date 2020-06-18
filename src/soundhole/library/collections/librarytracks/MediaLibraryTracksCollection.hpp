@@ -58,12 +58,12 @@ namespace sh {
 		
 		Data toData(DataOptions options = DataOptions()) const;
 		
-		static $<MediaLibraryTracksCollection> fromJson(Json json, MediaDatabase* database, MediaProviderStash* stash);
+		static $<MediaLibraryTracksCollection> fromJson(Json json, MediaDatabase* database);
 		virtual Json toJson(ToJsonOptions options) const override;
 		
 	protected:
 		MediaLibraryTracksCollection($<MediaItem>& ptr, MediaDatabase* database, MediaProvider* provider, Data data);
-		MediaLibraryTracksCollection($<MediaItem>& ptr, Json json, MediaDatabase* database, MediaProviderStash* stash);
+		MediaLibraryTracksCollection($<MediaItem>& ptr, Json json, MediaDatabase* database);
 		
 		virtual MutatorDelegate* createMutatorDelegate() override;
 		
