@@ -52,8 +52,25 @@ namespace sh {
 		void addMediaProvider(MediaProvider*);
 		void removeMediaProvider(MediaProvider*);
 		virtual MediaProvider* getMediaProvider(const String& name) override;
+		template<typename MediaProviderType>
+		MediaProviderType* getMediaProvider();
 		
 	private:
 		ArrayList<MediaProvider*> mediaProviders;
 	};
+
+
+
+	template<typename MediaProviderType>
+	MediaProviderType* MediaLibraryProvider::getMediaProvider() {
+		for(auto& provider : mediaProviders) {
+			if(auto mediaProvider = dynamic_cast<MediaProviderType*>(provider)) {
+				return mediaProvider;
+			}
+		}
+		if(auto mediaProvider = dynamic_cast<MediaProviderType*>(this)) {
+			return mediaProvider;
+		}
+		return nullptr;
+	}
 }

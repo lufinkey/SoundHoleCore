@@ -11,11 +11,9 @@
 #include <soundhole/common.hpp>
 #include <soundhole/database/MediaDatabase.hpp>
 #include "collections/librarytracks/MediaLibraryTracksCollection.hpp"
+#include "MediaLibraryProvider.hpp"
 
 namespace sh {
-	class MediaLibraryProvider;
-	class MediaLibraryTracksCollection;
-
 	class MediaLibrary {
 	public:
 		MediaLibrary(const MediaLibrary&) = delete;
@@ -31,6 +29,8 @@ namespace sh {
 		Promise<void> initialize();
 		
 		MediaProvider* getMediaProvider(String name);
+		template<typename MediaProviderType>
+		MediaProviderType* getMediaProvider();
 		
 		bool isSynchronizingLibrary(String libraryProviderName);
 		bool isSynchronizingLibraries();
@@ -55,4 +55,11 @@ namespace sh {
 		AsyncQueue synchronizeQueue;
 		AsyncQueue synchronizeAllQueue;
 	};
+
+
+
+	template<typename MediaProviderType>
+	MediaProviderType* MediaLibrary::getMediaProvider() {
+		return libraryProvider->getMediaProvider<MediaProviderType>();
+	}
 }
