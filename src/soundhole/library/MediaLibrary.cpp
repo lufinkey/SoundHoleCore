@@ -229,6 +229,14 @@ namespace sh {
 		});
 	}
 
+	String MediaLibrary::getLibraryTracksCollectionURI(GetLibraryTracksFilters filters) const {
+		String uri = "medialibrary:collection:libraryTracks";
+		if(filters.libraryProvider != nullptr) {
+			uri += "?provider="+filters.libraryProvider->name();
+		}
+		return uri;
+	}
+
 	Promise<$<MediaLibraryTracksCollection>> MediaLibrary::getLibraryTracksCollection(GetLibraryTracksOptions options) {
 		return db->getSavedTracksJson({
 			.startIndex=options.offset.valueOr(0),
@@ -239,7 +247,9 @@ namespace sh {
 			auto json = Json::object{
 				{ "type", "libraryTracksCollection" },
 				{ "name", Json((options.libraryProvider != nullptr) ? String("My "+options.libraryProvider->displayName()+" Tracks") : String("My Tracks")) },
-				{ "uri", "medialibrary:collection:libraryTracks" },
+				{ "uri", Json(getLibraryTracksCollectionURI({
+					.libraryProvider=options.libraryProvider
+				})) },
 				{ "images", Json::array() },
 				{ "itemCount", Json((double)results.total) },
 				{ "items", Json::array(results.items.begin(), results.items.end()) }

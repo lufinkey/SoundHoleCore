@@ -38,12 +38,16 @@ namespace sh {
 		AsyncQueue::TaskNode synchronizeProviderLibrary(MediaProvider* libraryProvider);
 		AsyncQueue::TaskNode synchronizeAllLibraries();
 		
+		struct GetLibraryTracksFilters {
+			MediaProvider* libraryProvider = nullptr;
+		};
+		String getLibraryTracksCollectionURI(GetLibraryTracksFilters filters = GetLibraryTracksFilters{.libraryProvider=nullptr}) const;
 		struct GetLibraryTracksOptions {
 			MediaProvider* libraryProvider = nullptr;
 			Optional<size_t> offset;
 			Optional<size_t> limit;
 		};
-		Promise<$<MediaLibraryTracksCollection>> getLibraryTracksCollection(GetLibraryTracksOptions options);
+		Promise<$<MediaLibraryTracksCollection>> getLibraryTracksCollection(GetLibraryTracksOptions options = GetLibraryTracksOptions{.libraryProvider=nullptr});
 		
 	private:
 		MediaLibraryProvider* libraryProvider;
