@@ -242,7 +242,7 @@ namespace sh {
 			.startIndex=options.offset.valueOr(0),
 			.endIndex=(options.offset.valueOr(0) + options.limit.valueOr(24))
 		}, {
-			.libraryProvider=options.libraryProvider->name()
+			.libraryProvider=(options.libraryProvider != nullptr) ? libraryProvider->name() : String()
 		}).map<$<MediaLibraryTracksCollection>>([=](MediaDatabase::GetJsonItemsListResult results) {
 			auto json = Json::object{
 				{ "type", "libraryTracksCollection" },
