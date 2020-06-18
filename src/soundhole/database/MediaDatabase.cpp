@@ -24,6 +24,14 @@ namespace sh {
 		}
 	}
 
+	MediaProviderStash* MediaDatabase::getProviderStash() {
+		return options.stash;
+	}
+
+	const MediaProviderStash* MediaDatabase::getProviderStash() const {
+		return options.stash;
+	}
+
 	void MediaDatabase::open() {
 		if(db != nullptr) {
 			return;
@@ -299,13 +307,19 @@ namespace sh {
 		});
 	}
 
-	Promise<LinkedList<Json>> MediaDatabase::getSavedTracksJson(sql::IndexRange range, GetSavedTracksJsonOptions options) {
-		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
+	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getSavedTracksJson(sql::IndexRange range, GetSavedTracksJsonOptions options) {
+		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
+			sql::selectSavedTrackCount(tx, "count");
 			sql::selectSavedTracksAndTracks(tx, "items", {
 				.libraryProvider=options.libraryProvider,
 				.range=range
 			});
-		}).map<LinkedList<Json>>(nullptr, [=](auto results) {
+		}).map<GetJsonItemsListResult>(nullptr, [=](auto results) {
+			auto countItems = results["count"];
+			if(countItems.size() == 0) {
+				throw std::runtime_error("failed to get items count");
+			}
+			size_t total = (size_t)countItems.front()["total"].number_value();
 			LinkedList<Json> rows;
 			auto itemsJson = results["items"];
 			for(auto& json : itemsJson) {
@@ -317,7 +331,10 @@ namespace sh {
 				auto trackJson = jsonArray[1];
 				rows.pushBack(transformDBSavedTrack(savedTrackJson, trackJson));
 			}
-			return rows;
+			return GetJsonItemsListResult{
+				.items=rows,
+				.total=total
+			};
 		});
 	}
 
@@ -333,13 +350,19 @@ namespace sh {
 		});
 	}
 
-	Promise<LinkedList<Json>> MediaDatabase::getSavedAlbumsJson(sql::IndexRange range, GetSavedAlbumsJsonOptions options) {
-		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
+	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getSavedAlbumsJson(sql::IndexRange range, GetSavedAlbumsJsonOptions options) {
+		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
+			sql::selectSavedAlbumCount(tx, "count");
 			sql::selectSavedAlbumsAndAlbums(tx, "items", {
 				.libraryProvider=options.libraryProvider,
 				.range=range
 			});
-		}).map<LinkedList<Json>>(nullptr, [=](auto results) {
+		}).map<GetJsonItemsListResult>(nullptr, [=](auto results) {
+			auto countItems = results["count"];
+			if(countItems.size() == 0) {
+				throw std::runtime_error("failed to get items count");
+			}
+			size_t total = (size_t)countItems.front()["total"].number_value();
 			LinkedList<Json> rows;
 			auto itemsJson = results["items"];
 			for(auto& json : itemsJson) {
@@ -351,7 +374,10 @@ namespace sh {
 				auto albumJson = jsonArray[1];
 				rows.pushBack(transformDBSavedAlbum(savedAlbumJson, albumJson));
 			}
-			return rows;
+			return GetJsonItemsListResult{
+				.items=rows,
+				.total=total
+			};
 		});
 	}
 
@@ -367,13 +393,19 @@ namespace sh {
 		});
 	}
 
-	Promise<LinkedList<Json>> MediaDatabase::getSavedPlaylistsJson(sql::IndexRange range, GetSavedPlaylistsJsonOptions options) {
+	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getSavedPlaylistsJson(sql::IndexRange range, GetSavedPlaylistsJsonOptions options) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
+			sql::selectSavedPlaylistCount(tx, "count");
 			sql::selectSavedPlaylistsAndPlaylists(tx, "items", {
 				.libraryProvider=options.libraryProvider,
 				.range=range
 			});
-		}).map<LinkedList<Json>>(nullptr, [=](auto results) {
+		}).map<GetJsonItemsListResult>(nullptr, [=](auto results) {
+			auto countItems = results["count"];
+			if(countItems.size() == 0) {
+				throw std::runtime_error("failed to get items count");
+			}
+			size_t total = (size_t)countItems.front()["total"].number_value();
 			LinkedList<Json> rows;
 			auto itemsJson = results["items"];
 			for(auto& json : itemsJson) {
@@ -385,7 +417,10 @@ namespace sh {
 				auto playlistJson = jsonArray[1];
 				rows.pushBack(transformDBSavedPlaylist(savedPlaylistJson, playlistJson));
 			}
-			return rows;
+			return GetJsonItemsListResult{
+				.items=rows,
+				.total=total
+			};
 		});
 	}
 

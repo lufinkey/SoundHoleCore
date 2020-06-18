@@ -34,6 +34,9 @@ namespace sh {
 		MediaDatabase(Options);
 		~MediaDatabase();
 		
+		MediaProviderStash* getProviderStash();
+		const MediaProviderStash* getProviderStash() const;
+		
 		void open();
 		bool isOpen() const;
 		void close();
@@ -51,6 +54,11 @@ namespace sh {
 		
 		struct CacheOptions {
 			std::map<String,String> dbState;
+		};
+		
+		struct GetJsonItemsListResult {
+			LinkedList<Json> items;
+			size_t total;
 		};
 		
 		Promise<void> cacheTracks(ArrayList<$<Track>> tracks, CacheOptions options = CacheOptions());
@@ -78,7 +86,7 @@ namespace sh {
 		struct GetSavedTracksJsonOptions {
 			String libraryProvider;
 		};
-		Promise<LinkedList<Json>> getSavedTracksJson(sql::IndexRange range, GetSavedTracksJsonOptions options = GetSavedTracksJsonOptions());
+		Promise<GetJsonItemsListResult> getSavedTracksJson(sql::IndexRange range, GetSavedTracksJsonOptions options = GetSavedTracksJsonOptions());
 		
 		struct GetSavedAlbumsCountOptions {
 			String libraryProvider;
@@ -87,7 +95,7 @@ namespace sh {
 		struct GetSavedAlbumsJsonOptions {
 			String libraryProvider;
 		};
-		Promise<LinkedList<Json>> getSavedAlbumsJson(sql::IndexRange range, GetSavedAlbumsJsonOptions options = GetSavedAlbumsJsonOptions());
+		Promise<GetJsonItemsListResult> getSavedAlbumsJson(sql::IndexRange range, GetSavedAlbumsJsonOptions options = GetSavedAlbumsJsonOptions());
 		
 		struct GetSavedPlaylistsCountOptions {
 			String libraryProvider;
@@ -96,7 +104,7 @@ namespace sh {
 		struct GetSavedPlaylistsJsonOptions {
 			String libraryProvider;
 		};
-		Promise<LinkedList<Json>> getSavedPlaylistsJson(sql::IndexRange range, GetSavedPlaylistsJsonOptions options = GetSavedPlaylistsJsonOptions());
+		Promise<GetJsonItemsListResult> getSavedPlaylistsJson(sql::IndexRange range, GetSavedPlaylistsJsonOptions options = GetSavedPlaylistsJsonOptions());
 		
 		Promise<void> setState(std::map<String,String> state);
 		Promise<std::map<String,String>> getState(ArrayList<String> keys);
