@@ -10,9 +10,11 @@
 
 #include <soundhole/common.hpp>
 #include <soundhole/database/MediaDatabase.hpp>
+#include "collections/librarytracks/MediaLibraryTracksCollection.hpp"
 
 namespace sh {
 	class MediaLibraryProvider;
+	class MediaLibraryTracksCollection;
 
 	class MediaLibrary {
 	public:
@@ -35,6 +37,13 @@ namespace sh {
 		AsyncQueue::TaskNode synchronizeProviderLibrary(String libraryProviderName);
 		AsyncQueue::TaskNode synchronizeProviderLibrary(MediaProvider* libraryProvider);
 		AsyncQueue::TaskNode synchronizeAllLibraries();
+		
+		struct GetLibraryTracksOptions {
+			MediaProvider* libraryProvider = nullptr;
+			Optional<size_t> offset;
+			Optional<size_t> limit;
+		};
+		Promise<$<MediaLibraryTracksCollection>> getLibraryTracksCollection(GetLibraryTracksOptions options);
 		
 	private:
 		MediaLibraryProvider* libraryProvider;

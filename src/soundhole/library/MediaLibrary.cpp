@@ -228,4 +228,23 @@ namespace sh {
 			});
 		});
 	}
+
+	Promise<$<MediaLibraryTracksCollection>> MediaLibrary::getLibraryTracksCollection(GetLibraryTracksOptions options) {
+		return db->getSavedTracksJson({
+			.startIndex=options.offset.valueOr(0),
+			.endIndex=(options.offset.valueOr(0) + options.limit.valueOr(24))
+		}, {
+			.libraryProvider=options.libraryProvider->name()
+		}).map<$<MediaLibraryTracksCollection>>([=](MediaDatabase::GetJsonItemsListResult results) {
+			auto json = Json::object{
+				{ "type", "libraryTracksCollection" },
+				{ "name", Json((options.libraryProvider != nullptr) ? String("My "+options.libraryProvider->displayName()+" Tracks") : String("My Tracks")) },
+				{ "uri", "medialibrary:collection:libraryTracks" },
+				{ "images", Json::array() },
+				{ "itemCount", Json((double)results.total) },
+				{ "items", Json::array(results.items.begin(), results.items.end()) }
+			};
+			return MediaLibraryTracksCollection::fromJson(json, db, db->getProviderStash());
+		});
+	}
 }

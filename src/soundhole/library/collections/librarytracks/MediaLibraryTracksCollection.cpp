@@ -114,7 +114,10 @@ namespace sh {
 		if(options.database != nullptr) {
 			database = options.database;
 		}
-		return database->getSavedTracksJson(sql::IndexRange{.startIndex=index,.endIndex=(index+count)}, {
+		return database->getSavedTracksJson(sql::IndexRange{
+			.startIndex=index,
+			.endIndex=(index+count)
+		}, {
 			.libraryProvider=_libraryProviderName
 		}).then([=](MediaDatabase::GetJsonItemsListResult results) {
 			mutator->applyAndResize(index, results.total, results.items.map<$<MediaLibraryTracksCollectionItem>>([=](auto json) {
