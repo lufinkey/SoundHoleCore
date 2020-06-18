@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <soundhole/library/MediaLibrary.hpp>
 #include <soundhole/providers/bandcamp/BandcampProvider.hpp>
 #include <soundhole/providers/spotify/SpotifyProvider.hpp>
 #include <soundhole/providers/youtube/YoutubeProvider.hpp>
