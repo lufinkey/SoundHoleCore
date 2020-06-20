@@ -63,10 +63,11 @@ namespace sh {
 		sqlite3_stmt* stmt = nullptr;
 		int retVal = sqlite3_prepare_v2(db, sql.c_str(), (int)sql.length(), &stmt, NULL);
 		if(retVal != SQLITE_OK) {
+			String errorMsg = sqlite3_errmsg(db);
 			if(stmt != nullptr) {
 				sqlite3_finalize(stmt);
 			}
-			throw std::runtime_error((String)"Failed to prepare SQL statement: "+sqlite3_errstr(retVal));
+			throw std::runtime_error("Failed to prepare SQL statement: "+errorMsg);
 		}
 		// bind parameters
 		size_t i=0;
@@ -158,6 +159,7 @@ namespace sh {
 				}
 			}
 			else if(retVal == SQLITE_DONE) {
+				sqlite3_finalize(stmt);
 				break;
 			}
 			else if(retVal == SQLITE_BUSY && options.waitIfBusy) {
