@@ -65,7 +65,8 @@ namespace sh {
 		while(nextSQL != nullptr && nextSQL != (sql.c_str()+sql.length())) {
 			// prepare statement
 			sqlite3_stmt* stmt = nullptr;
-			int retVal = sqlite3_prepare_v2(db, nextSQL, (int)sql.length(), &stmt, &nextSQL);
+			const char* currentSQL = nextSQL;
+			int retVal = sqlite3_prepare_v2(db, currentSQL, (int)sql.length(), &stmt, &nextSQL);
 			if(retVal != SQLITE_OK) {
 				String errorMsg = sqlite3_errmsg(db);
 				if(stmt != nullptr) {
@@ -120,8 +121,9 @@ namespace sh {
 					throw std::runtime_error((String)"Invalid SQL type "+param.typeName()+" at index "+i);
 				}
 				if(retVal != SQLITE_OK) {
+					String errorMsg = sqlite3_errmsg(db);
 					sqlite3_finalize(stmt);
-					throw std::runtime_error((String)"Failed to bind SQL parameter \""+param.toString()+"\" at index "+i+": "+sqlite3_errstr(retVal));
+					throw std::runtime_error((String)"Failed to bind SQL parameter \""+param.toString()+"\" at index "+i+": "+errorMsg);
 				}
 				i++;
 			}
