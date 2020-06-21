@@ -81,7 +81,7 @@ namespace sh {
 				throw std::runtime_error((String)"Not enough parameters ("+params.size()+") for statement with "+stmtParamsCount+" parameters");
 			}
 			auto stmtParams = params.extractListFront(stmtParamsCount);
-			size_t i=0;
+			size_t i=1;
 			for(auto& param : stmtParams) {
 				retVal = SQLITE_OK;
 				if(param.empty()) {
