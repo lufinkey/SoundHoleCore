@@ -62,7 +62,7 @@ namespace sh {
 		LinkedList<Json> rows;
 		sql = sql.trim();
 		const char* nextSQL = sql.c_str();
-		while(nextSQL != nullptr) {
+		while(nextSQL != nullptr && nextSQL != (sql.c_str()+sql.length())) {
 			// prepare statement
 			sqlite3_stmt* stmt = nullptr;
 			int retVal = sqlite3_prepare_v2(db, nextSQL, (int)sql.length(), &stmt, &nextSQL);
