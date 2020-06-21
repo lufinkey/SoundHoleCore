@@ -74,8 +74,14 @@ namespace sh {
 				throw std::runtime_error("Failed to prepare SQL statement: "+errorMsg);
 			}
 			// bind parameters
+			size_t stmtParamsCount = sqlite3_bind_parameter_count(stmt);
+			if(params.size() < stmtParamsCount) {
+				sqlite3_finalize(stmt);
+				throw std::runtime_error((String)"Not enough parameters ("+params.size()+") for statement with "+stmtParamsCount+" parameters");
+			}
+			auto stmtParams = params.extractListFront(stmtParamsCount);
 			size_t i=0;
-			for(auto& param : params) {
+			for(auto& param : stmtParams) {
 				retVal = SQLITE_OK;
 				if(param.empty()) {
 					retVal = sqlite3_bind_null(stmt, (int)i);
