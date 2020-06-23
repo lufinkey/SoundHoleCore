@@ -24,6 +24,9 @@ namespace sh {
 		
 		static $<MediaLibraryTracksCollectionItem> new$($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> collection, Data data);
 		
+		MediaLibraryTracksCollectionItem($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> collection, Data data);
+		MediaLibraryTracksCollectionItem($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> collection, Json json, MediaProviderStash* stash);
+		
 		const String& addedAt() const;
 		
 		virtual bool matchesItem(const TrackCollectionItem* item) const override;
@@ -34,9 +37,6 @@ namespace sh {
 		virtual Json toJson() const override;
 		
 	protected:
-		MediaLibraryTracksCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> collection, Data data);
-		MediaLibraryTracksCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> collection, Json json, MediaProviderStash* stash);
-		
 		String _addedAt;
 	};
 
@@ -51,6 +51,9 @@ namespace sh {
 		
 		static $<MediaLibraryTracksCollection> new$(MediaDatabase* database, MediaProvider* provider, Data data);
 		
+		MediaLibraryTracksCollection(MediaDatabase* database, MediaProvider* provider, Data data);
+		MediaLibraryTracksCollection(Json json, MediaDatabase* database);
+		
 		const String& libraryProviderName() const;
 		
 		virtual Promise<void> fetchData() override;
@@ -62,9 +65,6 @@ namespace sh {
 		virtual Json toJson(ToJsonOptions options) const override;
 		
 	protected:
-		MediaLibraryTracksCollection($<MediaItem>& ptr, MediaDatabase* database, MediaProvider* provider, Data data);
-		MediaLibraryTracksCollection($<MediaItem>& ptr, Json json, MediaDatabase* database);
-		
 		virtual MutatorDelegate* createMutatorDelegate() override;
 		
 		virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) override;

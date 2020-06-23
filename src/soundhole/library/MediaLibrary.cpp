@@ -245,7 +245,9 @@ namespace sh {
 			.libraryProvider=(options.libraryProvider != nullptr) ? libraryProvider->name() : String()
 		}).map<$<MediaLibraryTracksCollection>>([=](MediaDatabase::GetJsonItemsListResult results) {
 			auto json = Json::object{
+				{ "partial", false },
 				{ "type", "libraryTracksCollection" },
+				{ "provider", Json(libraryProvider->name()) },
 				{ "name", Json((options.libraryProvider != nullptr) ? String("My "+options.libraryProvider->displayName()+" Tracks") : String("My Tracks")) },
 				{ "uri", Json(getLibraryTracksCollectionURI({
 					.libraryProvider=options.libraryProvider

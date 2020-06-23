@@ -22,11 +22,10 @@ namespace sh {
 		}
 	}
 
-	MediaItem::MediaItem($<MediaItem>& ptr, MediaProvider* provider, const Data& data)
+	MediaItem::MediaItem(MediaProvider* provider, const Data& data)
 	: provider(provider),
 	_partial(data.partial), _type(data.type), _name(data.name), _uri(data.uri), _images(data.images) {
-		ptr = $<MediaItem>(this);
-		weakSelf = ptr;
+		//
 	}
 	
 	MediaItem::~MediaItem() {
@@ -34,14 +33,6 @@ namespace sh {
 	}
 
 
-
-	$<MediaItem> MediaItem::self() {
-		return weakSelf.lock();
-	}
-
-	$<const MediaItem> MediaItem::self() const {
-		return std::static_pointer_cast<const MediaItem>(weakSelf.lock());
-	}
 
 	const String& MediaItem::type() const {
 		return _type;
@@ -102,7 +93,7 @@ namespace sh {
 	}
 
 	Promise<void> MediaItem::fetchDataIfNeeded() {
-		auto weakSelf = this->weakSelf;
+		w$<MediaItem> weakSelf = shared_from_this();
 		if(DispatchQueue::local() != getDefaultPromiseQueue()) {
 			return Promise<void>::resolve().then([=]() -> Promise<void> {
 				auto self = weakSelf.lock();
@@ -233,9 +224,7 @@ namespace sh {
 
 
 
-	MediaItem::MediaItem($<MediaItem>& ptr, Json json, MediaProviderStash* stash) {
-		ptr = $<MediaItem>(this);
-		weakSelf = ptr;
+	MediaItem::MediaItem(Json json, MediaProviderStash* stash) {
 		auto providerName = json["provider"];
 		auto partial = json["partial"];
 		auto type = json["type"];

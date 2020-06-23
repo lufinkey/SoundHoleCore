@@ -18,12 +18,14 @@ namespace sh {
 	class MediaDatabase;
 
 
-	class TrackCollectionItem {
+	class TrackCollectionItem: public std::enable_shared_from_this<TrackCollectionItem> {
 	public:
 		struct Data {
 			$<Track> track;
 		};
 		
+		TrackCollectionItem($<TrackCollection> context, Data data);
+		TrackCollectionItem($<TrackCollection> context, Json json, MediaProviderStash* stash);
 		virtual ~TrackCollectionItem() {};
 		
 		$<Track> track();
@@ -40,17 +42,6 @@ namespace sh {
 		virtual Json toJson() const;
 		
 	protected:
-		TrackCollectionItem($<TrackCollectionItem>& ptr, $<TrackCollection> context, Data data);
-		TrackCollectionItem($<TrackCollectionItem>& ptr, $<TrackCollection> context, Json json, MediaProviderStash* stash);
-		
-		$<TrackCollectionItem> self();
-		$<const TrackCollectionItem> self() const;
-		template<typename T>
-		$<T> selfAs();
-		template<typename T>
-		$<const T> selfAs() const;
-		
-		w$<TrackCollectionItem> weakSelf;
 		w$<TrackCollection> _context;
 		$<Track> _track;
 	};
@@ -123,6 +114,10 @@ namespace sh {
 			Optional<Tracks> tracks;
 		};
 		
+		SpecialTrackCollection(MediaProvider* provider, Data data);
+		SpecialTrackCollection(Json json, MediaProviderStash* stash);
+		SpecialTrackCollection(MediaProvider* provider, Data data, MutatorDelegate* mutatorDelegate, bool autoDeleteMutatorDelegate);
+		SpecialTrackCollection(Json json, MediaProviderStash* stash, MutatorDelegate* mutatorDelegate, bool autoDeleteMutatorDelegate);
 		virtual ~SpecialTrackCollection();
 		
 		virtual Optional<size_t> indexOfItem(const TrackCollectionItem* item) const override;
@@ -155,11 +150,6 @@ namespace sh {
 		virtual Json toJson(ToJsonOptions options) const override;
 		
 	protected:
-		SpecialTrackCollection($<MediaItem>& ptr, MediaProvider* provider, Data data);
-		SpecialTrackCollection($<MediaItem>& ptr, Json json, MediaProviderStash* stash);
-		SpecialTrackCollection($<MediaItem>& ptr, MediaProvider* provider, Data data, MutatorDelegate* mutatorDelegate, bool autoDeleteMutatorDelegate);
-		SpecialTrackCollection($<MediaItem>& ptr, Json json, MediaProviderStash* stash, MutatorDelegate* mutatorDelegate, bool autoDeleteMutatorDelegate);
-		
 		virtual bool areAsyncListItemsEqual(const AsyncList<$<ItemType>>* list, const $<ItemType>& item1, const $<ItemType>& item2) const override;
 		virtual Promise<void> loadAsyncListItems(typename AsyncList<$<ItemType>>::Mutator* mutator, size_t index, size_t count, std::map<String,Any> options) override;
 		
@@ -181,7 +171,10 @@ namespace sh {
 		std::variant<std::nullptr_t,EmptyTracks,LinkedList<$<ItemType>>,$<AsyncList<$<ItemType>>>> _items;
 		std::variant<std::nullptr_t,EmptyTracks,LinkedList<$<ItemType>>,$<AsyncList<$<ItemType>>>> constructItems(Optional<typename Data::Tracks> tracks);
 		
+		void lazyLoadContentIfNeeded() const;
+		
 		MutatorDelegate* _mutatorDelegate;
+		mutable Function<void()> _lazyContentLoader;
 		bool autoDeleteMutatorDelegate;
 	};
 

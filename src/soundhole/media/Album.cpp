@@ -11,13 +11,11 @@
 
 namespace sh {
 	$<AlbumItem> AlbumItem::new$($<SpecialTrackCollection<AlbumItem>> album, Data data) {
-		$<TrackCollectionItem> ptr;
-		new AlbumItem(ptr, album, data);
-		return std::static_pointer_cast<AlbumItem>(ptr);
+		return fgl::new$<AlbumItem>(album, data);
 	}
 
-	AlbumItem::AlbumItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<AlbumItem>> album, Data data)
-	: SpecialTrackCollectionItem<Album>(ptr, album, data) {
+	AlbumItem::AlbumItem($<SpecialTrackCollection<AlbumItem>> album, Data data)
+	: SpecialTrackCollectionItem<Album>(album, data) {
 		//
 	}
 
@@ -32,27 +30,23 @@ namespace sh {
 		return false;
 	}
 
-	AlbumItem::AlbumItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<AlbumItem>> album, Json json, MediaProviderStash* stash)
-	: SpecialTrackCollectionItem<Album>(ptr, album, json, stash) {
+	AlbumItem::AlbumItem($<SpecialTrackCollection<AlbumItem>> album, Json json, MediaProviderStash* stash)
+	: SpecialTrackCollectionItem<Album>(album, json, stash) {
 		//
 	}
 
 	$<AlbumItem> AlbumItem::fromJson($<SpecialTrackCollection<AlbumItem>> album, Json json, MediaProviderStash* stash) {
-		$<TrackCollectionItem> ptr;
-		new AlbumItem(ptr, album, json, stash);
-		return std::static_pointer_cast<AlbumItem>(ptr);
+		return fgl::new$<AlbumItem>(album, json, stash);
 	}
 
 
 
 	$<Album> Album::new$(MediaProvider* provider, Data data) {
-		$<MediaItem> ptr;
-		new Album(ptr, provider, data);
-		return std::static_pointer_cast<Album>(ptr);
+		return fgl::new$<Album>(provider, data);
 	}
 
-	Album::Album($<MediaItem>& ptr, MediaProvider* provider, Data data)
-	: SpecialTrackCollection<AlbumItem>(ptr, provider, data),
+	Album::Album(MediaProvider* provider, Data data)
+	: SpecialTrackCollection<AlbumItem>(provider, data),
 	_artists(data.artists) {
 		//
 	}
@@ -66,7 +60,7 @@ namespace sh {
 	}
 
 	Promise<void> Album::fetchData() {
-		auto self = selfAs<Album>();
+		auto self = std::static_pointer_cast<Album>(shared_from_this());
 		return provider->getAlbumData(_uri).then([=](Data data) {
 			self->applyData(data);
 		});
@@ -91,13 +85,13 @@ namespace sh {
 	}
 
 	$<Album> Album::fromJson(Json json, MediaProviderStash* stash) {
-		$<MediaItem> ptr;
-		new Album(ptr, json, stash);
-		return std::static_pointer_cast<Album>(ptr);
+		auto album = fgl::new$<Album>(json, stash);
+		album->lazyLoadContentIfNeeded();
+		return album;
 	}
 
-	Album::Album($<MediaItem>& ptr, Json json, MediaProviderStash* stash)
-	: SpecialTrackCollection<AlbumItem>(ptr, json, stash) {
+	Album::Album(Json json, MediaProviderStash* stash)
+	: SpecialTrackCollection<AlbumItem>(json, stash) {
 		auto artists = json["artists"];
 		_artists.reserve(artists.array_items().size());
 		for(auto& artist : artists.array_items()) {
@@ -116,6 +110,6 @@ namespace sh {
 	}
 
 	Album::MutatorDelegate* Album::createMutatorDelegate() {
-		return provider->createAlbumMutatorDelegate(std::static_pointer_cast<Album>(self()));
+		return provider->createAlbumMutatorDelegate(std::static_pointer_cast<Album>(shared_from_this()));
 	}
 }

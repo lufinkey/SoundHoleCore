@@ -12,12 +12,12 @@
 namespace sh {
 	$<UserAccount> UserAccount::new$(MediaProvider* provider, Data data) {
 		$<MediaItem> ptr;
-		new UserAccount(ptr, provider, data);
+		new UserAccount(provider, data);
 		return std::static_pointer_cast<UserAccount>(ptr);
 	}
 
-	UserAccount::UserAccount($<MediaItem>& ptr, MediaProvider* provider, Data data)
-	: MediaItem(ptr, provider, data),
+	UserAccount::UserAccount(MediaProvider* provider, Data data)
+	: MediaItem(provider, data),
 	_id(data.id), _displayName(data.displayName) {
 		//
 	}
@@ -31,7 +31,7 @@ namespace sh {
 	}
 
 	Promise<void> UserAccount::fetchData() {
-		auto self = selfAs<UserAccount>();
+		auto self = std::static_pointer_cast<UserAccount>(shared_from_this());
 		return provider->getUserData(_uri).then([=](Data data) {
 			self->applyData(data);
 		});
@@ -56,13 +56,11 @@ namespace sh {
 
 
 	$<UserAccount> UserAccount::fromJson(Json json, MediaProviderStash* stash) {
-		$<MediaItem> ptr;
-		new UserAccount(ptr, json, stash);
-		return std::static_pointer_cast<UserAccount>(ptr);
+		return fgl::new$<UserAccount>(json, stash);
 	}
 
-	UserAccount::UserAccount($<MediaItem>& ptr, Json json, MediaProviderStash* stash)
-	: MediaItem(ptr, json, stash) {
+	UserAccount::UserAccount(Json json, MediaProviderStash* stash)
+	: MediaItem(json, stash) {
 		auto id = json["id"];
 		auto displayName = json["displayName"];
 		if(!id.is_string() || (!displayName.is_null() && !displayName.is_string())) {

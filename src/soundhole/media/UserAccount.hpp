@@ -23,6 +23,9 @@ namespace sh {
 		
 		static $<UserAccount> new$(MediaProvider* provider, Data data);
 		
+		UserAccount(MediaProvider* provider, Data data);
+		UserAccount(Json json, MediaProviderStash* stash);
+		
 		const String& id() const;
 		const Optional<String>& displayName() const;
 		
@@ -35,9 +38,6 @@ namespace sh {
 		virtual Json toJson() const override;
 		
 	protected:
-		UserAccount($<MediaItem>& ptr, MediaProvider* provider, Data data);
-		UserAccount($<MediaItem>& ptr, Json json, MediaProviderStash* stash);
-		
 		String _id;
 		Optional<String> _displayName;
 	};

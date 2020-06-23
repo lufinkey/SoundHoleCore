@@ -10,13 +10,11 @@
 
 namespace sh {
 	$<MediaLibraryTracksCollectionItem> MediaLibraryTracksCollectionItem::new$($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> context, Data data) {
-		$<TrackCollectionItem> ptr;
-		new MediaLibraryTracksCollectionItem(ptr, context, data);
-		return std::static_pointer_cast<MediaLibraryTracksCollectionItem>(ptr);
+		return fgl::new$<MediaLibraryTracksCollectionItem>(context, data);
 	}
 
-	MediaLibraryTracksCollectionItem::MediaLibraryTracksCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> context, Data data)
-	: SpecialTrackCollectionItem<MediaLibraryTracksCollection>(ptr, context, data), _addedAt(data.addedAt) {
+	MediaLibraryTracksCollectionItem::MediaLibraryTracksCollectionItem($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> context, Data data)
+	: SpecialTrackCollectionItem<MediaLibraryTracksCollection>(context, data), _addedAt(data.addedAt) {
 		//
 	}
 
@@ -39,13 +37,11 @@ namespace sh {
 	}
 
 	$<MediaLibraryTracksCollectionItem> MediaLibraryTracksCollectionItem::fromJson($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> context, Json json, MediaProviderStash* stash) {
-		$<TrackCollectionItem> ptr;
-		new MediaLibraryTracksCollectionItem(ptr, context, json, stash);
-		return std::static_pointer_cast<MediaLibraryTracksCollectionItem>(ptr);
+		return fgl::new$<MediaLibraryTracksCollectionItem>(context, json, stash);
 	}
 
-	MediaLibraryTracksCollectionItem::MediaLibraryTracksCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> context, Json json, MediaProviderStash* stash)
-	: SpecialTrackCollectionItem<MediaLibraryTracksCollection>(ptr, context, json, stash) {
+	MediaLibraryTracksCollectionItem::MediaLibraryTracksCollectionItem($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> context, Json json, MediaProviderStash* stash)
+	: SpecialTrackCollectionItem<MediaLibraryTracksCollection>(context, json, stash) {
 		_addedAt = json["addedAt"].string_value();
 	}
 
@@ -60,13 +56,13 @@ namespace sh {
 
 
 	$<MediaLibraryTracksCollection> MediaLibraryTracksCollection::new$(MediaDatabase* database, MediaProvider* provider, Data data) {
-		$<MediaItem> ptr;
-		new MediaLibraryTracksCollection(ptr, database, provider, data);
-		return std::static_pointer_cast<MediaLibraryTracksCollection>(ptr);
+		auto collection = fgl::new$<MediaLibraryTracksCollection>(database, provider, data);
+		collection->lazyLoadContentIfNeeded();
+		return collection;
 	}
 	
-	MediaLibraryTracksCollection::MediaLibraryTracksCollection($<MediaItem>& ptr, MediaDatabase* database, MediaProvider* provider, Data data)
-	: SpecialTrackCollection<MediaLibraryTracksCollectionItem>(ptr, provider, data),
+	MediaLibraryTracksCollection::MediaLibraryTracksCollection(MediaDatabase* database, MediaProvider* provider, Data data)
+	: SpecialTrackCollection<MediaLibraryTracksCollectionItem>(provider, data),
 	_database(database),
 	_libraryProviderName(data.libraryProviderName) {
 		//
@@ -77,7 +73,8 @@ namespace sh {
 	}
 
 	Promise<void> MediaLibraryTracksCollection::fetchData() {
-		auto self = selfAs<Playlist>();
+		auto self = std::static_pointer_cast<MediaLibraryTracksCollection>(shared_from_this());
+		// TODO implement some sort of fetchData..?
 		return Promise<void>::resolve();
 	}
 
@@ -93,13 +90,13 @@ namespace sh {
 	}
 
 	$<MediaLibraryTracksCollection> MediaLibraryTracksCollection::fromJson(Json json, MediaDatabase* database) {
-		$<MediaItem> ptr;
-		new MediaLibraryTracksCollection(ptr, json, database);
-		return std::static_pointer_cast<MediaLibraryTracksCollection>(ptr);
+		auto collection = fgl::new$<MediaLibraryTracksCollection>(json, database);
+		collection->lazyLoadContentIfNeeded();
+		return collection;
 	}
 
-	MediaLibraryTracksCollection::MediaLibraryTracksCollection($<MediaItem>& ptr, Json json, MediaDatabase* database)
-	: SpecialTrackCollection<MediaLibraryTracksCollectionItem>(ptr, json, database->getProviderStash()),
+	MediaLibraryTracksCollection::MediaLibraryTracksCollection(Json json, MediaDatabase* database)
+	: SpecialTrackCollection<MediaLibraryTracksCollectionItem>(json, database->getProviderStash()),
 	_database(database) {
 		_libraryProviderName = json["libraryProviderName"].string_value();
 	}
@@ -117,7 +114,7 @@ namespace sh {
 	}
 
 	Promise<void> MediaLibraryTracksCollection::loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) {
-		auto self = selfAs<MediaLibraryTracksCollection>();
+		auto self = std::static_pointer_cast<MediaLibraryTracksCollection>(shared_from_this());
 		MediaDatabase* database = _database;
 		if(options.database != nullptr) {
 			database = options.database;

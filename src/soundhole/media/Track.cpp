@@ -11,13 +11,11 @@
 
 namespace sh {
 	$<Track> Track::new$(MediaProvider* provider, const Data& data) {
-		$<MediaItem> ptr;
-		new Track(ptr, provider, data);
-		return std::static_pointer_cast<Track>(ptr);
+		return fgl::new$<Track>(provider, data);
 	}
-
-	Track::Track($<MediaItem>& ptr, MediaProvider* provider, const Data& data)
-	: MediaItem(ptr, provider, data),
+	
+	Track::Track(MediaProvider* provider, const Data& data)
+	: MediaItem(provider, data),
 	_albumName(data.albumName), _albumURI(data.albumURI), _artists(data.artists),
 	_tags(data.tags), _discNumber(data.discNumber), _trackNumber(data.trackNumber),
 	_duration(data.duration), _audioSources(data.audioSources), _playable(data.playable) {
@@ -27,7 +25,7 @@ namespace sh {
 	const String& Track::albumName() const {
 		return _albumName;
 	}
-
+	
 	const String& Track::albumURI() const {
 		return _albumURI;
 	}
@@ -35,7 +33,7 @@ namespace sh {
 	const ArrayList<$<Artist>>& Track::artists() {
 		return _artists;
 	}
-
+	
 	const ArrayList<$<const Artist>>& Track::artists() const {
 		return *((const ArrayList<$<const Artist>>*)(&_artists));
 	}
@@ -47,7 +45,7 @@ namespace sh {
 	const Optional<size_t>& Track::discNumber() const {
 		return _discNumber;
 	}
-
+	
 	const Optional<size_t>& Track::trackNumber() const {
 		return _trackNumber;
 	}
@@ -55,11 +53,11 @@ namespace sh {
 	const Optional<double>& Track::duration() const {
 		return _duration;
 	}
-
+	
 	const Optional<ArrayList<Track::AudioSource>>& Track::audioSources() const {
 		return _audioSources;
 	}
-
+	
 	Optional<Track::AudioSource> Track::findAudioSource(FindAudioSourceOptions options) const {
 		if(!_audioSources) {
 			return std::nullopt;
@@ -117,7 +115,7 @@ namespace sh {
 
 
 	Promise<void> Track::fetchData() {
-		auto self = selfAs<Track>();
+		auto self = std::static_pointer_cast<Track>(shared_from_this());
 		return provider->getTrackData(_uri).then([=](Data data) {
 			self->applyData(data);
 		});
@@ -191,13 +189,11 @@ namespace sh {
 
 
 	$<Track> Track::fromJson(Json json, MediaProviderStash* stash) {
-		$<MediaItem> ptr;
-		new Track(ptr, json, stash);
-		return std::static_pointer_cast<Track>(ptr);
+		return fgl::new$<Track>(json, stash);
 	}
 
-	Track::Track($<MediaItem>& ptr, Json json, MediaProviderStash* stash)
-	: MediaItem(ptr, json, stash) {
+	Track::Track(Json json, MediaProviderStash* stash)
+	: MediaItem(json, stash) {
 		auto albumName = json["albumName"];
 		auto albumURI = json["albumURI"];
 		auto artists = json["artists"];

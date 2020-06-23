@@ -41,6 +41,9 @@ namespace sh {
 		
 		static $<Track> new$(MediaProvider* provider, const Data& data);
 		
+		Track(MediaProvider* provider, const Data& data);
+		Track(Json json, MediaProviderStash* stash);
+		
 		const String& albumName() const;
 		const String& albumURI() const;
 		
@@ -72,9 +75,6 @@ namespace sh {
 		virtual Json toJson() const override;
 		
 	protected:
-		Track($<MediaItem>& ptr, MediaProvider* provider, const Data& data);
-		Track($<MediaItem>& ptr, Json json, MediaProviderStash* stash);
-		
 		String _albumName;
 		String _albumURI;
 		ArrayList<$<Artist>> _artists;

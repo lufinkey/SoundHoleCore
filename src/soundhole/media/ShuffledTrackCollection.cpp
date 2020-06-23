@@ -12,24 +12,20 @@
 
 namespace sh {
 	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Data data) {
-		$<TrackCollectionItem> ptr;
-		new ShuffledTrackCollectionItem(ptr, context, data);
-		return std::static_pointer_cast<ShuffledTrackCollectionItem>(ptr);
+		return fgl::new$<ShuffledTrackCollectionItem>(context, data);
 	}
 	
 	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, $<TrackCollectionItem> sourceItem) {
-		$<TrackCollectionItem> ptr;
-		new ShuffledTrackCollectionItem(ptr, context, sourceItem);
-		return std::static_pointer_cast<ShuffledTrackCollectionItem>(ptr);
+		return fgl::new$<ShuffledTrackCollectionItem>(context, sourceItem);
 	}
 	
-	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Data data)
-	: SpecialTrackCollectionItem<ShuffledTrackCollection>(ptr, context, data), _sourceItem(data.sourceItem) {
+	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Data data)
+	: SpecialTrackCollectionItem<ShuffledTrackCollection>(context, data), _sourceItem(data.sourceItem) {
 		FGL_ASSERT(std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(data.sourceItem) == nullptr, "Cannot create ShuffledTrackCollectionItem with another ShuffledTrackCollectionItem");
 	}
 	
-	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, $<TrackCollectionItem> sourceItem)
-	: SpecialTrackCollectionItem<ShuffledTrackCollection>(ptr, context, {.track=sourceItem->track()}), _sourceItem(sourceItem) {
+	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, $<TrackCollectionItem> sourceItem)
+	: SpecialTrackCollectionItem<ShuffledTrackCollection>(context, {.track=sourceItem->track()}), _sourceItem(sourceItem) {
 		FGL_ASSERT(std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(sourceItem) == nullptr, "Cannot create ShuffledTrackCollectionItem with another ShuffledTrackCollectionItem");
 	}
 	
@@ -49,13 +45,11 @@ namespace sh {
 	}
 
 	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::fromJson($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Json json, MediaProviderStash* stash) {
-		$<TrackCollectionItem> ptr;
-		new ShuffledTrackCollectionItem(ptr, context, json, stash);
-		return std::static_pointer_cast<ShuffledTrackCollectionItem>(ptr);
+		return fgl::new$<ShuffledTrackCollectionItem>(context, json, stash);
 	}
 
-	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Json json, MediaProviderStash* stash)
-	: SpecialTrackCollectionItem<ShuffledTrackCollection>(ptr, context, json, stash) {
+	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Json json, MediaProviderStash* stash)
+	: SpecialTrackCollectionItem<ShuffledTrackCollection>(context, json, stash) {
 		auto shuffledContext = std::static_pointer_cast<ShuffledTrackCollection>(context);
 		auto sourceContext = shuffledContext->source();
 		_sourceItem = sourceContext->itemFromJson(json["sourceItem"], stash);
@@ -76,13 +70,13 @@ namespace sh {
 
 
 	$<ShuffledTrackCollection> ShuffledTrackCollection::new$($<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems) {
-		$<MediaItem> ptr;
-		new ShuffledTrackCollection(ptr, source, initialItems);
-		return std::static_pointer_cast<ShuffledTrackCollection>(ptr);
+		auto collection = fgl::new$<ShuffledTrackCollection>(source, initialItems);
+		collection->lazyLoadContentIfNeeded();
+		return collection;
 	}
 
-	ShuffledTrackCollection::ShuffledTrackCollection($<MediaItem>& ptr, $<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems)
-	: SpecialTrackCollection<ShuffledTrackCollectionItem>(ptr, source->mediaProvider(), SpecialTrackCollection<ShuffledTrackCollectionItem>::Data{{
+	ShuffledTrackCollection::ShuffledTrackCollection($<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems)
+	: SpecialTrackCollection<ShuffledTrackCollectionItem>(source->mediaProvider(), SpecialTrackCollection<ShuffledTrackCollectionItem>::Data{{
 		.partial=source->needsData(),
 		.type="shuffled-collection",
 		.name=source->name(),
@@ -103,36 +97,42 @@ namespace sh {
 	}), _source(source) {
 		FGL_ASSERT(std::dynamic_pointer_cast<ShuffledTrackCollection>(source) == nullptr, "Cannot create ShuffledTrackCollection with another ShuffledTrackCollection");
 		
-		// get indexes of initialItems
-		LinkedList<size_t> initialIndexes = {};
-		for(auto item : initialItems) {
-			auto index = source->indexOfItemInstance(item.get());
-			FGL_ASSERT(index.has_value(), "initialItems must only contains items from the given source collection");
-			initialIndexes.pushBack(index.value());
-		}
-		
-		// build list of remaining indexes
-		LinkedList<size_t> indexes;
-		size_t itemCount = this->itemCount().value_or(0);
-		for(size_t i=0; i<itemCount; i++) {
-			auto it = initialIndexes.findEqual(i);
-			if(it != initialIndexes.end()) {
-				initialIndexes.erase(it);
-			} else {
-				indexes.pushBack(i);
+		auto lazyContentLoader = _lazyContentLoader;
+		_lazyContentLoader = [=]() {
+			lazyContentLoader();
+			auto contentLoaderRef = _lazyContentLoader;
+			_lazyContentLoader = nullptr;
+			// get indexes of initialItems
+			LinkedList<size_t> initialIndexes = {};
+			for(auto item : initialItems) {
+				auto index = source->indexOfItemInstance(item.get());
+				FGL_ASSERT(index.has_value(), "initialItems must only contains items from the given source collection");
+				initialIndexes.pushBack(index.value());
 			}
-		}
-		
-		// randomize list of remaining indexes
-		while(indexes.size() > 0) {
-			size_t index = (size_t)(((double)std::rand() / (double)RAND_MAX) * (double)indexes.size());
-			auto it = std::next(indexes.begin(), index);
-			size_t randomIndex = *it;
-			_remainingIndexes.pushBack(fgl::new$<RandomIndex>(randomIndex));
-			indexes.erase(it);
-		}
-		
-		// TODO subscribe to changes in source
+			
+			// build list of remaining indexes
+			LinkedList<size_t> indexes;
+			size_t itemCount = this->itemCount().value_or(0);
+			for(size_t i=0; i<itemCount; i++) {
+				auto it = initialIndexes.findEqual(i);
+				if(it != initialIndexes.end()) {
+					initialIndexes.erase(it);
+				} else {
+					indexes.pushBack(i);
+				}
+			}
+			
+			// randomize list of remaining indexes
+			while(indexes.size() > 0) {
+				size_t index = (size_t)(((double)std::rand() / (double)RAND_MAX) * (double)indexes.size());
+				auto it = std::next(indexes.begin(), index);
+				size_t randomIndex = *it;
+				_remainingIndexes.pushBack(fgl::new$<RandomIndex>(randomIndex));
+				indexes.erase(it);
+			}
+			
+			// TODO subscribe to changes in source
+		};
 	}
 
 	$<TrackCollection> ShuffledTrackCollection::source() {
@@ -144,7 +144,7 @@ namespace sh {
 	}
 
 	Promise<void> ShuffledTrackCollection::fetchData() {
-		auto self = selfAs<ShuffledTrackCollection>();
+		auto self = std::static_pointer_cast<ShuffledTrackCollection>(shared_from_this());
 		return _source->fetchDataIfNeeded().then([=]() {
 			self->_name = self->_source->name();
 			self->_images = self->_source->images();
@@ -156,7 +156,7 @@ namespace sh {
 	}
 
 	Promise<void> ShuffledTrackCollection::loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) {
-		auto self = this->selfAs<ShuffledTrackCollection>();
+		auto self = std::static_pointer_cast<ShuffledTrackCollection>(shared_from_this());
 		size_t endIndex = index+count;
 		auto items = fgl::new$<LinkedList<$<ShuffledTrackCollectionItem>>>();
 		auto promise = Promise<void>::resolve();

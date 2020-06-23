@@ -11,13 +11,11 @@
 
 namespace sh {
 	$<Artist> Artist::new$(MediaProvider* provider, Data data) {
-		$<MediaItem> ptr;
-		new Artist(ptr, provider, data);
-		return std::static_pointer_cast<Artist>(ptr);
+		return fgl::new$<Artist>(provider, data);
 	}
 
-	Artist::Artist(std::shared_ptr<MediaItem>& ptr, MediaProvider* provider, Data data)
-	: MediaItem(ptr, provider, data),
+	Artist::Artist(MediaProvider* provider, Data data)
+	: MediaItem(provider, data),
 	_description(data.description) {
 		//
 	}
@@ -29,7 +27,7 @@ namespace sh {
 
 
 	Promise<void> Artist::fetchData() {
-		auto self = selfAs<Artist>();
+		auto self = std::static_pointer_cast<Artist>(shared_from_this());
 		return provider->getArtistData(_uri).then([=](Data data) {
 			self->applyData(data);
 		});
@@ -54,13 +52,11 @@ namespace sh {
 
 
 	$<Artist> Artist::fromJson(Json json, MediaProviderStash* stash) {
-		$<MediaItem> ptr;
-		new Artist(ptr, json, stash);
-		return std::static_pointer_cast<Artist>(ptr);
+		return fgl::new$<Artist>(json, stash);
 	}
 
-	Artist::Artist($<MediaItem>& ptr, Json json, MediaProviderStash* stash)
-	: MediaItem(ptr, json, stash) {
+	Artist::Artist(Json json, MediaProviderStash* stash)
+	: MediaItem(json, stash) {
 		auto description = json["description"];
 		if((!description.is_null() && !description.is_string())) {
 			throw std::invalid_argument("invalid json for Artist");

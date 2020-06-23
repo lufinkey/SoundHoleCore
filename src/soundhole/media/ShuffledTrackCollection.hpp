@@ -24,6 +24,10 @@ namespace sh {
 		static $<ShuffledTrackCollectionItem> new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Data data);
 		static $<ShuffledTrackCollectionItem> new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, $<TrackCollectionItem> sourceItem);
 		
+		ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Data data);
+		ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, $<TrackCollectionItem> sourceItem);
+		ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Json json, MediaProviderStash* stash);
+		
 		$<TrackCollectionItem> sourceItem();
 		$<const TrackCollectionItem> sourceItem() const;
 		
@@ -33,10 +37,6 @@ namespace sh {
 		virtual Json toJson() const override;
 		
 	protected:
-		ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Data data);
-		ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, $<TrackCollectionItem> sourceItem);
-		ShuffledTrackCollectionItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Json json, MediaProviderStash* stash);
-		
 		$<TrackCollectionItem> _sourceItem;
 	};
 
@@ -46,6 +46,7 @@ namespace sh {
 		using LoadItemOptions = TrackCollection::LoadItemOptions;
 		
 		static $<ShuffledTrackCollection> new$($<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems={});
+		ShuffledTrackCollection($<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems = {});
 		
 		$<TrackCollection> source();
 		$<const TrackCollection> source() const;
@@ -55,8 +56,6 @@ namespace sh {
 		virtual Json toJson(ToJsonOptions options) const override;
 		
 	protected:
-		ShuffledTrackCollection($<MediaItem>& ptr, $<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems = {});
-		
 		struct RandomIndex {
 			size_t index;
 			

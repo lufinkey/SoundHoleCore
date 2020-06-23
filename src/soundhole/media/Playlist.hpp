@@ -25,6 +25,9 @@ namespace sh {
 		
 		static $<PlaylistItem> new$($<SpecialTrackCollection<PlaylistItem>> playlist, Data data);
 		
+		PlaylistItem($<SpecialTrackCollection<PlaylistItem>> playlist, Data data);
+		PlaylistItem($<SpecialTrackCollection<PlaylistItem>> playlist, Json json, MediaProviderStash* stash);
+		
 		const String& addedAt() const;
 		$<UserAccount> addedBy();
 		$<const UserAccount> addedBy() const;
@@ -37,9 +40,6 @@ namespace sh {
 		virtual Json toJson() const override;
 		
 	protected:
-		PlaylistItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<PlaylistItem>> playlist, Data data);
-		PlaylistItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<PlaylistItem>> playlist, Json json, MediaProviderStash* stash);
-		
 		String _addedAt;
 		$<UserAccount> _addedBy;
 	};
@@ -53,6 +53,9 @@ namespace sh {
 		
 		static $<Playlist> new$(MediaProvider* provider, Data data);
 		
+		Playlist(MediaProvider* provider, Data data);
+		Playlist(Json json, MediaProviderStash* stash);
+		
 		$<UserAccount> owner();
 		$<const UserAccount> owner() const;
 		
@@ -65,9 +68,6 @@ namespace sh {
 		virtual Json toJson(ToJsonOptions options) const override;
 		
 	protected:
-		Playlist($<MediaItem>& ptr, MediaProvider* provider, Data data);
-		Playlist($<MediaItem>& ptr, Json json, MediaProviderStash* stash);
-		
 		virtual MutatorDelegate* createMutatorDelegate() override;
 		
 		$<UserAccount> _owner;

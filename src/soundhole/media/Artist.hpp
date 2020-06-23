@@ -20,6 +20,9 @@ namespace sh {
 		
 		static $<Artist> new$(MediaProvider* provider, Data data);
 		
+		Artist(MediaProvider* provider, Data data);
+		Artist(Json json, MediaProviderStash* stash);
+		
 		const Optional<String>& description() const;
 		
 		virtual Promise<void> fetchData() override;
@@ -31,9 +34,6 @@ namespace sh {
 		virtual Json toJson() const override;
 		
 	protected:
-		Artist(std::shared_ptr<MediaItem>& ptr, MediaProvider* provider, Data data);
-		Artist(std::shared_ptr<MediaItem>& ptr, Json json, MediaProviderStash* stash);
-		
 		Optional<String> _description;
 	};
 }

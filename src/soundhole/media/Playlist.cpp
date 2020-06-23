@@ -11,13 +11,11 @@
 
 namespace sh {
 	$<PlaylistItem> PlaylistItem::new$($<SpecialTrackCollection<PlaylistItem>> playlist, Data data) {
-		$<TrackCollectionItem> ptr;
-		new PlaylistItem(ptr, playlist, data);
-		return std::static_pointer_cast<PlaylistItem>(ptr);
+		return fgl::new$<PlaylistItem>(playlist, data);
 	}
 
-	PlaylistItem::PlaylistItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<PlaylistItem>> playlist, Data data)
-	: SpecialTrackCollectionItem<Playlist>(ptr, playlist, data),
+	PlaylistItem::PlaylistItem($<SpecialTrackCollection<PlaylistItem>> playlist, Data data)
+	: SpecialTrackCollectionItem<Playlist>(playlist, data),
 	_addedAt(data.addedAt), _addedBy(data.addedBy) {
 		//
 	}
@@ -55,13 +53,11 @@ namespace sh {
 	}
 
 	$<PlaylistItem> PlaylistItem::fromJson($<SpecialTrackCollection<PlaylistItem>> playlist, Json json, MediaProviderStash* stash) {
-		$<TrackCollectionItem> ptr;
-		new PlaylistItem(ptr, playlist, json, stash);
-		return std::static_pointer_cast<PlaylistItem>(ptr);
+		return fgl::new$<PlaylistItem>(playlist, json, stash);
 	}
 
-	PlaylistItem::PlaylistItem($<TrackCollectionItem>& ptr, $<SpecialTrackCollection<PlaylistItem>> playlist, Json json, MediaProviderStash* stash)
-	: SpecialTrackCollectionItem<Playlist>(ptr, playlist, json, stash) {
+	PlaylistItem::PlaylistItem($<SpecialTrackCollection<PlaylistItem>> playlist, Json json, MediaProviderStash* stash)
+	: SpecialTrackCollectionItem<Playlist>(playlist, json, stash) {
 		auto addedBy = json["addedBy"];
 		_addedBy = (!addedBy.is_null()) ? UserAccount::fromJson(addedBy, stash) : nullptr;
 		_addedAt = json["addedAt"].string_value();
@@ -79,13 +75,13 @@ namespace sh {
 
 
 	$<Playlist> Playlist::new$(MediaProvider* provider, Data data) {
-		$<MediaItem> ptr;
-		new Playlist(ptr, provider, data);
-		return std::static_pointer_cast<Playlist>(ptr);
+		auto playlist = fgl::new$<Playlist>(provider, data);
+		playlist->lazyLoadContentIfNeeded();
+		return playlist;
 	}
 	
-	Playlist::Playlist($<MediaItem>& ptr, MediaProvider* provider, Data data)
-	: SpecialTrackCollection<PlaylistItem>(ptr, provider, data),
+	Playlist::Playlist(MediaProvider* provider, Data data)
+	: SpecialTrackCollection<PlaylistItem>(provider, data),
 	_owner(data.owner) {
 		//
 	}
@@ -99,7 +95,7 @@ namespace sh {
 	}
 
 	Promise<void> Playlist::fetchData() {
-		auto self = selfAs<Playlist>();
+		auto self = std::static_pointer_cast<Playlist>(shared_from_this());
 		return provider->getPlaylistData(_uri).then([=](Data data) {
 			self->applyData(data);
 		});
@@ -120,13 +116,13 @@ namespace sh {
 	}
 
 	$<Playlist> Playlist::fromJson(Json json, MediaProviderStash* stash) {
-		$<MediaItem> ptr;
-		new Playlist(ptr, json, stash);
-		return std::static_pointer_cast<Playlist>(ptr);
+		auto playlist = fgl::new$<Playlist>(json, stash);
+		playlist->lazyLoadContentIfNeeded();
+		return playlist;
 	}
 
-	Playlist::Playlist($<MediaItem>& ptr, Json json, MediaProviderStash* stash)
-	: SpecialTrackCollection<PlaylistItem>(ptr, json, stash) {
+	Playlist::Playlist(Json json, MediaProviderStash* stash)
+	: SpecialTrackCollection<PlaylistItem>(json, stash) {
 		auto owner = json["owner"];
 		_owner = (!owner.is_null()) ? UserAccount::fromJson(owner, stash) : nullptr;
 	}
@@ -140,6 +136,6 @@ namespace sh {
 	}
 
 	Playlist::MutatorDelegate* Playlist::createMutatorDelegate() {
-		return provider->createPlaylistMutatorDelegate(std::static_pointer_cast<Playlist>(self()));
+		return provider->createPlaylistMutatorDelegate(std::static_pointer_cast<Playlist>(shared_from_this()));
 	}
 }

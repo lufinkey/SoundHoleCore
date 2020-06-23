@@ -14,7 +14,7 @@
 namespace sh {
 	class MediaProvider;
 	
-	class MediaItem {
+	class MediaItem: public std::enable_shared_from_this<MediaItem> {
 	public:
 		struct Image {
 			enum class Size {
@@ -51,6 +51,8 @@ namespace sh {
 			Optional<ArrayList<Image>> images;
 		};
 		
+		MediaItem(MediaProvider* provider, const Data& data);
+		MediaItem(Json json, MediaProviderStash* stash);
 		virtual ~MediaItem();
 		
 		const String& type() const;
@@ -72,21 +74,6 @@ namespace sh {
 		virtual Json toJson() const;
 		
 	protected:
-		MediaItem($<MediaItem>& ptr, MediaProvider* provider, const Data& data);
-		MediaItem($<MediaItem>& ptr, Json json, MediaProviderStash* stash);
-		
-		$<MediaItem> self();
-		$<const MediaItem> self() const;
-		template<typename T>
-		$<T> selfAs();
-		template<typename T>
-		$<const T> selfAs() const;
-		template<typename T>
-		$<T> weakSelfAs();
-		template<typename T>
-		$<const T> weakSelfAs();
-		
-		w$<MediaItem> weakSelf;
 		MediaProvider* provider;
 		bool _partial;
 		String _type;
@@ -95,19 +82,4 @@ namespace sh {
 		Optional<ArrayList<Image>> _images;
 		Optional<Promise<void>> _itemDataPromise;
 	};
-
-
-
-
-#pragma mark - MediaItem implementation
-
-	template<typename T>
-	$<T> MediaItem::selfAs() {
-		return std::static_pointer_cast<T>(weakSelf.lock());
-	}
-
-	template<typename T>
-	$<const T> MediaItem::selfAs() const {
-		return std::static_pointer_cast<const T>(weakSelf.lock());
-	}
 }

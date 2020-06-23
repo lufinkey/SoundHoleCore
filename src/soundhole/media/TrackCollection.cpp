@@ -10,18 +10,9 @@
 #include <soundhole/database/MediaDatabase.hpp>
 
 namespace sh {
-	TrackCollectionItem::TrackCollectionItem($<TrackCollectionItem>& ptr, $<TrackCollection> context, Data data)
+	TrackCollectionItem::TrackCollectionItem($<TrackCollection> context, Data data)
 	: _context(context), _track(data.track) {
-		ptr = $<TrackCollectionItem>(this);
-		weakSelf = ptr;
-	}
-
-	$<TrackCollectionItem> TrackCollectionItem::self() {
-		return weakSelf.lock();
-	}
-
-	$<const TrackCollectionItem> TrackCollectionItem::self() const {
-		return std::static_pointer_cast<const TrackCollectionItem>(weakSelf.lock());
+		//
 	}
 
 	$<Track> TrackCollectionItem::track() {
@@ -62,10 +53,9 @@ namespace sh {
 		};
 	}
 
-	TrackCollectionItem::TrackCollectionItem($<TrackCollectionItem>& ptr, $<TrackCollection> context, Json json, MediaProviderStash* stash)
+	TrackCollectionItem::TrackCollectionItem($<TrackCollection> context, Json json, MediaProviderStash* stash)
 	: _context(context), _track(Track::fromJson(json, stash)) {
-		ptr = $<TrackCollectionItem>(this);
-		weakSelf = ptr;
+		//
 	}
 
 
