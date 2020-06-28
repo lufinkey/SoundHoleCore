@@ -34,6 +34,8 @@ namespace sh {
 		
 		bool isSynchronizingLibrary(String libraryProviderName);
 		bool isSynchronizingLibraries();
+		Optional<AsyncQueue::TaskNode> getSynchronizeLibraryTask(String libraryProviderName);
+		Optional<AsyncQueue::TaskNode> getSynchronizeAllLibrariesTask();
 		AsyncQueue::TaskNode synchronizeProviderLibrary(String libraryProviderName);
 		AsyncQueue::TaskNode synchronizeProviderLibrary(MediaProvider* libraryProvider);
 		AsyncQueue::TaskNode synchronizeAllLibraries();

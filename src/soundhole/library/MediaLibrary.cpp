@@ -38,8 +38,8 @@ namespace sh {
 	}
 	
 	bool MediaLibrary::isSynchronizingLibrary(String libraryProviderName) {
-		auto taskNode = synchronizeQueue.getTaskWithTag("sync:"+libraryProviderName);
-		if(taskNode && !taskNode->task->isDone() && !taskNode->task->isCancelled()) {
+		auto taskNode = getSynchronizeLibraryTask(libraryProviderName);
+		if(taskNode) {
 			return true;
 		}
 		return false;
@@ -52,6 +52,14 @@ namespace sh {
 			}
 		}
 		return false;
+	}
+
+	Optional<AsyncQueue::TaskNode> MediaLibrary::getSynchronizeLibraryTask(String libraryProviderName) {
+		return synchronizeQueue.getTaskWithTag("sync:"+libraryProviderName);
+	}
+
+	Optional<AsyncQueue::TaskNode> MediaLibrary::getSynchronizeAllLibrariesTask() {
+		return synchronizeAllQueue.getTaskWithTag("sync:all");
 	}
 
 	AsyncQueue::TaskNode MediaLibrary::synchronizeProviderLibrary(String libraryProviderName) {
