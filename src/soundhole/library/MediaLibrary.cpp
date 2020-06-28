@@ -72,7 +72,10 @@ namespace sh {
 
 	AsyncQueue::TaskNode MediaLibrary::synchronizeProviderLibrary(MediaProvider* libraryProvider) {
 		auto runOptions = AsyncQueue::RunOptions{
-			.tag=("sync:"+libraryProvider->name())
+			.tag=("sync:"+libraryProvider->name()),
+			.initialStatus = AsyncQueue::Task::Status{
+				.text = "Waiting to sync "+libraryProvider->displayName()+" library"
+			}
 		};
 		return synchronizeQueue.runSingle(runOptions, [=](auto task) {
 			if(!libraryProvider->isLoggedIn()) {
@@ -148,7 +151,10 @@ namespace sh {
 
 	AsyncQueue::TaskNode MediaLibrary::synchronizeAllLibraries() {
 		auto runOptions = AsyncQueue::RunOptions{
-			.tag="sync:all"
+			.tag="sync:all",
+			.initialStatus = AsyncQueue::Task::Status{
+				.text = "Waiting to sync all libraries"
+			}
 		};
 		return synchronizeAllQueue.runSingle(runOptions, [=](auto task) {
 			auto successCount = fgl::new$<size_t>(0);
