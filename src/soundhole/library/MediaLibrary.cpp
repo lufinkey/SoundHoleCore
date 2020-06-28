@@ -225,7 +225,10 @@ namespace sh {
 				}).except([=](std::exception_ptr error) {
 					task->removeCancelListener(cancelListenerId);
 					syncTask->removeStatusChangeListener(statusChangeListenerId);
-					task->setStatusText((String)"Error syncing "+provider->displayName()+" library: "+utils::getExceptionDetails(error).message);
+					task->setStatus({
+						.progress = ((double)providerIndex + 1 + syncTaskStatus.progress) / (double)providerCount,
+						.text = (String)"Error syncing "+provider->displayName()+" library: "+utils::getExceptionDetails(error).message
+					});
 					return async<void>([=]() {
 						for(size_t i=0; i<6; i++) {
 							if(task->isCancelled()) {
