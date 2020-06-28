@@ -150,6 +150,11 @@ CREATE TABLE IF NOT EXISTS SavedPlaylist (
 	PRIMARY KEY(playlistURI, libraryProvider),
 	FOREIGN KEY(playlistURI) REFERENCES TrackCollection(uri)
 );
+CREATE TABLE IF NOT EXISTS DBState (
+	stateKey TEXT NOT NULL,
+	stateValue TEXT NOT NULL,
+	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 )SQL";
 }
 
