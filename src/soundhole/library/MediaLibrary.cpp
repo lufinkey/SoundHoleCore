@@ -226,7 +226,7 @@ namespace sh {
 					task->removeCancelListener(cancelListenerId);
 					syncTask->removeStatusChangeListener(statusChangeListenerId);
 					task->setStatus({
-						.progress = ((double)providerIndex + 1 + syncTaskStatus.progress) / (double)providerCount,
+						.progress = ((double)providerIndex + 1.0) / (double)providerCount,
 						.text = (String)"Error syncing "+provider->displayName()+" library: "+utils::getExceptionDetails(error).message
 					});
 					return async<void>([=]() {
