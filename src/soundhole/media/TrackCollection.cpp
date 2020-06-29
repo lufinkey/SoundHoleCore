@@ -54,7 +54,7 @@ namespace sh {
 	}
 
 	TrackCollectionItem::TrackCollectionItem($<TrackCollection> context, Json json, MediaProviderStash* stash)
-	: _context(context), _track(Track::fromJson(json, stash)) {
+	: _context(context), _track(Track::fromJson(json["track"], stash)) {
 		//
 	}
 
