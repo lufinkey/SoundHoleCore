@@ -312,7 +312,8 @@ namespace sh {
 			sql::selectSavedTrackCount(tx, "count");
 			sql::selectSavedTracksAndTracks(tx, "items", {
 				.libraryProvider=options.libraryProvider,
-				.range=range
+				.range=range,
+				.order=sql::Order::DESC
 			});
 		}).map<GetJsonItemsListResult>(nullptr, [=](auto results) {
 			auto countItems = results["count"];
