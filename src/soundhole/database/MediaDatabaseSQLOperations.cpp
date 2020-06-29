@@ -316,7 +316,7 @@ void insertOrReplaceLibraryItems(SQLiteTransaction& tx, const ArrayList<MediaPro
 				.libraryProvider=item.libraryProvider,
 				.addedAt=item.addedAt
 			}));
-			addTrackCollectionTuples(album, collectionTuples);
+			addTrackCollectionTuples(playlist, collectionTuples);
 		}
 		else {
 			throw std::runtime_error("Invalid MediaItem type for LibraryItem");
