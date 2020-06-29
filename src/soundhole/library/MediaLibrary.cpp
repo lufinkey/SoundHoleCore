@@ -208,6 +208,11 @@ namespace sh {
 						.progress = progress,
 						.text = "Waiting for "+provider->displayName()+" library sync to start"
 					});
+				} else {
+					task->setStatus({
+						.progress = progress,
+						.text = syncTaskStatus.text
+					});
 				}
 				size_t cancelListenerId = task->addCancelListener([=](auto task) {
 					syncTask->cancel();
