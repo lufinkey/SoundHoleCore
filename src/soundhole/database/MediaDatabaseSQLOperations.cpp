@@ -358,7 +358,7 @@ void insertOrReplaceDBStates(SQLiteTransaction& tx, const ArrayList<DBState>& st
 	}
 	if(dbStateTuples.size() > 0) {
 		tx.addSQL(String::join({
-			"INSERT OR REPLACE DBState (",
+			"INSERT OR REPLACE INTO DBState (",
 			String::join(dbStateTupleColumns(), ", "),
 			") VALUES ",
 			String::join(dbStateTuples, ", ")
