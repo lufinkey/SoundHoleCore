@@ -32,6 +32,18 @@ namespace sh {
 			return db->initialize();
 		});
 	}
+
+	Promise<void> MediaLibrary::resetDatabase() {
+		return db->reset();
+	}
+
+	MediaDatabase* MediaLibrary::database() {
+		return db;
+	}
+
+	const MediaDatabase* MediaLibrary::database() const {
+		return db;
+	}
 	
 	MediaProvider* MediaLibrary::getMediaProvider(String name) {
 		return libraryProvider->getMediaProvider(name);

@@ -27,6 +27,10 @@ namespace sh {
 		~MediaLibrary();
 		
 		Promise<void> initialize();
+		Promise<void> resetDatabase();
+		
+		MediaDatabase* database();
+		const MediaDatabase* database() const;
 		
 		MediaProvider* getMediaProvider(String name);
 		template<typename MediaProviderType>
