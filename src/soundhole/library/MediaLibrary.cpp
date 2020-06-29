@@ -212,10 +212,11 @@ namespace sh {
 				size_t cancelListenerId = task->addCancelListener([=](auto task) {
 					syncTask->cancel();
 				});
-				size_t statusChangeListenerId = syncTask->addStatusChangeListener([=](auto task, size_t listenerId) {
+				size_t statusChangeListenerId = syncTask->addStatusChangeListener([=](auto syncTask, size_t listenerId) {
+					auto syncTaskStatus = syncTask->getStatus();
 					task->setStatus({
 						.progress = ((double)providerIndex + syncTaskStatus.progress) / (double)providerCount,
-						.text = task->getStatus().text
+						.text = syncTaskStatus.text
 					});
 				});
 				return taskNode.promise.then([=]() {
