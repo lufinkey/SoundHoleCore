@@ -206,7 +206,7 @@ namespace sh {
 		if(!albumName.is_string() || !albumURI.is_string() || !artists.is_array() || (!tags.is_null() && !tags.is_array())
 		   || (!discNumber.is_null() && !discNumber.is_number()) || (!trackNumber.is_null() && !trackNumber.is_number())
 		   || (!duration.is_null() && !duration.is_number()) || (!audioSources.is_null() && !audioSources.is_array())
-		   || !playable.is_bool()) {
+		   || (!playable.is_bool() && !playable.is_number())) {
 			throw std::invalid_argument("invalid json for Track");
 		}
 		_albumName = albumName.string_value();
