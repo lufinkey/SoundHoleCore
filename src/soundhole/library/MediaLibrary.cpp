@@ -267,6 +267,18 @@ namespace sh {
 		}, {
 			.libraryProvider=(options.libraryProvider != nullptr) ? libraryProvider->name() : String()
 		}).map<$<MediaLibraryTracksCollection>>([=](MediaDatabase::GetJsonItemsListResult results) {
+			Json::array items;
+			items.reserve(results.items.size());
+			for(auto jsonItem : results.items) {
+				auto jsonItemObj = jsonItem.object_items();
+				auto trackJsonIt = jsonItemObj.find("mediaItem");
+				if(trackJsonIt != jsonItemObj.end()) {
+					auto trackJson = trackJsonIt->second;
+					jsonItemObj.erase(trackJsonIt);
+					jsonItemObj["track"] = trackJson;
+				}
+				items.push_back(jsonItemObj);
+			}
 			auto json = Json::object{
 				{ "partial", false },
 				{ "type", "libraryTracksCollection" },
@@ -277,7 +289,7 @@ namespace sh {
 				})) },
 				{ "images", Json::array() },
 				{ "itemCount", Json((double)results.total) },
-				{ "items", Json::array(results.items.begin(), results.items.end()) }
+				{ "items", items }
 			};
 			return MediaLibraryTracksCollection::fromJson(json, db);
 		});

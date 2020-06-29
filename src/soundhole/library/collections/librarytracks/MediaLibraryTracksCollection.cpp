@@ -126,7 +126,14 @@ namespace sh {
 			.libraryProvider=_libraryProviderName
 		}).then([=](MediaDatabase::GetJsonItemsListResult results) {
 			mutator->applyAndResize(index, results.total, results.items.map<$<MediaLibraryTracksCollectionItem>>([=](auto json) {
-				return MediaLibraryTracksCollectionItem::fromJson(self, json, database->getProviderStash());
+				auto jsonObj = json.object_items();
+				auto trackJsonIt = jsonObj.find("mediaItem");
+				if(trackJsonIt != jsonObj.end()) {
+					auto trackJson = trackJsonIt->second;
+					jsonObj.erase(trackJsonIt);
+					jsonObj["track"] = trackJson;
+				}
+				return MediaLibraryTracksCollectionItem::fromJson(self, jsonObj, database->getProviderStash());
 			}));
 		});
 	}
