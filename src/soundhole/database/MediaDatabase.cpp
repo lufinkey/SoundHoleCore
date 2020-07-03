@@ -214,10 +214,11 @@ namespace sh {
 
 
 	Promise<void> MediaDatabase::cacheTrackCollectionItems($<TrackCollection> collection, Optional<sql::IndexRange> itemsRange, CacheOptions options) {
+		bool includeTrackAlbums = (std::dynamic_pointer_cast<Album>(collection) == nullptr);
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
 			sql::insertOrReplaceItemsFromTrackCollection(tx, collection, {
 				.range = itemsRange,
-				.includeTrackAlbums = false
+				.includeTrackAlbums = includeTrackAlbums
 			});
 			applyDBState(tx, options.dbState);
 		}).toVoid();

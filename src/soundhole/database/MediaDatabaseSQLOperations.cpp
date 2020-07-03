@@ -629,4 +629,97 @@ void selectDBState(SQLiteTransaction& tx, String outKey, String stateKey) {
 	tx.addSQL("SELECT * FROM DBState WHERE stateKey = ?", { stateKey }, { .outKey=outKey });
 }
 
+
+
+
+void deleteNonLibraryCollectionItems(SQLiteTransaction& tx) {
+	tx.addSQL(
+		"DELETE FROM TrackCollectionItem AS tci "
+		"WHERE NOT EXISTS("
+			"SELECT TrackCollectionItem.collectionURI, TrackCollectionItem.indexNum, TrackCollectionItem.trackURI "
+				"FROM TrackCollectionItem, SavedAlbum "
+				"WHERE TrackCollectionItem.trackURI = tci.trackURI AND TrackCollectionItem.collectionURI = SavedAlbum.albumURI"
+		") "
+		"AND NOT EXISTS("
+			"SELECT TrackCollectionItem.collectionURI, TrackCollectionItem.indexNum, TrackCollectionItem.trackURI "
+				"FROM TrackCollectionItem, SavedPlaylist "
+				"WHERE TrackCollectionItem.trackURI = tci.trackURI AND TrackCollectionItem.collectionURI = SavedPlaylist.playlistURI"
+		")", {});
+}
+
+void deleteNonLibraryTracks(SQLiteTransaction& tx) {
+	tx.addSQL(
+		"DELETE FROM TrackArtist AS ta "
+		"WHERE NOT EXISTS("
+			"SELECT trackURI, libraryProvider FROM SavedTrack WHERE SavedTrack.trackURI = ta.trackURI"
+		") "
+		"AND NOT EXISTS("
+			"SELECT TrackCollectionItem.collectionURI, TrackCollectionItem.indexNum, TrackCollectionItem.trackURI "
+				"FROM TrackCollectionItem, SavedAlbum "
+				"WHERE TrackCollectionItem.trackURI = ta.trackURI AND TrackCollectionItem.collectionURI = SavedAlbum.albumURI"
+		") "
+		"AND NOT EXISTS("
+			"SELECT TrackCollectionItem.collectionURI, TrackCollectionItem.indexNum, TrackCollectionItem.trackURI "
+				"FROM TrackCollectionItem, SavedPlaylist "
+				"WHERE TrackCollectionItem.trackURI = ta.trackURI AND TrackCollectionItem.collectionURI = SavedPlaylist.playlistURI"
+		") "
+		"AND NOT EXISTS("
+			"SELECT Track.uri FROM Track, SavedAlbum WHERE Track.uri = ta.trackURI AND Track.albumURI = SavedAlbum.albumURI"
+		")", {});
+	tx.addSQL(
+		"DELETE FROM Track AS t "
+		"WHERE NOT EXISTS("
+			"SELECT trackURI, libraryProvider FROM SavedTrack WHERE SavedTrack.trackURI = t.uri"
+		") "
+		"AND NOT EXISTS("
+			"SELECT TrackCollectionItem.collectionURI, TrackCollectionItem.indexNum, TrackCollectionItem.trackURI "
+				"FROM TrackCollectionItem, SavedAlbum "
+				"WHERE TrackCollectionItem.trackURI = t.uri AND TrackCollectionItem.collectionURI = SavedAlbum.albumURI"
+		") "
+		"AND NOT EXISTS("
+			"SELECT TrackCollectionItem.collectionURI, TrackCollectionItem.indexNum, TrackCollectionItem.trackURI "
+				"FROM TrackCollectionItem, SavedPlaylist "
+				"WHERE TrackCollectionItem.trackURI = t.uri AND TrackCollectionItem.collectionURI = SavedPlaylist.playlistURI"
+		") "
+		"AND NOT EXISTS("
+			"SELECT SavedAlbum.uri FROM SavedAlbum WHERE t.albumURI = SavedAlbum.albumURI"
+		")", {});
+}
+
+void deleteNonLibraryCollections(SQLiteTransaction& tx) {
+	tx.addSQL(
+		"DELETE FROM TrackCollectionArtist AS tca "
+		"WHERE NOT EXISTS("
+			"SELECT albumURI, libraryProvider FROM SavedAlbum WHERE SavedAlbum.albumURI = tca.collectionURI"
+		") "
+		"WHERE NOT EXISTS("
+			"SELECT playlistURI, libraryProvider FROM SavedPlaylist WHERE SavedPlaylist.playlistURI = tca.collectionURI"
+		") "
+		"AND NOT EXISTS("
+			"SELECT Track.albumURI FROM Track WHERE Track.albumURI = tca.collectionURI"
+		")", {});
+	tx.addSQL(
+		"DELETE FROM TrackCollection AS tc "
+		"WHERE NOT EXISTS("
+			"SELECT albumURI, libraryProvider FROM SavedAlbum WHERE SavedAlbum.albumURI = tc.uri"
+		") "
+		"WHERE NOT EXISTS("
+			"SELECT playlistURI, libraryProvider FROM SavedPlaylist WHERE SavedPlaylist.playlistURI = tc.uri"
+		") "
+		"AND NOT EXISTS("
+			"SELECT Track.albumURI FROM Track WHERE Track.albumURI = tc.uri"
+		")", {});
+}
+
+void deleteNonLibraryArtists(SQLiteTransaction& tx) {
+	tx.addSQL(
+		"DELETE FROM Artist AS a "
+		"WHERE NOT EXISTS("
+			  "SELECT artistURI FROM TrackArtist.artistURI = a.uri"
+		") "
+		"AND NOT EXISTS("
+			  "SELECT artistURI FROM TrackCollectionArtist.artistURI = a.uri"
+		")", {});
+}
+
 }

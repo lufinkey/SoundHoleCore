@@ -96,8 +96,8 @@ CREATE TABLE IF NOT EXISTS TrackCollectionArtist (
 );
 CREATE TABLE IF NOT EXISTS Track (
 	uri text NOT NULL UNIQUE,
-	provider text NOT NULL,
-	name text NOT NULL,
+	provider TEXT NOT NULL,
+	name TEXT NOT NULL,
 	albumName TEXT,
 	albumURI TEXT,
 	artists TEXT,

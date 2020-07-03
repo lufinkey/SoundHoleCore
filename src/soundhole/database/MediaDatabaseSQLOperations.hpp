@@ -47,4 +47,9 @@ void selectLibraryArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelec
 void selectLibraryArtistCount(SQLiteTransaction& tx, String outKey, String libraryProvider = String());
 void selectDBState(SQLiteTransaction& tx, String outKey, String stateKey);
 
+void deleteNonLibraryCollectionItems(SQLiteTransaction& tx);
+void deleteNonLibraryTracks(SQLiteTransaction& tx);
+void deleteNonLibraryCollections(SQLiteTransaction& tx);
+void deleteNonLibraryArtists(SQLiteTransaction& tx);
+
 }
