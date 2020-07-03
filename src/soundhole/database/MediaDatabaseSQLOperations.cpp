@@ -76,6 +76,23 @@ void insertOrReplaceArtists(SQLiteTransaction& tx, const ArrayList<$<Artist>>& a
 	}
 }
 
+void insertOrReplaceFollowedArtists(SQLiteTransaction& tx, const ArrayList<FollowedArtist>& followedArtists) {
+	if(followedArtists.size() == 0) {
+		return;
+	}
+	LinkedList<Any> followedArtistParams;
+	LinkedList<String> followedArtistTuples;
+	for(auto& followedArtist : followedArtists) {
+		followedArtistTuples.pushBack(followedArtistTuple(followedArtistParams, followedArtist));
+	}
+	tx.addSQL(String::join({
+		"INSERT OR REPLACE INTO FollowedArtist (",
+		String::join(followedArtistTupleColumns(), ", "),
+		") VALUES ",
+		String::join(followedArtistTuples, ", ")
+	}), followedArtistParams);
+}
+
 struct TrackTuplesAndParams {
 	LinkedList<String> trackTuples;
 	LinkedList<Any> trackParams;
@@ -715,11 +732,14 @@ void deleteNonLibraryArtists(SQLiteTransaction& tx) {
 	tx.addSQL(
 		"DELETE FROM Artist AS a "
 		"WHERE NOT EXISTS("
-			  "SELECT artistURI FROM TrackArtist.artistURI = a.uri"
+			"SELECT artistURI FROM TrackArtist WHERE TrackArtist.artistURI = a.uri"
 		") "
 		"AND NOT EXISTS("
-			  "SELECT artistURI FROM TrackCollectionArtist.artistURI = a.uri"
-		")", {});
+			"SELECT artistURI FROM TrackCollectionArtist WHERE TrackCollectionArtist.artistURI = a.uri"
+		") "
+		"AND NOT EXISTS("
+			"SELECT artistURI FROM FollowedArtist WHERE FollowedArtist.artistURI = a.uri"
+		") ", {});
 }
 
 }

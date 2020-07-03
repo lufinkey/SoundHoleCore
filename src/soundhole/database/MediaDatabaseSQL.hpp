@@ -23,6 +23,7 @@ String sqlOptParam(LinkedList<Any>& params, Any param, String defaultQuery, Arra
 Any sqlStringOrNull(String str);
 
 ArrayList<String> artistColumns();
+ArrayList<String> followedArtistColumns();
 ArrayList<String> trackColumns();
 ArrayList<String> trackCollectionColumns();
 ArrayList<String> trackCollectionItemColumns();
@@ -38,23 +39,23 @@ struct TupleOptions {
 };
 
 ArrayList<String> trackTupleColumns();
-String trackTuple(LinkedList<Any>& params, $<Track> track, TupleOptions options);
+String trackTuple(LinkedList<Any>& params, $<Track> track, const TupleOptions& options);
 
 ArrayList<String> albumTupleFromTrackColumns();
-String albumTupleFromTrack(LinkedList<Any>& params, $<Track> track, TupleOptions options);
+String albumTupleFromTrack(LinkedList<Any>& params, $<Track> track, const TupleOptions& options);
 
 struct TrackArtist {
 	String trackURI;
 	String artistURI;
 };
 ArrayList<String> trackArtistTupleColumns();
-String trackArtistTuple(LinkedList<Any>& params, TrackArtist trackArtist);
+String trackArtistTuple(LinkedList<Any>& params, const TrackArtist& trackArtist);
 
 ArrayList<$<Artist>> trackCollectionArtists($<TrackCollection> collection);
 String trackCollectionItemAddedAt($<TrackCollectionItem> item);
 
 ArrayList<String> trackCollectionTupleColumns();
-String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collection, TupleOptions options);
+String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collection, const TupleOptions& options);
 ArrayList<String> trackCollectionItemTupleColumns();
 String trackCollectionItemTuple(LinkedList<Any>& params, $<TrackCollectionItem> item);
 ArrayList<String> albumItemTupleFromTrackColumns();
@@ -65,10 +66,17 @@ struct TrackCollectionArtist {
 	String artistURI;
 };
 ArrayList<String> trackCollectionArtistTupleColumns();
-String trackCollectionArtistTuple(LinkedList<Any>& params, TrackCollectionArtist collectionArtist);
+String trackCollectionArtistTuple(LinkedList<Any>& params, const TrackCollectionArtist& collectionArtist);
 
 ArrayList<String> artistTupleColumns();
-String artistTuple(LinkedList<Any>& params, $<Artist> artist, TupleOptions options);
+String artistTuple(LinkedList<Any>& params, $<Artist> artist, const TupleOptions& options);
+
+struct FollowedArtist {
+	String artistURI;
+	String libraryProvider;
+};
+ArrayList<String> followedArtistTupleColumns();
+String followedArtistTuple(LinkedList<Any>& params, const FollowedArtist& followedArtist);
 
 struct SavedTrack {
 	$<Track> track;
@@ -76,7 +84,7 @@ struct SavedTrack {
 	String addedAt;
 };
 ArrayList<String> savedTrackTupleColumns();
-String savedTrackTuple(LinkedList<Any>& params, SavedTrack track);
+String savedTrackTuple(LinkedList<Any>& params, const SavedTrack& track);
 
 struct SavedAlbum {
 	$<Album> album;
@@ -84,7 +92,7 @@ struct SavedAlbum {
 	String addedAt;
 };
 ArrayList<String> savedAlbumTupleColumns();
-String savedAlbumTuple(LinkedList<Any>& params, SavedAlbum album);
+String savedAlbumTuple(LinkedList<Any>& params, const SavedAlbum& album);
 
 struct SavedPlaylist {
 	$<Playlist> playlist;
@@ -92,13 +100,13 @@ struct SavedPlaylist {
 	String addedAt;
 };
 ArrayList<String> savedPlaylistTupleColumns();
-String savedPlaylistTuple(LinkedList<Any>& params, SavedPlaylist playlist);
+String savedPlaylistTuple(LinkedList<Any>& params, const SavedPlaylist& playlist);
 
 struct DBState {
 	String stateKey;
 	String stateValue;
 };
 ArrayList<String> dbStateTupleColumns();
-String dbStateTuple(LinkedList<Any>& params, DBState state);
+String dbStateTuple(LinkedList<Any>& params, const DBState& state);
 
 }
