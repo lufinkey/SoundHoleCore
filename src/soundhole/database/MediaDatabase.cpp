@@ -351,12 +351,12 @@ namespace sh {
 		});
 	}
 
-	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getSavedAlbumsJson(sql::IndexRange range, GetSavedAlbumsJsonOptions options) {
+	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getSavedAlbumsJson(GetSavedAlbumsJsonOptions options) {
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
 			sql::selectSavedAlbumCount(tx, "count");
 			sql::selectSavedAlbumsAndAlbums(tx, "items", {
 				.libraryProvider=options.libraryProvider,
-				.range=range
+				.range=options.range
 			});
 		}).map<GetJsonItemsListResult>(nullptr, [=](auto results) {
 			auto countItems = results["count"];
@@ -394,12 +394,12 @@ namespace sh {
 		});
 	}
 
-	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getSavedPlaylistsJson(sql::IndexRange range, GetSavedPlaylistsJsonOptions options) {
+	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getSavedPlaylistsJson(GetSavedPlaylistsJsonOptions options) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
 			sql::selectSavedPlaylistCount(tx, "count");
 			sql::selectSavedPlaylistsAndPlaylists(tx, "items", {
 				.libraryProvider=options.libraryProvider,
-				.range=range
+				.range=options.range
 			});
 		}).map<GetJsonItemsListResult>(nullptr, [=](auto results) {
 			auto countItems = results["count"];

@@ -278,7 +278,7 @@ namespace sh {
 			.endIndex=(options.offset.valueOr(0) + options.limit.valueOr(24))
 		}, {
 			.libraryProvider=(options.libraryProvider != nullptr) ? libraryProvider->name() : String()
-		}).map<$<MediaLibraryTracksCollection>>([=](MediaDatabase::GetJsonItemsListResult results) {
+		}).map<$<MediaLibraryTracksCollection>>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
 			Json::array items;
 			items.reserve(results.items.size());
 			for(auto jsonItem : results.items) {
@@ -304,6 +304,26 @@ namespace sh {
 				{ "items", items }
 			};
 			return MediaLibraryTracksCollection::fromJson(json, db);
+		});
+	}
+
+	Promise<LinkedList<$<Album>>> MediaLibrary::getLibraryAlbums(GetLibraryAlbumsFilters filters) {
+		return db->getSavedAlbumsJson({
+			.libraryProvider = (filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : nullptr
+		}).map<LinkedList<$<Album>>>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
+			return results.items.map<$<Album>>([=](Json json) {
+				return Album::fromJson(json, this->libraryProvider);
+			});
+		});
+	}
+
+	Promise<LinkedList<$<Playlist>>> MediaLibrary::getLibraryPlaylists(GetLibraryPlaylistsFilters filters) {
+		return db->getSavedPlaylistsJson({
+			.libraryProvider = (filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : nullptr
+		}).map<LinkedList<$<Playlist>>>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
+			return results.items.map<$<Playlist>>([=](Json json) {
+				return Playlist::fromJson(json, this->libraryProvider);
+			});
 		});
 	}
 }

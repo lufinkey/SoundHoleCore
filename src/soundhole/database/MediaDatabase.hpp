@@ -94,8 +94,9 @@ namespace sh {
 		Promise<size_t> getSavedAlbumsCount(GetSavedAlbumsCountOptions options = GetSavedAlbumsCountOptions());
 		struct GetSavedAlbumsJsonOptions {
 			String libraryProvider;
+			Optional<sql::IndexRange> range;
 		};
-		Promise<GetJsonItemsListResult> getSavedAlbumsJson(sql::IndexRange range, GetSavedAlbumsJsonOptions options = GetSavedAlbumsJsonOptions());
+		Promise<GetJsonItemsListResult> getSavedAlbumsJson(GetSavedAlbumsJsonOptions options = GetSavedAlbumsJsonOptions());
 		
 		struct GetSavedPlaylistsCountOptions {
 			String libraryProvider;
@@ -103,8 +104,9 @@ namespace sh {
 		Promise<size_t> getSavedPlaylistsCount(GetSavedPlaylistsCountOptions options = GetSavedPlaylistsCountOptions());
 		struct GetSavedPlaylistsJsonOptions {
 			String libraryProvider;
+			Optional<sql::IndexRange> range;
 		};
-		Promise<GetJsonItemsListResult> getSavedPlaylistsJson(sql::IndexRange range, GetSavedPlaylistsJsonOptions options = GetSavedPlaylistsJsonOptions());
+		Promise<GetJsonItemsListResult> getSavedPlaylistsJson(GetSavedPlaylistsJsonOptions options = GetSavedPlaylistsJsonOptions());
 		
 		Promise<void> setState(std::map<String,String> state);
 		Promise<std::map<String,String>> getState(ArrayList<String> keys);

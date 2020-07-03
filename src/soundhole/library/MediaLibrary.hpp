@@ -55,6 +55,16 @@ namespace sh {
 		};
 		Promise<$<MediaLibraryTracksCollection>> getLibraryTracksCollection(GetLibraryTracksOptions options = GetLibraryTracksOptions{.libraryProvider=nullptr});
 		
+		struct GetLibraryAlbumsFilters {
+			MediaProvider* libraryProvider = nullptr;
+		};
+		Promise<LinkedList<$<Album>>> getLibraryAlbums(GetLibraryAlbumsFilters filters = GetLibraryAlbumsFilters{.libraryProvider=nullptr});
+		
+		struct GetLibraryPlaylistsFilters {
+			MediaProvider* libraryProvider = nullptr;
+		};
+		Promise<LinkedList<$<Playlist>>> getLibraryPlaylists(GetLibraryPlaylistsFilters filters = GetLibraryPlaylistsFilters{.libraryProvider=nullptr});
+		
 	private:
 		MediaLibraryProvider* libraryProvider;
 		MediaDatabase* db;
