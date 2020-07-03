@@ -60,10 +60,34 @@ namespace sh {
 		};
 		Promise<LinkedList<$<Album>>> getLibraryAlbums(GetLibraryAlbumsFilters filters = GetLibraryAlbumsFilters{.libraryProvider=nullptr});
 		
+		struct GenerateLibraryAlbumsOptions {
+			size_t offset = 0;
+			size_t chunkSize = 24;
+		};
+		struct GenerateLibraryAlbumsResult {
+			LinkedList<$<Album>> albums;
+			size_t offset;
+			size_t total;
+		};
+		using LibraryAlbumsGenerator = ContinuousGenerator<GenerateLibraryAlbumsResult,void>;
+		LibraryAlbumsGenerator generateLibraryAlbums(GetLibraryAlbumsFilters filters = GetLibraryAlbumsFilters{.libraryProvider=nullptr}, GenerateLibraryAlbumsOptions options = GenerateLibraryAlbumsOptions{.offset=0,.chunkSize=24});
+		
 		struct GetLibraryPlaylistsFilters {
 			MediaProvider* libraryProvider = nullptr;
 		};
 		Promise<LinkedList<$<Playlist>>> getLibraryPlaylists(GetLibraryPlaylistsFilters filters = GetLibraryPlaylistsFilters{.libraryProvider=nullptr});
+		
+		struct GenerateLibraryPlaylistsOptions {
+			size_t offset = 0;
+			size_t chunkSize = 24;
+		};
+		struct GenerateLibraryPlaylistsResult {
+			LinkedList<$<Playlist>> playlists;
+			size_t offset;
+			size_t total;
+		};
+		using LibraryPlaylistsGenerator = ContinuousGenerator<GenerateLibraryPlaylistsResult,void>;
+		LibraryPlaylistsGenerator generateLibraryPlaylists(GetLibraryPlaylistsFilters filters = GetLibraryPlaylistsFilters{.libraryProvider=nullptr}, GenerateLibraryPlaylistsOptions options = GenerateLibraryPlaylistsOptions{.offset=0,.chunkSize=24});
 		
 	private:
 		MediaLibraryProvider* libraryProvider;

@@ -111,13 +111,15 @@ namespace sh {
 					}
 				}
 				yield();
-				auto generator = libraryProvider->generateLibrary({.resumeData=syncResumeData});
+				
+				// sync provider library
+				auto libraryGenerator = libraryProvider->generateLibrary({.resumeData=syncResumeData});
 				while(true) {
-					// get tracks from provider until success
+					// get library items from provider until success
 					task->setStatusText("Synchronizing "+libraryProvider->displayName()+" library");
 					MediaProvider::LibraryItemGenerator::YieldResult yieldResult;
 					try {
-						yieldResult = await(generator.next());
+						yieldResult = await(libraryGenerator.next());
 					} catch(Error& error) {
 						task->setStatusText("Error: "+error.getMessage());
 						yield();
@@ -137,14 +139,14 @@ namespace sh {
 						continue;
 					}
 					if(yieldResult.value) {
-						// sync items to database
-						task->setStatusProgress(yieldResult.value->progress);
+						// sync library items to database
 						auto cacheOptions = MediaDatabase::CacheOptions{
 							.dbState = {
 								{ ("syncResumeData_"+libraryProvider->name()), yieldResult.value->resumeData.dump() }
 							}
 						};
 						await(db->cacheLibraryItems(yieldResult.value->items, cacheOptions));
+						task->setStatusProgress((0.0 + yieldResult.value->progress) / 3.0);
 					}
 					if(yieldResult.done) {
 						break;
@@ -153,6 +155,181 @@ namespace sh {
 					std::this_thread::sleep_for(std::chrono::milliseconds(200));
 					yield();
 				}
+				
+				// sync provider album items
+				auto albumsGenerator = generateLibraryAlbums({
+					.libraryProvider = libraryProvider
+				});
+				while(true) {
+					// get album items from provider until success
+					task->setStatusText("Synchronizing "+libraryProvider->displayName()+" library album items");
+					LibraryAlbumsGenerator::YieldResult yieldResult;
+					try {
+						yieldResult = await(albumsGenerator.next());
+					} catch(Error& error) {
+						task->setStatusText("Error: "+error.getMessage());
+						yield();
+						auto retryAfter = error.getDetail("retryAfter").maybeAs<double>().value_or(0);
+						if(retryAfter > 0) {
+							std::this_thread::sleep_for(std::chrono::milliseconds((long)(retryAfter * 1000)));
+						} else {
+							std::this_thread::sleep_for(std::chrono::seconds(2));
+						}
+						yield();
+						continue;
+					} catch(std::exception& error) {
+						task->setStatusText((String)"Error: "+error.what());
+						yield();
+						std::this_thread::sleep_for(std::chrono::seconds(2));
+						yield();
+						continue;
+					}
+					
+					if(yieldResult.value) {
+						// generate album items
+						size_t albumIndex = yieldResult.value->offset;
+						for(auto& album : yieldResult.value->albums) {
+							task->setStatusText("Synchronizing "+libraryProvider->displayName()+" album "+album->name());
+							double albumsProgress = (double)albumIndex / (double)yieldResult.value->total;
+							size_t itemsOffset = 0;
+							auto albumItemGenerator = album->generateItems();
+							while(true) {
+								TrackCollection::ItemGenerator::YieldResult itemsYieldResult;
+								try {
+									itemsYieldResult = await(albumItemGenerator.next());
+								} catch(Error& error) {
+									task->setStatusText("Error: "+error.getMessage());
+									yield();
+									auto retryAfter = error.getDetail("retryAfter").maybeAs<double>().value_or(0);
+									if(retryAfter > 0) {
+										std::this_thread::sleep_for(std::chrono::milliseconds((long)(retryAfter * 1000)));
+									} else {
+										std::this_thread::sleep_for(std::chrono::seconds(2));
+									}
+									yield();
+									continue;
+								} catch(std::exception& error) {
+									task->setStatusText((String)"Error: "+error.what());
+									yield();
+									std::this_thread::sleep_for(std::chrono::seconds(2));
+									yield();
+									continue;
+								}
+								if(itemsYieldResult.value) {
+									size_t nextOffset = itemsOffset + itemsYieldResult.value->size();
+									await(db->cacheTrackCollectionItems(album, sql::IndexRange{
+										.startIndex = itemsOffset,
+										.endIndex = nextOffset
+									}));
+									itemsOffset += itemsYieldResult.value->size();
+									task->setStatusProgress((1.0 + (albumsProgress + ((double)itemsOffset / (double)album->itemCount().valueOr(999999)))) / 3.0);
+								}
+								if(itemsYieldResult.done) {
+									break;
+								}
+								yield();
+								std::this_thread::sleep_for(std::chrono::milliseconds(200));
+								yield();
+							}
+							
+							albumIndex += 1;
+						}
+					}
+					if(yieldResult.done) {
+						break;
+					}
+					yield();
+					std::this_thread::sleep_for(std::chrono::milliseconds(200));
+					yield();
+				}
+				
+				// sync provider playlist items
+				auto playlistsGenerator = generateLibraryPlaylists({
+					.libraryProvider = libraryProvider
+				});
+				while(true) {
+					// get playlist items from provider until success
+					task->setStatusText("Synchronizing "+libraryProvider->displayName()+" library playlist items");
+					LibraryPlaylistsGenerator::YieldResult yieldResult;
+					try {
+						yieldResult = await(playlistsGenerator.next());
+					} catch(Error& error) {
+						task->setStatusText("Error: "+error.getMessage());
+						yield();
+						auto retryAfter = error.getDetail("retryAfter").maybeAs<double>().value_or(0);
+						if(retryAfter > 0) {
+							std::this_thread::sleep_for(std::chrono::milliseconds((long)(retryAfter * 1000)));
+						} else {
+							std::this_thread::sleep_for(std::chrono::seconds(2));
+						}
+						yield();
+						continue;
+					} catch(std::exception& error) {
+						task->setStatusText((String)"Error: "+error.what());
+						yield();
+						std::this_thread::sleep_for(std::chrono::seconds(2));
+						yield();
+						continue;
+					}
+					
+					if(yieldResult.value) {
+						// generate playlist items
+						size_t playlistIndex = yieldResult.value->offset;
+						for(auto& playlist : yieldResult.value->playlists) {
+							task->setStatusText("Synchronizing "+libraryProvider->displayName()+" playlist "+playlist->name());
+							double playlistsProgress = (double)playlistIndex / (double)yieldResult.value->total;
+							size_t itemsOffset = 0;
+							auto playlistItemGenerator = playlist->generateItems();
+							while(true) {
+								TrackCollection::ItemGenerator::YieldResult itemsYieldResult;
+								try {
+									itemsYieldResult = await(playlistItemGenerator.next());
+								} catch(Error& error) {
+									task->setStatusText("Error: "+error.getMessage());
+									yield();
+									auto retryAfter = error.getDetail("retryAfter").maybeAs<double>().value_or(0);
+									if(retryAfter > 0) {
+										std::this_thread::sleep_for(std::chrono::milliseconds((long)(retryAfter * 1000)));
+									} else {
+										std::this_thread::sleep_for(std::chrono::seconds(2));
+									}
+									yield();
+									continue;
+								} catch(std::exception& error) {
+									task->setStatusText((String)"Error: "+error.what());
+									yield();
+									std::this_thread::sleep_for(std::chrono::seconds(2));
+									yield();
+									continue;
+								}
+								if(itemsYieldResult.value) {
+									size_t nextOffset = itemsOffset + itemsYieldResult.value->size();
+									await(db->cacheTrackCollectionItems(playlist, sql::IndexRange{
+										.startIndex = itemsOffset,
+										.endIndex = nextOffset
+									}));
+									itemsOffset += itemsYieldResult.value->size();
+									task->setStatusProgress((2.0 + (playlistsProgress + ((double)itemsOffset / (double)playlist->itemCount().valueOr(999999)))) / 3.0);
+								}
+								if(itemsYieldResult.done) {
+									break;
+								}
+								yield();
+								std::this_thread::sleep_for(std::chrono::milliseconds(200));
+								yield();
+							}
+							
+							playlistIndex += 1;
+						}
+					}
+					if(yieldResult.done) {
+						break;
+					}
+					yield();
+					std::this_thread::sleep_for(std::chrono::milliseconds(200));
+					yield();
+				}
+				
 				task->setStatus({
 					.progress = 1.0,
 					.text = "Finished synchronizing "+libraryProvider->displayName()+" library"
@@ -317,12 +494,70 @@ namespace sh {
 		});
 	}
 
+	MediaLibrary::LibraryAlbumsGenerator MediaLibrary::generateLibraryAlbums(GetLibraryAlbumsFilters filters, GenerateLibraryAlbumsOptions options) {
+		auto offset = fgl::new$<size_t>(options.offset);
+		using YieldResult = typename LibraryAlbumsGenerator::YieldResult;
+		return LibraryAlbumsGenerator([=]() {
+			return db->getSavedAlbumsJson({
+				.libraryProvider = (filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : nullptr,
+				.range = sql::IndexRange{
+					.startIndex = *offset,
+					.endIndex = *offset + options.chunkSize
+				}
+			}).map<YieldResult>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
+				auto albums = results.items.map<$<Album>>([=](Json json) {
+					return Album::fromJson(json, this->libraryProvider);
+				});
+				size_t albumsOffset = *offset;
+				*offset += options.chunkSize;
+				bool done = (*offset >= results.total);
+				return YieldResult{
+					.value = GenerateLibraryAlbumsResult{
+						.albums = albums,
+						.offset = albumsOffset,
+						.total = results.total
+					},
+					.done = done
+				};
+			});
+		});
+	}
+
 	Promise<LinkedList<$<Playlist>>> MediaLibrary::getLibraryPlaylists(GetLibraryPlaylistsFilters filters) {
 		return db->getSavedPlaylistsJson({
 			.libraryProvider = (filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : nullptr
 		}).map<LinkedList<$<Playlist>>>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
 			return results.items.map<$<Playlist>>([=](Json json) {
 				return Playlist::fromJson(json, this->libraryProvider);
+			});
+		});
+	}
+
+	MediaLibrary::LibraryPlaylistsGenerator MediaLibrary::generateLibraryPlaylists(GetLibraryPlaylistsFilters filters, GenerateLibraryPlaylistsOptions options) {
+		auto offset = fgl::new$<size_t>(options.offset);
+		using YieldResult = typename LibraryPlaylistsGenerator::YieldResult;
+		return LibraryPlaylistsGenerator([=]() {
+			return db->getSavedPlaylistsJson({
+				.libraryProvider = (filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : nullptr,
+				.range = sql::IndexRange{
+					.startIndex = *offset,
+					.endIndex = *offset + options.chunkSize
+				}
+			}).map<YieldResult>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
+				auto playlists = results.items.map<$<Playlist>>([=](Json json) {
+					return Playlist::fromJson(json, this->libraryProvider);
+				});
+				size_t playlistsOffset = *offset;
+				*offset += options.chunkSize;
+				bool done = (*offset >= results.total);
+				return YieldResult{
+					.value = GenerateLibraryPlaylistsResult{
+						.playlists = playlists,
+						.offset = playlistsOffset,
+						.total = results.total
+					},
+					.done = done
+				};
 			});
 		});
 	}
