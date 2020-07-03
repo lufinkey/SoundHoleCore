@@ -24,7 +24,6 @@ namespace sh {
 
 
 
-
 	String SpotifyProvider::name() const {
 		return "spotify";
 	}
@@ -535,7 +534,7 @@ namespace sh {
 							.value=GenerateLibraryResults{
 								.resumeData = createResumeData(sharedData).toJson(),
 								.items = items,
-								.progress = (done ? (1.0 / 3.0) : (0 + ((double)sharedData->offset / (double)page.total)))
+								.progress = (done ? (1.0 / 3.0) : ((0 + ((double)sharedData->offset / (double)page.total)) / 3.0))
 							},
 							.done=false
 						};
@@ -590,7 +589,7 @@ namespace sh {
 							.value=GenerateLibraryResults{
 								.resumeData = createResumeData(sharedData).toJson(),
 								.items = items,
-								.progress = (done ? (2.0 / 3.0) : ((1.0 / 3.0) + ((double)sharedData->offset / (double)page.total)))
+								.progress = (done ? (2.0 / 3.0) : ((1.0 + ((double)sharedData->offset / (double)page.total)) / 3.0))
 							},
 							.done=false
 						};
@@ -647,7 +646,7 @@ namespace sh {
 							.value=GenerateLibraryResults{
 								.resumeData = createResumeData(sharedData).toJson(),
 								.items = items,
-								.progress = (done ? 1.0 : ((2.0 / 3.0) + ((double)sharedData->offset / (double)page.total)))
+								.progress = (done ? 1.0 : ((2.0 + ((double)sharedData->offset / (double)page.total)) / 3.0))
 							},
 							.done=false
 						};
