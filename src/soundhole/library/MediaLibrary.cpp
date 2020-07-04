@@ -140,8 +140,14 @@ namespace sh {
 					}
 					if(yieldResult.value) {
 						// cache collection items if collection
+						double prevProgress = task->getStatus().progress;
+						double progressDiff = yieldResult.value->progress - prevProgress;
+						double itemProgressDiff = progressDiff / (double)yieldResult.value->items.size();
 						size_t libraryItemIndex = 0;
 						for(auto libraryItem : yieldResult.value->items) {
+							size_t index = libraryItemIndex;
+							libraryItemIndex += 1;
+							double itemProgressStart = prevProgress + (itemProgressDiff * (double)index);
 							if(auto collection = std::dynamic_pointer_cast<TrackCollection>(libraryItem.mediaItem)) {
 								auto existingCollection = maybeTryAwait(db->getTrackCollectionJson(collection->uri()), Json());
 								auto existingVersionId = existingCollection["versionId"];
@@ -182,6 +188,9 @@ namespace sh {
 											.endIndex = nextOffset
 										}));
 										itemsOffset += itemsYieldResult.value->size();
+										if(collection->itemCount()) {
+											task->setStatusProgress(itemProgressStart + (((double)nextOffset / (double)collection->itemCount().value()) * itemProgressDiff));
+										}
 										// TODO reset collection items
 									}
 									if(itemsYieldResult.done) {
@@ -194,7 +203,7 @@ namespace sh {
 								// update versionId
 								await(db->updateTrackCollectionVersionId(collection));
 							}
-							libraryItemIndex += 1;
+							task->setStatusText("Synchronizing "+libraryProvider->displayName()+" library");
 						}
 						
 						// sync library items to database
