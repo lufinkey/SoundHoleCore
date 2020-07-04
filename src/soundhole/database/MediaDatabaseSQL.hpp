@@ -37,6 +37,10 @@ String purgeDB();
 struct TupleOptions {
 	bool coalesce = false;
 };
+struct TrackCollectionTupleOptions {
+	bool coalesce = false;
+	bool updateVersionId = false;
+};
 
 ArrayList<String> trackTupleColumns();
 String trackTuple(LinkedList<Any>& params, $<Track> track, const TupleOptions& options);
@@ -55,7 +59,7 @@ ArrayList<$<Artist>> trackCollectionArtists($<TrackCollection> collection);
 String trackCollectionItemAddedAt($<TrackCollectionItem> item);
 
 ArrayList<String> trackCollectionTupleColumns();
-String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collection, const TupleOptions& options);
+String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collection, const TrackCollectionTupleOptions& options);
 ArrayList<String> trackCollectionItemTupleColumns();
 String trackCollectionItemTuple(LinkedList<Any>& params, $<TrackCollectionItem> item);
 ArrayList<String> albumItemTupleFromTrackColumns();

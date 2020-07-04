@@ -15,7 +15,7 @@
 namespace sh {
 	template<typename ItemType>
 	SpecialTrackCollection<ItemType>::SpecialTrackCollection(MediaProvider* provider, const Data& data)
-	: TrackCollection(provider, data), _items(nullptr), _mutatorDelegate(nullptr), autoDeleteMutatorDelegate(true) {
+	: TrackCollection(provider, data), _versionId(data.versionId), _items(nullptr), _mutatorDelegate(nullptr), autoDeleteMutatorDelegate(true) {
 		_lazyContentLoader = [=]() {
 			_items = constructItems(data.tracks);
 		};
@@ -68,6 +68,11 @@ namespace sh {
 				.initialSize=tracks->total
 			});
 		}
+	}
+
+	template<typename ItemType>
+	String SpecialTrackCollection<ItemType>::versionId() const {
+		return _versionId;
 	}
 
 	template<typename ItemType>
@@ -549,6 +554,7 @@ namespace sh {
 	template<typename ItemType>
 	SpecialTrackCollection<ItemType>::SpecialTrackCollection(const Json& json, MediaProviderStash* stash)
 	: TrackCollection(json, stash), _items(std::nullptr_t()), _mutatorDelegate(nullptr), autoDeleteMutatorDelegate(true) {
+		_versionId = json["versionId"].string_value();
 		_lazyContentLoader = [=]() {
 			std::map<size_t,$<ItemType>> items;
 			auto itemCountJson = json["itemCount"];

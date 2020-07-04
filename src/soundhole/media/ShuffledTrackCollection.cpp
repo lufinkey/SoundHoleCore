@@ -83,6 +83,7 @@ namespace sh {
 		.uri=source->uri(),
 		.images=std::nullopt,
 		},
+		.versionId=source->versionId(),
 		.tracks=SpecialTrackCollection<ShuffledTrackCollectionItem>::Data::Tracks{
 			.total=source->itemCount().value_or(initialItems.size()),
 			.offset=0,
@@ -133,6 +134,10 @@ namespace sh {
 			
 			// TODO subscribe to changes in source
 		};
+	}
+
+	String ShuffledTrackCollection::versionId() const {
+		return _source->versionId();
 	}
 
 	$<TrackCollection> ShuffledTrackCollection::source() {

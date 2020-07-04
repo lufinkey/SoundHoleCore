@@ -32,7 +32,10 @@ Any sqlStringOrNull(String str) {
 	return str;
 }
 
-#define COALESCE_FIELD(params, coalesce, field, table, item, value) \
+#define COALESCE_FIELD(params, field, table, uri) \
+	sqlOptParam(params, Any(), \
+		"(SELECT " field " FROM " table " WHERE uri = ?)", { Any((String)uri) })
+#define MAYBE_COALESCE_FIELD(coalesce, params, field, table, item, value) \
 	(coalesce ? \
 		sqlOptParam(params, value, \
 			"(SELECT " field " FROM " table " WHERE uri = ?)", { Any(item->uri()) }) \
@@ -50,7 +53,7 @@ ArrayList<String> trackColumns() {
 	return { "uri", "provider", "name", "albumName", "albumURI", "artists", "images", "duration", "playable", "updateTime" };
 }
 ArrayList<String> trackCollectionColumns() {
-	return { "uri", "provider", "type", "name", "itemCount", "artists", "images", "updateTime" };
+	return { "uri", "provider", "type", "name", "versionId", "itemCount", "artists", "images", "updateTime" };
 }
 ArrayList<String> trackCollectionItemColumns() {
 	return { "collectionURI", "indexNum", "trackURI", "addedAt", "updateTime" };
@@ -89,6 +92,7 @@ CREATE TABLE IF NOT EXISTS TrackCollection (
 	provider TEXT NOT NULL,
 	type TEXT NOT NULL,
 	name TEXT NOT NULL,
+	versionId TEXT,
 	itemCount INT,
 	artists TEXT,
 	images TEXT,
@@ -243,15 +247,15 @@ String trackTuple(LinkedList<Any>& params, $<Track> track, const TupleOptions& o
 		// name
 		sqlParam(params, track->name()),",",
 		// albumName
-		COALESCE_FIELD(params, options.coalesce, "albumName", "Track", track, sqlStringOrNull(track->albumName())),",",
+		MAYBE_COALESCE_FIELD(options.coalesce, params, "albumName", "Track", track, sqlStringOrNull(track->albumName())),",",
 		// albumURI
-		COALESCE_FIELD(params, options.coalesce, "albumURI", "Track", track, sqlStringOrNull(track->albumURI())),",",
+		MAYBE_COALESCE_FIELD(options.coalesce, params, "albumURI", "Track", track, sqlStringOrNull(track->albumURI())),",",
 		// artists
-		COALESCE_FIELD(params, options.coalesce, "artists", "Track", track, nonEmptyArtistsJson(track->artists())),",",
+		MAYBE_COALESCE_FIELD(options.coalesce, params, "artists", "Track", track, nonEmptyArtistsJson(track->artists())),",",
 		// images
-		COALESCE_FIELD(params, options.coalesce, "images", "Track", track, imagesJson(track->images())),",",
+		MAYBE_COALESCE_FIELD(options.coalesce, params, "images", "Track", track, imagesJson(track->images())),",",
 		// duration
-		COALESCE_FIELD(params, options.coalesce, "duration", "Track", track, track->duration().toAny()),",",
+		MAYBE_COALESCE_FIELD(options.coalesce, params, "duration", "Track", track, track->duration().toAny()),",",
 		// playable
 		sqlParam(params, track->isPlayable()),",",
 		// updateTime
@@ -260,7 +264,7 @@ String trackTuple(LinkedList<Any>& params, $<Track> track, const TupleOptions& o
 }
 
 ArrayList<String> albumTupleFromTrackColumns() {
-	return { "uri", "provider", "type", "name", "updateTime" };
+	return { "uri", "provider", "type", "name", "versionId", "itemCount", "artists", "images", "updateTime" };
 }
 String albumTupleFromTrack(LinkedList<Any>& params, $<Track> track, const TupleOptions& options) {
 	if(track->albumURI().empty()) {
@@ -275,6 +279,14 @@ String albumTupleFromTrack(LinkedList<Any>& params, $<Track> track, const TupleO
 		sqlParam(params, String("album")),",",
 		// name
 		sqlParam(params, track->albumName()),",",
+		// versionId
+		COALESCE_FIELD(params, "versionId", "TrackCollection", track->albumURI()),",",
+		// itemCount
+		COALESCE_FIELD(params, "itemCount", "TrackCollection", track->albumURI()),",",
+		// artists
+		COALESCE_FIELD(params, "artists", "TrackCollection", track->albumURI()),",",
+		// images
+		COALESCE_FIELD(params, "images", "TrackCollection", track->albumURI()),",",
 		// updateTime
 		"CURRENT_TIMESTAMP",
 	")" });
@@ -295,9 +307,9 @@ String trackArtistTuple(LinkedList<Any>& params, const TrackArtist& trackArtist)
 }
 
 ArrayList<String> trackCollectionTupleColumns() {
-	return { "uri", "provider", "type", "name", "itemCount", "artists", "images", "updateTime" };
+	return { "uri", "provider", "type", "name", "versionId", "itemCount", "artists", "images", "updateTime" };
 }
-String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collection, const TupleOptions& options) {
+String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collection, const TrackCollectionTupleOptions& options) {
 	return String::join({ "(",
 		// uri
 		sqlParam(params, collection->uri()),",",
@@ -307,12 +319,18 @@ String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collecti
 		sqlParam(params, collection->type()),",",
 		// name
 		sqlParam(params, collection->name()),",",
+		// versionId
+		options.updateVersionId ? (
+			sqlParam(params, collection->versionId())
+		) : (
+			COALESCE_FIELD(params, "versionId", "TrackCollection", collection->uri())
+		),",",
 		// itemCount
-		COALESCE_FIELD(params, options.coalesce, "itemCount", "TrackCollection", collection, collection->itemCount().toAny()),",",
+		MAYBE_COALESCE_FIELD(options.coalesce, params, "itemCount", "TrackCollection", collection, collection->itemCount().toAny()),",",
 		// artists
-		COALESCE_FIELD(params, options.coalesce, "artists", "TrackCollection", collection, nonEmptyArtistsJson(trackCollectionArtists(collection))),",",
+		MAYBE_COALESCE_FIELD(options.coalesce, params, "artists", "TrackCollection", collection, nonEmptyArtistsJson(trackCollectionArtists(collection))),",",
 		// images
-		COALESCE_FIELD(params, options.coalesce, "images", "TrackCollection", collection, imagesJson(collection->images())),",",
+		MAYBE_COALESCE_FIELD(options.coalesce, params, "images", "TrackCollection", collection, imagesJson(collection->images())),",",
 		// updateTime
 		"CURRENT_TIMESTAMP",
 	")" });
@@ -398,7 +416,7 @@ String artistTuple(LinkedList<Any>& params, $<Artist> artist, const TupleOptions
 		// name
 		sqlParam(params, artist->name()),",",
 		// images
-		COALESCE_FIELD(params, options.coalesce, "images", "Artist", artist, imagesJson(artist->images())),",",
+		MAYBE_COALESCE_FIELD(options.coalesce, params, "images", "Artist", artist, imagesJson(artist->images())),",",
 		// updateTime
 		"CURRENT_TIMESTAMP",
 	")" });

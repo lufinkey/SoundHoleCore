@@ -157,6 +157,7 @@ namespace sh {
 			.uri=album.uri,
 			.images=albumImages
 			},
+			.versionId=album.releaseDate,
 			.tracks=(album.tracks ?
 				maybe(Album::Data::Tracks{
 					.total=album.tracks->total,
@@ -198,6 +199,7 @@ namespace sh {
 				return createImage(std::move(image));
 			})
 			},
+			.versionId=playlist.snapshotId,
 			.tracks=Playlist::Data::Tracks{
 				.total=playlist.tracks.total,
 				.offset=playlist.tracks.offset,

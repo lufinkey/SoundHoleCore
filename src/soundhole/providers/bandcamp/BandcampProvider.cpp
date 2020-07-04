@@ -99,6 +99,7 @@ namespace sh {
 								.uri=item.url,
 								.images=images
 								},
+								.versionId=String(),
 								.tracks=item.numTracks ?
 									maybe(Album::Data::Tracks{
 										.total=item.numTracks.value(),
@@ -271,6 +272,7 @@ namespace sh {
 				return createImage(std::move(image));
 			})
 			},
+			.versionId=String(),
 			.tracks=(album.tracks ?
 				maybe(Album::Data::Tracks{
 					.total=album.tracks->size(),

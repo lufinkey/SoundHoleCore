@@ -376,6 +376,7 @@ namespace sh {
 				return createImage(image);
 			})
 			},
+			.versionId=playlist.etag,
 			.tracks=std::nullopt,
 			},
 			.owner=UserAccount::new$(this, UserAccount::Data{{
@@ -512,6 +513,7 @@ namespace sh {
 				.uri=createURI("playlist", searchResult.id.playlistId.value()),
 				.images=images
 				},
+				.versionId=searchResult.etag,
 				.tracks=std::nullopt
 				},
 				.owner=UserAccount::new$(this, UserAccount::Data{{

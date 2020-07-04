@@ -61,6 +61,8 @@ namespace sh {
 			static LoadItemOptions defaultOptions();
 		};
 		
+		virtual String versionId() const;
+		
 		virtual Optional<size_t> indexOfItem(const TrackCollectionItem* item) const = 0;
 		virtual Optional<size_t> indexOfItemInstance(const TrackCollectionItem* item) const = 0;
 		virtual $<TrackCollectionItem> itemAt(size_t index) = 0;
@@ -111,6 +113,7 @@ namespace sh {
 				LinkedList<typename ItemType::Data> items;
 			};
 			
+			String versionId;
 			Optional<Tracks> tracks;
 		};
 		
@@ -119,6 +122,8 @@ namespace sh {
 		SpecialTrackCollection(MediaProvider* provider, const Data& data, MutatorDelegate* mutatorDelegate, bool autoDeleteMutatorDelegate);
 		SpecialTrackCollection(const Json& json, MediaProviderStash* stash, MutatorDelegate* mutatorDelegate, bool autoDeleteMutatorDelegate);
 		virtual ~SpecialTrackCollection();
+		
+		virtual String versionId() const override;
 		
 		virtual Optional<size_t> indexOfItem(const TrackCollectionItem* item) const override;
 		Optional<size_t> indexOfItem(const ItemType* item) const;
@@ -163,6 +168,8 @@ namespace sh {
 		inline $<AsyncList<$<ItemType>>> asyncItemsList();
 		inline $<const AsyncList<$<ItemType>>> asyncItemsList() const;
 		void makeTracksAsync();
+		
+		String _versionId;
 		
 		struct EmptyTracks {
 			size_t total;

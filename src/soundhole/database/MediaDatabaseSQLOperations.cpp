@@ -724,6 +724,14 @@ void selectDBState(SQLiteTransaction& tx, String outKey, String stateKey) {
 
 
 
+void updateTrackCollectionVersionId(SQLiteTransaction& tx, String collectionURI, String versionId) {
+	LinkedList<Any> params;
+	tx.addSQL("UPDATE TrackCollection SET versionId = ? WHERE uri = ?", { versionId, collectionURI });
+}
+
+
+
+
 void deleteNonLibraryCollectionItems(SQLiteTransaction& tx) {
 	tx.addSQL(
 		"DELETE FROM TrackCollectionItem AS tci "

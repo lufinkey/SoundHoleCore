@@ -177,6 +177,13 @@ namespace sh {
 		}).toVoid();
 	}
 
+	Promise<void> MediaDatabase::updateTrackCollectionVersionId($<TrackCollection> collection, CacheOptions options) {
+		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
+			sql::updateTrackCollectionVersionId(tx, collection->uri(), collection->versionId());
+			applyDBState(tx, options.dbState);
+		}).toVoid();
+	}
+
 	Promise<LinkedList<Json>> MediaDatabase::getTrackCollectionsJson(ArrayList<String> uris) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
 			for(size_t i=0; i<uris.size(); i++) {

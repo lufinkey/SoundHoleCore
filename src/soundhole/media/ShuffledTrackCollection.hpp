@@ -48,6 +48,8 @@ namespace sh {
 		static $<ShuffledTrackCollection> new$($<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems={});
 		ShuffledTrackCollection($<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems = {});
 		
+		virtual String versionId() const override;
+		
 		$<TrackCollection> source();
 		$<const TrackCollection> source() const;
 		

@@ -139,6 +139,64 @@ namespace sh {
 						continue;
 					}
 					if(yieldResult.value) {
+						// cache collection items if collection
+						size_t libraryItemIndex = 0;
+						for(auto libraryItem : yieldResult.value->items) {
+							if(auto collection = std::dynamic_pointer_cast<TrackCollection>(libraryItem.mediaItem)) {
+								auto existingCollection = await(db->getTrackCollectionJson(collection->uri()));
+								auto existingVersionId = existingCollection["versionId"];
+								if(existingVersionId.is_string() && collection->versionId() == existingVersionId.string_value()) {
+									continue;
+								}
+								await(db->cacheTrackCollections({ collection }));
+								// cache album items
+								size_t itemsOffset = 0;
+								task->setStatusText("Synchronizing "+libraryProvider->displayName()+" "+collection->type()+" "+collection->name());
+								auto collectionItemGenerator = collection->generateItems();
+								while(true) {
+									TrackCollection::ItemGenerator::YieldResult itemsYieldResult;
+									try {
+										itemsYieldResult = await(collectionItemGenerator.next());
+									} catch(Error& error) {
+										task->setStatusText("Error: "+error.getMessage());
+										yield();
+										auto retryAfter = error.getDetail("retryAfter").maybeAs<double>().value_or(0);
+										if(retryAfter > 0) {
+											std::this_thread::sleep_for(std::chrono::milliseconds((long)(retryAfter * 1000)));
+										} else {
+											std::this_thread::sleep_for(std::chrono::seconds(2));
+										}
+										yield();
+										continue;
+									} catch(std::exception& error) {
+										task->setStatusText((String)"Error: "+error.what());
+										yield();
+										std::this_thread::sleep_for(std::chrono::seconds(2));
+										yield();
+										continue;
+									}
+									if(itemsYieldResult.value) {
+										size_t nextOffset = itemsOffset + itemsYieldResult.value->size();
+										await(db->cacheTrackCollectionItems(collection, sql::IndexRange{
+											.startIndex = itemsOffset,
+											.endIndex = nextOffset
+										}));
+										itemsOffset += itemsYieldResult.value->size();
+										// TODO reset collection items
+									}
+									if(itemsYieldResult.done) {
+										break;
+									}
+									yield();
+									std::this_thread::sleep_for(std::chrono::milliseconds(200));
+									yield();
+								}
+								// update versionId
+								await(db->updateTrackCollectionVersionId(collection));
+							}
+							libraryItemIndex += 1;
+						}
+						
 						// sync library items to database
 						auto cacheOptions = MediaDatabase::CacheOptions{
 							.dbState = {
@@ -146,181 +204,7 @@ namespace sh {
 							}
 						};
 						await(db->cacheLibraryItems(yieldResult.value->items, cacheOptions));
-						task->setStatusProgress((0.0 + yieldResult.value->progress) / 3.0);
-					}
-					if(yieldResult.done) {
-						break;
-					}
-					yield();
-					std::this_thread::sleep_for(std::chrono::milliseconds(200));
-					yield();
-				}
-				
-				// sync provider album items
-				auto albumsGenerator = generateLibraryAlbums({
-					.libraryProvider = libraryProvider
-				});
-				while(true) {
-					// get album items from provider until success
-					task->setStatusText("Synchronizing "+libraryProvider->displayName()+" library album items");
-					LibraryAlbumsGenerator::YieldResult yieldResult;
-					try {
-						yieldResult = await(albumsGenerator.next());
-					} catch(Error& error) {
-						task->setStatusText("Error: "+error.getMessage());
-						yield();
-						auto retryAfter = error.getDetail("retryAfter").maybeAs<double>().value_or(0);
-						if(retryAfter > 0) {
-							std::this_thread::sleep_for(std::chrono::milliseconds((long)(retryAfter * 1000)));
-						} else {
-							std::this_thread::sleep_for(std::chrono::seconds(2));
-						}
-						yield();
-						continue;
-					} catch(std::exception& error) {
-						task->setStatusText((String)"Error: "+error.what());
-						yield();
-						std::this_thread::sleep_for(std::chrono::seconds(2));
-						yield();
-						continue;
-					}
-					
-					if(yieldResult.value) {
-						// generate album items
-						size_t albumIndex = yieldResult.value->offset;
-						for(auto& album : yieldResult.value->albums) {
-							task->setStatusText("Synchronizing "+libraryProvider->displayName()+" album "+album->name());
-							double albumsProgress = (double)albumIndex / (double)yieldResult.value->total;
-							size_t itemsOffset = 0;
-							auto albumItemGenerator = album->generateItems();
-							while(true) {
-								TrackCollection::ItemGenerator::YieldResult itemsYieldResult;
-								try {
-									itemsYieldResult = await(albumItemGenerator.next());
-								} catch(Error& error) {
-									task->setStatusText("Error: "+error.getMessage());
-									yield();
-									auto retryAfter = error.getDetail("retryAfter").maybeAs<double>().value_or(0);
-									if(retryAfter > 0) {
-										std::this_thread::sleep_for(std::chrono::milliseconds((long)(retryAfter * 1000)));
-									} else {
-										std::this_thread::sleep_for(std::chrono::seconds(2));
-									}
-									yield();
-									continue;
-								} catch(std::exception& error) {
-									task->setStatusText((String)"Error: "+error.what());
-									yield();
-									std::this_thread::sleep_for(std::chrono::seconds(2));
-									yield();
-									continue;
-								}
-								if(itemsYieldResult.value) {
-									size_t nextOffset = itemsOffset + itemsYieldResult.value->size();
-									await(db->cacheTrackCollectionItems(album, sql::IndexRange{
-										.startIndex = itemsOffset,
-										.endIndex = nextOffset
-									}));
-									itemsOffset += itemsYieldResult.value->size();
-									task->setStatusProgress((1.0 + (albumsProgress + ((double)itemsOffset / (double)album->itemCount().valueOr(999999)))) / 3.0);
-								}
-								if(itemsYieldResult.done) {
-									break;
-								}
-								yield();
-								std::this_thread::sleep_for(std::chrono::milliseconds(200));
-								yield();
-							}
-							
-							albumIndex += 1;
-						}
-					}
-					if(yieldResult.done) {
-						break;
-					}
-					yield();
-					std::this_thread::sleep_for(std::chrono::milliseconds(200));
-					yield();
-				}
-				
-				// sync provider playlist items
-				auto playlistsGenerator = generateLibraryPlaylists({
-					.libraryProvider = libraryProvider
-				});
-				while(true) {
-					// get playlist items from provider until success
-					task->setStatusText("Synchronizing "+libraryProvider->displayName()+" library playlist items");
-					LibraryPlaylistsGenerator::YieldResult yieldResult;
-					try {
-						yieldResult = await(playlistsGenerator.next());
-					} catch(Error& error) {
-						task->setStatusText("Error: "+error.getMessage());
-						yield();
-						auto retryAfter = error.getDetail("retryAfter").maybeAs<double>().value_or(0);
-						if(retryAfter > 0) {
-							std::this_thread::sleep_for(std::chrono::milliseconds((long)(retryAfter * 1000)));
-						} else {
-							std::this_thread::sleep_for(std::chrono::seconds(2));
-						}
-						yield();
-						continue;
-					} catch(std::exception& error) {
-						task->setStatusText((String)"Error: "+error.what());
-						yield();
-						std::this_thread::sleep_for(std::chrono::seconds(2));
-						yield();
-						continue;
-					}
-					
-					if(yieldResult.value) {
-						// generate playlist items
-						size_t playlistIndex = yieldResult.value->offset;
-						for(auto& playlist : yieldResult.value->playlists) {
-							task->setStatusText("Synchronizing "+libraryProvider->displayName()+" playlist "+playlist->name());
-							double playlistsProgress = (double)playlistIndex / (double)yieldResult.value->total;
-							size_t itemsOffset = 0;
-							auto playlistItemGenerator = playlist->generateItems();
-							while(true) {
-								TrackCollection::ItemGenerator::YieldResult itemsYieldResult;
-								try {
-									itemsYieldResult = await(playlistItemGenerator.next());
-								} catch(Error& error) {
-									task->setStatusText("Error: "+error.getMessage());
-									yield();
-									auto retryAfter = error.getDetail("retryAfter").maybeAs<double>().value_or(0);
-									if(retryAfter > 0) {
-										std::this_thread::sleep_for(std::chrono::milliseconds((long)(retryAfter * 1000)));
-									} else {
-										std::this_thread::sleep_for(std::chrono::seconds(2));
-									}
-									yield();
-									continue;
-								} catch(std::exception& error) {
-									task->setStatusText((String)"Error: "+error.what());
-									yield();
-									std::this_thread::sleep_for(std::chrono::seconds(2));
-									yield();
-									continue;
-								}
-								if(itemsYieldResult.value) {
-									size_t nextOffset = itemsOffset + itemsYieldResult.value->size();
-									await(db->cacheTrackCollectionItems(playlist, sql::IndexRange{
-										.startIndex = itemsOffset,
-										.endIndex = nextOffset
-									}));
-									itemsOffset += itemsYieldResult.value->size();
-									task->setStatusProgress((2.0 + (playlistsProgress + ((double)itemsOffset / (double)playlist->itemCount().valueOr(999999)))) / 3.0);
-								}
-								if(itemsYieldResult.done) {
-									break;
-								}
-								yield();
-								std::this_thread::sleep_for(std::chrono::milliseconds(200));
-								yield();
-							}
-							
-							playlistIndex += 1;
-						}
+						task->setStatusProgress(yieldResult.value->progress);
 					}
 					if(yieldResult.done) {
 						break;

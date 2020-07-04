@@ -77,6 +77,10 @@ namespace sh {
 		return LoadItemOptions();
 	}
 
+	String TrackCollection::versionId() const {
+		return "";
+	}
+
 	Json TrackCollection::toJson() const {
 		return toJson(ToJsonOptions());
 	}
@@ -85,6 +89,7 @@ namespace sh {
 		auto json = MediaItem::toJson().object_items();
 		auto itemCount = this->itemCount();
 		json.merge(Json::object{
+			{ "versionId", (std::string)versionId() },
 			{ "itemCount", itemCount ? Json((double)itemCount.value()) : Json() }
 		});
 		return json;
