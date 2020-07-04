@@ -17,6 +17,7 @@ namespace sh {
 	class BandcampAlbumMutatorDelegate: public Album::MutatorDelegate {
 		friend class BandcampProvider;
 	public:
+		virtual size_t getChunkSize() override;
 		virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) override;
 		
 	private:

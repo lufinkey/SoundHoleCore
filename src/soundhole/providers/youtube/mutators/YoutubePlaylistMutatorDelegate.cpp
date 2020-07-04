@@ -17,6 +17,10 @@ namespace sh {
 		//
 	}
 
+	size_t YoutubePlaylistMutatorDelegate::getChunkSize() {
+		return 50;
+	}
+
 	ArrayList<YoutubePlaylistMutatorDelegate::Range> YoutubePlaylistMutatorDelegate::coverRange(Range range, Range coverRange) const {
 		if(range.count == 0) {
 			return {};

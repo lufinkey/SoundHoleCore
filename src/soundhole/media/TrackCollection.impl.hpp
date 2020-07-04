@@ -10,8 +10,6 @@
 
 #include <soundhole/common.hpp>
 
-#define TRACKCOLLECTION_CHUNK_SIZE 18
-
 namespace sh {
 	template<typename ItemType>
 	SpecialTrackCollection<ItemType>::SpecialTrackCollection(MediaProvider* provider, const Data& data)
@@ -60,7 +58,6 @@ namespace sh {
 		} else {
 			return AsyncList<$<ItemType>>::new$({
 				.delegate=this,
-				.chunkSize=TRACKCOLLECTION_CHUNK_SIZE,
 				.initialItemsOffset=tracks->offset,
 				.initialItems=ArrayList<$<ItemType>>(tracks->items.template map<$<ItemType>>([&](auto& data) {
 					return ItemType::new$(self, data);
@@ -233,7 +230,7 @@ namespace sh {
 				});
 			});
 		} else {
-			size_t chunkSize = TRACKCOLLECTION_CHUNK_SIZE;
+			size_t chunkSize = 50;
 			auto& sourceList = itemsList();
 			auto startIt = sourceList.begin();
 			size_t i=0;
@@ -418,6 +415,14 @@ namespace sh {
 
 
 	template<typename ItemType>
+	size_t SpecialTrackCollection<ItemType>::getAsyncListChunkSize(const AsyncList<$<ItemType>>* list) const {
+		if(_mutatorDelegate == nullptr) {
+			throw std::logic_error("getAsyncListChunkSize called before delegate was created");
+		}
+		return _mutatorDelegate->getChunkSize();
+	}
+
+	template<typename ItemType>
 	bool SpecialTrackCollection<ItemType>::areAsyncListItemsEqual(const AsyncList<$<ItemType>>* list, const $<ItemType>& item1, const $<ItemType>& item2) const {
 		return item1->matchesItem(item2.get());
 	}
@@ -488,13 +493,11 @@ namespace sh {
 			if(_items.index() == 0) {
 				_items = AsyncList<$<ItemType>>::new$({
 					.delegate=this,
-					.chunkSize=TRACKCOLLECTION_CHUNK_SIZE
 				});
 			} else {
 				auto& tracks = std::get<EmptyTracks>(_items);
 				_items = AsyncList<$<ItemType>>::new$({
 					.delegate=this,
-					.chunkSize=TRACKCOLLECTION_CHUNK_SIZE,
 					.initialSize=tracks.total
 				});
 			}
@@ -502,7 +505,6 @@ namespace sh {
 			auto& tracks = itemsList();
 			_items = AsyncList<$<ItemType>>::new$({
 				.delegate=this,
-				.chunkSize=TRACKCOLLECTION_CHUNK_SIZE,
 				.initialItemsOffset=0,
 				.initialItems=tracks,
 				.initialSize=tracks.size()
@@ -603,7 +605,6 @@ namespace sh {
 			} else if(needsAsync) {
 				_items = AsyncList<$<ItemType>>::new$({
 					.delegate=this,
-					.chunkSize=TRACKCOLLECTION_CHUNK_SIZE,
 					.initialItemsMap=items,
 					.initialSize=itemCount
 				});

@@ -160,6 +160,10 @@ namespace sh {
 		return this;
 	}
 
+	size_t ShuffledTrackCollection::getChunkSize() {
+		return 12;
+	}
+
 	Promise<void> ShuffledTrackCollection::loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) {
 		auto self = std::static_pointer_cast<ShuffledTrackCollection>(shared_from_this());
 		size_t endIndex = index+count;

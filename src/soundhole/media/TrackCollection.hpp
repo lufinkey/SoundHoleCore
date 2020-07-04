@@ -103,6 +103,8 @@ namespace sh {
 			
 			virtual ~MutatorDelegate() {}
 			
+			virtual size_t getChunkSize();
+			
 			virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) = 0;
 		};
 		
@@ -155,6 +157,7 @@ namespace sh {
 		virtual Json toJson(const ToJsonOptions& options) const override;
 		
 	protected:
+		virtual size_t getAsyncListChunkSize(const AsyncList<$<ItemType>>* list) const override;
 		virtual bool areAsyncListItemsEqual(const AsyncList<$<ItemType>>* list, const $<ItemType>& item1, const $<ItemType>& item2) const override;
 		virtual Promise<void> loadAsyncListItems(typename AsyncList<$<ItemType>>::Mutator* mutator, size_t index, size_t count, std::map<String,Any> options) override;
 		
@@ -182,6 +185,8 @@ namespace sh {
 		
 		MutatorDelegate* _mutatorDelegate;
 		mutable Function<void()> _lazyContentLoader;
+		
+	private:
 		bool autoDeleteMutatorDelegate;
 	};
 

@@ -17,6 +17,10 @@ namespace sh {
 		//
 	}
 
+	size_t BandcampAlbumMutatorDelegate::getChunkSize() {
+		return 50;
+	}
+
 	Promise<void> BandcampAlbumMutatorDelegate::loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) {
 		auto album = this->album.lock();
 		if(options.database == nullptr) {

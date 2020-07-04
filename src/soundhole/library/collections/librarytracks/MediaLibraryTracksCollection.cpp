@@ -136,6 +136,10 @@ namespace sh {
 		return this;
 	}
 
+	size_t MediaLibraryTracksCollection::getChunkSize() {
+		return 50;
+	}
+
 	Promise<void> MediaLibraryTracksCollection::loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) {
 		auto self = std::static_pointer_cast<MediaLibraryTracksCollection>(shared_from_this());
 		MediaDatabase* database = _database;

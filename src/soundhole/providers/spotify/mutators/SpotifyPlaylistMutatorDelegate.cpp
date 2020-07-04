@@ -16,6 +16,10 @@ namespace sh {
 		//
 	}
 
+	size_t SpotifyPlaylistMutatorDelegate::getChunkSize() {
+		return 100;
+	}
+
 	Promise<void> SpotifyPlaylistMutatorDelegate::loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) {
 		auto playlist = this->playlist.lock();
 		if(options.database == nullptr) {
