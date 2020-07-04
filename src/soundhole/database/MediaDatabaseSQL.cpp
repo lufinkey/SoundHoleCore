@@ -234,7 +234,7 @@ String trackCollectionItemAddedAt($<TrackCollectionItem> item) {
 ArrayList<String> trackTupleColumns() {
 	return { "uri", "provider", "name", "albumName", "albumURI", "artists", "images", "duration", "playable", "updateTime" };
 }
-String trackTuple(LinkedList<Any>& params, $<Track> track, TupleOptions options) {
+String trackTuple(LinkedList<Any>& params, $<Track> track, const TupleOptions& options) {
 	return String::join({ "(",
 		// uri
 		sqlParam(params, track->uri()),",",
