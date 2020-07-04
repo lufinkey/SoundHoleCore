@@ -418,7 +418,7 @@ void selectTrackCollectionItemsAndTracks(SQLiteTransaction& tx, String outKey, S
 				" AND TrackCollectionItem.indexNum < ",sqlParam(params, range->endIndex)
 			})
 		) : ""),
-		" ORDER BY indexNum ASC"
+		" ORDER BY TrackCollectionItem.indexNum ASC"
 	});
 	tx.addSQL(query, params, {
 		.outKey=outKey,
@@ -453,7 +453,15 @@ void selectSavedTracksAndTracks(SQLiteTransaction& tx, String outKey, LibraryIte
 			: String::join({
 				" AND libraryProvider = ",sqlParam(params, options.libraryProvider),
 			}),
-		" ORDER BY addedAt",([&]() {
+		" ORDER BY ",([&]() {
+			switch(options.orderBy) {
+				case LibraryItemOrderBy::ADDED_AT:
+					return "SavedTrack.addedAt";
+				case LibraryItemOrderBy::NAME:
+					return "TrackCollection.name";
+			}
+			throw std::runtime_error("invalid LibraryItemOrderBy value");
+		})(),([&]() {
 			switch(options.order) {
 				case Order::NONE:
 					return "";
@@ -512,7 +520,15 @@ void selectSavedAlbumsAndAlbums(SQLiteTransaction& tx, String outKey, LibraryIte
 			: String::join({
 				" AND libraryProvider = ",sqlParam(params, options.libraryProvider),
 			}),
-		" ORDER BY addedAt",([&]() {
+		" ORDER BY ",([&]() {
+			switch(options.orderBy) {
+				case LibraryItemOrderBy::ADDED_AT:
+					return "SavedAlbum.addedAt";
+				case LibraryItemOrderBy::NAME:
+					return "TrackCollection.name";
+			}
+			throw std::runtime_error("invalid LibraryItemOrderBy value");
+		})(),([&]() {
 			switch(options.order) {
 				case Order::NONE:
 					return "";
@@ -571,7 +587,15 @@ void selectSavedPlaylistsAndPlaylists(SQLiteTransaction& tx, String outKey, Libr
 			: String::join({
 				" AND libraryProvider = ",sqlParam(params, options.libraryProvider),
 			}),
-		" ORDER BY addedAt",([&]() {
+		" ORDER BY ",([&]() {
+			switch(options.orderBy) {
+				case LibraryItemOrderBy::ADDED_AT:
+					return "SavedPlaylist.addedAt";
+				case LibraryItemOrderBy::NAME:
+					return "TrackCollection.name";
+			}
+			throw std::runtime_error("invalid LibraryItemOrderBy value");
+		})(),([&]() {
 			switch(options.order) {
 				case Order::NONE:
 					return "";
@@ -612,13 +636,50 @@ void selectSavedPlaylistCount(SQLiteTransaction& tx, String outKey, String libra
 void selectLibraryArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options) {
 	LinkedList<Any> params;
 	auto query = String::join({
-		"SELECT Artist.* FROM Artist, TrackArtist, SavedTrack WHERE SavedTrack.trackURI = TrackArtist.trackURI AND TrackArtist.artistURI = Artist.uri",
+		"SELECT * FROM Artist AS a "
+		"WHERE ",
 		(options.libraryProvider.empty()) ?
 			String()
 			: String::join({
-				" AND libraryProvider = ",sqlParam(params, options.libraryProvider),
+				"libraryProvider = ",sqlParam(params, options.libraryProvider)," AND "
 			}),
-		" GROUP BY Artist.uri ORDER BY Artist.name ASC",
+		"("
+			"EXISTS("
+				"SELECT TrackArtist.trackURI, TrackArtist.artistURI FROM TrackArtist, SavedTrack "
+					"WHERE TrackArtist.artistURI = a.uri AND TrackArtist.trackURI = SavedTrack.trackURI"
+			") "
+			"OR EXISTS("
+				"SELECT TrackCollectionArtist.trackURI, TrackCollectionArtist.artistURI FROM TrackCollectionArtist, SavedAlbum "
+					"WHERE TrackCollectionArtist.artistURI = a.uri AND TrackCollectionArtist.collectionURI = SavedAlbum.albumURI"
+			") "
+			"OR EXISTS("
+				"SELECT TrackCollectionArtist.trackURI, TrackCollectionArtist.artistURI FROM TrackCollectionArtist, SavedPlaylist "
+					"WHERE TrackCollectionArtist.artistURI = a.uri AND TrackCollectionArtist.collectionURI = SavedPlaylist.playlistURI"
+			") "
+			"OR EXISTS("
+				"SELECT FollowedArtist.artistURI FROM FollowedArtist "
+					"WHERE FollowedArtist.artistURI = a.uri"
+			") "
+		") "
+		"ORDER BY ",([&]() {
+			switch(options.orderBy) {
+				case LibraryItemOrderBy::ADDED_AT:
+					return "Artist.name";
+				case LibraryItemOrderBy::NAME:
+					return "Artist.name";
+			}
+			throw std::runtime_error("invalid LibraryItemOrderBy value");
+		})(),([&]() {
+			switch(options.order) {
+				case Order::NONE:
+					return "";
+				case Order::ASC:
+					return " ASC";
+				case Order::DESC:
+					return " DESC";
+			}
+			return "";
+		})(),
 		(options.range ?
 			String::join({
 				" LIMIT ",sqlParam(params, (options.range->endIndex - options.range->startIndex))," OFFSET ",sqlParam(params, options.range->startIndex)
@@ -631,13 +692,27 @@ void selectLibraryArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelec
 void selectLibraryArtistCount(SQLiteTransaction& tx, String outKey, String libraryProvider) {
 	LinkedList<Any> params;
 	auto query = String::join({
-		"SELECT count(*) AS total FROM Artist, TrackArtist, SavedTrack WHERE SavedTrack.trackURI = TrackArtist.trackURI AND TrackArtist.artistURI = Artist.uri",
+		"SELECT count(*) AS total FROM Artist AS a "
+		"WHERE ",
 		(libraryProvider.empty()) ?
 			String()
 			: String::join({
-				" AND libraryProvider = ",sqlParam(params, libraryProvider),
+				"libraryProvider = ",sqlParam(params, libraryProvider)," AND "
 			}),
-		" GROUP BY Artist.uri",
+		"("
+			"EXISTS("
+				"SELECT TrackArtist.trackURI, TrackArtist.artistURI FROM TrackArtist, SavedTrack "
+					"WHERE TrackArtist.artistURI = a.uri AND TrackArtist.trackURI = SavedTrack.trackURI"
+			") "
+			"OR EXISTS("
+				"SELECT TrackCollectionArtist.trackURI, TrackCollectionArtist.artistURI FROM TrackCollectionArtist, SavedAlbum "
+					"WHERE TrackCollectionArtist.artistURI = a.uri AND TrackCollectionArtist.collectionURI = SavedAlbum.albumURI"
+			") "
+			"OR EXISTS("
+				"SELECT TrackCollectionArtist.trackURI, TrackCollectionArtist.artistURI FROM TrackCollectionArtist, SavedPlaylist "
+					"WHERE TrackCollectionArtist.artistURI = a.uri AND TrackCollectionArtist.collectionURI = SavedPlaylist.playlistURI"
+			") "
+		")"
 	});
 	tx.addSQL(query, params, { .outKey=outKey });
 }

@@ -10,11 +10,11 @@
 #include "MediaProvider.hpp"
 
 namespace sh {
-	$<AlbumItem> AlbumItem::new$($<SpecialTrackCollection<AlbumItem>> album, Data data) {
+	$<AlbumItem> AlbumItem::new$($<SpecialTrackCollection<AlbumItem>> album, const Data& data) {
 		return fgl::new$<AlbumItem>(album, data);
 	}
 
-	AlbumItem::AlbumItem($<SpecialTrackCollection<AlbumItem>> album, Data data)
+	AlbumItem::AlbumItem($<SpecialTrackCollection<AlbumItem>> album, const Data& data)
 	: SpecialTrackCollectionItem<Album>(album, data) {
 		//
 	}
@@ -30,22 +30,22 @@ namespace sh {
 		return false;
 	}
 
-	AlbumItem::AlbumItem($<SpecialTrackCollection<AlbumItem>> album, Json json, MediaProviderStash* stash)
+	AlbumItem::AlbumItem($<SpecialTrackCollection<AlbumItem>> album, const Json& json, MediaProviderStash* stash)
 	: SpecialTrackCollectionItem<Album>(album, json, stash) {
 		//
 	}
 
-	$<AlbumItem> AlbumItem::fromJson($<SpecialTrackCollection<AlbumItem>> album, Json json, MediaProviderStash* stash) {
+	$<AlbumItem> AlbumItem::fromJson($<SpecialTrackCollection<AlbumItem>> album, const Json& json, MediaProviderStash* stash) {
 		return fgl::new$<AlbumItem>(album, json, stash);
 	}
 
 
 
-	$<Album> Album::new$(MediaProvider* provider, Data data) {
+	$<Album> Album::new$(MediaProvider* provider, const Data& data) {
 		return fgl::new$<Album>(provider, data);
 	}
 
-	Album::Album(MediaProvider* provider, Data data)
+	Album::Album(MediaProvider* provider, const Data& data)
 	: SpecialTrackCollection<AlbumItem>(provider, data),
 	_artists(data.artists) {
 		//
@@ -77,20 +77,20 @@ namespace sh {
 		});
 	}
 
-	Album::Data Album::toData(DataOptions options) const {
+	Album::Data Album::toData(const DataOptions& options) const {
 		return Album::Data{
 			SpecialTrackCollection<AlbumItem>::toData(options),
 			.artists=_artists
 		};
 	}
 
-	$<Album> Album::fromJson(Json json, MediaProviderStash* stash) {
+	$<Album> Album::fromJson(const Json& json, MediaProviderStash* stash) {
 		auto album = fgl::new$<Album>(json, stash);
 		album->lazyLoadContentIfNeeded();
 		return album;
 	}
 
-	Album::Album(Json json, MediaProviderStash* stash)
+	Album::Album(const Json& json, MediaProviderStash* stash)
 	: SpecialTrackCollection<AlbumItem>(json, stash) {
 		auto artists = json["artists"];
 		_artists.reserve(artists.array_items().size());
@@ -99,7 +99,7 @@ namespace sh {
 		}
 	}
 
-	Json Album::toJson(ToJsonOptions options) const {
+	Json Album::toJson(const ToJsonOptions& options) const {
 		auto json = SpecialTrackCollection<AlbumItem>::toJson(options).object_items();
 		json.merge(Json::object{
 			{ "artists", _artists.map<Json>([&](auto& artist) {

@@ -10,7 +10,7 @@
 #include <soundhole/database/MediaDatabase.hpp>
 
 namespace sh {
-	TrackCollectionItem::TrackCollectionItem($<TrackCollection> context, Data data)
+	TrackCollectionItem::TrackCollectionItem($<TrackCollection> context, const Data& data)
 	: _context(context), _track(data.track) {
 		//
 	}
@@ -53,7 +53,7 @@ namespace sh {
 		};
 	}
 
-	TrackCollectionItem::TrackCollectionItem($<TrackCollection> context, Json json, MediaProviderStash* stash)
+	TrackCollectionItem::TrackCollectionItem($<TrackCollection> context, const Json& json, MediaProviderStash* stash)
 	: _context(context), _track(Track::fromJson(json["track"], stash)) {
 		//
 	}
@@ -66,9 +66,10 @@ namespace sh {
 		};
 	}
 
-	TrackCollection::LoadItemOptions TrackCollection::LoadItemOptions::fromDict(std::map<String,Any> dict) {
+	TrackCollection::LoadItemOptions TrackCollection::LoadItemOptions::fromDict(const std::map<String,Any>& dict) {
+		auto databaseIt = dict.find("database");
 		return {
-			.database = dict["database"].maybeAs<MediaDatabase*>().valueOr(nullptr)
+			.database = (databaseIt != dict.end()) ? databaseIt->second.maybeAs<MediaDatabase*>().valueOr(nullptr) : nullptr
 		};
 	}
 
@@ -80,7 +81,7 @@ namespace sh {
 		return toJson(ToJsonOptions());
 	}
 
-	Json TrackCollection::toJson(ToJsonOptions options) const {
+	Json TrackCollection::toJson(const ToJsonOptions& options) const {
 		auto json = MediaItem::toJson().object_items();
 		auto itemCount = this->itemCount();
 		json.merge(Json::object{

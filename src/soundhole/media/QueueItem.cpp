@@ -31,11 +31,11 @@ namespace sh {
 	}
 
 
-	$<QueueItem> QueueItem::fromJson(Json json, MediaProviderStash* stash) {
+	$<QueueItem> QueueItem::fromJson(const Json& json, MediaProviderStash* stash) {
 		return fgl::new$<QueueItem>(json, stash);
 	}
 
-	QueueItem::QueueItem(Json json, MediaProviderStash* stash)
+	QueueItem::QueueItem(const Json& json, MediaProviderStash* stash)
 	: _track(Track::fromJson(json["track"], stash)) {
 		//
 	}

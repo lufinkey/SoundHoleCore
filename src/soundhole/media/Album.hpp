@@ -17,14 +17,14 @@ namespace sh {
 
 	class AlbumItem: public SpecialTrackCollectionItem<Album> {
 	public:
-		static $<AlbumItem> new$($<SpecialTrackCollection<AlbumItem>> album, Data data);
+		static $<AlbumItem> new$($<SpecialTrackCollection<AlbumItem>> album, const Data& data);
 		
-		AlbumItem($<SpecialTrackCollection<AlbumItem>> album, Data data);
-		AlbumItem($<SpecialTrackCollection<AlbumItem>> album, Json json, MediaProviderStash* stash);
+		AlbumItem($<SpecialTrackCollection<AlbumItem>> album, const Data& data);
+		AlbumItem($<SpecialTrackCollection<AlbumItem>> album, const Json& json, MediaProviderStash* stash);
 		
 		virtual bool matchesItem(const TrackCollectionItem* item) const override;
 		
-		static $<AlbumItem> fromJson($<SpecialTrackCollection<AlbumItem>> album, Json json, MediaProviderStash* stash);
+		static $<AlbumItem> fromJson($<SpecialTrackCollection<AlbumItem>> album, const Json& json, MediaProviderStash* stash);
 	};
 
 
@@ -34,10 +34,10 @@ namespace sh {
 			ArrayList<$<Artist>> artists;
 		};
 		
-		static $<Album> new$(MediaProvider* provider, Data data);
+		static $<Album> new$(MediaProvider* provider, const Data& data);
 		
-		Album(MediaProvider* provider, Data data);
-		Album(Json json, MediaProviderStash* stash);
+		Album(MediaProvider* provider, const Data& data);
+		Album(const Json& json, MediaProviderStash* stash);
 		
 		const ArrayList<$<Artist>>& artists();
 		const ArrayList<$<const Artist>>& artists() const;
@@ -45,10 +45,10 @@ namespace sh {
 		virtual Promise<void> fetchData() override;
 		void applyData(const Data& data);
 		
-		Data toData(DataOptions options = DataOptions()) const;
+		Data toData(const DataOptions& options = DataOptions()) const;
 		
-		static $<Album> fromJson(Json json, MediaProviderStash* stash);
-		virtual Json toJson(ToJsonOptions options) const override;
+		static $<Album> fromJson(const Json& json, MediaProviderStash* stash);
+		virtual Json toJson(const ToJsonOptions& options) const override;
 		
 	protected:
 		virtual MutatorDelegate* createMutatorDelegate() override;

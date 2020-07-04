@@ -21,19 +21,19 @@ namespace sh {
 			$<TrackCollectionItem> sourceItem;
 		};
 		
-		static $<ShuffledTrackCollectionItem> new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Data data);
+		static $<ShuffledTrackCollectionItem> new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, const Data& data);
 		static $<ShuffledTrackCollectionItem> new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, $<TrackCollectionItem> sourceItem);
 		
-		ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Data data);
+		ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, const Data& data);
 		ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, $<TrackCollectionItem> sourceItem);
-		ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Json json, MediaProviderStash* stash);
+		ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, const Json& json, MediaProviderStash* stash);
 		
 		$<TrackCollectionItem> sourceItem();
 		$<const TrackCollectionItem> sourceItem() const;
 		
 		virtual bool matchesItem(const TrackCollectionItem* item) const override;
 		
-		static $<ShuffledTrackCollectionItem> fromJson($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Json json, MediaProviderStash* stash);
+		static $<ShuffledTrackCollectionItem> fromJson($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, const Json& json, MediaProviderStash* stash);
 		virtual Json toJson() const override;
 		
 	protected:
@@ -53,7 +53,7 @@ namespace sh {
 		
 		virtual Promise<void> fetchData() override;
 		
-		virtual Json toJson(ToJsonOptions options) const override;
+		virtual Json toJson(const ToJsonOptions& options) const override;
 		
 	protected:
 		struct RandomIndex {

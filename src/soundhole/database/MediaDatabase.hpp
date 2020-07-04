@@ -18,6 +18,7 @@
 #include <soundhole/media/MediaProviderStash.hpp>
 #include "SQLIndexRange.hpp"
 #include "SQLOrder.hpp"
+#include "SQLOrderBy.hpp"
 
 struct sqlite3;
 
@@ -85,8 +86,10 @@ namespace sh {
 		Promise<size_t> getSavedTracksCount(GetSavedTracksCountOptions options = GetSavedTracksCountOptions());
 		struct GetSavedTracksJsonOptions {
 			String libraryProvider;
+			sql::LibraryItemOrderBy orderBy = sql::LibraryItemOrderBy::ADDED_AT;
+			sql::Order order = sql::Order::DESC;
 		};
-		Promise<GetJsonItemsListResult> getSavedTracksJson(sql::IndexRange range, GetSavedTracksJsonOptions options = GetSavedTracksJsonOptions());
+		Promise<GetJsonItemsListResult> getSavedTracksJson(sql::IndexRange range, GetSavedTracksJsonOptions options = GetSavedTracksJsonOptions{.orderBy=sql::LibraryItemOrderBy::ADDED_AT, .order=sql::Order::DESC});
 		
 		struct GetSavedAlbumsCountOptions {
 			String libraryProvider;
@@ -95,8 +98,10 @@ namespace sh {
 		struct GetSavedAlbumsJsonOptions {
 			String libraryProvider;
 			Optional<sql::IndexRange> range;
+			sql::LibraryItemOrderBy orderBy = sql::LibraryItemOrderBy::ADDED_AT;
+			sql::Order order = sql::Order::DESC;
 		};
-		Promise<GetJsonItemsListResult> getSavedAlbumsJson(GetSavedAlbumsJsonOptions options = GetSavedAlbumsJsonOptions());
+		Promise<GetJsonItemsListResult> getSavedAlbumsJson(GetSavedAlbumsJsonOptions options = GetSavedAlbumsJsonOptions{.orderBy=sql::LibraryItemOrderBy::ADDED_AT, .order=sql::Order::DESC});
 		
 		struct GetSavedPlaylistsCountOptions {
 			String libraryProvider;
@@ -105,8 +110,10 @@ namespace sh {
 		struct GetSavedPlaylistsJsonOptions {
 			String libraryProvider;
 			Optional<sql::IndexRange> range;
+			sql::LibraryItemOrderBy orderBy = sql::LibraryItemOrderBy::ADDED_AT;
+			sql::Order order = sql::Order::DESC;
 		};
-		Promise<GetJsonItemsListResult> getSavedPlaylistsJson(GetSavedPlaylistsJsonOptions options = GetSavedPlaylistsJsonOptions());
+		Promise<GetJsonItemsListResult> getSavedPlaylistsJson(GetSavedPlaylistsJsonOptions options = GetSavedPlaylistsJsonOptions{.orderBy=sql::LibraryItemOrderBy::ADDED_AT, .order=sql::Order::DESC});
 		
 		Promise<void> setState(std::map<String,String> state);
 		Promise<std::map<String,String>> getState(ArrayList<String> keys);

@@ -65,6 +65,11 @@
 		A5622C6E23430B1A008D6631 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5622C6D23430B1A008D6631 /* WebKit.framework */; };
 		A5622C7023430B20008D6631 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5622C6F23430B20008D6631 /* UIKit.framework */; };
 		A5622C7223430B27008D6631 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5622C7123430B27008D6631 /* Foundation.framework */; };
+		A563A5C924AFEE770036A842 /* SQLOrderBy.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A563A5C824AFEE770036A842 /* SQLOrderBy.hpp */; };
+		A563A5CB24AFF3600036A842 /* SQLOrderBy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A563A5CA24AFF3600036A842 /* SQLOrderBy.cpp */; };
+		A563A5CC24AFF3600036A842 /* SQLOrderBy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A563A5CA24AFF3600036A842 /* SQLOrderBy.cpp */; };
+		A563A5CE24AFF43E0036A842 /* SQLOrder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A563A5CD24AFF43E0036A842 /* SQLOrder.cpp */; };
+		A563A5CF24AFF43E0036A842 /* SQLOrder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A563A5CD24AFF43E0036A842 /* SQLOrder.cpp */; };
 		A571E12E2332C5A300603E14 /* SpotifyProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E12C2332C5A300603E14 /* SpotifyProvider.cpp */; };
 		A571E1322332C64500603E14 /* SpotifyProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E12C2332C5A300603E14 /* SpotifyProvider.cpp */; };
 		A571E1332332C65000603E14 /* SpotifyProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A571E12D2332C5A300603E14 /* SpotifyProvider.hpp */; };
@@ -288,6 +293,9 @@
 		A5622C6D23430B1A008D6631 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS13.0.sdk/System/Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
 		A5622C6F23430B20008D6631 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS13.0.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		A5622C7123430B27008D6631 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS13.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		A563A5C824AFEE770036A842 /* SQLOrderBy.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SQLOrderBy.hpp; sourceTree = "<group>"; };
+		A563A5CA24AFF3600036A842 /* SQLOrderBy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SQLOrderBy.cpp; sourceTree = "<group>"; };
+		A563A5CD24AFF43E0036A842 /* SQLOrder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SQLOrder.cpp; sourceTree = "<group>"; };
 		A571E12C2332C5A300603E14 /* SpotifyProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyProvider.cpp; sourceTree = "<group>"; };
 		A571E12D2332C5A300603E14 /* SpotifyProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyProvider.hpp; sourceTree = "<group>"; };
 		A571E1342332C6D000603E14 /* SpotifyAudioPlayback.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SpotifyAudioPlayback.framework; path = "../../external/spotify-ios-streaming-sdk/SpotifyAudioPlayback.framework"; sourceTree = "<group>"; };
@@ -815,6 +823,9 @@
 			children = (
 				A5AE3F2D247DCF3600FB9AFF /* SQLIndexRange.hpp */,
 				A5AE3F2F247DE0B800FB9AFF /* SQLOrder.hpp */,
+				A563A5CD24AFF43E0036A842 /* SQLOrder.cpp */,
+				A563A5C824AFEE770036A842 /* SQLOrderBy.hpp */,
+				A563A5CA24AFF3600036A842 /* SQLOrderBy.cpp */,
 				A5AE3F03247B890000FB9AFF /* MediaDatabase.hpp */,
 				A5AE3F02247B890000FB9AFF /* MediaDatabase.cpp */,
 				A5AE3F08247BA5B700FB9AFF /* MediaDatabaseSQL.hpp */,
@@ -929,6 +940,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A563A5C924AFEE770036A842 /* SQLOrderBy.hpp in Headers */,
 				A5F9F63E244AB6CE00E80C7A /* Player_objc.hpp in Headers */,
 				A513ED93232DA20B000DCAC7 /* MediaProvider.hpp in Headers */,
 				A5AE3F0B247BA5B700FB9AFF /* MediaDatabaseSQL.hpp in Headers */,
@@ -1255,6 +1267,7 @@
 				A5AE3F04247B890000FB9AFF /* MediaDatabase.cpp in Sources */,
 				A5B7A7DD233F126800301FC0 /* Spotify.cpp in Sources */,
 				A513ED94232DA20B000DCAC7 /* YoutubeProvider.cpp in Sources */,
+				A563A5CB24AFF3600036A842 /* SQLOrderBy.cpp in Sources */,
 				A5E851AA2357BECD0001F74D /* BandcampError.cpp in Sources */,
 				A5E851C4235A505B0001F74D /* Youtube.cpp in Sources */,
 				A5AE3F1C247C593100FB9AFF /* SQLiteTransaction.cpp in Sources */,
@@ -1280,6 +1293,7 @@
 				A5AE3F09247BA5B700FB9AFF /* MediaDatabaseSQL.cpp in Sources */,
 				A5AE3F3D247DFFE400FB9AFF /* MediaLibraryProvider.cpp in Sources */,
 				A5B9736023822BA300FB3F1C /* Album.cpp in Sources */,
+				A563A5CE24AFF43E0036A842 /* SQLOrder.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1304,6 +1318,7 @@
 				A571E16B2333305D00603E14 /* Scripts.cpp in Sources */,
 				A571E15E23331C6600603E14 /* SpotifyAuth.cpp in Sources */,
 				A578785B23E37A7B00B6B0A5 /* QueueItem.cpp in Sources */,
+				A563A5CF24AFF43E0036A842 /* SQLOrder.cpp in Sources */,
 				A5E851C5235A505B0001F74D /* Youtube.cpp in Sources */,
 				A5B7A78F2335C91800301FC0 /* SoundHoleError.cpp in Sources */,
 				A57378A323D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp in Sources */,
@@ -1328,6 +1343,7 @@
 				A5485A24238DFB1300CB7749 /* Utils.cpp in Sources */,
 				A571E1A7233440A800603E14 /* HttpClient.cpp in Sources */,
 				A513ED95232DA20B000DCAC7 /* YoutubeProvider.cpp in Sources */,
+				A563A5CC24AFF3600036A842 /* SQLOrderBy.cpp in Sources */,
 				A513ED92232DA20B000DCAC7 /* BandcampProvider.cpp in Sources */,
 				A5AE3F0A247BA5B700FB9AFF /* MediaDatabaseSQL.cpp in Sources */,
 				A5AE3F3E247DFFE400FB9AFF /* MediaLibraryProvider.cpp in Sources */,

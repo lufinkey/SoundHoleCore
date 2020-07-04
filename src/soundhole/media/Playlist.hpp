@@ -23,10 +23,10 @@ namespace sh {
 			$<UserAccount> addedBy;
 		};
 		
-		static $<PlaylistItem> new$($<SpecialTrackCollection<PlaylistItem>> playlist, Data data);
+		static $<PlaylistItem> new$($<SpecialTrackCollection<PlaylistItem>> playlist, const Data& data);
 		
-		PlaylistItem($<SpecialTrackCollection<PlaylistItem>> playlist, Data data);
-		PlaylistItem($<SpecialTrackCollection<PlaylistItem>> playlist, Json json, MediaProviderStash* stash);
+		PlaylistItem($<SpecialTrackCollection<PlaylistItem>> playlist, const Data& data);
+		PlaylistItem($<SpecialTrackCollection<PlaylistItem>> playlist, const Json& json, MediaProviderStash* stash);
 		
 		const String& addedAt() const;
 		$<UserAccount> addedBy();
@@ -36,7 +36,7 @@ namespace sh {
 		
 		Data toData() const;
 		
-		static $<PlaylistItem> fromJson($<SpecialTrackCollection<PlaylistItem>> playlist, Json json, MediaProviderStash* stash);
+		static $<PlaylistItem> fromJson($<SpecialTrackCollection<PlaylistItem>> playlist, const Json& json, MediaProviderStash* stash);
 		virtual Json toJson() const override;
 		
 	protected:
@@ -51,10 +51,10 @@ namespace sh {
 			$<UserAccount> owner;
 		};
 		
-		static $<Playlist> new$(MediaProvider* provider, Data data);
+		static $<Playlist> new$(MediaProvider* provider, const Data& data);
 		
-		Playlist(MediaProvider* provider, Data data);
-		Playlist(Json json, MediaProviderStash* stash);
+		Playlist(MediaProvider* provider, const Data& data);
+		Playlist(const Json& json, MediaProviderStash* stash);
 		
 		$<UserAccount> owner();
 		$<const UserAccount> owner() const;
@@ -62,10 +62,10 @@ namespace sh {
 		virtual Promise<void> fetchData() override;
 		void applyData(const Data& data);
 		
-		Data toData(DataOptions options = DataOptions()) const;
+		Data toData(const DataOptions& options = DataOptions()) const;
 		
-		static $<Playlist> fromJson(Json json, MediaProviderStash* stash);
-		virtual Json toJson(ToJsonOptions options) const override;
+		static $<Playlist> fromJson(const Json& json, MediaProviderStash* stash);
+		virtual Json toJson(const ToJsonOptions& options) const override;
 		
 	protected:
 		virtual MutatorDelegate* createMutatorDelegate() override;

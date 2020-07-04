@@ -24,8 +24,8 @@ namespace sh {
 			$<Track> track;
 		};
 		
-		TrackCollectionItem($<TrackCollection> context, Data data);
-		TrackCollectionItem($<TrackCollection> context, Json json, MediaProviderStash* stash);
+		TrackCollectionItem($<TrackCollection> context, const Data& data);
+		TrackCollectionItem($<TrackCollection> context, const Json& json, MediaProviderStash* stash);
 		virtual ~TrackCollectionItem() {};
 		
 		$<Track> track();
@@ -56,7 +56,7 @@ namespace sh {
 			MediaDatabase* database = nullptr;
 			
 			std::map<String,Any> toDict() const;
-			static LoadItemOptions fromDict(std::map<String,Any> dict);
+			static LoadItemOptions fromDict(const std::map<String,Any>& dict);
 			
 			static LoadItemOptions defaultOptions();
 		};
@@ -68,7 +68,7 @@ namespace sh {
 		virtual Promise<$<TrackCollectionItem>> getItem(size_t index, LoadItemOptions options = LoadItemOptions::defaultOptions()) = 0;
 		virtual Promise<LinkedList<$<TrackCollectionItem>>> getItems(size_t index, size_t count, LoadItemOptions options = LoadItemOptions::defaultOptions()) = 0;
 		virtual ItemGenerator generateItems(size_t startIndex=0, LoadItemOptions options = LoadItemOptions::defaultOptions()) = 0;
-		virtual $<TrackCollectionItem> itemFromJson(Json json, MediaProviderStash* stash) = 0;
+		virtual $<TrackCollectionItem> itemFromJson(const Json& json, MediaProviderStash* stash) = 0;
 		
 		virtual Optional<size_t> itemCount() const = 0;
 		virtual Promise<void> loadItems(size_t index, size_t count, LoadItemOptions options = LoadItemOptions::defaultOptions()) = 0;
@@ -83,7 +83,7 @@ namespace sh {
 			size_t tracksOffset = 0;
 			size_t tracksLimit = (size_t)-1;
 		};
-		virtual Json toJson(ToJsonOptions options) const;
+		virtual Json toJson(const ToJsonOptions& options) const;
 	};
 
 
@@ -114,10 +114,10 @@ namespace sh {
 			Optional<Tracks> tracks;
 		};
 		
-		SpecialTrackCollection(MediaProvider* provider, Data data);
-		SpecialTrackCollection(Json json, MediaProviderStash* stash);
-		SpecialTrackCollection(MediaProvider* provider, Data data, MutatorDelegate* mutatorDelegate, bool autoDeleteMutatorDelegate);
-		SpecialTrackCollection(Json json, MediaProviderStash* stash, MutatorDelegate* mutatorDelegate, bool autoDeleteMutatorDelegate);
+		SpecialTrackCollection(MediaProvider* provider, const Data& data);
+		SpecialTrackCollection(const Json& json, MediaProviderStash* stash);
+		SpecialTrackCollection(MediaProvider* provider, const Data& data, MutatorDelegate* mutatorDelegate, bool autoDeleteMutatorDelegate);
+		SpecialTrackCollection(const Json& json, MediaProviderStash* stash, MutatorDelegate* mutatorDelegate, bool autoDeleteMutatorDelegate);
 		virtual ~SpecialTrackCollection();
 		
 		virtual Optional<size_t> indexOfItem(const TrackCollectionItem* item) const override;
@@ -130,7 +130,7 @@ namespace sh {
 		virtual Promise<$<TrackCollectionItem>> getItem(size_t index, LoadItemOptions options = LoadItemOptions::defaultOptions()) override final;
 		virtual Promise<LinkedList<$<TrackCollectionItem>>> getItems(size_t index, size_t count, LoadItemOptions options = LoadItemOptions::defaultOptions()) override final;
 		virtual ItemGenerator generateItems(size_t startIndex=0, LoadItemOptions options = LoadItemOptions::defaultOptions()) override final;
-		virtual $<TrackCollectionItem> itemFromJson(Json json, MediaProviderStash* stash) override final;
+		virtual $<TrackCollectionItem> itemFromJson(const Json& json, MediaProviderStash* stash) override final;
 		
 		virtual Optional<size_t> itemCount() const override final;
 		virtual Promise<void> loadItems(size_t index, size_t count, LoadItemOptions options = LoadItemOptions::defaultOptions()) override final;
@@ -146,8 +146,8 @@ namespace sh {
 			size_t tracksOffset = 0;
 			size_t tracksLimit = (size_t)-1;
 		};
-		Data toData(DataOptions options = DataOptions()) const;
-		virtual Json toJson(ToJsonOptions options) const override;
+		Data toData(const DataOptions& options = DataOptions()) const;
+		virtual Json toJson(const ToJsonOptions& options) const override;
 		
 	protected:
 		virtual bool areAsyncListItemsEqual(const AsyncList<$<ItemType>>* list, const $<ItemType>& item1, const $<ItemType>& item2) const override;
@@ -169,7 +169,7 @@ namespace sh {
 		};
 		
 		std::variant<std::nullptr_t,EmptyTracks,LinkedList<$<ItemType>>,$<AsyncList<$<ItemType>>>> _items;
-		std::variant<std::nullptr_t,EmptyTracks,LinkedList<$<ItemType>>,$<AsyncList<$<ItemType>>>> constructItems(Optional<typename Data::Tracks> tracks);
+		std::variant<std::nullptr_t,EmptyTracks,LinkedList<$<ItemType>>,$<AsyncList<$<ItemType>>>> constructItems(const Optional<typename Data::Tracks>& tracks);
 		
 		void lazyLoadContentIfNeeded() const;
 		

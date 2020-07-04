@@ -10,11 +10,11 @@
 #include "MediaProvider.hpp"
 
 namespace sh {
-	$<Artist> Artist::new$(MediaProvider* provider, Data data) {
+	$<Artist> Artist::new$(MediaProvider* provider, const Data& data) {
 		return fgl::new$<Artist>(provider, data);
 	}
 
-	Artist::Artist(MediaProvider* provider, Data data)
+	Artist::Artist(MediaProvider* provider, const Data& data)
 	: MediaItem(provider, data),
 	_description(data.description) {
 		//
@@ -51,11 +51,11 @@ namespace sh {
 
 
 
-	$<Artist> Artist::fromJson(Json json, MediaProviderStash* stash) {
+	$<Artist> Artist::fromJson(const Json& json, MediaProviderStash* stash) {
 		return fgl::new$<Artist>(json, stash);
 	}
 
-	Artist::Artist(Json json, MediaProviderStash* stash)
+	Artist::Artist(const Json& json, MediaProviderStash* stash)
 	: MediaItem(json, stash) {
 		auto description = json["description"];
 		if((!description.is_null() && !description.is_string())) {

@@ -314,7 +314,8 @@ namespace sh {
 			sql::selectSavedTracksAndTracks(tx, "items", {
 				.libraryProvider=options.libraryProvider,
 				.range=range,
-				.order=sql::Order::DESC
+				.order=options.order,
+				.orderBy=options.orderBy
 			});
 		}).map<GetJsonItemsListResult>(nullptr, [=](auto results) {
 			auto countItems = results["count"];
@@ -357,7 +358,9 @@ namespace sh {
 			sql::selectSavedAlbumCount(tx, "count");
 			sql::selectSavedAlbumsAndAlbums(tx, "items", {
 				.libraryProvider=options.libraryProvider,
-				.range=options.range
+				.range=options.range,
+				.order=options.order,
+				.orderBy=options.orderBy
 			});
 		}).map<GetJsonItemsListResult>(nullptr, [=](auto results) {
 			auto countItems = results["count"];
@@ -400,7 +403,9 @@ namespace sh {
 			sql::selectSavedPlaylistCount(tx, "count");
 			sql::selectSavedPlaylistsAndPlaylists(tx, "items", {
 				.libraryProvider=options.libraryProvider,
-				.range=options.range
+				.range=options.range,
+				.order=options.order,
+				.orderBy=options.orderBy
 			});
 		}).map<GetJsonItemsListResult>(nullptr, [=](auto results) {
 			auto countItems = results["count"];

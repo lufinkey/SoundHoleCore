@@ -10,11 +10,11 @@
 #include "MediaProvider.hpp"
 
 namespace sh {
-	$<PlaylistItem> PlaylistItem::new$($<SpecialTrackCollection<PlaylistItem>> playlist, Data data) {
+	$<PlaylistItem> PlaylistItem::new$($<SpecialTrackCollection<PlaylistItem>> playlist, const Data& data) {
 		return fgl::new$<PlaylistItem>(playlist, data);
 	}
 
-	PlaylistItem::PlaylistItem($<SpecialTrackCollection<PlaylistItem>> playlist, Data data)
+	PlaylistItem::PlaylistItem($<SpecialTrackCollection<PlaylistItem>> playlist, const Data& data)
 	: SpecialTrackCollectionItem<Playlist>(playlist, data),
 	_addedAt(data.addedAt), _addedBy(data.addedBy) {
 		//
@@ -52,11 +52,11 @@ namespace sh {
 		};
 	}
 
-	$<PlaylistItem> PlaylistItem::fromJson($<SpecialTrackCollection<PlaylistItem>> playlist, Json json, MediaProviderStash* stash) {
+	$<PlaylistItem> PlaylistItem::fromJson($<SpecialTrackCollection<PlaylistItem>> playlist, const Json& json, MediaProviderStash* stash) {
 		return fgl::new$<PlaylistItem>(playlist, json, stash);
 	}
 
-	PlaylistItem::PlaylistItem($<SpecialTrackCollection<PlaylistItem>> playlist, Json json, MediaProviderStash* stash)
+	PlaylistItem::PlaylistItem($<SpecialTrackCollection<PlaylistItem>> playlist, const Json& json, MediaProviderStash* stash)
 	: SpecialTrackCollectionItem<Playlist>(playlist, json, stash) {
 		auto addedBy = json["addedBy"];
 		_addedBy = (!addedBy.is_null()) ? UserAccount::fromJson(addedBy, stash) : nullptr;
@@ -74,13 +74,13 @@ namespace sh {
 
 
 
-	$<Playlist> Playlist::new$(MediaProvider* provider, Data data) {
+	$<Playlist> Playlist::new$(MediaProvider* provider, const Data& data) {
 		auto playlist = fgl::new$<Playlist>(provider, data);
 		playlist->lazyLoadContentIfNeeded();
 		return playlist;
 	}
 	
-	Playlist::Playlist(MediaProvider* provider, Data data)
+	Playlist::Playlist(MediaProvider* provider, const Data& data)
 	: SpecialTrackCollection<PlaylistItem>(provider, data),
 	_owner(data.owner) {
 		//
@@ -108,26 +108,26 @@ namespace sh {
 		}
 	}
 
-	Playlist::Data Playlist::toData(DataOptions options) const {
+	Playlist::Data Playlist::toData(const DataOptions& options) const {
 		return Playlist::Data{
 			SpecialTrackCollection<PlaylistItem>::toData(options),
 			.owner=_owner
 		};
 	}
 
-	$<Playlist> Playlist::fromJson(Json json, MediaProviderStash* stash) {
+	$<Playlist> Playlist::fromJson(const Json& json, MediaProviderStash* stash) {
 		auto playlist = fgl::new$<Playlist>(json, stash);
 		playlist->lazyLoadContentIfNeeded();
 		return playlist;
 	}
 
-	Playlist::Playlist(Json json, MediaProviderStash* stash)
+	Playlist::Playlist(const Json& json, MediaProviderStash* stash)
 	: SpecialTrackCollection<PlaylistItem>(json, stash) {
 		auto owner = json["owner"];
 		_owner = (!owner.is_null()) ? UserAccount::fromJson(owner, stash) : nullptr;
 	}
 
-	Json Playlist::toJson(ToJsonOptions options) const {
+	Json Playlist::toJson(const ToJsonOptions& options) const {
 		auto json = SpecialTrackCollection<PlaylistItem>::toJson(options).object_items();
 		json.merge(Json::object{
 			{ "owner", _owner ? _owner->toJson() : Json() }

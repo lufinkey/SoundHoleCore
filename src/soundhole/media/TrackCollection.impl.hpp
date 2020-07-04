@@ -14,7 +14,7 @@
 
 namespace sh {
 	template<typename ItemType>
-	SpecialTrackCollection<ItemType>::SpecialTrackCollection(MediaProvider* provider, Data data)
+	SpecialTrackCollection<ItemType>::SpecialTrackCollection(MediaProvider* provider, const Data& data)
 	: TrackCollection(provider, data), _items(nullptr), _mutatorDelegate(nullptr), autoDeleteMutatorDelegate(true) {
 		_lazyContentLoader = [=]() {
 			_items = constructItems(data.tracks);
@@ -42,7 +42,7 @@ namespace sh {
 
 	template<typename ItemType>
 	std::variant<std::nullptr_t,typename SpecialTrackCollection<ItemType>::EmptyTracks,LinkedList<$<ItemType>>,$<AsyncList<$<ItemType>>>>
-	SpecialTrackCollection<ItemType>::constructItems(Optional<typename Data::Tracks> tracks) {
+	SpecialTrackCollection<ItemType>::constructItems(const Optional<typename Data::Tracks>& tracks) {
 		auto self = std::static_pointer_cast<SpecialTrackCollection<ItemType>>(shared_from_this());
 		if(!self) {
 			throw std::runtime_error("cannot call constructItems before constructor has finished");
@@ -506,7 +506,7 @@ namespace sh {
 	}
 
 	template<typename ItemType>
-	typename SpecialTrackCollection<ItemType>::Data SpecialTrackCollection<ItemType>::toData(DataOptions options) const {
+	typename SpecialTrackCollection<ItemType>::Data SpecialTrackCollection<ItemType>::toData(const DataOptions& options) const {
 		lazyLoadContentIfNeeded();
 		return SpecialTrackCollection<ItemType>::Data{
 			TrackCollection::toData(),
@@ -547,7 +547,7 @@ namespace sh {
 
 
 	template<typename ItemType>
-	SpecialTrackCollection<ItemType>::SpecialTrackCollection(Json json, MediaProviderStash* stash)
+	SpecialTrackCollection<ItemType>::SpecialTrackCollection(const Json& json, MediaProviderStash* stash)
 	: TrackCollection(json, stash), _items(std::nullptr_t()), _mutatorDelegate(nullptr), autoDeleteMutatorDelegate(true) {
 		_lazyContentLoader = [=]() {
 			std::map<size_t,$<ItemType>> items;
@@ -612,7 +612,7 @@ namespace sh {
 	}
 
 	template<typename ItemType>
-	$<TrackCollectionItem> SpecialTrackCollection<ItemType>::itemFromJson(Json json, MediaProviderStash* stash) {
+	$<TrackCollectionItem> SpecialTrackCollection<ItemType>::itemFromJson(const Json& json, MediaProviderStash* stash) {
 		auto self = std::static_pointer_cast<SpecialTrackCollection<ItemType>>(shared_from_this());
 		if(!self) {
 			throw std::runtime_error("cannot call itemFromJson before constructor has finished");
@@ -621,7 +621,7 @@ namespace sh {
 	}
 
 	template<typename ItemType>
-	Json SpecialTrackCollection<ItemType>::toJson(ToJsonOptions options) const {
+	Json SpecialTrackCollection<ItemType>::toJson(const ToJsonOptions& options) const {
 		lazyLoadContentIfNeeded();
 		auto json = TrackCollection::toJson(options).object_items();
 		if(auto items = std::get_if<LinkedList<$<ItemType>>>(&_items)) {

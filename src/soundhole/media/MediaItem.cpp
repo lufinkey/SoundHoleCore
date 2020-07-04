@@ -151,7 +151,7 @@ namespace sh {
 
 
 
-	MediaItem::Image::Size MediaItem::Image::Size_fromJson(Json json) {
+	MediaItem::Image::Size MediaItem::Image::Size_fromJson(const Json& json) {
 		if(!json.is_string()) {
 			throw std::invalid_argument("invalid json for MediaItem::Image::Size: "+json.string_value());
 		}
@@ -169,7 +169,7 @@ namespace sh {
 		}
 	}
 
-	Json MediaItem::Image::Size_toJson(Size size) {
+	Json MediaItem::Image::Size_toJson(const Size& size) {
 		switch(size) {
 			case Size::TINY:
 				return Json("TINY");
@@ -182,7 +182,7 @@ namespace sh {
 		}
 	}
 
-	MediaItem::Image::Dimensions MediaItem::Image::Dimensions::fromJson(Json json) {
+	MediaItem::Image::Dimensions MediaItem::Image::Dimensions::fromJson(const Json& json) {
 		auto width = json["width"];
 		auto height = json["height"];
 		if(!width.is_number() || !height.is_number()) {
@@ -201,7 +201,7 @@ namespace sh {
 		};
 	}
 
-	MediaItem::Image MediaItem::Image::fromJson(Json json) {
+	MediaItem::Image MediaItem::Image::fromJson(const Json& json) {
 		auto url = json["url"];
 		auto dimensions = json["dimensions"];
 		if(!url.is_string() || (!dimensions.is_null() && !dimensions.is_object())) {
@@ -224,7 +224,7 @@ namespace sh {
 
 
 
-	MediaItem::MediaItem(Json json, MediaProviderStash* stash) {
+	MediaItem::MediaItem(const Json& json, MediaProviderStash* stash) {
 		auto providerName = json["provider"];
 		auto partial = json["partial"];
 		auto type = json["type"];

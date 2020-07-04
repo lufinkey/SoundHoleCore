@@ -13,6 +13,7 @@
 #include "SQLiteTransaction.hpp"
 #include "SQLIndexRange.hpp"
 #include "SQLOrder.hpp"
+#include "SQLOrderBy.hpp"
 
 namespace sh::sql {
 
@@ -37,6 +38,7 @@ struct LibraryItemSelectOptions {
 	String libraryProvider;
 	Optional<IndexRange> range;
 	Order order = Order::NONE;
+	LibraryItemOrderBy orderBy = LibraryItemOrderBy::ADDED_AT;
 };
 void selectSavedTracksAndTracks(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
 void selectSavedTrackCount(SQLiteTransaction& tx, String outKey, String libraryProvider = String());
@@ -44,7 +46,7 @@ void selectSavedAlbumsAndAlbums(SQLiteTransaction& tx, String outKey, LibraryIte
 void selectSavedAlbumCount(SQLiteTransaction& tx, String outKey, String libraryProvider = String());
 void selectSavedPlaylistsAndPlaylists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
 void selectSavedPlaylistCount(SQLiteTransaction& tx, String outKey, String libraryProvider = String());
-void selectLibraryArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
+void selectLibraryArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions{.orderBy=LibraryItemOrderBy::NAME});
 void selectLibraryArtistCount(SQLiteTransaction& tx, String outKey, String libraryProvider = String());
 void selectDBState(SQLiteTransaction& tx, String outKey, String stateKey);
 

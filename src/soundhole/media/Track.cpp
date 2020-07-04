@@ -58,7 +58,7 @@ namespace sh {
 		return _audioSources;
 	}
 	
-	Optional<Track::AudioSource> Track::findAudioSource(FindAudioSourceOptions options) const {
+	Optional<Track::AudioSource> Track::findAudioSource(const FindAudioSourceOptions& options) const {
 		if(!_audioSources) {
 			return std::nullopt;
 		}
@@ -161,7 +161,7 @@ namespace sh {
 
 
 
-	Track::AudioSource Track::AudioSource::fromJson(Json json) {
+	Track::AudioSource Track::AudioSource::fromJson(const Json& json) {
 		auto url = json["url"];
 		auto encoding = json["encoding"];
 		auto bitrate = json["bitrate"];
@@ -188,11 +188,11 @@ namespace sh {
 
 
 
-	$<Track> Track::fromJson(Json json, MediaProviderStash* stash) {
+	$<Track> Track::fromJson(const Json& json, MediaProviderStash* stash) {
 		return fgl::new$<Track>(json, stash);
 	}
 
-	Track::Track(Json json, MediaProviderStash* stash)
+	Track::Track(const Json& json, MediaProviderStash* stash)
 	: MediaItem(json, stash) {
 		auto albumName = json["albumName"];
 		auto albumURI = json["albumURI"];

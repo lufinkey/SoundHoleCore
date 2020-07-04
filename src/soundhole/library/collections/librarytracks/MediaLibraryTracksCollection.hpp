@@ -11,6 +11,8 @@
 #include <soundhole/common.hpp>
 #include <soundhole/media/TrackCollection.hpp>
 #include <soundhole/database/MediaDatabase.hpp>
+#include <soundhole/database/SQLOrder.hpp>
+#include <soundhole/database/SQLOrderBy.hpp>
 
 namespace sh {
 	class MediaLibraryTracksCollection;
@@ -22,10 +24,10 @@ namespace sh {
 			String addedAt;
 		};
 		
-		static $<MediaLibraryTracksCollectionItem> new$($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> collection, Data data);
+		static $<MediaLibraryTracksCollectionItem> new$($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> collection, const Data& data);
 		
-		MediaLibraryTracksCollectionItem($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> collection, Data data);
-		MediaLibraryTracksCollectionItem($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> collection, Json json, MediaProviderStash* stash);
+		MediaLibraryTracksCollectionItem($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> collection, const Data& data);
+		MediaLibraryTracksCollectionItem($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> collection, const Json& json, MediaProviderStash* stash);
 		
 		const String& addedAt() const;
 		
@@ -33,7 +35,7 @@ namespace sh {
 		
 		Data toData() const;
 		
-		static $<MediaLibraryTracksCollectionItem> fromJson($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> collection, Json json, MediaProviderStash* stash);
+		static $<MediaLibraryTracksCollectionItem> fromJson($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> collection, const Json& json, MediaProviderStash* stash);
 		virtual Json toJson() const override;
 		
 	protected:
@@ -45,24 +47,32 @@ namespace sh {
 	public:
 		using LoadItemOptions = TrackCollection::LoadItemOptions;
 		
-		struct Data: public SpecialTrackCollection<MediaLibraryTracksCollectionItem>::Data {
-			String libraryProviderName;
+		struct Filters {
+			MediaProvider* libraryProvider = nullptr;
+			sql::LibraryItemOrderBy orderBy = sql::LibraryItemOrderBy::ADDED_AT;
+			sql::Order order = sql::Order::DESC;
 		};
 		
-		static $<MediaLibraryTracksCollection> new$(MediaDatabase* database, MediaProvider* provider, Data data);
+		struct Data: public SpecialTrackCollection<MediaLibraryTracksCollectionItem>::Data {
+			Filters filters;
+		};
 		
-		MediaLibraryTracksCollection(MediaDatabase* database, MediaProvider* provider, Data data);
-		MediaLibraryTracksCollection(Json json, MediaDatabase* database);
+		static $<MediaLibraryTracksCollection> new$(MediaDatabase* database, MediaProvider* provider, const Data& data);
 		
-		const String& libraryProviderName() const;
+		MediaLibraryTracksCollection(MediaDatabase* database, MediaProvider* provider, const Data& data);
+		MediaLibraryTracksCollection(const Json& json, MediaDatabase* database);
+		
+		MediaProvider* libraryProvider();
+		const MediaProvider* libraryProvider() const;
+		String libraryProviderName() const;
 		
 		virtual Promise<void> fetchData() override;
 		void applyData(const Data& data);
 		
-		Data toData(DataOptions options = DataOptions()) const;
+		Data toData(const DataOptions& options = DataOptions()) const;
 		
-		static $<MediaLibraryTracksCollection> fromJson(Json json, MediaDatabase* database);
-		virtual Json toJson(ToJsonOptions options) const override;
+		static $<MediaLibraryTracksCollection> fromJson(const Json& json, MediaDatabase* database);
+		virtual Json toJson(const ToJsonOptions& options) const override;
 		
 	protected:
 		virtual MutatorDelegate* createMutatorDelegate() override;
@@ -70,6 +80,6 @@ namespace sh {
 		virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) override;
 		
 		MediaDatabase* _database;
-		String _libraryProviderName;
+		Filters _filters;
 	};
 }

@@ -46,19 +46,34 @@ namespace sh {
 		
 		struct GetLibraryTracksFilters {
 			MediaProvider* libraryProvider = nullptr;
+			sql::LibraryItemOrderBy orderBy = sql::LibraryItemOrderBy::ADDED_AT;
+			sql::Order order = sql::Order::DESC;
 		};
-		String getLibraryTracksCollectionURI(GetLibraryTracksFilters filters = GetLibraryTracksFilters{.libraryProvider=nullptr}) const;
+		String getLibraryTracksCollectionURI(GetLibraryTracksFilters filters = GetLibraryTracksFilters{
+			.libraryProvider=nullptr,
+			.orderBy = sql::LibraryItemOrderBy::ADDED_AT,
+			.order = sql::Order::DESC
+		}) const;
 		struct GetLibraryTracksOptions {
-			MediaProvider* libraryProvider = nullptr;
 			Optional<size_t> offset;
 			Optional<size_t> limit;
 		};
-		Promise<$<MediaLibraryTracksCollection>> getLibraryTracksCollection(GetLibraryTracksOptions options = GetLibraryTracksOptions{.libraryProvider=nullptr});
+		Promise<$<MediaLibraryTracksCollection>> getLibraryTracksCollection(GetLibraryTracksFilters filters = GetLibraryTracksFilters{
+			.libraryProvider=nullptr,
+			.orderBy = sql::LibraryItemOrderBy::ADDED_AT,
+			.order = sql::Order::DESC
+		}, GetLibraryTracksOptions options = GetLibraryTracksOptions());
 		
 		struct GetLibraryAlbumsFilters {
 			MediaProvider* libraryProvider = nullptr;
+			sql::LibraryItemOrderBy orderBy = sql::LibraryItemOrderBy::NAME;
+			sql::Order order = sql::Order::ASC;
 		};
-		Promise<LinkedList<$<Album>>> getLibraryAlbums(GetLibraryAlbumsFilters filters = GetLibraryAlbumsFilters{.libraryProvider=nullptr});
+		Promise<LinkedList<$<Album>>> getLibraryAlbums(GetLibraryAlbumsFilters filters = GetLibraryAlbumsFilters{
+			.libraryProvider=nullptr,
+			.orderBy = sql::LibraryItemOrderBy::NAME,
+			.order = sql::Order::ASC
+		});
 		
 		struct GenerateLibraryAlbumsOptions {
 			size_t offset = 0;
@@ -70,12 +85,25 @@ namespace sh {
 			size_t total;
 		};
 		using LibraryAlbumsGenerator = ContinuousGenerator<GenerateLibraryAlbumsResult,void>;
-		LibraryAlbumsGenerator generateLibraryAlbums(GetLibraryAlbumsFilters filters = GetLibraryAlbumsFilters{.libraryProvider=nullptr}, GenerateLibraryAlbumsOptions options = GenerateLibraryAlbumsOptions{.offset=0,.chunkSize=24});
+		LibraryAlbumsGenerator generateLibraryAlbums(GetLibraryAlbumsFilters filters = GetLibraryAlbumsFilters{
+			.libraryProvider=nullptr,
+			.orderBy = sql::LibraryItemOrderBy::NAME,
+			.order = sql::Order::ASC
+		}, GenerateLibraryAlbumsOptions options = GenerateLibraryAlbumsOptions{
+			.offset=0,
+			.chunkSize=24
+		});
 		
 		struct GetLibraryPlaylistsFilters {
 			MediaProvider* libraryProvider = nullptr;
+			sql::LibraryItemOrderBy orderBy = sql::LibraryItemOrderBy::NAME;
+			sql::Order order = sql::Order::ASC;
 		};
-		Promise<LinkedList<$<Playlist>>> getLibraryPlaylists(GetLibraryPlaylistsFilters filters = GetLibraryPlaylistsFilters{.libraryProvider=nullptr});
+		Promise<LinkedList<$<Playlist>>> getLibraryPlaylists(GetLibraryPlaylistsFilters filters = GetLibraryPlaylistsFilters{
+			.libraryProvider=nullptr,
+			.orderBy = sql::LibraryItemOrderBy::NAME,
+			.order = sql::Order::ASC
+		});
 		
 		struct GenerateLibraryPlaylistsOptions {
 			size_t offset = 0;
@@ -87,7 +115,14 @@ namespace sh {
 			size_t total;
 		};
 		using LibraryPlaylistsGenerator = ContinuousGenerator<GenerateLibraryPlaylistsResult,void>;
-		LibraryPlaylistsGenerator generateLibraryPlaylists(GetLibraryPlaylistsFilters filters = GetLibraryPlaylistsFilters{.libraryProvider=nullptr}, GenerateLibraryPlaylistsOptions options = GenerateLibraryPlaylistsOptions{.offset=0,.chunkSize=24});
+		LibraryPlaylistsGenerator generateLibraryPlaylists(GetLibraryPlaylistsFilters filters = GetLibraryPlaylistsFilters{
+			.libraryProvider=nullptr,
+			.orderBy = sql::LibraryItemOrderBy::NAME,
+			.order = sql::Order::ASC
+		}, GenerateLibraryPlaylistsOptions options = GenerateLibraryPlaylistsOptions{
+			.offset=0,
+			.chunkSize=24
+		});
 		
 	private:
 		MediaLibraryProvider* libraryProvider;

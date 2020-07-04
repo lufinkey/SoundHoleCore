@@ -443,18 +443,23 @@ namespace sh {
 
 	String MediaLibrary::getLibraryTracksCollectionURI(GetLibraryTracksFilters filters) const {
 		String uri = "medialibrary:collection:libraryTracks";
+		LinkedList<String> query;
 		if(filters.libraryProvider != nullptr) {
-			uri += "?provider="+filters.libraryProvider->name();
+			query.pushBack("libraryProvider="+filters.libraryProvider->name());
 		}
-		return uri;
+		query.pushBack("orderBy="+sql::LibraryItemOrderBy_toString(filters.orderBy));
+		query.pushBack("order="+sql::Order_toString(filters.order));
+		return String::join({ uri,"?",String::join(query) });
 	}
 
-	Promise<$<MediaLibraryTracksCollection>> MediaLibrary::getLibraryTracksCollection(GetLibraryTracksOptions options) {
+	Promise<$<MediaLibraryTracksCollection>> MediaLibrary::getLibraryTracksCollection(GetLibraryTracksFilters filters, GetLibraryTracksOptions options) {
 		return db->getSavedTracksJson({
 			.startIndex=options.offset.valueOr(0),
 			.endIndex=(options.offset.valueOr(0) + options.limit.valueOr(24))
 		}, {
-			.libraryProvider=(options.libraryProvider != nullptr) ? libraryProvider->name() : String()
+			.libraryProvider=(filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : String(),
+			.orderBy=filters.orderBy,
+			.order=filters.order
 		}).map<$<MediaLibraryTracksCollection>>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
 			Json::array items;
 			items.reserve(results.items.size());
@@ -470,15 +475,18 @@ namespace sh {
 			}
 			auto json = Json::object{
 				{ "partial", false },
-				{ "type", "libraryTracksCollection" },
+				{ "type", "libraryTracks" },
 				{ "provider", Json(libraryProvider->name()) },
-				{ "name", Json((options.libraryProvider != nullptr) ? String("My "+options.libraryProvider->displayName()+" Tracks") : String("My Tracks")) },
-				{ "uri", Json(getLibraryTracksCollectionURI({
-					.libraryProvider=options.libraryProvider
-				})) },
+				{ "name", Json((filters.libraryProvider != nullptr) ?
+					String("My "+filters.libraryProvider->displayName()+" Tracks")
+					: String("My Tracks")) },
+				{ "uri", Json(getLibraryTracksCollectionURI(filters)) },
 				{ "images", Json::array() },
 				{ "itemCount", Json((double)results.total) },
-				{ "items", items }
+				{ "items", items },
+				{ "libraryProvider", (filters.libraryProvider != nullptr) ? Json(filters.libraryProvider->name()) : Json() },
+				{ "orderBy", (std::string)sql::LibraryItemOrderBy_toString(filters.orderBy) },
+				{ "order", (std::string)sql::Order_toString(filters.order) }
 			};
 			return MediaLibraryTracksCollection::fromJson(json, db);
 		});
@@ -486,7 +494,9 @@ namespace sh {
 
 	Promise<LinkedList<$<Album>>> MediaLibrary::getLibraryAlbums(GetLibraryAlbumsFilters filters) {
 		return db->getSavedAlbumsJson({
-			.libraryProvider = (filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : nullptr
+			.libraryProvider = (filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : nullptr,
+			.orderBy=filters.orderBy,
+			.order=filters.order
 		}).map<LinkedList<$<Album>>>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
 			return results.items.map<$<Album>>([=](Json json) {
 				return Album::fromJson(json, this->libraryProvider);
@@ -503,7 +513,9 @@ namespace sh {
 				.range = sql::IndexRange{
 					.startIndex = *offset,
 					.endIndex = *offset + options.chunkSize
-				}
+				},
+				.orderBy=filters.orderBy,
+				.order=filters.order
 			}).map<YieldResult>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
 				auto albums = results.items.map<$<Album>>([=](Json json) {
 					return Album::fromJson(json, this->libraryProvider);
@@ -525,7 +537,9 @@ namespace sh {
 
 	Promise<LinkedList<$<Playlist>>> MediaLibrary::getLibraryPlaylists(GetLibraryPlaylistsFilters filters) {
 		return db->getSavedPlaylistsJson({
-			.libraryProvider = (filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : nullptr
+			.libraryProvider = (filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : nullptr,
+			.orderBy=filters.orderBy,
+			.order=filters.order
 		}).map<LinkedList<$<Playlist>>>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
 			return results.items.map<$<Playlist>>([=](Json json) {
 				return Playlist::fromJson(json, this->libraryProvider);
@@ -542,7 +556,9 @@ namespace sh {
 				.range = sql::IndexRange{
 					.startIndex = *offset,
 					.endIndex = *offset + options.chunkSize
-				}
+				},
+				.orderBy=filters.orderBy,
+				.order=filters.order
 			}).map<YieldResult>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
 				auto playlists = results.items.map<$<Playlist>>([=](Json json) {
 					return Playlist::fromJson(json, this->libraryProvider);

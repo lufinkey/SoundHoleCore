@@ -18,10 +18,10 @@ namespace sh {
 			Optional<String> description;
 		};
 		
-		static $<Artist> new$(MediaProvider* provider, Data data);
+		static $<Artist> new$(MediaProvider* provider, const Data& data);
 		
-		Artist(MediaProvider* provider, Data data);
-		Artist(Json json, MediaProviderStash* stash);
+		Artist(MediaProvider* provider, const Data& data);
+		Artist(const Json& json, MediaProviderStash* stash);
 		
 		const Optional<String>& description() const;
 		
@@ -30,7 +30,7 @@ namespace sh {
 		
 		Data toData() const;
 		
-		static $<Artist> fromJson(Json json, MediaProviderStash* stash);
+		static $<Artist> fromJson(const Json& json, MediaProviderStash* stash);
 		virtual Json toJson() const override;
 		
 	protected:

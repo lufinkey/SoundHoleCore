@@ -17,13 +17,13 @@ namespace sh {
 		static $<QueueItem> new$($<Track> track);
 		
 		QueueItem($<Track> track);
-		QueueItem(Json json, MediaProviderStash* stash);
+		QueueItem(const Json& json, MediaProviderStash* stash);
 		virtual ~QueueItem();
 		
 		$<Track> track();
 		$<const Track> track() const;
 		
-		static $<QueueItem> fromJson(Json json, MediaProviderStash* stash);
+		static $<QueueItem> fromJson(const Json& json, MediaProviderStash* stash);
 		virtual Json toJson() const;
 		
 	private:

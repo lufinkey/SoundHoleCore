@@ -11,7 +11,7 @@
 #include <cstdlib>
 
 namespace sh {
-	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Data data) {
+	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, const Data& data) {
 		return fgl::new$<ShuffledTrackCollectionItem>(context, data);
 	}
 	
@@ -19,7 +19,7 @@ namespace sh {
 		return fgl::new$<ShuffledTrackCollectionItem>(context, sourceItem);
 	}
 	
-	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Data data)
+	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, const Data& data)
 	: SpecialTrackCollectionItem<ShuffledTrackCollection>(context, data), _sourceItem(data.sourceItem) {
 		FGL_ASSERT(std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(data.sourceItem) == nullptr, "Cannot create ShuffledTrackCollectionItem with another ShuffledTrackCollectionItem");
 	}
@@ -44,11 +44,11 @@ namespace sh {
 		return false;
 	}
 
-	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::fromJson($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Json json, MediaProviderStash* stash) {
+	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::fromJson($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, const Json& json, MediaProviderStash* stash) {
 		return fgl::new$<ShuffledTrackCollectionItem>(context, json, stash);
 	}
 
-	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, Json json, MediaProviderStash* stash)
+	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, const Json& json, MediaProviderStash* stash)
 	: SpecialTrackCollectionItem<ShuffledTrackCollection>(context, json, stash) {
 		auto shuffledContext = std::static_pointer_cast<ShuffledTrackCollection>(context);
 		auto sourceContext = shuffledContext->source();
@@ -206,7 +206,7 @@ namespace sh {
 
 
 
-	Json ShuffledTrackCollection::toJson(ToJsonOptions options) const {
+	Json ShuffledTrackCollection::toJson(const ToJsonOptions& options) const {
 		auto json = SpecialTrackCollection<ShuffledTrackCollectionItem>::toJson(options).object_items();
 		json.merge(Json::object{
 			{ "source", _source->toJson({.tracksOffset=0,.tracksLimit=options.tracksLimit}) }

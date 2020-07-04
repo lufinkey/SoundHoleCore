@@ -10,13 +10,13 @@
 #include "MediaProvider.hpp"
 
 namespace sh {
-	$<UserAccount> UserAccount::new$(MediaProvider* provider, Data data) {
+	$<UserAccount> UserAccount::new$(MediaProvider* provider, const Data& data) {
 		$<MediaItem> ptr;
 		new UserAccount(provider, data);
 		return std::static_pointer_cast<UserAccount>(ptr);
 	}
 
-	UserAccount::UserAccount(MediaProvider* provider, Data data)
+	UserAccount::UserAccount(MediaProvider* provider, const Data& data)
 	: MediaItem(provider, data),
 	_id(data.id), _displayName(data.displayName) {
 		//
@@ -55,11 +55,11 @@ namespace sh {
 
 
 
-	$<UserAccount> UserAccount::fromJson(Json json, MediaProviderStash* stash) {
+	$<UserAccount> UserAccount::fromJson(const Json& json, MediaProviderStash* stash) {
 		return fgl::new$<UserAccount>(json, stash);
 	}
 
-	UserAccount::UserAccount(Json json, MediaProviderStash* stash)
+	UserAccount::UserAccount(const Json& json, MediaProviderStash* stash)
 	: MediaItem(json, stash) {
 		auto id = json["id"];
 		auto displayName = json["displayName"];

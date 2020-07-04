@@ -23,15 +23,15 @@ namespace sh {
 				MEDIUM=2,
 				LARGE=3
 			};
-			static Size Size_fromJson(Json json);
-			static Json Size_toJson(Size size);
+			static Size Size_fromJson(const Json& json);
+			static Json Size_toJson(const Size& size);
 			
 			struct Dimensions {
 				size_t width;
 				size_t height;
 				Size toSize() const;
 				
-				static Dimensions fromJson(Json json);
+				static Dimensions fromJson(const Json& json);
 				Json toJson() const;
 			};
 			
@@ -39,7 +39,7 @@ namespace sh {
 			Size size;
 			Optional<Dimensions> dimensions;
 			
-			static Image fromJson(Json json);
+			static Image fromJson(const Json& json);
 			Json toJson() const;
 		};
 		
@@ -52,7 +52,7 @@ namespace sh {
 		};
 		
 		MediaItem(MediaProvider* provider, const Data& data);
-		MediaItem(Json json, MediaProviderStash* stash);
+		MediaItem(const Json& json, MediaProviderStash* stash);
 		virtual ~MediaItem();
 		
 		const String& type() const;

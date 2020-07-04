@@ -16,4 +16,6 @@ namespace sh::sql {
 		ASC,
 		DESC
 	};
+	String Order_toString(Order);
+	Order Order_fromString(String);
 }
