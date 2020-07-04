@@ -520,15 +520,18 @@ namespace sh {
 						}
 						sharedData->offset += items.size();
 						if(items.size() > 0) {
+							auto& lastItem = items.back();
 							sharedData->syncLastItem = {
-								.uri = items.back().mediaItem->uri(),
-								.addedAt = items.back().addedAt
+								.uri = lastItem.mediaItem->uri(),
+								.addedAt = lastItem.addedAt
 							};
 							sharedData->syncLastItemOffset = sharedData->offset - 1;
 						}
 						sharedData->syncMostRecentSave = std::nullopt;
 						bool done = (sharedData->offset >= page.total || page.next.empty());
 						if(done) {
+							sharedData->syncLastItem = std::nullopt;
+							sharedData->syncLastItemOffset = std::nullopt;
 							sharedData->offset = 0;
 							sharedData->type += 1;
 						}
@@ -556,9 +559,28 @@ namespace sh {
 								.addedAt = item.addedAt
 							};
 						});
+						
+						bool foundEndOfSync = false;
+						if(sharedData->mostRecentAlbumSave) {
+							for(auto& item : items) {
+								time_t addedAt = item.addedAt.empty() ? 0 : timeFromString(item.addedAt);
+								if(addedAt < sharedData->mostRecentAlbumSave.value()) {
+									foundEndOfSync = true;
+									break;
+								}
+							}
+						}
 						if(sharedData->resuming) {
 							sharedData->resuming = false;
 							if(!sharedData->attemptRestoreSync(items.first())) {
+								if(foundEndOfSync) {
+									sharedData->mostRecentAlbumSave = sharedData->syncMostRecentSave;
+									sharedData->syncMostRecentSave = std::nullopt;
+									sharedData->syncLastItem = std::nullopt;
+									sharedData->syncLastItemOffset = std::nullopt;
+									sharedData->offset = 0;
+									sharedData->type += 1;
+								}
 								return YieldResult{
 									.value=GenerateLibraryResults{
 										.resumeData = createResumeData(sharedData).toJson(),
@@ -570,20 +592,24 @@ namespace sh {
 							}
 						}
 						if(sharedData->offset == 0 && items.size() > 0) {
-							sharedData->syncMostRecentSave = timeFromString(items.front().addedAt);
+							auto latestAddedAt = items.front().addedAt;
+							sharedData->syncMostRecentSave = latestAddedAt.empty() ? 0 : timeFromString(latestAddedAt);
 						}
 						sharedData->offset += items.size();
 						if(items.size() > 0) {
+							auto& lastItem = items.back();
 							sharedData->syncLastItem = {
-								.uri = items.back().mediaItem->uri(),
-								.addedAt = items.back().addedAt
+								.uri = lastItem.mediaItem->uri(),
+								.addedAt = lastItem.addedAt
 							};
 							sharedData->syncLastItemOffset = sharedData->offset - 1;
 						}
-						bool done = (sharedData->offset >= page.total || page.next.empty());
+						bool done = (foundEndOfSync || sharedData->offset >= page.total || page.next.empty());
 						if(done) {
 							sharedData->mostRecentAlbumSave = sharedData->syncMostRecentSave;
 							sharedData->syncMostRecentSave = std::nullopt;
+							sharedData->syncLastItem = std::nullopt;
+							sharedData->syncLastItemOffset = std::nullopt;
 							sharedData->offset = 0;
 							sharedData->type += 1;
 						}
@@ -625,13 +651,15 @@ namespace sh {
 							}
 						}
 						if(sharedData->offset == 0 && items.size() > 0) {
-							sharedData->syncMostRecentSave = timeFromString(items.front().addedAt);
+							auto latestAddedAt = items.front().addedAt;
+							sharedData->syncMostRecentSave = latestAddedAt.empty() ? 0 : timeFromString(latestAddedAt);
 						}
 						sharedData->offset += items.size();
 						if(items.size() > 0) {
+							auto& lastItem = items.back();
 							sharedData->syncLastItem = {
-								.uri = items.back().mediaItem->uri(),
-								.addedAt = items.back().addedAt
+								.uri = lastItem.mediaItem->uri(),
+								.addedAt = lastItem.addedAt
 							};
 							sharedData->syncLastItemOffset = sharedData->offset - 1;
 						}
