@@ -505,6 +505,7 @@ namespace sh {
 								.addedAt = String()
 							};
 						});
+						
 						if(sharedData->resuming) {
 							sharedData->resuming = false;
 							if(!sharedData->attemptRestoreSync(items.first())) {
@@ -518,6 +519,7 @@ namespace sh {
 								};
 							}
 						}
+						
 						sharedData->offset += items.size();
 						if(items.size() > 0) {
 							auto& lastItem = items.back();
@@ -545,6 +547,7 @@ namespace sh {
 						};
 					});
 				}
+				
 				// saved albums
 				case 1: {
 					return spotify->getMyAlbums({
@@ -570,6 +573,7 @@ namespace sh {
 								}
 							}
 						}
+						
 						if(sharedData->resuming) {
 							sharedData->resuming = false;
 							if(!sharedData->attemptRestoreSync(items.first())) {
@@ -585,12 +589,13 @@ namespace sh {
 									.value=GenerateLibraryResults{
 										.resumeData = createResumeData(sharedData).toJson(),
 										.items = items,
-										.progress = (1.0 / 3.0)
+										.progress = foundEndOfSync ? (2.0 / 3.0) : (1.0 / 3.0)
 									},
 									.done=false
 								};
 							}
 						}
+						
 						if(sharedData->offset == 0 && items.size() > 0) {
 							auto latestAddedAt = items.front().addedAt;
 							sharedData->syncMostRecentSave = latestAddedAt.empty() ? 0 : timeFromString(latestAddedAt);
@@ -623,6 +628,7 @@ namespace sh {
 						};
 					});
 				}
+				
 				// saved tracks
 				case 2: {
 					return spotify->getMyTracks({
@@ -637,19 +643,40 @@ namespace sh {
 								.addedAt = item.addedAt
 							};
 						});
+						
+						bool foundEndOfSync = false;
+						if(sharedData->mostRecentTrackSave) {
+							for(auto& item : items) {
+								time_t addedAt = item.addedAt.empty() ? 0 : timeFromString(item.addedAt);
+								if(addedAt < sharedData->mostRecentTrackSave.value()) {
+									foundEndOfSync = true;
+									break;
+								}
+							}
+						}
+						
 						if(sharedData->resuming) {
 							sharedData->resuming = false;
 							if(!sharedData->attemptRestoreSync(items.first())) {
+								if(foundEndOfSync) {
+									sharedData->mostRecentTrackSave = sharedData->syncMostRecentSave;
+									sharedData->syncMostRecentSave = std::nullopt;
+									sharedData->syncLastItem = std::nullopt;
+									sharedData->syncLastItemOffset = std::nullopt;
+									sharedData->offset = 0;
+									sharedData->type += 1;
+								}
 								return YieldResult{
 									.value=GenerateLibraryResults{
 										.resumeData = createResumeData(sharedData).toJson(),
 										.items = items,
-										.progress = 2.0 / 3.0
+										.progress = foundEndOfSync ? (3.0 / 3.0) : (2.0 / 3.0)
 									},
 									.done=false
 								};
 							}
 						}
+						
 						if(sharedData->offset == 0 && items.size() > 0) {
 							auto latestAddedAt = items.front().addedAt;
 							sharedData->syncMostRecentSave = latestAddedAt.empty() ? 0 : timeFromString(latestAddedAt);
@@ -663,7 +690,7 @@ namespace sh {
 							};
 							sharedData->syncLastItemOffset = sharedData->offset - 1;
 						}
-						bool done = (sharedData->offset >= page.total || page.next.empty());
+						bool done = (foundEndOfSync || sharedData->offset >= page.total || page.next.empty());
 						if(done) {
 							sharedData->mostRecentTrackSave = sharedData->syncMostRecentSave;
 							sharedData->syncMostRecentSave = std::nullopt;
