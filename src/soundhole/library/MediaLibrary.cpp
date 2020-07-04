@@ -499,7 +499,7 @@ namespace sh {
 			.order=filters.order
 		}).map<LinkedList<$<Album>>>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
 			return results.items.map<$<Album>>([=](Json json) {
-				return Album::fromJson(json, this->libraryProvider);
+				return Album::fromJson(json["mediaItem"], this->libraryProvider);
 			});
 		});
 	}
@@ -518,7 +518,7 @@ namespace sh {
 				.order=filters.order
 			}).map<YieldResult>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
 				auto albums = results.items.map<$<Album>>([=](Json json) {
-					return Album::fromJson(json, this->libraryProvider);
+					return Album::fromJson(json["mediaItem"], this->libraryProvider);
 				});
 				size_t albumsOffset = *offset;
 				*offset += options.chunkSize;
@@ -542,7 +542,7 @@ namespace sh {
 			.order=filters.order
 		}).map<LinkedList<$<Playlist>>>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
 			return results.items.map<$<Playlist>>([=](Json json) {
-				return Playlist::fromJson(json, this->libraryProvider);
+				return Playlist::fromJson(json["mediaItem"], this->libraryProvider);
 			});
 		});
 	}
@@ -561,7 +561,7 @@ namespace sh {
 				.order=filters.order
 			}).map<YieldResult>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
 				auto playlists = results.items.map<$<Playlist>>([=](Json json) {
-					return Playlist::fromJson(json, this->libraryProvider);
+					return Playlist::fromJson(json["mediaItem"], this->libraryProvider);
 				});
 				size_t playlistsOffset = *offset;
 				*offset += options.chunkSize;
