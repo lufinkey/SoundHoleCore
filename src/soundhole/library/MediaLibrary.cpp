@@ -143,7 +143,7 @@ namespace sh {
 						size_t libraryItemIndex = 0;
 						for(auto libraryItem : yieldResult.value->items) {
 							if(auto collection = std::dynamic_pointer_cast<TrackCollection>(libraryItem.mediaItem)) {
-								auto existingCollection = await(db->getTrackCollectionJson(collection->uri()));
+								auto existingCollection = maybeTryAwait(db->getTrackCollectionJson(collection->uri()), Json());
 								auto existingVersionId = existingCollection["versionId"];
 								if(existingVersionId.is_string() && collection->versionId() == existingVersionId.string_value()) {
 									continue;
