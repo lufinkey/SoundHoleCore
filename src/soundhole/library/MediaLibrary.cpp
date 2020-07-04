@@ -387,7 +387,7 @@ namespace sh {
 
 	Promise<LinkedList<$<Album>>> MediaLibrary::getLibraryAlbums(GetLibraryAlbumsFilters filters) {
 		return db->getSavedAlbumsJson({
-			.libraryProvider = (filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : nullptr,
+			.libraryProvider = (filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : String(),
 			.orderBy=filters.orderBy,
 			.order=filters.order
 		}).map<LinkedList<$<Album>>>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
@@ -402,7 +402,7 @@ namespace sh {
 		using YieldResult = typename LibraryAlbumsGenerator::YieldResult;
 		return LibraryAlbumsGenerator([=]() {
 			return db->getSavedAlbumsJson({
-				.libraryProvider = (filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : nullptr,
+				.libraryProvider = (filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : String(),
 				.range = sql::IndexRange{
 					.startIndex = *offset,
 					.endIndex = *offset + options.chunkSize
@@ -430,7 +430,7 @@ namespace sh {
 
 	Promise<LinkedList<$<Playlist>>> MediaLibrary::getLibraryPlaylists(GetLibraryPlaylistsFilters filters) {
 		return db->getSavedPlaylistsJson({
-			.libraryProvider = (filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : nullptr,
+			.libraryProvider = (filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : String(),
 			.orderBy=filters.orderBy,
 			.order=filters.order
 		}).map<LinkedList<$<Playlist>>>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
@@ -445,7 +445,7 @@ namespace sh {
 		using YieldResult = typename LibraryPlaylistsGenerator::YieldResult;
 		return LibraryPlaylistsGenerator([=]() {
 			return db->getSavedPlaylistsJson({
-				.libraryProvider = (filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : nullptr,
+				.libraryProvider = (filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : String(),
 				.range = sql::IndexRange{
 					.startIndex = *offset,
 					.endIndex = *offset + options.chunkSize
