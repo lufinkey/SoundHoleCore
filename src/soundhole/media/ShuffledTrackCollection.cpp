@@ -160,7 +160,7 @@ namespace sh {
 		return this;
 	}
 
-	size_t ShuffledTrackCollection::getChunkSize() {
+	size_t ShuffledTrackCollection::getChunkSize() const {
 		return 12;
 	}
 

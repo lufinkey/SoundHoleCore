@@ -103,7 +103,7 @@ namespace sh {
 			
 			virtual ~MutatorDelegate() {}
 			
-			virtual size_t getChunkSize() = 0;
+			virtual size_t getChunkSize() const = 0;
 			
 			virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) = 0;
 		};

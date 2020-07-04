@@ -17,7 +17,7 @@ namespace sh {
 	class YoutubePlaylistMutatorDelegate: public Playlist::MutatorDelegate {
 		friend class YoutubeProvider;
 	public:
-		virtual size_t getChunkSize() override;
+		virtual size_t getChunkSize() const override;
 		virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) override;
 		
 	private:

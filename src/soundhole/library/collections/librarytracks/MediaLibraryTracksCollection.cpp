@@ -136,7 +136,7 @@ namespace sh {
 		return this;
 	}
 
-	size_t MediaLibraryTracksCollection::getChunkSize() {
+	size_t MediaLibraryTracksCollection::getChunkSize() const {
 		return 50;
 	}
 

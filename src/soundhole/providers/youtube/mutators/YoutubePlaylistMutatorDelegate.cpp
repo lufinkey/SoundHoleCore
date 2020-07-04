@@ -17,7 +17,7 @@ namespace sh {
 		//
 	}
 
-	size_t YoutubePlaylistMutatorDelegate::getChunkSize() {
+	size_t YoutubePlaylistMutatorDelegate::getChunkSize() const {
 		return 50;
 	}
 

@@ -17,7 +17,7 @@ namespace sh {
 		//
 	}
 
-	size_t BandcampAlbumMutatorDelegate::getChunkSize() {
+	size_t BandcampAlbumMutatorDelegate::getChunkSize() const {
 		return 50;
 	}
 

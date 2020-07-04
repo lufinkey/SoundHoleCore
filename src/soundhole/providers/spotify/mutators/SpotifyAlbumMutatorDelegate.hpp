@@ -17,7 +17,7 @@ namespace sh {
 	class SpotifyAlbumMutatorDelegate: public Album::MutatorDelegate {
 		friend class SpotifyProvider;
 	public:
-		virtual size_t getChunkSize() override;
+		virtual size_t getChunkSize() const override;
 		virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) override;
 		
 	private:

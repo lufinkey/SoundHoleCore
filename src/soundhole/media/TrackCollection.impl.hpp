@@ -416,10 +416,9 @@ namespace sh {
 
 	template<typename ItemType>
 	size_t SpecialTrackCollection<ItemType>::getAsyncListChunkSize(const AsyncList<$<ItemType>>* list) const {
-		if(_mutatorDelegate == nullptr) {
-			throw std::logic_error("getAsyncListChunkSize called before delegate was created");
-		}
-		return _mutatorDelegate->getChunkSize();
+		auto nonConstThis = const_cast<SpecialTrackCollection<ItemType>*>(this);
+		auto delegate = nonConstThis->mutatorDelegate();
+		return delegate->getChunkSize();
 	}
 
 	template<typename ItemType>

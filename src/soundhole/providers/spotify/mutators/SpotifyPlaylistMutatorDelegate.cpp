@@ -16,7 +16,7 @@ namespace sh {
 		//
 	}
 
-	size_t SpotifyPlaylistMutatorDelegate::getChunkSize() {
+	size_t SpotifyPlaylistMutatorDelegate::getChunkSize() const {
 		return 100;
 	}
 
