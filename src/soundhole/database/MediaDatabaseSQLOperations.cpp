@@ -581,7 +581,7 @@ void selectSavedPlaylistsAndPlaylists(SQLiteTransaction& tx, String outKey, Libr
 	auto columns = joinedTableColumns(joinTables);
 	LinkedList<Any> params;
 	auto query = String::join({
-		"SELECT ",columns," FROM SavedPlaylist, TrackCollection WHERE SavedPlaylist.trackURI = TrackCollection.uri",
+		"SELECT ",columns," FROM SavedPlaylist, TrackCollection WHERE SavedPlaylist.playlistURI = TrackCollection.uri",
 		(options.libraryProvider.empty()) ?
 			String()
 			: String::join({
