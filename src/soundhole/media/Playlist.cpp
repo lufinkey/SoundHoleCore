@@ -38,7 +38,7 @@ namespace sh {
 			return false;
 		}
 		if(_track->uri() == playlistItem->_track->uri()
-		   && _addedAt == playlistItem->_addedAt && _addedBy->uri() == playlistItem->_addedBy->uri()) {
+		   && _addedAt == playlistItem->_addedAt && ((!_addedBy && !playlistItem->_addedBy) || (_addedBy && playlistItem->_addedBy && _addedBy->uri() == playlistItem->_addedBy->uri()))) {
 			return true;
 		}
 		return false;
