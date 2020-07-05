@@ -571,7 +571,7 @@ void selectSavedPlaylistsAndPlaylists(SQLiteTransaction& tx, String outKey, Libr
 		{
 			.name = "SavedPlaylist",
 			.prefix = "r1_",
-			.columns = savedTrackColumns()
+			.columns = savedPlaylistColumns()
 		}, {
 			.name = "TrackCollection",
 			.prefix = "r2_",
