@@ -458,7 +458,7 @@ void selectSavedTracksAndTracks(SQLiteTransaction& tx, String outKey, LibraryIte
 				case LibraryItemOrderBy::ADDED_AT:
 					return "SavedTrack.addedAt";
 				case LibraryItemOrderBy::NAME:
-					return "TRIM(TRIM(TRIM(Track.name,'\"'),\"'\"),'-')";
+					return "TRIM(TRIM(TRIM(LOWER(Track.name),'\"'),\"'\"),'-')";
 			}
 			throw std::runtime_error("invalid LibraryItemOrderBy value");
 		})(),([&]() {
@@ -525,7 +525,7 @@ void selectSavedAlbumsAndAlbums(SQLiteTransaction& tx, String outKey, LibraryIte
 				case LibraryItemOrderBy::ADDED_AT:
 					return "SavedAlbum.addedAt";
 				case LibraryItemOrderBy::NAME:
-					return "TRIM(TRIM(TRIM(TrackCollection.name,'\"'),\"'\"),'-')";
+					return "TRIM(TRIM(TRIM(LOWER(TrackCollection.name),'\"'),\"'\"),'-')";
 			}
 			throw std::runtime_error("invalid LibraryItemOrderBy value");
 		})(),([&]() {
@@ -592,7 +592,7 @@ void selectSavedPlaylistsAndPlaylists(SQLiteTransaction& tx, String outKey, Libr
 				case LibraryItemOrderBy::ADDED_AT:
 					return "SavedPlaylist.addedAt";
 				case LibraryItemOrderBy::NAME:
-					return "TRIM(TRIM(TRIM(TrackCollection.name,'\"'),\"'\"),'-')";
+					return "TRIM(TRIM(TRIM(LOWER(TrackCollection.name),'\"'),\"'\"),'-')";
 			}
 			throw std::runtime_error("invalid LibraryItemOrderBy value");
 		})(),([&]() {
@@ -666,7 +666,7 @@ void selectLibraryArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelec
 				case LibraryItemOrderBy::ADDED_AT:
 					return "Artist.name";
 				case LibraryItemOrderBy::NAME:
-					return "TRIM(TRIM(TRIM(Artist.name,'\"'),\"'\"),'-')";
+					return "TRIM(TRIM(TRIM(LOWER(Artist.name),'\"'),\"'\"),'-')";
 			}
 			throw std::runtime_error("invalid LibraryItemOrderBy value");
 		})(),([&]() {
