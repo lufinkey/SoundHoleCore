@@ -1,3 +1,4 @@
+require 'fileutils'
 
 target 'SoundHoleCoreTest-iOS' do
 	platform :ios, '13.0'
@@ -30,3 +31,10 @@ post_install do |installer|
 		end
 	end
 end
+
+system("mkdir -p 'Pods'\n"\
+	"cd Pods\n"\
+	"if [ ! -e 'dtl/.git' ]; then\n"\
+		"\tgit clone 'https://github.com/cubicdaiya/dtl'\n"\
+	"fi\n")
+
