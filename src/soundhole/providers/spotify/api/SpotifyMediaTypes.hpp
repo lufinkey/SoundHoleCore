@@ -194,6 +194,18 @@ namespace sh {
 			static Item fromJson(const Json&);
 		};
 		
+		struct AddResult {
+			String snapshotId;
+			
+			static AddResult fromJson(const Json&);
+		};
+		
+		struct RemoveResult {
+			String snapshotId;
+			
+			static RemoveResult fromJson(const Json&);
+		};
+		
 		String type;
 		String id;
 		String uri;

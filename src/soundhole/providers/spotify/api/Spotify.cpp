@@ -641,6 +641,57 @@ namespace sh {
 		});
 	}
 
+	Promise<SpotifyPlaylist::AddResult> Spotify::addPlaylistTracks(String playlistId, ArrayList<String> trackURIs, AddPlaylistTracksOptions options) {
+		if(playlistId.empty()) {
+			return Promise<SpotifyPlaylist::AddResult>::reject(
+				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "playlistId cannot be empty")
+			);
+		}
+		if(trackURIs.empty()) {
+			return Promise<SpotifyPlaylist::AddResult>::reject(
+				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "trackURIs cannot be empty")
+			);
+		}
+		auto params = Json::object{
+			{ "uris", trackURIs.map<Json>([](auto& uri) {
+				return Json(std::move(uri));
+			}) }
+		};
+		if(options.position) {
+			params["position"] = Json((int)options.position.value());
+		}
+		return sendRequest(utils::HttpMethod::POST, "v1/playlists/"+playlistId+"/tracks", params).map<SpotifyPlaylist::AddResult>([](auto json) {
+			return SpotifyPlaylist::AddResult::fromJson(json);
+		});
+	}
+
+	Promise<SpotifyPlaylist::RemoveResult> Spotify::removePlaylistTracks(String playlistId, ArrayList<PlaylistTrackMarker> tracks, RemovePlaylistTracksOptions options) {
+		if(tracks.empty()) {
+			return Promise<SpotifyPlaylist::RemoveResult>::reject(
+				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "tracks cannot be empty")
+			);
+		}
+		auto params = Json::object{
+			{ "tracks", tracks.map<Json>([](auto& track) {
+				auto json = Json::object{
+					{ "uri", Json(track.uri) }
+				};
+				if(track.positions.size() > 0) {
+					json["positions"] = track.positions.template map<Json>([](size_t position) {
+						return Json((int)position);
+					});
+				}
+				return Json(json);
+			}) }
+		};
+		if(!options.snapshotId.empty()) {
+			params["snapshot_id"] = (std::string)options.snapshotId;
+		}
+		return sendRequest(utils::HttpMethod::DELETE, "v1/playlists/"+playlistId+"/tracks", params).map<SpotifyPlaylist::RemoveResult>([](auto json) {
+			return SpotifyPlaylist::RemoveResult::fromJson(json);
+		});
+	}
+
 	Promise<SpotifyUser> Spotify::getUser(String userId) {
 		if(userId.empty()) {
 			return Promise<SpotifyUser>::reject(

@@ -145,7 +145,18 @@ namespace sh {
 			Optional<size_t> offset;
 		};
 		Promise<SpotifyPage<SpotifyPlaylist::Item>> getPlaylistTracks(String playlistId, GetPlaylistTracksOptions options = {});
-		
+		struct AddPlaylistTracksOptions {
+			Optional<size_t> position;
+		};
+		Promise<SpotifyPlaylist::AddResult> addPlaylistTracks(String playlistId, ArrayList<String> trackURIs, AddPlaylistTracksOptions options = {});
+		struct PlaylistTrackMarker {
+			String uri;
+			ArrayList<size_t> positions;
+		};
+		struct RemovePlaylistTracksOptions {
+			String snapshotId;
+		};
+		Promise<SpotifyPlaylist::RemoveResult> removePlaylistTracks(String playlistId, ArrayList<PlaylistTrackMarker> tracks, RemovePlaylistTracksOptions options = {});
 		
 		Promise<SpotifyUser> getUser(String userId);
 		struct GetUserPlaylistsOptions {

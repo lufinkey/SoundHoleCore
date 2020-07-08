@@ -253,6 +253,18 @@ namespace sh {
 		};
 	}
 
+	SpotifyPlaylist::AddResult SpotifyPlaylist::AddResult::fromJson(const Json& json) {
+		return AddResult{
+			.snapshotId = json["snapshot_id"].string_value()
+		};
+	}
+
+	SpotifyPlaylist::RemoveResult SpotifyPlaylist::RemoveResult::fromJson(const Json& json) {
+		return RemoveResult{
+			.snapshotId = json["snapshot_id"].string_value()
+		};
+	}
+
 
 	SpotifySavedTrack SpotifySavedTrack::fromJson(const Json& json) {
 		return SpotifySavedTrack{
