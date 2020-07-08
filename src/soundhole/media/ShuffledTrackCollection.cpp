@@ -175,11 +175,11 @@ namespace sh {
 			auto existingItem = itemAt(i);
 			if(existingItem) {
 				if(auto shuffledItem = std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(existingItem)) {
-					promise = promise.then([=]() {
+					promise = promise.then(nullptr, [=]() {
 						items->pushBack(shuffledItem);
 					});
 				} else {
-					promise = promise.then([=]() {
+					promise = promise.then(nullptr, [=]() {
 						items->pushBack(ShuffledTrackCollectionItem::new$(self, existingItem));
 					});
 				}
@@ -189,14 +189,14 @@ namespace sh {
 				}
 				auto randomIndex = tmpRemainingIndexes.extractFront();
 				chosenIndexes.pushBack(randomIndex);
-				promise = promise.then([=]() {
-					return self->_source->getItem(randomIndex->index, options).then([=]($<TrackCollectionItem> item) {
+				promise = promise.then(nullptr, [=]() {
+					return self->_source->getItem(randomIndex->index, options).then(nullptr, [=]($<TrackCollectionItem> item) {
 						items->pushBack(ShuffledTrackCollectionItem::new$(self, item));
 					});
 				});
 			}
 		}
-		return promise.then([=]() {
+		return promise.then(nullptr, [=]() {
 			mutator->lock([&]() {
 				for(auto randomIndex : chosenIndexes) {
 					auto it = self->_remainingIndexes.findEqual(randomIndex);
@@ -206,9 +206,10 @@ namespace sh {
 				}
 				auto itemCount = self->_source->itemCount();
 				if(itemCount) {
-					mutator->resize(itemCount.value());
+					mutator->applyAndResize(index, itemCount.value(), *items);
+				} else {
+					mutator->apply(index, *items);
 				}
-				mutator->apply(index, *items);
 			});
 		});
 	}

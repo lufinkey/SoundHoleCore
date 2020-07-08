@@ -90,7 +90,7 @@ namespace sh {
 		if(tracksAreAsync()) {
 			return asyncItemsList()->indexWhere([&](auto& cmpItem) {
 				return (item == cmpItem.get() || cmpItem->matchesItem(item));
-			});
+			}, true);
 		} else {
 			size_t index = 0;
 			auto& items = itemsList();
@@ -122,7 +122,7 @@ namespace sh {
 		if(tracksAreAsync()) {
 			return asyncItemsList()->indexWhere([&](auto& cmpItem) {
 				return (item == cmpItem.get());
-			});
+			}, true);
 		} else {
 			size_t index = 0;
 			auto& items = itemsList();
@@ -181,7 +181,8 @@ namespace sh {
 		}
 		makeTracksAsync();
 		return asyncItemsList()->getItem(index, {
-			.trackIndexChanges = true,
+			.forceReload = options.forceReload,
+			.trackIndexChanges = options.trackIndexChanges,
 			.loadOptions = options.toDict()
 		}).template map<$<TrackCollectionItem>>(nullptr, [](auto item) {
 			return std::static_pointer_cast<TrackCollectionItem>(item.value_or(nullptr));
@@ -206,7 +207,8 @@ namespace sh {
 		}
 		makeTracksAsync();
 		return this->asyncItemsList()->getItems(index, count, {
-			.trackIndexChanges = true,
+			.forceReload = options.forceReload,
+			.trackIndexChanges = options.trackIndexChanges,
 			.loadOptions = options.toDict()
 		}).template map<LinkedList<$<TrackCollectionItem>>>(nullptr, [](auto items) {
 			return items.template map<$<TrackCollectionItem>>([](auto& item) {
@@ -223,6 +225,8 @@ namespace sh {
 		}
 		if(tracksAreAsync()) {
 			return asyncItemsList()->generateItems(startIndex, {
+				.forceReload = options.forceReload,
+				.trackIndexChanges = options.trackIndexChanges,
 				.loadOptions = options.toDict()
 			}).template map<LinkedList<$<TrackCollectionItem>>>([](auto items) {
 				return items.template map<$<TrackCollectionItem>>([](auto& item) {
@@ -286,7 +290,8 @@ namespace sh {
 		}
 		if(tracksAreAsync()) {
 			return asyncItemsList()->getItems(index,count, {
-				.trackIndexChanges = true,
+				.forceReload = options.forceReload,
+				.trackIndexChanges = options.trackIndexChanges,
 				.loadOptions = options.toDict()
 			}).toVoid();
 		} else {
@@ -381,6 +386,32 @@ namespace sh {
 	}
 
 	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::invalidateItems(size_t startIndex, size_t endIndex) {
+		lazyLoadContentIfNeeded();
+		if(tracksAreEmpty()) {
+			return;
+		}
+		if(!tracksAreAsync()) {
+			makeTracksAsync();
+		}
+		auto asyncItems = asyncItemsList();
+		asyncItems->invalidateItems(startIndex, endIndex, true);
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::invalidateAllItems() {
+		lazyLoadContentIfNeeded();
+		if(tracksAreEmpty()) {
+			return;
+		}
+		if(!tracksAreAsync()) {
+			makeTracksAsync();
+		}
+		auto asyncItems = asyncItemsList();
+		asyncItems->invalidateAllItems(true);
+	}
+
+	template<typename ItemType>
 	void SpecialTrackCollection<ItemType>::applyData(const Data& data) {
 		lazyLoadContentIfNeeded();
 		TrackCollection::applyData(data);
@@ -424,6 +455,13 @@ namespace sh {
 	template<typename ItemType>
 	bool SpecialTrackCollection<ItemType>::areAsyncListItemsEqual(const AsyncList<$<ItemType>>* list, const $<ItemType>& item1, const $<ItemType>& item2) const {
 		return item1->matchesItem(item2.get());
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::mergeAsyncListItem(const AsyncList<$<ItemType>>* list, $<ItemType>& overwritingItem, $<ItemType>& existingItem) {
+		auto newItem = overwritingItem;
+		overwritingItem = existingItem;
+		overwritingItem->merge(newItem.get());
 	}
 
 	template<typename ItemType>

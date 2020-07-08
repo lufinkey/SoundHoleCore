@@ -37,7 +37,11 @@ namespace sh {
 			// TODO maybe fatal error?
 			return std::nullopt;
 		}
-		return context->indexOfItem(this);
+		return context->indexOfItemInstance(this);
+	}
+
+	void TrackCollectionItem::merge(const TrackCollectionItem* item) {
+		_track->applyData(item->track()->toData());
 	}
 
 	TrackCollectionItem::Data TrackCollectionItem::toData() const {
@@ -62,14 +66,20 @@ namespace sh {
 
 	std::map<String,Any> TrackCollection::LoadItemOptions::toDict() const {
 		return {
-			{ "database", database }
+			{ "database", database },
+			{ "forceReload", forceReload },
+			{ "trackIndexChanes", trackIndexChanges }
 		};
 	}
 
 	TrackCollection::LoadItemOptions TrackCollection::LoadItemOptions::fromDict(const std::map<String,Any>& dict) {
 		auto databaseIt = dict.find("database");
+		auto forceReload = dict.find("forceReload");
+		auto trackIndexChanges = dict.find("trackIndexChanges");
 		return {
-			.database = (databaseIt != dict.end()) ? databaseIt->second.maybeAs<MediaDatabase*>().valueOr(nullptr) : nullptr
+			.database = (databaseIt != dict.end()) ? databaseIt->second.maybeAs<MediaDatabase*>().valueOr(nullptr) : nullptr,
+			.forceReload = (forceReload != dict.end()) ? forceReload->second.maybeAs<bool>().valueOr(false) : false,
+			.trackIndexChanges = (trackIndexChanges != dict.end()) ? trackIndexChanges->second.maybeAs<bool>().valueOr(false) : false
 		};
 	}
 
@@ -78,7 +88,7 @@ namespace sh {
 	}
 
 	String TrackCollection::versionId() const {
-		return "";
+		return String();
 	}
 
 	Json TrackCollection::toJson() const {

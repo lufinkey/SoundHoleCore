@@ -36,6 +36,7 @@ namespace sh {
 		Optional<size_t> indexInContext() const;
 		
 		virtual bool matchesItem(const TrackCollectionItem* item) const = 0;
+		virtual void merge(const TrackCollectionItem* item);
 		
 		Data toData() const;
 		
@@ -54,6 +55,8 @@ namespace sh {
 		using ItemGenerator = ContinuousGenerator<LinkedList<$<TrackCollectionItem>>,void>;
 		struct LoadItemOptions {
 			MediaDatabase* database = nullptr;
+			bool forceReload = false;
+			bool trackIndexChanges = false;
 			
 			std::map<String,Any> toDict() const;
 			static LoadItemOptions fromDict(const std::map<String,Any>& dict);
@@ -79,6 +82,9 @@ namespace sh {
 		virtual void forEach(Function<void($<const TrackCollectionItem>,size_t)>) const = 0;
 		virtual void forEachInRange(size_t startIndex, size_t endIndex, Function<void($<TrackCollectionItem>,size_t)>) = 0;
 		virtual void forEachInRange(size_t startIndex, size_t endIndex, Function<void($<const TrackCollectionItem>,size_t)>) const = 0;
+		
+		virtual void invalidateItems(size_t startIndex, size_t endIndex) = 0;
+		virtual void invalidateAllItems() = 0;
 		
 		virtual Json toJson() const override final;
 		struct ToJsonOptions {
@@ -147,6 +153,9 @@ namespace sh {
 		virtual void forEachInRange(size_t startIndex, size_t endIndex, Function<void($<TrackCollectionItem>,size_t)>) override final;
 		virtual void forEachInRange(size_t startIndex, size_t endIndex, Function<void($<const TrackCollectionItem>,size_t)>) const override final;
 		
+		virtual void invalidateItems(size_t startIndex, size_t endIndex) override;
+		virtual void invalidateAllItems() override;
+		
 		void applyData(const Data& data);
 		
 		struct DataOptions {
@@ -159,6 +168,7 @@ namespace sh {
 	protected:
 		virtual size_t getAsyncListChunkSize(const AsyncList<$<ItemType>>* list) const override;
 		virtual bool areAsyncListItemsEqual(const AsyncList<$<ItemType>>* list, const $<ItemType>& item1, const $<ItemType>& item2) const override;
+		virtual void mergeAsyncListItem(const AsyncList<$<ItemType>>* list, $<ItemType>& overwritingItem, $<ItemType>& existingItem) override;
 		virtual Promise<void> loadAsyncListItems(typename AsyncList<$<ItemType>>::Mutator* mutator, size_t index, size_t count, std::map<String,Any> options) override;
 		
 		virtual MutatorDelegate* createMutatorDelegate();

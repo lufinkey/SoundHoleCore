@@ -1473,6 +1473,7 @@
 					"$(SRCROOT)/Pods/IOCpp/src",
 					"$(SRCROOT)/Pods/NodeJSEmbed/src",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/addon-api",
+					"$(SRCROOT)/Pods/dtl",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
@@ -1538,6 +1539,7 @@
 					"$(SRCROOT)/Pods/IOCpp/src",
 					"$(SRCROOT)/Pods/NodeJSEmbed/src",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/addon-api",
+					"$(SRCROOT)/Pods/dtl",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.14;

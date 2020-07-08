@@ -456,7 +456,9 @@ namespace sh {
 		if(!prevIndex) {
 			return Promise<$<TrackCollectionItem>>::resolve(nullptr);
 		}
-		return context->getItem(prevIndex.value());
+		return context->getItem(prevIndex.value(), {
+			.trackIndexChanges = true
+		});
 	}
 
 	Promise<$<TrackCollectionItem>> PlaybackOrganizer::getNextInContext() {
@@ -464,7 +466,9 @@ namespace sh {
 		if(!nextIndex) {
 			return Promise<$<TrackCollectionItem>>::resolve(nullptr);
 		}
-		return context->getItem(nextIndex.value());
+		return context->getItem(nextIndex.value(), {
+			.trackIndexChanges=true
+		});
 	}
 
 
