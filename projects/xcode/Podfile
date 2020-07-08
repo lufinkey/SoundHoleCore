@@ -27,7 +27,6 @@ post_install do |installer|
 			target.build_configurations.each do |config|
 				config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
 				config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'FGL_DISPATCH_USES_MAIN=1'
-				config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'FGL_USES_DTL=1'
 			end
 		end
 	end

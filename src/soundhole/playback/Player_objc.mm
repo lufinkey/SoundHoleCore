@@ -7,7 +7,6 @@
 //
 
 #include "Player.hpp"
-#include "Player_objc.hpp"
 #include "Player_objc_private.hpp"
 
 #ifdef __OBJC__

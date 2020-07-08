@@ -13,6 +13,7 @@
 #include "PlaybackOrganizer.hpp"
 
 #ifdef __OBJC__
+#import <Foundation/Foundation.h>
 @protocol SHPlayerEventListener;
 #endif
 
@@ -183,7 +184,6 @@ namespace sh {
 
 
 
-
 	#pragma mark Player implementation
 
 	template<typename MemberFunc, typename ...Args>
@@ -196,3 +196,25 @@ namespace sh {
 		}
 	}
 }
+
+
+
+
+#ifdef __OBJC__
+
+#pragma mark Player ObjC
+
+@protocol SHPlayerEventListener <NSObject>
+
+@optional
+-(void)player:(fgl::$<sh::Player>)player didChangeState:(const sh::Player::Event&)event;
+-(void)player:(fgl::$<sh::Player>)player didChangeMetadata:(const sh::Player::Event&)event;
+-(void)player:(fgl::$<sh::Player>)player didChangeQueue:(const sh::Player::Event&)event;
+-(void)player:(fgl::$<sh::Player>)player didFinishTrack:(const sh::Player::Event&)event;
+
+-(void)player:(fgl::$<sh::Player>)player didPlay:(const sh::Player::Event&)event;
+-(void)player:(fgl::$<sh::Player>)player didPause:(const sh::Player::Event&)event;
+
+@end
+
+#endif

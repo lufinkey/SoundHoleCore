@@ -9,8 +9,9 @@
 #pragma once
 
 #include <soundhole/common.hpp>
+#include "Player.hpp"
+
 #ifdef __OBJC__
-#include "Player_objc.hpp"
 
 namespace sh {
 	class SHPlayerEventListenerWrapper: public Player::EventListener {

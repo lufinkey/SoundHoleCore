@@ -70,6 +70,8 @@
 		A563A5CC24AFF3600036A842 /* SQLOrderBy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A563A5CA24AFF3600036A842 /* SQLOrderBy.cpp */; };
 		A563A5CE24AFF43E0036A842 /* SQLOrder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A563A5CD24AFF43E0036A842 /* SQLOrder.cpp */; };
 		A563A5CF24AFF43E0036A842 /* SQLOrder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A563A5CD24AFF43E0036A842 /* SQLOrder.cpp */; };
+		A563A60A24B633CF0036A842 /* soundhole.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A563A60924B633CF0036A842 /* soundhole.cpp */; };
+		A563A60B24B633CF0036A842 /* soundhole.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A563A60924B633CF0036A842 /* soundhole.cpp */; };
 		A571E12E2332C5A300603E14 /* SpotifyProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E12C2332C5A300603E14 /* SpotifyProvider.cpp */; };
 		A571E1322332C64500603E14 /* SpotifyProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E12C2332C5A300603E14 /* SpotifyProvider.cpp */; };
 		A571E1332332C65000603E14 /* SpotifyProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A571E12D2332C5A300603E14 /* SpotifyProvider.hpp */; };
@@ -206,7 +208,6 @@
 		A5EDB8ED249ADC1200885BC2 /* MediaLibraryTracksCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5EDB8EB249ADC1200885BC2 /* MediaLibraryTracksCollection.cpp */; };
 		A5EDB8EE249ADC1200885BC2 /* MediaLibraryTracksCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5EDB8EB249ADC1200885BC2 /* MediaLibraryTracksCollection.cpp */; };
 		A5EDB8EF249ADC1200885BC2 /* MediaLibraryTracksCollection.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5EDB8EC249ADC1200885BC2 /* MediaLibraryTracksCollection.hpp */; };
-		A5F9F63E244AB6CE00E80C7A /* Player_objc.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5F9F63C244AB6CE00E80C7A /* Player_objc.hpp */; };
 		A5F9F63F244AB6CE00E80C7A /* Player_objc.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5F9F63D244AB6CE00E80C7A /* Player_objc.mm */; };
 		A5F9F640244AB6CE00E80C7A /* Player_objc.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5F9F63D244AB6CE00E80C7A /* Player_objc.mm */; };
 		CD1A74B29839C57A94EAACD7 /* libPods-SoundHoleCoreTest-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */; };
@@ -296,6 +297,7 @@
 		A563A5C824AFEE770036A842 /* SQLOrderBy.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SQLOrderBy.hpp; sourceTree = "<group>"; };
 		A563A5CA24AFF3600036A842 /* SQLOrderBy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SQLOrderBy.cpp; sourceTree = "<group>"; };
 		A563A5CD24AFF43E0036A842 /* SQLOrder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SQLOrder.cpp; sourceTree = "<group>"; };
+		A563A60924B633CF0036A842 /* soundhole.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = soundhole.cpp; sourceTree = "<group>"; };
 		A571E12C2332C5A300603E14 /* SpotifyProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyProvider.cpp; sourceTree = "<group>"; };
 		A571E12D2332C5A300603E14 /* SpotifyProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyProvider.hpp; sourceTree = "<group>"; };
 		A571E1342332C6D000603E14 /* SpotifyAudioPlayback.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SpotifyAudioPlayback.framework; path = "../../external/spotify-ios-streaming-sdk/SpotifyAudioPlayback.framework"; sourceTree = "<group>"; };
@@ -409,7 +411,6 @@
 		A5E851CD235DFEBC0001F74D /* BandcampMediaTypes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BandcampMediaTypes.hpp; sourceTree = "<group>"; };
 		A5EDB8EB249ADC1200885BC2 /* MediaLibraryTracksCollection.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MediaLibraryTracksCollection.cpp; sourceTree = "<group>"; };
 		A5EDB8EC249ADC1200885BC2 /* MediaLibraryTracksCollection.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaLibraryTracksCollection.hpp; sourceTree = "<group>"; };
-		A5F9F63C244AB6CE00E80C7A /* Player_objc.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Player_objc.hpp; sourceTree = "<group>"; };
 		A5F9F63D244AB6CE00E80C7A /* Player_objc.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Player_objc.mm; sourceTree = "<group>"; };
 		A5F9F641244AB8E200E80C7A /* Player_objc_private.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Player_objc_private.hpp; sourceTree = "<group>"; };
 		AFF721677F756E337195FAB1 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -564,6 +565,7 @@
 			isa = PBXGroup;
 			children = (
 				A513ED86232DA20A000DCAC7 /* soundhole.hpp */,
+				A563A60924B633CF0036A842 /* soundhole.cpp */,
 				A513DB6E232DA1F8000DCAC7 /* common.hpp */,
 				A5AE3F01247B88D600FB9AFF /* database */,
 				A5AE3F00247B88C500FB9AFF /* library */,
@@ -650,7 +652,6 @@
 			children = (
 				A52826E123F09B6200360508 /* Player.hpp */,
 				A52826E023F09B6200360508 /* Player.cpp */,
-				A5F9F63C244AB6CE00E80C7A /* Player_objc.hpp */,
 				A5F9F641244AB8E200E80C7A /* Player_objc_private.hpp */,
 				A5F9F63D244AB6CE00E80C7A /* Player_objc.mm */,
 				A578785423DE547F00B6B0A5 /* PlaybackOrganizer.hpp */,
@@ -941,7 +942,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				A563A5C924AFEE770036A842 /* SQLOrderBy.hpp in Headers */,
-				A5F9F63E244AB6CE00E80C7A /* Player_objc.hpp in Headers */,
 				A513ED93232DA20B000DCAC7 /* MediaProvider.hpp in Headers */,
 				A5AE3F0B247BA5B700FB9AFF /* MediaDatabaseSQL.hpp in Headers */,
 				A5E851D0235DFEBC0001F74D /* BandcampMediaTypes.hpp in Headers */,
@@ -1292,6 +1292,7 @@
 				A5B7A79F2336C29200301FC0 /* SpotifyError.cpp in Sources */,
 				A5AE3F09247BA5B700FB9AFF /* MediaDatabaseSQL.cpp in Sources */,
 				A5AE3F3D247DFFE400FB9AFF /* MediaLibraryProvider.cpp in Sources */,
+				A563A60A24B633CF0036A842 /* soundhole.cpp in Sources */,
 				A5B9736023822BA300FB3F1C /* Album.cpp in Sources */,
 				A563A5CE24AFF43E0036A842 /* SQLOrder.cpp in Sources */,
 			);
@@ -1321,6 +1322,7 @@
 				A563A5CF24AFF43E0036A842 /* SQLOrder.cpp in Sources */,
 				A5E851C5235A505B0001F74D /* Youtube.cpp in Sources */,
 				A5B7A78F2335C91800301FC0 /* SoundHoleError.cpp in Sources */,
+				A563A60B24B633CF0036A842 /* soundhole.cpp in Sources */,
 				A57378A323D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp in Sources */,
 				A578785123DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp in Sources */,
 				A5F9F640244AB6CE00E80C7A /* Player_objc.mm in Sources */,
