@@ -10,7 +10,7 @@
 #ifdef __OBJC__
 
 namespace sh {
-	class TrackCollectionObjcSubscriber: public TrackCollection::Subscriber {
+	class TrackCollectionObjcSubscriber: public TrackCollection::AutoDeletedSubscriber {
 	public:
 		TrackCollectionObjcSubscriber(id<SHTrackCollectionSubscriber> subscriber);
 		
@@ -28,7 +28,6 @@ namespace sh {
 		__strong id<SHTrackCollectionSubscriber> subscriber = weakSubscriber;
 		if(subscriber == nil) {
 			collection->unsubscribe(this);
-			delete this;
 			return;
 		}
 		if([subscriber respondsToSelector:@selector(trackCollection:didMutate:)]) {
@@ -57,9 +56,7 @@ namespace sh {
 			return false;
 		});
 		if(it != subscribers.end()) {
-			auto cppListener = *it;
 			unsubscribe(*it);
-			delete cppListener;
 		}
 	}
 }

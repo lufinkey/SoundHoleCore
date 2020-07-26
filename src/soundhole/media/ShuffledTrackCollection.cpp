@@ -88,6 +88,7 @@ namespace sh {
 			.total=source->itemCount().value_or(initialItems.size()),
 			.offset=0,
 			.items=initialItems.map<ShuffledTrackCollectionItem::Data>([&](auto& item) {
+				FGL_ASSERT(std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(item) == nullptr, "Cannot use ShuffledTrackCollectionItem as sourceItem");
 				return ShuffledTrackCollectionItem::Data{{
 					.track=item->track(),
 					},
@@ -100,40 +101,52 @@ namespace sh {
 		
 		auto lazyContentLoader = _lazyContentLoader;
 		_lazyContentLoader = [=]() {
-			lazyContentLoader();
-			auto contentLoaderRef = _lazyContentLoader;
-			_lazyContentLoader = nullptr;
-			// get indexes of initialItems
-			LinkedList<size_t> initialIndexes = {};
-			for(auto item : initialItems) {
-				auto index = source->indexOfItemInstance(item.get());
-				FGL_ASSERT(index.has_value(), "initialItems must only contains items from the given source collection");
-				initialIndexes.pushBack(index.value());
+			if(lazyContentLoader) {
+				lazyContentLoader();
 			}
 			
-			// build list of remaining indexes
-			LinkedList<size_t> indexes;
-			size_t itemCount = this->itemCount().value_or(0);
-			for(size_t i=0; i<itemCount; i++) {
-				auto it = initialIndexes.findEqual(i);
-				if(it != initialIndexes.end()) {
-					initialIndexes.erase(it);
-				} else {
-					indexes.pushBack(i);
+			source->lockItems([&]() {
+				auto contentLoaderRef = _lazyContentLoader;
+				_lazyContentLoader = nullptr;
+				// get indexes of initialItems
+				LinkedList<size_t> initialIndexes = {};
+				for(auto item : initialItems) {
+					auto index = source->indexOfItemInstance(item.get());
+					FGL_ASSERT(index.has_value(), "initialItems must only contains items from the given source collection");
+					initialIndexes.pushBack(index.value());
 				}
-			}
-			
-			// randomize list of remaining indexes
-			while(indexes.size() > 0) {
-				size_t index = (size_t)(((double)std::rand() / (double)RAND_MAX) * (double)indexes.size());
-				auto it = std::next(indexes.begin(), index);
-				size_t randomIndex = *it;
-				_remainingIndexes.pushBack(_source->watchIndex(randomIndex));
-				indexes.erase(it);
-			}
-			
-			// TODO subscribe to changes in source
+				
+				// build list of remaining indexes
+				LinkedList<size_t> indexes;
+				size_t itemCount = this->itemCount().value_or(0);
+				for(size_t i=0; i<itemCount; i++) {
+					auto it = initialIndexes.findEqual(i);
+					if(it != initialIndexes.end()) {
+						initialIndexes.erase(it);
+					} else {
+						indexes.pushBack(i);
+					}
+				}
+				
+				// randomize list of remaining indexes
+				while(indexes.size() > 0) {
+					size_t index = (size_t)(((double)std::rand() / (double)RAND_MAX) * (double)indexes.size());
+					auto it = std::next(indexes.begin(), index);
+					size_t randomIndex = *it;
+					_remainingIndexes.pushBack(_source->watchIndex(randomIndex));
+					indexes.erase(it);
+				}
+				
+				// TODO subscribe to changes in source
+			});
 		};
+	}
+
+	ShuffledTrackCollection::~ShuffledTrackCollection() {
+		for(auto indexMarker : _remainingIndexes) {
+			_source->unwatchIndex(indexMarker);
+		}
+		// TODO unsubscribe from source
 	}
 
 	String ShuffledTrackCollection::versionId() const {
@@ -164,56 +177,78 @@ namespace sh {
 		return 12;
 	}
 
+	void ShuffledTrackCollection::filterRemainingIndexes() {
+		_remainingIndexes.removeWhere([=](auto& indexMarker) {
+			if(indexMarker->state == ItemIndexMarkerState::REMOVED) {
+				_source->unwatchIndex(indexMarker);
+				return true;
+			}
+			return false;
+		});
+	}
+
+	size_t ShuffledTrackCollection::shuffledListSize() const {
+		if(tracksAreAsync()) {
+			return asyncItemsList()->getMap().size() + _remainingIndexes.size();
+		} else if(tracksAreEmpty()) {
+			return _remainingIndexes.size();
+		} else {
+			return _source->itemCount().value_or(0);
+		}
+	}
+
 	Promise<void> ShuffledTrackCollection::loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) {
 		auto self = std::static_pointer_cast<ShuffledTrackCollection>(shared_from_this());
-		// TODO filter out removed indexes in _remainingIndexes
-		size_t endIndex = index+count;
-		auto items = fgl::new$<LinkedList<$<ShuffledTrackCollectionItem>>>();
-		auto promise = Promise<void>::resolve();
-		auto tmpRemainingIndexes = _remainingIndexes;
-		auto chosenIndexes = LinkedList<AsyncListIndexMarker>();
-		for(size_t i=index; i<endIndex; i++) {
-			auto existingItem = std::static_pointer_cast<ShuffledTrackCollectionItem>(itemAt(i));
-			if(existingItem) {
-				promise = promise.then(nullptr, [=]() {
-					items->pushBack(existingItem);
-				});
-			} else {
-				if(tmpRemainingIndexes.empty()) {
-					break;
-				}
-				auto randomIndex = tmpRemainingIndexes.extractFront();
-				chosenIndexes.pushBack(randomIndex);
-				promise = promise.then(nullptr, [=]() {
-					if(randomIndex->state == AsyncListIndexMarkerState::REMOVED) {
-						throw std::runtime_error("Random index at "+stringify(randomIndex->index)+" was removed");
+		std::unique_ptr<Promise<void>> promise_ptr;
+		_source->lockItems([&]() {
+			filterRemainingIndexes();
+			size_t endIndex = index+count;
+			auto items = fgl::new$<LinkedList<$<ShuffledTrackCollectionItem>>>();
+			auto promise = Promise<void>::resolve();
+			auto tmpRemainingIndexes = _remainingIndexes;
+			auto chosenIndexes = LinkedList<AsyncListIndexMarker>();
+			for(size_t i=index; i<endIndex; i++) {
+				auto existingItem = std::static_pointer_cast<ShuffledTrackCollectionItem>(itemAt(i));
+				if(existingItem) {
+					promise = promise.then(nullptr, [=]() {
+						items->pushBack(existingItem);
+					});
+				} else {
+					if(tmpRemainingIndexes.empty()) {
+						break;
 					}
-					return self->_source->loadItems(randomIndex->index, 1, {.trackIndexChanges=true}).then(nullptr, [=]() {
-						auto item = self->_source->itemAt(randomIndex->index);
-						if(!item) {
-							throw std::runtime_error("Item not found at index "+stringify(randomIndex->index));
+					auto randomIndex = tmpRemainingIndexes.extractFront();
+					chosenIndexes.pushBack(randomIndex);
+					promise = promise.then(nullptr, [=]() {
+						if(randomIndex->state == AsyncListIndexMarkerState::REMOVED) {
+							throw std::runtime_error("Random index at "+stringify(randomIndex->index)+" was removed");
 						}
-						items->pushBack(ShuffledTrackCollectionItem::new$(self, item));
+						return self->_source->getItem(randomIndex->index, {.trackIndexChanges=true}).then(nullptr, [=]($<TrackCollectionItem> item) {
+							if(!item) {
+								throw std::runtime_error("Item not found at index "+stringify(randomIndex->index));
+							}
+							items->pushBack(ShuffledTrackCollectionItem::new$(self, item));
+						});
+					});
+				}
+			}
+			promise_ptr = std::make_unique<Promise<void>>(promise.then(nullptr, [=]() {
+				mutator->lock([&]() {
+					_source->lockItems([&]() {
+						filterRemainingIndexes();
+						size_t listSize = shuffledListSize();
+						for(auto randomIndex : chosenIndexes) {
+							auto it = self->_remainingIndexes.findEqual(randomIndex);
+							if(it != self->_remainingIndexes.end()) {
+								self->_remainingIndexes.erase(it);
+							}
+						}
+						mutator->applyAndResize(index, listSize, *items);
 					});
 				});
-			}
-		}
-		return promise.then(nullptr, [=]() {
-			mutator->lock([&]() {
-				for(auto randomIndex : chosenIndexes) {
-					auto it = self->_remainingIndexes.findEqual(randomIndex);
-					if(it != self->_remainingIndexes.end()) {
-						self->_remainingIndexes.erase(it);
-					}
-				}
-				auto itemCount = self->_source->itemCount();
-				if(itemCount) {
-					mutator->applyAndResize(index, itemCount.value(), *items);
-				} else {
-					mutator->apply(index, *items);
-				}
-			});
+			}));
 		});
+		return std::move(*promise_ptr);
 	}
 
 

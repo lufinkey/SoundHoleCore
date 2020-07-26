@@ -59,13 +59,18 @@ namespace sh {
 		using MediaItem::MediaItem;
 		using ItemGenerator = ContinuousGenerator<LinkedList<$<TrackCollectionItem>>,void>;
 		using ItemIndexMarker = AsyncListIndexMarker;
+		using ItemIndexMarkerState = AsyncListIndexMarkerState;
 		using ItemsMutation = AsyncListMutation;
 		using ItemsListChange = AsyncListChange;
 		
 		class Subscriber {
+			friend class TrackCollection;
 		public:
 			virtual ~Subscriber() = default;
 			virtual void onTrackCollectionMutations($<TrackCollection> collection, const ItemsListChange& change) = 0;
+		};
+		class AutoDeletedSubscriber: public Subscriber {
+			//
 		};
 		
 		struct LoadItemOptions {
@@ -108,11 +113,12 @@ namespace sh {
 		
 		virtual void subscribe(Subscriber* subscriber) = 0;
 		virtual void unsubscribe(Subscriber* subscriber) = 0;
-		virtual LinkedList<Subscriber*> subscribers() const;
 		#ifdef __OBJC__
 		void subscribe(id<SHTrackCollectionSubscriber> subscriber);
 		void unsubscribe(id<SHTrackCollectionSubscriber> subscriber);
 		#endif
+		
+		virtual void lockItems(Function<void()> work) = 0;
 		
 		virtual Json toJson() const override final;
 		struct ToJsonOptions {
@@ -120,6 +126,9 @@ namespace sh {
 			size_t tracksLimit = (size_t)-1;
 		};
 		virtual Json toJson(const ToJsonOptions& options) const;
+		
+	protected:
+		virtual LinkedList<Subscriber*> subscribers() const;
 	};
 
 
@@ -191,7 +200,8 @@ namespace sh {
 		
 		virtual void subscribe(Subscriber* subscriber) override;
 		virtual void unsubscribe(Subscriber* subscriber) override;
-		virtual LinkedList<Subscriber*> subscribers() const override;
+		
+		virtual void lockItems(Function<void()> lock) override;
 		
 		void applyData(const Data& data);
 		
@@ -211,6 +221,7 @@ namespace sh {
 		
 		virtual MutatorDelegate* createMutatorDelegate();
 		MutatorDelegate* mutatorDelegate();
+		virtual LinkedList<Subscriber*> subscribers() const override;
 		
 		inline bool tracksAreEmpty() const;
 		inline bool tracksAreAsync() const;
@@ -236,7 +247,6 @@ namespace sh {
 		
 		LinkedList<Subscriber*> _subscribers;
 		
-	private:
 		bool autoDeleteMutatorDelegate;
 	};
 

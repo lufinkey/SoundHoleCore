@@ -47,6 +47,7 @@ namespace sh {
 		
 		static $<ShuffledTrackCollection> new$($<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems={});
 		ShuffledTrackCollection($<TrackCollection> source, ArrayList<$<TrackCollectionItem>> initialItems = {});
+		virtual ~ShuffledTrackCollection();
 		
 		virtual String versionId() const override;
 		
@@ -62,7 +63,10 @@ namespace sh {
 		virtual size_t getChunkSize() const override;
 		virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) override;
 		
+		size_t shuffledListSize() const;
+		
 		$<TrackCollection> _source;
 		LinkedList<ItemIndexMarker> _remainingIndexes;
+		void filterRemainingIndexes();
 	};
 }

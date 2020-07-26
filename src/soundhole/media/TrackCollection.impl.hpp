@@ -24,6 +24,11 @@ namespace sh {
 		if(_mutatorDelegate != nullptr && autoDeleteMutatorDelegate) {
 			delete _mutatorDelegate;
 		}
+		for(auto subscriber : _subscribers) {
+			if(auto castSubscriber = dynamic_cast<AutoDeletedSubscriber*>(subscriber)) {
+				delete castSubscriber;
+			}
+		}
 	}
 
 
@@ -468,7 +473,12 @@ namespace sh {
 
 	template<typename ItemType>
 	void SpecialTrackCollection<ItemType>::unsubscribe(Subscriber* subscriber) {
-		_subscribers.removeLastEqual(subscriber);
+		bool removed = _subscribers.removeLastEqual(subscriber);
+		if(removed) {
+			if(auto castSubscriber = dynamic_cast<AutoDeletedSubscriber*>(subscriber)) {
+				delete castSubscriber;
+			}
+		}
 	}
 
 	template<typename ItemType>
@@ -477,34 +487,31 @@ namespace sh {
 	}
 
 	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::lockItems(Function<void()> work) {
+		if(!tracksAreAsync()) {
+			makeTracksAsync();
+		}
+		asyncItemsList()->lock([&](auto mutator) {
+			work();
+		});
+	}
+
+	template<typename ItemType>
 	void SpecialTrackCollection<ItemType>::applyData(const Data& data) {
 		lazyLoadContentIfNeeded();
 		TrackCollection::applyData(data);
 		if(data.tracks) {
 			auto tracks = data.tracks.value();
-			if(tracks.offset == 0 && tracks.items.size() == tracks.total) {
-				if(tracksAreAsync()) {
-					asyncItemsList()->mutate([=](auto mutator) {
-						auto self = std::static_pointer_cast<SpecialTrackCollection<ItemType>>(shared_from_this());
-						mutator->applyAndResize(tracks.offset, tracks.total, tracks.items.template map<$<ItemType>>([&](auto& data) {
-							return ItemType::new$(self, data);
-						}));
-					});
-				} else {
-					// TODO merge the array
-					if(itemsList().size() != tracks.total) {
-						_items = constructItems(tracks);
-					}
-				}
-			} else {
-				makeTracksAsync();
-				asyncItemsList()->mutate([=](auto mutator) {
-					auto self = std::static_pointer_cast<SpecialTrackCollection<ItemType>>(shared_from_this());
+			makeTracksAsync();
+			// apply tracks
+			auto self = std::static_pointer_cast<SpecialTrackCollection<ItemType>>(shared_from_this());
+			asyncItemsList()->lock([&](auto mutator) {
+				mutator->lock([&]() {
 					mutator->applyAndResize(tracks.offset, tracks.total, tracks.items.template map<$<ItemType>>([&](auto& data) {
 						return ItemType::new$(self, data);
 					}));
 				});
-			}
+			});
 		}
 	}
 
@@ -539,7 +546,8 @@ namespace sh {
 	void SpecialTrackCollection<ItemType>::onAsyncListMutations(const AsyncList<$<ItemType>>* list, AsyncListChange change) {
 		// pass on mutations to subscribers
 		auto collection = std::static_pointer_cast<TrackCollection>(shared_from_this());
-		for(auto subscriber : _subscribers) {
+		auto subscribers = _subscribers;
+		for(auto subscriber : subscribers) {
 			subscriber->onTrackCollectionMutations(collection, change);
 		}
 	}
