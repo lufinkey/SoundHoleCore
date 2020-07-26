@@ -429,6 +429,24 @@ namespace sh {
 	}
 
 	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::resetItems() {
+		std::unique_ptr<Promise<void>> promise;
+		Optional<size_t> listSize = itemCount();
+		if(tracksAreAsync()) {
+			auto asyncItems = asyncItemsList();
+			asyncItems->resetItems();
+			asyncItems->destroy();
+		}
+		if(listSize.has_value()) {
+			_items = EmptyTracks{
+				.total = listSize.value()
+			};
+		} else {
+			_items = nullptr;
+		}
+	}
+
+	template<typename ItemType>
 	TrackCollection::ItemIndexMarker SpecialTrackCollection<ItemType>::watchIndex(size_t index) {
 		if(!tracksAreAsync()) {
 			makeTracksAsync();
@@ -441,6 +459,16 @@ namespace sh {
 		if(tracksAreAsync()) {
 			asyncItemsList()->unwatchIndex(indexMarker);
 		}
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::subscribe(Subscriber* subscriber) {
+		_subscribers.pushBack(subscriber);
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::unsubscribe(Subscriber* subscriber) {
+		_subscribers.removeLastEqual(subscriber);
 	}
 
 	template<typename ItemType>
@@ -500,6 +528,15 @@ namespace sh {
 	Promise<void> SpecialTrackCollection<ItemType>::loadAsyncListItems(typename AsyncList<$<ItemType>>::Mutator* mutator, size_t index, size_t count, std::map<String,Any> options) {
 		auto delegate = mutatorDelegate();
 		return delegate->loadItems(mutator, index, count, LoadItemOptions::fromDict(options));
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::onAsyncListMutations(const AsyncList<$<ItemType>>* list, AsyncListChange change) {
+		// pass on mutations to subscribers
+		auto collection = std::static_pointer_cast<TrackCollection>(shared_from_this());
+		for(auto subscriber : _subscribers) {
+			subscriber->onTrackCollectionMutations(collection, change);
+		}
 	}
 
 	template<typename ItemType>

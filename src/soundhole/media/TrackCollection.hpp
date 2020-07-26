@@ -54,6 +54,15 @@ namespace sh {
 		using MediaItem::MediaItem;
 		using ItemGenerator = ContinuousGenerator<LinkedList<$<TrackCollectionItem>>,void>;
 		using ItemIndexMarker = AsyncListIndexMarker;
+		using ItemsMutation = AsyncListMutation;
+		using ItemsListChange = AsyncListChange;
+		
+		class Subscriber {
+		public:
+			virtual ~Subscriber() = default;
+			virtual void onTrackCollectionMutations($<TrackCollection> collection, ItemsListChange change) = 0;
+		};
+		
 		struct LoadItemOptions {
 			MediaDatabase* database = nullptr;
 			bool forceReload = false;
@@ -87,9 +96,13 @@ namespace sh {
 		
 		virtual void invalidateItems(size_t startIndex, size_t endIndex) = 0;
 		virtual void invalidateAllItems() = 0;
+		virtual void resetItems() = 0;
 		
 		virtual ItemIndexMarker watchIndex(size_t index) = 0;
 		virtual void unwatchIndex(ItemIndexMarker indexMarker) = 0;
+		
+		virtual void subscribe(Subscriber* subscriber) = 0;
+		virtual void unsubscribe(Subscriber* subscriber) = 0;
 		
 		virtual Json toJson() const override final;
 		struct ToJsonOptions {
@@ -161,9 +174,13 @@ namespace sh {
 		
 		virtual void invalidateItems(size_t startIndex, size_t endIndex) override;
 		virtual void invalidateAllItems() override;
+		virtual void resetItems() override;
 		
 		virtual ItemIndexMarker watchIndex(size_t index) override;
 		virtual void unwatchIndex(ItemIndexMarker indexMarker) override;
+		
+		virtual void subscribe(Subscriber* subscriber) override;
+		virtual void unsubscribe(Subscriber* subscriber) override;
 		
 		void applyData(const Data& data);
 		
@@ -179,6 +196,7 @@ namespace sh {
 		virtual bool areAsyncListItemsEqual(const AsyncList<$<ItemType>>* list, const $<ItemType>& item1, const $<ItemType>& item2) const override;
 		virtual void mergeAsyncListItem(const AsyncList<$<ItemType>>* list, $<ItemType>& overwritingItem, $<ItemType>& existingItem) override;
 		virtual Promise<void> loadAsyncListItems(typename AsyncList<$<ItemType>>::Mutator* mutator, size_t index, size_t count, std::map<String,Any> options) override;
+		virtual void onAsyncListMutations(const AsyncList<$<ItemType>>* list, AsyncListChange change) override;
 		
 		virtual MutatorDelegate* createMutatorDelegate();
 		MutatorDelegate* mutatorDelegate();
@@ -204,6 +222,8 @@ namespace sh {
 		
 		MutatorDelegate* _mutatorDelegate;
 		mutable Function<void()> _lazyContentLoader;
+		
+		LinkedList<Subscriber*> _subscribers;
 		
 	private:
 		bool autoDeleteMutatorDelegate;

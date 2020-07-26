@@ -58,17 +58,11 @@ namespace sh {
 		virtual Json toJson(const ToJsonOptions& options) const override;
 		
 	protected:
-		struct RandomIndex {
-			size_t index;
-			
-			RandomIndex(size_t index): index(index) {}
-		};
-		
 		virtual MutatorDelegate* createMutatorDelegate() override;
 		virtual size_t getChunkSize() const override;
 		virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) override;
 		
 		$<TrackCollection> _source;
-		LinkedList<$<RandomIndex>> _remainingIndexes;
+		LinkedList<ItemIndexMarker> _remainingIndexes;
 	};
 }

@@ -128,7 +128,7 @@ namespace sh {
 				size_t index = (size_t)(((double)std::rand() / (double)RAND_MAX) * (double)indexes.size());
 				auto it = std::next(indexes.begin(), index);
 				size_t randomIndex = *it;
-				_remainingIndexes.pushBack(fgl::new$<RandomIndex>(randomIndex));
+				_remainingIndexes.pushBack(_source->watchIndex(randomIndex));
 				indexes.erase(it);
 			}
 			
@@ -166,23 +166,18 @@ namespace sh {
 
 	Promise<void> ShuffledTrackCollection::loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) {
 		auto self = std::static_pointer_cast<ShuffledTrackCollection>(shared_from_this());
+		// TODO filter out removed indexes in _remainingIndexes
 		size_t endIndex = index+count;
 		auto items = fgl::new$<LinkedList<$<ShuffledTrackCollectionItem>>>();
 		auto promise = Promise<void>::resolve();
 		auto tmpRemainingIndexes = _remainingIndexes;
-		auto chosenIndexes = LinkedList<$<RandomIndex>>();
+		auto chosenIndexes = LinkedList<AsyncListIndexMarker>();
 		for(size_t i=index; i<endIndex; i++) {
-			auto existingItem = itemAt(i);
+			auto existingItem = std::static_pointer_cast<ShuffledTrackCollectionItem>(itemAt(i));
 			if(existingItem) {
-				if(auto shuffledItem = std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(existingItem)) {
-					promise = promise.then(nullptr, [=]() {
-						items->pushBack(shuffledItem);
-					});
-				} else {
-					promise = promise.then(nullptr, [=]() {
-						items->pushBack(ShuffledTrackCollectionItem::new$(self, existingItem));
-					});
-				}
+				promise = promise.then(nullptr, [=]() {
+					items->pushBack(existingItem);
+				});
 			} else {
 				if(tmpRemainingIndexes.empty()) {
 					break;
@@ -190,7 +185,14 @@ namespace sh {
 				auto randomIndex = tmpRemainingIndexes.extractFront();
 				chosenIndexes.pushBack(randomIndex);
 				promise = promise.then(nullptr, [=]() {
-					return self->_source->getItem(randomIndex->index, options).then(nullptr, [=]($<TrackCollectionItem> item) {
+					if(randomIndex->state == AsyncListIndexMarkerState::REMOVED) {
+						throw std::runtime_error("Random index at "+stringify(randomIndex->index)+" was removed");
+					}
+					return self->_source->loadItems(randomIndex->index, 1, {.trackIndexChanges=true}).then(nullptr, [=]() {
+						auto item = self->_source->itemAt(randomIndex->index);
+						if(!item) {
+							throw std::runtime_error("Item not found at index "+stringify(randomIndex->index));
+						}
 						items->pushBack(ShuffledTrackCollectionItem::new$(self, item));
 					});
 				});
