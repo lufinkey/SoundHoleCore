@@ -41,10 +41,10 @@ namespace sh {
 		size_t tracksOffset = 0;
 		size_t tracksLimit = 20;
 		if(sourceContextIndex) {
-			if(sourceContextIndex.value() <= 10) {
+			if(sourceContextIndex->index <= 10) {
 				tracksOffset = 0;
 			} else {
-				tracksOffset = sourceContextIndex.value() - 10;
+				tracksOffset = sourceContextIndex->index - 10;
 			}
 		}
 		auto contextJson = context ? context->toJson({
@@ -55,7 +55,7 @@ namespace sh {
 		if(!contextJson.is_null() && sourceContextIndex && currentItem.index() != 0 && std::get_if<$<TrackCollectionItem>>(&currentItem)) {
 			auto contextItem = std::get<$<TrackCollectionItem>>(currentItem);
 			auto itemsJson = contextJson["items"].object_items();
-			itemsJson.insert_or_assign(std::to_string(sourceContextIndex.value()), contextItem->toJson());
+			itemsJson.insert_or_assign(std::to_string(sourceContextIndex->index), contextItem->toJson());
 			auto contextMap = contextJson.object_items();
 			contextMap.insert_or_assign("items", itemsJson);
 			contextJson = Json(contextMap);
@@ -63,7 +63,7 @@ namespace sh {
 		auto json = Json(Json::object{
 			{ "currentItem", itemToJson(currentItem) },
 			{ "context", contextJson },
-			{ "contextIndex", sourceContextIndex ? Json((double)sourceContextIndex.value()) : Json() },
+			{ "contextIndex", sourceContextIndex ? Json((double)sourceContextIndex->index) : Json() },
 			{ "queue", queue.map<Json>([&](auto& queueItem) {
 				return queueItem->toJson();
 			}) },
@@ -480,9 +480,9 @@ namespace sh {
 	Optional<size_t> PlaybackOrganizer::getContextIndex() const {
 		if(!contextItem) {
 			if(shuffling) {
-				return shuffledContextIndex;
+				return shuffledContextIndex ? maybe(shuffledContextIndex->index) : std::nullopt;
 			} else {
-				return sourceContextIndex;
+				return sourceContextIndex ? maybe(sourceContextIndex->index) : std::nullopt;
 			}
 		}
 		auto contextIndex = contextItem->indexInContext();
@@ -490,9 +490,9 @@ namespace sh {
 			return contextIndex;
 		}
 		if(std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(contextItem) != nullptr) {
-			return shuffledContextIndex;
+			return shuffledContextIndex ? maybe(shuffledContextIndex->index) : std::nullopt;
 		} else {
-			return sourceContextIndex;
+			return sourceContextIndex ? maybe(sourceContextIndex->index) : std::nullopt;
 		}
 	}
 
@@ -500,12 +500,9 @@ namespace sh {
 		if(!context) {
 			return std::nullopt;
 		}
-		auto optContextIndex = contextItem ? contextItem->indexInContext() : std::nullopt;
+		auto optContextIndex = getContextIndex();
 		if(!optContextIndex) {
-			optContextIndex = getContextIndex();
-			if(!optContextIndex) {
-				return std::nullopt;
-			}
+			return std::nullopt;
 		}
 		size_t contextIndex = optContextIndex.value();
 		if(contextIndex == 0) {
@@ -522,11 +519,26 @@ namespace sh {
 		size_t nextIndex = -1;
 		auto optContextIndex = contextItem ? contextItem->indexInContext() : std::nullopt;
 		if(!optContextIndex) {
-			optContextIndex = getContextIndex();
-			if(!optContextIndex) {
-				return std::nullopt;
+			if(std::dynamic_pointer_cast<ShuffledTrackCollection>(context) != nullptr) {
+				if(shuffledContextIndex) {
+					if(shuffledContextIndex->state == TrackCollection::ItemIndexMarkerState::REMOVED) {
+						nextIndex = shuffledContextIndex->index;
+					} else {
+						nextIndex = shuffledContextIndex->index + 1;
+					}
+				} else {
+					return std::nullopt;
+				}
 			} else {
-				nextIndex = optContextIndex.value();
+				if(sourceContextIndex) {
+					if(sourceContextIndex->state == TrackCollection::ItemIndexMarkerState::REMOVED) {
+						nextIndex = sourceContextIndex->index;
+					} else {
+						nextIndex = sourceContextIndex->index + 1;
+					}
+				} else {
+					return std::nullopt;
+				}
 			}
 		} else {
 			nextIndex = optContextIndex.value() + 1;
@@ -751,8 +763,8 @@ namespace sh {
 		$<ShuffledTrackCollectionItem> shuffledContextItem;
 		
 		Optional<size_t> contextIndex;
-		Optional<size_t> sourceContextIndex;
-		Optional<size_t> shuffledContextIndex;
+		TrackCollection::ItemIndexMarker sourceContextIndex;
+		TrackCollection::ItemIndexMarker shuffledContextIndex;
 		
 		if(context) {
 			if(shuffling) {
@@ -773,15 +785,19 @@ namespace sh {
 					context = shuffledContext;
 					contextItem = shuffledContextItem;
 				}
-				sourceContextIndex = shuffledContextItem->sourceItem()->indexInContext();
-				if(!sourceContextIndex && prevSourceContext == sourceContext) {
+				auto sourceIndex = sourceContextItem->indexInContext();
+				if(sourceIndex.has_value()) {
+					sourceContextIndex = sourceContext->watchIndex(sourceIndex.value());
+				} else if(prevSourceContext == sourceContext) {
 					sourceContextIndex = this->sourceContextIndex;
 				}
-				shuffledContextIndex = shuffledContextItem->indexInContext();
-				if(!shuffledContextIndex && (prevContext == context)) {
+				auto shuffledIndex = shuffledContextItem->indexInContext();
+				if(shuffledIndex.has_value()) {
+					shuffledContextIndex = shuffledContext->TrackCollection::watchIndex(shuffledIndex.value());
+				} else if(prevContext == context) {
 					shuffledContextIndex = this->shuffledContextIndex;
 				}
-				contextIndex = shuffledContextIndex;
+				contextIndex = shuffledContextIndex ? maybe(shuffledContextIndex->index) : std::nullopt;
 			}
 			else {
 				if(auto castShuffledContext = std::dynamic_pointer_cast<ShuffledTrackCollection>(context)) {
@@ -801,12 +817,13 @@ namespace sh {
 					shuffledContextItem = nullptr;
 				}
 				FGL_ASSERT(contextItem->context().lock() == context, "contextItem must belong to context");
-				sourceContextIndex = contextItem->indexInContext();
-				if(!sourceContextIndex && prevSourceContext == context) {
+				auto sourceIndex = sourceContextItem->indexInContext();
+				if(sourceIndex.has_value()) {
+					sourceContextIndex = sourceContext->watchIndex(sourceIndex.value());
+				} else if(prevSourceContext == sourceContext) {
 					sourceContextIndex = this->sourceContextIndex;
 				}
-				shuffledContextIndex = std::nullopt;
-				contextIndex = sourceContextIndex;
+				contextIndex = sourceContextIndex ? maybe(sourceContextIndex->index) : std::nullopt;
 			}
 		}
 		
@@ -824,6 +841,8 @@ namespace sh {
 			});
 		}
 		
+		auto prevSourceContextIndex = this->sourceContextIndex;
+		auto prevShuffledContextIndex = this->shuffledContextIndex;
 		this->context = context;
 		this->contextItem = contextItem;
 		this->sourceContextIndex = sourceContextIndex;
@@ -841,6 +860,16 @@ namespace sh {
 			   && (this->playingItem == ItemVariant(prevSourceContextItem) || this->playingItem == ItemVariant(prevShuffledContextItem))) {
 				this->playingItem = contextItem;
 			}
+		}
+		
+		// unwatch previous indexes
+		if(prevSourceContextIndex && prevSourceContextIndex != sourceContextIndex) {
+			FGL_ASSERT(prevSourceContext != nullptr, "if there is a previous sourceContextIndex, there has to be a previous sourceContext");
+			prevSourceContext->unwatchIndex(prevSourceContextIndex);
+		}
+		if(prevShuffledContextIndex && prevShuffledContextIndex != shuffledContextIndex) {
+			FGL_ASSERT(prevShuffledContext != nullptr, "if there is a previous shuffledContextIndex, there has to be a previous shuffledContext");
+			prevShuffledContext->unwatchIndex(prevShuffledContextIndex);
 		}
 	}
 }

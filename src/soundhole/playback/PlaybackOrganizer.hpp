@@ -106,8 +106,8 @@ namespace sh {
 		
 		$<TrackCollection> context;
 		$<TrackCollectionItem> contextItem;
-		Optional<size_t> sourceContextIndex;
-		Optional<size_t> shuffledContextIndex;
+		TrackCollection::ItemIndexMarker sourceContextIndex;
+		TrackCollection::ItemIndexMarker shuffledContextIndex;
 		bool shuffling;
 		
 		bool preparedNext;
