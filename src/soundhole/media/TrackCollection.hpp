@@ -53,6 +53,7 @@ namespace sh {
 	public:
 		using MediaItem::MediaItem;
 		using ItemGenerator = ContinuousGenerator<LinkedList<$<TrackCollectionItem>>,void>;
+		using ItemIndexMarker = AsyncListIndexMarker;
 		struct LoadItemOptions {
 			MediaDatabase* database = nullptr;
 			bool forceReload = false;
@@ -76,6 +77,7 @@ namespace sh {
 		virtual $<TrackCollectionItem> itemFromJson(const Json& json, MediaProviderStash* stash) = 0;
 		
 		virtual Optional<size_t> itemCount() const = 0;
+		virtual size_t itemCapacity() const = 0;
 		virtual Promise<void> loadItems(size_t index, size_t count, LoadItemOptions options = LoadItemOptions::defaultOptions()) = 0;
 		
 		virtual void forEach(Function<void($<TrackCollectionItem>,size_t)>) = 0;
@@ -85,6 +87,9 @@ namespace sh {
 		
 		virtual void invalidateItems(size_t startIndex, size_t endIndex) = 0;
 		virtual void invalidateAllItems() = 0;
+		
+		virtual ItemIndexMarker watchIndex(size_t index) = 0;
+		virtual void unwatchIndex(ItemIndexMarker indexMarker) = 0;
 		
 		virtual Json toJson() const override final;
 		struct ToJsonOptions {
@@ -146,6 +151,7 @@ namespace sh {
 		virtual $<TrackCollectionItem> itemFromJson(const Json& json, MediaProviderStash* stash) override final;
 		
 		virtual Optional<size_t> itemCount() const override final;
+		virtual size_t itemCapacity() const override final;
 		virtual Promise<void> loadItems(size_t index, size_t count, LoadItemOptions options = LoadItemOptions::defaultOptions()) override final;
 		
 		virtual void forEach(Function<void($<TrackCollectionItem>,size_t)>) override final;
@@ -155,6 +161,9 @@ namespace sh {
 		
 		virtual void invalidateItems(size_t startIndex, size_t endIndex) override;
 		virtual void invalidateAllItems() override;
+		
+		virtual ItemIndexMarker watchIndex(size_t index) override;
+		virtual void unwatchIndex(ItemIndexMarker indexMarker) override;
 		
 		void applyData(const Data& data);
 		

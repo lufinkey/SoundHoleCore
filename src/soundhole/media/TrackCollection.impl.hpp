@@ -90,7 +90,9 @@ namespace sh {
 		if(tracksAreAsync()) {
 			return asyncItemsList()->indexWhere([&](auto& cmpItem) {
 				return (item == cmpItem.get() || cmpItem->matchesItem(item));
-			}, true);
+			}, {
+				.onlyValidItems = false
+			});
 		} else {
 			size_t index = 0;
 			auto& items = itemsList();
@@ -122,7 +124,9 @@ namespace sh {
 		if(tracksAreAsync()) {
 			return asyncItemsList()->indexWhere([&](auto& cmpItem) {
 				return (item == cmpItem.get());
-			}, true);
+			}, {
+				.onlyValidItems = false
+			});
 		} else {
 			size_t index = 0;
 			auto& items = itemsList();
@@ -142,7 +146,9 @@ namespace sh {
 		if(tracksAreEmpty()) {
 			return nullptr;
 		} else if(tracksAreAsync()) {
-			return std::static_pointer_cast<TrackCollectionItem>(asyncItemsList()->itemAt(index).value_or(nullptr));
+			return std::static_pointer_cast<TrackCollectionItem>(asyncItemsList()->itemAt(index, {
+				.onlyValidItems = false
+			}).value_or(nullptr));
 		} else {
 			auto& items = itemsList();
 			if(index >= items.size()) {
@@ -158,7 +164,9 @@ namespace sh {
 		if(tracksAreEmpty()) {
 			return nullptr;
 		} else if(tracksAreAsync()) {
-			return std::static_pointer_cast<const TrackCollectionItem>(asyncItemsList()->itemAt(index).value_or(nullptr));
+			return std::static_pointer_cast<const TrackCollectionItem>(asyncItemsList()->itemAt(index, {
+				.onlyValidItems = false
+			}).value_or(nullptr));
 		} else {
 			auto& items = itemsList();
 			if(index >= items.size()) {
@@ -273,15 +281,24 @@ namespace sh {
 		} else if(_items.index() == 2) {
 			return std::get<LinkedList<$<ItemType>>>(_items).size();
 		} else if(_items.index() == 3) {
-			auto asyncItems = asyncItemsList();
-			if(asyncItems->sizeIsKnown()) {
-				return asyncItems->size();
-			}
-			return std::nullopt;
+			return asyncItemsList()->size();
 		}
 		return std::nullopt;
 	}
-	
+
+	template<typename ItemType>
+	size_t SpecialTrackCollection<ItemType>::itemCapacity() const {
+		lazyLoadContentIfNeeded();
+		if(_items.index() == 1) {
+			return std::get<EmptyTracks>(_items).total;
+		} else if(_items.index() == 2) {
+			return std::get<LinkedList<$<ItemType>>>(_items).size();
+		} else if(_items.index() == 3) {
+			return asyncItemsList()->capacity();
+		}
+		return 0;
+	}
+
 	template<typename ItemType>
 	Promise<void> SpecialTrackCollection<ItemType>::loadItems(size_t index, size_t count, LoadItemOptions options) {
 		lazyLoadContentIfNeeded();
@@ -409,6 +426,21 @@ namespace sh {
 		}
 		auto asyncItems = asyncItemsList();
 		asyncItems->invalidateAllItems(true);
+	}
+
+	template<typename ItemType>
+	TrackCollection::ItemIndexMarker SpecialTrackCollection<ItemType>::watchIndex(size_t index) {
+		if(!tracksAreAsync()) {
+			makeTracksAsync();
+		}
+		return asyncItemsList()->watchIndex(index);
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::unwatchIndex(ItemIndexMarker indexMarker) {
+		if(tracksAreAsync()) {
+			asyncItemsList()->unwatchIndex(indexMarker);
+		}
 	}
 
 	template<typename ItemType>
@@ -572,7 +604,7 @@ namespace sh {
 				} else if(auto asyncItemsPtr = std::get_if<$<AsyncList<$<ItemType>>>>(&_items)) {
 					auto asyncItems = *asyncItemsPtr;
 					return typename Data::Tracks{
-						.total=asyncItems->size(),
+						.total=asyncItems->length(),
 						.offset=0,
 						.items=asyncItems->getLoadedItems({
 							.startIndex=options.tracksOffset,
