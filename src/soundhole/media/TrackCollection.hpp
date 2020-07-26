@@ -13,6 +13,11 @@
 #include "MediaItem.hpp"
 #include "Track.hpp"
 
+#ifdef __OBJC__
+#import <Foundation/Foundation.h>
+@protocol SHTrackCollectionSubscriber;
+#endif
+
 namespace sh {
 	class TrackCollection;
 	class MediaDatabase;
@@ -60,7 +65,7 @@ namespace sh {
 		class Subscriber {
 		public:
 			virtual ~Subscriber() = default;
-			virtual void onTrackCollectionMutations($<TrackCollection> collection, ItemsListChange change) = 0;
+			virtual void onTrackCollectionMutations($<TrackCollection> collection, const ItemsListChange& change) = 0;
 		};
 		
 		struct LoadItemOptions {
@@ -103,6 +108,11 @@ namespace sh {
 		
 		virtual void subscribe(Subscriber* subscriber) = 0;
 		virtual void unsubscribe(Subscriber* subscriber) = 0;
+		virtual LinkedList<Subscriber*> subscribers() const;
+		#ifdef __OBJC__
+		void subscribe(id<SHTrackCollectionSubscriber> subscriber);
+		void unsubscribe(id<SHTrackCollectionSubscriber> subscriber);
+		#endif
 		
 		virtual Json toJson() const override final;
 		struct ToJsonOptions {
@@ -239,5 +249,16 @@ namespace sh {
 		w$<const Context> context() const;
 	};
 }
+
+
+
+#ifdef __OBJC__
+
+@protocol SHTrackCollectionSubscriber <NSObject>
+@optional
+-(void)trackCollection:(fgl::$<sh::TrackCollection>)collection didMutate:(sh::TrackCollection::ItemsListChange)change;
+@end
+
+#endif
 
 #include "TrackCollection.impl.hpp"

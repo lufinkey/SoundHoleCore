@@ -61,6 +61,8 @@
 		A54F2547239DAA2700C81E1C /* StreamPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A54F2545239DAA2700C81E1C /* StreamPlayer.cpp */; };
 		A54F2548239DAA2700C81E1C /* StreamPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A54F2545239DAA2700C81E1C /* StreamPlayer.cpp */; };
 		A54F2549239DAA2700C81E1C /* StreamPlayer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A54F2546239DAA2700C81E1C /* StreamPlayer.hpp */; };
+		A55F55CC24CDD74700DF2825 /* TrackCollection.mm in Sources */ = {isa = PBXBuildFile; fileRef = A55F55CB24CDD74700DF2825 /* TrackCollection.mm */; };
+		A55F55CD24CDD74700DF2825 /* TrackCollection.mm in Sources */ = {isa = PBXBuildFile; fileRef = A55F55CB24CDD74700DF2825 /* TrackCollection.mm */; };
 		A5622C6C23430AF4008D6631 /* SpotifyAudioPlayback.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A571E1342332C6D000603E14 /* SpotifyAudioPlayback.framework */; };
 		A5622C6E23430B1A008D6631 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5622C6D23430B1A008D6631 /* WebKit.framework */; };
 		A5622C7023430B20008D6631 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5622C6F23430B20008D6631 /* UIKit.framework */; };
@@ -291,6 +293,7 @@
 		A54F2538239984EC00C81E1C /* SpotifyPlaybackEvent_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SpotifyPlaybackEvent_iOS.mm; sourceTree = "<group>"; };
 		A54F2545239DAA2700C81E1C /* StreamPlayer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = StreamPlayer.cpp; sourceTree = "<group>"; };
 		A54F2546239DAA2700C81E1C /* StreamPlayer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = StreamPlayer.hpp; sourceTree = "<group>"; };
+		A55F55CB24CDD74700DF2825 /* TrackCollection.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TrackCollection.mm; sourceTree = "<group>"; };
 		A5622C6D23430B1A008D6631 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS13.0.sdk/System/Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
 		A5622C6F23430B20008D6631 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS13.0.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		A5622C7123430B27008D6631 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS13.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
@@ -613,6 +616,7 @@
 				A5B9736423822C0100FB3F1C /* TrackCollection.hpp */,
 				A50F74B5238B223F0061D9FD /* TrackCollection.impl.hpp */,
 				A5B9736323822C0100FB3F1C /* TrackCollection.cpp */,
+				A55F55CB24CDD74700DF2825 /* TrackCollection.mm */,
 				A578784F23DD4E4200B6B0A5 /* ShuffledTrackCollection.hpp */,
 				A578784E23DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp */,
 				A5B9735F23822BA300FB3F1C /* Album.hpp */,
@@ -1275,6 +1279,7 @@
 				A5C0A8E823CFE59100CDB59E /* SpotifyPlaylistMutatorDelegate.cpp in Sources */,
 				A5485A2D239432CE00CB7749 /* SpotifyPlaybackProvider.cpp in Sources */,
 				A5C0A8EF23D1735F00CDB59E /* BandcampAlbumMutatorDelegate.cpp in Sources */,
+				A55F55CC24CDD74700DF2825 /* TrackCollection.mm in Sources */,
 				A5485A23238DFB1300CB7749 /* Utils.cpp in Sources */,
 				A513ED91232DA20B000DCAC7 /* BandcampProvider.cpp in Sources */,
 				A5B7A7A52337DC9D00301FC0 /* SpotifySession_iOS.mm in Sources */,
@@ -1343,6 +1348,7 @@
 				A5E7852823CE741C00BD1C67 /* BandcampPlaybackProvider.cpp in Sources */,
 				A5485A2923942EB800CB7749 /* MediaPlaybackProvider.cpp in Sources */,
 				A5485A24238DFB1300CB7749 /* Utils.cpp in Sources */,
+				A55F55CD24CDD74700DF2825 /* TrackCollection.mm in Sources */,
 				A571E1A7233440A800603E14 /* HttpClient.cpp in Sources */,
 				A513ED95232DA20B000DCAC7 /* YoutubeProvider.cpp in Sources */,
 				A563A5CC24AFF3600036A842 /* SQLOrderBy.cpp in Sources */,
