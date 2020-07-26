@@ -472,6 +472,11 @@ namespace sh {
 	}
 
 	template<typename ItemType>
+	LinkedList<TrackCollection::Subscriber*> SpecialTrackCollection<ItemType>::subscribers() const {
+		return _subscribers;
+	}
+
+	template<typename ItemType>
 	void SpecialTrackCollection<ItemType>::applyData(const Data& data) {
 		lazyLoadContentIfNeeded();
 		TrackCollection::applyData(data);

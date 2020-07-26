@@ -191,6 +191,7 @@ namespace sh {
 		
 		virtual void subscribe(Subscriber* subscriber) override;
 		virtual void unsubscribe(Subscriber* subscriber) override;
+		virtual LinkedList<Subscriber*> subscribers() const override;
 		
 		void applyData(const Data& data);
 		
