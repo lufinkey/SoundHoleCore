@@ -104,4 +104,10 @@ namespace sh {
 		});
 		return json;
 	}
+
+
+
+	TrackCollection::Subscriber::~Subscriber() {
+		//
+	}
 }

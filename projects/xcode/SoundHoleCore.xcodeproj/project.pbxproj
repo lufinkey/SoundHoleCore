@@ -20,9 +20,6 @@
 		A513DB5B232DA1D3000DCAC7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A513DB5A232DA1D3000DCAC7 /* Assets.xcassets */; };
 		A513DB5E232DA1D3000DCAC7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A513DB5C232DA1D3000DCAC7 /* Main.storyboard */; };
 		A513DB61232DA1D3000DCAC7 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = A513DB60232DA1D3000DCAC7 /* main.mm */; };
-		A513ED87232DA20B000DCAC7 /* SoundHoleCoreTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A513DB68232DA1F8000DCAC7 /* SoundHoleCoreTest.cpp */; };
-		A513ED88232DA20B000DCAC7 /* SoundHoleCoreTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A513DB68232DA1F8000DCAC7 /* SoundHoleCoreTest.cpp */; };
-		A513ED89232DA20B000DCAC7 /* SoundHoleCoreTest.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A513DB69232DA1F8000DCAC7 /* SoundHoleCoreTest.hpp */; };
 		A513ED8C232DA20B000DCAC7 /* common.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A513DB6E232DA1F8000DCAC7 /* common.hpp */; };
 		A513ED8D232DA20B000DCAC7 /* MediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A513DB70232DA1F8000DCAC7 /* MediaProvider.cpp */; };
 		A513ED8E232DA20B000DCAC7 /* MediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A513DB70232DA1F8000DCAC7 /* MediaProvider.cpp */; };
@@ -63,6 +60,8 @@
 		A54F2549239DAA2700C81E1C /* StreamPlayer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A54F2546239DAA2700C81E1C /* StreamPlayer.hpp */; };
 		A55F55CC24CDD74700DF2825 /* TrackCollection.mm in Sources */ = {isa = PBXBuildFile; fileRef = A55F55CB24CDD74700DF2825 /* TrackCollection.mm */; };
 		A55F55CD24CDD74700DF2825 /* TrackCollection.mm in Sources */ = {isa = PBXBuildFile; fileRef = A55F55CB24CDD74700DF2825 /* TrackCollection.mm */; };
+		A55F55D924CE623000DF2825 /* SoundHoleCoreTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A513DB68232DA1F8000DCAC7 /* SoundHoleCoreTest.cpp */; };
+		A55F55DA24CE623100DF2825 /* SoundHoleCoreTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A513DB68232DA1F8000DCAC7 /* SoundHoleCoreTest.cpp */; };
 		A5622C6C23430AF4008D6631 /* SpotifyAudioPlayback.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A571E1342332C6D000603E14 /* SpotifyAudioPlayback.framework */; };
 		A5622C6E23430B1A008D6631 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5622C6D23430B1A008D6631 /* WebKit.framework */; };
 		A5622C7023430B20008D6631 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5622C6F23430B20008D6631 /* UIKit.framework */; };
@@ -964,7 +963,6 @@
 				A571E15A23331C6600603E14 /* SpotifyAuth.hpp in Headers */,
 				A5485A25238DFB1300CB7749 /* Utils.hpp in Headers */,
 				A5C0A8F123D1735F00CDB59E /* BandcampAlbumMutatorDelegate.hpp in Headers */,
-				A513ED89232DA20B000DCAC7 /* SoundHoleCoreTest.hpp in Headers */,
 				A5AE3F2E247DCF3600FB9AFF /* SQLIndexRange.hpp in Headers */,
 				A5C0A8EA23CFE59100CDB59E /* SpotifyPlaylistMutatorDelegate.hpp in Headers */,
 				A571E1A8233440A800603E14 /* HttpClient.hpp in Headers */,
@@ -1251,7 +1249,6 @@
 				A5B7A7C1233EA76C00301FC0 /* SHWebViewController_iOS.mm in Sources */,
 				A5B7A7AB2337F1DE00301FC0 /* SpotifyPlayer.cpp in Sources */,
 				A578785023DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp in Sources */,
-				A513ED87232DA20B000DCAC7 /* SoundHoleCoreTest.cpp in Sources */,
 				A5E7852323CE70BC00BD1C67 /* YoutubePlaybackProvider.cpp in Sources */,
 				A5E851BF235A4AE90001F74D /* JSUtils.cpp in Sources */,
 				A571E1A6233440A800603E14 /* HttpClient.cpp in Sources */,
@@ -1307,6 +1304,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A55F55D924CE623000DF2825 /* SoundHoleCoreTest.cpp in Sources */,
 				A513DB37232DA191000DCAC7 /* ViewController.mm in Sources */,
 				A513DB42232DA192000DCAC7 /* main.mm in Sources */,
 				A5B7A7942335D57B00301FC0 /* json11.cpp in Sources */,
@@ -1344,7 +1342,6 @@
 				A571E16023331C6600603E14 /* SpotifySession.cpp in Sources */,
 				A5485A2E239432CE00CB7749 /* SpotifyPlaybackProvider.cpp in Sources */,
 				A5C0A8F023D1735F00CDB59E /* BandcampAlbumMutatorDelegate.cpp in Sources */,
-				A513ED88232DA20B000DCAC7 /* SoundHoleCoreTest.cpp in Sources */,
 				A5E7852823CE741C00BD1C67 /* BandcampPlaybackProvider.cpp in Sources */,
 				A5485A2923942EB800CB7749 /* MediaPlaybackProvider.cpp in Sources */,
 				A5485A24238DFB1300CB7749 /* Utils.cpp in Sources */,
@@ -1382,6 +1379,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A55F55DA24CE623100DF2825 /* SoundHoleCoreTest.cpp in Sources */,
 				A513DB59232DA1D2000DCAC7 /* ViewController.mm in Sources */,
 				A513DB61232DA1D3000DCAC7 /* main.mm in Sources */,
 				A5B7A7952335D57B00301FC0 /* json11.cpp in Sources */,

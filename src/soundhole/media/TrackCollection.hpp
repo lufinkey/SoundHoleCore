@@ -66,7 +66,7 @@ namespace sh {
 		class Subscriber {
 			friend class TrackCollection;
 		public:
-			virtual ~Subscriber() = default;
+			virtual ~Subscriber();
 			virtual void onTrackCollectionMutations($<TrackCollection> collection, const ItemsListChange& change) = 0;
 		};
 		class AutoDeletedSubscriber: public Subscriber {

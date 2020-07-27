@@ -793,7 +793,7 @@ namespace sh {
 				}
 				auto shuffledIndex = shuffledContextItem->indexInContext();
 				if(shuffledIndex.has_value()) {
-					shuffledContextIndex = shuffledContext->TrackCollection::watchIndex(shuffledIndex.value());
+					shuffledContextIndex = shuffledContext->watchIndex(shuffledIndex.value());
 				} else if(prevContext == context) {
 					shuffledContextIndex = this->shuffledContextIndex;
 				}
