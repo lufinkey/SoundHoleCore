@@ -11,9 +11,7 @@
 
 namespace sh {
 	$<UserAccount> UserAccount::new$(MediaProvider* provider, const Data& data) {
-		$<MediaItem> ptr;
-		new UserAccount(provider, data);
-		return std::static_pointer_cast<UserAccount>(ptr);
+		return fgl::new$<UserAccount>(provider, data);
 	}
 
 	UserAccount::UserAccount(MediaProvider* provider, const Data& data)
