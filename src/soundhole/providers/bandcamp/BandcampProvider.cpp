@@ -160,7 +160,7 @@ namespace sh {
 										if(url.host() == "bandcamp.com" || url.host() == "www.bandcamp.com") {
 											String id = url.path();
 											while(id.startsWith("/")) {
-												id = id.substring(0);
+												id = id.substring(1);
 											}
 											while(id.endsWith("/")) {
 												id = id.substring(0, id.length()-1);
