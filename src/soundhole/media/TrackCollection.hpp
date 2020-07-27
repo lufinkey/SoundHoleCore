@@ -128,7 +128,7 @@ namespace sh {
 		virtual Json toJson(const ToJsonOptions& options) const;
 		
 	protected:
-		virtual LinkedList<Subscriber*> subscribers() const;
+		virtual LinkedList<Subscriber*> subscribers() const = 0;
 	};
 
 
