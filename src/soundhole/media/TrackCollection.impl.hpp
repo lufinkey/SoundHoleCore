@@ -311,11 +311,11 @@ namespace sh {
 			makeTracksAsync();
 		}
 		if(tracksAreAsync()) {
-			return asyncItemsList()->getItems(index,count, {
+			return asyncItemsList()->loadItems(index,count, {
 				.forceReload = options.forceReload,
 				.trackIndexChanges = options.trackIndexChanges,
 				.loadOptions = options.toDict()
-			}).toVoid();
+			});
 		} else {
 			return Promise<void>::resolve();
 		}
