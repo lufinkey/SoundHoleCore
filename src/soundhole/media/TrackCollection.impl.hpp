@@ -44,7 +44,7 @@ namespace sh {
 
 
 	template<typename ItemType>
-	std::variant<std::nullptr_t,typename SpecialTrackCollection<ItemType>::EmptyTracks,LinkedList<$<ItemType>>,$<AsyncList<$<ItemType>>>>
+	typename SpecialTrackCollection<ItemType>::ItemsListVariant
 	SpecialTrackCollection<ItemType>::constructItems(const Optional<typename Data::Tracks>& tracks) {
 		auto self = std::static_pointer_cast<SpecialTrackCollection<ItemType>>(shared_from_this());
 		if(!self) {
@@ -61,7 +61,7 @@ namespace sh {
 				return ItemType::new$(self, data);
 			});
 		} else {
-			return AsyncList<$<ItemType>>::new$({
+			return AsyncList::new$({
 				.delegate=this,
 				.initialItemsOffset=tracks->offset,
 				.initialItems=ArrayList<$<ItemType>>(tracks->items.template map<$<ItemType>>([&](auto& data) {
@@ -518,32 +518,56 @@ namespace sh {
 
 
 	template<typename ItemType>
-	size_t SpecialTrackCollection<ItemType>::getAsyncListChunkSize(const AsyncList<$<ItemType>>* list) const {
+	size_t SpecialTrackCollection<ItemType>::getAsyncListChunkSize(const AsyncList* list) const {
 		auto nonConstThis = const_cast<SpecialTrackCollection<ItemType>*>(this);
 		auto delegate = nonConstThis->mutatorDelegate();
 		return delegate->getChunkSize();
 	}
 
 	template<typename ItemType>
-	bool SpecialTrackCollection<ItemType>::areAsyncListItemsEqual(const AsyncList<$<ItemType>>* list, const $<ItemType>& item1, const $<ItemType>& item2) const {
+	bool SpecialTrackCollection<ItemType>::areAsyncListItemsEqual(const AsyncList* list, const $<ItemType>& item1, const $<ItemType>& item2) const {
 		return item1->matchesItem(item2.get());
 	}
 
 	template<typename ItemType>
-	void SpecialTrackCollection<ItemType>::mergeAsyncListItem(const AsyncList<$<ItemType>>* list, $<ItemType>& overwritingItem, $<ItemType>& existingItem) {
+	void SpecialTrackCollection<ItemType>::mergeAsyncListItem(const AsyncList* list, $<ItemType>& overwritingItem, $<ItemType>& existingItem) {
 		auto newItem = overwritingItem;
 		overwritingItem = existingItem;
 		overwritingItem->merge(newItem.get());
 	}
 
 	template<typename ItemType>
-	Promise<void> SpecialTrackCollection<ItemType>::loadAsyncListItems(typename AsyncList<$<ItemType>>::Mutator* mutator, size_t index, size_t count, std::map<String,Any> options) {
+	Promise<void> SpecialTrackCollection<ItemType>::loadAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count, std::map<String,Any> options) {
 		auto delegate = mutatorDelegate();
 		return delegate->loadItems(mutator, index, count, LoadItemOptions::fromDict(options));
 	}
 
 	template<typename ItemType>
-	void SpecialTrackCollection<ItemType>::onAsyncListMutations(const AsyncList<$<ItemType>>* list, AsyncListChange change) {
+	Promise<void> SpecialTrackCollection<ItemType>::insertAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, LinkedList<$<Track>> tracks) {
+		auto delegate = mutatorDelegate();
+		return delegate->insertItems(mutator, index, tracks);
+	}
+
+	template<typename ItemType>
+	Promise<void> SpecialTrackCollection<ItemType>::appendAsyncListItems(typename AsyncList::Mutator* mutator, LinkedList<$<Track>> tracks) {
+		auto delegate = mutatorDelegate();
+		return delegate->appendItems(mutator, tracks);
+	}
+
+	template<typename ItemType>
+	Promise<void> SpecialTrackCollection<ItemType>::removeAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count) {
+		auto delegate = mutatorDelegate();
+		return delegate->removeItems(mutator, index, count);
+	}
+
+	template<typename ItemType>
+	Promise<void> SpecialTrackCollection<ItemType>::moveAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count, size_t newIndex) {
+		auto delegate = mutatorDelegate();
+		return delegate->moveItems(mutator, index, count, newIndex);
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::onAsyncListMutations(const AsyncList* list, AsyncListChange change) {
 		// pass on mutations to subscribers
 		auto collection = std::static_pointer_cast<TrackCollection>(shared_from_this());
 		auto subscribers = _subscribers;
@@ -580,7 +604,7 @@ namespace sh {
 
 	template<typename ItemType>
 	bool SpecialTrackCollection<ItemType>::tracksAreAsync() const {
-		return std::get_if<$<AsyncList<$<ItemType>>>>(&_items) != nullptr;
+		return std::get_if<$<AsyncList>>(&_items) != nullptr;
 	}
 
 	template<typename ItemType>
@@ -594,13 +618,13 @@ namespace sh {
 	}
 
 	template<typename ItemType>
-	$<AsyncList<$<ItemType>>> SpecialTrackCollection<ItemType>::asyncItemsList() {
-		return std::get<$<AsyncList<$<ItemType>>>>(_items);
+	$<typename SpecialTrackCollection<ItemType>::AsyncList> SpecialTrackCollection<ItemType>::asyncItemsList() {
+		return std::get<$<AsyncList>>(_items);
 	}
 
 	template<typename ItemType>
-	$<const AsyncList<$<ItemType>>> SpecialTrackCollection<ItemType>::asyncItemsList() const {
-		return std::static_pointer_cast<const AsyncList<$<ItemType>>>(std::get<$<AsyncList<$<ItemType>>>>(_items));
+	$<const typename SpecialTrackCollection<ItemType>::AsyncList> SpecialTrackCollection<ItemType>::asyncItemsList() const {
+		return std::static_pointer_cast<const AsyncList>(std::get<$<AsyncList>>(_items));
 	}
 
 	template<typename ItemType>
@@ -610,19 +634,19 @@ namespace sh {
 			return;
 		} else if(tracksAreEmpty()) {
 			if(_items.index() == 0) {
-				_items = AsyncList<$<ItemType>>::new$({
+				_items = AsyncList::new$({
 					.delegate=this,
 				});
 			} else {
 				auto& tracks = std::get<EmptyTracks>(_items);
-				_items = AsyncList<$<ItemType>>::new$({
+				_items = AsyncList::new$({
 					.delegate=this,
 					.initialSize=tracks.total
 				});
 			}
 		} else {
 			auto& tracks = itemsList();
-			_items = AsyncList<$<ItemType>>::new$({
+			_items = AsyncList::new$({
 				.delegate=this,
 				.initialItemsOffset=0,
 				.initialItems=tracks,
@@ -651,7 +675,7 @@ namespace sh {
 							return item->toData();
 						})
 					};
-				} else if(auto asyncItemsPtr = std::get_if<$<AsyncList<$<ItemType>>>>(&_items)) {
+				} else if(auto asyncItemsPtr = std::get_if<$<AsyncList>>(&_items)) {
 					auto asyncItems = *asyncItemsPtr;
 					return typename Data::Tracks{
 						.total=asyncItems->length(),
@@ -722,7 +746,7 @@ namespace sh {
 			if(itemCountJson.is_null() && items.size() == 0) {
 				_items = std::nullptr_t();
 			} else if(needsAsync) {
-				_items = AsyncList<$<ItemType>>::new$({
+				_items = AsyncList::new$({
 					.delegate=this,
 					.initialItemsMap=items,
 					.initialSize=itemCount
@@ -756,7 +780,7 @@ namespace sh {
 					return item->toJson();
 				}) }
 			});
-		} else if(auto asyncItemsPtr = std::get_if<$<AsyncList<$<ItemType>>>>(&_items)) {
+		} else if(auto asyncItemsPtr = std::get_if<$<AsyncList>>(&_items)) {
 			auto asyncItems = *asyncItemsPtr;
 			size_t endIndex = options.tracksOffset + options.tracksLimit;
 			if(endIndex < options.tracksLimit || endIndex < options.tracksOffset) {

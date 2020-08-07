@@ -18,7 +18,7 @@ namespace sh {
 	}
 
 	size_t YoutubePlaylistMutatorDelegate::getChunkSize() const {
-		return 50;
+		return pageSize;
 	}
 
 	ArrayList<YoutubePlaylistMutatorDelegate::Range> YoutubePlaylistMutatorDelegate::coverRange(Range range, Range coverRange) const {
@@ -170,26 +170,26 @@ namespace sh {
 		}).then([=](YoutubePage<YoutubePlaylistItem> page) {
 			mutator->lock([&]() {
 				size_t insertStartIndex = -1;
-				LinkedList<$<PlaylistItem>> insertItems;
+				LinkedList<$<PlaylistItem>> applyItems;
 				size_t prevIndex = -1;
 				for(auto& item : page.items) {
 					auto playlistItem = PlaylistItem::new$(playlist, provider->createPlaylistItemData(item));
-					if(insertItems.size() == 0) {
-						insertItems.pushBack(playlistItem);
+					if(applyItems.size() == 0) {
+						applyItems.pushBack(playlistItem);
 						insertStartIndex = item.snippet.position;
 						prevIndex = item.snippet.position;
 					} else if(item.snippet.position == (prevIndex+1)) {
-						insertItems.pushBack(playlistItem);
+						applyItems.pushBack(playlistItem);
 						prevIndex = item.snippet.position;
 					} else {
-						mutator->applyAndResize(insertStartIndex, page.pageInfo.totalResults, insertItems);
-						insertItems.clear();
-						insertItems.pushBack(playlistItem);
+						mutator->applyAndResize(insertStartIndex, page.pageInfo.totalResults, applyItems);
+						applyItems.clear();
+						applyItems.pushBack(playlistItem);
 						insertStartIndex = item.snippet.position;
 					}
 				}
-				if(insertItems.size() > 0) {
-					mutator->applyAndResize(insertStartIndex, page.pageInfo.totalResults, insertItems);
+				if(applyItems.size() > 0) {
+					mutator->applyAndResize(insertStartIndex, page.pageInfo.totalResults, applyItems);
 				}
 			});
 			return Promise<LoadPager>::resolve(LoadPager{
@@ -228,5 +228,23 @@ namespace sh {
 			String nextPageToken = reverse ? result.prevPageToken : result.nextPageToken;
 			return loadItemsToIndex(mutator, targetIndex, nextPageToken, nextIndex, reverse);
 		});
+	}
+
+
+
+	Promise<void> YoutubePlaylistMutatorDelegate::insertItems(Mutator* mutator, size_t index, LinkedList<$<Track>> tracks) {
+		return Promise<void>::reject(std::logic_error("Not yet implemented"));
+	}
+
+	Promise<void> YoutubePlaylistMutatorDelegate::appendItems(Mutator* mutator, LinkedList<$<Track>> tracks) {
+		return Promise<void>::reject(std::logic_error("Not yet implemented"));
+	}
+
+	Promise<void> YoutubePlaylistMutatorDelegate::removeItems(Mutator* mutator, size_t index, size_t count) {
+		return Promise<void>::reject(std::logic_error("Not yet implemented"));
+	}
+
+	Promise<void> YoutubePlaylistMutatorDelegate::moveItems(Mutator* mutator, size_t index, size_t count, size_t newIndex) {
+		return Promise<void>::reject(std::logic_error("Not yet implemented"));
 	}
 }

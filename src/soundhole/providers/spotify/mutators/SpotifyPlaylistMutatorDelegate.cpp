@@ -43,4 +43,21 @@ namespace sh {
 			return options.database->loadPlaylistItems(playlist, mutator, index, count);
 		}
 	}
+
+
+	Promise<void> SpotifyPlaylistMutatorDelegate::insertItems(Mutator* mutator, size_t index, LinkedList<$<Track>> tracks) {
+		return Promise<void>::reject(std::logic_error("Not yet implemented"));
+	}
+
+	Promise<void> SpotifyPlaylistMutatorDelegate::appendItems(Mutator* mutator, LinkedList<$<Track>> tracks) {
+		return Promise<void>::reject(std::logic_error("Not yet implemented"));
+	}
+
+	Promise<void> SpotifyPlaylistMutatorDelegate::removeItems(Mutator* mutator, size_t index, size_t count) {
+		return Promise<void>::reject(std::logic_error("Not yet implemented"));
+	}
+
+	Promise<void> SpotifyPlaylistMutatorDelegate::moveItems(Mutator* mutator, size_t index, size_t count, size_t newIndex) {
+		return Promise<void>::reject(std::logic_error("Not yet implemented"));
+	}
 }

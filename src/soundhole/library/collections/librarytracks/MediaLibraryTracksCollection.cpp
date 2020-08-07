@@ -166,4 +166,20 @@ namespace sh {
 			}));
 		});
 	}
+
+	Promise<void> MediaLibraryTracksCollection::insertItems(Mutator* mutator, size_t index, LinkedList<$<Track>> tracks) {
+		return Promise<void>::reject(std::logic_error("Cannot insert items into MediaLibraryTracksCollection"));
+	}
+
+	Promise<void> MediaLibraryTracksCollection::appendItems(Mutator* mutator, LinkedList<$<Track>> tracks) {
+		return Promise<void>::reject(std::logic_error("Cannot append items to MediaLibraryTracksCollection"));
+	}
+
+	Promise<void> MediaLibraryTracksCollection::removeItems(Mutator* mutator, size_t index, size_t count) {
+		return Promise<void>::reject(std::logic_error("Not yet implemented"));
+	}
+
+	Promise<void> MediaLibraryTracksCollection::moveItems(Mutator* mutator, size_t index, size_t count, size_t newIndex) {
+		return Promise<void>::reject(std::logic_error("Cannot move items in MediaLibraryTracksCollection"));
+	}
 }

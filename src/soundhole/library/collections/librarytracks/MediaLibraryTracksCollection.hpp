@@ -79,6 +79,10 @@ namespace sh {
 		
 		virtual size_t getChunkSize() const override;
 		virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) override;
+		virtual Promise<void> insertItems(Mutator* mutator, size_t index, LinkedList<$<Track>> tracks) override;
+		virtual Promise<void> appendItems(Mutator* mutator, LinkedList<$<Track>> tracks) override;
+		virtual Promise<void> removeItems(Mutator* mutator, size_t index, size_t count) override;
+		virtual Promise<void> moveItems(Mutator* mutator, size_t index, size_t count, size_t newIndex) override;
 		
 		MediaDatabase* _database;
 		Filters _filters;
