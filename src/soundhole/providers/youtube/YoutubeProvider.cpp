@@ -546,7 +546,11 @@ namespace sh {
 	}
 
 	Promise<Playlist::Data> YoutubeProvider::getPlaylistData(String uri) {
-		return youtube->getPlaylist(uri).map<Playlist::Data>([=](auto playlist) {
+		auto uriParts = parseURI(uri);
+		if(uriParts.type != "playlist") {
+			throw std::invalid_argument(uri+" is not a playlist URI");
+		}
+		return youtube->getPlaylist(uriParts.id).map<Playlist::Data>([=](auto playlist) {
 			return createPlaylistData(playlist);
 		});
 	}
