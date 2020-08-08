@@ -33,14 +33,14 @@ namespace sh {
 
 
 	YoutubeProvider::URI YoutubeProvider::parseURI(String uri) const {
-		auto uriParts = uri.split(':');
+		auto uriParts = ArrayList<String>(uri.split(':'));
 		if(uriParts.size() != 3 || uriParts.containsWhere([](auto& part) { return part.empty(); }) || uriParts.front() != name()) {
 			throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid youtube uri "+uri);
 		}
 		return URI{
 			.provider=name(),
-			.type=uriParts.extractFront(),
-			.id=uriParts.extractFront()
+			.type=uriParts[1],
+			.id=uriParts[2]
 		};
 	}
 
