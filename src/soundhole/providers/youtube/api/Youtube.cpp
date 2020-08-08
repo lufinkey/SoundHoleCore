@@ -151,17 +151,16 @@ namespace sh {
 					reject(YoutubeError(YoutubeError::Code::NOT_INITIALIZED, "ytdl not initialized"));
 					return;
 				}
-				jsApi.Get("getInfo").As<Napi::Function>().Call(jsApi, {
-					url.toNodeJSValue(env),
+				auto promise = jsApi.Get("getInfo").As<Napi::Function>().Call(jsApi, { url.toNodeJSValue(env) });
+				jsApi.Get("then").As<Napi::Function>().Call(promise, {
+					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
+						auto result = info[0].As<Napi::Object>();
+						resolve(YoutubeVideoInfo::fromNapiObject(result));
+					}),
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
 						auto error = info[0].As<Napi::Object>();
-						auto result = info[1].As<Napi::Object>();
-						if(!error.IsNull() && !error.IsUndefined()) {
-							auto errorMessage = error.Get("message").ToString();
-							reject(YoutubeError(YoutubeError::Code::REQUEST_FAILED, errorMessage));
-						} else {
-							resolve(YoutubeVideoInfo::fromNapiObject(result));
-						}
+						auto errorMessage = error.Get("message").ToString();
+						reject(YoutubeError(YoutubeError::Code::REQUEST_FAILED, errorMessage));
 					})
 				});
 			});
@@ -209,7 +208,7 @@ namespace sh {
 	Promise<YoutubePage<YoutubePlaylistItem>> Youtube::getPlaylistItems(String id, GetPlaylistItemsOptions options) {
 		auto query = std::map<String,String>{
 			{ "playlistId", id },
-			{ "part", "id,snippet" }
+			{ "part", "id,snippet,contentDetails,status" }
 		};
 		if(options.maxResults.has_value()) {
 			query["maxResults"] = std::to_string(options.maxResults.value());
