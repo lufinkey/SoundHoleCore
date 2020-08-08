@@ -277,33 +277,22 @@ namespace sh {
 		};
 		
 		struct Format {
-			String projectionType;
-			String clen;
-			String init;
-			String fps;
-			String index;
-			
 			String itag;
 			String url;
-			String type;
-			
+			String mimeType;
+			String bitrate;
+			Optional<double> audioBitrate;
+			Optional<size_t> width;
+			Optional<size_t> height;
+			String container;
+			bool hasVideo;
+			bool hasAudio;
+			String codecs;
+			String audioCodec;
+			String videoCodec;
 			String quality;
 			String qualityLabel;
-			String size;
-			
-			String sp;
-			String s;
-			String container;
-			String resolution;
-			String encoding;
-			String profile;
-			String bitrate;
-			String audioEncoding;
-			Optional<size_t> audioBitrate;
-			
-			bool live;
-			bool isHLS;
-			bool isDashMPD;
+			String audioQuality;
 			
 			#ifdef NODE_API_MODULE
 			static Format fromNapiObject(Napi::Object);
@@ -325,17 +314,17 @@ namespace sh {
 				
 				#ifdef NODE_API_MODULE
 				static Thumbnail fromNapiObject(Napi::Object);
-				static Optional<Thumbnail> maybeFromNapiObject(Napi::Object);
 				#endif
 			};
 			
 			String videoId;
 			String title;
+			String shortDescription;
 			String lengthSeconds;
 			ArrayList<String> keywords;
 			String channelId;
 			bool isCrawlable;
-			Optional<Thumbnail> thumbnail;
+			Thumbnail thumbnail;
 			String viewCount;
 			String author;
 			bool isLiveContent;
@@ -356,12 +345,16 @@ namespace sh {
 		};
 		
 		struct Media {
+			String image;
 			String categoryURL;
 			String category;
 			String song;
-			String artistURL;
+			Optional<size_t> year;
 			String artist;
-			String licensedToYoutubeBy;
+			String artistURL;
+			String game;
+			String gameURL;
+			String licensedBy;
 			
 			#ifdef NODE_API_MODULE
 			static Media fromNapiObject(Napi::Object);
@@ -376,7 +369,9 @@ namespace sh {
 			bool verified;
 			String user;
 			String channelURL;
+			String externalChannelURL;
 			String userURL;
+			size_t subscriberCount;
 			
 			#ifdef NODE_API_MODULE
 			static Author fromNapiObject(Napi::Object);

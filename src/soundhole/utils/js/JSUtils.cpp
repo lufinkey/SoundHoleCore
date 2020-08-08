@@ -68,4 +68,18 @@ namespace sh::jsutils {
 		}
 		return doubleFromNapiValue(value);
 	}
+
+	bool boolFromNapiValue(Napi::Value value) {
+		if(value.IsEmpty() || value.IsNull() || value.IsUndefined()) {
+			return false;
+		}
+		return value.As<Napi::Boolean>().ToBoolean();
+	}
+
+	Optional<bool> optBoolFromNapiValue(Napi::Value value) {
+		if(value.IsEmpty() || value.IsNull() || value.IsUndefined()) {
+			return std::nullopt;
+		}
+		return boolFromNapiValue(value);
+	}
 }

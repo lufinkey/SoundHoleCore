@@ -234,10 +234,10 @@ namespace sh {
 			.name=title,
 			.uri=createURI("video", videoId),
 			.images=([&]() -> Optional<ArrayList<MediaItem::Image>> {
-				if(!video.playerResponse || !video.playerResponse->videoDetails || !video.playerResponse->videoDetails->thumbnail) {
+				if(!video.playerResponse || !video.playerResponse->videoDetails) {
 					return std::nullopt;
 				}
-				auto images = video.playerResponse->videoDetails->thumbnail->thumbnails.map<MediaItem::Image>([&](auto image) {
+				auto images = video.playerResponse->videoDetails->thumbnail.thumbnails.map<MediaItem::Image>([&](auto image) {
 					auto dimensions = MediaItem::Image::Dimensions{
 						.width=image.width,
 						.height=image.height
@@ -334,7 +334,7 @@ namespace sh {
 			}).map<Track::AudioSource>([&](auto& format) {
 				return Track::AudioSource{
 					.url=format.url,
-					.encoding=format.audioEncoding,
+					.encoding=format.audioCodec,
 					.bitrate=(double)format.audioBitrate.value(),
 					.videoBitrate=([&]() -> Optional<double> {
 						auto bitrateParts = format.bitrate.split('-');

@@ -325,34 +325,22 @@ namespace sh {
 
 	YoutubeVideoInfo::Format YoutubeVideoInfo::Format::fromNapiObject(Napi::Object obj) {
 		return Format{
-			.projectionType = jsutils::stringFromNapiValue(obj.Get("projection_type")),
-			.clen = jsutils::stringFromNapiValue(obj.Get("clen")),
-			.init = jsutils::stringFromNapiValue(obj.Get("init")),
-			.fps = jsutils::stringFromNapiValue(obj.Get("fps")),
-			.index = jsutils::stringFromNapiValue(obj.Get("index")),
-			
 			.itag = jsutils::stringFromNapiValue(obj.Get("itag")),
 			.url = jsutils::stringFromNapiValue(obj.Get("url")),
-			.type = jsutils::stringFromNapiValue(obj.Get("type")),
-			
-			.quality = jsutils::stringFromNapiValue(obj.Get("quality")),
-			.qualityLabel = jsutils::stringFromNapiValue(obj.Get("quality_label")),
-			.size = jsutils::stringFromNapiValue(obj.Get("size")),
-			
-			.sp = jsutils::stringFromNapiValue(obj.Get("sp")),
-			.s = jsutils::stringFromNapiValue(obj.Get("s")),
-			.container = jsutils::stringFromNapiValue(obj.Get("container")),
-			.resolution = jsutils::stringFromNapiValue(obj.Get("resolution")),
-			.encoding = jsutils::stringFromNapiValue(obj.Get("encoding")),
-			.profile = jsutils::stringFromNapiValue(obj.Get("profile")),
+			.mimeType = jsutils::stringFromNapiValue(obj.Get("mimeType")),
 			.bitrate = jsutils::stringFromNapiValue(obj.Get("bitrate")),
-			
-			.audioEncoding = jsutils::stringFromNapiValue(obj.Get("audioEncoding")),
-			.audioBitrate = jsutils::optSizeFromNapiValue(obj.Get("audioBitrate")),
-			
-			.live = obj.Get("live").ToBoolean(),
-			.isHLS = obj.Get("isHLS").ToBoolean(),
-			.isDashMPD = obj.Get("isDashMPD").ToBoolean()
+			.audioBitrate = jsutils::optDoubleFromNapiValue(obj.Get("audioBitrate")),
+			.width = jsutils::optSizeFromNapiValue(obj.Get("width")),
+			.height = jsutils::optSizeFromNapiValue(obj.Get("height")),
+			.container = jsutils::stringFromNapiValue(obj.Get("container")),
+			.hasVideo = jsutils::boolFromNapiValue(obj.Get("hasVideo")),
+			.hasAudio = jsutils::boolFromNapiValue(obj.Get("hasAudio")),
+			.codecs = jsutils::stringFromNapiValue(obj.Get("codecs")),
+			.audioCodec = jsutils::stringFromNapiValue(obj.Get("audioCodec")),
+			.videoCodec = jsutils::stringFromNapiValue(obj.Get("videoCodec")),
+			.quality = jsutils::stringFromNapiValue(obj.Get("quality")),
+			.qualityLabel = jsutils::stringFromNapiValue(obj.Get("qualityLabel")),
+			.audioQuality = jsutils::stringFromNapiValue(obj.Get("audioQuality")),
 		};
 	}
 
@@ -373,13 +361,14 @@ namespace sh {
 		return VideoDetails{
 			.videoId = jsutils::stringFromNapiValue(obj.Get("videoId")),
 			.title = jsutils::stringFromNapiValue(obj.Get("title")),
+			.shortDescription = jsutils::stringFromNapiValue(obj.Get("shortDescription")),
 			.lengthSeconds = jsutils::stringFromNapiValue(obj.Get("lengthSeconds")),
 			.keywords = jsutils::arrayListFromNapiValue<String>(obj.Get("keywords"), [](Napi::Value obj) {
 				return jsutils::stringFromNapiValue(obj);
 			}),
 			.channelId = jsutils::stringFromNapiValue(obj.Get("channelId")),
 			.isCrawlable = obj.Get("isCrawlable").ToBoolean(),
-			.thumbnail = Thumbnail::maybeFromNapiObject(obj.Get("thumbnail").As<Napi::Object>()),
+			.thumbnail = Thumbnail::fromNapiObject(obj.Get("thumbnail").As<Napi::Object>()),
 			.viewCount = jsutils::stringFromNapiValue(obj.Get("viewCount")),
 			.author = jsutils::stringFromNapiValue(obj.Get("author")),
 			.isLiveContent = obj.Get("isLiveContent").ToBoolean()
@@ -401,21 +390,18 @@ namespace sh {
 		};
 	}
 
-	Optional<YoutubeVideoInfo::VideoDetails::Thumbnail> YoutubeVideoInfo::VideoDetails::Thumbnail::maybeFromNapiObject(Napi::Object obj) {
-		if(obj.IsEmpty() || obj.IsNull() || obj.IsUndefined()) {
-			return std::nullopt;
-		}
-		return fromNapiObject(obj);
-	}
-
 	YoutubeVideoInfo::Media YoutubeVideoInfo::Media::fromNapiObject(Napi::Object obj) {
 		return Media{
+			.image = jsutils::stringFromNapiValue(obj.Get("image")),
 			.categoryURL = jsutils::stringFromNapiValue(obj.Get("category_url")),
 			.category = jsutils::stringFromNapiValue(obj.Get("category")),
 			.song = jsutils::stringFromNapiValue(obj.Get("song")),
-			.artistURL = jsutils::stringFromNapiValue(obj.Get("artist_url")),
+			.year = jsutils::optSizeFromNapiValue(obj.Get("year")),
 			.artist = jsutils::stringFromNapiValue(obj.Get("artist")),
-			.licensedToYoutubeBy = jsutils::stringFromNapiValue(obj.Get("licensed_to_youtube_by"))
+			.artistURL = jsutils::stringFromNapiValue(obj.Get("artist_url")),
+			.game = jsutils::stringFromNapiValue(obj.Get("artist")),
+			.gameURL = jsutils::stringFromNapiValue(obj.Get("game_url")),
+			.licensedBy = jsutils::stringFromNapiValue(obj.Get("licensed_by"))
 		};
 	}
 
@@ -434,7 +420,9 @@ namespace sh {
 			.verified = obj.Get("verified").ToBoolean(),
 			.user = jsutils::stringFromNapiValue(obj.Get("user")),
 			.channelURL = jsutils::stringFromNapiValue(obj.Get("channel_url")),
-			.userURL = jsutils::stringFromNapiValue(obj.Get("user_url"))
+			.externalChannelURL = jsutils::stringFromNapiValue(obj.Get("external_channel_url")),
+			.userURL = jsutils::stringFromNapiValue(obj.Get("user_url")),
+			.subscriberCount = jsutils::sizeFromNapiValue(obj.Get("subscriber_count"))
 		};
 	}
 
@@ -451,23 +439,23 @@ namespace sh {
 		switch(filter) {
 			case MediaTypeFilter::AUDIO_AND_VIDEO:
 				return formats.where([](auto& format) {
-					return !format.bitrate.empty() && format.audioBitrate.has_value();
+					return format.hasAudio && format.hasVideo;
 				});
 			case MediaTypeFilter::VIDEO:
 				return formats.where([](auto& format) {
-					return !format.bitrate.empty();
+					return format.hasVideo;
 				});
 			case MediaTypeFilter::VIDEO_ONLY:
 				return formats.where([](auto& format) {
-					return !format.bitrate.empty() && !format.audioBitrate.has_value();
+					return format.hasVideo && !format.hasAudio;
 				});
 			case MediaTypeFilter::AUDIO:
 				return formats.where([](auto& format) {
-					return format.audioBitrate.has_value();
+					return format.hasAudio;
 				});
 			case MediaTypeFilter::AUDIO_ONLY:
 				return formats.where([](auto& format) {
-					return format.audioBitrate.has_value() && format.bitrate.empty();
+					return format.hasAudio && !format.hasVideo;
 				});
 		}
 		throw std::runtime_error("invalid media type filter");

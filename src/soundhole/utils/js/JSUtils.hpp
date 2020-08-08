@@ -43,6 +43,8 @@ namespace sh::jsutils {
 	Optional<size_t> optSizeFromNapiValue(Napi::Value value);
 	double doubleFromNapiValue(Napi::Value value);
 	Optional<double> optDoubleFromNapiValue(Napi::Value value);
+	bool boolFromNapiValue(Napi::Value value);
+	Optional<bool> optBoolFromNapiValue(Napi::Value value);
 	
 	template<typename T>
 	ArrayList<T> arrayListFromNapiArray(Napi::Array array, Function<T(Napi::Value)> transform) {
