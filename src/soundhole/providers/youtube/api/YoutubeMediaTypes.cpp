@@ -305,10 +305,9 @@ namespace sh {
 			.formats = jsutils::arrayListFromNapiValue<Format>(obj.Get("formats"), [](Napi::Value value) {
 				return Format::fromNapiObject(value.As<Napi::Object>());
 			}),
-			.description = jsutils::stringFromNapiValue(obj.Get("description")),
 			.media = Media::maybeFromNapiObject(obj.Get("media").As<Napi::Object>()),
 			.author = Author::maybeFromNapiObject(obj.Get("author").As<Napi::Object>()),
-			.playerResponse = PlayerResponse::maybeFromNapiObject(obj.Get("player_response").As<Napi::Object>())
+			.playerResponse = PlayerResponse::fromNapiObject(obj.Get("player_response").As<Napi::Object>())
 		};
 	}
 
@@ -343,7 +342,7 @@ namespace sh {
 
 	YoutubeVideoInfo::PlayerResponse YoutubeVideoInfo::PlayerResponse::fromNapiObject(Napi::Object obj) {
 		return PlayerResponse{
-			.videoDetails = VideoDetails::maybeFromNapiObject(obj.Get("videoDetails").As<Napi::Object>())
+			.videoDetails = VideoDetails::fromNapiObject(obj.Get("videoDetails").As<Napi::Object>())
 		};
 	}
 	

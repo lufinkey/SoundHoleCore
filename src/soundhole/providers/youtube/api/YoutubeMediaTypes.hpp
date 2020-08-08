@@ -336,7 +336,7 @@ namespace sh {
 		};
 		
 		struct PlayerResponse {
-			Optional<VideoDetails> videoDetails;
+			VideoDetails videoDetails;
 			
 			#ifdef NODE_API_MODULE
 			static PlayerResponse fromNapiObject(Napi::Object);
@@ -381,10 +381,9 @@ namespace sh {
 		
 		String thumbnailURL;
 		ArrayList<Format> formats;
-		String description;
 		Optional<Media> media;
 		Optional<Author> author;
-		Optional<PlayerResponse> playerResponse;
+		PlayerResponse playerResponse;
 		
 		#ifdef NODE_API_MODULE
 		static YoutubeVideoInfo fromNapiObject(Napi::Object);

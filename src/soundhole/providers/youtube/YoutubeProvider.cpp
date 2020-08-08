@@ -211,11 +211,8 @@ namespace sh {
 	}
 
 	Track::Data YoutubeProvider::createTrackData(YoutubeVideoInfo video) {
-		if(!video.playerResponse || !video.playerResponse->videoDetails) {
-			throw std::runtime_error("missing videoDetails");
-		}
-		String title = video.playerResponse->videoDetails->title;
-		String videoId = video.playerResponse->videoDetails->videoId;
+		String title = video.playerResponse.videoDetails.title;
+		String videoId = video.playerResponse.videoDetails.videoId;
 		if(videoId.empty()) {
 			throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "ytdl response is missing crucial video information");
 		}
@@ -225,10 +222,7 @@ namespace sh {
 			.name=title,
 			.uri=createURI("video", videoId),
 			.images=([&]() -> Optional<ArrayList<MediaItem::Image>> {
-				if(!video.playerResponse || !video.playerResponse->videoDetails) {
-					return std::nullopt;
-				}
-				auto images = video.playerResponse->videoDetails->thumbnail.thumbnails.map<MediaItem::Image>([&](auto image) {
+				auto images = video.playerResponse.videoDetails.thumbnail.thumbnails.map<MediaItem::Image>([&](auto image) {
 					auto dimensions = MediaItem::Image::Dimensions{
 						.width=image.width,
 						.height=image.height
@@ -258,7 +252,7 @@ namespace sh {
 						.partial=true,
 						.type="artist",
 						.name=video.author->name,
-						.uri=createURI("channel", video.playerResponse->videoDetails->channelId),
+						.uri=createURI("channel", video.playerResponse.videoDetails.channelId),
 						.images=([&]() -> Optional<ArrayList<MediaItem::Image>> {
 							if(video.author->avatar.empty()) {
 								return std::nullopt;
@@ -274,12 +268,12 @@ namespace sh {
 						},
 						.description=std::nullopt
 					}));
-				} else if(video.playerResponse && video.playerResponse->videoDetails && !video.playerResponse->videoDetails->channelId.empty()) {
+				} else if(!video.playerResponse.videoDetails.channelId.empty()) {
 					artists.pushBack(Artist::new$(this, Artist::Data{{
 						.partial=true,
 						.type="artist",
-						.name=video.playerResponse->videoDetails->author,
-						.uri=createURI("channel", video.playerResponse->videoDetails->channelId),
+						.name=video.playerResponse.videoDetails.author,
+						.uri=createURI("channel", video.playerResponse.videoDetails.channelId),
 						.images=std::nullopt
 						},
 						.description=std::nullopt
@@ -302,8 +296,8 @@ namespace sh {
 						artists.pushBack(Artist::new$(this, Artist::Data{{
 							.partial=true,
 							.type="artist",
-							.name=video.playerResponse->videoDetails->author,
-							.uri=createURI("channel", video.playerResponse->videoDetails->channelId),
+							.name=video.playerResponse.videoDetails.author,
+							.uri=createURI("channel", video.playerResponse.videoDetails.channelId),
 							.images=std::nullopt
 							},
 							.description=std::nullopt
@@ -312,14 +306,12 @@ namespace sh {
 				}
 				return artists;
 			})(),
-			.tags=(video.playerResponse && video.playerResponse->videoDetails) ?
-				maybe(video.playerResponse->videoDetails->keywords)
-				: std::nullopt,
+			.tags=video.playerResponse.videoDetails.keywords,
 			.discNumber=std::nullopt,
 			.trackNumber=std::nullopt,
-			.duration=(video.playerResponse && video.playerResponse->videoDetails) ?
-				maybeTry([&]() { return video.playerResponse->videoDetails->lengthSeconds.toArithmeticValue<double>(); })
-				: std::nullopt,
+			.duration=maybeTry([&]() {
+				return video.playerResponse.videoDetails.lengthSeconds.toArithmeticValue<double>();
+			}),
 			.audioSources=video.formats.where([&](auto& format) {
 				return format.audioBitrate.has_value();
 			}).map<Track::AudioSource>([&](auto& format) {
