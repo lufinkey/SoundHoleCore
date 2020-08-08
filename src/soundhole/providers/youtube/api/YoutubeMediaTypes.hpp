@@ -237,10 +237,28 @@ namespace sh {
 			static Snippet fromJson(const Json&);
 		};
 		
+		struct ContentDetails {
+			String videoId;
+			String startAt;
+			String endAt;
+			String note;
+			String videoPublishedAt;
+			
+			static ContentDetails fromJson(const Json&);
+		};
+		
+		struct Status {
+			String privacyStatus;
+			
+			static Status fromJson(const Json&);
+		};
+		
 		String kind;
 		String etag;
 		String id;
 		Snippet snippet;
+		ContentDetails contentDetails;
+		Status status;
 		
 		static YoutubePlaylistItem fromJson(const Json&);
 	};

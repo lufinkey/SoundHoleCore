@@ -253,7 +253,9 @@ namespace sh {
 			.kind = json["kind"].string_value(),
 			.etag = json["etag"].string_value(),
 			.id = json["id"].string_value(),
-			.snippet = Snippet::fromJson(json["snippet"])
+			.snippet = Snippet::fromJson(json["snippet"]),
+			.contentDetails = ContentDetails::fromJson(json["contentDetails"]),
+			.status = Status::fromJson(json["status"])
 		};
 	}
 
@@ -275,6 +277,22 @@ namespace sh {
 		return ResourceId{
 			.kind=json["kind"].string_value(),
 			.videoId=json["videoId"].string_value()
+		};
+	}
+
+	YoutubePlaylistItem::ContentDetails YoutubePlaylistItem::ContentDetails::fromJson(const Json& json) {
+		return ContentDetails{
+			.videoId = json["videoId"].string_value(),
+			.startAt = json["startAt"].string_value(),
+			.endAt = json["endAt"].string_value(),
+			.note = json["note"].string_value(),
+			.videoPublishedAt = json["videoPublishedAt"].string_value()
+		};
+	}
+
+	YoutubePlaylistItem::Status YoutubePlaylistItem::Status::fromJson(const Json& json) {
+		return Status{
+			.privacyStatus = json["privacyStatus"].string_value()
 		};
 	}
 

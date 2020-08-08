@@ -419,7 +419,8 @@ namespace sh {
 				.discNumber=std::nullopt,
 				.trackNumber=std::nullopt,
 				.duration=std::nullopt,
-				.audioSources=std::nullopt
+				.audioSources=std::nullopt,
+				.playable=true
 			})
 			},
 			.addedAt=playlistItem.snippet.publishedAt,
@@ -493,7 +494,8 @@ namespace sh {
 				.discNumber=std::nullopt,
 				.trackNumber=std::nullopt,
 				.duration=std::nullopt,
-				.audioSources=std::nullopt
+				.audioSources=std::nullopt,
+				.playable=true
 			}));
 		} else if(searchResult.id.kind == "youtube#channel") {
 			return std::static_pointer_cast<MediaItem>(Artist::new$(this, Artist::Data{{
