@@ -468,7 +468,7 @@ namespace sh {
 		auto images = searchResult.snippet.thumbnails.template map<MediaItem::Image>([&](auto& image) {
 			return createImage(image);
 		});
-		if(searchResult.kind == "youtube#video") {
+		if(searchResult.id.kind == "youtube#video") {
 			return std::static_pointer_cast<MediaItem>(Track::new$(this, Track::Data{{
 				.partial=true,
 				.type="track",
@@ -495,7 +495,7 @@ namespace sh {
 				.duration=std::nullopt,
 				.audioSources=std::nullopt
 			}));
-		} else if(searchResult.kind == "youtube#channel") {
+		} else if(searchResult.id.kind == "youtube#channel") {
 			return std::static_pointer_cast<MediaItem>(Artist::new$(this, Artist::Data{{
 				.partial=true,
 				.type="artist",
@@ -505,7 +505,7 @@ namespace sh {
 				},
 				.description=searchResult.snippet.description
 			}));
-		} else if(searchResult.kind == "youtube#playlist") {
+		} else if(searchResult.id.kind == "youtube#playlist") {
 			return std::static_pointer_cast<MediaItem>(Playlist::new$(this, Playlist::Data{{{
 				.partial=true,
 				.type="playlist",
@@ -528,7 +528,7 @@ namespace sh {
 				})
 			}));
 		}
-		throw std::logic_error("Invalid youtube item kind "+searchResult.kind);
+		throw std::logic_error("Invalid youtube item kind "+searchResult.id.kind);
 	}
 
 
