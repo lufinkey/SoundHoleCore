@@ -186,7 +186,7 @@ namespace sh {
 			{ "part", String::join(options.parts.map<String>([](auto part) {
 				return ResultPart_toString(part);
 			}), ",") }
-		}, nullptr).map<YoutubeChannel>([](auto json) {
+		}, nullptr).map<YoutubeChannel>([=](auto json) {
 			auto page = YoutubePage<YoutubeChannel>::fromJson(json);
 			if(page.items.size() == 0) {
 				throw YoutubeError(YoutubeError::Code::NOT_FOUND, "Could not find channel with id "+id);
