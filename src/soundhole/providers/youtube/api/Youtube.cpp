@@ -151,8 +151,8 @@ namespace sh {
 					reject(YoutubeError(YoutubeError::Code::NOT_INITIALIZED, "ytdl not initialized"));
 					return;
 				}
-				auto promise = jsApi.Get("getInfo").As<Napi::Function>().Call(jsApi, { url.toNodeJSValue(env) });
-				jsApi.Get("then").As<Napi::Function>().Call(promise, {
+				auto promise = jsApi.Get("getInfo").As<Napi::Function>().Call(jsApi, { url.toNodeJSValue(env) }).As<Napi::Promise>();
+				promise.Get("then").As<Napi::Function>().Call(promise, {
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
 						auto result = info[0].As<Napi::Object>();
 						resolve(YoutubeVideoInfo::fromNapiObject(result));
