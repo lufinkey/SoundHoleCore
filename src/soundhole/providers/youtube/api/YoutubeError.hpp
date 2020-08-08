@@ -16,7 +16,8 @@ namespace sh {
 		enum class Code {
 			NOT_INITIALIZED,
 			REQUEST_FAILED,
-			BAD_DATA
+			BAD_DATA,
+			NOT_FOUND
 		};
 		
 		static String Code_toString(Code code);

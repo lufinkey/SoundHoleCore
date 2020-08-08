@@ -171,8 +171,12 @@ namespace sh {
 		return sendApiRequest(utils::HttpMethod::GET, "videos", {
 			{ "id", id },
 			{ "part", "id,snippet" }
-		}, nullptr).map<YoutubeVideo>([](auto json) {
-			return YoutubeVideo::fromJson(json);
+		}, nullptr).map<YoutubeVideo>([=](auto json) {
+			auto page = YoutubePage<YoutubeVideo>::fromJson(json);
+			if(page.items.size() == 0) {
+				throw YoutubeError(YoutubeError::Code::NOT_FOUND, "Could not find video with id "+id);
+			}
+			return page.items.front();
 		});
 	}
 
@@ -183,7 +187,11 @@ namespace sh {
 				return ResultPart_toString(part);
 			}), ",") }
 		}, nullptr).map<YoutubeChannel>([](auto json) {
-			return YoutubeChannel::fromJson(json);
+			auto page = YoutubePage<YoutubeChannel>::fromJson(json);
+			if(page.items.size() == 0) {
+				throw YoutubeError(YoutubeError::Code::NOT_FOUND, "Could not find channel with id "+id);
+			}
+			return page.items.front();
 		});
 	}
 
@@ -200,8 +208,12 @@ namespace sh {
 		return sendApiRequest(utils::HttpMethod::GET, "playlists", {
 			{ "id", id },
 			{ "part", "id,snippet" }
-		}, nullptr).map<YoutubePlaylist>([](auto json) {
-			return YoutubePlaylist::fromJson(json);
+		}, nullptr).map<YoutubePlaylist>([=](auto json) {
+			auto page = YoutubePage<YoutubePlaylist>::fromJson(json);
+			if(page.items.size() == 0) {
+				throw YoutubeError(YoutubeError::Code::NOT_FOUND, "Could not find playlist with id "+id);
+			}
+			return page.items.front();
 		});
 	}
 
