@@ -301,13 +301,10 @@ namespace sh {
 
 	YoutubeVideoInfo YoutubeVideoInfo::fromNapiObject(Napi::Object obj) {
 		return YoutubeVideoInfo{
-			.videoId = jsutils::stringFromNapiValue(obj.Get("video_id")),
 			.thumbnailURL = jsutils::stringFromNapiValue(obj.Get("thumbnail_url")),
-			.title = jsutils::stringFromNapiValue(obj.Get("title")),
 			.formats = jsutils::arrayListFromNapiValue<Format>(obj.Get("formats"), [](Napi::Value value) {
 				return Format::fromNapiObject(value.As<Napi::Object>());
 			}),
-			.published = obj.Get("published").As<Napi::Number>().DoubleValue(),
 			.description = jsutils::stringFromNapiValue(obj.Get("description")),
 			.media = Media::maybeFromNapiObject(obj.Get("media").As<Napi::Object>()),
 			.author = Author::maybeFromNapiObject(obj.Get("author").As<Napi::Object>()),

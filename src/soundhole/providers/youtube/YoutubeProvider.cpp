@@ -211,20 +211,11 @@ namespace sh {
 	}
 
 	Track::Data YoutubeProvider::createTrackData(YoutubeVideoInfo video) {
-		String title = video.title;
-		String videoId = video.videoId;
-		if((title.empty() || videoId.empty()) && video.playerResponse && video.playerResponse->videoDetails) {
-			if(title.empty()) {
-				if(!video.playerResponse->videoDetails->title.empty()) {
-					title = video.playerResponse->videoDetails->title;
-				}
-			}
-			if(videoId.empty()) {
-				if(!video.playerResponse->videoDetails->videoId.empty()) {
-					videoId = video.playerResponse->videoDetails->videoId;
-				}
-			}
+		if(!video.playerResponse || !video.playerResponse->videoDetails) {
+			throw std::runtime_error("missing videoDetails");
 		}
+		String title = video.playerResponse->videoDetails->title;
+		String videoId = video.playerResponse->videoDetails->videoId;
 		if(videoId.empty()) {
 			throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "ytdl response is missing crucial video information");
 		}

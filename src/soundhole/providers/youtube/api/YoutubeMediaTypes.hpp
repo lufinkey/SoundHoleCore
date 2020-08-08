@@ -379,11 +379,8 @@ namespace sh {
 			#endif
 		};
 		
-		String videoId;
 		String thumbnailURL;
-		String title;
 		ArrayList<Format> formats;
-		double published;
 		String description;
 		Optional<Media> media;
 		Optional<Author> author;
