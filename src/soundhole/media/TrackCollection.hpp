@@ -75,6 +75,7 @@ namespace sh {
 		
 		struct LoadItemOptions {
 			MediaDatabase* database = nullptr;
+			bool offline = false;
 			bool forceReload = false;
 			bool trackIndexChanges = false;
 			

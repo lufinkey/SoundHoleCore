@@ -22,7 +22,11 @@ namespace sh {
 
 	Promise<void> SpotifyAlbumMutatorDelegate::loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) {
 		auto album = this->album.lock();
-		if(options.database == nullptr) {
+		if(options.offline && options.database != nullptr) {
+			// offline load
+			return options.database->loadAlbumItems(album, mutator, index, count);
+		}
+		else {
 			// online load
 			auto provider = (SpotifyProvider*)album->mediaProvider();
 			auto id = provider->idFromURI(album->uri());
@@ -46,10 +50,6 @@ namespace sh {
 					mutator->applyAndResize(page.offset, page.total, items);
 				});
 			});
-		}
-		else {
-			// offline load
-			return options.database->loadAlbumItems(album, mutator, index, count);
 		}
 	}
 

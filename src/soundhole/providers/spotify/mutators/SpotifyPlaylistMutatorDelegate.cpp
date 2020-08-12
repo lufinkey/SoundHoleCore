@@ -20,42 +20,389 @@ namespace sh {
 		return 100;
 	}
 
-	Promise<void> SpotifyPlaylistMutatorDelegate::loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) {
+	Promise<void> SpotifyPlaylistMutatorDelegate::loadAPIItems(Mutator* mutator, size_t index, size_t count) {
 		auto playlist = this->playlist.lock();
-		if(options.database == nullptr) {
-			// online load
-			auto provider = (SpotifyProvider*)playlist->mediaProvider();
-			auto id = provider->idFromURI(playlist->uri());
-			return provider->spotify->getPlaylistTracks(id, {
-				.market="from_token",
-				.offset=index,
-				.limit=count
-			}).then([=](SpotifyPage<SpotifyPlaylist::Item> page) -> void {
-				auto items = page.items.map<$<PlaylistItem>>([&](auto& item) {
-					return PlaylistItem::new$(playlist, provider->createPlaylistItemData(item));
-				});
-				mutator->lock([&]() {
-					mutator->applyAndResize(page.offset, page.total, items);
+		auto provider = (SpotifyProvider*)playlist->mediaProvider();
+		auto id = provider->idFromURI(playlist->uri());
+		return provider->spotify->getPlaylistTracks(id, {
+			.market="from_token",
+			.offset=index,
+			.limit=count
+		}).then([=](SpotifyPage<SpotifyPlaylist::Item> page) -> void {
+			auto items = page.items.map<$<PlaylistItem>>([&](auto& item) {
+				return PlaylistItem::new$(playlist, provider->createPlaylistItemData(item));
+			});
+			mutator->lock([&]() {
+				mutator->applyAndResize(page.offset, page.total, items);
+			});
+		});
+	}
+
+	Promise<void> SpotifyPlaylistMutatorDelegate::loadDatabaseItems(Mutator* mutator, MediaDatabase* db, size_t index, size_t count) {
+		auto playlist = this->playlist.lock();
+		return db->loadPlaylistItems(playlist, mutator, index, count);
+	}
+
+	Promise<SpotifyPage<SpotifyPlaylist::Item>> SpotifyPlaylistMutatorDelegate::fetchAPIItemsFromChunks(Mutator* mutator, size_t index, size_t count) {
+		auto playlist = this->playlist.lock();
+		auto list = mutator->getList();
+		auto provider = (SpotifyProvider*)playlist->mediaProvider();
+		auto id = provider->idFromURI(playlist->uri());
+		
+		size_t i = index;
+		size_t endIndex = index + count;
+		size_t chunkSize = getChunkSize();
+		
+		auto promise = Promise<void>::resolve();
+		auto fetchedItems = fgl::new$<LinkedList<SpotifyPlaylist::Item>>();
+		auto listSize = fgl::new$<size_t>(list->size().valueOr(0));
+		auto hrefStr = fgl::new$<String>();
+		auto previousStr = fgl::new$<String>();
+		auto nextStr = fgl::new$<String>();
+		while(i < endIndex) {
+			promise = promise.then([=]() {
+				return provider->spotify->getPlaylistTracks(id, {
+					.market="from_token",
+					.offset=i,
+					.limit=chunkSize
+				}).then([=](SpotifyPage<SpotifyPlaylist::Item> page) -> void {
+					fetchedItems->pushBackList(page.items);
+					if(i == index) {
+						*hrefStr = page.href;
+						*previousStr = page.previous;
+					}
+					*nextStr = page.next;
+					*listSize = page.total;
 				});
 			});
-		} else {
+			i += chunkSize;
+		}
+		return promise.map<SpotifyPage<SpotifyPlaylist::Item>>([=]() {
+			return SpotifyPage<SpotifyPlaylist::Item>{
+				.href = std::move(*hrefStr),
+				.limit = fetchedItems->size(),
+				.offset = index,
+				.total = *listSize,
+				.previous = std::move(*previousStr),
+				.next = std::move(*nextStr),
+				.items = std::move(*fetchedItems)
+			};
+		});
+	}
+
+	Promise<void> SpotifyPlaylistMutatorDelegate::loadAPIItemsFromChunks(Mutator* mutator, size_t index, size_t count) {
+		auto playlist = this->playlist.lock();
+		auto provider = (SpotifyProvider*)playlist->mediaProvider();
+		auto id = provider->idFromURI(playlist->uri());
+		return fetchAPIItemsFromChunks(mutator, index, count).then([=](SpotifyPage<SpotifyPlaylist::Item> page) {
+			auto items = page.items.map<$<PlaylistItem>>([&](auto& item) {
+				return PlaylistItem::new$(playlist, provider->createPlaylistItemData(item));
+			});
+			mutator->lock([&]() {
+				mutator->applyAndResize(index, page.total, items);
+			});
+		});
+	}
+
+
+
+	Promise<void> SpotifyPlaylistMutatorDelegate::loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) {
+		if(options.offline && options.database != nullptr) {
 			// offline load
-			return options.database->loadPlaylistItems(playlist, mutator, index, count);
+			return loadDatabaseItems(mutator, options.database, index, count);
+		}
+		else {
+			// online load
+			return loadAPIItems(mutator, index, count);
 		}
 	}
 
 
 	Promise<void> SpotifyPlaylistMutatorDelegate::insertItems(Mutator* mutator, size_t index, LinkedList<$<Track>> tracks) {
-		return Promise<void>::reject(std::logic_error("Not yet implemented"));
+		size_t chunkSize = getChunkSize();
+		size_t halfChunkSize = chunkSize / 2;
+		
+		auto playlist = this->playlist.lock();
+		auto provider = (SpotifyProvider*)playlist->mediaProvider();
+		auto id = provider->idFromURI(playlist->uri());
+		auto list = mutator->getList();
+		
+		auto indexMarker = list->watchIndex(index);
+		size_t lowerBound = indexMarker->index;
+		if(lowerBound > halfChunkSize) {
+			lowerBound -= halfChunkSize;
+		} else {
+			lowerBound = 0;
+		}
+		
+		// load items around index to make sure we have latest version
+		return loadAPIItems(mutator, lowerBound, chunkSize)
+		.finally([=]() {
+			list->unwatchIndex(indexMarker);
+		})
+		.then([=]() {
+			// add tracks to playlist
+			return provider->spotify->addPlaylistTracks(id, tracks.map<String>([](auto& track) {
+				return track->uri();
+			}), {
+				.position = indexMarker->index
+			}).then([=](SpotifyPlaylist::AddResult addResult) {
+				// update versionId
+				auto data = playlist->toData({
+					.tracksOffset = 0,
+					.tracksLimit = 0
+				});
+				data.versionId = addResult.snapshotId;
+				playlist->applyData(data);
+			});
+		})
+		.then([=]() {
+			// load range of added items to fetch them
+			size_t lowerBound = indexMarker->index;
+			size_t padding = halfChunkSize / 2;
+			if(lowerBound > padding) {
+				lowerBound -= padding;
+			} else {
+				lowerBound = 0;
+			}
+			size_t upperBound = indexMarker->index + tracks.size() + padding;
+			size_t fetchCount = upperBound - lowerBound;
+			return fetchAPIItemsFromChunks(mutator, lowerBound, fetchCount).then([=](SpotifyPage<SpotifyPlaylist::Item> page) {
+				auto items = page.items.map<$<PlaylistItem>>([&](auto& item) {
+					return PlaylistItem::new$(playlist, provider->createPlaylistItemData(item));
+				});
+				size_t startOffset = indexMarker->index - lowerBound;
+				size_t endOffset = startOffset + tracks.size();
+				auto applyItems = [&]() {
+					// apply the loaded
+					mutator->lock([&]() {
+						size_t endInvalidate = list->capacity();
+						if(endInvalidate < upperBound) {
+							endInvalidate = upperBound;
+						}
+						if(endInvalidate < page.total) {
+							endInvalidate = page.total;
+						}
+						mutator->invalidate(indexMarker->index, (endInvalidate - indexMarker->index));
+						mutator->applyAndResize(lowerBound, page.total, items);
+					});
+				};
+				if(page.items.size() < endOffset) {
+					// we don't have enough items, so just apply the items and move on
+					applyItems();
+					return;
+				}
+				auto trackIt = tracks.begin();
+				for(size_t i=startOffset; i<endOffset; i++) {
+					auto& item = items[i];
+					auto& track = *trackIt;
+					if(item->track()->uri() != track->uri()) {
+						// tracks don't match what we expected to be inserted, so just apply items and move on
+						applyItems();
+						return;
+					}
+					trackIt++;
+				}
+				// actually apply items
+				auto startIt = std::next(items.begin(), startOffset);
+				auto endIt = std::next(startIt, tracks.size());
+				auto insertItems = LinkedList<$<PlaylistItem>>(startIt, endIt);
+				auto applyingItems = LinkedList<$<PlaylistItem>>(items.begin(), startIt);
+				applyingItems.insert(applyingItems.end(), endIt, items.end());
+				mutator->lock([&]() {
+					mutator->apply(lowerBound, applyingItems);
+					mutator->insert(indexMarker->index, insertItems);
+					mutator->applyAndResize(lowerBound, page.total, items);
+				});
+			}, [=](std::exception_ptr error) {
+				size_t endInvalidate = list->capacity();
+				if(endInvalidate < upperBound) {
+					endInvalidate = upperBound;
+				}
+				mutator->invalidate(indexMarker->index, (endInvalidate - indexMarker->index));
+			});
+		});
 	}
+
+
 
 	Promise<void> SpotifyPlaylistMutatorDelegate::appendItems(Mutator* mutator, LinkedList<$<Track>> tracks) {
-		return Promise<void>::reject(std::logic_error("Not yet implemented"));
+		size_t chunkSize = getChunkSize();
+		size_t halfChunkSize = chunkSize / 2;
+		
+		auto playlist = this->playlist.lock();
+		auto provider = (SpotifyProvider*)playlist->mediaProvider();
+		auto id = provider->idFromURI(playlist->uri());
+		auto list = mutator->getList();
+		
+		size_t origListSize = list->size().valueOr(0);
+		size_t chunkStart = origListSize;
+		if(chunkStart > halfChunkSize) {
+			chunkStart -= halfChunkSize;
+		} else {
+			chunkStart = 0;
+		}
+		
+		return loadAPIItems(mutator, chunkStart, chunkSize)
+		.then([=]() {
+			size_t newListSize = list->size().valueOr(0);
+			if(newListSize != origListSize) {
+				if(newListSize < chunkStart || newListSize >= (chunkStart + chunkSize)) {
+					size_t chunk2Start = newListSize;
+					if(chunk2Start > halfChunkSize) {
+						chunk2Start -= halfChunkSize;
+					} else {
+						chunk2Start = 0;
+					}
+					return loadItems(mutator, chunkStart, chunkSize, LoadItemOptions());
+				}
+			}
+			return Promise<void>::resolve();
+		})
+		.then([=]() {
+			// add tracks to playlist
+			return provider->spotify->addPlaylistTracks(id, tracks.map<String>([](auto& track) {
+				return track->uri();
+			})).then([=](SpotifyPlaylist::AddResult addResult) {
+				// update versionId
+				auto data = playlist->toData({
+					.tracksOffset = 0,
+					.tracksLimit = 0
+				});
+				data.versionId = addResult.snapshotId;
+				playlist->applyData(data);
+			});
+		})
+		.then([=]() {
+			size_t listSize = list->size().valueOr(0);
+			size_t chunkStart = listSize;
+			if(chunkStart > halfChunkSize) {
+				chunkStart -= halfChunkSize;
+			} else {
+				chunkStart = 0;
+			}
+			return loadAPIItems(mutator, chunkStart, chunkSize)
+			.except([=](std::exception_ptr error) {
+				mutator->lock([&]() {
+					size_t newListSize = list->size().valueOr(0);
+					if(newListSize == origListSize) {
+						mutator->resize(origListSize+1);
+					}
+					size_t invalidateStart = origListSize;
+					if(listSize < invalidateStart) {
+						invalidateStart = listSize;
+					}
+					mutator->invalidate(invalidateStart, 2);
+				});
+			});
+		});
 	}
 
+
+
 	Promise<void> SpotifyPlaylistMutatorDelegate::removeItems(Mutator* mutator, size_t index, size_t count) {
-		return Promise<void>::reject(std::logic_error("Not yet implemented"));
+		size_t chunkSize = getChunkSize();
+		size_t halfChunkSize = chunkSize / 2;
+		size_t padding = halfChunkSize / 2;
+		
+		auto playlist = this->playlist.lock();
+		auto provider = (SpotifyProvider*)playlist->mediaProvider();
+		auto id = provider->idFromURI(playlist->uri());
+		auto list = mutator->getList();
+		
+		auto removalIndexes = fgl::new$<LinkedList<AsyncListIndexMarker>>();
+		for(size_t i=0; i<count; i++) {
+			removalIndexes->pushBack(list->watchIndex(index+i));
+		}
+		
+		size_t lowerBound = index;
+		if(lowerBound > padding) {
+			lowerBound -= padding;
+		} else {
+			lowerBound = 0;
+		}
+		size_t upperBound = index + count + padding;
+		
+		return loadAPIItemsFromChunks(mutator, lowerBound, (upperBound - lowerBound))
+		.then([=]() {
+			auto playlistTrackMarkers = ArrayList<Spotify::PlaylistTrackMarker>();
+			playlistTrackMarkers.reserve(removalIndexes->size());
+			for(auto& indexMarker : *removalIndexes) {
+				if(indexMarker->state == AsyncListIndexMarkerState::REMOVED) {
+					throw std::runtime_error("item at index "+std::to_string(indexMarker->index)+" was already removed");
+				}
+				auto item = list->itemAt(indexMarker->index).valueOr(nullptr);
+				if(!item) {
+					throw std::runtime_error("could not find a valid item at requested removal index "+std::to_string(indexMarker->index));
+				}
+				bool foundMatch = false;
+				for(auto& trackMarker : playlistTrackMarkers) {
+					if(trackMarker.uri == item->track()->uri()) {
+						foundMatch = true;
+						trackMarker.positions.pushBack(indexMarker->index);
+						break;
+					}
+				}
+				if(!foundMatch) {
+					playlistTrackMarkers.pushBack(Spotify::PlaylistTrackMarker{
+						.uri = item->track()->uri(),
+						.positions = { indexMarker->index }
+					});
+				}
+			}
+			if(playlistTrackMarkers.size() == 0) {
+				return Promise<void>::resolve();
+			}
+			return provider->spotify->removePlaylistTracks(id, playlistTrackMarkers)
+			.then([=](SpotifyPlaylist::RemoveResult removeResult) {
+				// update versionId
+				auto data = playlist->toData({
+					.tracksOffset = 0,
+					.tracksLimit = 0
+				});
+				data.versionId = removeResult.snapshotId;
+				playlist->applyData(data);
+			});
+		})
+		.then([=]() {
+			removalIndexes->removeWhere([](auto& item) {
+				return (item->state == AsyncListIndexMarkerState::REMOVED);
+			});
+			removalIndexes->sort([](auto& a, auto& b) {
+				return (a->index <= b->index);
+			});
+			// process removals
+			mutator->lock([&]() {
+				Optional<size_t> endRemoveIndex;
+				Optional<size_t> startRemoveIndex;
+				for(auto& indexMarker : reversed(*removalIndexes)) {
+					if(!endRemoveIndex) {
+						endRemoveIndex = indexMarker->index + 1;
+					}
+					if(!startRemoveIndex || (indexMarker->index + 1) == startRemoveIndex.value()) {
+						startRemoveIndex = indexMarker->index;
+					} else {
+						// we reached the end of a removal chunk
+						FGL_ASSERT(startRemoveIndex.value() < endRemoveIndex.value(), "startRemoveIndex should be less than endRemoveIndex");
+						mutator->remove(startRemoveIndex.value(), (endRemoveIndex.value() - startRemoveIndex.value()));
+						endRemoveIndex = indexMarker->index + 1;
+						startRemoveIndex = indexMarker->index;
+					}
+				}
+				if(startRemoveIndex) {
+					FGL_ASSERT(startRemoveIndex.value() < endRemoveIndex.value(), "startRemoveIndex should be less than endRemoveIndex");
+					mutator->remove(startRemoveIndex.value(), (endRemoveIndex.value() - startRemoveIndex.value()));
+				}
+			});
+		})
+		.finally([=]() {
+			for(auto& indexMarker : *removalIndexes) {
+				list->unwatchIndex(indexMarker);
+			}
+		});
 	}
+
+
 
 	Promise<void> SpotifyPlaylistMutatorDelegate::moveItems(Mutator* mutator, size_t index, size_t count, size_t newIndex) {
 		return Promise<void>::reject(std::logic_error("Not yet implemented"));

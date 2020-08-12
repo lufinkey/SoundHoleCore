@@ -114,7 +114,11 @@ namespace sh {
 			return Promise<void>::resolve();
 		}
 		auto playlist = this->playlist.lock();
-		if(options.database == nullptr) {
+		if(options.offline && options.database != nullptr) {
+			// offline load
+			return options.database->loadPlaylistItems(playlist, mutator, index, count);
+		}
+		else {
 			// online load
 			auto range = Range{.index=index,.count=count};
 			auto pageTokens = this->pageTokens + LinkedList<PageToken>{ PageToken{"", 0} };
@@ -153,10 +157,6 @@ namespace sh {
 				});
 			}
 			return promise;
-		}
-		else {
-			// offline load
-			return options.database->loadPlaylistItems(playlist, mutator, index, count);
 		}
 	}
 

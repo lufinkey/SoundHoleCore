@@ -67,6 +67,7 @@ namespace sh {
 	std::map<String,Any> TrackCollection::LoadItemOptions::toDict() const {
 		return {
 			{ "database", database },
+			{ "offline", offline },
 			{ "forceReload", forceReload },
 			{ "trackIndexChanes", trackIndexChanges }
 		};
@@ -74,10 +75,12 @@ namespace sh {
 
 	TrackCollection::LoadItemOptions TrackCollection::LoadItemOptions::fromDict(const std::map<String,Any>& dict) {
 		auto databaseIt = dict.find("database");
+		auto offlineIt = dict.find("offline");
 		auto forceReload = dict.find("forceReload");
 		auto trackIndexChanges = dict.find("trackIndexChanges");
 		return {
 			.database = (databaseIt != dict.end()) ? databaseIt->second.maybeAs<MediaDatabase*>().valueOr(nullptr) : nullptr,
+			.offline = (offlineIt != dict.end()) ? offlineIt->second.maybeAs<bool>().valueOr(false) : false,
 			.forceReload = (forceReload != dict.end()) ? forceReload->second.maybeAs<bool>().valueOr(false) : false,
 			.trackIndexChanges = (trackIndexChanges != dict.end()) ? trackIndexChanges->second.maybeAs<bool>().valueOr(false) : false
 		};

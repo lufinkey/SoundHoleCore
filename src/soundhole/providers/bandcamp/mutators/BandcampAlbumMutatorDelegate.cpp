@@ -23,7 +23,10 @@ namespace sh {
 
 	Promise<void> BandcampAlbumMutatorDelegate::loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) {
 		auto album = this->album.lock();
-		if(options.database == nullptr) {
+		if(options.offline && options.database != nullptr) {
+			// offline load
+			return options.database->loadAlbumItems(album, mutator, index, count);
+		} else {
 			// online load
 			auto provider = (BandcampProvider*)album->mediaProvider();
 			return provider->getAlbumData(album->uri()).then([=](Album::Data albumData) {
@@ -37,10 +40,6 @@ namespace sh {
 					}));
 				});
 			});
-		}
-		else {
-			// offline load
-			return options.database->loadAlbumItems(album, mutator, index, count);
 		}
 	}
 

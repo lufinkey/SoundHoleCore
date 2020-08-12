@@ -10,6 +10,7 @@
 
 #include <soundhole/common.hpp>
 #include <soundhole/media/Playlist.hpp>
+#include <soundhole/providers/spotify/api/Spotify.hpp>
 
 namespace sh {
 	class SpotifyProvider;
@@ -23,6 +24,13 @@ namespace sh {
 		virtual Promise<void> appendItems(Mutator* mutator, LinkedList<$<Track>> tracks) override;
 		virtual Promise<void> removeItems(Mutator* mutator, size_t index, size_t count) override;
 		virtual Promise<void> moveItems(Mutator* mutator, size_t index, size_t count, size_t newIndex) override;
+		
+	protected:
+		Promise<void> loadAPIItems(Mutator* mutator, size_t index, size_t count);
+		Promise<void> loadDatabaseItems(Mutator* mutator, MediaDatabase* database, size_t index, size_t count);
+		
+		Promise<SpotifyPage<SpotifyPlaylist::Item>> fetchAPIItemsFromChunks(Mutator* mutator, size_t index, size_t count);
+		Promise<void> loadAPIItemsFromChunks(Mutator* mutator, size_t index, size_t count);
 		
 	private:
 		SpotifyPlaylistMutatorDelegate($<Playlist> playlist);
