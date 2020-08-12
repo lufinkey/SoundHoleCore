@@ -235,4 +235,75 @@ namespace sh {
 			return YoutubePage<YoutubePlaylistItem>::fromJson(json);
 		});
 	}
+
+	Promise<YoutubePlaylistItem> Youtube::insertPlaylistItem(String playlistId, String resourceId, InsertPlaylistItemOptions options) {
+		auto query = std::map<String,String>{
+			{ "part", "id,snippet,contentDetails,status" }
+		};
+		auto snippet = Json::object{
+			{ "playlistId", (std::string)playlistId },
+			{ "resourceId", (std::string)resourceId },
+		};
+		auto contentDetails = Json::object{};
+		if(options.position) {
+			snippet["position"] = (int)options.position.value();
+		}
+		if(!options.note.empty()) {
+			contentDetails["note"] = (std::string)options.note;
+		}
+		if(!options.startAt.empty()) {
+			contentDetails["startAt"] = (std::string)options.startAt;
+		}
+		if(!options.endAt.empty()) {
+			contentDetails["endAt"] = (std::string)options.endAt;
+		}
+		auto body = Json::object{
+			{ "snippet", snippet },
+			{ "contentDetails", contentDetails }
+		};
+		return sendApiRequest(utils::HttpMethod::POST, "playlistItems", query, body).map<YoutubePlaylistItem>([](auto json) {
+			return YoutubePlaylistItem::fromJson(json);
+		});
+	}
+	
+	Promise<YoutubePlaylistItem> Youtube::updatePlaylistItem(String playlistItemId, UpdatePlaylistItemOptions options) {
+		auto query = std::map<String,String>{
+			{ "part", "id,snippet,contentDetails,status" }
+		};
+		auto snippet = Json::object{};
+		auto contentDetails = Json::object{};
+		if(!options.playlistId.empty()) {
+			snippet["playlistId"] = (std::string)options.playlistId;
+		}
+		if(!options.resourceId.empty()) {
+			snippet["resourceId"] = (std::string)options.resourceId;
+		}
+		if(options.position) {
+			snippet["position"] = (int)options.position.value();
+		}
+		if(!options.note.empty()) {
+			contentDetails["note"] = (std::string)options.note;
+		}
+		if(!options.startAt.empty()) {
+			contentDetails["startAt"] = (std::string)options.startAt;
+		}
+		if(!options.endAt.empty()) {
+			contentDetails["endAt"] = (std::string)options.endAt;
+		}
+		auto body = Json::object{
+			{ "id", (std::string)playlistItemId },
+			{ "snippet", snippet },
+			{ "contentDetails", contentDetails }
+		};
+		return sendApiRequest(utils::HttpMethod::PUT, "playlistItems", query, body).map<YoutubePlaylistItem>([](auto json) {
+			return YoutubePlaylistItem::fromJson(json);
+		});
+	}
+	
+	Promise<void> Youtube::deletePlaylistItem(String playlistItemId) {
+		auto query = std::map<String,String>{
+			{ "id", playlistItemId }
+		};
+		return sendApiRequest(utils::HttpMethod::DELETE, "playlistItems", query, nullptr).toVoid();
+	}
 }

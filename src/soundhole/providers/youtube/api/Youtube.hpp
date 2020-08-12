@@ -82,6 +82,26 @@ namespace sh {
 		};
 		Promise<YoutubePage<YoutubePlaylistItem>> getPlaylistItems(String id, GetPlaylistItemsOptions options);
 		
+		struct InsertPlaylistItemOptions {
+			Optional<size_t> position;
+			String note;
+			String startAt;
+			String endAt;
+		};
+		Promise<YoutubePlaylistItem> insertPlaylistItem(String playlistId, String resourceId, InsertPlaylistItemOptions options = InsertPlaylistItemOptions());
+		
+		struct UpdatePlaylistItemOptions {
+			String playlistId;
+			String resourceId;
+			Optional<size_t> position;
+			String note;
+			String startAt;
+			String endAt;
+		};
+		Promise<YoutubePlaylistItem> updatePlaylistItem(String playlistItemId, UpdatePlaylistItemOptions options);
+		
+		Promise<void> deletePlaylistItem(String playlistItemId);
+		
 	private:
 		virtual void initializeJS(napi_env env) override;
 		
