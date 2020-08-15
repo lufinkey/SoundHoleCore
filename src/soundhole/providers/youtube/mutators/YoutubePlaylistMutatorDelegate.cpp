@@ -318,7 +318,13 @@ namespace sh {
 						mutator->lock([&]() {
 							for(auto& indexMarker : indexMarkers) {
 								if(indexMarker->state == AsyncListIndexMarkerState::REMOVED) {
-									mutator->invalidate(indexMarker->index-1, 3);
+									size_t index = indexMarker->index;
+									size_t count = 2;
+									if(index >= 1) {
+										index--;
+										count++;
+									}
+									mutator->invalidate(index, count);
 								} else {
 									mutator->remove(indexMarker->index, 1);
 								}

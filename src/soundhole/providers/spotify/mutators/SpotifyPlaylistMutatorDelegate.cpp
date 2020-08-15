@@ -365,28 +365,35 @@ namespace sh {
 			});
 		})
 		.then([=]() {
-			removalIndexes->removeWhere([](auto& item) {
-				return (item->state == AsyncListIndexMarkerState::REMOVED);
-			});
 			removalIndexes->sort([](auto& a, auto& b) {
-				return (a->index <= b->index);
+				return (a->index >= b->index);
 			});
 			// process removals
 			mutator->lock([&]() {
 				Optional<size_t> endRemoveIndex;
 				Optional<size_t> startRemoveIndex;
-				for(auto& indexMarker : reversed(*removalIndexes)) {
-					if(!endRemoveIndex) {
-						endRemoveIndex = indexMarker->index + 1;
-					}
-					if(!startRemoveIndex || (indexMarker->index + 1) == startRemoveIndex.value()) {
-						startRemoveIndex = indexMarker->index;
+				for(auto& indexMarker : *removalIndexes) {
+					if(indexMarker->state == AsyncListIndexMarkerState::REMOVED) {
+						size_t index = indexMarker->index;
+						size_t count = 2;
+						if(index >= 1) {
+							index--;
+							count++;
+						}
+						mutator->invalidate(index, count);
 					} else {
-						// we reached the end of a removal chunk
-						FGL_ASSERT(startRemoveIndex.value() < endRemoveIndex.value(), "startRemoveIndex should be less than endRemoveIndex");
-						mutator->remove(startRemoveIndex.value(), (endRemoveIndex.value() - startRemoveIndex.value()));
-						endRemoveIndex = indexMarker->index + 1;
-						startRemoveIndex = indexMarker->index;
+						if(!endRemoveIndex) {
+							endRemoveIndex = indexMarker->index + 1;
+						}
+						if(!startRemoveIndex || (indexMarker->index + 1) == startRemoveIndex.value()) {
+							startRemoveIndex = indexMarker->index;
+						} else {
+							// we reached the end of a removal chunk
+							FGL_ASSERT(startRemoveIndex.value() < endRemoveIndex.value(), "startRemoveIndex should be less than endRemoveIndex");
+							mutator->remove(startRemoveIndex.value(), (endRemoveIndex.value() - startRemoveIndex.value()));
+							endRemoveIndex = indexMarker->index + 1;
+							startRemoveIndex = indexMarker->index;
+						}
 					}
 				}
 				if(startRemoveIndex) {
