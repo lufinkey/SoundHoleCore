@@ -55,8 +55,8 @@ struct TrackArtist {
 ArrayList<String> trackArtistTupleColumns();
 String trackArtistTuple(LinkedList<Any>& params, const TrackArtist& trackArtist);
 
-ArrayList<$<Artist>> trackCollectionArtists($<TrackCollection> collection);
-String trackCollectionItemAddedAt($<TrackCollectionItem> item);
+Optional<ArrayList<$<Artist>>> trackCollectionArtists($<TrackCollection> collection);
+$<UserAccount> trackCollectionOwner($<TrackCollection> collection);
 
 ArrayList<String> trackCollectionTupleColumns();
 String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collection, const TrackCollectionTupleOptions& options);

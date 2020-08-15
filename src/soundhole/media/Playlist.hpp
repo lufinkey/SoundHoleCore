@@ -19,6 +19,7 @@ namespace sh {
 	class PlaylistItem: public SpecialTrackCollectionItem<Playlist> {
 	public:
 		struct Data: public SpecialTrackCollectionItem<Playlist>::Data {
+			String uniqueId;
 			String addedAt;
 			$<UserAccount> addedBy;
 		};
@@ -28,6 +29,7 @@ namespace sh {
 		PlaylistItem($<SpecialTrackCollection<PlaylistItem>> playlist, const Data& data);
 		PlaylistItem($<SpecialTrackCollection<PlaylistItem>> playlist, const Json& json, MediaProviderStash* stash);
 		
+		const String& uniqueId() const;
 		const String& addedAt() const;
 		$<UserAccount> addedBy();
 		$<const UserAccount> addedBy() const;
@@ -40,6 +42,7 @@ namespace sh {
 		virtual Json toJson() const override;
 		
 	protected:
+		String _uniqueId;
 		String _addedAt;
 		$<UserAccount> _addedBy;
 	};

@@ -16,8 +16,12 @@ namespace sh {
 
 	PlaylistItem::PlaylistItem($<SpecialTrackCollection<PlaylistItem>> playlist, const Data& data)
 	: SpecialTrackCollectionItem<Playlist>(playlist, data),
-	_addedAt(data.addedAt), _addedBy(data.addedBy) {
+	_uniqueId(data.uniqueId), _addedAt(data.addedAt), _addedBy(data.addedBy) {
 		//
+	}
+
+	const String& PlaylistItem::uniqueId() const {
+		return _uniqueId;
 	}
 
 	const String& PlaylistItem::addedAt() const {
@@ -38,7 +42,9 @@ namespace sh {
 			return false;
 		}
 		if(_track->uri() == playlistItem->_track->uri()
-		   && _addedAt == playlistItem->_addedAt && ((!_addedBy && !playlistItem->_addedBy) || (_addedBy && playlistItem->_addedBy && _addedBy->uri() == playlistItem->_addedBy->uri()))) {
+		   && _uniqueId == playlistItem->_uniqueId
+		   && _addedAt == playlistItem->_addedAt
+		   && ((!_addedBy && !playlistItem->_addedBy) || (_addedBy && playlistItem->_addedBy && _addedBy->uri() == playlistItem->_addedBy->uri()))) {
 			return true;
 		}
 		return false;
@@ -47,6 +53,7 @@ namespace sh {
 	PlaylistItem::Data PlaylistItem::toData() const {
 		return PlaylistItem::Data{
 			SpecialTrackCollectionItem<Playlist>::toData(),
+			.uniqueId=_uniqueId,
 			.addedAt=_addedAt,
 			.addedBy=_addedBy
 		};
@@ -58,6 +65,7 @@ namespace sh {
 
 	PlaylistItem::PlaylistItem($<SpecialTrackCollection<PlaylistItem>> playlist, const Json& json, MediaProviderStash* stash)
 	: SpecialTrackCollectionItem<Playlist>(playlist, json, stash) {
+		_uniqueId = json["uniqueId"].string_value();
 		auto addedBy = json["addedBy"];
 		_addedBy = (!addedBy.is_null()) ? UserAccount::fromJson(addedBy, stash) : nullptr;
 		_addedAt = json["addedAt"].string_value();
@@ -66,6 +74,7 @@ namespace sh {
 	Json PlaylistItem::toJson() const {
 		auto json = SpecialTrackCollectionItem<Playlist>::toJson().object_items();
 		json.merge(Json::object{
+			{ "uniqueId", (std::string)_uniqueId },
 			{ "addedBy", _addedBy ? _addedBy->toJson() : Json() },
 			{ "addedAt", (std::string)_addedAt }
 		});

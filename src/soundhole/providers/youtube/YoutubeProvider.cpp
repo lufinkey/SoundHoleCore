@@ -404,8 +404,9 @@ namespace sh {
 				.duration=std::nullopt,
 				.audioSources=std::nullopt,
 				.playable=true
-			})
+			}),
 			},
+			.uniqueId=playlistItem.id,
 			.addedAt=playlistItem.snippet.publishedAt,
 			.addedBy=UserAccount::new$(this, UserAccount::Data{{
 				.partial=true,

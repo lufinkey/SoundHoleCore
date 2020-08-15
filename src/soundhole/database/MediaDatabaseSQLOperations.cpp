@@ -210,7 +210,7 @@ struct TrackCollectionTuplesAndParams {
 void addTrackCollectionTuples($<TrackCollection> collection, TrackCollectionTuplesAndParams& tuples) {
 	tuples.collectionTuples.pushBack(trackCollectionTuple(tuples.collectionParams, collection, {.coalesce=true}));
 	auto artists = trackCollectionArtists(collection);
-	for(auto& artist : artists) {
+	for(auto& artist : artists.valueOr(ArrayList<$<Artist>>())) {
 		if(artist->uri().empty()) {
 			continue;
 		}

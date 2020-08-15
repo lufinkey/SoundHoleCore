@@ -53,10 +53,10 @@ ArrayList<String> trackColumns() {
 	return { "uri", "provider", "name", "albumName", "albumURI", "artists", "images", "duration", "playable", "updateTime" };
 }
 ArrayList<String> trackCollectionColumns() {
-	return { "uri", "provider", "type", "name", "versionId", "itemCount", "artists", "images", "updateTime" };
+	return { "uri", "provider", "type", "name", "versionId", "itemCount", "owner", "artists", "images", "updateTime" };
 }
 ArrayList<String> trackCollectionItemColumns() {
-	return { "collectionURI", "indexNum", "trackURI", "addedAt", "updateTime" };
+	return { "collectionURI", "indexNum", "trackURI", "uniqueId", "addedAt", "addedBy", "updateTime" };
 }
 ArrayList<String> savedTrackColumns() {
 	return { "trackURI", "libraryProvider", "addedAt", "updateTime" };
@@ -94,6 +94,7 @@ CREATE TABLE IF NOT EXISTS TrackCollection (
 	name TEXT NOT NULL,
 	versionId TEXT,
 	itemCount INT,
+	owner TEXT,
 	artists TEXT,
 	images TEXT,
 	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -133,7 +134,9 @@ CREATE TABLE IF NOT EXISTS TrackCollectionItem (
 	collectionURI TEXT NOT NULL,
 	indexNum INT NOT NULL,
 	trackURI TEXT NOT NULL,
+	uniqueId TEXT,
 	addedAt TEXT,
+	addedBy TEXT,
 	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(collectionURI, indexNum),
 	FOREIGN KEY(collectionURI) REFERENCES TrackCollection(uri),
@@ -220,20 +223,6 @@ Any imagesJson(Optional<ArrayList<MediaItem::Image>> images) {
 	return sqlStringOrNull(Json(arr).dump());
 }
 
-ArrayList<$<Artist>> trackCollectionArtists($<TrackCollection> collection) {
-	if(auto album = std::dynamic_pointer_cast<Album>(collection)) {
-		return album->artists();
-	}
-	return {};
-}
-
-String trackCollectionItemAddedAt($<TrackCollectionItem> item) {
-	if(auto playlistItem = std::dynamic_pointer_cast<PlaylistItem>(item)) {
-		return playlistItem->addedAt();
-	}
-	return String();
-}
-
 
 
 ArrayList<String> trackTupleColumns() {
@@ -307,10 +296,32 @@ String trackArtistTuple(LinkedList<Any>& params, const TrackArtist& trackArtist)
 	")" });
 }
 
+
+
+Optional<ArrayList<$<Artist>>> trackCollectionArtists($<TrackCollection> collection) {
+	if(auto album = std::dynamic_pointer_cast<Album>(collection)) {
+		return album->artists();
+	} else {
+		return std::nullopt;
+	}
+}
+
+$<UserAccount> trackCollectionOwner($<TrackCollection> collection) {
+	if(auto playlist = std::dynamic_pointer_cast<Playlist>(collection)) {
+		return playlist->owner();
+	} else {
+		return nullptr;
+	}
+}
+
+
+
 ArrayList<String> trackCollectionTupleColumns() {
-	return { "uri", "provider", "type", "name", "versionId", "itemCount", "artists", "images", "updateTime" };
+	return { "uri", "provider", "type", "name", "versionId", "itemCount", "owner", "artists", "images", "updateTime" };
 }
 String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collection, const TrackCollectionTupleOptions& options) {
+	auto artists = trackCollectionArtists(collection);
+	auto owner = trackCollectionOwner(collection);
 	return String::join({ "(",
 		// uri
 		sqlParam(params, collection->uri()),",",
@@ -328,8 +339,10 @@ String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collecti
 		),",",
 		// itemCount
 		MAYBE_COALESCE_FIELD(options.coalesce, params, "itemCount", "TrackCollection", collection, collection->itemCount().toAny()),",",
+		// owner
+		MAYBE_COALESCE_FIELD(options.coalesce, params, "owner", "TrackCollection", collection, owner ? String(owner->toJson().dump()) : Any()),",",
 		// artists
-		MAYBE_COALESCE_FIELD(options.coalesce, params, "artists", "TrackCollection", collection, nonEmptyArtistsJson(trackCollectionArtists(collection))),",",
+		MAYBE_COALESCE_FIELD(options.coalesce, params, "artists", "TrackCollection", collection, artists ? nonEmptyArtistsJson(artists.value()) : Json()),",",
 		// images
 		MAYBE_COALESCE_FIELD(options.coalesce, params, "images", "TrackCollection", collection, imagesJson(collection->images())),",",
 		// updateTime
@@ -338,7 +351,7 @@ String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collecti
 }
 
 ArrayList<String> trackCollectionItemTupleColumns() {
-	return { "collectionURI", "indexNum", "trackURI", "addedAt", "updateTime" };
+	return { "collectionURI", "indexNum", "trackURI", "uniqueId", "addedAt", "addedBy", "updateTime" };
 }
 String trackCollectionItemTuple(LinkedList<Any>& params, $<TrackCollectionItem> item) {
 	auto collection = item->context().lock();
@@ -349,6 +362,14 @@ String trackCollectionItemTuple(LinkedList<Any>& params, $<TrackCollectionItem> 
 	if(!indexNum) {
 		throw std::invalid_argument("Cannot create track collection item tuple with detached item");
 	}
+	String uniqueId;
+	String addedAt;
+	$<UserAccount> addedBy;
+	if(auto playlistItem = std::dynamic_pointer_cast<PlaylistItem>(item)) {
+		uniqueId = playlistItem->uniqueId();
+		addedAt = playlistItem->addedAt();
+		addedBy = playlistItem->addedBy();
+	}
 	return String::join({ "(",
 		// collectionURI
 		sqlParam(params, collection->uri()),",",
@@ -356,8 +377,12 @@ String trackCollectionItemTuple(LinkedList<Any>& params, $<TrackCollectionItem> 
 		sqlParam(params, indexNum.value()),",",
 		// trackURI
 		sqlParam(params, item->track()->uri()),",",
+		// uniqueId
+		sqlParam(params, sqlStringOrNull(uniqueId)),",",
 		// addedAt
-		sqlParam(params, sqlStringOrNull(trackCollectionItemAddedAt(item))),",",
+		sqlParam(params, sqlStringOrNull(addedAt)),",",
+		// addedBy
+		sqlParam(params, addedBy ? String(addedBy->toJson().dump()) : Any()),",",
 		// updateTime
 		"CURRENT_TIMESTAMP",
 	")" });

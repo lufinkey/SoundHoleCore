@@ -10,6 +10,7 @@
 #include <soundhole/providers/youtube/YoutubeProvider.hpp>
 #include <soundhole/database/MediaDatabase.hpp>
 #include <soundhole/utils/SoundHoleError.hpp>
+#include <tuple>
 
 namespace sh {
 	YoutubePlaylistMutatorDelegate::YoutubePlaylistMutatorDelegate($<Playlist> playlist)
@@ -233,15 +234,108 @@ namespace sh {
 
 
 	Promise<void> YoutubePlaylistMutatorDelegate::insertItems(Mutator* mutator, size_t index, LinkedList<$<Track>> tracks) {
-		return Promise<void>::reject(std::logic_error("Not yet implemented"));
+		auto playlist = this->playlist.lock();
+		auto provider = (YoutubeProvider*)playlist->mediaProvider();
+		auto playlistId = provider->parseURI(playlist->uri()).id;
+		
+		auto promise = Promise<void>::resolve();
+		size_t i = index;
+		auto trackIds = tracks.map<String>([=](auto& track) {
+			return provider->parseURI(track->uri()).id;
+		});
+		for(auto trackId : trackIds) {
+			promise = promise.then([=]() {
+				return provider->youtube->insertPlaylistItem(playlistId, trackId, {
+					.position = i
+				}).then([=](YoutubePlaylistItem youtubeItem) {
+					auto item = PlaylistItem::new$(playlist, provider->createPlaylistItemData(youtubeItem));
+					mutator->lock([&]() {
+						mutator->insert(youtubeItem.snippet.position, { item });
+					});
+				});
+			});
+		}
+		return promise;
 	}
 
 	Promise<void> YoutubePlaylistMutatorDelegate::appendItems(Mutator* mutator, LinkedList<$<Track>> tracks) {
-		return Promise<void>::reject(std::logic_error("Not yet implemented"));
+		auto playlist = this->playlist.lock();
+		auto provider = (YoutubeProvider*)playlist->mediaProvider();
+		auto playlistId = provider->parseURI(playlist->uri()).id;
+		
+		auto trackIds = tracks.map<String>([=](auto& track) {
+			return provider->parseURI(track->uri()).id;
+		});
+		auto promise = Promise<void>::resolve();
+		for(auto trackId : trackIds) {
+			promise = promise.then([=]() {
+				return provider->youtube->insertPlaylistItem(playlistId, trackId).then([=](YoutubePlaylistItem youtubeItem) {
+					auto item = PlaylistItem::new$(playlist, provider->createPlaylistItemData(youtubeItem));
+					mutator->lock([&]() {
+						mutator->insert(youtubeItem.snippet.position, { item });
+					});
+				});
+			});
+		}
+		return promise;
 	}
 
 	Promise<void> YoutubePlaylistMutatorDelegate::removeItems(Mutator* mutator, size_t index, size_t count) {
-		return Promise<void>::reject(std::logic_error("Not yet implemented"));
+		auto playlist = this->playlist.lock();
+		auto provider = (YoutubeProvider*)playlist->mediaProvider();
+		auto playlistId = provider->parseURI(playlist->uri()).id;
+		
+		auto list = mutator->getList();
+		auto items = list->getLoadedItems({
+			.startIndex = index,
+			.limit = count,
+			.onlyValidItems = false
+		});
+		size_t itemIdOffset = 0;
+		auto itemMarkers = items.map<std::tuple<String,AsyncListIndexMarker>>([&](auto& item) {
+			auto itemId = item->uniqueId();
+			if(itemId.empty()) {
+				throw std::runtime_error("Missing youtubePlaylistItemId prop for item at index "+std::to_string(index+itemIdOffset));
+			}
+			itemIdOffset++;
+			auto indexMarker = list->watchIndex(index+itemIdOffset);
+			return std::tuple<String,AsyncListIndexMarker>(itemId, indexMarker);
+		});
+		
+		auto promise = Promise<void>::resolve();
+		auto removedItemIds = LinkedList<String>();
+		for(auto& [ itemId, indexMarker ] : itemMarkers) {
+			if(!removedItemIds.contains(itemId)) {
+				auto uniqueItemId = itemId;
+				promise = promise.then([=]() {
+					return provider->youtube->deletePlaylistItem(uniqueItemId).then([=]() {
+						auto indexMarkers = itemMarkers
+							.where([&](auto& tuple) { return std::get<0>(tuple) == uniqueItemId; })
+							.map<AsyncListIndexMarker>([&](auto& tuple) { return std::get<1>(tuple); });
+						indexMarkers.sort([](auto& a, auto& b) {
+							return a->index >= b->index;
+						});
+						mutator->lock([&]() {
+							for(auto& indexMarker : indexMarkers) {
+								if(indexMarker->state == AsyncListIndexMarkerState::REMOVED) {
+									mutator->invalidate(indexMarker->index-1, 3);
+								} else {
+									mutator->remove(indexMarker->index, 1);
+								}
+							}
+						});
+					});
+				});
+			}
+			removedItemIds.pushBack(itemId);
+		}
+		
+		promise = promise.finally([=]() {
+			for(auto& [ itemId, indexMarker ] : itemMarkers) {
+				list->unwatchIndex(indexMarker);
+			}
+		});
+		return promise;
 	}
 
 	Promise<void> YoutubePlaylistMutatorDelegate::moveItems(Mutator* mutator, size_t index, size_t count, size_t newIndex) {
