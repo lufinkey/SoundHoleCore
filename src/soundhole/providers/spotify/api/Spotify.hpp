@@ -138,6 +138,21 @@ namespace sh {
 			String fields;
 		};
 		Promise<SpotifyPlaylist> getPlaylist(String playlistId, GetPlaylistOptions options = {});
+		struct CreatePlaylistOptions {
+			String description;
+			Optional<bool> isCollaborative;
+			Optional<bool> isPublic;
+		};
+		Promise<SpotifyPlaylist> createPlaylist(String userId, String name, CreatePlaylistOptions options = {});
+		struct UpdatePlaylistOptions {
+			Optional<String> name;
+			Optional<String> description;
+			Optional<bool> isCollaborative;
+			Optional<bool> isPublic;
+		};
+		Promise<void> updatePlaylist(String playlistId, UpdatePlaylistOptions options);
+		
+		
 		struct GetPlaylistTracksOptions {
 			String market;
 			String fields;

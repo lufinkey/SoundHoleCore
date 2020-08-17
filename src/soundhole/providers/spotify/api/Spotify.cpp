@@ -452,7 +452,10 @@ namespace sh {
 			return SpotifyPage<SpotifyTrack>::fromJson(json);
 		});
 	}
-	
+
+
+
+
 	Promise<SpotifyArtist> Spotify::getArtist(String artistId) {
 		if(artistId.empty()) {
 			return Promise<SpotifyArtist>::reject(
@@ -542,7 +545,10 @@ namespace sh {
 			return artists;
 		});
 	}
-	
+
+
+
+
 	Promise<SpotifyTrack> Spotify::getTrack(String trackId, GetTrackOptions options) {
 		if(trackId.empty()) {
 			return Promise<SpotifyTrack>::reject(
@@ -598,12 +604,14 @@ namespace sh {
 		params["ids"] = (std::string)String::join(trackIds, ",");
 		return sendRequest(utils::HttpMethod::GET, "v1/audio-features", params);
 	}
+
+
+
 	
 	Promise<SpotifyPlaylist> Spotify::getPlaylist(String playlistId, GetPlaylistOptions options) {
 		if(playlistId.empty()) {
 			return Promise<SpotifyPlaylist>::reject(
-				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "playlistId cannot be empty")
-			);
+				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "playlistId cannot be empty"));
 		}
 		std::map<std::string,Json> params;
 		if(!options.market.empty()) {
@@ -616,7 +624,49 @@ namespace sh {
 			return SpotifyPlaylist::fromJson(json);
 		});
 	}
-	
+
+	Promise<SpotifyPlaylist> Spotify::createPlaylist(String userId, String name, CreatePlaylistOptions options) {
+		std::map<std::string,Json> params = {
+			{ "name", (std::string)name }
+		};
+		if(!options.description.empty()) {
+			params["description"] = (std::string)options.description;
+		}
+		if(options.isPublic) {
+			params["public"] = options.isPublic.value();
+		}
+		if(options.isCollaborative) {
+			params["collaborative"] = options.isCollaborative.value();
+		}
+		return sendRequest(utils::HttpMethod::POST, "v1/users/"+userId+"/playlists", params).map<SpotifyPlaylist>([](auto json) {
+			return SpotifyPlaylist::fromJson(json);
+		});
+	}
+
+	Promise<void> Spotify::updatePlaylist(String playlistId, UpdatePlaylistOptions options) {
+		if(playlistId.empty()) {
+			return Promise<void>::reject(
+				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "playlistId cannot be empty"));
+		}
+		std::map<std::string,Json> params;
+		if(options.name) {
+			params["name"] = (std::string)options.name.value();
+		}
+		if(options.description) {
+			params["description"] = (std::string)options.description.value();
+		}
+		if(options.isPublic) {
+			params["public"] = options.isPublic.value();
+		}
+		if(options.isCollaborative) {
+			params["collaborative"] = options.isCollaborative.value();
+		}
+		return sendRequest(utils::HttpMethod::PUT, "v1/playlists/"+playlistId, params).toVoid();
+	}
+
+
+
+
 	Promise<SpotifyPage<SpotifyPlaylist::Item>> Spotify::getPlaylistTracks(String playlistId, GetPlaylistTracksOptions options) {
 		if(playlistId.empty()) {
 			return Promise<SpotifyPage<SpotifyPlaylist::Item>>::reject(

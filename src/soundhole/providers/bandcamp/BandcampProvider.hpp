@@ -24,6 +24,9 @@ namespace sh {
 		virtual String name() const override;
 		virtual String displayName() const override;
 		
+		Bandcamp* api();
+		const Bandcamp* api() const;
+		
 		virtual Promise<bool> login() override;
 		virtual void logout() override;
 		virtual bool isLoggedIn() const override;

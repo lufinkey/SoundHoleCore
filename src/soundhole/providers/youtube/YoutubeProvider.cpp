@@ -32,6 +32,17 @@ namespace sh {
 
 
 
+	Youtube* YoutubeProvider::api() {
+		return youtube;
+	}
+
+	const Youtube* YoutubeProvider::api() const {
+		return youtube;
+	}
+
+
+
+
 	YoutubeProvider::URI YoutubeProvider::parseURI(String uri) const {
 		auto uriParts = ArrayList<String>(uri.split(':'));
 		if(uriParts.size() != 3 || uriParts.containsWhere([](auto& part) { return part.empty(); }) || uriParts.front() != name()) {

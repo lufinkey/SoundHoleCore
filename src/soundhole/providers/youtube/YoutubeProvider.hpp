@@ -24,6 +24,9 @@ namespace sh {
 		virtual String name() const override;
 		virtual String displayName() const override;
 		
+		Youtube* api();
+		const Youtube* api() const;
+		
 		virtual Promise<bool> login() override;
 		virtual void logout() override;
 		virtual bool isLoggedIn() const override;

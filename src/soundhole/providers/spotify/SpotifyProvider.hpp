@@ -28,6 +28,9 @@ namespace sh {
 		virtual String name() const override;
 		virtual String displayName() const override;
 		
+		Spotify* api();
+		const Spotify* api() const;
+		
 		virtual Promise<bool> login() override;
 		virtual void logout() override;
 		bool isLoggedIn() const override;

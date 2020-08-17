@@ -32,6 +32,17 @@ namespace sh {
 
 
 
+	Bandcamp* BandcampProvider::api() {
+		return bandcamp;
+	}
+
+	const Bandcamp* BandcampProvider::api() const {
+		return bandcamp;
+	}
+
+
+
+
 	Promise<bool> BandcampProvider::login() {
 		// TODO implement login
 		return Promise<bool>::reject(std::logic_error("Bandcamp login is not available"));

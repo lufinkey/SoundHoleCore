@@ -35,6 +35,17 @@ namespace sh {
 
 
 
+	Spotify* SpotifyProvider::api() {
+		return spotify;
+	}
+
+	const Spotify* SpotifyProvider::api() const {
+		return spotify;
+	}
+
+
+
+
 	Promise<bool> SpotifyProvider::login() {
 		return spotify->login();
 	}
