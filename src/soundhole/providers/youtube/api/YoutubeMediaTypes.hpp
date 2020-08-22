@@ -175,8 +175,8 @@ namespace sh {
 		String kind;
 		String etag;
 		String id;
-		Optional<Snippet> snippet;
-		Optional<ContentDetails> contentDetails;
+		Snippet snippet;
+		ContentDetails contentDetails;
 		
 		static YoutubeChannel fromJson(const Json&);
 	};

@@ -344,19 +344,16 @@ namespace sh {
 	}
 
 	Artist::Data YoutubeProvider::createArtistData(YoutubeChannel channel) {
-		if(!channel.snippet.has_value()) {
-			throw std::invalid_argument("YoutubeChannel is missing snippet value");
-		}
 		return Artist::Data{{
 			.partial=false,
 			.type="artist",
-			.name=channel.snippet->title,
+			.name=channel.snippet.title,
 			.uri=createURI("channel", channel.id),
-			.images=channel.snippet->thumbnails.map<MediaItem::Image>([&](auto image) {
+			.images=channel.snippet.thumbnails.map<MediaItem::Image>([&](auto image) {
 				return createImage(image);
 			})
 			},
-			.description=channel.snippet->description
+			.description=channel.snippet.description
 		};
 	}
 
@@ -546,9 +543,7 @@ namespace sh {
 		if(uriParts.type != "channel") {
 			throw std::invalid_argument(uri+" is not a channel URI");
 		}
-		return youtube->getChannel(uri, {
-			.parts={Youtube::ResultPart::ID, Youtube::ResultPart::SNIPPET}
-		}).map<Artist::Data>([=](auto channel) {
+		return youtube->getChannel(uri).map<Artist::Data>([=](auto channel) {
 			return createArtistData(channel);
 		});
 	}

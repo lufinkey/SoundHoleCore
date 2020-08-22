@@ -142,6 +142,8 @@ namespace sh {
 		});
 	}
 
+
+
 	Promise<YoutubeVideoInfo> Youtube::getVideoInfo(String id) {
 		String url = "https://www.youtube.com/watch?v=" + id;
 		return Promise<YoutubeVideoInfo>([=](auto resolve, auto reject) {
@@ -180,12 +182,12 @@ namespace sh {
 		});
 	}
 
-	Promise<YoutubeChannel> Youtube::getChannel(String id, GetChannelOptions options) {
+
+
+	Promise<YoutubeChannel> Youtube::getChannel(String id) {
 		return sendApiRequest(utils::HttpMethod::GET, "channels", {
 			{ "id", id },
-			{ "part", String::join(options.parts.map<String>([](auto part) {
-				return ResultPart_toString(part);
-			}), ",") }
+			{ "part", "id,snippet" }
 		}, nullptr).map<YoutubeChannel>([=](auto json) {
 			auto page = YoutubePage<YoutubeChannel>::fromJson(json);
 			if(page.items.size() == 0) {
@@ -196,20 +198,45 @@ namespace sh {
 	}
 
 	Promise<YoutubePage<YoutubePlaylist>> Youtube::getChannelPlaylists(String id, GetChannelPlaylistsOptions options) {
-		return sendApiRequest(utils::HttpMethod::GET, "playlists", {
-			{ "id", id },
-			{ "part", "id,snippet" },
-		}, nullptr).map<YoutubePage<YoutubePlaylist>>([](auto json) {
+		return getPlaylists({
+			.channelId = id,
+			.maxResults = options.maxResults,
+			.pageToken = options.pageToken
+		});
+	}
+
+
+
+	Promise<YoutubePage<YoutubePlaylist>> Youtube::getPlaylists(GetPlaylistsOptions options) {
+		auto params = std::map<String,String>{
+			{ "part", "id,snippet" }
+		};
+		if(options.ids.size() > 0) {
+			params["id"] = (std::string)String::join(options.ids,",");
+		}
+		if(!options.channelId.empty()) {
+			params["channelId"] = (std::string)options.channelId;
+		}
+		if(options.mine.hasValue()) {
+			params["mine"] = options.mine.value();
+		}
+		if(options.maxResults.hasValue()) {
+			params["maxResults"] = (int)options.maxResults.value();
+		}
+		if(!options.pageToken.empty()) {
+			params["pageToken"] = (std::string)options.pageToken;
+		}
+		return sendApiRequest(utils::HttpMethod::GET, "playlists", params, nullptr).map<YoutubePage<YoutubePlaylist>>([](auto json) {
 			return YoutubePage<YoutubePlaylist>::fromJson(json);
 		});
 	}
 
+
+
 	Promise<YoutubePlaylist> Youtube::getPlaylist(String id) {
-		return sendApiRequest(utils::HttpMethod::GET, "playlists", {
-			{ "id", id },
-			{ "part", "id,snippet" }
-		}, nullptr).map<YoutubePlaylist>([=](auto json) {
-			auto page = YoutubePage<YoutubePlaylist>::fromJson(json);
+		return getPlaylists({
+			.ids = { id }
+		}).map<YoutubePlaylist>([=](auto page) {
 			if(page.items.size() == 0) {
 				throw YoutubeError(YoutubeError::Code::NOT_FOUND, "Could not find playlist with id "+id);
 			}

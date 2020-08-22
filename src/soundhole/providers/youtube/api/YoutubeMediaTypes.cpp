@@ -153,8 +153,8 @@ namespace sh {
 			.kind = json["kind"].string_value(),
 			.etag = json["etag"].string_value(),
 			.id = json["id"].string_value(),
-			.snippet = snippetJson.is_null() ? std::nullopt : maybe(Snippet::fromJson(json["snippet"])),
-			.contentDetails = contentDetailsJson.is_null() ? std::nullopt : maybe(ContentDetails::fromJson(json["contentDetails"]))
+			.snippet = Snippet::fromJson(json["snippet"]),
+			.contentDetails = ContentDetails::fromJson(json["contentDetails"])
 		};
 	}
 
