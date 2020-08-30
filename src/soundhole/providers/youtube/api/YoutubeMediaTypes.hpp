@@ -67,6 +67,15 @@ namespace sh {
 	};
 
 
+	struct YoutubeLocalization {
+		String title;
+		String description;
+		
+		static YoutubeLocalization fromJson(const Json&);
+		Json toJson() const;
+	};
+
+
 	struct YoutubeSearchResult {
 		struct Id {
 			String kind;
@@ -205,10 +214,35 @@ namespace sh {
 			static Snippet fromJson(const Json&);
 		};
 		
+		struct Status {
+			String privacyStatus;
+			
+			static Status fromJson(const Json&);
+		};
+		
+		struct ContentDetails {
+			size_t itemCount;
+			
+			static ContentDetails fromJson(const Json&);
+		};
+		
+		struct Player {
+			String embedHtml;
+			
+			static Player fromJson(const Json&);
+		};
+		
+		using Localizations = std::map<String,YoutubeLocalization>;
+		
 		String kind;
 		String etag;
 		String id;
 		Snippet snippet;
+		Status status;
+		ContentDetails contentDetails;
+		Player player;
+		Localizations localizations;
+		Optional<YoutubeLocalization> localization(const String& key) const;
 		
 		static YoutubePlaylist fromJson(const Json&);
 	};
@@ -262,7 +296,6 @@ namespace sh {
 		
 		static YoutubePlaylistItem fromJson(const Json&);
 	};
-
 
 
 	struct YoutubeVideoInfo {

@@ -83,8 +83,14 @@ namespace sh {
 		};
 		Promise<YoutubePage<YoutubePlaylist>> getPlaylists(GetPlaylistsOptions options);
 		
-		
-		
+		struct AddPlaylistOptions {
+			String description;
+			String privacyStatus;
+			ArrayList<String> tags;
+			String defaultLanguage;
+			std::map<String,YoutubeLocalization> localizations;
+		};
+		Promise<YoutubePlaylist> createPlaylist(String title, AddPlaylistOptions options);
 		
 		
 		

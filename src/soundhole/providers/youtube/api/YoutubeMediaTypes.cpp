@@ -56,6 +56,22 @@ namespace sh {
 
 
 
+	YoutubeLocalization YoutubeLocalization::fromJson(const Json& json) {
+		return YoutubeLocalization{
+			.title = json["title"].string_value(),
+			.description = json["description"].string_value()
+		};
+	}
+
+	Json YoutubeLocalization::toJson() const {
+		return Json::object{
+			{ "title", (std::string)title },
+			{ "description", (std::string)description }
+		};
+	}
+
+
+
 	YoutubeSearchResult YoutubeSearchResult::fromJson(const Json& json) {
 		return YoutubeSearchResult{
 			.kind = json["kind"].string_value(),
@@ -206,11 +222,20 @@ namespace sh {
 
 
 	YoutubePlaylist YoutubePlaylist::fromJson(const Json& json) {
+		auto localizationsJson = json["localizations"].object_items();
+		auto localizations = std::map<String,YoutubeLocalization>();
+		for(auto& pair : localizationsJson) {
+			localizations[pair.first] = YoutubeLocalization::fromJson(pair.second);
+		}
 		return YoutubePlaylist{
 			.kind = json["kind"].string_value(),
 			.etag = json["etag"].string_value(),
 			.id = json["id"].string_value(),
-			.snippet = Snippet::fromJson(json["snippet"])
+			.snippet = Snippet::fromJson(json["snippet"]),
+			.status = Status::fromJson(json["status"]),
+			.contentDetails = ContentDetails::fromJson(json["contentDetails"]),
+			.player = Player::fromJson(json["player"]),
+			.localizations = localizations
 		};
 	}
 
@@ -244,6 +269,32 @@ namespace sh {
 			}
 		}
 		return std::nullopt;
+	}
+
+	YoutubePlaylist::Status YoutubePlaylist::Status::fromJson(const Json& json) {
+		return Status{
+			.privacyStatus = json["privacyStatus"].string_value()
+		};
+	}
+
+	YoutubePlaylist::ContentDetails YoutubePlaylist::ContentDetails::fromJson(const Json& json) {
+		return ContentDetails{
+			.itemCount = (size_t)json["itemCount"].number_value()
+		};
+	}
+
+	YoutubePlaylist::Player YoutubePlaylist::Player::fromJson(const Json& json) {
+		return Player{
+			.embedHtml = json["embedHtml"].string_value()
+		};
+	}
+
+	Optional<YoutubeLocalization> YoutubePlaylist::localization(const String& key) const {
+		auto it = localizations.find(key);
+		if(it == localizations.end()) {
+			return std::nullopt;
+		}
+		return it->second;
 	}
 
 

@@ -209,7 +209,7 @@ namespace sh {
 
 	Promise<YoutubePage<YoutubePlaylist>> Youtube::getPlaylists(GetPlaylistsOptions options) {
 		auto params = std::map<String,String>{
-			{ "part", "id,snippet" }
+			{ "part", "id,snippet,status,contentDetails,player,localizations" }
 		};
 		if(options.ids.size() > 0) {
 			params["id"] = (std::string)String::join(options.ids,",");
@@ -243,6 +243,45 @@ namespace sh {
 			return page.items.front();
 		});
 	}
+
+	Promise<YoutubePlaylist> Youtube::createPlaylist(String title, AddPlaylistOptions options) {
+		auto query = std::map<String,String>{
+			{ "part", "id,snippet,status,contentDetails,player,localizations" }
+		};
+		auto body = Json::object{};
+		auto snippet = Json::object{
+			{ "title", (std::string)title }
+		};
+		if(!options.description.empty()) {
+			snippet["description"] = (std::string)options.description;
+		}
+		if(!options.privacyStatus.empty()) {
+			body["status"] = Json::object{
+				{ "privacyStatus", (std::string)options.privacyStatus }
+			};
+		}
+		if(!options.tags.empty()) {
+			snippet["tags"] = options.tags.map<Json>([](auto& tag) {
+				return Json((std::string)tag);
+			});
+		}
+		if(!options.defaultLanguage.empty()) {
+			snippet["defaultLanguage"] = (std::string)options.defaultLanguage;
+		}
+		if(!options.localizations.empty()) {
+			Json::object localizations;
+			for(auto& pair : options.localizations) {
+				localizations[pair.first] = pair.second.toJson();
+			}
+			body["localizations"] = localizations;
+		}
+		body["snippet"] = snippet;
+		return sendApiRequest(utils::HttpMethod::POST, "playlists", query, body).map<YoutubePlaylist>([](auto json) {
+			return YoutubePlaylist::fromJson(json);
+		});
+	}
+
+
 
 	Promise<YoutubePage<YoutubePlaylistItem>> Youtube::getPlaylistItems(String id, GetPlaylistItemsOptions options) {
 		auto query = std::map<String,String>{
