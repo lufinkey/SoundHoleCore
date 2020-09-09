@@ -90,7 +90,19 @@ namespace sh {
 			String defaultLanguage;
 			std::map<String,YoutubeLocalization> localizations;
 		};
-		Promise<YoutubePlaylist> createPlaylist(String title, AddPlaylistOptions options);
+		Promise<YoutubePlaylist> createPlaylist(String title, AddPlaylistOptions options = AddPlaylistOptions());
+		
+		struct UpdatePlaylistOptions {
+			Optional<String> title;
+			Optional<String> description;
+			Optional<String> privacyStatus;
+			Optional<ArrayList<String>> tags;
+			Optional<String> defaultLanguage;
+			Optional<std::map<String,YoutubeLocalization>> localizations;
+		};
+		Promise<YoutubePlaylist> updatePlaylist(String playlistId, UpdatePlaylistOptions options);
+		
+		Promise<void> deletePlaylist(String playlistId);
 		
 		
 		
@@ -114,9 +126,9 @@ namespace sh {
 			String playlistId;
 			String resourceId;
 			Optional<size_t> position;
-			String note;
-			String startAt;
-			String endAt;
+			Optional<String> note;
+			Optional<String> startAt;
+			Optional<String> endAt;
 		};
 		Promise<YoutubePlaylistItem> updatePlaylistItem(String playlistItemId, UpdatePlaylistItemOptions options);
 		

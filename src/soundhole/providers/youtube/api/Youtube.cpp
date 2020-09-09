@@ -281,6 +281,52 @@ namespace sh {
 		});
 	}
 
+	Promise<YoutubePlaylist> Youtube::updatePlaylist(String playlistId, UpdatePlaylistOptions options) {
+		auto query = std::map<String,String>{
+			{ "part", "id,snippet,status,contentDetails,player,localizations" }
+		};
+		auto body = Json::object{};
+		auto snippet = Json::object{};
+		if(options.title.hasValue()) {
+			snippet["title"] = (std::string)options.title.value();
+		}
+		if(options.description.hasValue()) {
+			snippet["description"] = (std::string)options.description.value();
+		}
+		if(options.privacyStatus.hasValue()) {
+			body["status"] = Json::object{
+				{ "privacyStatus", (std::string)options.privacyStatus.value() }
+			};
+		}
+		if(options.tags.hasValue()) {
+			snippet["tags"] = options.tags->map<Json>([](auto& tag) {
+				return Json((std::string)tag);
+			});
+		}
+		if(options.defaultLanguage.hasValue()) {
+			snippet["defaultLanguage"] = (std::string)options.defaultLanguage.value();
+		}
+		if(options.localizations.hasValue()) {
+			Json::object localizations;
+			for(auto& pair : options.localizations.value()) {
+				localizations[pair.first] = pair.second.toJson();
+			}
+			body["localizations"] = localizations;
+		}
+		body["id"] = (std::string)playlistId;
+		body["snippet"] = snippet;
+		return sendApiRequest(utils::HttpMethod::PUT, "playlists", query, body).map<YoutubePlaylist>([](auto json) {
+			return YoutubePlaylist::fromJson(json);
+		});
+	}
+
+	Promise<void> Youtube::deletePlaylist(String playlistId) {
+		auto query = std::map<String,String>{
+			{ "id", playlistId }
+		};
+		return sendApiRequest(utils::HttpMethod::DELETE, "playlists", query, Json()).toVoid();
+	}
+
 
 
 	Promise<YoutubePage<YoutubePlaylistItem>> Youtube::getPlaylistItems(String id, GetPlaylistItemsOptions options) {
@@ -347,14 +393,22 @@ namespace sh {
 		if(options.position) {
 			snippet["position"] = (int)options.position.value();
 		}
-		if(!options.note.empty()) {
-			contentDetails["note"] = (std::string)options.note;
+		if(options.note.hasValue()) {
+			contentDetails["note"] = (std::string)options.note.value();
 		}
-		if(!options.startAt.empty()) {
-			contentDetails["startAt"] = (std::string)options.startAt;
+		if(options.startAt.hasValue()) {
+			if(options.startAt->empty()) {
+				contentDetails["startAt"] = Json();
+			} else {
+				contentDetails["startAt"] = (std::string)options.startAt.value();
+			}
 		}
-		if(!options.endAt.empty()) {
-			contentDetails["endAt"] = (std::string)options.endAt;
+		if(options.endAt.hasValue()) {
+			if(options.endAt->empty()) {
+				contentDetails["endAt"] = Json();
+			} else {
+				contentDetails["endAt"] = (std::string)options.endAt.value();
+			}
 		}
 		auto body = Json::object{
 			{ "id", (std::string)playlistItemId },
