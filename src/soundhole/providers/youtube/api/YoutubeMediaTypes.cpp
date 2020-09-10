@@ -56,22 +56,6 @@ namespace sh {
 
 
 
-	YoutubeLocalization YoutubeLocalization::fromJson(const Json& json) {
-		return YoutubeLocalization{
-			.title = json["title"].string_value(),
-			.description = json["description"].string_value()
-		};
-	}
-
-	Json YoutubeLocalization::toJson() const {
-		return Json::object{
-			{ "title", (std::string)title },
-			{ "description", (std::string)description }
-		};
-	}
-
-
-
 	YoutubeSearchResult YoutubeSearchResult::fromJson(const Json& json) {
 		return YoutubeSearchResult{
 			.kind = json["kind"].string_value(),
@@ -221,11 +205,79 @@ namespace sh {
 
 
 
+	YoutubeChannelSection YoutubeChannelSection::fromJson(const Json& json) {
+		auto localizationsJson = json["localizations"].object_items();
+		auto localizations = std::map<String,Localization>();
+		for(auto& pair : localizationsJson) {
+			localizations[pair.first] = Localization::fromJson(pair.second);
+		}
+		return YoutubeChannelSection{
+			.kind = json["kind"].string_value(),
+			.etag = json["etag"].string_value(),
+			.id = json["id"].string_value(),
+			.snippet = Snippet::fromJson(json["snippet"]),
+			.contentDetails = ContentDetails::fromJson(json["contentDetails"]),
+			.localizations = localizations,
+			.targeting = Targeting::fromJson(json["targeting"])
+		};
+	}
+
+	YoutubeChannelSection::Snippet YoutubeChannelSection::Snippet::fromJson(const Json& json) {
+		return Snippet{
+			.type = json["type"].string_value(),
+			.style = json["style"].string_value(),
+			.channelId = json["channelId"].string_value(),
+			.title = json["title"].string_value(),
+			.position = (size_t)json["position"].number_value(),
+			.defaultLanguage = json["defaultLanguage"].string_value(),
+			.localized = Localized::fromJson(json["localized"])
+		};
+	}
+
+	YoutubeChannelSection::Snippet::Localized YoutubeChannelSection::Snippet::Localized::fromJson(const Json& json) {
+		return {
+			.title = json["title"].string_value()
+		};
+	}
+
+	YoutubeChannelSection::ContentDetails YoutubeChannelSection::ContentDetails::fromJson(const Json& json) {
+		return ContentDetails{
+			.playlists = jsutils::arrayListFromJson<String>(json["playlists"], [](auto& json) {
+				return json.string_value();
+			}),
+			.channels = jsutils::arrayListFromJson<String>(json["channels"], [](auto& json) {
+				return json.string_value();
+			})
+		};
+	}
+
+	YoutubeChannelSection::Localization YoutubeChannelSection::Localization::fromJson(const Json& json) {
+		return Localization{
+			.title = json["title"].string_value()
+		};
+	}
+
+	YoutubeChannelSection::Targeting YoutubeChannelSection::Targeting::fromJson(const Json& json) {
+		return Targeting{
+			.languages = jsutils::arrayListFromJson<String>(json["languages"], [](auto& json) {
+				return json.string_value();
+			}),
+			.regions = jsutils::arrayListFromJson<String>(json["regions"], [](auto& json) {
+				return json.string_value();
+			}),
+			.countries = jsutils::arrayListFromJson<String>(json["countries"], [](auto& json) {
+				return json.string_value();
+			})
+		};
+	}
+
+
+
 	YoutubePlaylist YoutubePlaylist::fromJson(const Json& json) {
 		auto localizationsJson = json["localizations"].object_items();
-		auto localizations = std::map<String,YoutubeLocalization>();
+		auto localizations = std::map<String,Localization>();
 		for(auto& pair : localizationsJson) {
-			localizations[pair.first] = YoutubeLocalization::fromJson(pair.second);
+			localizations[pair.first] = Localization::fromJson(pair.second);
 		}
 		return YoutubePlaylist{
 			.kind = json["kind"].string_value(),
@@ -289,7 +341,21 @@ namespace sh {
 		};
 	}
 
-	Optional<YoutubeLocalization> YoutubePlaylist::localization(const String& key) const {
+	YoutubePlaylist::Localization YoutubePlaylist::Localization::fromJson(const Json& json) {
+		return Localization{
+			.title = json["title"].string_value(),
+			.description = json["description"].string_value()
+		};
+	}
+
+	Json YoutubePlaylist::Localization::toJson() const {
+		return Json::object{
+			{ "title", (std::string)title },
+			{ "description", (std::string)description }
+		};
+	}
+
+	Optional<YoutubePlaylist::Localization> YoutubePlaylist::localization(const String& key) const {
 		auto it = localizations.find(key);
 		if(it == localizations.end()) {
 			return std::nullopt;

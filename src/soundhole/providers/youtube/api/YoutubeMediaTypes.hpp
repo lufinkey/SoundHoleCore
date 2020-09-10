@@ -20,6 +20,7 @@ namespace sh {
 	struct YoutubePlaylist;
 
 
+
 	struct YoutubeImage {
 		enum class Size {
 			DEFAULT,
@@ -43,6 +44,7 @@ namespace sh {
 	};
 
 
+
 	template<typename T>
 	struct YoutubePage {
 		struct PageInfo {
@@ -56,7 +58,6 @@ namespace sh {
 		String etag;
 		String prevPageToken;
 		String nextPageToken;
-		String regionCode;
 		PageInfo pageInfo;
 		ArrayList<T> items;
 		
@@ -66,14 +67,18 @@ namespace sh {
 		YoutubePage<U> map(Function<U(const T&)> mapper) const;
 	};
 
-
-	struct YoutubeLocalization {
-		String title;
-		String description;
+	template<typename T>
+	struct YoutubeItemList {
+		String kind;
+		String etag;
+		ArrayList<T> items;
 		
-		static YoutubeLocalization fromJson(const Json&);
-		Json toJson() const;
+		static YoutubeItemList<T> fromJson(const Json&);
+		
+		template<typename U>
+		YoutubeItemList<U> map(Function<U(const T&)> mapper) const;
 	};
+
 
 
 	struct YoutubeSearchResult {
@@ -106,6 +111,7 @@ namespace sh {
 		
 		static YoutubeSearchResult fromJson(const Json&);
 	};
+
 
 
 	struct YoutubeVideo {
@@ -141,6 +147,7 @@ namespace sh {
 		
 		static YoutubeVideo fromJson(const Json&);
 	};
+
 
 
 	struct YoutubeChannel {
@@ -191,6 +198,63 @@ namespace sh {
 	};
 
 
+
+	struct YoutubeChannelSection {
+		struct Snippet {
+			struct Localized {
+				String title;
+				
+				static Localized fromJson(const Json&);
+			};
+			
+			String type;
+			String style;
+			String channelId;
+			String title;
+			size_t position;
+			String defaultLanguage;
+			Localized localized;
+			
+			static Snippet fromJson(const Json&);
+		};
+		
+		struct ContentDetails {
+			ArrayList<String> playlists;
+			ArrayList<String> channels;
+			
+			static ContentDetails fromJson(const Json&);
+		};
+		
+		struct Localization {
+			String title;
+			
+			static Localization fromJson(const Json&);
+			Json toJson() const;
+		};
+		
+		struct Targeting {
+			ArrayList<String> languages;
+			ArrayList<String> regions;
+			ArrayList<String> countries;
+			
+			static Targeting fromJson(const Json&);
+		};
+		
+		using Localizations = std::map<String,Localization>;
+		
+		String kind;
+		String etag;
+		String id;
+		Snippet snippet;
+		ContentDetails contentDetails;
+		Localizations localizations;
+		Targeting targeting;
+		
+		static YoutubeChannelSection fromJson(const Json&);
+	};
+
+
+
 	struct YoutubePlaylist {
 		struct Snippet {
 			struct Localized {
@@ -232,7 +296,15 @@ namespace sh {
 			static Player fromJson(const Json&);
 		};
 		
-		using Localizations = std::map<String,YoutubeLocalization>;
+		struct Localization {
+			String title;
+			String description;
+			
+			static Localization fromJson(const Json&);
+			Json toJson() const;
+		};
+		
+		using Localizations = std::map<String,Localization>;
 		
 		String kind;
 		String etag;
@@ -242,10 +314,11 @@ namespace sh {
 		ContentDetails contentDetails;
 		Player player;
 		Localizations localizations;
-		Optional<YoutubeLocalization> localization(const String& key) const;
+		Optional<Localization> localization(const String& key) const;
 		
 		static YoutubePlaylist fromJson(const Json&);
 	};
+
 
 
 	struct YoutubePlaylistItem {
@@ -296,6 +369,7 @@ namespace sh {
 		
 		static YoutubePlaylistItem fromJson(const Json&);
 	};
+
 
 
 	struct YoutubeVideoInfo {

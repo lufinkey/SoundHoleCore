@@ -61,16 +61,49 @@ namespace sh {
 		};
 		Promise<YoutubePage<YoutubeSearchResult>> search(String query, SearchOptions options);
 		
-		Promise<YoutubeVideoInfo> getVideoInfo(String id);
-		Promise<YoutubeVideo> getVideo(String id);
+		Promise<YoutubeVideoInfo> getVideoInfo(String videoId);
+		Promise<YoutubeVideo> getVideo(String videoId);
 		
 		
-		Promise<YoutubeChannel> getChannel(String id);
+		Promise<YoutubeChannel> getChannel(String channelId);
 		struct GetChannelPlaylistsOptions {
 			Optional<size_t> maxResults;
 			String pageToken;
 		};
-		Promise<YoutubePage<YoutubePlaylist>> getChannelPlaylists(String id, GetChannelPlaylistsOptions options = GetChannelPlaylistsOptions());
+		Promise<YoutubePage<YoutubePlaylist>> getChannelPlaylists(String channelId, GetChannelPlaylistsOptions options = GetChannelPlaylistsOptions());
+		
+		struct GetChannelSectionsOptions {
+			ArrayList<String> ids;
+			String channelId;
+			Optional<bool> mine;
+		};
+		Promise<YoutubeItemList<YoutubeChannelSection>> getChannelSections(GetChannelSectionsOptions options);
+		
+		struct InsertChannelSectionOptions {
+			String type;
+			String style;
+			Optional<String> title;
+			Optional<size_t> position;
+			String defaultLanguage;
+			ArrayList<String> playlists;
+			ArrayList<String> channels;
+			YoutubeChannelSection::Localizations localizations;
+			Optional<YoutubeChannelSection::Targeting> targeting;
+		};
+		Promise<YoutubeChannelSection> insertChannelSection(InsertChannelSectionOptions options);
+		
+		struct UpdateChannelSectionOptions {
+			String type;
+			String style;
+			Optional<String> title;
+			Optional<size_t> position;
+			Optional<String> defaultLanguage;
+			Optional<ArrayList<String>> playlists;
+			Optional<ArrayList<String>> channels;
+			Optional<YoutubeChannelSection::Localizations> localizations;
+			Optional<YoutubeChannelSection::Targeting> targeting;
+		};
+		Promise<YoutubeChannelSection> updateChannelSection(String channelSectionId, UpdateChannelSectionOptions options);
 		
 		
 		
@@ -83,22 +116,22 @@ namespace sh {
 		};
 		Promise<YoutubePage<YoutubePlaylist>> getPlaylists(GetPlaylistsOptions options);
 		
-		struct AddPlaylistOptions {
+		struct CreatePlaylistOptions {
 			String description;
 			String privacyStatus;
 			ArrayList<String> tags;
 			String defaultLanguage;
-			std::map<String,YoutubeLocalization> localizations;
+			YoutubePlaylist::Localizations localizations;
 		};
-		Promise<YoutubePlaylist> createPlaylist(String title, AddPlaylistOptions options = AddPlaylistOptions());
+		Promise<YoutubePlaylist> createPlaylist(String title, CreatePlaylistOptions options = CreatePlaylistOptions());
 		
 		struct UpdatePlaylistOptions {
 			Optional<String> title;
 			Optional<String> description;
-			Optional<String> privacyStatus;
-			Optional<ArrayList<String>> tags;
 			Optional<String> defaultLanguage;
-			Optional<std::map<String,YoutubeLocalization>> localizations;
+			Optional<ArrayList<String>> tags;
+			Optional<String> privacyStatus;
+			Optional<YoutubePlaylist::Localizations> localizations;
 		};
 		Promise<YoutubePlaylist> updatePlaylist(String playlistId, UpdatePlaylistOptions options);
 		

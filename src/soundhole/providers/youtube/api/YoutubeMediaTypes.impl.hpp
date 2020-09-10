@@ -27,7 +27,6 @@ namespace sh {
 			.etag = json["etag"].string_value(),
 			.prevPageToken = json["prevPageToken"].string_value(),
 			.nextPageToken = json["nextPageToken"].string_value(),
-			.regionCode = json["regionCode"].string_value(),
 			.pageInfo = PageInfo::fromJson(json["pageInfo"]),
 			.items = jsutils::arrayListFromJson<T>(json["items"], [](auto& json){
 				return T::fromJson(json);
@@ -43,11 +42,33 @@ namespace sh {
 			.etag=etag,
 			.prevPageToken=prevPageToken,
 			.nextPageToken=nextPageToken,
-			.regionCode=regionCode,
 			.pageInfo=typename YoutubePage<U>::PageInfo{
 				.totalResults=pageInfo.totalResults,
 				.resultsPerPage=pageInfo.resultsPerPage
 			},
+			.items=items.template map<U>(mapper)
+		};
+	}
+
+
+
+	template<typename T>
+	YoutubeItemList<T> YoutubeItemList<T>::fromJson(const Json& json) {
+		return YoutubeItemList<T>{
+			.kind = json["kind"].string_value(),
+			.etag = json["etag"].string_value(),
+			.items = jsutils::arrayListFromJson<T>(json["items"], [](auto& json){
+				return T::fromJson(json);
+			})
+		};
+	}
+
+	template<typename T>
+	template<typename U>
+	YoutubeItemList<U> YoutubeItemList<T>::map(Function<U(const T&)> mapper) const {
+		return YoutubeItemList<U>{
+			.kind=kind,
+			.etag=etag,
 			.items=items.template map<U>(mapper)
 		};
 	}

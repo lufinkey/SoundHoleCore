@@ -205,28 +205,108 @@ namespace sh {
 		});
 	}
 
+	Promise<YoutubeItemList<YoutubeChannelSection>> Youtube::getChannelSections(GetChannelSectionsOptions options) {
+		auto query = std::map<String,String>{
+			{ "part", "id,snippet,contentDetails,localizations,targeting" }
+		};
+		if(options.ids.size() > 0) {
+			query["id"] = (std::string)String::join(options.ids,",");
+		}
+		if(!options.channelId.empty()) {
+			query["channelId"] = (std::string)options.channelId;
+		}
+		if(options.mine.hasValue()) {
+			query["mine"] = options.mine.value();
+		}
+		return sendApiRequest(utils::HttpMethod::GET, "channelSections", query, nullptr).map<YoutubeItemList<YoutubeChannelSection>>([=](auto json) {
+			return YoutubeItemList<YoutubeChannelSection>::fromJson(json);
+		});
+	}
+
+	Promise<YoutubeChannelSection> Youtube::insertChannelSection(InsertChannelSectionOptions options) {
+		auto query = std::map<String,String>{
+			{ "part", "id,snippet,contentDetails,localizations,targeting" }
+		};
+		auto body = Json::object{};
+		auto snippet = Json::object{};
+		if(!options.type.empty()) {
+			snippet["type"] = (std::string)options.type;
+		}
+		if(!options.style.empty()) {
+			snippet["style"] = (std::string)options.style;
+		}
+		if(options.title) {
+			snippet["title"] = (std::string)options.title.value();
+		}
+		if(options.position) {
+			snippet["position"] = (int)options.position.value();
+		}
+		if(!options.defaultLanguage.empty()) {
+			snippet["defaultLanguage"] = (std::string)options.defaultLanguage;
+		}
+		body["snippet"] = snippet;
+		if(!options.playlists.empty() || !options.channels.empty() || options.type == "singlePlaylist" || options.type == "multiplePlaylists" || options.type == "singleChannel" || options.type == "multipleChannels") {
+			auto contentDetails = Json::object{};
+			if(!options.playlists.empty() || options.type == "singlePlaylist" || options.type == "multiplePlaylists") {
+				contentDetails["playlists"] = options.playlists.map<Json>([](auto playlistId) {
+					return Json(playlistId);
+				});
+			}
+			if(!options.channels.empty() || options.type == "singleChannel" || options.type == "multipleChannels") {
+				contentDetails["channels"] = options.channels.map<Json>([](auto channelId) {
+					return Json(channelId);
+				});
+			}
+			body["contentDetails"] = contentDetails;
+		}
+		if(!options.localizations.empty()) {
+			auto localizations = Json::object{};
+			for(auto& pair : options.localizations) {
+				localizations[pair.first] = pair.second.toJson();
+			}
+			body["localizations"] = localizations;
+		}
+		if(options.targeting) {
+			body["targeting"] = Json::object{
+				{ "languages", options.targeting->languages.map<Json>([](auto language) {
+					return Json(language);
+				}) },
+				{ "regions", options.targeting->regions.map<Json>([](auto region) {
+					return Json(region);
+				}) },
+				{ "countries", options.targeting->countries.map<Json>([](auto country) {
+					return Json(country);
+				}) }
+			};
+		}
+		return sendApiRequest(utils::HttpMethod::POST, "channelSections", query, body)
+		.map<YoutubeChannelSection>([=](auto json) {
+			return YoutubeChannelSection::fromJson(json);
+		});
+	}
+
 
 
 	Promise<YoutubePage<YoutubePlaylist>> Youtube::getPlaylists(GetPlaylistsOptions options) {
-		auto params = std::map<String,String>{
+		auto query = std::map<String,String>{
 			{ "part", "id,snippet,status,contentDetails,player,localizations" }
 		};
 		if(options.ids.size() > 0) {
-			params["id"] = (std::string)String::join(options.ids,",");
+			query["id"] = (std::string)String::join(options.ids,",");
 		}
 		if(!options.channelId.empty()) {
-			params["channelId"] = (std::string)options.channelId;
+			query["channelId"] = (std::string)options.channelId;
 		}
 		if(options.mine.hasValue()) {
-			params["mine"] = options.mine.value();
+			query["mine"] = options.mine.value();
 		}
 		if(options.maxResults.hasValue()) {
-			params["maxResults"] = (int)options.maxResults.value();
+			query["maxResults"] = (int)options.maxResults.value();
 		}
 		if(!options.pageToken.empty()) {
-			params["pageToken"] = (std::string)options.pageToken;
+			query["pageToken"] = (std::string)options.pageToken;
 		}
-		return sendApiRequest(utils::HttpMethod::GET, "playlists", params, nullptr).map<YoutubePage<YoutubePlaylist>>([](auto json) {
+		return sendApiRequest(utils::HttpMethod::GET, "playlists", query, nullptr).map<YoutubePage<YoutubePlaylist>>([](auto json) {
 			return YoutubePage<YoutubePlaylist>::fromJson(json);
 		});
 	}
@@ -244,32 +324,28 @@ namespace sh {
 		});
 	}
 
-	Promise<YoutubePlaylist> Youtube::createPlaylist(String title, AddPlaylistOptions options) {
+	Promise<YoutubePlaylist> Youtube::createPlaylist(String title, CreatePlaylistOptions options) {
 		auto query = std::map<String,String>{
 			{ "part", "id,snippet,status,contentDetails,player,localizations" }
 		};
 		auto body = Json::object{};
 		auto snippet = Json::object{
-			{ "title", (std::string)title }
+			{ "title", (std::string)title },
+			{ "description", (std::string)options.description },
+			{ "tags", options.tags.map<Json>([](auto& tag) {
+				return Json((std::string)tag);
+			}) }
 		};
-		if(!options.description.empty()) {
-			snippet["description"] = (std::string)options.description;
-		}
 		if(!options.privacyStatus.empty()) {
 			body["status"] = Json::object{
 				{ "privacyStatus", (std::string)options.privacyStatus }
 			};
 		}
-		if(!options.tags.empty()) {
-			snippet["tags"] = options.tags.map<Json>([](auto& tag) {
-				return Json((std::string)tag);
-			});
-		}
 		if(!options.defaultLanguage.empty()) {
 			snippet["defaultLanguage"] = (std::string)options.defaultLanguage;
 		}
 		if(!options.localizations.empty()) {
-			Json::object localizations;
+			auto localizations = Json::object{};
 			for(auto& pair : options.localizations) {
 				localizations[pair.first] = pair.second.toJson();
 			}
@@ -282,39 +358,54 @@ namespace sh {
 	}
 
 	Promise<YoutubePlaylist> Youtube::updatePlaylist(String playlistId, UpdatePlaylistOptions options) {
-		auto query = std::map<String,String>{
-			{ "part", "id,snippet,status,contentDetails,player,localizations" }
+		auto parts = LinkedList<String>{ "id", "player" };
+		auto body = Json::object{
+			{ "id", (std::string)playlistId }
 		};
-		auto body = Json::object{};
-		auto snippet = Json::object{};
-		if(options.title.hasValue()) {
-			snippet["title"] = (std::string)options.title.value();
+		if(options.title || options.description || options.tags || options.defaultLanguage) {
+			parts.pushBack("snippet");
+			auto snippet = Json::object{};
+			if(options.title) {
+				snippet["title"] = (std::string)options.title.value();
+			}
+			if(options.description) {
+				snippet["description"] = (std::string)options.description.value();
+			}
+			if(options.tags) {
+				snippet["tags"] = options.tags->map<Json>([](auto& tag) {
+					return Json((std::string)tag);
+				});
+			}
+			if(options.defaultLanguage) {
+				if(options.defaultLanguage->empty()) {
+					snippet["defaultLanguage"] = Json();
+				} else {
+					snippet["defaultLanguage"] = (std::string)options.defaultLanguage.value();
+				}
+			}
+			body["snippet"] = snippet;
 		}
-		if(options.description.hasValue()) {
-			snippet["description"] = (std::string)options.description.value();
+		if(options.privacyStatus) {
+			parts.pushBack("status");
+			auto status = Json::object{};
+			if(options.privacyStatus->empty()) {
+				status["privacyStatus"] = Json();
+			} else {
+				status["privacyStatus"] = (std::string)options.privacyStatus.value();
+			}
+			body["status"] = status;
 		}
-		if(options.privacyStatus.hasValue()) {
-			body["status"] = Json::object{
-				{ "privacyStatus", (std::string)options.privacyStatus.value() }
-			};
-		}
-		if(options.tags.hasValue()) {
-			snippet["tags"] = options.tags->map<Json>([](auto& tag) {
-				return Json((std::string)tag);
-			});
-		}
-		if(options.defaultLanguage.hasValue()) {
-			snippet["defaultLanguage"] = (std::string)options.defaultLanguage.value();
-		}
-		if(options.localizations.hasValue()) {
-			Json::object localizations;
+		if(options.localizations) {
+			parts.pushBack("localizations");
+			auto localizations = Json::object{};
 			for(auto& pair : options.localizations.value()) {
 				localizations[pair.first] = pair.second.toJson();
 			}
 			body["localizations"] = localizations;
 		}
-		body["id"] = (std::string)playlistId;
-		body["snippet"] = snippet;
+		auto query = std::map<String,String>{
+			{ "part", String::join(parts,",") }
+		};
 		return sendApiRequest(utils::HttpMethod::PUT, "playlists", query, body).map<YoutubePlaylist>([](auto json) {
 			return YoutubePlaylist::fromJson(json);
 		});
@@ -379,41 +470,47 @@ namespace sh {
 	}
 	
 	Promise<YoutubePlaylistItem> Youtube::updatePlaylistItem(String playlistItemId, UpdatePlaylistItemOptions options) {
-		auto query = std::map<String,String>{
-			{ "part", "id,snippet,contentDetails,status" }
-		};
-		auto snippet = Json::object{};
-		auto contentDetails = Json::object{};
-		if(!options.playlistId.empty()) {
-			snippet["playlistId"] = (std::string)options.playlistId;
-		}
-		if(!options.resourceId.empty()) {
-			snippet["resourceId"] = (std::string)options.resourceId;
-		}
-		if(options.position) {
-			snippet["position"] = (int)options.position.value();
-		}
-		if(options.note.hasValue()) {
-			contentDetails["note"] = (std::string)options.note.value();
-		}
-		if(options.startAt.hasValue()) {
-			if(options.startAt->empty()) {
-				contentDetails["startAt"] = Json();
-			} else {
-				contentDetails["startAt"] = (std::string)options.startAt.value();
-			}
-		}
-		if(options.endAt.hasValue()) {
-			if(options.endAt->empty()) {
-				contentDetails["endAt"] = Json();
-			} else {
-				contentDetails["endAt"] = (std::string)options.endAt.value();
-			}
-		}
+		auto parts = LinkedList<String>{ "id" };
 		auto body = Json::object{
-			{ "id", (std::string)playlistItemId },
-			{ "snippet", snippet },
-			{ "contentDetails", contentDetails }
+			{ "id", (std::string)playlistItemId }
+		};
+		if(!options.playlistId.empty() || !options.resourceId.empty() || options.position) {
+			parts.pushBack("snippet");
+			auto snippet = Json::object{};
+			if(!options.playlistId.empty()) {
+				snippet["playlistId"] = (std::string)options.playlistId;
+			}
+			if(!options.resourceId.empty()) {
+				snippet["resourceId"] = (std::string)options.resourceId;
+			}
+			if(options.position) {
+				snippet["position"] = (int)options.position.value();
+			}
+		}
+		if(options.note || options.startAt || options.endAt) {
+			parts.pushBack("contentDetails");
+			auto contentDetails = Json::object{};
+			if(options.note) {
+				contentDetails["note"] = (std::string)options.note.value();
+			}
+			if(!options.startAt) {
+				if(options.startAt->empty()) {
+					contentDetails["startAt"] = Json();
+				} else {
+					contentDetails["startAt"] = (std::string)options.startAt.value();
+				}
+			}
+			if(!options.endAt) {
+				if(options.endAt->empty()) {
+					contentDetails["endAt"] = Json();
+				} else {
+					contentDetails["endAt"] = (std::string)options.endAt.value();
+				}
+			}
+			body["contentDetails"] = contentDetails;
+		}
+		auto query = std::map<String,String>{
+			{ "part", String::join(parts,",") }
 		};
 		return sendApiRequest(utils::HttpMethod::PUT, "playlistItems", query, body).map<YoutubePlaylistItem>([](auto json) {
 			return YoutubePlaylistItem::fromJson(json);
