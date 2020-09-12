@@ -285,6 +285,72 @@ namespace sh {
 		});
 	}
 
+	Promise<YoutubeChannelSection> Youtube::updateChannelSection(String channelSectionId, UpdateChannelSectionOptions options) {
+		auto parts = LinkedList<String>{ "id", "player" };
+		auto body = Json::object{
+			{ "id", (std::string)channelSectionId }
+		};
+		if(!options.type.empty() || !options.style.empty() || options.title || options.position || options.defaultLanguage) {
+			auto snippet = Json::object{};
+			if(!options.type.empty()) {
+				snippet["type"] = (std::string)options.type;
+			}
+			if(!options.style.empty()) {
+				snippet["style"] = (std::string)options.style;
+			}
+			if(options.title) {
+				snippet["title"] = (std::string)options.title.value();
+			}
+			if(options.position) {
+				snippet["position"] = (int)options.position.value();
+			}
+			if(options.defaultLanguage) {
+				snippet["defaultLanguage"] = (std::string)options.defaultLanguage.value();
+			}
+			body["snippet"] = snippet;
+		}
+		if(options.playlists || options.channels) {
+			auto contentDetails = Json::object{};
+			if(options.playlists) {
+				contentDetails["playlists"] = options.playlists->map<Json>([](auto playlistId) {
+					return Json(playlistId);
+				});
+			}
+			if(options.channels) {
+				contentDetails["channels"] = options.channels->map<Json>([](auto channelId) {
+					return Json(channelId);
+				});
+			}
+			body["contentDetails"] = contentDetails;
+		}
+		if(options.targeting) {
+			body["targeting"] = Json::object{
+				{ "languages", options.targeting->languages.map<Json>([](auto language) {
+					return Json(language);
+				}) },
+				{ "regions", options.targeting->regions.map<Json>([](auto region) {
+					return Json(region);
+				}) },
+				{ "countries", options.targeting->countries.map<Json>([](auto country) {
+					return Json(country);
+				}) }
+			};
+		}
+		auto query = std::map<String,String>{
+			{ "part", String::join(parts,",") }
+		};
+		return sendApiRequest(utils::HttpMethod::PUT, "channelSections", query, body).map<YoutubeChannelSection>([](auto json) {
+			return YoutubeChannelSection::fromJson(json);
+		});
+	}
+
+	Promise<void> Youtube::deleteChannelSection(String channelSectionId) {
+		auto query = std::map<String,String>{
+			{ "id", (std::string)channelSectionId }
+		};
+		return sendApiRequest(utils::HttpMethod::DELETE, "channelSections", query, nullptr).toVoid();
+	}
+
 
 
 	Promise<YoutubePage<YoutubePlaylist>> Youtube::getPlaylists(GetPlaylistsOptions options) {

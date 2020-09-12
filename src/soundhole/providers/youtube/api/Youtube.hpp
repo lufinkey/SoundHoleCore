@@ -105,6 +105,8 @@ namespace sh {
 		};
 		Promise<YoutubeChannelSection> updateChannelSection(String channelSectionId, UpdateChannelSectionOptions options);
 		
+		Promise<void> deleteChannelSection(String channelSectionId);
+		
 		
 		
 		struct GetPlaylistsOptions {

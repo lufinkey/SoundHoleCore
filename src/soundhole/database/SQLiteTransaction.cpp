@@ -149,12 +149,12 @@ namespace sh {
 								} break;
 								case SQLITE_TEXT: {
 									auto text = sqlite3_column_text(stmt, i);
-									row[columnName] = (text != nullptr) ? Json(String(text)) : Json();
+									row[columnName] = (text != nullptr) ? Json(text) : Json();
 								} break;
 								case SQLITE_BLOB: {
 									auto blob = sqlite3_column_blob(stmt, i);
 									auto bytes = sqlite3_column_bytes(stmt, i);
-									row[columnName] = Json(String((const char*)blob, (size_t)bytes));
+									row[columnName] = Json(std::string((const char*)blob, (size_t)bytes));
 								} break;
 								default: {
 									sqlite3_finalize(stmt);

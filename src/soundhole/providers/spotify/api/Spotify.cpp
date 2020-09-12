@@ -704,7 +704,7 @@ namespace sh {
 		}
 		auto params = Json::object{
 			{ "uris", trackURIs.map<Json>([](auto& uri) {
-				return Json(std::move(uri));
+				return Json(uri);
 			}) }
 		};
 		if(options.position) {

@@ -125,7 +125,7 @@ namespace sh {
 	Json MediaLibraryTracksCollection::toJson(const ToJsonOptions& options) const {
 		auto json = SpecialTrackCollection<MediaLibraryTracksCollectionItem>::toJson(options).object_items();
 		json.merge(Json::object{
-			{ "libraryProvider", (_filters.libraryProvider != nullptr) ? Json(_filters.libraryProvider->name()) : Json() },
+			{ "libraryProvider", (_filters.libraryProvider != nullptr) ? Json((std::string)_filters.libraryProvider->name()) : Json() },
 			{ "orderBy", (std::string)sql::LibraryItemOrderBy_toString(_filters.orderBy) },
 			{ "order", (std::string)sql::Order_toString(_filters.order) }
 		});

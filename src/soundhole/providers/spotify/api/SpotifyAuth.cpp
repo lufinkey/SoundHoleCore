@@ -449,7 +449,7 @@ namespace sh {
 				});
 			}
 			std::string parseError;
-			auto json = Json::parse(response->data.storage, parseError);
+			auto json = Json::parse(response->data, parseError);
 			if(parseError.length() > 0) {
 				throw SpotifyError(SpotifyError::Code::BAD_RESPONSE, parseError, {
 					{ "httpResponse", response }
