@@ -369,15 +369,15 @@ namespace sh {
 			auto json = Json::object{
 				{ "partial", false },
 				{ "type", "libraryTracks" },
-				{ "provider", Json(libraryProvider->name()) },
+				{ "provider", Json((std::string)libraryProvider->name()) },
 				{ "name", Json((filters.libraryProvider != nullptr) ?
-					String("My "+filters.libraryProvider->displayName()+" Tracks")
-					: String("My Tracks")) },
-				{ "uri", Json(getLibraryTracksCollectionURI(filters)) },
+					(std::string)("My "+filters.libraryProvider->displayName()+" Tracks")
+					: std::string("My Tracks")) },
+				{ "uri", Json((std::string)getLibraryTracksCollectionURI(filters)) },
 				{ "images", Json::array() },
 				{ "itemCount", Json((double)results.total) },
 				{ "items", items },
-				{ "libraryProvider", (filters.libraryProvider != nullptr) ? Json(filters.libraryProvider->name()) : Json() },
+				{ "libraryProvider", (filters.libraryProvider != nullptr) ? Json((std::string)filters.libraryProvider->name()) : Json() },
 				{ "orderBy", (std::string)sql::LibraryItemOrderBy_toString(filters.orderBy) },
 				{ "order", (std::string)sql::Order_toString(filters.order) }
 			};
