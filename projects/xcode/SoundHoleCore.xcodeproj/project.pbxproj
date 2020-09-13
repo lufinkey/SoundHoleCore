@@ -40,6 +40,7 @@
 		A52826E223F09B6200360508 /* Player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A52826E023F09B6200360508 /* Player.cpp */; };
 		A52826E323F09B6200360508 /* Player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A52826E023F09B6200360508 /* Player.cpp */; };
 		A52826E423F09B6200360508 /* Player.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A52826E123F09B6200360508 /* Player.hpp */; };
+		A52C4708250EB6B000131918 /* SHWebAuthNavigationController_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A52C4707250EB6B000131918 /* SHWebAuthNavigationController_iOS.mm */; };
 		A538982323CD3D36008638D1 /* BandcampPlaybackProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A538982123CD3D36008638D1 /* BandcampPlaybackProvider.cpp */; };
 		A5485A1E238CCB5F00CB7749 /* UserAccount.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5485A1C238CCB5F00CB7749 /* UserAccount.cpp */; };
 		A5485A1F238CCB5F00CB7749 /* UserAccount.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5485A1C238CCB5F00CB7749 /* UserAccount.cpp */; };
@@ -146,7 +147,6 @@
 		A5B7A7AD2337F1DE00301FC0 /* SpotifyPlayer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5B7A7AA2337F1DE00301FC0 /* SpotifyPlayer.hpp */; };
 		A5B7A7AF2337F9B500301FC0 /* SpotifyPlayer_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7AE2337F9B500301FC0 /* SpotifyPlayer_iOS.mm */; };
 		A5B7A7B423394BD400301FC0 /* SpotifyPlayerEventHandler_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7B323394BD400301FC0 /* SpotifyPlayerEventHandler_iOS.mm */; };
-		A5B7A7BB233EA5A500301FC0 /* SpotifyAuthViewController_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7BA233EA5A500301FC0 /* SpotifyAuthViewController_iOS.mm */; };
 		A5B7A7C1233EA76C00301FC0 /* SHWebViewController_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7C0233EA76C00301FC0 /* SHWebViewController_iOS.mm */; };
 		A5B7A7C5233EA8CC00301FC0 /* SHProgressView_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7C4233EA8CC00301FC0 /* SHProgressView_iOS.mm */; };
 		A5B7A7DD233F126800301FC0 /* Spotify.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B7A7DB233F126800301FC0 /* Spotify.cpp */; };
@@ -275,6 +275,8 @@
 		A513EDAA232DB3BF000DCAC7 /* NodeMobile.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NodeMobile.framework; path = "Pods/NodeMobile/out_ios/Release-universal/NodeMobile.framework"; sourceTree = "<group>"; };
 		A52826E023F09B6200360508 /* Player.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Player.cpp; sourceTree = "<group>"; };
 		A52826E123F09B6200360508 /* Player.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Player.hpp; sourceTree = "<group>"; };
+		A52C4706250EB6B000131918 /* SHWebAuthNavigationController_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SHWebAuthNavigationController_iOS.hpp; sourceTree = "<group>"; };
+		A52C4707250EB6B000131918 /* SHWebAuthNavigationController_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SHWebAuthNavigationController_iOS.mm; sourceTree = "<group>"; };
 		A5382A0F2355774100E22A29 /* Bandcamp.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Bandcamp.js; sourceTree = "<group>"; };
 		A538982123CD3D36008638D1 /* BandcampPlaybackProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampPlaybackProvider.cpp; sourceTree = "<group>"; };
 		A538982223CD3D36008638D1 /* BandcampPlaybackProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BandcampPlaybackProvider.hpp; sourceTree = "<group>"; };
@@ -365,8 +367,6 @@
 		A5B7A7AE2337F9B500301FC0 /* SpotifyPlayer_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SpotifyPlayer_iOS.mm; sourceTree = "<group>"; };
 		A5B7A7B223394BD400301FC0 /* SpotifyPlayerEventHandler_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyPlayerEventHandler_iOS.hpp; sourceTree = "<group>"; };
 		A5B7A7B323394BD400301FC0 /* SpotifyPlayerEventHandler_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SpotifyPlayerEventHandler_iOS.mm; sourceTree = "<group>"; };
-		A5B7A7B9233EA5A500301FC0 /* SpotifyAuthViewController_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyAuthViewController_iOS.hpp; sourceTree = "<group>"; };
-		A5B7A7BA233EA5A500301FC0 /* SpotifyAuthViewController_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SpotifyAuthViewController_iOS.mm; sourceTree = "<group>"; };
 		A5B7A7BF233EA76C00301FC0 /* SHWebViewController_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SHWebViewController_iOS.hpp; sourceTree = "<group>"; };
 		A5B7A7C0233EA76C00301FC0 /* SHWebViewController_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SHWebViewController_iOS.mm; sourceTree = "<group>"; };
 		A5B7A7C3233EA8CC00301FC0 /* SHProgressView_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SHProgressView_iOS.hpp; sourceTree = "<group>"; };
@@ -718,8 +718,6 @@
 				A571E15623331C6600603E14 /* SpotifyAuth.cpp */,
 				A5B7A7A22337DA5700301FC0 /* SpotifyAuth_iOS.mm */,
 				A54F252723975BF400C81E1C /* SpotifyAuthEventListener.hpp */,
-				A5B7A7B9233EA5A500301FC0 /* SpotifyAuthViewController_iOS.hpp */,
-				A5B7A7BA233EA5A500301FC0 /* SpotifyAuthViewController_iOS.mm */,
 				A5B7A7972335D63000301FC0 /* SpotifyError.hpp */,
 				A5B7A7962335D63000301FC0 /* SpotifyError.cpp */,
 				A5B7A79A2335DDE100301FC0 /* SpotifyError_iOS.mm */,
@@ -858,6 +856,8 @@
 				A5B7A7C4233EA8CC00301FC0 /* SHProgressView_iOS.mm */,
 				A5B7A7BF233EA76C00301FC0 /* SHWebViewController_iOS.hpp */,
 				A5B7A7C0233EA76C00301FC0 /* SHWebViewController_iOS.mm */,
+				A52C4706250EB6B000131918 /* SHWebAuthNavigationController_iOS.hpp */,
+				A52C4707250EB6B000131918 /* SHWebAuthNavigationController_iOS.mm */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -1233,6 +1233,7 @@
 			files = (
 				A5B7A7A32337DA5700301FC0 /* SpotifyAuth_iOS.mm in Sources */,
 				A571E16A2333305D00603E14 /* Scripts.cpp in Sources */,
+				A52C4708250EB6B000131918 /* SHWebAuthNavigationController_iOS.mm in Sources */,
 				A578785523DE547F00B6B0A5 /* PlaybackOrganizer.cpp in Sources */,
 				A5B7A79D2336C28B00301FC0 /* SpotifyError_iOS.mm in Sources */,
 				A5AE3F23247C937400FB9AFF /* MediaDatabaseSQLOperations.cpp in Sources */,
@@ -1252,7 +1253,6 @@
 				A5E7852323CE70BC00BD1C67 /* YoutubePlaybackProvider.cpp in Sources */,
 				A5E851BF235A4AE90001F74D /* JSUtils.cpp in Sources */,
 				A571E1A6233440A800603E14 /* HttpClient.cpp in Sources */,
-				A5B7A7BB233EA5A500301FC0 /* SpotifyAuthViewController_iOS.mm in Sources */,
 				A5485A2823942EB800CB7749 /* MediaPlaybackProvider.cpp in Sources */,
 				A5E851A52357B1660001F74D /* Bandcamp.cpp in Sources */,
 				A54F2547239DAA2700C81E1C /* StreamPlayer.cpp in Sources */,

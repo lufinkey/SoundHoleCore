@@ -13,7 +13,7 @@
 
 -(id)init {
 	if(self = [super init]) {
-		_webView = [[WKWebView alloc] init];
+		//
 	}
 	return self;
 }
@@ -21,6 +21,7 @@
 -(void)viewDidLoad {
 	[super viewDidLoad];
 	
+	_webView = [[WKWebView alloc] init];
 	[self.view addSubview:_webView];
 }
 
