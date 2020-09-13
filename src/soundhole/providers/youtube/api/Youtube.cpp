@@ -84,6 +84,9 @@ namespace sh {
 		}
 	}
 
+
+
+
 	Promise<Json> Youtube::sendApiRequest(utils::HttpMethod method, String endpoint, std::map<String,String> query, Json body) {
 		query["key"] = options.apiKey;
 		auto request = utils::HttpRequest{
@@ -96,7 +99,7 @@ namespace sh {
 		};
 		return utils::performHttpRequest(request).map<Json>([=](auto response) -> Json {
 			std::string parseError;
-			auto responseJson = (response->data.length() > 0) ? Json::parse((std::string)response->data, parseError) : Json();
+			auto responseJson = (response->data.length() > 0) ? Json::parse(response->data, parseError) : Json();
 			if(response->statusCode >= 300) {
 				if(parseError.empty()) {
 					auto errorMessage = responseJson["error"]["message"].string_value();
@@ -112,35 +115,39 @@ namespace sh {
 		});
 	}
 
-	Promise<YoutubePage<YoutubeSearchResult>> Youtube::search(String query, SearchOptions options) {
-		auto params = std::map<String,String>{
+
+
+
+	Promise<YoutubePage<YoutubeSearchResult>> Youtube::search(String searchQuery, SearchOptions options) {
+		auto query = std::map<String,String>{
 			{ "part", "id,snippet" }
 		};
-		if(!query.empty()) {
-			params["q"] = query;
+		if(!searchQuery.empty()) {
+			query["q"] = searchQuery;
 		}
 		if(options.types.size() > 0) {
-			params["type"] = String::join(options.types.map<String>([](auto& type) -> String {
+			query["type"] = String::join(options.types.map<String>([](auto& type) -> String {
 				return MediaType_toString(type);
 			}), ",");
 		}
 		if(options.maxResults.has_value()) {
-			params["maxResults"] = std::to_string(options.maxResults.value());
+			query["maxResults"] = std::to_string(options.maxResults.value());
 		}
 		if(!options.pageToken.empty()) {
-			params["pageToken"] = options.pageToken;
+			query["pageToken"] = options.pageToken;
 		}
 		if(!options.channelId.empty()) {
-			params["channelId"] = options.channelId;
+			query["channelId"] = options.channelId;
 		}
 		if(options.order.has_value()) {
-			params["order"] = SearchOrder_toString(options.order.value());
+			query["order"] = SearchOrder_toString(options.order.value());
 		}
-		return sendApiRequest(utils::HttpMethod::GET, "search", params, nullptr)
+		return sendApiRequest(utils::HttpMethod::GET, "search", query, nullptr)
 		.map<YoutubePage<YoutubeSearchResult>>([](auto json) {
 			return YoutubePage<YoutubeSearchResult>::fromJson(json);
 		});
 	}
+
 
 
 
@@ -184,12 +191,32 @@ namespace sh {
 
 
 
+
+	Promise<YoutubePage<YoutubeChannel>> Youtube::getChannels(GetChannelsOptions options) {
+		auto query = std::map<String,String>{
+			{ "part", "id,snippet,contentDetails,status,statistics,topicDetails" }
+		};
+		if(!options.ids.empty()) {
+			query["id"] = String::join(options.ids,",");
+		}
+		if(!options.forUsername.empty()) {
+			query["forUsername"] = options.forUsername;
+		}
+		if(options.managedByMe) {
+			query["managedByMe"] = options.managedByMe.value() ? "true" : "false";
+		}
+		if(options.mine) {
+			query["mine"] = options.mine.value() ? "true" : "false";
+		}
+		return sendApiRequest(utils::HttpMethod::GET, "channels", query, nullptr).map<YoutubePage<YoutubeChannel>>([=](auto json) {
+			return YoutubePage<YoutubeChannel>::fromJson(json);
+		});
+	}
+
 	Promise<YoutubeChannel> Youtube::getChannel(String id) {
-		return sendApiRequest(utils::HttpMethod::GET, "channels", {
-			{ "id", id },
-			{ "part", "id,snippet" }
-		}, nullptr).map<YoutubeChannel>([=](auto json) {
-			auto page = YoutubePage<YoutubeChannel>::fromJson(json);
+		return getChannels({
+			.ids = { id }
+		}).map<YoutubeChannel>([=](auto page) {
 			if(page.items.size() == 0) {
 				throw YoutubeError(YoutubeError::Code::NOT_FOUND, "Could not find channel with id "+id);
 			}
@@ -205,18 +232,21 @@ namespace sh {
 		});
 	}
 
+
+
+
 	Promise<YoutubeItemList<YoutubeChannelSection>> Youtube::getChannelSections(GetChannelSectionsOptions options) {
 		auto query = std::map<String,String>{
 			{ "part", "id,snippet,contentDetails,localizations,targeting" }
 		};
 		if(options.ids.size() > 0) {
-			query["id"] = (std::string)String::join(options.ids,",");
+			query["id"] = String::join(options.ids,",");
 		}
 		if(!options.channelId.empty()) {
-			query["channelId"] = (std::string)options.channelId;
+			query["channelId"] = options.channelId;
 		}
 		if(options.mine.hasValue()) {
-			query["mine"] = options.mine.value();
+			query["mine"] = options.mine.value() ? "true" : "false";
 		}
 		return sendApiRequest(utils::HttpMethod::GET, "channelSections", query, nullptr).map<YoutubeItemList<YoutubeChannelSection>>([=](auto json) {
 			return YoutubeItemList<YoutubeChannelSection>::fromJson(json);
@@ -346,10 +376,11 @@ namespace sh {
 
 	Promise<void> Youtube::deleteChannelSection(String channelSectionId) {
 		auto query = std::map<String,String>{
-			{ "id", (std::string)channelSectionId }
+			{ "id", channelSectionId }
 		};
 		return sendApiRequest(utils::HttpMethod::DELETE, "channelSections", query, nullptr).toVoid();
 	}
+
 
 
 
@@ -358,26 +389,24 @@ namespace sh {
 			{ "part", "id,snippet,status,contentDetails,player,localizations" }
 		};
 		if(options.ids.size() > 0) {
-			query["id"] = (std::string)String::join(options.ids,",");
+			query["id"] = String::join(options.ids,",");
 		}
 		if(!options.channelId.empty()) {
-			query["channelId"] = (std::string)options.channelId;
+			query["channelId"] = options.channelId;
 		}
 		if(options.mine.hasValue()) {
-			query["mine"] = options.mine.value();
+			query["mine"] = options.mine.value() ? "true" : "false";
 		}
 		if(options.maxResults.hasValue()) {
-			query["maxResults"] = (int)options.maxResults.value();
+			query["maxResults"] = std::to_string(options.maxResults.value());
 		}
 		if(!options.pageToken.empty()) {
-			query["pageToken"] = (std::string)options.pageToken;
+			query["pageToken"] = options.pageToken;
 		}
 		return sendApiRequest(utils::HttpMethod::GET, "playlists", query, nullptr).map<YoutubePage<YoutubePlaylist>>([](auto json) {
 			return YoutubePage<YoutubePlaylist>::fromJson(json);
 		});
 	}
-
-
 
 	Promise<YoutubePlaylist> Youtube::getPlaylist(String id) {
 		return getPlaylists({
@@ -483,6 +512,7 @@ namespace sh {
 		};
 		return sendApiRequest(utils::HttpMethod::DELETE, "playlists", query, Json()).toVoid();
 	}
+
 
 
 

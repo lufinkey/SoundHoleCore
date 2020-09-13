@@ -52,6 +52,8 @@ namespace sh {
 		
 		Promise<Json> sendApiRequest(utils::HttpMethod method, String endpoint, std::map<String,String> query, Json body);
 		
+		
+		
 		struct SearchOptions {
 			ArrayList<MediaType> types;
 			Optional<size_t> maxResults;
@@ -61,10 +63,20 @@ namespace sh {
 		};
 		Promise<YoutubePage<YoutubeSearchResult>> search(String query, SearchOptions options);
 		
+		
+		
 		Promise<YoutubeVideoInfo> getVideoInfo(String videoId);
 		Promise<YoutubeVideo> getVideo(String videoId);
 		
 		
+		
+		struct GetChannelsOptions {
+			ArrayList<String> ids;
+			String forUsername;
+			Optional<bool> managedByMe;
+			Optional<bool> mine;
+		};
+		Promise<YoutubePage<YoutubeChannel>> getChannels(GetChannelsOptions options);
 		Promise<YoutubeChannel> getChannel(String channelId);
 		struct GetChannelPlaylistsOptions {
 			Optional<size_t> maxResults;
@@ -72,13 +84,14 @@ namespace sh {
 		};
 		Promise<YoutubePage<YoutubePlaylist>> getChannelPlaylists(String channelId, GetChannelPlaylistsOptions options = GetChannelPlaylistsOptions());
 		
+		
+		
 		struct GetChannelSectionsOptions {
 			ArrayList<String> ids;
 			String channelId;
 			Optional<bool> mine;
 		};
 		Promise<YoutubeItemList<YoutubeChannelSection>> getChannelSections(GetChannelSectionsOptions options);
-		
 		struct InsertChannelSectionOptions {
 			String type;
 			String style;
@@ -91,7 +104,6 @@ namespace sh {
 			Optional<YoutubeChannelSection::Targeting> targeting;
 		};
 		Promise<YoutubeChannelSection> insertChannelSection(InsertChannelSectionOptions options);
-		
 		struct UpdateChannelSectionOptions {
 			String type;
 			String style;
@@ -104,7 +116,6 @@ namespace sh {
 			Optional<YoutubeChannelSection::Targeting> targeting;
 		};
 		Promise<YoutubeChannelSection> updateChannelSection(String channelSectionId, UpdateChannelSectionOptions options);
-		
 		Promise<void> deleteChannelSection(String channelSectionId);
 		
 		
@@ -117,7 +128,7 @@ namespace sh {
 			String pageToken;
 		};
 		Promise<YoutubePage<YoutubePlaylist>> getPlaylists(GetPlaylistsOptions options);
-		
+		Promise<YoutubePlaylist> getPlaylist(String id);
 		struct CreatePlaylistOptions {
 			String description;
 			String privacyStatus;
@@ -126,7 +137,6 @@ namespace sh {
 			YoutubePlaylist::Localizations localizations;
 		};
 		Promise<YoutubePlaylist> createPlaylist(String title, CreatePlaylistOptions options = CreatePlaylistOptions());
-		
 		struct UpdatePlaylistOptions {
 			Optional<String> title;
 			Optional<String> description;
@@ -136,19 +146,16 @@ namespace sh {
 			Optional<YoutubePlaylist::Localizations> localizations;
 		};
 		Promise<YoutubePlaylist> updatePlaylist(String playlistId, UpdatePlaylistOptions options);
-		
 		Promise<void> deletePlaylist(String playlistId);
 		
 		
 		
-		Promise<YoutubePlaylist> getPlaylist(String id);
 		struct GetPlaylistItemsOptions {
 			Optional<size_t> maxResults;
 			String pageToken;
 			String videoId;
 		};
 		Promise<YoutubePage<YoutubePlaylistItem>> getPlaylistItems(String id, GetPlaylistItemsOptions options);
-		
 		struct InsertPlaylistItemOptions {
 			Optional<size_t> position;
 			String note;
@@ -156,7 +163,6 @@ namespace sh {
 			String endAt;
 		};
 		Promise<YoutubePlaylistItem> insertPlaylistItem(String playlistId, String resourceId, InsertPlaylistItemOptions options = InsertPlaylistItemOptions());
-		
 		struct UpdatePlaylistItemOptions {
 			String playlistId;
 			String resourceId;
@@ -166,7 +172,6 @@ namespace sh {
 			Optional<String> endAt;
 		};
 		Promise<YoutubePlaylistItem> updatePlaylistItem(String playlistItemId, UpdatePlaylistItemOptions options);
-		
 		Promise<void> deletePlaylistItem(String playlistItemId);
 		
 	private:

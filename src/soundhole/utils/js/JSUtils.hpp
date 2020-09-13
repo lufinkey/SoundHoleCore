@@ -31,10 +31,13 @@ namespace sh::jsutils {
 		}
 		return arrayListFromJson(json, transform);
 	}
-	
-	Json jsonFromNapiValue(napi_env env, napi_value value);
+
+	Optional<bool> optBoolFromJson(const Json&);
+	Optional<size_t> optSizeFromJson(const Json&);
 	
 	#ifdef NODE_API_MODULE
+
+	Json jsonFromNapiValue(napi_env env, napi_value value);
 	
 	Json jsonFromNapiValue(Napi::Value value);
 	String stringFromNapiValue(Napi::Value value);

@@ -102,7 +102,7 @@ namespace sh {
 	Json Album::toJson(const ToJsonOptions& options) const {
 		auto json = SpecialTrackCollection<AlbumItem>::toJson(options).object_items();
 		json.merge(Json::object{
-			{ "artists", (Json::array)_artists.map<Json>([&](auto& artist) {
+			{ "artists", _artists.map<Json>([&](auto& artist) {
 				return artist->toJson();
 			}) }
 		});

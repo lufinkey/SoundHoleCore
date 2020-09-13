@@ -154,7 +154,10 @@ namespace sh {
 			.etag = json["etag"].string_value(),
 			.id = json["id"].string_value(),
 			.snippet = Snippet::fromJson(json["snippet"]),
-			.contentDetails = ContentDetails::fromJson(json["contentDetails"])
+			.contentDetails = ContentDetails::fromJson(json["contentDetails"]),
+			.status = Status::fromJson(json["status"]),
+			.statistics = Statistics::fromJson(json["statistics"]),
+			.topicDetails = TopicDetails::fromJson(json["topicDetails"])
 		};
 	}
 
@@ -167,7 +170,7 @@ namespace sh {
 			.thumbnails = YoutubeImage::arrayFromJson(json["thumbnails"]),
 			.defaultLanguage = json["defaultLanguage"].string_value(),
 			.localized = Localized::fromJson(json["localized"]),
-			.country = json["country"].string_value()
+			.country = json["country"].string_value(),
 		};
 	}
 
@@ -200,6 +203,36 @@ namespace sh {
 			.uploads = json["uploads"].string_value(),
 			.watchHistory = json["watchHistory"].string_value(),
 			.watchLater = json["watchLater"].string_value()
+		};
+	}
+
+	YoutubeChannel::Status YoutubeChannel::Status::fromJson(const Json& json) {
+		return Status{
+			.privacyStatus = json["privacyStatus"].string_value(),
+			.longUploadsStatus = json["longUploadsStatus"].string_value(),
+			.isLinked = json["isLinked"].bool_value(),
+			.madeForKids = json["madeForKids"].bool_value(),
+			.selfDeclaredMadeForKids = jsutils::optBoolFromJson(json["selfDeclaredMadeForKids"])
+		};
+	}
+
+	YoutubeChannel::Statistics YoutubeChannel::Statistics::fromJson(const Json& json) {
+		return Statistics{
+			.viewCount = jsutils::optSizeFromJson(json["viewCount"]),
+			.subscriberCount = jsutils::optSizeFromJson(json["subscriberCount"]),
+			.videoCount = jsutils::optSizeFromJson(json["videoCount"]),
+			.hiddenSubscriberCount = json["hiddenSubscriberCount"].bool_value()
+		};
+	}
+
+	YoutubeChannel::TopicDetails YoutubeChannel::TopicDetails::fromJson(const Json& json) {
+		return TopicDetails{
+			.topicIds = jsutils::arrayListFromJson<String>(json["topicIds"], [](auto& json) {
+				return json.string_value();
+			}),
+			.topicCategories = jsutils::arrayListFromJson<String>(json["topicCategories"], [](auto& json) {
+				return json.string_value();
+			})
 		};
 	}
 

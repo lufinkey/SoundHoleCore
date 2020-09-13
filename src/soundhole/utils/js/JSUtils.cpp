@@ -12,6 +12,20 @@
 #include <embed/nodejs/NodeJS.hpp>
 
 namespace sh::jsutils {
+	Optional<bool> optBoolFromJson(const Json& json) {
+		if(json.is_null()) {
+			return std::nullopt;
+		}
+		return json.bool_value();
+	}
+
+	Optional<size_t> optSizeFromJson(const Json& json) {
+		if(!json.is_number()) {
+			return std::nullopt;
+		}
+		return (size_t)json.number_value();
+	}
+
 	Json jsonFromNapiValue(napi_env env, napi_value value) {
 		auto jsExports = scripts::getJSExports(env);
 		auto resultJson = jsExports.Get("json_encode").As<Napi::Function>().Call({ value }).As<Napi::String>();

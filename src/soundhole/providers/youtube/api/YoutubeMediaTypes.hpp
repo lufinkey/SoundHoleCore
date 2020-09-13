@@ -188,11 +188,40 @@ namespace sh {
 			static ContentDetails fromJson(const Json&);
 		};
 		
+		struct Status {
+			String privacyStatus;
+			String longUploadsStatus;
+			bool isLinked;
+			bool madeForKids;
+			Optional<bool> selfDeclaredMadeForKids;
+			
+			static Status fromJson(const Json&);
+		};
+		
+		struct Statistics {
+			Optional<size_t> viewCount;
+			Optional<size_t> subscriberCount;
+			Optional<size_t> videoCount;
+			bool hiddenSubscriberCount;
+			
+			static Statistics fromJson(const Json&);
+		};
+		
+		struct TopicDetails {
+			ArrayList<String> topicIds;
+			ArrayList<String> topicCategories;
+			
+			static TopicDetails fromJson(const Json&);
+		};
+		
 		String kind;
 		String etag;
 		String id;
 		Snippet snippet;
 		ContentDetails contentDetails;
+		Status status;
+		Statistics statistics;
+		TopicDetails topicDetails;
 		
 		static YoutubeChannel fromJson(const Json&);
 	};
