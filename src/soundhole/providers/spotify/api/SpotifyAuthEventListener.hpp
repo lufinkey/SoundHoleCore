@@ -12,7 +12,6 @@
 
 namespace sh {
 	class SpotifyAuth;
-	class SpotifySession;
 	
 	class SpotifyAuthEventListener {
 	public:

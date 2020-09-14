@@ -10,10 +10,12 @@
 
 #include <chrono>
 #include <soundhole/common.hpp>
-#include "SpotifySession.hpp"
+#include <soundhole/utils/OAuthSession.hpp>
 #include "SpotifyAuthEventListener.hpp"
 
 namespace sh {
+	using SpotifySession = OAuthSession;
+
 	class SpotifyAuth {
 	public:
 		struct Options {

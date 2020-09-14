@@ -1,30 +1,30 @@
 //
-//  SpotifySession_iOS.mm
+//  OAuthSession_iOS.mm
 //  SoundHoleCore
 //
-//  Created by Luis Finke on 9/22/19.
-//  Copyright © 2019 Luis Finke. All rights reserved.
+//  Created by Luis Finke on 9/13/20.
+//  Copyright © 2020 Luis Finke. All rights reserved.
 //
 
-#include "SpotifySession.hpp"
+#include "OAuthSession.hpp"
 
 #if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
 #import <Foundation/Foundation.h>
 
 namespace sh {
-	Optional<SpotifySession> SpotifySession::load(const String& key) {
-		return SpotifySession::fromNSUserDefaults(key, NSUserDefaults.standardUserDefaults);
+	Optional<OAuthSession> OAuthSession::load(const String& key) {
+		return OAuthSession::fromNSUserDefaults(key, NSUserDefaults.standardUserDefaults);
 	}
 
-	void SpotifySession::save(const String& key, Optional<SpotifySession> session) {
+	void OAuthSession::save(const String& key, Optional<OAuthSession> session) {
 		writeToNSUserDefaults(session, key, NSUserDefaults.standardUserDefaults);
 	}
 	
-	void SpotifySession::save(const String& key) {
+	void OAuthSession::save(const String& key) {
 		writeToNSUserDefaults(key, NSUserDefaults.standardUserDefaults);
 	}
 	
-	NSDictionary* SpotifySession::toNSDictionary() const {
+	NSDictionary* OAuthSession::toNSDictionary() const {
 		NSMutableDictionary* dictionary = [NSMutableDictionary dictionary];
 		dictionary[@"accessToken"] = accessToken.toNSString();
 		dictionary[@"expireDate"] = [NSDate dateWithTimeIntervalSince1970:(NSTimeInterval)std::chrono::system_clock::to_time_t(expireTime)];
@@ -39,12 +39,12 @@ namespace sh {
 		return dictionary;
 	}
 	
-	void SpotifySession::writeToNSUserDefaults(const String& key, NSUserDefaults* userDefaults) const {
+	void OAuthSession::writeToNSUserDefaults(const String& key, NSUserDefaults* userDefaults) const {
 		NSDictionary* dictionary = toNSDictionary();
 		[userDefaults setObject:dictionary forKey:key.toNSString()];
 	}
 	
-	void SpotifySession::writeToNSUserDefaults(const Optional<SpotifySession>& session, const String& key, NSUserDefaults* userDefaults) {
+	void OAuthSession::writeToNSUserDefaults(const Optional<OAuthSession>& session, const String& key, NSUserDefaults* userDefaults) {
 		if(session) {
 			session->writeToNSUserDefaults(key, userDefaults);
 		} else {
@@ -54,7 +54,7 @@ namespace sh {
 	
 	
 	
-	Optional<SpotifySession> SpotifySession::fromNSDictionary(NSDictionary* dictionary) {
+	Optional<OAuthSession> OAuthSession::fromNSDictionary(NSDictionary* dictionary) {
 		NSString* accessToken = dictionary[@"accessToken"];
 		NSDate* expireDate = dictionary[@"expireDate"];
 		NSString* refreshToken = dictionary[@"refreshToken"];
@@ -79,10 +79,10 @@ namespace sh {
 				scopes.pushBack(String(scope));
 			}
 		}
-		return SpotifySession(String(accessToken), expireTime, String(refreshToken), scopes);
+		return OAuthSession(String(accessToken), expireTime, String(refreshToken), scopes);
 	}
 	
-	Optional<SpotifySession> SpotifySession::fromNSUserDefaults(const String& key, NSUserDefaults* userDefaults) {
+	Optional<OAuthSession> OAuthSession::fromNSUserDefaults(const String& key, NSUserDefaults* userDefaults) {
 		NSDictionary* sessionData = [userDefaults objectForKey:key.toNSString()];
 		if(sessionData == nil || ![sessionData isKindOfClass:[NSDictionary class]]) {
 			return std::nullopt;

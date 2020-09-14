@@ -1,28 +1,24 @@
 //
-//  SpotifySession.hpp
+//  OAuthSession.hpp
 //  SoundHoleCore
 //
-//  Created by Luis Finke on 9/18/19.
-//  Copyright © 2019 Luis Finke. All rights reserved.
+//  Created by Luis Finke on 9/13/20.
+//  Copyright © 2020 Luis Finke. All rights reserved.
 //
 
 #pragma once
 
 #include <soundhole/common.hpp>
-#include <chrono>
-#if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
-#import <Foundation/Foundation.h>
-#endif
 
 namespace sh {
-	class SpotifySession {
+	class OAuthSession {
 	public:
 		using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
 		
-		static Optional<SpotifySession> load(const String& key);
-		static void save(const String& key, Optional<SpotifySession> session);
+		static Optional<OAuthSession> load(const String& key);
+		static void save(const String& key, Optional<OAuthSession> session);
 		
-		SpotifySession(String accessToken, TimePoint expireTime, String refreshToken, ArrayList<String> scopes);
+		OAuthSession(String accessToken, TimePoint expireTime, String refreshToken, ArrayList<String> scopes);
 		
 		void save(const String& key);
 		
@@ -42,16 +38,16 @@ namespace sh {
 		#if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
 		NSDictionary* toNSDictionary() const;
 		void writeToNSUserDefaults(const String& key, NSUserDefaults* userDefaults) const;
-		static void writeToNSUserDefaults(const Optional<SpotifySession>& session, const String& key, NSUserDefaults* userDefaults);
+		static void writeToNSUserDefaults(const Optional<OAuthSession>& session, const String& key, NSUserDefaults* userDefaults);
 		
-		static Optional<SpotifySession> fromNSDictionary(NSDictionary* dictionary);
-		static Optional<SpotifySession> fromNSUserDefaults(const String& key, NSUserDefaults* userDefaults);
+		static Optional<OAuthSession> fromNSDictionary(NSDictionary* dictionary);
+		static Optional<OAuthSession> fromNSUserDefaults(const String& key, NSUserDefaults* userDefaults);
 		#endif
 		#if defined(JNIEXPORT) && defined(TARGETPLATFORM_ANDROID)
 		void writeToAndroidSharedPrefs(JNIEnv* env, const String& key, jobject context) const;
-		static void writeToAndroidSharedPrefs(JNIEnv* env, const Optional<SpotifySession>& session, const String& key, jobject context);
+		static void writeToAndroidSharedPrefs(JNIEnv* env, const Optional<OAuthSession>& session, const String& key, jobject context);
 
-		static Optional<SpotifySession> fromAndroidSharedPrefs(JNIEnv* env, const String& key, jobject context);
+		static Optional<OAuthSession> fromAndroidSharedPrefs(JNIEnv* env, const String& key, jobject context);
 		#endif
 		
 	private:
