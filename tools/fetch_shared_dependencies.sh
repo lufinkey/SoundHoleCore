@@ -64,7 +64,7 @@ fi
 if $io_cpp; then
 	if [ ! -e "external/io-cpp/.git" ]; then
 		echo "fetching io-cpp"
-		git clone --recursive "git@github.com:lufinkey/io-cpp.git"
+		git clone --recursive "git@github.com:lufinkey/io-cpp.git" "external/io-cpp" || exit $?
 	fi
 fi
 # clone json11

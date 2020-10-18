@@ -5,4 +5,6 @@ include ':libdatacpp'
 project(':libdatacpp').projectDir=new File('../../external/data-cpp/projects/android-studio/libdatacpp')
 include ':libasynccpp'
 project(':libasynccpp').projectDir=new File('../../external/async-cpp/projects/android-studio/libasynccpp')
+include ':libiocpp'
+project(':libiocpp').projectDir=new File('../../external/io-cpp/projects/android-studio/libiocpp')
 rootProject.name='SoundHoleCore'

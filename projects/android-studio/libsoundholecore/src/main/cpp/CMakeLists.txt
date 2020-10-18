@@ -8,6 +8,7 @@ set( SOUNDHOLECORE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../.." )
 
 execute_process(COMMAND "${SOUNDHOLECORE_ROOT}/tools/fetch_shared_dependencies.sh")
 execute_process(COMMAND "${SOUNDHOLECORE_ROOT}/tools/fetch_header_dependencies.sh")
+execute_process(COMMAND "${SOUNDHOLECORE_ROOT}/tools/fetch_android_dependencies.sh")
 execute_process(COMMAND "${SOUNDHOLECORE_ROOT}/src/soundhole/scripts/build.sh")
 
 file(

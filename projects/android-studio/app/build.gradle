@@ -42,6 +42,7 @@ preBuild.dependsOn fetchDependencies
 dependencies {
     api project(':libdatacpp')
     api project(':libasynccpp')
+    api project(':libiocpp')
     api project(':libnodejsembed')
     api project(':libsoundholecore')
 

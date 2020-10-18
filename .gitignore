@@ -91,3 +91,5 @@ py_prefix
 /external/httplib
 /external/json11
 /external/cxxurl
+/external/dtl
+/external/*.aar
