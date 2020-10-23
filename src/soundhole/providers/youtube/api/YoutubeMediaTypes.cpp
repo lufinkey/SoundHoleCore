@@ -273,6 +273,12 @@ namespace sh {
 		};
 	}
 
+	Json YoutubeChannelSection::Snippet::Localized::toJson() const {
+		return Json::object{
+			{ "title", (std::string)title }
+		};
+	}
+
 	YoutubeChannelSection::ContentDetails YoutubeChannelSection::ContentDetails::fromJson(const Json& json) {
 		return ContentDetails{
 			.playlists = jsutils::arrayListFromJson<String>(json["playlists"], [](auto& json) {

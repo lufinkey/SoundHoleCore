@@ -106,8 +106,6 @@
 		A578785B23E37A7B00B6B0A5 /* QueueItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A578785823E37A7B00B6B0A5 /* QueueItem.cpp */; };
 		A578785C23E37A7B00B6B0A5 /* QueueItem.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A578785923E37A7B00B6B0A5 /* QueueItem.hpp */; };
 		A5A970E023CBDCD0009887CA /* StreamPlayerEventHandler_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5A970DF23CBDCD0009887CA /* StreamPlayerEventHandler_iOS.mm */; };
-		A5AB5BC42368B1630028851A /* YoutubeMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AB5BC22368B1630028851A /* YoutubeMediaTypes.cpp */; };
-		A5AB5BC52368B1630028851A /* YoutubeMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AB5BC22368B1630028851A /* YoutubeMediaTypes.cpp */; };
 		A5AB5BC62368B1630028851A /* YoutubeMediaTypes.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5AB5BC32368B1630028851A /* YoutubeMediaTypes.hpp */; };
 		A5AE3F04247B890000FB9AFF /* MediaDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AE3F02247B890000FB9AFF /* MediaDatabase.cpp */; };
 		A5AE3F05247B890000FB9AFF /* MediaDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AE3F02247B890000FB9AFF /* MediaDatabase.cpp */; };
@@ -209,6 +207,8 @@
 		A5EDB8ED249ADC1200885BC2 /* MediaLibraryTracksCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5EDB8EB249ADC1200885BC2 /* MediaLibraryTracksCollection.cpp */; };
 		A5EDB8EE249ADC1200885BC2 /* MediaLibraryTracksCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5EDB8EB249ADC1200885BC2 /* MediaLibraryTracksCollection.cpp */; };
 		A5EDB8EF249ADC1200885BC2 /* MediaLibraryTracksCollection.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5EDB8EC249ADC1200885BC2 /* MediaLibraryTracksCollection.hpp */; };
+		A5F07D75254383FF00C41A36 /* YoutubeMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AB5BC22368B1630028851A /* YoutubeMediaTypes.cpp */; };
+		A5F07D7E2543840100C41A36 /* YoutubeMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AB5BC22368B1630028851A /* YoutubeMediaTypes.cpp */; };
 		A5F9F63F244AB6CE00E80C7A /* Player_objc.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5F9F63D244AB6CE00E80C7A /* Player_objc.mm */; };
 		A5F9F640244AB6CE00E80C7A /* Player_objc.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5F9F63D244AB6CE00E80C7A /* Player_objc.mm */; };
 		CD1A74B29839C57A94EAACD7 /* libPods-SoundHoleCoreTest-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */; };
@@ -413,6 +413,11 @@
 		A5E851CD235DFEBC0001F74D /* BandcampMediaTypes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BandcampMediaTypes.hpp; sourceTree = "<group>"; };
 		A5EDB8EB249ADC1200885BC2 /* MediaLibraryTracksCollection.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MediaLibraryTracksCollection.cpp; sourceTree = "<group>"; };
 		A5EDB8EC249ADC1200885BC2 /* MediaLibraryTracksCollection.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaLibraryTracksCollection.hpp; sourceTree = "<group>"; };
+		A5F07DBB2543867B00C41A36 /* libAsyncCpp-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libAsyncCpp-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A5F07DBD2543867B00C41A36 /* libDataCpp-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libDataCpp-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A5F07DBF2543867B00C41A36 /* libIOCpp-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libIOCpp-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A5F07DC12543867B00C41A36 /* libNodeJSEmbed-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libNodeJSEmbed-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A5F07DC32543867B00C41A36 /* libsqlite3-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libsqlite3-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5F9F63D244AB6CE00E80C7A /* Player_objc.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Player_objc.mm; sourceTree = "<group>"; };
 		A5F9F641244AB8E200E80C7A /* Player_objc_private.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Player_objc_private.hpp; sourceTree = "<group>"; };
 		AFF721677F756E337195FAB1 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -435,8 +440,8 @@
 				A5622C7023430B20008D6631 /* UIKit.framework in Frameworks */,
 				A5622C6E23430B1A008D6631 /* WebKit.framework in Frameworks */,
 				A5622C6C23430AF4008D6631 /* SpotifyAudioPlayback.framework in Frameworks */,
-				A513EDA2232DA2F2000DCAC7 /* libSoundHoleCore-iOS.a in Frameworks */,
 				806FE0F8B91D795108D7E457 /* libPods-SoundHoleCoreTest-iOS.a in Frameworks */,
+				A513EDA2232DA2F2000DCAC7 /* libSoundHoleCore-iOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -452,8 +457,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				A513EDA8232DA30D000DCAC7 /* Cocoa.framework in Frameworks */,
-				A513EDA1232DA2EA000DCAC7 /* libSoundHoleCore-macOS.a in Frameworks */,
 				CD1A74B29839C57A94EAACD7 /* libPods-SoundHoleCoreTest-macOS.a in Frameworks */,
+				A513EDA1232DA2EA000DCAC7 /* libSoundHoleCore-macOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -638,6 +643,11 @@
 		A513EDA0232DA2EA000DCAC7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A5F07DBB2543867B00C41A36 /* libAsyncCpp-iOS.a */,
+				A5F07DBD2543867B00C41A36 /* libDataCpp-iOS.a */,
+				A5F07DBF2543867B00C41A36 /* libIOCpp-iOS.a */,
+				A5F07DC12543867B00C41A36 /* libNodeJSEmbed-iOS.a */,
+				A5F07DC32543867B00C41A36 /* libsqlite3-iOS.a */,
 				A5622C7123430B27008D6631 /* Foundation.framework */,
 				A5622C6F23430B20008D6631 /* UIKit.framework */,
 				A5622C6D23430B1A008D6631 /* WebKit.framework */,
@@ -1011,7 +1021,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A513DB29232DA15D000DCAC7 /* Build configuration list for PBXNativeTarget "SoundHoleCore-iOS" */;
 			buildPhases = (
-				A571E1412332D80200603E14 /* ShellScript */,
+				A571E1412332D80200603E14 /* [Script] Build Dependencies */,
+				A5F07D832543847C00C41A36 /* [Script] Build JS Dependencies */,
 				A513DB1F232DA15C000DCAC7 /* Sources */,
 				A513DB20232DA15C000DCAC7 /* Frameworks */,
 				A513DB21232DA15C000DCAC7 /* CopyFiles */,
@@ -1207,7 +1218,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		A571E1412332D80200603E14 /* ShellScript */ = {
+		A571E1412332D80200603E14 /* [Script] Build Dependencies */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1216,13 +1227,32 @@
 			);
 			inputPaths = (
 			);
+			name = "[Script] Build Dependencies";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n../../tools/fetch_header_dependencies.sh\n../../tools/fetch_shared_dependencies.sh json11 cxxurl\n../../src/soundhole/scripts/build.sh\n";
+			shellScript = "../../tools/fetch_header_dependencies.sh\n../../tools/fetch_shared_dependencies.sh json11 cxxurl\n";
+		};
+		A5F07D832543847C00C41A36 /* [Script] Build JS Dependencies */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "[Script] Build JS Dependencies";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../../src/soundhole/scripts/build.sh\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1284,7 +1314,6 @@
 				A578785A23E37A7B00B6B0A5 /* QueueItem.cpp in Sources */,
 				A513ED9A232DA20C000DCAC7 /* MediaItem.cpp in Sources */,
 				A54F2539239984EC00C81E1C /* SpotifyPlaybackEvent_iOS.mm in Sources */,
-				A5AB5BC42368B1630028851A /* YoutubeMediaTypes.cpp in Sources */,
 				A5E851C8235A56BD0001F74D /* YoutubeError.cpp in Sources */,
 				A52826E223F09B6200360508 /* Player.cpp in Sources */,
 				A5F9F63F244AB6CE00E80C7A /* Player_objc.mm in Sources */,
@@ -1292,6 +1321,7 @@
 				A571E12E2332C5A300603E14 /* SpotifyProvider.cpp in Sources */,
 				A5B7A7C5233EA8CC00301FC0 /* SHProgressView_iOS.mm in Sources */,
 				A5B7A79F2336C29200301FC0 /* SpotifyError.cpp in Sources */,
+				A5F07D7E2543840100C41A36 /* YoutubeMediaTypes.cpp in Sources */,
 				A5AE3F09247BA5B700FB9AFF /* MediaDatabaseSQL.cpp in Sources */,
 				A5AE3F3D247DFFE400FB9AFF /* MediaLibraryProvider.cpp in Sources */,
 				A563A60A24B633CF0036A842 /* soundhole.cpp in Sources */,
@@ -1362,11 +1392,11 @@
 				A5AE3F05247B890000FB9AFF /* MediaDatabase.cpp in Sources */,
 				A513ED9B232DA20C000DCAC7 /* MediaItem.cpp in Sources */,
 				A5B9736123822BA300FB3F1C /* Album.cpp in Sources */,
-				A5AB5BC52368B1630028851A /* YoutubeMediaTypes.cpp in Sources */,
 				A5B7A79E2336C29200301FC0 /* SpotifyError.cpp in Sources */,
 				A513ED8E232DA20B000DCAC7 /* MediaProvider.cpp in Sources */,
 				A5E7852723CE741800BD1C67 /* YoutubePlaybackProvider.cpp in Sources */,
 				A5B7A7DE233F126800301FC0 /* Spotify.cpp in Sources */,
+				A5F07D75254383FF00C41A36 /* YoutubeMediaTypes.cpp in Sources */,
 				A54F2548239DAA2700C81E1C /* StreamPlayer.cpp in Sources */,
 				A5EDB8EE249ADC1200885BC2 /* MediaLibraryTracksCollection.cpp in Sources */,
 				A5E851CF235DFEBC0001F74D /* BandcampMediaTypes.cpp in Sources */,
@@ -1566,6 +1596,7 @@
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include/nodejs",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/node/deps/openssl/openssl/include",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/addon-api",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				OTHER_LDFLAGS = "-ObjC";
@@ -1587,6 +1618,7 @@
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include/nodejs",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/node/deps/openssl/openssl/include",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/addon-api",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				OTHER_LDFLAGS = "-ObjC";
@@ -1659,6 +1691,7 @@
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/desktop/include",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/desktop/include/nodejs",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/desktop/node/deps/openssl/openssl/include",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/addon-api",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1675,6 +1708,7 @@
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/desktop/include",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/desktop/include/nodejs",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/desktop/node/deps/openssl/openssl/include",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/addon-api",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

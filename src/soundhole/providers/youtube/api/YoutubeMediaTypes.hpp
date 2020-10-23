@@ -234,6 +234,7 @@ namespace sh {
 				String title;
 				
 				static Localized fromJson(const Json&);
+				Json toJson() const;
 			};
 			
 			String type;

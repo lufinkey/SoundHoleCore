@@ -7,10 +7,10 @@ PODS:
     - DataCpp
   - NodeJSEmbed (0.1.0):
     - NodeMobile
-  - NodeMobile (0.1.8)
-  - sqlite3 (3.32.0):
-    - sqlite3/common (= 3.32.0)
-  - sqlite3/common (3.32.0)
+  - NodeMobile (0.3.0)
+  - sqlite3 (3.33.0):
+    - sqlite3/common (= 3.33.0)
+  - sqlite3/common (3.33.0)
 
 DEPENDENCIES:
   - "AsyncCpp (from `git@github.com:lufinkey/async-cpp.git`)"
@@ -38,29 +38,29 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   AsyncCpp:
-    :commit: a9890cc887389dd2b1009166078c9935458a1a96
+    :commit: 2572b47cbc0725d54618f1fe671b5458e3bb9fe6
     :git: "git@github.com:lufinkey/async-cpp.git"
   DataCpp:
-    :commit: 6858c0e926f7516f4a1f7da3abc251cf27421ede
+    :commit: ef4bd5aeda663c64fdd9a7da1bbe72a0ff9e2aaf
     :git: "git@github.com:lufinkey/data-cpp.git"
   IOCpp:
-    :commit: f65ac9e5efbdf442ef47274f45a5140bed4f0eb6
+    :commit: e4bbc9642fd04d24740080d4e6a1c391003a5a80
     :git: "git@github.com:lufinkey/io-cpp.git"
   NodeJSEmbed:
-    :commit: 598bee3bd0234f001d976fb47b47eb574e5ccd68
+    :commit: 50284aead3d8b0a3e6ebfdf2add911e01c17aacd
     :git: "git@github.com:lufinkey/nodejs-embed.git"
   NodeMobile:
-    :commit: d731966cf36550c68b4d7ce22765ca7fd73d0733
+    :commit: c8ed4167f58fd3dc35b508fa7018497a908751b5
     :git: https://github.com/janeasystems/nodejs-mobile.git
 
 SPEC CHECKSUMS:
   AsyncCpp: ff10a2512796374946dfd19a23628d7fd0a09b6e
   DataCpp: 7e6957f3f049b1ec0992723d06f65424f81bf836
   IOCpp: 7fa7e7c7a19518fed8633bfbd020c08d3acf5283
-  NodeJSEmbed: ff7926e46e0ce00c856cf37e2287c34ef86fb04c
-  NodeMobile: cb332628599d35759769bdb6b1501b17b5f1f287
-  sqlite3: 48ffc8e1c3080c4b9993a85456e86ab6fc1e3aff
+  NodeJSEmbed: b108418c5cdaba02903b75fc4a20e1b795dbbeb9
+  NodeMobile: d6a5a252d4774c89c360f627f166b727b07b9aee
+  sqlite3: cd6cd1a4ee50b8b5fdad2940bd05b1c1d2659efc
 
 PODFILE CHECKSUM: de24c097628ffb5310090929542134e9452b65c9
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.10.0
