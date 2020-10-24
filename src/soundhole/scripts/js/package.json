@@ -14,7 +14,7 @@
 	"license": "UNLICENSED",
 	"dependencies": {
 		"bandcamp-api": "git+ssh://git@github.com/lufinkey/bandcamp-api.git",
-		"ytdl-core": "^3.2.0"
+		"ytdl-core": "^3.4.2"
 	},
 	"devDependencies": {
 		"@babel/cli": "^7.8.3",

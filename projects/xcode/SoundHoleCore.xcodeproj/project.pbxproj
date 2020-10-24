@@ -312,12 +312,10 @@
 		A571E15623331C6600603E14 /* SpotifyAuth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyAuth.cpp; sourceTree = "<group>"; };
 		A571E1682333305D00603E14 /* Scripts.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Scripts.cpp; sourceTree = "<group>"; };
 		A571E1692333305D00603E14 /* Scripts.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Scripts.hpp; sourceTree = "<group>"; };
-		A571E16E233331B900603E14 /* package-lock.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "package-lock.json"; sourceTree = "<group>"; };
 		A571E16F233331B900603E14 /* index.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = index.js; sourceTree = "<group>"; };
 		A571E170233331B900603E14 /* package.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = package.json; sourceTree = "<group>"; };
 		A571E172233331C100603E14 /* test.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = test.js; sourceTree = "<group>"; };
 		A571E173233331C100603E14 /* YoutubeDL.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = YoutubeDL.js; sourceTree = "<group>"; };
-		A571E1762333350200603E14 /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build.sh; sourceTree = "<group>"; };
 		A571E1842333E5D800603E14 /* build */ = {isa = PBXFileReference; lastKnownFileType = folder; path = build; sourceTree = "<group>"; };
 		A571E1992334121500603E14 /* string.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = string.hpp; sourceTree = "<group>"; };
 		A571E19A2334121500603E14 /* url.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = url.cpp; sourceTree = "<group>"; };
@@ -769,9 +767,7 @@
 			children = (
 				A571E16F233331B900603E14 /* index.js */,
 				A571E171233331C100603E14 /* src */,
-				A571E1762333350200603E14 /* build.sh */,
 				A571E170233331B900603E14 /* package.json */,
-				A571E16E233331B900603E14 /* package-lock.json */,
 				A571E1842333E5D800603E14 /* build */,
 			);
 			path = js;
