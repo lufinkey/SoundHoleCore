@@ -129,7 +129,7 @@ namespace sh {
 		virtual HandlerStatus onSystemMediaControlsStop() override;
 		virtual HandlerStatus onSystemMediaControlsPrevious() override;
 		virtual HandlerStatus onSystemMediaControlsNext() override;
-		virtual HandlerStatus onSystemMediaControlsChangeRepeatMode(RepeatMode) override;
+		virtual HandlerStatus onSystemMediaControlsChangeRepeatMode(SystemMediaControls::RepeatMode) override;
 		virtual HandlerStatus onSystemMediaControlsChangeShuffleMode(bool) override;
 		
 	private:
