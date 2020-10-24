@@ -19,11 +19,15 @@ namespace sh {
 	: options(options),
 	organizer(PlaybackOrganizer::new$({.delegate=this})),
 	mediaProvider(nullptr),
-	preparedMediaProvider(nullptr) {
+	preparedMediaProvider(nullptr),
+	systemMediaControls(nullptr) {
 		organizer->addEventListener(this);
 	}
 
 	Player::~Player() {
+		if(systemMediaControls != nullptr) {
+			systemMediaControls->removeListener(this);
+		}
 		organizer->removeEventListener(this);
 		organizer->stop();
 		setMediaProvider(nullptr);
@@ -34,6 +38,8 @@ namespace sh {
 	}
 
 
+
+	#pragma mark Saving / Loading
 
 	String Player::getProgressFilePath() const {
 		return options.savePrefix+"/player_progress.json";
@@ -129,6 +135,8 @@ namespace sh {
 
 
 
+	#pragma mark Event Listeners
+
 	void Player::addEventListener(EventListener* listener) {
 		std::unique_lock<std::mutex> lock(listenersMutex);
 		listeners.pushBack(listener);
@@ -145,6 +153,8 @@ namespace sh {
 	}
 
 
+
+	#pragma mark Media Control functions
 
 	Promise<void> Player::play($<Track> track) {
 		#ifdef TARGETPLATFORM_IOS
@@ -291,6 +301,8 @@ namespace sh {
 
 
 
+	#pragma mark Metadata / State / Context / Queue
+
 	Player::Metadata Player::metadata() {
 		auto previousTrackPromise = organizer->getPreviousTrack();
 		$<Track> previousTrack;
@@ -358,6 +370,87 @@ namespace sh {
 
 
 
+	#pragma mark SystemMediaControls
+
+	void Player::setSystemMediaControls(SystemMediaControls* controls) {
+		if(systemMediaControls != nullptr) {
+			systemMediaControls->removeListener(this);
+		}
+		systemMediaControls = controls;
+		if(systemMediaControls != nullptr) {
+			systemMediaControls->addListener(this);
+			auto metadata = this->metadata();
+			if(metadata.currentTrack) {
+				updateSystemMediaControls();
+			}
+		}
+	}
+
+	SystemMediaControls* Player::getSystemMediaControls() {
+		return systemMediaControls;
+	}
+
+	const SystemMediaControls* Player::getSystemMediaControls() const {
+		return systemMediaControls;
+	}
+
+	void Player::updateSystemMediaControls() {
+		using PlaybackState = SystemMediaControls::PlaybackState;
+		using ButtonState = SystemMediaControls::ButtonState;
+		using RepeatMode = SystemMediaControls::RepeatMode;
+		if(systemMediaControls != nullptr) {
+			auto context = this->context();
+			auto contextIndex = this->contextIndex();
+			auto state = this->state();
+			auto metadata = this->metadata();
+			
+			auto playbackState = metadata.currentTrack ? (state.playing ? PlaybackState::PLAYING : PlaybackState::PAUSED) : PlaybackState::STOPPED;
+			systemMediaControls->setPlaybackState(playbackState);
+			
+			systemMediaControls->setButtonState(ButtonState{
+				.playEnabled = (metadata.currentTrack != nullptr),
+				.pauseEnabled = (metadata.currentTrack != nullptr),
+				.stopEnabled = (metadata.currentTrack != nullptr),
+				.previousEnabled = (metadata.previousTrack != nullptr),
+				.nextEnabled = (metadata.nextTrack != nullptr),
+				.repeatEnabled = false,
+				.repeatMode = RepeatMode::OFF,
+				.shuffleEnabled = true,
+				.shuffleMode = state.shuffling
+			});
+			
+			auto nowPlaying = SystemMediaControls::NowPlaying();
+			if(metadata.currentTrack) {
+				nowPlaying.title = metadata.currentTrack->name();
+				auto artists = metadata.currentTrack->artists();
+				if(artists.size() > 0) {
+					nowPlaying.artist = String::join(metadata.currentTrack->artists().map<String>([](auto& a){ return a->name(); }), ", ");
+				}
+				if(!metadata.currentTrack->albumURI().empty()) {
+					nowPlaying.albumTitle = metadata.currentTrack->albumName();
+				}
+				if(auto duration = metadata.currentTrack->duration()) {
+					nowPlaying.duration = duration;
+				}
+				nowPlaying.elapsedTime = state.position;
+			}
+			if(contextIndex) {
+				nowPlaying.trackIndex = contextIndex;
+			}
+			if(context) {
+				auto itemCount = context->itemCount();
+				if(itemCount) {
+					nowPlaying.trackCount = itemCount;
+				}
+			}
+			systemMediaControls->setNowPlaying(nowPlaying);
+		}
+	}
+
+
+
+	#pragma mark Preparing / Playing Track
+
 	Promise<void> Player::prepareTrack($<Track> track) {
 		auto runOptions = AsyncQueue::RunOptions{
 			.tag="prepare",
@@ -415,6 +508,7 @@ namespace sh {
 			}
 			return playbackProvider->play(track, position).then([=]() {
 				this->resumableProgress = std::nullopt;
+				updateSystemMediaControls();
 				saveInBackground({.includeMetadata=true});
 			});
 		}).promise;
@@ -443,6 +537,10 @@ namespace sh {
 			}
 		}
 	}
+
+
+
+	#pragma mark Player State Interval Timer
 	
 	void Player::startPlayerStateInterval() {
 		if(!providerPlayerStateTimer) {
@@ -494,6 +592,8 @@ namespace sh {
 
 
 
+	#pragma mark PlaybackOrganizer::EventListener
+
 	Promise<void> Player::onPlaybackOrganizerPrepareTrack($<PlaybackOrganizer> organizer, $<Track> track) {
 		return prepareTrack(track);
 	}
@@ -518,6 +618,8 @@ namespace sh {
 				if(!self) {
 					return;
 				}
+				// update media controls
+				self->updateSystemMediaControls();
 				// emit metadata change event
 				callPlayerListenerEvent(&EventListener::onPlayerMetadataChange, self, createEvent());
 			}).except([=](std::exception_ptr error) {
@@ -531,6 +633,8 @@ namespace sh {
 				if(!self) {
 					return;
 				}
+				// update media controls
+				self->updateSystemMediaControls();
 				// emit metadata change event
 				callPlayerListenerEvent(&EventListener::onPlayerMetadataChange, self, createEvent());
 			}).except([=](std::exception_ptr error) {
@@ -541,9 +645,15 @@ namespace sh {
 
 	void Player::onPlaybackOrganizerQueueChange($<PlaybackOrganizer> organizer) {
 		auto self = shared_from_this();
+		// update media controls
+		updateSystemMediaControls();
 		// emit queue change event
 		callPlayerListenerEvent(&EventListener::onPlayerQueueChange, self, createEvent());
 	}
+
+
+
+	#pragma mark MediaPlaybackProvider::EventListener
 
 	void Player::onMediaPlaybackProviderPlay(MediaPlaybackProvider* provider) {
 		auto self = shared_from_this();
@@ -552,6 +662,10 @@ namespace sh {
 		#if defined(TARGETPLATFORM_IOS)
 			activateAudioSession();
 		#endif
+		
+		// update media controls
+		updateSystemMediaControls();
+		
 		// emit state change event
 		auto event = createEvent();
 		callPlayerListenerEvent(&EventListener::onPlayerStateChange, self, event);
@@ -563,6 +677,10 @@ namespace sh {
 		auto self = shared_from_this();
 		onMediaPlaybackProviderEvent();
 		stopPlayerStateInterval();
+		
+		// update media controls
+		updateSystemMediaControls();
+		
 		// emit state change event
 		auto event = createEvent();
 		callPlayerListenerEvent(&EventListener::onPlayerStateChange, self, event);
@@ -575,6 +693,9 @@ namespace sh {
 		onMediaPlaybackProviderEvent();
 		stopPlayerStateInterval();
 		saveInBackground({.includeMetadata=false});
+		
+		// update media controls
+		updateSystemMediaControls();
 		
 		// emit track finish event
 		callPlayerListenerEvent(&EventListener::onPlayerTrackFinish, self, createEvent());
@@ -595,6 +716,9 @@ namespace sh {
 	void Player::onMediaPlaybackProviderMetadataChange(MediaPlaybackProvider* provider) {
 		auto self = shared_from_this();
 		onMediaPlaybackProviderEvent();
+		
+		// update media controls
+		updateSystemMediaControls();
 		
 		// emit metadata change event
 		callPlayerListenerEvent(&EventListener::onPlayerMetadataChange, self, createEvent());
@@ -635,6 +759,60 @@ namespace sh {
 	}
 
 
+
+	#pragma mark SystemMediaControls::Listener
+
+	SystemMediaControls::Listener::HandlerStatus Player::onSystemMediaControlsPause() {
+		if(metadata().currentTrack) {
+			setPlaying(false);
+			return HandlerStatus::SUCCESS;
+		} else {
+			return HandlerStatus::NO_NOW_PLAYING_ITEM;
+		}
+	}
+
+	SystemMediaControls::Listener::HandlerStatus Player::onSystemMediaControlsPlay() {
+		if(metadata().currentTrack) {
+			setPlaying(true);
+			return HandlerStatus::SUCCESS;
+		} else {
+			return HandlerStatus::NO_NOW_PLAYING_ITEM;
+		}
+	}
+
+	SystemMediaControls::Listener::HandlerStatus Player::onSystemMediaControlsStop() {
+		// TODO actually stop player
+		setPlaying(false);
+		return HandlerStatus::SUCCESS;
+	}
+
+	SystemMediaControls::Listener::HandlerStatus Player::onSystemMediaControlsPrevious() {
+		skipToPrevious();
+		return HandlerStatus::SUCCESS;
+	}
+
+	SystemMediaControls::Listener::HandlerStatus Player::onSystemMediaControlsNext() {
+		skipToNext();
+		return HandlerStatus::SUCCESS;
+	}
+
+	SystemMediaControls::Listener::HandlerStatus Player::onSystemMediaControlsChangeRepeatMode(SystemMediaControls::RepeatMode repeatMode) {
+		if(repeatMode == SystemMediaControls::RepeatMode::ALL) {
+			// TODO set repeating
+		} else {
+			// TODO set not repeating
+		}
+		return HandlerStatus::FAILED;
+	}
+
+	SystemMediaControls::Listener::HandlerStatus Player::onSystemMediaControlsChangeShuffleMode(bool shuffleMode) {
+		setShuffling(shuffleMode);
+		return HandlerStatus::SUCCESS;
+	}
+
+
+
+	#pragma mark Helper structs
 
 	Json Player::ProgressData::toJson() const {
 		return Json::object{
