@@ -359,7 +359,7 @@
 		A5B7A7962335D63000301FC0 /* SpotifyError.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyError.cpp; sourceTree = "<group>"; };
 		A5B7A7972335D63000301FC0 /* SpotifyError.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyError.hpp; sourceTree = "<group>"; };
 		A5B7A79A2335DDE100301FC0 /* SpotifyError_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SpotifyError_iOS.mm; sourceTree = "<group>"; };
-		A5B7A7A22337DA5700301FC0 /* SpotifyAuth_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SpotifyAuth_iOS.mm; sourceTree = "<group>"; };
+		A5B7A7A22337DA5700301FC0 /* SpotifyAuth_iOS.mm */ = {isa = PBXFileReference; indentWidth = 5; lastKnownFileType = sourcecode.cpp.objcpp; path = SpotifyAuth_iOS.mm; sourceTree = "<group>"; };
 		A5B7A7A92337F1DE00301FC0 /* SpotifyPlayer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyPlayer.cpp; sourceTree = "<group>"; };
 		A5B7A7AA2337F1DE00301FC0 /* SpotifyPlayer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyPlayer.hpp; sourceTree = "<group>"; };
 		A5B7A7AE2337F9B500301FC0 /* SpotifyPlayer_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SpotifyPlayer_iOS.mm; sourceTree = "<group>"; };

@@ -23,6 +23,9 @@
 		self.modalPresentationStyle = UIModalPresentationFormSheet;
 		_statusBarStyle = UIStatusBarStyleDefault;
 		_webViewController = webViewController;
+		[_webViewController loadViewIfNeeded];
+		_webViewController.webView.navigationDelegate = self;
+		_webViewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(didPressCancelButton)];
 	}
 	return self;
 }
@@ -89,9 +92,6 @@
 
 -(void)viewDidLoad {
 	[super viewDidLoad];
-	[_webViewController loadViewIfNeeded];
-	_webViewController.webView.navigationDelegate = self;
-	_webViewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(didPressCancelButton)];
 	self.presentationController.delegate = self;
 }
 
