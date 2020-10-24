@@ -209,6 +209,12 @@
 		A5EDB8EF249ADC1200885BC2 /* MediaLibraryTracksCollection.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5EDB8EC249ADC1200885BC2 /* MediaLibraryTracksCollection.hpp */; };
 		A5F07D75254383FF00C41A36 /* YoutubeMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AB5BC22368B1630028851A /* YoutubeMediaTypes.cpp */; };
 		A5F07D7E2543840100C41A36 /* YoutubeMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AB5BC22368B1630028851A /* YoutubeMediaTypes.cpp */; };
+		A5F081602543CFAE00C41A36 /* SystemMediaControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5F0815E2543CFAE00C41A36 /* SystemMediaControls.cpp */; };
+		A5F081612543CFAE00C41A36 /* SystemMediaControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5F0815E2543CFAE00C41A36 /* SystemMediaControls.cpp */; };
+		A5F081622543CFAE00C41A36 /* SystemMediaControls.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5F0815F2543CFAE00C41A36 /* SystemMediaControls.hpp */; };
+		A5F081702543D54600C41A36 /* SystemMediaControls_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5F0816F2543D54600C41A36 /* SystemMediaControls_iOS.mm */; };
+		A5F081B72543F2B900C41A36 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5F081B62543F2B800C41A36 /* MediaPlayer.framework */; };
+		A5F081BD2543F33800C41A36 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5F081BC2543F33800C41A36 /* MediaPlayer.framework */; };
 		A5F9F63F244AB6CE00E80C7A /* Player_objc.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5F9F63D244AB6CE00E80C7A /* Player_objc.mm */; };
 		A5F9F640244AB6CE00E80C7A /* Player_objc.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5F9F63D244AB6CE00E80C7A /* Player_objc.mm */; };
 		CD1A74B29839C57A94EAACD7 /* libPods-SoundHoleCoreTest-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */; };
@@ -416,6 +422,12 @@
 		A5F07DBF2543867B00C41A36 /* libIOCpp-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libIOCpp-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5F07DC12543867B00C41A36 /* libNodeJSEmbed-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libNodeJSEmbed-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5F07DC32543867B00C41A36 /* libsqlite3-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libsqlite3-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A5F0815E2543CFAE00C41A36 /* SystemMediaControls.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SystemMediaControls.cpp; sourceTree = "<group>"; };
+		A5F0815F2543CFAE00C41A36 /* SystemMediaControls.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SystemMediaControls.hpp; sourceTree = "<group>"; };
+		A5F0816F2543D54600C41A36 /* SystemMediaControls_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SystemMediaControls_iOS.mm; sourceTree = "<group>"; };
+		A5F0817E2543D64B00C41A36 /* SystemMediaControls_iOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SystemMediaControls_iOS.h; sourceTree = "<group>"; };
+		A5F081B62543F2B800C41A36 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/iOSSupport/System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
+		A5F081BC2543F33800C41A36 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.1.sdk/System/Library/Frameworks/MediaPlayer.framework; sourceTree = DEVELOPER_DIR; };
 		A5F9F63D244AB6CE00E80C7A /* Player_objc.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Player_objc.mm; sourceTree = "<group>"; };
 		A5F9F641244AB8E200E80C7A /* Player_objc_private.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Player_objc_private.hpp; sourceTree = "<group>"; };
 		AFF721677F756E337195FAB1 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -426,6 +438,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A5F081B72543F2B900C41A36 /* MediaPlayer.framework in Frameworks */,
 				A571E13D2332D11200603E14 /* SpotifyAudioPlayback.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -437,6 +450,7 @@
 				A5622C7223430B27008D6631 /* Foundation.framework in Frameworks */,
 				A5622C7023430B20008D6631 /* UIKit.framework in Frameworks */,
 				A5622C6E23430B1A008D6631 /* WebKit.framework in Frameworks */,
+				A5F081BD2543F33800C41A36 /* MediaPlayer.framework in Frameworks */,
 				A5622C6C23430AF4008D6631 /* SpotifyAudioPlayback.framework in Frameworks */,
 				806FE0F8B91D795108D7E457 /* libPods-SoundHoleCoreTest-iOS.a in Frameworks */,
 				A513EDA2232DA2F2000DCAC7 /* libSoundHoleCore-iOS.a in Frameworks */,
@@ -641,6 +655,8 @@
 		A513EDA0232DA2EA000DCAC7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A5F081B62543F2B800C41A36 /* MediaPlayer.framework */,
+				A5F081BC2543F33800C41A36 /* MediaPlayer.framework */,
 				A5F07DBB2543867B00C41A36 /* libAsyncCpp-iOS.a */,
 				A5F07DBD2543867B00C41A36 /* libDataCpp-iOS.a */,
 				A5F07DBF2543867B00C41A36 /* libIOCpp-iOS.a */,
@@ -674,6 +690,10 @@
 				A5A970DF23CBDCD0009887CA /* StreamPlayerEventHandler_iOS.mm */,
 				A5E7852523CE73A300BD1C67 /* StreamPlaybackProvider.hpp */,
 				A5E7852423CE73A300BD1C67 /* StreamPlaybackProvider.cpp */,
+				A5F0815F2543CFAE00C41A36 /* SystemMediaControls.hpp */,
+				A5F0815E2543CFAE00C41A36 /* SystemMediaControls.cpp */,
+				A5F0817E2543D64B00C41A36 /* SystemMediaControls_iOS.h */,
+				A5F0816F2543D54600C41A36 /* SystemMediaControls_iOS.mm */,
 			);
 			path = playback;
 			sourceTree = "<group>";
@@ -967,6 +987,7 @@
 				A5B7A7902335C91800301FC0 /* SoundHoleError.hpp in Headers */,
 				A5B7A7AD2337F1DE00301FC0 /* SpotifyPlayer.hpp in Headers */,
 				A571E15A23331C6600603E14 /* SpotifyAuth.hpp in Headers */,
+				A5F081622543CFAE00C41A36 /* SystemMediaControls.hpp in Headers */,
 				A5485A25238DFB1300CB7749 /* Utils.hpp in Headers */,
 				A5C0A8F123D1735F00CDB59E /* BandcampAlbumMutatorDelegate.hpp in Headers */,
 				A5AE3F2E247DCF3600FB9AFF /* SQLIndexRange.hpp in Headers */,
@@ -1297,12 +1318,14 @@
 				A513ED94232DA20B000DCAC7 /* YoutubeProvider.cpp in Sources */,
 				A563A5CB24AFF3600036A842 /* SQLOrderBy.cpp in Sources */,
 				A5E851AA2357BECD0001F74D /* BandcampError.cpp in Sources */,
+				A5F081602543CFAE00C41A36 /* SystemMediaControls.cpp in Sources */,
 				A5E851C4235A505B0001F74D /* Youtube.cpp in Sources */,
 				A5AE3F1C247C593100FB9AFF /* SQLiteTransaction.cpp in Sources */,
 				A5E7852623CE73A300BD1C67 /* StreamPlaybackProvider.cpp in Sources */,
 				A5C0A8E823CFE59100CDB59E /* SpotifyPlaylistMutatorDelegate.cpp in Sources */,
 				A5485A2D239432CE00CB7749 /* SpotifyPlaybackProvider.cpp in Sources */,
 				A5C0A8EF23D1735F00CDB59E /* BandcampAlbumMutatorDelegate.cpp in Sources */,
+				A5F081702543D54600C41A36 /* SystemMediaControls_iOS.mm in Sources */,
 				A55F55CC24CDD74700DF2825 /* TrackCollection.mm in Sources */,
 				A5485A23238DFB1300CB7749 /* Utils.cpp in Sources */,
 				A513ED91232DA20B000DCAC7 /* BandcampProvider.cpp in Sources */,
@@ -1395,6 +1418,7 @@
 				A5F07D75254383FF00C41A36 /* YoutubeMediaTypes.cpp in Sources */,
 				A54F2548239DAA2700C81E1C /* StreamPlayer.cpp in Sources */,
 				A5EDB8EE249ADC1200885BC2 /* MediaLibraryTracksCollection.cpp in Sources */,
+				A5F081612543CFAE00C41A36 /* SystemMediaControls.cpp in Sources */,
 				A5E851CF235DFEBC0001F74D /* BandcampMediaTypes.cpp in Sources */,
 				A571E1322332C64500603E14 /* SpotifyProvider.cpp in Sources */,
 				A5AE3F24247C937400FB9AFF /* MediaDatabaseSQLOperations.cpp in Sources */,
@@ -1586,7 +1610,10 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../../external/spotify-ios-streaming-sdk";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/../../external/spotify-ios-streaming-sdk",
+					"$(SDKROOT)/System/iOSSupport/System/Library/Frameworks",
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include",
@@ -1608,7 +1635,10 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../../external/spotify-ios-streaming-sdk";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/../../external/spotify-ios-streaming-sdk",
+					"$(SDKROOT)/System/iOSSupport/System/Library/Frameworks",
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include",
