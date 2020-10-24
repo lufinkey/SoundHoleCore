@@ -273,12 +273,6 @@ namespace sh {
 		};
 	}
 
-	Json YoutubeChannelSection::Snippet::Localized::toJson() const {
-		return Json::object{
-			{ "title", (std::string)title }
-		};
-	}
-
 	YoutubeChannelSection::ContentDetails YoutubeChannelSection::ContentDetails::fromJson(const Json& json) {
 		return ContentDetails{
 			.playlists = jsutils::arrayListFromJson<String>(json["playlists"], [](auto& json) {
@@ -293,6 +287,12 @@ namespace sh {
 	YoutubeChannelSection::Localization YoutubeChannelSection::Localization::fromJson(const Json& json) {
 		return Localization{
 			.title = json["title"].string_value()
+		};
+	}
+
+	Json YoutubeChannelSection::Localization::toJson() const {
+		return Json::object{
+			{ "title", (std::string)title }
 		};
 	}
 

@@ -47,7 +47,7 @@ CHECKOUT OPTIONS:
     :commit: e4bbc9642fd04d24740080d4e6a1c391003a5a80
     :git: "git@github.com:lufinkey/io-cpp.git"
   NodeJSEmbed:
-    :commit: 50284aead3d8b0a3e6ebfdf2add911e01c17aacd
+    :commit: 73e01e7268623f4f10d1c43c3d58d703c20ad8ad
     :git: "git@github.com:lufinkey/nodejs-embed.git"
   NodeMobile:
     :commit: c8ed4167f58fd3dc35b508fa7018497a908751b5
