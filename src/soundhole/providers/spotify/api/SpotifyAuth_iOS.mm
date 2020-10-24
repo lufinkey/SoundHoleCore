@@ -61,6 +61,7 @@ namespace sh {
 				
 				// prepare auth controller
 				[authController loadViewIfNeeded];
+				[authController.webViewController loadViewIfNeeded];
 				NSURL* url = [NSURL URLWithString:options.getWebAuthenticationURL(String(xssState)).toNSString()];
 				NSURLRequest* request = [NSURLRequest requestWithURL:url];
 				[authController.webViewController.webView loadRequest:request];
