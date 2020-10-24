@@ -14,5 +14,6 @@
 #include <soundhole/providers/spotify/SpotifyProvider.hpp>
 #include <soundhole/providers/youtube/YoutubeProvider.hpp>
 #include <soundhole/playback/Player.hpp>
+#include <soundhole/playback/SystemMediaControls.hpp>
 #include <soundhole/utils/Utils.hpp>
 #include <soundhole/utils/SoundHoleError.hpp>
