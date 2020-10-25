@@ -139,7 +139,7 @@ namespace sh {
 						continue;
 					}
 					if(yieldResult.value) {
-						// cache collection items if collection
+						// cache library items
 						double prevProgress = task->getStatus().progress;
 						double progressDiff = yieldResult.value->progress - prevProgress;
 						double itemProgressDiff = progressDiff / (double)yieldResult.value->items.size();
@@ -155,7 +155,7 @@ namespace sh {
 									continue;
 								}
 								await(db->cacheTrackCollections({ collection }));
-								// cache album items
+								// cache collection items
 								size_t itemsOffset = 0;
 								task->setStatusText("Synchronizing "+libraryProvider->displayName()+" "+collection->type()+" "+collection->name());
 								auto collectionItemGenerator = collection->generateItems();

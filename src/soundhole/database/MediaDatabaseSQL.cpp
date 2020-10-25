@@ -342,7 +342,7 @@ String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collecti
 		// owner
 		MAYBE_COALESCE_FIELD(options.coalesce, params, "owner", "TrackCollection", collection, owner ? String(owner->toJson().dump()) : Any()),",",
 		// artists
-		MAYBE_COALESCE_FIELD(options.coalesce, params, "artists", "TrackCollection", collection, artists ? nonEmptyArtistsJson(artists.value()) : Json()),",",
+		MAYBE_COALESCE_FIELD(options.coalesce, params, "artists", "TrackCollection", collection, artists ? nonEmptyArtistsJson(artists.value()) : Any()),",",
 		// images
 		MAYBE_COALESCE_FIELD(options.coalesce, params, "images", "TrackCollection", collection, imagesJson(collection->images())),",",
 		// updateTime
