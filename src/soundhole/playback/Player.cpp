@@ -762,7 +762,8 @@ namespace sh {
 
 	#pragma mark SystemMediaControls::Listener
 
-	SystemMediaControls::Listener::HandlerStatus Player::onSystemMediaControlsPause() {
+	SystemMediaControls::HandlerStatus Player::onSystemMediaControlsPause() {
+		using HandlerStatus = SystemMediaControls::HandlerStatus;
 		if(metadata().currentTrack) {
 			setPlaying(false);
 			return HandlerStatus::SUCCESS;
@@ -771,7 +772,8 @@ namespace sh {
 		}
 	}
 
-	SystemMediaControls::Listener::HandlerStatus Player::onSystemMediaControlsPlay() {
+	SystemMediaControls::HandlerStatus Player::onSystemMediaControlsPlay() {
+		using HandlerStatus = SystemMediaControls::HandlerStatus;
 		if(metadata().currentTrack) {
 			setPlaying(true);
 			return HandlerStatus::SUCCESS;
@@ -780,23 +782,27 @@ namespace sh {
 		}
 	}
 
-	SystemMediaControls::Listener::HandlerStatus Player::onSystemMediaControlsStop() {
+	SystemMediaControls::HandlerStatus Player::onSystemMediaControlsStop() {
+		using HandlerStatus = SystemMediaControls::HandlerStatus;
 		// TODO actually stop player
 		setPlaying(false);
 		return HandlerStatus::SUCCESS;
 	}
 
-	SystemMediaControls::Listener::HandlerStatus Player::onSystemMediaControlsPrevious() {
+	SystemMediaControls::HandlerStatus Player::onSystemMediaControlsPrevious() {
+		using HandlerStatus = SystemMediaControls::HandlerStatus;
 		skipToPrevious();
 		return HandlerStatus::SUCCESS;
 	}
 
-	SystemMediaControls::Listener::HandlerStatus Player::onSystemMediaControlsNext() {
+	SystemMediaControls::HandlerStatus Player::onSystemMediaControlsNext() {
+		using HandlerStatus = SystemMediaControls::HandlerStatus;
 		skipToNext();
 		return HandlerStatus::SUCCESS;
 	}
 
-	SystemMediaControls::Listener::HandlerStatus Player::onSystemMediaControlsChangeRepeatMode(SystemMediaControls::RepeatMode repeatMode) {
+	SystemMediaControls::HandlerStatus Player::onSystemMediaControlsChangeRepeatMode(SystemMediaControls::RepeatMode repeatMode) {
+		using HandlerStatus = SystemMediaControls::HandlerStatus;
 		if(repeatMode == SystemMediaControls::RepeatMode::ALL) {
 			// TODO set repeating
 		} else {
@@ -805,7 +811,8 @@ namespace sh {
 		return HandlerStatus::FAILED;
 	}
 
-	SystemMediaControls::Listener::HandlerStatus Player::onSystemMediaControlsChangeShuffleMode(bool shuffleMode) {
+	SystemMediaControls::HandlerStatus Player::onSystemMediaControlsChangeShuffleMode(bool shuffleMode) {
+		using HandlerStatus = SystemMediaControls::HandlerStatus;
 		setShuffling(shuffleMode);
 		return HandlerStatus::SUCCESS;
 	}

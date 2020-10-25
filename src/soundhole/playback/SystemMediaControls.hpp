@@ -24,16 +24,16 @@ namespace sh {
 			ALL
 		};
 		
+		enum class HandlerStatus {
+			SUCCESS,
+			FAILED,
+			NO_SUCH_CONTENT,
+			NO_NOW_PLAYING_ITEM,
+			DEVICE_NOT_FOUND
+		};
+		
 		class Listener {
 		public:
-			enum HandlerStatus {
-				SUCCESS,
-				FAILED,
-				NO_SUCH_CONTENT,
-				NO_NOW_PLAYING_ITEM,
-				DEVICE_NOT_FOUND
-			};
-			
 			virtual ~Listener() {}
 			
 			virtual HandlerStatus onSystemMediaControlsPause() = 0;

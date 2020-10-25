@@ -124,13 +124,13 @@ namespace sh {
 		virtual void onMediaPlaybackProviderTrackFinish(MediaPlaybackProvider* provider) override;
 		virtual void onMediaPlaybackProviderMetadataChange(MediaPlaybackProvider* provider) override;
 		
-		virtual HandlerStatus onSystemMediaControlsPause() override;
-		virtual HandlerStatus onSystemMediaControlsPlay() override;
-		virtual HandlerStatus onSystemMediaControlsStop() override;
-		virtual HandlerStatus onSystemMediaControlsPrevious() override;
-		virtual HandlerStatus onSystemMediaControlsNext() override;
-		virtual HandlerStatus onSystemMediaControlsChangeRepeatMode(SystemMediaControls::RepeatMode) override;
-		virtual HandlerStatus onSystemMediaControlsChangeShuffleMode(bool) override;
+		virtual SystemMediaControls::HandlerStatus onSystemMediaControlsPause() override;
+		virtual SystemMediaControls::HandlerStatus onSystemMediaControlsPlay() override;
+		virtual SystemMediaControls::HandlerStatus onSystemMediaControlsStop() override;
+		virtual SystemMediaControls::HandlerStatus onSystemMediaControlsPrevious() override;
+		virtual SystemMediaControls::HandlerStatus onSystemMediaControlsNext() override;
+		virtual SystemMediaControls::HandlerStatus onSystemMediaControlsChangeRepeatMode(SystemMediaControls::RepeatMode) override;
+		virtual SystemMediaControls::HandlerStatus onSystemMediaControlsChangeShuffleMode(bool) override;
 		
 	private:
 		String getProgressFilePath() const;

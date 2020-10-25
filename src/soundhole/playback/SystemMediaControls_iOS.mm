@@ -18,8 +18,8 @@
 	return self;
 }
 
-+(MPRemoteCommandHandlerStatus)nativeHandlerStatusFrom:(sh::SystemMediaControls::Listener::HandlerStatus)handlerStatus {
-	using HandlerStatus = sh::SystemMediaControls::Listener::HandlerStatus;
++(MPRemoteCommandHandlerStatus)nativeHandlerStatusFrom:(sh::SystemMediaControls::HandlerStatus)handlerStatus {
+	using HandlerStatus = sh::SystemMediaControls::HandlerStatus;
 	switch(handlerStatus) {
 		case HandlerStatus::SUCCESS:
 			return MPRemoteCommandHandlerStatusSuccess;

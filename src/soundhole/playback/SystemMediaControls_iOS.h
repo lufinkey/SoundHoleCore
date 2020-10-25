@@ -14,7 +14,7 @@
 
 -(id)initWithListener:(sh::SystemMediaControls::Listener*)listener;
 
-+(MPRemoteCommandHandlerStatus)nativeHandlerStatusFrom:(sh::SystemMediaControls::Listener::HandlerStatus)handlerStatus;
++(MPRemoteCommandHandlerStatus)nativeHandlerStatusFrom:(sh::SystemMediaControls::HandlerStatus)handlerStatus;
 +(sh::SystemMediaControls::RepeatMode)repeatModeFrom:(MPRepeatType)repeatType;
 +(MPRepeatType)nativeRepeatModeFrom:(sh::SystemMediaControls::RepeatMode)repeatMode;
 +(bool)shuffleModeFrom:(MPShuffleType)shuffleType;
