@@ -535,6 +535,14 @@ namespace sh {
 				throw std::invalid_argument("Failed to parse images json: "+error);
 			}
 		}
+		auto ownerJson = obj["owner"];
+		if(ownerJson.is_string()) {
+			std::string error;
+			obj["owner"] = Json::parse(ownerJson.string_value(), error);
+			if(!error.empty()) {
+				throw std::invalid_argument("Failed to parse owner json: "+error);
+			}
+		}
 		return obj;
 	}
 
@@ -556,6 +564,14 @@ namespace sh {
 	Json MediaDatabase::transformDBTrackCollectionItem(Json collectionItemJson, Json trackJson) {
 		auto obj = collectionItemJson.object_items();
 		obj["track"] = transformDBTrack(trackJson);
+		auto addedByJson = obj["addedBy"];
+		if(addedByJson.is_string()) {
+			std::string error;
+			obj["addedBy"] = Json::parse(addedByJson.string_value(), error);
+			if(!error.empty()) {
+				throw std::invalid_argument("Failed to parse addedBy json: "+error);
+			}
+		}
 		return obj;
 	}
 
