@@ -209,6 +209,7 @@ namespace sh {
 		if(it != listenerNodes.end()) {
 			auto node = *it;
 			[node->wrapper unsubscribeFrom:nativeData->remoteCommandCenter];
+			listenerNodes.erase(it);
 			delete node;
 		}
 	}
