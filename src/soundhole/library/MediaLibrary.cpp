@@ -202,6 +202,8 @@ namespace sh {
 								}
 								// update versionId
 								await(db->updateTrackCollectionVersionId(collection));
+								// sync library item
+								await(db->cacheLibraryItems({ libraryItem }));
 							}
 							task->setStatusText("Synchronizing "+libraryProvider->displayName()+" library");
 							yield();
