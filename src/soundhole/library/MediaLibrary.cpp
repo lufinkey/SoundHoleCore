@@ -204,6 +204,7 @@ namespace sh {
 								await(db->updateTrackCollectionVersionId(collection));
 							}
 							task->setStatusText("Synchronizing "+libraryProvider->displayName()+" library");
+							yield();
 						}
 						
 						// sync library items to database
