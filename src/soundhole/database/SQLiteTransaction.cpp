@@ -148,7 +148,7 @@ namespace sh {
 									row[columnName] = sqlite3_column_double(stmt, i);
 								} break;
 								case SQLITE_TEXT: {
-									auto text = sqlite3_column_text(stmt, i);
+									auto text = (const char*)sqlite3_column_text(stmt, i);
 									row[columnName] = (text != nullptr) ? Json(text) : Json();
 								} break;
 								case SQLITE_BLOB: {
