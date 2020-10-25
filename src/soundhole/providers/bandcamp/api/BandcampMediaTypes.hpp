@@ -100,6 +100,15 @@ namespace sh {
 
 
 	struct BandcampTrack {
+		struct AudioSource {
+			String type;
+			String url;
+			
+			#ifdef NODE_API_MODULE
+			static AudioSource fromNapiObject(Napi::Object);
+			#endif
+		};
+		
 		String url;
 		String name;
 		ArrayList<BandcampImage> images;
@@ -108,7 +117,7 @@ namespace sh {
 		Optional<BandcampArtist> artist;
 		String albumName;
 		String albumURL;
-		Optional<String> audioURL;
+		Optional<ArrayList<AudioSource>> audioSources;
 		Optional<bool> playable;
 		Optional<double> duration;
 		Optional<ArrayList<String>> tags;

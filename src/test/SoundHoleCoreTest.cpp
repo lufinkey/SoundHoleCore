@@ -120,7 +120,7 @@ namespace sh::test {
 					throw std::runtime_error("Phonyland album has no tracks");
 				}
 				auto tracks = album.tracks->where([](auto& track) {
-					return (track.audioURL.has_value() && !track.audioURL->empty());
+					return (track.audioSources && track.audioSources->size() > 0);
 				});
 				if(tracks.size() == 0) {
 					PRINT("no playable tracks\n");
@@ -132,17 +132,17 @@ namespace sh::test {
 		})
 		.then([=]() {
 			PRINT("playing: %s\n", sharedData->firstTrack->name.c_str());
-			return streamPlayer->play(sharedData->firstTrack->audioURL.value());
+			return streamPlayer->play(sharedData->firstTrack->audioSources->front().url);
 		})
 		.delay(std::chrono::seconds(5))
 		.then([=]() {
 			PRINT("preparing: %s\n", sharedData->secondTrack->name.c_str());
-			return streamPlayer->prepare(sharedData->secondTrack->audioURL->c_str());
+			return streamPlayer->prepare(sharedData->secondTrack->audioSources->front().url);
 		})
 		.delay(std::chrono::seconds(5))
 		.then([=]() {
 			PRINT("playing: %s\n", sharedData->secondTrack->name.c_str());
-			return streamPlayer->play(sharedData->secondTrack->audioURL->c_str());
+			return streamPlayer->play(sharedData->secondTrack->audioSources->front().url);
 		})
 		.delay(std::chrono::seconds(10))
 		.finally([=]() {

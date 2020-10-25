@@ -125,25 +125,22 @@ namespace sh {
 			})(),
 			.albumName = jsutils::stringFromNapiValue(track.Get("albumName")),
 			.albumURL = jsutils::stringFromNapiValue(track.Get("albumURL")),
-			.audioURL = jsutils::optStringFromNapiValue(track.Get("audioURL")),
-			.playable = ([&]() -> Optional<bool> {
-				auto playable = track.Get("playable");
-				if(playable.IsEmpty() || playable.IsNull() || playable.IsUndefined()) {
-					return std::nullopt;
-				}
-				return playable.ToBoolean();
-			})(),
-			.duration = ([&]() -> Optional<double> {
-				auto duration = track.Get("duration");
-				if(duration.IsEmpty() || duration.IsNull() || duration.IsUndefined()) {
-					return std::nullopt;
-				}
-				return duration.template As<Napi::Number>().DoubleValue();
-			})(),
+			.audioSources = jsutils::optArrayListFromNapiArray<AudioSource>(track.Get("audioSources").As<Napi::Array>(), [](auto audioSource) -> AudioSource {
+				return AudioSource::fromNapiObject(audioSource.template As<Napi::Object>());
+			}),
+			.playable = jsutils::optBoolFromNapiValue(track.Get("playable")),
+			.duration = jsutils::optDoubleFromNapiValue(track.Get("duration")),
 			.tags = jsutils::optArrayListFromNapiArray<String>(track.Get("tags").As<Napi::Array>(), [](auto tag) -> String {
 				return tag.ToString();
 			}),
 			.description = jsutils::optStringFromNapiValue(track.Get("description"))
+		};
+	}
+
+	BandcampTrack::AudioSource BandcampTrack::AudioSource::fromNapiObject(Napi::Object audioSource) {
+		return AudioSource{
+			.type = jsutils::stringFromNapiValue(audioSource.Get("type")),
+			.url = jsutils::stringFromNapiValue(audioSource.Get("url"))
 		};
 	}
 

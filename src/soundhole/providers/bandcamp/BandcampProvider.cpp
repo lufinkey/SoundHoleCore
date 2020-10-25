@@ -9,6 +9,7 @@
 #include "BandcampProvider.hpp"
 #include "mutators/BandcampAlbumMutatorDelegate.hpp"
 #include <cxxurl/url.hpp>
+#include <regex>
 
 namespace sh {
 	BandcampProvider::BandcampProvider()
@@ -229,20 +230,26 @@ namespace sh {
 			.discNumber=std::nullopt,
 			.trackNumber=std::nullopt,
 			.duration=track.duration,
-			.audioSources=(track.audioURL.has_value() ?
-				maybe((!track.audioURL->empty()) ?
-					ArrayList<Track::AudioSource>{
-						Track::AudioSource{
-							.url=track.audioURL.value(),
-							.encoding="mp3",
-							.bitrate=128.0
-						}
+			.audioSources=(track.audioSources.has_value() ?
+				maybe(track.audioSources->map<Track::AudioSource>([](auto& audioSource) {
+					String encoding = "mp3";
+					double bitrate = 128.0;
+					std::cmatch matches;
+					std::regex expr("^([\\w\\-]+)\\-([\\d\\.]+)$");
+					if(std::regex_match(audioSource.type.c_str(), matches, expr)) {
+						encoding = matches[1].str();
+						bitrate = String(matches[2].str()).toArithmeticValue<double>();
 					}
-					: ArrayList<Track::AudioSource>{})
+					return Track::AudioSource{
+						.url=audioSource.url,
+						.encoding="mp3",
+						.bitrate=128.0
+					};
+				}))
 				: ((track.playable.has_value() && !track.playable.value()) ?
 				   maybe(ArrayList<Track::AudioSource>{})
-				   : std::nullopt
-				)),
+				   : std::nullopt)
+				),
 			.playable=track.playable.value_or(true)
 		};
 	}
