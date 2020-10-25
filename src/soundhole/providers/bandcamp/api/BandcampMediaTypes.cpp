@@ -125,15 +125,15 @@ namespace sh {
 			})(),
 			.albumName = jsutils::stringFromNapiValue(track.Get("albumName")),
 			.albumURL = jsutils::stringFromNapiValue(track.Get("albumURL")),
-			.audioSources = jsutils::optArrayListFromNapiArray<AudioSource>(track.Get("audioSources").As<Napi::Array>(), [](auto audioSource) -> AudioSource {
-				return AudioSource::fromNapiObject(audioSource.template As<Napi::Object>());
-			}),
-			.playable = jsutils::optBoolFromNapiValue(track.Get("playable")),
 			.duration = jsutils::optDoubleFromNapiValue(track.Get("duration")),
 			.tags = jsutils::optArrayListFromNapiArray<String>(track.Get("tags").As<Napi::Array>(), [](auto tag) -> String {
 				return tag.ToString();
 			}),
-			.description = jsutils::optStringFromNapiValue(track.Get("description"))
+			.description = jsutils::optStringFromNapiValue(track.Get("description")),
+			.audioSources = jsutils::optArrayListFromNapiArray<AudioSource>(track.Get("audioSources").As<Napi::Array>(), [](auto audioSource) -> AudioSource {
+				return AudioSource::fromNapiObject(audioSource.template As<Napi::Object>());
+			}),
+			.playable = jsutils::optBoolFromNapiValue(track.Get("playable"))
 		};
 	}
 
@@ -160,9 +160,10 @@ namespace sh {
 				}
 				return BandcampArtist::fromNapiObject(artist.template As<Napi::Object>());
 			})(),
-			.tracks = jsutils::optArrayListFromNapiArray<BandcampTrack>(album.Get("tracks").As<Napi::Array>(), [](auto track) -> BandcampTrack {
-				return BandcampTrack::fromNapiObject(track.template As<Napi::Object>());
+			.tags = jsutils::optArrayListFromNapiArray<String>(album.Get("tags").As<Napi::Array>(), [](auto tag) -> String {
+				return tag.ToString();
 			}),
+			.description = jsutils::optStringFromNapiValue(album.Get("description")),
 			.numTracks = ([&]() -> Optional<size_t> {
 				auto tracks = album.Get("tracks").As<Napi::Array>();
 				if(!tracks.IsEmpty() && !tracks.IsNull() && !tracks.IsUndefined()) {
@@ -174,10 +175,9 @@ namespace sh {
 				}
 				return std::nullopt;
 			})(),
-			.tags = jsutils::optArrayListFromNapiArray<String>(album.Get("tags").As<Napi::Array>(), [](auto tag) -> String {
-				return tag.ToString();
-			}),
-			.description = jsutils::optStringFromNapiValue(album.Get("description"))
+			.tracks = jsutils::optArrayListFromNapiArray<BandcampTrack>(album.Get("tracks").As<Napi::Array>(), [](auto track) -> BandcampTrack {
+				return BandcampTrack::fromNapiObject(track.template As<Napi::Object>());
+			})
 		};
 	}
 
@@ -192,12 +192,12 @@ namespace sh {
 			.artistName=track.artistName,
 			.artistURL=track.artistURL,
 			.artist=track.artist,
+			.tags=track.tags,
+			.description=track.description,
+			.numTracks=1,
 			.tracks=ArrayList<BandcampTrack>{
 				track
-			},
-			.numTracks=1,
-			.tags=track.tags,
-			.description=track.description
+			}
 		};
 	}
 

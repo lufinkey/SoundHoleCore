@@ -117,11 +117,11 @@ namespace sh {
 		Optional<BandcampArtist> artist;
 		String albumName;
 		String albumURL;
-		Optional<ArrayList<AudioSource>> audioSources;
-		Optional<bool> playable;
 		Optional<double> duration;
 		Optional<ArrayList<String>> tags;
 		Optional<String> description;
+		Optional<ArrayList<AudioSource>> audioSources;
+		Optional<bool> playable;
 		
 		#ifdef NODE_API_MODULE
 		static BandcampTrack fromNapiObject(Napi::Object);
@@ -136,10 +136,10 @@ namespace sh {
 		String artistName;
 		String artistURL;
 		Optional<BandcampArtist> artist;
-		Optional<ArrayList<BandcampTrack>> tracks;
-		Optional<size_t> numTracks;
 		Optional<ArrayList<String>> tags;
 		Optional<String> description;
+		Optional<size_t> numTracks;
+		Optional<ArrayList<BandcampTrack>> tracks;
 		
 		#ifdef NODE_API_MODULE
 		static BandcampAlbum fromNapiObject(Napi::Object);
