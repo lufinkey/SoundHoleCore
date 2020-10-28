@@ -127,6 +127,9 @@
 		A5AE3F42248728F600FB9AFF /* MediaLibrary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AE3F40248728F600FB9AFF /* MediaLibrary.cpp */; };
 		A5AE3F43248728F600FB9AFF /* MediaLibrary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AE3F40248728F600FB9AFF /* MediaLibrary.cpp */; };
 		A5AE3F44248728F600FB9AFF /* MediaLibrary.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5AE3F41248728F600FB9AFF /* MediaLibrary.hpp */; };
+		A5B1B9002548EB2300DACA2D /* SHKeychainUtils_ObjC.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5B1B8FF2548EB2300DACA2D /* SHKeychainUtils_ObjC.mm */; };
+		A5B1B9012548EB2300DACA2D /* SHKeychainUtils_ObjC.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5B1B8FF2548EB2300DACA2D /* SHKeychainUtils_ObjC.mm */; };
+		A5B1B9072548EB3600DACA2D /* SHKeychainUtils_ObjC.h in Headers */ = {isa = PBXBuildFile; fileRef = A5B1B9062548EB3600DACA2D /* SHKeychainUtils_ObjC.h */; };
 		A5B2BBF82360E84C00ED010C /* SpotifyMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B2BBF62360E84C00ED010C /* SpotifyMediaTypes.cpp */; };
 		A5B2BBF92360E84C00ED010C /* SpotifyMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B2BBF62360E84C00ED010C /* SpotifyMediaTypes.cpp */; };
 		A5B2BBFA2360E84C00ED010C /* SpotifyMediaTypes.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5B2BBF72360E84C00ED010C /* SpotifyMediaTypes.hpp */; };
@@ -355,6 +358,8 @@
 		A5AE3F3C247DFFE400FB9AFF /* MediaLibraryProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaLibraryProvider.hpp; sourceTree = "<group>"; };
 		A5AE3F40248728F600FB9AFF /* MediaLibrary.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MediaLibrary.cpp; sourceTree = "<group>"; };
 		A5AE3F41248728F600FB9AFF /* MediaLibrary.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaLibrary.hpp; sourceTree = "<group>"; };
+		A5B1B8FF2548EB2300DACA2D /* SHKeychainUtils_ObjC.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SHKeychainUtils_ObjC.mm; sourceTree = "<group>"; };
+		A5B1B9062548EB3600DACA2D /* SHKeychainUtils_ObjC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SHKeychainUtils_ObjC.h; sourceTree = "<group>"; };
 		A5B2BBF62360E84C00ED010C /* SpotifyMediaTypes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyMediaTypes.cpp; sourceTree = "<group>"; };
 		A5B2BBF72360E84C00ED010C /* SpotifyMediaTypes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyMediaTypes.hpp; sourceTree = "<group>"; };
 		A5B2BBFB2360F1E900ED010C /* SpotifyMediaTypes.impl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyMediaTypes.impl.hpp; sourceTree = "<group>"; };
@@ -769,6 +774,7 @@
 			children = (
 				A5E851BB235A4A660001F74D /* js */,
 				A5B7A7C2233EA87400301FC0 /* ios */,
+				A5B1B9142548ECB700DACA2D /* objc */,
 				A571E1A5233440A800603E14 /* HttpClient.hpp */,
 				A571E1A4233440A800603E14 /* HttpClient.cpp */,
 				A52C4711250EE85800131918 /* OAuthSession.hpp */,
@@ -864,6 +870,15 @@
 				A5AE3F1A247C593100FB9AFF /* SQLiteTransaction.cpp */,
 			);
 			path = database;
+			sourceTree = "<group>";
+		};
+		A5B1B9142548ECB700DACA2D /* objc */ = {
+			isa = PBXGroup;
+			children = (
+				A5B1B9062548EB3600DACA2D /* SHKeychainUtils_ObjC.h */,
+				A5B1B8FF2548EB2300DACA2D /* SHKeychainUtils_ObjC.mm */,
+			);
+			path = objc;
 			sourceTree = "<group>";
 		};
 		A5B7A7912335D56200301FC0 /* json11 */ = {
@@ -1005,6 +1020,7 @@
 				A52C4714250EE85800131918 /* OAuthSession.hpp in Headers */,
 				A5AB5BC62368B1630028851A /* YoutubeMediaTypes.hpp in Headers */,
 				A5AE3F1E247C593100FB9AFF /* SQLiteTransaction.hpp in Headers */,
+				A5B1B9072548EB3600DACA2D /* SHKeychainUtils_ObjC.h in Headers */,
 				A5AE3F25247C937400FB9AFF /* MediaDatabaseSQLOperations.hpp in Headers */,
 				A571E1332332C65000603E14 /* SpotifyProvider.hpp in Headers */,
 				A513ED9C232DA20C000DCAC7 /* MediaItem.hpp in Headers */,
@@ -1278,6 +1294,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A5B1B9002548EB2300DACA2D /* SHKeychainUtils_ObjC.mm in Sources */,
 				A5B7A7A32337DA5700301FC0 /* SpotifyAuth_iOS.mm in Sources */,
 				A571E16A2333305D00603E14 /* Scripts.cpp in Sources */,
 				A52C4708250EB6B000131918 /* SHWebAuthNavigationController_iOS.mm in Sources */,
@@ -1411,6 +1428,7 @@
 				A5AE3F05247B890000FB9AFF /* MediaDatabase.cpp in Sources */,
 				A513ED9B232DA20C000DCAC7 /* MediaItem.cpp in Sources */,
 				A5B9736123822BA300FB3F1C /* Album.cpp in Sources */,
+				A5B1B9012548EB2300DACA2D /* SHKeychainUtils_ObjC.mm in Sources */,
 				A5B7A79E2336C29200301FC0 /* SpotifyError.cpp in Sources */,
 				A513ED8E232DA20B000DCAC7 /* MediaProvider.cpp in Sources */,
 				A5E7852723CE741800BD1C67 /* YoutubePlaybackProvider.cpp in Sources */,

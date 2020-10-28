@@ -39,10 +39,14 @@ namespace sh {
 		NSDictionary* toNSDictionary() const;
 		void writeToNSUserDefaults(const String& key, NSUserDefaults* userDefaults) const;
 		static void writeToNSUserDefaults(const Optional<OAuthSession>& session, const String& key, NSUserDefaults* userDefaults);
+		void writeToKeychain(const String& key) const;
+		static void writeToKeychain(const Optional<OAuthSession>& session, const String& key);
 		
 		static Optional<OAuthSession> fromNSDictionary(NSDictionary* dictionary);
 		static Optional<OAuthSession> fromNSUserDefaults(const String& key, NSUserDefaults* userDefaults);
+		static Optional<OAuthSession> fromKeychain(const String& key);
 		#endif
+		
 		#if defined(JNIEXPORT) && defined(TARGETPLATFORM_ANDROID)
 		void writeToAndroidSharedPrefs(JNIEnv* env, const String& key, jobject context) const;
 		static void writeToAndroidSharedPrefs(JNIEnv* env, const Optional<OAuthSession>& session, const String& key, jobject context);

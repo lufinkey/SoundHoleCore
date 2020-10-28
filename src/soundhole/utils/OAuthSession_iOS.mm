@@ -10,18 +10,19 @@
 
 #if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
 #import <Foundation/Foundation.h>
+#import "SHKeychainUtils_ObjC.h"
 
 namespace sh {
 	Optional<OAuthSession> OAuthSession::load(const String& key) {
-		return OAuthSession::fromNSUserDefaults(key, NSUserDefaults.standardUserDefaults);
+		return OAuthSession::fromKeychain(key);
 	}
 
 	void OAuthSession::save(const String& key, Optional<OAuthSession> session) {
-		writeToNSUserDefaults(session, key, NSUserDefaults.standardUserDefaults);
+		writeToKeychain(session, key);
 	}
 	
 	void OAuthSession::save(const String& key) {
-		writeToNSUserDefaults(key, NSUserDefaults.standardUserDefaults);
+		writeToKeychain(key);
 	}
 	
 	NSDictionary* OAuthSession::toNSDictionary() const {
@@ -49,6 +50,25 @@ namespace sh {
 			session->writeToNSUserDefaults(key, userDefaults);
 		} else {
 			[userDefaults removeObjectForKey:key.toNSString()];
+		}
+	}
+
+	void OAuthSession::writeToKeychain(const String& key) {
+		NSDictionary* dictionary = toNSDictionary();
+		NSError* error = nil;
+		NSData* data = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:&error];
+		if(error != nil) {
+			printf("error encoding JSON for keychain: %s\n", error.localizedDescription.UTF8String);
+			return;
+		}
+		[SHKeychainUtils setGenericPasswordData:data forAccountKey:key.toNSString()];
+	}
+
+	void OAuthSession::writeToKeychain(const Optional<OAuthSession>& session, const String& key) {
+		if(session) {
+			session->writeToKeychain(key);
+		} else {
+			[SHKeychainUtils deleteGenericPasswordDataForAccountKey:key.toNSString()];
 		}
 	}
 	
@@ -88,6 +108,23 @@ namespace sh {
 			return std::nullopt;
 		}
 		return fromNSDictionary(sessionData);
+	}
+
+	Optional<OAuthSession> OAuthSession::fromKeychain(const String& key) {
+		NSData* data = [SHKeychainUtils genericPasswordDataForAccountKey:key.toNSString()];
+		if(data == nil) {
+			return std::nullopt;
+		}
+		NSError* error = nil;
+		NSDictionary* dict = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+		if(error != nil) {
+			printf("error decoding JSON from keychain: %s\n", error.localizedDescription.UTF8String);
+			return std::nullopt;
+		}
+		if(dict == nil || ![dict isKindOfClass:NSDictionary.class]) {
+			return std::nullopt;
+		}
+		return fromNSDictionary(dict);
 	}
 }
 
