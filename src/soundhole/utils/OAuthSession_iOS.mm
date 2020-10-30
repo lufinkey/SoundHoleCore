@@ -53,7 +53,7 @@ namespace sh {
 		}
 	}
 
-	void OAuthSession::writeToKeychain(const String& key) {
+	void OAuthSession::writeToKeychain(const String& key) const {
 		NSDictionary* dictionary = toNSDictionary();
 		NSError* error = nil;
 		NSData* data = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:&error];
