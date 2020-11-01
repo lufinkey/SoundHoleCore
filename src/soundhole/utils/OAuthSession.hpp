@@ -37,6 +37,7 @@ namespace sh {
 		
 		#if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
 		NSDictionary* toNSDictionary() const;
+		NSDictionary* toJsonNSDictionary() const;
 		void writeToNSUserDefaults(const String& key, NSUserDefaults* userDefaults) const;
 		static void writeToNSUserDefaults(const Optional<OAuthSession>& session, const String& key, NSUserDefaults* userDefaults);
 		void writeToKeychain(const String& key) const;

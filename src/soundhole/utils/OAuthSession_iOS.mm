@@ -13,6 +13,12 @@
 #import "SHKeychainUtils_ObjC.h"
 
 namespace sh {
+	NSDateFormatter* OAuthSession_expireDateFormatter() {
+		NSDateFormatter* formatter = [[NSDateFormatter alloc] init];
+		formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+		return formatter;
+	}
+
 	Optional<OAuthSession> OAuthSession::load(const String& key) {
 		return OAuthSession::fromKeychain(key);
 	}
@@ -39,6 +45,23 @@ namespace sh {
 		dictionary[@"scopes"] = scopesArr;
 		return dictionary;
 	}
+
+	NSDictionary* OAuthSession::toJsonNSDictionary() const {
+		NSMutableDictionary* dictionary = [NSMutableDictionary dictionary];
+		dictionary[@"accessToken"] = accessToken.toNSString();
+		NSDate* expireDate = [NSDate dateWithTimeIntervalSince1970:(NSTimeInterval)std::chrono::system_clock::to_time_t(expireTime)];
+		NSDateFormatter* dateFormmatter = OAuthSession_expireDateFormatter();
+		dictionary[@"expireTime"] = [dateFormmatter stringFromDate:expireDate];
+		if(refreshToken.size() > 0) {
+			dictionary[@"refreshToken"] = refreshToken.toNSString();
+		}
+		NSMutableArray* scopesArr = [NSMutableArray array];
+		for(auto& scope : scopes) {
+			[scopesArr addObject:scope.toNSString()];
+		}
+		dictionary[@"scopes"] = scopesArr;
+		return dictionary;
+	}
 	
 	void OAuthSession::writeToNSUserDefaults(const String& key, NSUserDefaults* userDefaults) const {
 		NSDictionary* dictionary = toNSDictionary();
@@ -54,7 +77,7 @@ namespace sh {
 	}
 
 	void OAuthSession::writeToKeychain(const String& key) const {
-		NSDictionary* dictionary = toNSDictionary();
+		NSDictionary* dictionary = toJsonNSDictionary();
 		NSError* error = nil;
 		NSData* data = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:&error];
 		if(error != nil) {
@@ -76,12 +99,12 @@ namespace sh {
 	
 	Optional<OAuthSession> OAuthSession::fromNSDictionary(NSDictionary* dictionary) {
 		NSString* accessToken = dictionary[@"accessToken"];
-		NSDate* expireDate = dictionary[@"expireDate"];
+		id expireDateVal = dictionary[@"expireDate"];
 		NSString* refreshToken = dictionary[@"refreshToken"];
 		NSArray* scopesArr = dictionary[@"scopes"];
 		if(accessToken == nil || ![accessToken isKindOfClass:NSString.class]) {
 			return std::nullopt;
-		} else if(expireDate == nil || ![expireDate isKindOfClass:NSDate.class]) {
+		} else if(expireDateVal == nil || (![expireDateVal isKindOfClass:NSDate.class] && ![expireDateVal isKindOfClass:NSString.class])) {
 			return std::nullopt;
 		} else if(refreshToken != nil && ![refreshToken isKindOfClass:NSString.class]) {
 			return std::nullopt;
@@ -90,6 +113,14 @@ namespace sh {
 		}
 		if(refreshToken == nil) {
 			refreshToken = @"";
+		}
+		NSDate* expireDate = nil;
+		if([expireDateVal isKindOfClass:NSString.class]) {
+			NSDateFormatter* dateFormatter = OAuthSession_expireDateFormatter();
+			NSString* expireDateStr = (NSString*)expireDateVal;
+			expireDate = [dateFormatter dateFromString:expireDateStr];
+		} else {
+			expireDate = expireDateVal;
 		}
 		TimePoint expireTime = std::chrono::system_clock::from_time_t((time_t)expireDate.timeIntervalSince1970);
 		ArrayList<String> scopes;
