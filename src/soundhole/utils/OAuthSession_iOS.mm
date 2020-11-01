@@ -51,7 +51,7 @@ namespace sh {
 		dictionary[@"accessToken"] = accessToken.toNSString();
 		NSDate* expireDate = [NSDate dateWithTimeIntervalSince1970:(NSTimeInterval)std::chrono::system_clock::to_time_t(expireTime)];
 		NSDateFormatter* dateFormmatter = OAuthSession_expireDateFormatter();
-		dictionary[@"expireTime"] = [dateFormmatter stringFromDate:expireDate];
+		dictionary[@"expireDate"] = [dateFormmatter stringFromDate:expireDate];
 		if(refreshToken.size() > 0) {
 			dictionary[@"refreshToken"] = refreshToken.toNSString();
 		}
