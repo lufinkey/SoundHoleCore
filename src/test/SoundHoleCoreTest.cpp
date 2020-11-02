@@ -67,6 +67,13 @@ namespace sh::test {
 			}
 		})
 		.then([=]() {
+			return spotify->getMyTracks({
+				.market="from_token"
+			}).then([=](SpotifyPage<SpotifySavedTrack> tracks) {
+				printf("fetched %i tracks", (int)tracks.items.size());
+			});
+		})
+		.then([=]() {
 			PRINT("playing song\n");
 			return spotify->playURI("spotify:track:1aVedqqfdBKK0XsrjNJerA")
 			.delay(std::chrono::seconds(10))
