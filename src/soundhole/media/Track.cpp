@@ -237,7 +237,11 @@ namespace sh {
 				_audioSources->pushBack(AudioSource::fromJson(audioSource));
 			}
 		}
-		_playable = playable.bool_value();
+		if(playable.is_number()) {
+			_playable = (playable.number_value() != 0);
+		} else {
+			_playable = playable.bool_value();
+		}
 	}
 
 	Json Track::toJson() const {
