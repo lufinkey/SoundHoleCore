@@ -6,7 +6,7 @@
 //  Copyright © 2019 Luis Finke. All rights reserved.
 //
 
-#include "SHWebViewController_iOS.hpp"
+#include "SHWebViewController_iOS.h"
 #if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
 
 @implementation SHWebViewController

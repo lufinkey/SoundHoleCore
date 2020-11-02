@@ -11,7 +11,9 @@
 
 #if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
 #import <Foundation/Foundation.h>
-#import <soundhole/utils/ios/SHWebAuthNavigationController_iOS.hpp>
+#import <soundhole/utils/ios/SHWebAuthNavigationController_iOS.h>
+#import <soundhole/utils/ios/SHiOSUtils.h>
+#import <soundhole/utils/objc/SHObjcUtils.h>
 
 namespace sh {
 	void SpotifyAuth_handleRedirectParams(NSDictionary* params, const SpotifyAuth::Options& options, NSString* xssState, void(^completion)(Optional<SpotifySession>,std::exception_ptr));
@@ -28,11 +30,11 @@ namespace sh {
 				authController.onWebRedirect = ^BOOL(SHWebAuthNavigationController* authNav, WKWebView* webView, WKNavigationAction* action) {
 					// check if redirect URL matches
 					NSURL* url = action.request.URL;
-					if(![authNav.class checkIfURL:url matchesRedirectURL:[NSURL URLWithString:options.redirectURL.toNSString()]]) {
+					if(![SHObjcUtils checkIfURL:url matchesRedirectURL:[NSURL URLWithString:options.redirectURL.toNSString()]]) {
 						return NO;
 					}
 					[authNav setLoadingOverlayVisible:YES animated:YES];
-					NSDictionary* params = [authNav.class parseOAuthQueryParams:url];
+					NSDictionary* params = [SHObjcUtils parseOAuthQueryParams:url];
 					SpotifyAuth_handleRedirectParams(params, options, xssState, ^(Optional<SpotifySession> session, std::exception_ptr error) {
 						[authNav setLoadingOverlayVisible:NO animated:YES];
 						auto finishLogin = [=]() {
@@ -67,7 +69,7 @@ namespace sh {
 				[authController.webViewController.webView loadRequest:request];
 				
 				// present auth controller
-				UIViewController* topViewController = [authController.class topVisibleViewController];
+				UIViewController* topViewController = [SHiOSUtils topVisibleViewController];
 				[topViewController presentViewController:authController animated:YES completion:nil];
 			});
 		});

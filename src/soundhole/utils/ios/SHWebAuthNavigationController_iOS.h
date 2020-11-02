@@ -1,5 +1,5 @@
 //
-//  SHWebAuthNavigationController_iOS.hpp
+//  SHWebAuthNavigationController_iOS.h
 //  SoundHoleCore
 //
 //  Created by Luis Finke on 9/13/20.
@@ -10,7 +10,7 @@
 
 #include <soundhole/common.hpp>
 #if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
-#import "SHWebViewController_iOS.hpp"
+#import "SHWebViewController_iOS.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -20,11 +20,6 @@ typedef BOOL(^SHWebAuthNavigationControllerRedirectHandler)(SHWebAuthNavigationC
 @interface SHWebAuthNavigationController: UINavigationController <WKNavigationDelegate, UIAdaptivePresentationControllerDelegate>
 
 -(id)init;
-
-+(UIViewController*)topVisibleViewController;
-+(NSDictionary*)decodeQueryString:(NSString*)queryString;
-+(NSDictionary*)parseOAuthQueryParams:(NSURL*)url;
-+(BOOL)checkIfURL:(NSURL*)url matchesRedirectURL:(NSURL*)redirectURL;
 
 @property (nonatomic, readonly) SHWebViewController* webViewController;
 @property (nonatomic, nullable) SHWebAuthNavigationControllerRedirectHandler onWebRedirect;

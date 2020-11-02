@@ -48,6 +48,11 @@
 		A538982323CD3D36008638D1 /* BandcampPlaybackProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A538982123CD3D36008638D1 /* BandcampPlaybackProvider.cpp */; };
 		A540D7C02550790D00EE5CA8 /* HttpClient_objc.mm in Sources */ = {isa = PBXBuildFile; fileRef = A540D7BF2550790D00EE5CA8 /* HttpClient_objc.mm */; };
 		A540D7C12550790D00EE5CA8 /* HttpClient_objc.mm in Sources */ = {isa = PBXBuildFile; fileRef = A540D7BF2550790D00EE5CA8 /* HttpClient_objc.mm */; };
+		A540D83325508A1D00EE5CA8 /* SHiOSUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = A540D83125508A1D00EE5CA8 /* SHiOSUtils.h */; };
+		A540D83425508A1D00EE5CA8 /* SHiOSUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = A540D83225508A1D00EE5CA8 /* SHiOSUtils.mm */; };
+		A540D8482550A7B800EE5CA8 /* SHObjcUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = A540D8462550A7B800EE5CA8 /* SHObjcUtils.h */; };
+		A540D8492550A7B800EE5CA8 /* SHObjcUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = A540D8472550A7B800EE5CA8 /* SHObjcUtils.mm */; };
+		A540D84A2550A7B800EE5CA8 /* SHObjcUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = A540D8472550A7B800EE5CA8 /* SHObjcUtils.mm */; };
 		A5485A1E238CCB5F00CB7749 /* UserAccount.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5485A1C238CCB5F00CB7749 /* UserAccount.cpp */; };
 		A5485A1F238CCB5F00CB7749 /* UserAccount.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5485A1C238CCB5F00CB7749 /* UserAccount.cpp */; };
 		A5485A20238CCB5F00CB7749 /* UserAccount.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5485A1D238CCB5F00CB7749 /* UserAccount.hpp */; };
@@ -286,7 +291,7 @@
 		A513EDAA232DB3BF000DCAC7 /* NodeMobile.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NodeMobile.framework; path = "Pods/NodeMobile/out_ios/Release-universal/NodeMobile.framework"; sourceTree = "<group>"; };
 		A52826E023F09B6200360508 /* Player.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Player.cpp; sourceTree = "<group>"; };
 		A52826E123F09B6200360508 /* Player.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Player.hpp; sourceTree = "<group>"; };
-		A52C4706250EB6B000131918 /* SHWebAuthNavigationController_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SHWebAuthNavigationController_iOS.hpp; sourceTree = "<group>"; };
+		A52C4706250EB6B000131918 /* SHWebAuthNavigationController_iOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SHWebAuthNavigationController_iOS.h; sourceTree = "<group>"; };
 		A52C4707250EB6B000131918 /* SHWebAuthNavigationController_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SHWebAuthNavigationController_iOS.mm; sourceTree = "<group>"; };
 		A52C4710250EE85800131918 /* OAuthSession.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = OAuthSession.cpp; sourceTree = "<group>"; };
 		A52C4711250EE85800131918 /* OAuthSession.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = OAuthSession.hpp; sourceTree = "<group>"; };
@@ -295,6 +300,10 @@
 		A538982123CD3D36008638D1 /* BandcampPlaybackProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampPlaybackProvider.cpp; sourceTree = "<group>"; };
 		A538982223CD3D36008638D1 /* BandcampPlaybackProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BandcampPlaybackProvider.hpp; sourceTree = "<group>"; };
 		A540D7BF2550790D00EE5CA8 /* HttpClient_objc.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HttpClient_objc.mm; sourceTree = "<group>"; };
+		A540D83125508A1D00EE5CA8 /* SHiOSUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SHiOSUtils.h; sourceTree = "<group>"; };
+		A540D83225508A1D00EE5CA8 /* SHiOSUtils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SHiOSUtils.mm; sourceTree = "<group>"; };
+		A540D8462550A7B800EE5CA8 /* SHObjcUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SHObjcUtils.h; sourceTree = "<group>"; };
+		A540D8472550A7B800EE5CA8 /* SHObjcUtils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SHObjcUtils.mm; sourceTree = "<group>"; };
 		A5485A1C238CCB5F00CB7749 /* UserAccount.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UserAccount.cpp; sourceTree = "<group>"; };
 		A5485A1D238CCB5F00CB7749 /* UserAccount.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = UserAccount.hpp; sourceTree = "<group>"; };
 		A5485A21238DFB1300CB7749 /* Utils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Utils.cpp; sourceTree = "<group>"; };
@@ -379,9 +388,9 @@
 		A5B7A7AE2337F9B500301FC0 /* SpotifyPlayer_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SpotifyPlayer_iOS.mm; sourceTree = "<group>"; };
 		A5B7A7B223394BD400301FC0 /* SpotifyPlayerEventHandler_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyPlayerEventHandler_iOS.hpp; sourceTree = "<group>"; };
 		A5B7A7B323394BD400301FC0 /* SpotifyPlayerEventHandler_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SpotifyPlayerEventHandler_iOS.mm; sourceTree = "<group>"; };
-		A5B7A7BF233EA76C00301FC0 /* SHWebViewController_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SHWebViewController_iOS.hpp; sourceTree = "<group>"; };
+		A5B7A7BF233EA76C00301FC0 /* SHWebViewController_iOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SHWebViewController_iOS.h; sourceTree = "<group>"; };
 		A5B7A7C0233EA76C00301FC0 /* SHWebViewController_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SHWebViewController_iOS.mm; sourceTree = "<group>"; };
-		A5B7A7C3233EA8CC00301FC0 /* SHProgressView_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SHProgressView_iOS.hpp; sourceTree = "<group>"; };
+		A5B7A7C3233EA8CC00301FC0 /* SHProgressView_iOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SHProgressView_iOS.h; sourceTree = "<group>"; };
 		A5B7A7C4233EA8CC00301FC0 /* SHProgressView_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SHProgressView_iOS.mm; sourceTree = "<group>"; };
 		A5B7A7DB233F126800301FC0 /* Spotify.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Spotify.cpp; sourceTree = "<group>"; };
 		A5B7A7DC233F126800301FC0 /* Spotify.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Spotify.hpp; sourceTree = "<group>"; };
@@ -881,6 +890,8 @@
 			children = (
 				A5B1B9062548EB3600DACA2D /* SHKeychainUtils_objc.h */,
 				A5B1B8FF2548EB2300DACA2D /* SHKeychainUtils_objc.mm */,
+				A540D8462550A7B800EE5CA8 /* SHObjcUtils.h */,
+				A540D8472550A7B800EE5CA8 /* SHObjcUtils.mm */,
 			);
 			path = objc;
 			sourceTree = "<group>";
@@ -897,11 +908,13 @@
 		A5B7A7C2233EA87400301FC0 /* ios */ = {
 			isa = PBXGroup;
 			children = (
-				A5B7A7C3233EA8CC00301FC0 /* SHProgressView_iOS.hpp */,
+				A540D83125508A1D00EE5CA8 /* SHiOSUtils.h */,
+				A540D83225508A1D00EE5CA8 /* SHiOSUtils.mm */,
+				A5B7A7C3233EA8CC00301FC0 /* SHProgressView_iOS.h */,
 				A5B7A7C4233EA8CC00301FC0 /* SHProgressView_iOS.mm */,
-				A5B7A7BF233EA76C00301FC0 /* SHWebViewController_iOS.hpp */,
+				A5B7A7BF233EA76C00301FC0 /* SHWebViewController_iOS.h */,
 				A5B7A7C0233EA76C00301FC0 /* SHWebViewController_iOS.mm */,
-				A52C4706250EB6B000131918 /* SHWebAuthNavigationController_iOS.hpp */,
+				A52C4706250EB6B000131918 /* SHWebAuthNavigationController_iOS.h */,
 				A52C4707250EB6B000131918 /* SHWebAuthNavigationController_iOS.mm */,
 			);
 			path = ios;
@@ -1015,6 +1028,7 @@
 				A578785723DE547F00B6B0A5 /* PlaybackOrganizer.hpp in Headers */,
 				A5E851A72357B1660001F74D /* Bandcamp.hpp in Headers */,
 				A5B7A7DF233F126800301FC0 /* Spotify.hpp in Headers */,
+				A540D8482550A7B800EE5CA8 /* SHObjcUtils.h in Headers */,
 				A50F74B6238B223F0061D9FD /* TrackCollection.impl.hpp in Headers */,
 				A5AE3F06247B890000FB9AFF /* MediaDatabase.hpp in Headers */,
 				A5E7852A23CE742C00BD1C67 /* StreamPlaybackProvider.hpp in Headers */,
@@ -1027,6 +1041,7 @@
 				A5B1B9072548EB3600DACA2D /* SHKeychainUtils_objc.h in Headers */,
 				A5AE3F25247C937400FB9AFF /* MediaDatabaseSQLOperations.hpp in Headers */,
 				A571E1332332C65000603E14 /* SpotifyProvider.hpp in Headers */,
+				A540D83325508A1D00EE5CA8 /* SHiOSUtils.h in Headers */,
 				A513ED9C232DA20C000DCAC7 /* MediaItem.hpp in Headers */,
 				A5485A2F239432CE00CB7749 /* SpotifyPlaybackProvider.hpp in Headers */,
 				A5EDB8EF249ADC1200885BC2 /* MediaLibraryTracksCollection.hpp in Headers */,
@@ -1351,6 +1366,7 @@
 				A55F55CC24CDD74700DF2825 /* TrackCollection.mm in Sources */,
 				A5485A23238DFB1300CB7749 /* Utils.cpp in Sources */,
 				A513ED91232DA20B000DCAC7 /* BandcampProvider.cpp in Sources */,
+				A540D83425508A1D00EE5CA8 /* SHiOSUtils.mm in Sources */,
 				A5C0A8E123CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.cpp in Sources */,
 				A578785A23E37A7B00B6B0A5 /* QueueItem.cpp in Sources */,
 				A513ED9A232DA20C000DCAC7 /* MediaItem.cpp in Sources */,
@@ -1360,6 +1376,7 @@
 				A5F9F63F244AB6CE00E80C7A /* Player_objc.mm in Sources */,
 				A513ED8D232DA20B000DCAC7 /* MediaProvider.cpp in Sources */,
 				A571E12E2332C5A300603E14 /* SpotifyProvider.cpp in Sources */,
+				A540D8492550A7B800EE5CA8 /* SHObjcUtils.mm in Sources */,
 				A5B7A7C5233EA8CC00301FC0 /* SHProgressView_iOS.mm in Sources */,
 				A5B7A79F2336C29200301FC0 /* SpotifyError.cpp in Sources */,
 				A5F07D7E2543840100C41A36 /* YoutubeMediaTypes.cpp in Sources */,
@@ -1430,6 +1447,7 @@
 				A5B973522381F16A00FB3F1C /* JSWrapClass.cpp in Sources */,
 				A5B973572381F91900FB3F1C /* Track.cpp in Sources */,
 				A5E851C0235A4AE90001F74D /* JSUtils.cpp in Sources */,
+				A540D84A2550A7B800EE5CA8 /* SHObjcUtils.mm in Sources */,
 				A5E7852923CE742300BD1C67 /* StreamPlaybackProvider.cpp in Sources */,
 				A5AE3F05247B890000FB9AFF /* MediaDatabase.cpp in Sources */,
 				A513ED9B232DA20C000DCAC7 /* MediaItem.cpp in Sources */,

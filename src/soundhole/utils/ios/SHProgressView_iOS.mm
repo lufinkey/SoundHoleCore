@@ -6,7 +6,7 @@
 //  Copyright © 2019 Luis Finke. All rights reserved.
 //
 
-#include "SHProgressView_iOS.hpp"
+#include "SHProgressView_iOS.h"
 #if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
 #import <QuartzCore/QuartzCore.h>
 
@@ -19,10 +19,9 @@
 
 -(id)initWithFrame:(CGRect)frame {
 	if(self = [super initWithFrame:frame]) {
-		self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+		self.translatesAutoresizingMaskIntoConstraints = NO;
 		
 		CGSize hudSize = CGSizeMake(100, 100);
-		
 		_hudView = [[UIView alloc] initWithFrame:CGRectMake(0,0,hudSize.width,hudSize.height)];
 		_hudView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.6];
 		_hudView.layer.cornerRadius = 10;
@@ -56,12 +55,16 @@
 -(void)showInView:(UIView*)view animated:(BOOL)animated completion:(void(^)(void))completion {
 	CGSize viewSize = view.bounds.size;
 	self.frame = CGRectMake(0, 0, viewSize.width, viewSize.height);
-	[self setNeedsLayout];
+	[view addSubview:self];
+	[self.topAnchor constraintEqualToAnchor:view.topAnchor].active = YES;
+	[self.leftAnchor constraintEqualToAnchor:view.leftAnchor].active = YES;
+	[self.rightAnchor constraintEqualToAnchor:view.rightAnchor].active = YES;
+	[self.bottomAnchor constraintEqualToAnchor:view.bottomAnchor].active = YES;
+	[self layoutIfNeeded];
 	
 	if(animated) {
 		_hudView.alpha = 0;
 		_hudView.transform = CGAffineTransformMakeScale(1.4, 1.4);
-		[view addSubview:self];
 		[UIView animateWithDuration:0.25 animations:^{
 			self->_hudView.alpha = 1;
 			self->_hudView.transform = CGAffineTransformIdentity;
@@ -72,7 +75,8 @@
 		}];
 	}
 	else {
-		[view addSubview:self];
+		_hudView.alpha = 1;
+		_hudView.transform = CGAffineTransformIdentity;
 		if(completion != nil) {
 			completion();
 		}

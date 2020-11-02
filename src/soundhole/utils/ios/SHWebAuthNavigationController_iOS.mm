@@ -6,9 +6,9 @@
 //  Copyright © 2020 Luis Finke. All rights reserved.
 //
 
-#include "SHWebAuthNavigationController_iOS.hpp"
+#include "SHWebAuthNavigationController_iOS.h"
 #if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
-#import <soundhole/utils/ios/SHProgressView_iOS.hpp>
+#import <soundhole/utils/ios/SHProgressView_iOS.h>
 
 @interface SHWebAuthNavigationController() {
 	SHProgressView* _loadingOverlayView;
@@ -28,66 +28,6 @@
 		_webViewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(didPressCancelButton)];
 	}
 	return self;
-}
-
-+(UIViewController*)topVisibleViewController {
-	UIViewController* topController = UIApplication.sharedApplication.keyWindow.rootViewController;
-	while(topController.presentedViewController != nil) {
-		topController = topController.presentedViewController;
-	}
-	return topController;
-}
-
-+(NSDictionary*)decodeQueryString:(NSString*)queryString {
-	NSArray<NSString*>* parts = [queryString componentsSeparatedByString:@"&"];
-	NSMutableDictionary* params = [NSMutableDictionary dictionary];
-	for(NSString* part in parts) {
-		NSString* escapedPart = [part stringByReplacingOccurrencesOfString:@"+" withString:@"%20"];
-		NSArray<NSString*>* expressionParts = [escapedPart componentsSeparatedByString:@"="];
-		if(expressionParts.count != 2) {
-			continue;
-		}
-		NSString* key = expressionParts[0].stringByRemovingPercentEncoding;
-		NSString* value = expressionParts[1].stringByRemovingPercentEncoding;
-		params[key] = value;
-	}
-	return params;
-}
-
-+(NSDictionary*)parseOAuthQueryParams:(NSURL*)url {
-	if(url == nil) {
-		return [NSDictionary dictionary];
-	}
-	NSDictionary* queryParams = [self decodeQueryString:url.query];
-	if(queryParams != nil && queryParams.count > 0) {
-		return queryParams;
-	}
-	NSDictionary* fragmentParams = [self decodeQueryString:url.fragment];
-	if(fragmentParams != nil && fragmentParams.count > 0) {
-		return fragmentParams;
-	}
-	return [NSDictionary dictionary];
-}
-
-+(BOOL)checkIfURL:(NSURL*)url matchesRedirectURL:(NSURL*)redirectURL {
-	if(redirectURL == nil) {
-		return NO;
-	}
-	if(![url.absoluteString hasPrefix:redirectURL.absoluteString]) {
-		return NO;
-	}
-	NSString* path = redirectURL.path;
-	if(path == nil || [path isEqualToString:@"/"]) {
-		path = @"";
-	}
-	NSString* cmpPath = url.path;
-	if(cmpPath == nil || [cmpPath isEqualToString:@"/"]) {
-		cmpPath = @"";
-	}
-	if(![path isEqualToString:cmpPath]) {
-		return NO;
-	}
-	return YES;
 }
 
 -(void)viewDidLoad {

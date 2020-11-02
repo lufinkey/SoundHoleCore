@@ -1,5 +1,5 @@
 //
-//  SHWebViewController_iOS.hpp
+//  SHProgressView.h
 //  SoundHoleCore
 //
 //  Created by Luis Finke on 9/27/19.
@@ -12,13 +12,15 @@
 #if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import <WebKit/WebKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SHWebViewController: UIViewController
+@interface SHProgressView: UIView
 
-@property (readonly) WKWebView* webView;
+-(void)showInView:(UIView*)view animated:(BOOL)animated completion:(nullable void(^)(void))completion;
+-(void)dismissAnimated:(BOOL)animated completion:(nullable void(^)(void))completion;
+
+@property (readonly) UIActivityIndicatorView* activityIndicator;
 
 @end
 
