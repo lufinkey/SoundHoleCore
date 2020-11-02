@@ -1,5 +1,5 @@
 //
-//  SHKeychainUtils_ObjC.h
+//  SHKeychainUtils_objc.h
 //  SoundHoleCore
 //
 //  Created by Luis Finke on 10/27/20.

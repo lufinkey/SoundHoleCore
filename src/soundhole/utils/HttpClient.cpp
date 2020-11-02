@@ -38,6 +38,7 @@ namespace sh::utils {
 		}
 	}
 	
+	#if !defined(TARGETPLATFORM_IOS) && !defined(TARGETPLATFORM_MAC)
 	Promise<SharedHttpResponse> performHttpRequest(HttpRequest request) {
 		return scripts::loadScriptsIfNeeded().then([=]() -> Promise<SharedHttpResponse> {
 			return Promise<SharedHttpResponse>([&](auto resolve, auto reject) {
@@ -94,7 +95,8 @@ namespace sh::utils {
 			});
 		});
 	}
-	
+	#endif
+
 	
 
 	String encodeURLComponent(String urlComponent) {
@@ -124,8 +126,7 @@ namespace sh::utils {
 		LinkedList<String> items;
 		for(auto& pair : params) {
 			items.pushBack(
-					encodeURLComponent(pair.first) + "=" + encodeURLComponent(pair.second)
-			);
+				encodeURLComponent(pair.first) + "=" + encodeURLComponent(pair.second));
 		}
 		return String::join(items, "&");
 	}
