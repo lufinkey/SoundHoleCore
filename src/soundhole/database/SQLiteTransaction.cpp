@@ -142,7 +142,12 @@ namespace sh {
 									row[columnName] = Json();
 								} break;
 								case SQLITE_INTEGER: {
-									row[columnName] = (double)sqlite3_column_int64(stmt, i);
+									sqlite_int64 intVal = sqlite3_column_int64(stmt, i);
+									if(intVal >= std::numeric_limits<int>::max() || intVal <= std::numeric_limits<int>::min()) {
+										row[columnName] = (double)intVal;
+									} else {
+										row[columnName] = (int)intVal;
+									}
 								} break;
 								case SQLITE_FLOAT: {
 									row[columnName] = sqlite3_column_double(stmt, i);
