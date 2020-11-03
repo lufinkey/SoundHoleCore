@@ -52,6 +52,7 @@ namespace sh {
 		bool isSessionValid() const;
 		bool hasStreamingScope() const;
 		bool canRefreshSession() const;
+		const Optional<SpotifySession>& getSession() const;
 		
 		static Promise<Optional<SpotifySession>> authenticate(Options options);
 		struct LoginOptions {
@@ -61,8 +62,6 @@ namespace sh {
 		Promise<bool> login(LoginOptions options = LoginOptions());
 		void loginWithSession(SpotifySession session);
 		void logout();
-		
-		const Optional<SpotifySession>& getSession() const;
 		
 		struct RenewOptions {
 			bool retryUntilResponse = false;

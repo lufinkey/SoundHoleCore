@@ -17,18 +17,15 @@
 
 -(void)viewDidLoad {
 	[super viewDidLoad];
-	_tested = NO;
 	// Do any additional setup after loading the view.
 }
 
 -(void)viewDidAppear:(BOOL)animated {
 	[super viewDidAppear:animated];
-	_tested = YES;
-	sh::test::testSpotify().then([=]() {
-		return sh::test::testStreamPlayer();
-	}).except([=](std::exception_ptr error) {
-		fgl::console::error("error: ", sh::utils::getExceptionDetails(error).fullDescription);
-	});
+	if(!_tested) {
+		_tested = YES;
+		sh::test::runTests();
+	}
 }
 
 @end

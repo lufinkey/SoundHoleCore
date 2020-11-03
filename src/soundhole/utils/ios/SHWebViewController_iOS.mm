@@ -18,10 +18,19 @@
 	return self;
 }
 
+-(id)initWithConfiguration:(WKWebViewConfiguration*)configuration {
+	if(self = [super init]) {
+		_webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 320, 320) configuration:configuration];
+	}
+	return self;
+}
+
 -(void)viewDidLoad {
 	[super viewDidLoad];
 	
-	_webView = [[WKWebView alloc] init];
+	if(_webView == nil) {
+		_webView = [[WKWebView alloc] init];
+	}
 	[self.view addSubview:_webView];
 }
 

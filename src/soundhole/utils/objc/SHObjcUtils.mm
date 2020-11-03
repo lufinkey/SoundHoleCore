@@ -62,4 +62,14 @@
 	return YES;
 }
 
++(void)runOnMain:(void(^)())executor {
+	if([NSThread isMainThread]) {
+		executor();
+	} else {
+		dispatch_async(dispatch_get_main_queue(), ^{
+			executor();
+		});
+	}
+}
+
 @end

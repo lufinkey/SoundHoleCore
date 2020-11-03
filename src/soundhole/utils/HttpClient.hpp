@@ -45,5 +45,9 @@ namespace sh::utils {
 	Promise<SharedHttpResponse> performHttpRequest(HttpRequest request);
 
 	String encodeURLComponent(String);
+	String decodeURLComponent(String);
 	String makeQueryString(std::map<String,String> params);
+
+	std::map<String,String> parseCookies(String cookiesStr);
+	String encodeCookies(const std::map<String,String>& cookies);
 }

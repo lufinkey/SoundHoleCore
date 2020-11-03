@@ -12,8 +12,8 @@
 #include <regex>
 
 namespace sh {
-	BandcampProvider::BandcampProvider()
-	: bandcamp(new Bandcamp()), _player(new BandcampPlaybackProvider(this)) {
+	BandcampProvider::BandcampProvider(Options options)
+	: bandcamp(new Bandcamp(options)), _player(new BandcampPlaybackProvider(this)) {
 		//
 	}
 

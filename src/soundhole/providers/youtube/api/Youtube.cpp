@@ -64,14 +64,17 @@ namespace sh {
 	}
 
 	Youtube::~Youtube() {
-		queueJSDestruct([=](napi_env env) {
-			auto napiRef = Napi::ObjectReference(env, jsRef);
-			if(napiRef.Unref() == 0) {
-				napiRef.Reset();
-			} else {
-				napiRef.SuppressDestruct();
-			}
-		});
+		auto jsRef = this->jsRef;
+		if(jsRef != nullptr) {
+			queueJSDestruct([=](napi_env env) {
+				auto napiRef = Napi::ObjectReference(env, jsRef);
+				if(napiRef.Unref() == 0) {
+					napiRef.Reset();
+				} else {
+					napiRef.SuppressDestruct();
+				}
+			});
+		}
 	}
 
 	void Youtube::initializeJS(napi_env env) {

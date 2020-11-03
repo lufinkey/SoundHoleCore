@@ -8,6 +8,7 @@
 
 #include "SoundHoleCoreTest.hpp"
 #include <soundhole/providers/spotify/api/Spotify.hpp>
+#include <soundhole/providers/bandcamp/api/Bandcamp.hpp>
 #include <soundhole/playback/StreamPlayer.hpp>
 #ifdef __ANDROID__
 #include <android/log.h>
@@ -20,6 +21,66 @@
 #endif
 
 namespace sh::test {
+	Promise<void> runTests() {
+		return Promise<void>::resolve()
+		.then([=]() {
+			return testBandcamp();
+		})
+		.then([=]() {
+			return testSpotify();
+		})
+		.then([=]() {
+			return sh::test::testStreamPlayer();
+		})
+		.except([=](std::exception_ptr error) {
+			fgl::console::error("error: ", sh::utils::getExceptionDetails(error).fullDescription);
+		});
+	}
+
+
+
+	Promise<void> testBandcamp() {
+		auto bandcamp = new Bandcamp({
+			.auth = {
+				.sessionPersistKey = "BandcampSession"
+			}
+		});
+		
+		return Promise<void>::resolve()
+		.then([=]() {
+			PRINT("logging out bandcamp\n");
+			return bandcamp->logout();
+		})
+		.then([=]() {
+			if(bandcamp->isLoggedIn()) {
+				PRINT("bandcamp is already logged in\n");
+				return Promise<void>::resolve();
+			}
+			return bandcamp->login().then([=](bool loggedIn) {
+				if(loggedIn) {
+					PRINT("login succeeded\n");
+				} else {
+					PRINT("login cancelled\n");
+				}
+			}).except([=](std::exception_ptr error) {
+				try {
+					std::rethrow_exception(error);
+				} catch(...) {
+					PRINT("login failed with error: %s\n", sh::utils::getExceptionDetails(error).fullDescription.c_str());
+					std::rethrow_exception(std::current_exception());
+				}
+			});
+		})
+		.delay(std::chrono::seconds(5))
+		.finally([=]() {
+			PRINT("cleaning up spotify instance\n");
+			delete bandcamp;
+			PRINT("\n");
+		});
+	}
+
+
+
 	Promise<void> testSpotify() {
 		PRINT("testing Spotify\n");
 
@@ -40,31 +101,24 @@ namespace sh::test {
 			return spotify->logout();
 		})
 		.then([=]() {
-			if(!spotify->isLoggedIn()) {
-				return spotify->login().then([=](bool loggedIn) {
-					if(loggedIn) {
-						PRINT("login succeeded\n");
-					} else {
-						PRINT("login cancelled\n");
-					}
-				}).except([=](std::exception_ptr errorPtr) {
-					try {
-						std::rethrow_exception(errorPtr);
-					} catch(SpotifyError& error) {
-						PRINT("login failed with error: %s\n", error.toString().c_str());
-					} catch(Error& error) {
-						PRINT("login failed with error: %s\n", error.toString().c_str());
-					} catch(std::exception& error) {
-						PRINT("login failed with exception: %s\n", error.what());
-					} catch(...) {
-						PRINT("login failed with unknown error\n");
-					}
-					std::rethrow_exception(errorPtr);
-				});
-			} else {
+			if(spotify->isLoggedIn()) {
 				PRINT("spotify is already logged in\n");
 				return Promise<void>::resolve();
 			}
+			return spotify->login().then([=](bool loggedIn) {
+				if(loggedIn) {
+					PRINT("login succeeded\n");
+				} else {
+					PRINT("login cancelled\n");
+				}
+			}).except([=](std::exception_ptr error) {
+				try {
+					std::rethrow_exception(error);
+				} catch(...) {
+					PRINT("login failed with error: %s\n", sh::utils::getExceptionDetails(error).fullDescription.c_str());
+					std::rethrow_exception(std::current_exception());
+				}
+			});
 		})
 		.then([=]() {
 			return spotify->getMyTracks({
@@ -77,19 +131,13 @@ namespace sh::test {
 			PRINT("playing song\n");
 			return spotify->playURI("spotify:track:1aVedqqfdBKK0XsrjNJerA")
 			.delay(std::chrono::seconds(10))
-			.except([=](std::exception_ptr errorPtr) {
+			.except([=](std::exception_ptr error) {
 				try {
-					std::rethrow_exception(errorPtr);
-				} catch(SpotifyError& error) {
-					PRINT("playURI failed with error: %s\n", error.toString().c_str());
-				} catch(Error& error) {
-					PRINT("playURI failed with error: %s\n", error.toString().c_str());
-				} catch(std::exception& error) {
-					PRINT("playURI failed with exception: %s\n", error.what());
+					std::rethrow_exception(error);
 				} catch(...) {
-					PRINT("playURI failed with unknown error\n");
+					PRINT("playURI failed with error: %s\n", sh::utils::getExceptionDetails(error).fullDescription.c_str());
+					std::rethrow_exception(std::current_exception());
 				}
-				std::rethrow_exception(errorPtr);
 			});
 		})
 		.then([=]() {
@@ -109,7 +157,7 @@ namespace sh::test {
 		PRINT("testing StreamPlayer\n");
 		
 		auto streamPlayer = new StreamPlayer();
-		auto bandcamp = new Bandcamp();
+		auto bandcamp = new Bandcamp({});
 		
 		struct SharedData {
 			Optional<BandcampTrack> firstTrack;

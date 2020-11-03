@@ -11,6 +11,9 @@
 #include <soundhole/soundhole.hpp>
 
 namespace sh::test {
+	Promise<void> runTests();
+
+	Promise<void> testBandcamp();
 	Promise<void> testSpotify();
 	Promise<void> testStreamPlayer();
 }

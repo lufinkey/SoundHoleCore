@@ -18,7 +18,9 @@ namespace sh {
 	class BandcampProvider: public MediaProvider {
 		friend class BandcampAlbumMutatorDelegate;
 	public:
-		BandcampProvider();
+		using Options = Bandcamp::Options;
+		
+		BandcampProvider(Options options);
 		virtual ~BandcampProvider();
 		
 		virtual String name() const override;

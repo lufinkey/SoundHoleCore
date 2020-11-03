@@ -122,6 +122,28 @@ namespace sh::utils {
 		return escaped.str();
 	}
 
+	String decodeURLComponent(String urlComponent) {
+		auto& text = urlComponent.storage;
+		std::ostringstream escaped;
+		escaped.fill('0');
+		auto from_hex = [](char ch) -> char {
+			return isdigit(ch) ? ch - '0' : tolower(ch) - 'a' + 10;
+		};
+		for (auto it=text.begin(), end=text.end(); it != end; it++) {
+			char c = (*it);
+			if (c == '+') {
+				escaped << ' ';
+			} else if (c == '%' && it[1] && it[2]) {
+				char h = from_hex(it[1]) << 4 | from_hex(it[2]);
+				escaped << h;
+				it += 2;
+			} else {
+				escaped << c;
+			}
+		}
+		return escaped.str();
+	}
+
 	String makeQueryString(std::map<String,String> params) {
 		LinkedList<String> items;
 		for(auto& pair : params) {
@@ -129,5 +151,38 @@ namespace sh::utils {
 				encodeURLComponent(pair.first) + "=" + encodeURLComponent(pair.second));
 		}
 		return String::join(items, "&");
+	}
+
+
+
+	std::map<String,String> parseCookies(String cookiesStr) {
+		cookiesStr = cookiesStr.trim();
+		if(cookiesStr.empty()) {
+			return std::map<String,String>();
+		}
+		std::map<String,String> cookies;
+		for(String cookiePair : cookiesStr.split(';')) {
+			cookiePair = cookiePair.trim();
+			if(cookiePair.empty()) {
+				continue;
+			}
+			size_t equalsIndex = cookiePair.indexOf('=');
+			if(equalsIndex == (size_t)-1) {
+				cookies[""] = decodeURLComponent(cookiePair);
+			} else {
+				String cookieName = decodeURLComponent(cookiePair.substring(0, equalsIndex).trim());
+				String cookieValue = decodeURLComponent(cookiePair.substring(equalsIndex+1).trim());
+				cookies[cookieName] = cookieValue;
+			}
+		}
+		return cookies;
+	}
+
+	String encodeCookies(const std::map<String,String>& cookies) {
+		LinkedList<String> cookieParts;
+		for(auto& pair : cookies) {
+			cookieParts.pushBack(encodeURLComponent(pair.first)+'='+encodeURLComponent(pair.second));
+		}
+		return String::join(cookieParts, "; ");
 	}
 }

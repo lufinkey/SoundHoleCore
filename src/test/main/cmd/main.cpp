@@ -8,9 +8,6 @@
 
 #include <test/SoundHoleCoreTest.hpp>
 
-using namespace shtest;
-
 int main(int argc, char* argv[]) {
-	testMetacall();
 	return 0;
 }

@@ -7,7 +7,7 @@
 //
 
 #ifdef __OBJC__
-#import "SHKeychainUtils_ObjC.h"
+#import "SHKeychainUtils_objc.h"
 #import <Security/Security.h>
 
 @implementation SHKeychainUtils

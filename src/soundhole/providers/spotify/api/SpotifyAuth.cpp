@@ -44,7 +44,8 @@ namespace sh {
 	
 	
 	
-	SpotifyAuth::SpotifyAuth(Options options): options(options) {
+	SpotifyAuth::SpotifyAuth(Options options)
+	: options(options) {
 		//
 	}
 	
@@ -61,7 +62,9 @@ namespace sh {
 			return;
 		}
 		bool wasLoggedIn = isLoggedIn();
+		std::unique_lock<std::recursive_mutex> lock(sessionMutex);
 		session = SpotifySession::load(options.sessionPersistKey);
+		lock.unlock();
 		if(!wasLoggedIn && session) {
 			std::unique_lock<std::mutex> lock(listenersMutex);
 			LinkedList<SpotifyAuthEventListener*> listeners = this->listeners;
@@ -85,6 +88,7 @@ namespace sh {
 		if(options.sessionPersistKey.empty()) {
 			return;
 		}
+		std::unique_lock<std::recursive_mutex> lock(sessionMutex);
 		SpotifySession::save(options.sessionPersistKey, session);
 	}
 	
@@ -129,6 +133,10 @@ namespace sh {
 	
 	bool SpotifyAuth::canRefreshSession() const {
 		return session.has_value() && session->hasRefreshToken() && options.hasTokenRefreshURL();
+	}
+
+	const Optional<SpotifySession>& SpotifyAuth::getSession() const {
+		return session;
 	}
 
 
@@ -178,10 +186,6 @@ namespace sh {
 		stopRenewalTimer();
 		session.reset();
 		save();
-	}
-	
-	const Optional<SpotifySession>& SpotifyAuth::getSession() const {
-		return session;
 	}
 	
 	

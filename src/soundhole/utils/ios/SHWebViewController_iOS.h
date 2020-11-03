@@ -18,6 +18,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SHWebViewController: UIViewController
 
+-(id)init;
+-(id)initWithConfiguration:(WKWebViewConfiguration*)configuration;
+
 @property (readonly) WKWebView* webView;
 
 @end

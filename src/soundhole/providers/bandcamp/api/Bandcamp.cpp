@@ -13,20 +13,24 @@
 #include <soundhole/utils/js/JSUtils.hpp>
 
 namespace sh {
-	Bandcamp::Bandcamp()
-	: jsRef(nullptr) {
-		//
+	Bandcamp::Bandcamp(Options options)
+	: jsRef(nullptr), auth(new BandcampAuth(options.auth)) {
+		auth->load();
 	}
 
 	Bandcamp::~Bandcamp() {
-		queueJSDestruct([=](napi_env env) {
-			auto napiRef = Napi::ObjectReference(env, jsRef);
-			if(napiRef.Unref() == 0) {
-				napiRef.Reset();
-			} else {
-				napiRef.SuppressDestruct();
-			}
-		});
+		auto jsRef = this->jsRef;
+		if(jsRef != nullptr) {
+			queueJSDestruct([=](napi_env env) {
+				auto napiRef = Napi::ObjectReference(env, jsRef);
+				if(napiRef.Unref() == 0) {
+					napiRef.Reset();
+				} else {
+					napiRef.SuppressDestruct();
+				}
+			});
+		}
+		delete auth;
 	}
 
 	void Bandcamp::initializeJS(napi_env env) {
@@ -38,6 +42,28 @@ namespace sh {
 			bandcampRef.SuppressDestruct();
 			jsRef = bandcampRef;
 		}
+	}
+
+
+
+	BandcampAuth* Bandcamp::getAuth() {
+		return auth;
+	}
+
+	const BandcampAuth* Bandcamp::getAuth() const {
+		return auth;
+	}
+
+	Promise<bool> Bandcamp::login() {
+		return auth->login();
+	}
+
+	void Bandcamp::logout() {
+		return auth->logout();
+	}
+
+	bool Bandcamp::isLoggedIn() const {
+		return auth->isLoggedIn();
 	}
 
 

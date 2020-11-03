@@ -10,16 +10,28 @@
 
 #include <soundhole/common.hpp>
 #include <soundhole/utils/js/JSWrapClass.hpp>
+#include "BandcampAuth.hpp"
 #include "BandcampMediaTypes.hpp"
 
 namespace sh {
 	class Bandcamp: private JSWrapClass {
 	public:
+		struct Options {
+			BandcampAuth::Options auth;
+		};
+		
 		Bandcamp(const Bandcamp&) = delete;
 		Bandcamp& operator=(const Bandcamp&) = delete;
 		
-		Bandcamp();
+		Bandcamp(Options options);
 		~Bandcamp();
+		
+		BandcampAuth* getAuth();
+		const BandcampAuth* getAuth() const;
+		
+		Promise<bool> login();
+		void logout();
+		bool isLoggedIn() const;
 		
 		struct SearchOptions {
 			size_t page = 0;
@@ -34,5 +46,7 @@ namespace sh {
 		virtual void initializeJS(napi_env env) override;
 		
 		napi_ref jsRef;
+		
+		BandcampAuth* auth;
 	};
 }
