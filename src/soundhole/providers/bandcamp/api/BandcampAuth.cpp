@@ -73,12 +73,6 @@ namespace sh {
 
 
 
-	void BandcampAuth::startSession(BandcampSession session) {
-		std::unique_lock<std::recursive_mutex> lock(sessionMutex);
-		this->session = session;
-		save();
-	}
-
 	Promise<bool> BandcampAuth::login() {
 		return authenticate().map<bool>([=](auto session) -> bool {
 			if(!session) {
@@ -113,6 +107,14 @@ namespace sh {
 				listener->onBandcampAuthSessionEnd(this);
 			}
 		}
+	}
+
+
+
+	void BandcampAuth::startSession(BandcampSession session) {
+		std::unique_lock<std::recursive_mutex> lock(sessionMutex);
+		this->session = session;
+		save();
 	}
 
 	void BandcampAuth::clearSession() {
