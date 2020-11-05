@@ -24,6 +24,7 @@ typedef BOOL(^SHWebAuthNavigationControllerRedirectHandler)(SHWebAuthNavigationC
 @property (nonatomic, readonly) SHWebViewController* webViewController;
 @property (nonatomic, nullable) SHWebAuthNavigationControllerRedirectHandler onWebRedirect;
 @property (nonatomic, nullable) void(^onCancel)(void);
+
 @property (nonatomic) BOOL loadingOverlayVisible;
 -(void)setLoadingOverlayVisible:(BOOL)loadingOverlayVisible animated:(BOOL)animated;
 

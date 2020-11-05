@@ -177,7 +177,7 @@ namespace sh {
 	private:
 		virtual void initializeJS(napi_env env) override;
 		
-		Options options;
 		napi_ref jsRef;
+		Options options;
 	};
 }

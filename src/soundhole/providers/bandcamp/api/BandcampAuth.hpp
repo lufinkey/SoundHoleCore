@@ -9,6 +9,7 @@
 #pragma once
 
 #include <soundhole/common.hpp>
+#include <soundhole/utils/js/JSWrapClass.hpp>
 #include "BandcampSession.hpp"
 #include "BandcampAuthEventListener.h"
 
@@ -32,6 +33,8 @@ namespace sh {
 		bool isLoggedIn() const;
 		const Optional<BandcampSession>& getSession() const;
 		
+		static Promise<Optional<BandcampSession>> authenticate();
+		
 		Promise<bool> login();
 		void loginWithSession(BandcampSession session);
 		void logout();
@@ -39,6 +42,8 @@ namespace sh {
 	private:
 		void startSession(BandcampSession session);
 		void clearSession();
+		
+		static Promise<Optional<BandcampSession>> createBandcampSessionFromCookies(ArrayList<String> cookies);
 		
 		Options options;
 		Optional<BandcampSession> session;

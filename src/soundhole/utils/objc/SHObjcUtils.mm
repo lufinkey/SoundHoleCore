@@ -62,6 +62,56 @@
 	return YES;
 }
 
+
++(NSString*)httpDateString:(NSDate*)date {
+	NSDateFormatter* formatter = [[NSDateFormatter alloc] init];
+	formatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+	formatter.timeZone = [NSTimeZone timeZoneWithAbbreviation:@"GMT"];
+	formatter.dateFormat = @"EEE, dd MMM yyyy HH:mm:ss O";
+	return [formatter stringFromDate:date];
+}
+
+
++(NSString*)stringFromCookie:(NSHTTPCookie*)cookie {
+	NSMutableString* cookieString = [NSMutableString stringWithFormat:@"%@=%@; Domain=%@; Path=%@", cookie.name, cookie.value, cookie.domain, cookie.path];
+	if(cookie.expiresDate != nil) {
+		[cookieString appendFormat:@"; Expires=%@", [self httpDateString:cookie.expiresDate]];
+	}
+	if(cookie.version != 1) {
+		[cookieString appendFormat:@"; Version=%i", (int)cookie.version];
+	}
+	if(cookie.isSecure) {
+		[cookieString appendFormat:@"; Secure"];
+	}
+	if(cookie.HTTPOnly) {
+		[cookieString appendFormat:@"; HttpOnly"];
+	}
+#ifdef TARGETPLATFORM_IOS
+	if (@available(iOS 13.0, *)) {
+		if(cookie.sameSitePolicy != nil) {
+			[cookieString appendFormat:@"; SameSite=%@", cookie.sameSitePolicy];
+		}
+	}
+#elif TARGETPLATFORM_MAC
+	if(@available(macOS 10.15, *)) {
+		if(cookie.sameSitePolicy != nil) {
+			[cookieString appendFormat:@"; SameSite=%@", cookie.sameSitePolicy];
+		}
+	}
+#endif
+	return cookieString;
+}
+
++(NSArray<NSString*>*)stringsFromCookies:(NSArray<NSHTTPCookie*>*)cookies {
+	NSMutableArray<NSString*>* cookieStrings = [NSMutableArray array];
+	for(NSHTTPCookie* cookie in cookies) {
+		[cookieStrings addObject:[self stringFromCookie:cookie]];
+	}
+	return cookieStrings;
+}
+
+
+
 +(void)runOnMain:(void(^)())executor {
 	if([NSThread isMainThread]) {
 		executor();

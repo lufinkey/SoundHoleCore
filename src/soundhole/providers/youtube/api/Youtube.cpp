@@ -59,7 +59,7 @@ namespace sh {
 
 
 	Youtube::Youtube(Options options)
-	: options(options), jsRef(nullptr) {
+	: jsRef(nullptr), options(options) {
 		//
 	}
 

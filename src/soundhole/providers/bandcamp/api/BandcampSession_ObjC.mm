@@ -27,9 +27,9 @@ namespace sh {
 	}
 	
 	void BandcampSession::writeToKeychain(const String& key) const {
-		String cookiesStr = utils::encodeCookies(cookies);
-		NSData* cookiesData = [NSData dataWithBytes:(const char*)cookiesStr.c_str() length:(NSUInteger)cookiesStr.length()];
-		[SHKeychainUtils setGenericPasswordData:cookiesData forAccountKey:key.toNSString()];
+		String sessionStr = toJson().dump();
+		NSData* sessionData = [NSData dataWithBytes:(const char*)sessionStr.c_str() length:(NSUInteger)sessionStr.length()];
+		[SHKeychainUtils setGenericPasswordData:sessionData forAccountKey:key.toNSString()];
 	}
 
 	void BandcampSession::writeToKeychain(const Optional<BandcampSession>& session, const String& key) {
@@ -45,9 +45,13 @@ namespace sh {
 		if(data == nil) {
 			return std::nullopt;
 		}
-		String cookiesStr = String((const char*)data.bytes, (size_t)data.length);
-		auto cookies = utils::parseCookies(cookiesStr);
-		return BandcampSession::fromCookies(cookies);
+		String sessionStr = String((const char*)data.bytes, (size_t)data.length);
+		std::string parseError;
+		Json sessionJson = Json::parse(sessionStr.c_str(), parseError);
+		if(sessionJson.is_null()) {
+			return std::nullopt;
+		}
+		return BandcampSession::fromJson(sessionJson);
 	}
 }
 

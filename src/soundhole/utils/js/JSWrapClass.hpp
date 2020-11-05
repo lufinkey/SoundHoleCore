@@ -13,8 +13,15 @@
 namespace sh {
 	class JSWrapClass {
 	protected:
+		JSWrapClass();
+		
 		virtual void initializeJS(napi_env) = 0;
+		void initializeJSIfNeeded();
 		void queueJS(Function<void(napi_env)> work);
 		void queueJSDestruct(Function<void(napi_env)> work);
+		
+	private:
+		bool initializingJS;
+		bool initializedJS;
 	};
 }

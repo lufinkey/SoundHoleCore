@@ -73,7 +73,7 @@ namespace sh::test {
 		})
 		.delay(std::chrono::seconds(5))
 		.finally([=]() {
-			PRINT("cleaning up spotify instance\n");
+			PRINT("cleaning up bandcamp instance\n");
 			delete bandcamp;
 			PRINT("\n");
 		});

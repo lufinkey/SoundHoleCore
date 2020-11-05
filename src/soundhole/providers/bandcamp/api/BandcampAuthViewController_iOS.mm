@@ -107,17 +107,21 @@
 
 -(void)webView:(WKWebView*)webView decidePolicyForNavigationAction:(WKNavigationAction*)action decisionHandler:(void(^)(WKNavigationActionPolicy))decisionHandler {
 	WKHTTPCookieStore* cookieStore = webView.configuration.websiteDataStore.httpCookieStore;
-	[cookieStore getAllCookies:^(NSArray<NSHTTPCookie*>* cookiesArr) {
-		std::map<fgl::String,fgl::String> cookies;
-		for(NSHTTPCookie* cookie in cookiesArr) {
+	[cookieStore getAllCookies:^(NSArray<NSHTTPCookie*>* cookies) {
+		BOOL hasClientId = NO;
+		BOOL hasIdentity = NO;
+		for(NSHTTPCookie* cookie in cookies) {
 			if([cookie.domain isEqualToString:@"bandcamp.com"] || [cookie.domain isEqualToString:@".bandcamp.com"]) {
-				cookies[fgl::String(cookie.name)] = fgl::String(cookie.value);
+				if([cookie.name isEqualToString:@"client_id"]) {
+					hasClientId = YES;
+				} else if([cookie.name isEqualToString:@"identity"]) {
+					hasIdentity = YES;
+				}
 			}
 		}
-		auto session = sh::BandcampSession::fromCookies(cookies);
-		if(session) {
+		if(hasClientId && hasIdentity) {
 			decisionHandler(WKNavigationActionPolicyCancel);
-			self->_onSuccess(self,session.value());
+			self->_onSuccess(self, cookies);
 		} else {
 			decisionHandler(WKNavigationActionPolicyAllow);
 		}

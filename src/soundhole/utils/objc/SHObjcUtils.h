@@ -15,6 +15,11 @@ NS_ASSUME_NONNULL_BEGIN
 +(NSDictionary*)decodeQueryString:(NSString*)queryString;
 +(NSDictionary*)parseOAuthQueryParams:(NSURL*)url;
 +(BOOL)checkIfURL:(NSURL*)url matchesRedirectURL:(NSURL*)redirectURL;
+
++(NSString*)httpDateString:(NSDate*)date;
++(NSString*)stringFromCookie:(NSHTTPCookie*)cookie;
++(NSArray<NSString*>*)stringsFromCookies:(NSArray<NSHTTPCookie*>*)cookies;
+
 +(void)runOnMain:(void(^)(void))executor;
 
 @end

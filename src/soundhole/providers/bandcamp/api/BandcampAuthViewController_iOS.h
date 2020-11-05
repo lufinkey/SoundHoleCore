@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) SHWebViewController* webViewController;
 
 @property (nonatomic, nullable) void(^onCancel)();
-@property (nonatomic, nullable) void(^onSuccess)(BandcampAuthViewController*,sh::BandcampSession);
+@property (nonatomic, nullable) void(^onSuccess)(BandcampAuthViewController*,NSArray<NSHTTPCookie*>*);
 
 @property (nonatomic) BOOL loadingOverlayVisible;
 -(void)setLoadingOverlayVisible:(BOOL)loadingOverlayVisible animated:(BOOL)animated;

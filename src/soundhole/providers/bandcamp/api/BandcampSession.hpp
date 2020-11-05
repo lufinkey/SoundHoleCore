@@ -13,16 +13,18 @@
 namespace sh {
 	class BandcampSession {
 	public:
-		static Optional<BandcampSession> fromCookies(const std::map<String,String>& cookies);
+		static Optional<BandcampSession> fromJson(const Json&);
 		
 		static Optional<BandcampSession> load(const String& key);
 		static void save(const String& key, Optional<BandcampSession> session);
 		
 		void save(const String& key);
 		
-		String getClientId() const;
-		String getIdentityString() const;
-		String getSessionString() const;
+		const String& getClientId() const;
+		const String& getIdentity() const;
+		const ArrayList<String>& getCookies() const;
+		
+		Json toJson() const;
 		
 		#if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
 		void writeToKeychain(const String& key) const;
@@ -31,10 +33,10 @@ namespace sh {
 		#endif
 		
 	private:
-		BandcampSession(const std::map<String,String>& cookies);
+		BandcampSession(String clientId, String identity, ArrayList<String> cookies);
 		
-		String getCookieValue(const String& key) const;
-		
-		std::map<String,String> cookies;
+		String clientId;
+		String identity;
+		ArrayList<String> cookies;
 	};
 }

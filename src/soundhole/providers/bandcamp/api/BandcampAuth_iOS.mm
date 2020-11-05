@@ -14,18 +14,32 @@
 #import <WebKit/WebKit.h>
 
 namespace sh {
-	Promise<bool> BandcampAuth::login() {
-		return Promise<bool>([=](auto resolve, auto reject) {
+	Promise<Optional<BandcampSession>> BandcampAuth::authenticate() {
+		return Promise<Optional<BandcampSession>>([=](auto resolve, auto reject) {
 			dispatch_async(dispatch_get_main_queue(), ^{
 				BandcampAuthViewController* viewController = [[BandcampAuthViewController alloc] init];
-				viewController.onSuccess = ^(BandcampAuthViewController* viewController, sh::BandcampSession session) {
-					[viewController.presentingViewController dismissViewControllerAnimated:YES completion:^{
-						loginWithSession(session);
-						resolve(isLoggedIn());
-					}];
+				viewController.onSuccess = ^(BandcampAuthViewController* viewController, NSArray<NSHTTPCookie*>* cookies) {
+					ArrayList<String> cookiesArray;
+					cookiesArray.reserve((size_t)cookies.count);
+					for(NSHTTPCookie* cookie in cookies) {
+						cookiesArray.pushBack(String([SHObjcUtils stringFromCookie:cookie]));
+					}
+					[viewController setLoadingOverlayVisible:YES animated:YES];
+					createBandcampSessionFromCookies(cookiesArray).then([=](auto session) {
+						dispatch_async(dispatch_get_main_queue(), ^{
+							[viewController setLoadingOverlayVisible:NO animated:YES];
+							[viewController.presentingViewController dismissViewControllerAnimated:YES completion:^{
+								if(session) {
+									resolve(session.value());
+								} else {
+									reject(std::runtime_error("Couldn't create bandcamp session from cookies"));
+								}
+							}];
+						});
+					}, reject);
 				};
 				viewController.onCancel = ^{
-					resolve(false);
+					resolve(std::nullopt);
 				};
 				
 				[viewController loadViewIfNeeded];

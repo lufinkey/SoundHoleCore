@@ -9,36 +9,50 @@
 #include "BandcampSession.hpp"
 
 namespace sh {
-	Optional<BandcampSession> BandcampSession::fromCookies(const std::map<String, String>& cookies) {
-		auto session = BandcampSession(cookies);
-		if(session.getClientId().empty() || session.getIdentityString().empty()) {
+	Optional<BandcampSession> BandcampSession::fromJson(const Json& json) {
+		if(json.is_null()) {
 			return std::nullopt;
 		}
-		return session;
+		auto clientId = json["clientId"].string_value();
+		auto identity = json["identity"].string_value();
+		if(clientId.empty() || identity.empty()) {
+			return std::nullopt;
+		}
+		auto cookiesJson = json["cookies"].array_items();
+		ArrayList<String> cookies;
+		cookies.reserve(cookiesJson.size());
+		for(auto& cookieJson : cookiesJson) {
+			if(cookieJson.is_string()) {
+				cookies.pushBack(cookieJson.string_value());
+			}
+		}
+		return BandcampSession(clientId, identity, cookies);
 	}
 
-	BandcampSession::BandcampSession(const std::map<String,String>& cookies)
-	: cookies(cookies) {
+	BandcampSession::BandcampSession(String clientId, String identity, ArrayList<String> cookies)
+	: clientId(clientId), identity(identity), cookies(cookies) {
 		//
 	}
 
-	String BandcampSession::getCookieValue(const String& key) const {
-		auto it = cookies.find(key);
-		if(it == cookies.end()) {
-			return String();
-		}
-		return it->second;
+	const String& BandcampSession::getClientId() const {
+		return clientId;
 	}
 
-	String BandcampSession::getClientId() const {
-		return getCookieValue("client_id");
+	const String& BandcampSession::getIdentity() const {
+		return identity;
 	}
 
-	String BandcampSession::getIdentityString() const {
-		return getCookieValue("identity");
+	const ArrayList<String>& BandcampSession::getCookies() const {
+		return cookies;
 	}
 
-	String BandcampSession::getSessionString() const {
-		return getCookieValue("session");
+	Json BandcampSession::toJson() const {
+		return Json::object{
+			{ "clientId", (std::string)clientId },
+			{ "identity", (std::string)identity },
+			{ "cookies", cookies.map<Json>([=](const String& cookie) -> Json {
+				return Json((std::string)cookie);
+			}) }
+		};
 	}
 }
