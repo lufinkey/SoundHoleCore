@@ -152,37 +152,4 @@ namespace sh::utils {
 		}
 		return String::join(items, "&");
 	}
-
-
-
-	std::map<String,String> parseCookies(String cookiesStr) {
-		cookiesStr = cookiesStr.trim();
-		if(cookiesStr.empty()) {
-			return std::map<String,String>();
-		}
-		std::map<String,String> cookies;
-		for(String cookiePair : cookiesStr.split(';')) {
-			cookiePair = cookiePair.trim();
-			if(cookiePair.empty()) {
-				continue;
-			}
-			size_t equalsIndex = cookiePair.indexOf('=');
-			if(equalsIndex == (size_t)-1) {
-				cookies[""] = decodeURLComponent(cookiePair);
-			} else {
-				String cookieName = decodeURLComponent(cookiePair.substring(0, equalsIndex).trim());
-				String cookieValue = decodeURLComponent(cookiePair.substring(equalsIndex+1).trim());
-				cookies[cookieName] = cookieValue;
-			}
-		}
-		return cookies;
-	}
-
-	String encodeCookies(const std::map<String,String>& cookies) {
-		LinkedList<String> cookieParts;
-		for(auto& pair : cookies) {
-			cookieParts.pushBack(encodeURLComponent(pair.first)+'='+encodeURLComponent(pair.second));
-		}
-		return String::join(cookieParts, "; ");
-	}
 }

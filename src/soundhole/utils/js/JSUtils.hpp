@@ -101,7 +101,23 @@ namespace sh::jsutils {
 		}
 		return linkedListFromNapiArray<T>(array, transform);
 	}
-	
+
+	template<typename T>
+	std::map<String,T> mapFromNapiObject(Napi::Object object, Function<T(String,Napi::Value)> mapper) {
+		std::map<String,T> map;
+		if(object.IsEmpty() || object.IsNull() || object.IsUndefined()) {
+			return map;
+		}
+		Napi::Array keys = object.GetPropertyNames();
+		for(uint32_t i=0, length=keys.Length(); i<length; i++) {
+			Napi::Value propNameValue = keys[i];
+			String propertyName = propNameValue.As<Napi::String>().Utf8Value();
+			auto value = object.Get(propertyName.c_str());
+			map[propertyName] = mapper(propertyName,value);
+		}
+		return map;
+	}
+
 	template<typename NapiType>
 	NapiType jsValue(napi_env env, napi_ref ref) {
 		if(ref == nullptr) {
