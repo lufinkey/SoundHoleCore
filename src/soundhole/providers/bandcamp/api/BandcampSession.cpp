@@ -46,6 +46,22 @@ namespace sh {
 		return cookies;
 	}
 
+	bool BandcampSession::equals(const BandcampSession& cmp) const {
+		if(clientId != cmp.clientId || identity != cmp.identity || cookies.size() != cmp.cookies.size()) {
+			return false;
+		}
+		for(size_t i=0; i<cookies.size(); i++) {
+			auto& a = cookies[i];
+			auto& b = cmp.cookies[i];
+			if(a != b) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+
+
 	Json BandcampSession::toJson() const {
 		return Json::object{
 			{ "clientId", (std::string)clientId },

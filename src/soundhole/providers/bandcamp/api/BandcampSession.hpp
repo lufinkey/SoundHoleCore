@@ -24,6 +24,8 @@ namespace sh {
 		const String& getIdentity() const;
 		const ArrayList<String>& getCookies() const;
 		
+		bool equals(const BandcampSession&) const;
+		
 		Json toJson() const;
 		
 		#if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
@@ -39,4 +41,14 @@ namespace sh {
 		String identity;
 		ArrayList<String> cookies;
 	};
+
+
+
+	inline bool operator==(const sh::BandcampSession& left, const sh::BandcampSession& right) {
+		return left.equals(right);
+	}
+
+	inline bool operator!=(const sh::BandcampSession& left, const sh::BandcampSession& right) {
+		return !left.equals(right);
+	}
 }

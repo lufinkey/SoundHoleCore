@@ -19,6 +19,7 @@ namespace sh {
 		
 		virtual void onBandcampAuthSessionResume(BandcampAuth* auth) {}
 		virtual void onBandcampAuthSessionStart(BandcampAuth* auth) {}
+		virtual void onBandcampAuthSessionUpdate(BandcampAuth* auth) {}
 		virtual void onBandcampAuthSessionEnd(BandcampAuth* auth) {}
 	};
 }

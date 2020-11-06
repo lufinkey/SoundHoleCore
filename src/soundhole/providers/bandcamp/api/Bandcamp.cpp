@@ -35,9 +35,28 @@ namespace sh {
 
 	void Bandcamp::initializeJS(napi_env env) {
 		if(this->jsRef == nullptr) {
+			// create auth options
+			auto authOptions = Napi::Object::New(env);
+			
+			// create sessionCookies
+			auto session = auth->getSession();
+			if(session) {
+				auto sessionCookies = Napi::Array::New(env);
+				auto sessionCookiesPush = sessionCookies.Get("push").As<Napi::Function>();
+				for(auto& cookie : session->getCookies()) {
+					sessionCookiesPush.Call(sessionCookies, { Napi::String::New(env, cookie.c_str()) });
+				}
+				authOptions.Set("sessionCookies", sessionCookies);
+			}
+			
+			// create options
+			auto bcOptions = Napi::Object::New(env);
+			bcOptions.Set("auth", authOptions);
+			
+			// instantiate bandcamp
 			auto jsExports = scripts::getJSExports(env);
 			auto BandcampClass = jsExports.Get("Bandcamp").As<Napi::Function>();
-			auto bandcamp = BandcampClass.New({});
+			auto bandcamp = BandcampClass.New({ bcOptions });
 			auto bandcampRef = Napi::ObjectReference::New(bandcamp, 1);
 			bandcampRef.SuppressDestruct();
 			jsRef = bandcampRef;
@@ -68,6 +87,36 @@ namespace sh {
 
 
 
+	void Bandcamp::updateSessionFromJS(napi_env env) {
+		auto jsApi = jsutils::jsValue<Napi::Object>(env, jsRef);
+		if(jsApi.IsEmpty() || jsApi.IsNull() || jsApi.IsEmpty()) {
+			printf("jsApi is null in Bandcamp::updateSessionFromJS");
+			return;
+		}
+		auto sessionJs = jsApi.Get("session").As<Napi::Object>();
+		if(sessionJs.IsEmpty() || sessionJs.IsNull() || sessionJs.IsUndefined()) {
+			if(auth->isLoggedIn()) {
+				auth->logout();
+			}
+			return;
+		}
+		auto sessionJsonStr = sessionJs.Get("serialize").As<Napi::Function>().Call(sessionJs, {}).As<Napi::String>().Utf8Value();
+		std::string jsonError;
+		auto sessionJson = Json::parse(sessionJsonStr, jsonError);
+		auto session = BandcampSession::fromJson(sessionJson);
+		if(!session) {
+			if(auth->isLoggedIn()) {
+				auth->logout();
+			}
+			return;
+		}
+		if(session != auth->getSession()) {
+			auth->loginWithSession(session.value());
+		}
+	}
+
+
+
 	Promise<BandcampSearchResults> Bandcamp::search(String query, SearchOptions options) {
 		return Promise<BandcampSearchResults>([=](auto resolve, auto reject) {
 			queueJS([=](napi_env env) {
@@ -85,10 +134,14 @@ namespace sh {
 				promise.Get("then").As<Napi::Function>().Call(promise, {
 					// then
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
+						updateSessionFromJS(info.Env());
+						// decode search results
 						resolve(BandcampSearchResults::fromNapiObject(info[0].As<Napi::Object>()));
 					}),
 					// catch
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
+						updateSessionFromJS(info.Env());
+						// handle error
 						auto errorMessage = info[0].As<Napi::Object>().Get("message").ToString();
 						reject(BandcampError(BandcampError::Code::REQUEST_FAILED, errorMessage));
 					})
@@ -111,6 +164,8 @@ namespace sh {
 				promise.Get("then").As<Napi::Function>().Call(promise, {
 					// then
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
+						updateSessionFromJS(info.Env());
+						// decode track
 						auto obj = info[0].As<Napi::Object>();
 						auto mediaType = obj.Get("type").ToString().Utf8Value();
 						if(mediaType != "track") {
@@ -121,6 +176,8 @@ namespace sh {
 					}),
 					// catch
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
+						updateSessionFromJS(info.Env());
+						// handle error
 						auto errorMessage = info[0].As<Napi::Object>().Get("message").ToString();
 						reject(BandcampError(BandcampError::Code::REQUEST_FAILED, errorMessage));
 					})
@@ -143,6 +200,8 @@ namespace sh {
 				promise.Get("then").As<Napi::Function>().Call(promise, {
 					// then
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
+						updateSessionFromJS(info.Env());
+						//decode album
 						auto obj = info[0].As<Napi::Object>();
 						auto mediaType = obj.Get("type").ToString().Utf8Value();
 						if(mediaType == "track") {
@@ -166,6 +225,8 @@ namespace sh {
 					}),
 					// catch
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
+						updateSessionFromJS(info.Env());
+						// handle error
 						auto errorMessage = info[0].As<Napi::Object>().Get("message").ToString();
 						reject(BandcampError(BandcampError::Code::REQUEST_FAILED, errorMessage));
 					})
@@ -188,6 +249,8 @@ namespace sh {
 				promise.Get("then").As<Napi::Function>().Call(promise, {
 					// then
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
+						updateSessionFromJS(info.Env());
+						// decode artist
 						auto obj = info[0].As<Napi::Object>();
 						auto mediaType = obj.Get("type").ToString().Utf8Value();
 						if(mediaType != "artist") {
@@ -198,6 +261,8 @@ namespace sh {
 					}),
 					// catch
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
+						updateSessionFromJS(info.Env());
+						// handle error
 						auto errorMessage = info[0].As<Napi::Object>().Get("message").ToString();
 						reject(BandcampError(BandcampError::Code::REQUEST_FAILED, errorMessage));
 					})

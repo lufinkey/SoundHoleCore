@@ -45,6 +45,8 @@ namespace sh {
 	private:
 		virtual void initializeJS(napi_env env) override;
 		
+		void updateSessionFromJS(napi_env env);
+		
 		napi_ref jsRef;
 		
 		BandcampAuth* auth;

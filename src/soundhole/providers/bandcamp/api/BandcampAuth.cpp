@@ -86,12 +86,21 @@ namespace sh {
 	void BandcampAuth::loginWithSession(BandcampSession session) {
 		bool wasLoggedIn = isLoggedIn();
 		startSession(session);
-		if(!wasLoggedIn && this->session) {
-			std::unique_lock<std::mutex> lock(listenersMutex);
-			LinkedList<BandcampAuthEventListener*> listeners = this->listeners;
-			lock.unlock();
+		bool isLoggedIn = this->isLoggedIn();
+		std::unique_lock<std::mutex> lock(listenersMutex);
+		auto listeners = this->listeners;
+		lock.unlock();
+		if(!wasLoggedIn && isLoggedIn) {
 			for(auto listener : listeners) {
 				listener->onBandcampAuthSessionStart(this);
+			}
+		} else if(wasLoggedIn && isLoggedIn) {
+			for(auto listener : listeners) {
+				listener->onBandcampAuthSessionUpdate(this);
+			}
+		} else if(wasLoggedIn && !isLoggedIn) {
+			for(auto listener : listeners) {
+				listener->onBandcampAuthSessionEnd(this);
 			}
 		}
 	}
@@ -101,7 +110,7 @@ namespace sh {
 		clearSession();
 		if(wasLoggedIn) {
 			std::unique_lock<std::mutex> lock(listenersMutex);
-			LinkedList<BandcampAuthEventListener*> listeners = this->listeners;
+			auto listeners = this->listeners;
 			lock.unlock();
 			for(auto listener : listeners) {
 				listener->onBandcampAuthSessionEnd(this);
@@ -119,7 +128,7 @@ namespace sh {
 
 	void BandcampAuth::clearSession() {
 		std::unique_lock<std::recursive_mutex> lock(sessionMutex);
-		session.reset();
+		session = std::nullopt;
 		save();
 	}
 
@@ -152,8 +161,7 @@ namespace sh {
 						}
 						
 						// serialize session
-						auto serializeFunction = sessionJs.Get("serialize").As<Napi::Function>();
-						auto sessionJsonStr = serializeFunction.Call(sessionJs, {}).As<Napi::String>().Utf8Value();
+						auto sessionJsonStr = sessionJs.Get("serialize").As<Napi::Function>().Call(sessionJs, {}).As<Napi::String>().Utf8Value();
 						std::string jsonError;
 						auto sessionJson = Json::parse(sessionJsonStr, jsonError);
 						if(sessionJson.is_null()) {
