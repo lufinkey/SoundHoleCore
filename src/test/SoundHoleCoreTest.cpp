@@ -71,7 +71,16 @@ namespace sh::test {
 				}
 			});
 		})
-		.delay(std::chrono::seconds(5))
+		.delay(std::chrono::seconds(1))
+		.then([=]() {
+			return bandcamp->search("Phony ppl").then([=](BandcampSearchResults searchResults) {
+				PRINT("got %i bandcamp search results\n", (int)searchResults.items.size());
+				if(!bandcamp->isLoggedIn()) {
+					PRINT("bandcamp is no longer logged in\n");
+				}
+			});
+		})
+		.delay(std::chrono::seconds(1))
 		.finally([=]() {
 			PRINT("cleaning up bandcamp instance\n");
 			delete bandcamp;

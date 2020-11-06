@@ -74,11 +74,15 @@ namespace sh {
 	}
 
 	Promise<bool> Bandcamp::login() {
-		return auth->login();
+		return auth->login().map<bool>([=](bool loggedIn) {
+			queueUpdateJSSession(auth->getSession());
+			return loggedIn;
+		});
 	}
 
 	void Bandcamp::logout() {
-		return auth->logout();
+		auth->logout();
+		queueUpdateJSSession(auth->getSession());
 	}
 
 	bool Bandcamp::isLoggedIn() const {
@@ -86,6 +90,40 @@ namespace sh {
 	}
 
 
+
+	void Bandcamp::updateJSSession(napi_env env, Optional<BandcampSession> session) {
+		auto jsApi = jsutils::jsValue<Napi::Object>(env, jsRef);
+		if(jsApi.IsEmpty() || jsApi.IsNull() || jsApi.IsEmpty()) {
+			printf("jsApi is null in Bandcamp::updateJSSession");
+			return;
+		}
+		if(!session) {
+			// logout if null session
+			jsApi.Get("logout").As<Napi::Function>().Call(jsApi, {});
+			return;
+		}
+		
+		// create session cookies
+		auto sessionCookies = Napi::Array::New(env);
+		auto sessionCookiesPush = sessionCookies.Get("push").As<Napi::Function>();
+		for(auto& cookie : session->getCookies()) {
+			sessionCookiesPush.Call(sessionCookies, { Napi::String::New(env, cookie.c_str()) });
+		}
+		
+		// login with cookies
+		auto existingSession = jsApi.Get("session").As<Napi::Object>();
+		if(existingSession.IsEmpty() || existingSession.IsNull() || existingSession.IsUndefined()) {
+			jsApi.Get("loginWithCookies").As<Napi::Function>().Call(jsApi, { sessionCookies });
+		} else {
+			jsApi.Get("updateSessionCookies").As<Napi::Function>().Call(jsApi, { sessionCookies });
+		}
+	}
+
+	void Bandcamp::queueUpdateJSSession(Optional<BandcampSession> session) {
+		queueJS([=](napi_env env) {
+			updateJSSession(env, session);
+		});
+	}
 
 	void Bandcamp::updateSessionFromJS(napi_env env) {
 		auto jsApi = jsutils::jsValue<Napi::Object>(env, jsRef);
@@ -95,8 +133,9 @@ namespace sh {
 		}
 		auto sessionJs = jsApi.Get("session").As<Napi::Object>();
 		if(sessionJs.IsEmpty() || sessionJs.IsNull() || sessionJs.IsUndefined()) {
-			if(auth->isLoggedIn()) {
-				auth->logout();
+			auto existingSession = auth->getSession();
+			if(existingSession) {
+				updateJSSession(env, existingSession);
 			}
 			return;
 		}
@@ -253,8 +292,8 @@ namespace sh {
 						// decode artist
 						auto obj = info[0].As<Napi::Object>();
 						auto mediaType = obj.Get("type").ToString().Utf8Value();
-						if(mediaType != "artist") {
-							reject(BandcampError(BandcampError::Code::MEDIATYPE_MISMATCH, "Bandcamp item is " + mediaType + ", not artist"));
+						if(mediaType != "artist" && mediaType != "label") {
+							reject(BandcampError(BandcampError::Code::MEDIATYPE_MISMATCH, "Bandcamp item is " + mediaType + ", not artist or label"));
 						} else {
 							resolve(BandcampArtist::fromNapiObject(obj));
 						}

@@ -45,6 +45,8 @@ namespace sh {
 	private:
 		virtual void initializeJS(napi_env env) override;
 		
+		void updateJSSession(napi_env env, Optional<BandcampSession> session);
+		void queueUpdateJSSession(Optional<BandcampSession> session);
 		void updateSessionFromJS(napi_env env);
 		
 		napi_ref jsRef;
