@@ -45,16 +45,15 @@ namespace sh {
 
 
 	Promise<bool> BandcampProvider::login() {
-		// TODO implement login
-		return Promise<bool>::reject(std::logic_error("Bandcamp login is not available"));
+		return bandcamp->login();
 	}
 
 	void BandcampProvider::logout() {
-		// TODO implement logout
+		return bandcamp->logout();
 	}
 
 	bool BandcampProvider::isLoggedIn() const {
-		return false;
+		return bandcamp->isLoggedIn();
 	}
 
 
