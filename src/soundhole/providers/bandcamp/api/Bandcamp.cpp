@@ -117,6 +117,8 @@ namespace sh {
 		} else {
 			jsApi.Get("updateSessionCookies").As<Napi::Function>().Call(jsApi, { sessionCookies });
 		}
+		
+		// TODO if session isn't logged in, log out this session
 	}
 
 	void Bandcamp::queueUpdateJSSession(Optional<BandcampSession> session) {
@@ -159,6 +161,11 @@ namespace sh {
 	Promise<BandcampSearchResults> Bandcamp::search(String query, SearchOptions options) {
 		return Promise<BandcampSearchResults>([=](auto resolve, auto reject) {
 			queueJS([=](napi_env env) {
+				// update session
+				if(auto session = auth->getSession()) {
+					updateJSSession(env, session);
+				}
+				// get api object and make call
 				auto jsApi = jsutils::jsValue<Napi::Object>(env, jsRef);
 				if(jsApi.IsEmpty()) {
 					reject(BandcampError(BandcampError::Code::NOT_INITIALIZED, "Bandcamp not initialized"));
@@ -192,6 +199,11 @@ namespace sh {
 	Promise<BandcampTrack> Bandcamp::getTrack(String url) {
 		return Promise<BandcampTrack>([=](auto resolve, auto reject) {
 			queueJS([=](napi_env env) {
+				// update session
+				if(auto session = auth->getSession()) {
+					updateJSSession(env, session);
+				}
+				// get api object and make call
 				auto jsApi = jsutils::jsValue<Napi::Object>(env, jsRef);
 				if(jsApi.IsEmpty()) {
 					reject(BandcampError(BandcampError::Code::NOT_INITIALIZED, "Bandcamp not initialized"));
@@ -228,6 +240,11 @@ namespace sh {
 	Promise<BandcampAlbum> Bandcamp::getAlbum(String url) {
 		return Promise<BandcampAlbum>([=](auto resolve, auto reject) {
 			queueJS([=](napi_env env) {
+				// update session
+				if(auto session = auth->getSession()) {
+					updateJSSession(env, session);
+				}
+				// get api object and make call
 				auto jsApi = jsutils::jsValue<Napi::Object>(env, jsRef);
 				if(jsApi.IsEmpty()) {
 					reject(BandcampError(BandcampError::Code::NOT_INITIALIZED, "Bandcamp not initialized"));
@@ -277,6 +294,11 @@ namespace sh {
 	Promise<BandcampArtist> Bandcamp::getArtist(String url) {
 		return Promise<BandcampArtist>([=](auto resolve, auto reject) {
 			queueJS([=](napi_env env) {
+				// update session
+				if(auto session = auth->getSession()) {
+					updateJSSession(env, session);
+				}
+				// get api object and make call
 				auto jsApi = jsutils::jsValue<Napi::Object>(env, jsRef);
 				if(jsApi.IsEmpty()) {
 					reject(BandcampError(BandcampError::Code::NOT_INITIALIZED, "Bandcamp not initialized"));

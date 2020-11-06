@@ -73,8 +73,18 @@ namespace sh::test {
 		})
 		.delay(std::chrono::seconds(1))
 		.then([=]() {
-			return bandcamp->search("Phony ppl").then([=](BandcampSearchResults searchResults) {
-				PRINT("got %i bandcamp search results\n", (int)searchResults.items.size());
+			return bandcamp->getAlbum("https://music.dirtwire.net/album/atlas-ep").then([=](BandcampAlbum album) {
+				int totalPlayableTracks = 0;
+				int totalTracks = 0;
+				if(album.tracks) {
+					for(auto& track : album.tracks.value()) {
+						totalTracks += 1;
+						if(track.audioSources && track.audioSources->size() > 0) {
+							totalPlayableTracks += 1;
+						}
+					}
+				}
+				PRINT("got bandcamp album with %i / %i playable tracks\n", totalPlayableTracks, totalTracks);
 				if(!bandcamp->isLoggedIn()) {
 					PRINT("bandcamp is no longer logged in\n");
 				}
