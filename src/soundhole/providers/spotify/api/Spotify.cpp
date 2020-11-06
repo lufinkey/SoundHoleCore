@@ -276,7 +276,7 @@ namespace sh {
 			})
 			.map<Json>([=](utils::SharedHttpResponse response) -> Json {
 				Json result;
-				auto contentTypeIt = response->headers.find("content-type");
+				auto contentTypeIt = response->headers.find("Content-Type");
 				String contentType = (contentTypeIt != response->headers.end()) ? contentTypeIt->second : "";
 				if(!contentType.empty()) {
 					contentType = contentType.split(';').front().trim().toLowerCase();
@@ -305,7 +305,7 @@ namespace sh {
 								{ "statusCode", response->statusCode }
 							};
 							if(response->statusCode == 429) {
-								auto retryAfterIt = response->headers.find("retry-after");
+								auto retryAfterIt = response->headers.find("Retry-After");
 								String retryAfter = (retryAfterIt != response->headers.end()) ? retryAfterIt->second : "";
 								if(!retryAfter.empty()) {
 									errorMessage += ". Retry after "+retryAfter+" seconds";
