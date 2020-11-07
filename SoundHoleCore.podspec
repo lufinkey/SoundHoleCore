@@ -34,7 +34,7 @@ Pod::Spec.new do |s|
 	s.static_framework = true
 
 	s.source_files = 'src/soundhole/**/*.{c,cc,cpp,m,mm,h,hpp}', 'external/cxxurl/url.cpp', 'external/json11/json11.cpp'
-	s.ios.frameworks = 'SpotifyAudioPlayback', 'MediaPlayer'
+	s.ios.frameworks = 'SpotifyAudioPlayback', 'MediaPlayer', 'WebKit'
 
 	s.public_header_files = 'src/soundhole/**/*.{h,hpp}', 'external/cxxurl/*.{h,hpp}', 'external/json11/*.{h,hpp}'
 	s.preserve_paths = 'external/**/*', 'src/soundhole/scripts/**/*', 'tools/**/*'
@@ -70,7 +70,7 @@ Pod::Spec.new do |s|
 	s.ios.user_target_xcconfig = {
 		'FRAMEWORK_SEARCH_PATHS' => "${PODS_ROOT}/SoundHoleCore/external/spotify-ios-streaming-sdk"
 	}
-	# s.frameworks = 'UIKit', 'MediaPlayer', 'WebKit'
+	
 	s.dependency 'DataCpp' # git@github.com:lufinkey/data-cpp.git
 	s.dependency 'AsyncCpp' # git@github.com:lufinkey/async-cpp.git
 	s.dependency 'IOCpp' # git@github.com:lufinkey/io-cpp.git
