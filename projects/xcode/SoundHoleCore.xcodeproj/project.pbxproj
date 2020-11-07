@@ -434,6 +434,7 @@
 		A5D9E1352550E96900E4762A /* BandcampAuthEventListener.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BandcampAuthEventListener.h; sourceTree = "<group>"; };
 		A5D9E1362550EC7700E4762A /* BandcampSession_ObjC.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = BandcampSession_ObjC.mm; sourceTree = "<group>"; };
 		A5D9EB172556741500E4762A /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.1.sdk/System/Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
+		A5D9EBDB2557169800E4762A /* ObjcRuntimeUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjcRuntimeUtils.h; sourceTree = "<group>"; };
 		A5E3615B24082C4200840E28 /* MediaProviderStash.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaProviderStash.hpp; sourceTree = "<group>"; };
 		A5E51BB423A3EE24006E061F /* StreamPlayer_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StreamPlayer_iOS.mm; sourceTree = "<group>"; };
 		A5E7852123CE70BC00BD1C67 /* YoutubePlaybackProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = YoutubePlaybackProvider.cpp; sourceTree = "<group>"; };
@@ -915,6 +916,7 @@
 				A5B1B8FF2548EB2300DACA2D /* SHKeychainUtils_objc.mm */,
 				A540D8462550A7B800EE5CA8 /* SHObjcUtils.h */,
 				A540D8472550A7B800EE5CA8 /* SHObjcUtils.mm */,
+				A5D9EBDB2557169800E4762A /* ObjcRuntimeUtils.h */,
 			);
 			path = objc;
 			sourceTree = "<group>";
