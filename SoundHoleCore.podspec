@@ -70,7 +70,7 @@ Pod::Spec.new do |s|
 	s.ios.user_target_xcconfig = {
 		'FRAMEWORK_SEARCH_PATHS' => "${PODS_ROOT}/SoundHoleCore/external/spotify-ios-streaming-sdk"
 	}
-	# s.frameworks = 'UIKit', 'MapKit'
+	# s.frameworks = 'UIKit', 'MediaPlayer', 'WebKit'
 	s.dependency 'DataCpp' # git@github.com:lufinkey/data-cpp.git
 	s.dependency 'AsyncCpp' # git@github.com:lufinkey/async-cpp.git
 	s.dependency 'IOCpp' # git@github.com:lufinkey/io-cpp.git
