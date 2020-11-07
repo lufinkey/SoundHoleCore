@@ -13,6 +13,11 @@
 namespace sh {
 	template<typename T>
 	inline T performObjcCppSelector(id target, SEL selector) {
-		return ((T(*)(id, SEL))objc_msgSend_stret)(target, selector);
+		return ((T(*)(id,SEL))objc_msgSend_stret)(target, selector);
+	}
+
+	template<typename T, typename Arg>
+	inline T performObjcCppSelector(id target, SEL selector, Arg arg) {
+		return ((T(*)(id,SEL,Arg))objc_msgSend_stret)(target, selector, arg);
 	}
 }
