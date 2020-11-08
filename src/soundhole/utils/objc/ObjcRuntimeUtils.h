@@ -12,12 +12,34 @@
 
 namespace sh {
 	template<typename T>
-	inline T performObjcCppSelector(id target, SEL selector) {
+	inline T performObjcSelector(id target, SEL selector) {
+		return ((T(*)(id,SEL))objc_msgSend)(target, selector);
+	}
+
+	template<typename T, typename Arg>
+	inline T performObjcSelector(id target, SEL selector, Arg arg) {
+		return ((T(*)(id,SEL,Arg))objc_msgSend)(target, selector, arg);
+	}
+
+
+	template<typename T>
+	inline T performObjcStretSelector(id target, SEL selector) {
 		return ((T(*)(id,SEL))objc_msgSend_stret)(target, selector);
 	}
 
 	template<typename T, typename Arg>
-	inline T performObjcCppSelector(id target, SEL selector, Arg arg) {
+	inline T performObjcStretSelector(id target, SEL selector, Arg arg) {
 		return ((T(*)(id,SEL,Arg))objc_msgSend_stret)(target, selector, arg);
+	}
+
+
+	template<typename T>
+	inline T performObjcFpretSelector(id target, SEL selector) {
+		return ((T(*)(id,SEL))objc_msgSend_fpret)(target, selector);
+	}
+
+	template<typename T, typename Arg>
+	inline T performObjcFpretSelector(id target, SEL selector, Arg arg) {
+		return ((T(*)(id,SEL,Arg))objc_msgSend_fpret)(target, selector, arg);
 	}
 }
