@@ -20,6 +20,15 @@ namespace sh {
 	struct YoutubePlaylist;
 
 
+	
+	namespace YoutubePrivacyStatus {
+		using Type = String;
+		constexpr Type PRIVATE = "private";
+		constexpr Type PUBLIC = "public";
+		constexpr Type UNLISTED = "unlisted";
+	}
+
+
 
 	struct YoutubeImage {
 		enum class Size {
@@ -189,7 +198,7 @@ namespace sh {
 		};
 		
 		struct Status {
-			String privacyStatus;
+			YoutubePrivacyStatus::Type privacyStatus;
 			String longUploadsStatus;
 			bool isLinked;
 			bool madeForKids;
@@ -308,7 +317,7 @@ namespace sh {
 		};
 		
 		struct Status {
-			String privacyStatus;
+			YoutubePrivacyStatus::Type privacyStatus;
 			
 			static Status fromJson(const Json&);
 		};
@@ -384,7 +393,7 @@ namespace sh {
 		};
 		
 		struct Status {
-			String privacyStatus;
+			YoutubePrivacyStatus::Type privacyStatus;
 			
 			static Status fromJson(const Json&);
 		};

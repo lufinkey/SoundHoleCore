@@ -131,7 +131,7 @@ namespace sh {
 		Promise<YoutubePlaylist> getPlaylist(String id);
 		struct CreatePlaylistOptions {
 			String description;
-			String privacyStatus;
+			YoutubePrivacyStatus::Type privacyStatus;
 			ArrayList<String> tags;
 			String defaultLanguage;
 			YoutubePlaylist::Localizations localizations;
@@ -142,7 +142,7 @@ namespace sh {
 			Optional<String> description;
 			Optional<String> defaultLanguage;
 			Optional<ArrayList<String>> tags;
-			Optional<String> privacyStatus;
+			Optional<YoutubePrivacyStatus::Type> privacyStatus;
 			Optional<YoutubePlaylist::Localizations> localizations;
 		};
 		Promise<YoutubePlaylist> updatePlaylist(String playlistId, UpdatePlaylistOptions options);
