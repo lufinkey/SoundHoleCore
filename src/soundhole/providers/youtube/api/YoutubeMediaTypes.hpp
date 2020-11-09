@@ -23,9 +23,9 @@ namespace sh {
 	
 	namespace YoutubePrivacyStatus {
 		using Type = String;
-		constexpr Type PRIVATE = "private";
-		constexpr Type PUBLIC = "public";
-		constexpr Type UNLISTED = "unlisted";
+		constexpr char PRIVATE[] = "private";
+		constexpr char PUBLIC[] = "public";
+		constexpr char UNLISTED[] = "unlisted";
 	}
 
 
