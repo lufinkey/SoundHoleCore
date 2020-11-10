@@ -143,7 +143,8 @@ namespace sh {
 			Optional<bool> isCollaborative;
 			Optional<bool> isPublic;
 		};
-		Promise<SpotifyPlaylist> createPlaylist(String userId, String name, CreatePlaylistOptions options = {});
+		Promise<SpotifyPlaylist> createPlaylist(String name, CreatePlaylistOptions options = {});
+		Promise<SpotifyPlaylist> createUserPlaylist(String userId, String name, CreatePlaylistOptions options = {});
 		struct UpdatePlaylistOptions {
 			Optional<String> name;
 			Optional<String> description;

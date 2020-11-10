@@ -219,6 +219,7 @@ namespace sh {
 
 
 	SpotifyPlaylist SpotifyPlaylist::fromJson(const Json& json) {
+		auto isPublic = json["public"];
 		return SpotifyPlaylist{
 			.type = json["type"].string_value(),
 			.id = json["id"].string_value(),
@@ -240,6 +241,7 @@ namespace sh {
 			.tracks = SpotifyPage<SpotifyPlaylist::Item>::fromJson(json["tracks"]),
 			.externalURLs = SpotifyExternalURL::arrayFromJson(json["external_urls"]),
 			.followers = SpotifyFollowers::maybeFromJson(json["followers"]),
+			.isPublic = (isPublic.is_bool() ? maybe(isPublic.bool_value()) : std::nullopt),
 			.isCollaborative = json["collaborative"].bool_value()
 		};
 	}

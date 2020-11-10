@@ -51,6 +51,10 @@ namespace sh {
 		virtual bool hasLibrary() const override;
 		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options = GenerateLibraryOptions()) override;
 		
+		virtual bool canCreatePlaylists() const override;
+		virtual ArrayList<Playlist::Privacy> supportedPlaylistPrivacies() const override;
+		virtual Promise<$<Playlist>> createPlaylist(String name, CreatePlaylistOptions options) override;
+		
 		virtual YoutubePlaybackProvider* player() override;
 		virtual const YoutubePlaybackProvider* player() const override;
 		

@@ -88,6 +88,10 @@ namespace sh {
 		};
 		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options = GenerateLibraryOptions()) override;
 		
+		virtual bool canCreatePlaylists() const override;
+		virtual ArrayList<Playlist::Privacy> supportedPlaylistPrivacies() const override;
+		virtual Promise<$<Playlist>> createPlaylist(String name, CreatePlaylistOptions options) override;
+		
 		virtual SpotifyPlaybackProvider* player() override;
 		virtual const SpotifyPlaybackProvider* player() const override;
 		

@@ -220,6 +220,7 @@ namespace sh {
 		Optional<SpotifyFollowers> followers;
 		SpotifyPage<SpotifyPlaylist::Item> tracks;
 		
+		Optional<bool> isPublic;
 		bool isCollaborative;
 		
 		static SpotifyPlaylist fromJson(const Json&);

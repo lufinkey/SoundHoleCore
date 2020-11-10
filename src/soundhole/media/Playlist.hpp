@@ -50,8 +50,18 @@ namespace sh {
 
 	class Playlist: public SpecialTrackCollection<PlaylistItem> {
 	public:
+		enum class Privacy: uint8_t {
+			UNKNOWN,
+			PRIVATE,
+			PUBLIC,
+			UNLISTED
+		};
+		static String Privacy_toString(Privacy);
+		static Privacy Privacy_fromString(const String&);
+		
 		struct Data: public SpecialTrackCollection<PlaylistItem>::Data {
 			$<UserAccount> owner;
+			Privacy privacy;
 		};
 		
 		static $<Playlist> new$(MediaProvider* provider, const Data& data);
@@ -61,6 +71,8 @@ namespace sh {
 		
 		$<UserAccount> owner();
 		$<const UserAccount> owner() const;
+		
+		Privacy privacy() const;
 		
 		virtual Promise<void> fetchData() override;
 		void applyData(const Data& data);
@@ -74,5 +86,6 @@ namespace sh {
 		virtual MutatorDelegate* createMutatorDelegate() override;
 		
 		$<UserAccount> _owner;
+		Privacy _privacy;
 	};
 }

@@ -83,6 +83,32 @@ namespace sh {
 
 
 
+	String Playlist::Privacy_toString(Privacy privacy) {
+		switch(privacy) {
+			case Privacy::PRIVATE:
+				return "private";
+			case Privacy::PUBLIC:
+				return "public";
+			case Privacy::UNLISTED:
+				return "unlisted";
+			case Privacy::UNKNOWN:
+				return "unknown";
+		}
+		throw std::runtime_error("unknown privacy type");
+	}
+
+	Playlist::Privacy Playlist::Privacy_fromString(const String& privacyString) {
+		if(privacyString == "private") {
+			return Privacy::PRIVATE;
+		} else if(privacyString == "public") {
+			return Privacy::PUBLIC;
+		} else if(privacyString == "unlisted") {
+			return Privacy::UNLISTED;
+		} else {
+			return Privacy::UNKNOWN;
+		}
+	}
+
 	$<Playlist> Playlist::new$(MediaProvider* provider, const Data& data) {
 		auto playlist = fgl::new$<Playlist>(provider, data);
 		playlist->lazyLoadContentIfNeeded();
@@ -91,7 +117,7 @@ namespace sh {
 	
 	Playlist::Playlist(MediaProvider* provider, const Data& data)
 	: SpecialTrackCollection<PlaylistItem>(provider, data),
-	_owner(data.owner) {
+	_owner(data.owner), _privacy(data.privacy) {
 		//
 	}
 
@@ -101,6 +127,10 @@ namespace sh {
 
 	$<const UserAccount> Playlist::owner() const {
 		return std::static_pointer_cast<const UserAccount>(_owner);
+	}
+
+	Playlist::Privacy Playlist::privacy() const {
+		return _privacy;
 	}
 
 	Promise<void> Playlist::fetchData() {
@@ -114,13 +144,15 @@ namespace sh {
 		SpecialTrackCollection<PlaylistItem>::applyData(data);
 		if(Optional<String>(_owner ? maybe(_owner->uri()) : std::nullopt) != Optional<String>(data.owner ? maybe(data.owner->uri()) : std::nullopt)) {
 			_owner = data.owner;
+			_privacy = data.privacy;
 		}
 	}
 
 	Playlist::Data Playlist::toData(const DataOptions& options) const {
 		return Playlist::Data{
 			SpecialTrackCollection<PlaylistItem>::toData(options),
-			.owner=_owner
+			.owner=_owner,
+			.privacy=_privacy
 		};
 	}
 
@@ -134,12 +166,18 @@ namespace sh {
 	: SpecialTrackCollection<PlaylistItem>(json, stash) {
 		auto owner = json["owner"];
 		_owner = (!owner.is_null()) ? UserAccount::fromJson(owner, stash) : nullptr;
+		auto privacy = json["privacy"];
+		if(!privacy.is_string()) {
+			throw std::logic_error("missing required property privacy");
+		}
+		_privacy = Privacy_fromString(privacy.string_value());
 	}
 
 	Json Playlist::toJson(const ToJsonOptions& options) const {
 		auto json = SpecialTrackCollection<PlaylistItem>::toJson(options).object_items();
 		json.merge(Json::object{
-			{ "owner", _owner ? _owner->toJson() : Json() }
+			{ "owner", _owner ? _owner->toJson() : Json() },
+			{ "privacy", (std::string)Privacy_toString(_privacy) }
 		});
 		return json;
 	}

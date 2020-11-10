@@ -378,7 +378,15 @@ namespace sh {
 				},
 				.id=playlist.snippet.channelId,
 				.displayName=playlist.snippet.channelTitle
-			})
+			}),
+			.privacy=(
+				(playlist.status.privacyStatus == YoutubePrivacyStatus::PRIVATE) ?
+					  Playlist::Privacy::PRIVATE
+				: (playlist.status.privacyStatus == YoutubePrivacyStatus::PUBLIC) ?
+					  Playlist::Privacy::PUBLIC
+				: (playlist.status.privacyStatus == YoutubePrivacyStatus::UNLISTED) ?
+					  Playlist::Privacy::UNLISTED
+				: Playlist::Privacy::UNKNOWN)
 		};
 	}
 
@@ -519,7 +527,8 @@ namespace sh {
 					},
 					.id=searchResult.snippet.channelId,
 					.displayName=searchResult.snippet.channelTitle
-				})
+				}),
+				.privacy=Playlist::Privacy::UNKNOWN
 			}));
 		}
 		throw std::logic_error("Invalid youtube item kind "+searchResult.id.kind);
@@ -652,6 +661,38 @@ namespace sh {
 			return Promise<YieldResult>::resolve(YieldResult{
 				.done=true
 			});
+		});
+	}
+
+
+
+	bool YoutubeProvider::canCreatePlaylists() const {
+		return true;
+	}
+
+	ArrayList<Playlist::Privacy> YoutubeProvider::supportedPlaylistPrivacies() const {
+		return { Playlist::Privacy::PRIVATE, Playlist::Privacy::UNLISTED, Playlist::Privacy::PUBLIC };
+	}
+
+	Promise<$<Playlist>> YoutubeProvider::createPlaylist(String name, CreatePlaylistOptions options) {
+		YoutubePrivacyStatus::Type privacyStatus;
+		switch(options.privacy) {
+			case Playlist::Privacy::PRIVATE:
+				privacyStatus = YoutubePrivacyStatus::PRIVATE;
+				break;
+			case Playlist::Privacy::UNLISTED:
+				privacyStatus = YoutubePrivacyStatus::UNLISTED;
+				break;
+			case Playlist::Privacy::PUBLIC:
+				privacyStatus = YoutubePrivacyStatus::PUBLIC;
+				break;
+			case Playlist::Privacy::UNKNOWN:
+				return Promise<$<Playlist>>::reject(std::logic_error("invalid playlist privacy value"));
+		}
+		return youtube->createPlaylist(name, {
+			.privacyStatus = privacyStatus
+		}).map<$<Playlist>>([=](YoutubePlaylist playlist) {
+			return Playlist::new$(this, createPlaylistData(playlist));
 		});
 	}
 

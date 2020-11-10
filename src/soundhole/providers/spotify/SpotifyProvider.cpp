@@ -224,7 +224,10 @@ namespace sh {
 				})
 			}
 			},
-			.owner=UserAccount::new$(this, createUserAccountData(playlist.owner, true))
+			.owner=UserAccount::new$(this, createUserAccountData(playlist.owner, true)),
+			.privacy=(playlist.isPublic ?
+				(playlist.isPublic.value() ? Playlist::Privacy::PUBLIC : Playlist::Privacy::PRIVATE)
+				: Playlist::Privacy::UNKNOWN)
 		};
 	}
 
@@ -724,6 +727,37 @@ namespace sh {
 			return Promise<YieldResult>::resolve(YieldResult{
 				.done=true
 			});
+		});
+	}
+
+
+
+
+	bool SpotifyProvider::canCreatePlaylists() const {
+		return true;
+	}
+
+	ArrayList<Playlist::Privacy> SpotifyProvider::supportedPlaylistPrivacies() const {
+		return { Playlist::Privacy::PRIVATE, Playlist::Privacy::PUBLIC };
+	}
+
+	Promise<$<Playlist>> SpotifyProvider::createPlaylist(String name, CreatePlaylistOptions options) {
+		Optional<bool> isPublic;
+		switch(options.privacy) {
+			case Playlist::Privacy::UNLISTED:
+			case Playlist::Privacy::PRIVATE:
+				isPublic = false;
+				break;
+			case Playlist::Privacy::PUBLIC:
+				isPublic = true;
+				break;
+			case Playlist::Privacy::UNKNOWN:
+				break;
+		}
+		return spotify->createPlaylist(name, {
+			.isPublic = isPublic
+		}).map<$<Playlist>>([=](SpotifyPlaylist playlist) {
+			return Playlist::new$(this, createPlaylistData(playlist, false));
 		});
 	}
 

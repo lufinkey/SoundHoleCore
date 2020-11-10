@@ -53,7 +53,7 @@ ArrayList<String> trackColumns() {
 	return { "uri", "provider", "name", "albumName", "albumURI", "artists", "images", "duration", "playable", "updateTime" };
 }
 ArrayList<String> trackCollectionColumns() {
-	return { "uri", "provider", "type", "name", "versionId", "itemCount", "owner", "artists", "images", "updateTime" };
+	return { "uri", "provider", "type", "name", "versionId", "itemCount", "owner", "privacy", "artists", "images", "updateTime" };
 }
 ArrayList<String> trackCollectionItemColumns() {
 	return { "collectionURI", "indexNum", "trackURI", "uniqueId", "addedAt", "addedBy", "updateTime" };
@@ -95,6 +95,7 @@ CREATE TABLE IF NOT EXISTS TrackCollection (
 	versionId TEXT,
 	itemCount INT,
 	owner TEXT,
+	privacy TEXT,
 	artists TEXT,
 	images TEXT,
 	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -314,14 +315,23 @@ $<UserAccount> trackCollectionOwner($<TrackCollection> collection) {
 	}
 }
 
+Optional<Playlist::Privacy> trackCollectionPrivacy($<TrackCollection> collection) {
+	if(auto playlist = std::dynamic_pointer_cast<Playlist>(collection)) {
+		return playlist->privacy();
+	} else {
+		return std::nullopt;
+	}
+}
+
 
 
 ArrayList<String> trackCollectionTupleColumns() {
-	return { "uri", "provider", "type", "name", "versionId", "itemCount", "owner", "artists", "images", "updateTime" };
+	return { "uri", "provider", "type", "name", "versionId", "itemCount", "owner", "privacy", "artists", "images", "updateTime" };
 }
 String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collection, const TrackCollectionTupleOptions& options) {
 	auto artists = trackCollectionArtists(collection);
 	auto owner = trackCollectionOwner(collection);
+	auto privacy = trackCollectionPrivacy(collection);
 	return String::join({ "(",
 		// uri
 		sqlParam(params, collection->uri()),",",
@@ -341,6 +351,13 @@ String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collecti
 		MAYBE_COALESCE_FIELD(options.coalesce, params, "itemCount", "TrackCollection", collection, collection->itemCount().toAny()),",",
 		// owner
 		MAYBE_COALESCE_FIELD(options.coalesce, params, "owner", "TrackCollection", collection, owner ? String(owner->toJson().dump()) : Any()),",",
+		// privacy
+		(privacy ?
+			(privacy == Playlist::Privacy::UNKNOWN) ?
+				MAYBE_COALESCE_FIELD(options.coalesce, params, "privacy", "TrackCollection", collection, Playlist::Privacy_toString(privacy.value()))
+				: sqlParam(params, Playlist::Privacy_toString(privacy.value()))
+			: sqlParam(params, Any())
+		),
 		// artists
 		MAYBE_COALESCE_FIELD(options.coalesce, params, "artists", "TrackCollection", collection, artists ? nonEmptyArtistsJson(artists.value()) : Any()),",",
 		// images

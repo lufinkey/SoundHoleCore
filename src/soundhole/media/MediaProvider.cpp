@@ -55,4 +55,18 @@ namespace sh {
 			return UserAccount::new$(this, data);
 		});
 	}
+
+
+
+	bool MediaProvider::canCreatePlaylists() const {
+		return false;
+	}
+
+	ArrayList<Playlist::Privacy> MediaProvider::supportedPlaylistPrivacies() const {
+		return {};
+	}
+
+	Promise<$<Playlist>> MediaProvider::createPlaylist(String name, CreatePlaylistOptions options) {
+		return Promise<$<Playlist>>::reject(std::logic_error("createPlaylist is not implemented"));
+	}
 }

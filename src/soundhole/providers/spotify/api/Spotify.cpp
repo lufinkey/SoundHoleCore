@@ -625,7 +625,25 @@ namespace sh {
 		});
 	}
 
-	Promise<SpotifyPlaylist> Spotify::createPlaylist(String userId, String name, CreatePlaylistOptions options) {
+	Promise<SpotifyPlaylist> Spotify::createPlaylist(String name, CreatePlaylistOptions options) {
+		std::map<std::string,Json> params = {
+			{ "name", (std::string)name }
+		};
+		if(!options.description.empty()) {
+			params["description"] = (std::string)options.description;
+		}
+		if(options.isPublic) {
+			params["public"] = options.isPublic.value();
+		}
+		if(options.isCollaborative) {
+			params["collaborative"] = options.isCollaborative.value();
+		}
+		return sendRequest(utils::HttpMethod::POST, "v1/me/playlists", params).map<SpotifyPlaylist>([](auto json) {
+			return SpotifyPlaylist::fromJson(json);
+		});
+	}
+
+	Promise<SpotifyPlaylist> Spotify::createUserPlaylist(String userId, String name, CreatePlaylistOptions options) {
 		std::map<std::string,Json> params = {
 			{ "name", (std::string)name }
 		};

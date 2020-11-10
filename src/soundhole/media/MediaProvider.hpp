@@ -85,6 +85,13 @@ namespace sh {
 		};
 		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options = GenerateLibraryOptions()) = 0;
 		
+		virtual bool canCreatePlaylists() const;
+		virtual ArrayList<Playlist::Privacy> supportedPlaylistPrivacies() const;
+		struct CreatePlaylistOptions {
+			Playlist::Privacy privacy = Playlist::Privacy::UNKNOWN;
+		};
+		virtual Promise<$<Playlist>> createPlaylist(String name, CreatePlaylistOptions options);
+		
 		virtual MediaPlaybackProvider* player() = 0;
 		virtual const MediaPlaybackProvider* player() const = 0;
 	};
