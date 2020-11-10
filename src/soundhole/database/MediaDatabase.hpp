@@ -137,6 +137,7 @@ namespace sh {
 		static Json transformDBSavedPlaylist(Json savedPlaylistJson, Json playlistJson);
 		
 		Options options;
+		std::recursive_mutex dbMutex;
 		sqlite3* db;
 		DispatchQueue* queue;
 	};

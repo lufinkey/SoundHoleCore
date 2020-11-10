@@ -16,6 +16,14 @@ namespace sh {
 		//
 	}
 
+	void SQLiteTransaction::setDB(sqlite3* db) {
+		this->db = db;
+	}
+
+	sqlite3* SQLiteTransaction::getDB() {
+		return db;
+	}
+
 	void SQLiteTransaction::addSQL(String sql, LinkedList<Any> params, AddSQLOptions options) {
 		blocks.pushBack({
 			.sql=sql,

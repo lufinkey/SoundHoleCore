@@ -20,6 +20,9 @@ namespace sh {
 		};
 		SQLiteTransaction(sqlite3* db, Options options = Options{.useSQLTransaction=true});
 		
+		void setDB(sqlite3* db);
+		sqlite3* getDB();
+		
 		struct AddSQLOptions {
 			String outKey;
 			Function<Json(Json)> mapper;

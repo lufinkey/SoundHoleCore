@@ -10,15 +10,18 @@
 #include "MediaDatabaseSQL.hpp"
 #include "MediaDatabaseSQLOperations.hpp"
 #include "SQLiteTransaction.hpp"
+#include <soundhole/utils/Utils.hpp>
 #include <sqlite3.h>
 
 namespace sh {
 	MediaDatabase::MediaDatabase(Options options)
-	: options(options), db(nullptr), queue(nullptr) {
+	: options(options), db(nullptr), queue(new DispatchQueue("MediaDatabase")) {
 		//
 	}
 
 	MediaDatabase::~MediaDatabase() {
+		delete queue;
+		queue = nullptr;
 		if(isOpen()) {
 			close();
 		}
@@ -33,6 +36,7 @@ namespace sh {
 	}
 
 	void MediaDatabase::open() {
+		std::unique_lock<std::recursive_mutex> lock(dbMutex);
 		if(db != nullptr) {
 			return;
 		}
@@ -44,7 +48,6 @@ namespace sh {
 			throw std::runtime_error(errorMsg);
 		}
 		db = tmpDb;
-		queue = new DispatchQueue("MediaDatabase");
 	}
 
 	bool MediaDatabase::isOpen() const {
@@ -52,11 +55,10 @@ namespace sh {
 	}
 
 	void MediaDatabase::close() {
+		std::unique_lock<std::recursive_mutex> lock(dbMutex);
 		if(db == nullptr) {
 			return;
 		}
-		delete queue;
-		queue = nullptr;
 		int retVal = sqlite3_close(db);
 		if(retVal != 0) {
 			throw std::runtime_error(sqlite3_errstr(retVal));
@@ -66,29 +68,40 @@ namespace sh {
 
 	Promise<std::map<String,LinkedList<Json>>> MediaDatabase::transaction(TransactionOptions options, Function<void(SQLiteTransaction&)> executor) {
 		return Promise<std::map<String,LinkedList<Json>>>([=](auto resolve, auto reject) {
-			if(db == nullptr || queue == nullptr) {
+			std::unique_lock<std::recursive_mutex> lock(this->dbMutex);
+			if(this->db == nullptr) {
+				lock.unlock();
 				reject(std::runtime_error("Cannot query an unopened database"));
 				return;
 			}
-			auto tx = SQLiteTransaction(db, {
+			auto tx = SQLiteTransaction(this->db, {
 				.useSQLTransaction=options.useSQLTransaction
 			});
 			try {
 				executor(tx);
 			}
 			catch(...) {
+				lock.unlock();
 				reject(std::current_exception());
 				return;
 			}
 			queue->async([=]() {
+				std::unique_lock<std::recursive_mutex> lock(this->dbMutex);
+				if(this->db == nullptr) {
+					lock.unlock();
+					reject(std::runtime_error("database was unexpectedly closed"));
+				}
 				auto exTx = std::move(tx);
+				exTx.setDB(this->db);
 				std::map<String,LinkedList<Json>> results;
 				try {
 					results = exTx.execute();
 				} catch(...) {
+					lock.unlock();
 					reject(std::current_exception());
 					return;
 				}
+				lock.unlock();
 				resolve(results);
 			});
 		});
@@ -96,18 +109,82 @@ namespace sh {
 
 	Promise<void> MediaDatabase::initialize(InitializeOptions options) {
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
-			if(options.purge) {
-				tx.addSQL(sql::purgeDB(), {});
-			}
 			tx.addSQL(sql::createDB(), {});
 		}).toVoid();
 	}
 
 	Promise<void> MediaDatabase::reset() {
-		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
-			tx.addSQL(sql::purgeDB(), {});
-			tx.addSQL(sql::createDB(), {});
-		}).toVoid();
+		return Promise<void>([=](auto resolve, auto reject) {
+			queue->async([=]() {
+				std::exception_ptr error;
+				std::unique_lock<std::recursive_mutex> lock(this->dbMutex);
+				// close db if needed
+				bool needsToReopen = false;
+				if(this->db != nullptr) {
+					needsToReopen = true;
+					try {
+						close();
+					} catch(...) {
+						lock.unlock();
+						reject(std::current_exception());
+						return;
+					}
+				}
+				// delete file
+				try {
+					fs::remove(this->options.path);
+				} catch(...) {
+					// reopen if needed and rethrow error
+					error = std::current_exception();
+					if(needsToReopen) {
+						try {
+							open();
+						} catch(...) {
+							// ignore open error
+						}
+					}
+					lock.unlock();
+					reject(error);
+					return;
+				}
+				// re-initialize db
+				sqlite3* tmpDb;
+				int opnRetVal = sqlite3_open(this->options.path.c_str(), &tmpDb);
+				if(opnRetVal == 0) {
+					auto tx = SQLiteTransaction(tmpDb, {
+						.useSQLTransaction=true
+					});
+					tx.addSQL(sql::createDB(), {});
+					try {
+						tx.execute();
+					} catch(...) {
+						error = std::current_exception();
+					}
+					sqlite3_close(tmpDb);
+				} else {
+					// save error and close db
+					String errorMsg = sqlite3_errstr(opnRetVal);
+					sqlite3_close(tmpDb);
+					error = std::make_exception_ptr(std::runtime_error(errorMsg));
+				}
+				// re-open db
+				if(needsToReopen) {
+					try {
+						open();
+					} catch(...) {
+						if(!error) {
+							error = std::current_exception();
+						}
+					}
+				}
+				// resolve, or reject with error if there was one
+				if(error) {
+					reject(error);
+				} else {
+					resolve();
+				}
+			});
+		});
 	}
 
 
