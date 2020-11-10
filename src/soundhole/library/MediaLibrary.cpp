@@ -48,6 +48,10 @@ namespace sh {
 	MediaProvider* MediaLibrary::getMediaProvider(String name) {
 		return libraryProvider->getMediaProvider(name);
 	}
+
+	ArrayList<MediaProvider*> MediaLibrary::getMediaProviders() {
+		return libraryProvider->getMediaProviders();
+	}
 	
 	bool MediaLibrary::isSynchronizingLibrary(String libraryProviderName) {
 		auto taskNode = getSynchronizeLibraryTask(libraryProviderName);

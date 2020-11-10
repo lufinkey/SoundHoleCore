@@ -35,6 +35,7 @@ namespace sh {
 		MediaProvider* getMediaProvider(String name);
 		template<typename MediaProviderType>
 		MediaProviderType* getMediaProvider();
+		ArrayList<MediaProvider*> getMediaProviders();
 		
 		bool isSynchronizingLibrary(String libraryProviderName);
 		bool isSynchronizingLibraries();
