@@ -82,6 +82,11 @@ namespace sh {
 		static $<Playlist> fromJson(const Json& json, MediaProviderStash* stash);
 		virtual Json toJson(const ToJsonOptions& options) const override;
 		
+		Promise<void> insertItems(size_t index, LinkedList<$<Track>> items);
+		Promise<void> appendItems(LinkedList<$<Track>> items);
+		Promise<void> removeItems(size_t index, size_t count);
+		Promise<void> moveItems(size_t index, size_t count, size_t newIndex);
+		
 	protected:
 		virtual MutatorDelegate* createMutatorDelegate() override;
 		

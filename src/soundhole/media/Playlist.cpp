@@ -185,4 +185,26 @@ namespace sh {
 	Playlist::MutatorDelegate* Playlist::createMutatorDelegate() {
 		return provider->createPlaylistMutatorDelegate(std::static_pointer_cast<Playlist>(shared_from_this()));
 	}
+
+
+
+	Promise<void> Playlist::insertItems(size_t index, LinkedList<$<Track>> items) {
+		makeTracksAsync();
+		return asyncItemsList()->insertItems(index, items);
+	}
+
+	Promise<void> Playlist::appendItems(LinkedList<$<Track>> items) {
+		makeTracksAsync();
+		return asyncItemsList()->appendItems(items);
+	}
+
+	Promise<void> Playlist::removeItems(size_t index, size_t count) {
+		makeTracksAsync();
+		return asyncItemsList()->removeItems(index, count);
+	}
+
+	Promise<void> Playlist::moveItems(size_t index, size_t count, size_t newIndex) {
+		makeTracksAsync();
+		return asyncItemsList()->moveItems(index, count, newIndex);
+	}
 }
