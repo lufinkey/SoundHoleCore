@@ -8,6 +8,7 @@
 
 #include "BandcampProvider.hpp"
 #include "mutators/BandcampAlbumMutatorDelegate.hpp"
+#include <soundhole/utils/SoundHoleError.hpp>
 #include <cxxurl/url.hpp>
 #include <regex>
 
@@ -39,6 +40,40 @@ namespace sh {
 
 	const Bandcamp* BandcampProvider::api() const {
 		return bandcamp;
+	}
+
+
+
+	BandcampProvider::URI BandcampProvider::parseURI(String uri) const {
+		size_t colonIndex = uri.indexOf(':');
+		if(colonIndex == (size_t)-1) {
+			throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid bandcamp uri "+uri);
+		}
+		// validate provider name
+		String providerName = uri.substring(0, colonIndex);
+		if(providerName != name()) {
+			throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid bandcamp uri "+uri);
+		}
+		// validate url
+		String urlString = uri.substring(colonIndex+1);
+		Url(urlString).str();
+		return URI{
+			.provider=providerName,
+			.url=urlString
+		};
+	}
+
+	BandcampProvider::URI BandcampProvider::parseURL(String url) const {
+		// validate url
+		Url(url).str();
+		return URI{
+			.provider=name(),
+			.url=url
+		};
+	}
+
+	String BandcampProvider::createURI(String type, String url) const {
+		return name()+':'+url;
 	}
 
 
@@ -79,17 +114,17 @@ namespace sh {
 								.partial=true,
 								.type="track",
 								.name=item.name,
-								.uri=item.url,
+								.uri=(item.url.empty() ? String() : createURI("track", item.url)),
 								.images=images
 								},
 								.albumName=item.albumName,
-								.albumURI=item.albumURL,
+								.albumURI=(item.albumURL.empty() ? String() : createURI("album", item.albumURL)),
 								.artists=ArrayList<$<Artist>>{
 									Artist::new$(this, Artist::Data{{
 										.partial=true,
 										.type="artist",
 										.name=item.artistName,
-										.uri=item.artistURL,
+										.uri=(item.artistURL.empty() ? String() : createURI("artist", item.artistURL)),
 										.images=std::nullopt
 										},
 										.description=std::nullopt
@@ -108,7 +143,7 @@ namespace sh {
 								.partial=true,
 								.type="album",
 								.name=item.name,
-								.uri=item.url,
+								.uri=(item.url.empty() ? String() : createURI("album", item.url)),
 								.images=images
 								},
 								.versionId=String(),
@@ -125,7 +160,7 @@ namespace sh {
 										.partial=true,
 										.type="artist",
 										.name=item.artistName,
-										.uri=item.artistURL,
+										.uri=(item.artistURL.empty() ? String() : createURI("artist", item.artistURL)),
 										.images=std::nullopt
 										},
 										.description=std::nullopt
@@ -138,7 +173,7 @@ namespace sh {
 								.partial=true,
 								.type="artist",
 								.name=item.name,
-								.uri=item.url,
+								.uri=(item.url.empty() ? String() : createURI("artist", item.url)),
 								.images=images
 								},
 								.description=std::nullopt
@@ -149,7 +184,7 @@ namespace sh {
 								.partial=true,
 								.type="label",
 								.name=item.name,
-								.uri=item.url,
+								.uri=(item.url.empty() ? String() : createURI("label", item.url)),
 								.images=images
 								},
 								.description=std::nullopt
@@ -160,7 +195,7 @@ namespace sh {
 								.partial=true,
 								.type="user",
 								.name=item.name,
-								.uri=item.url,
+								.uri=(item.url.empty() ? String() : createURI("user", item.url)),
 								.images=images
 								},
 								.id=([&]() -> String {
@@ -203,13 +238,13 @@ namespace sh {
 			.partial=partial,
 			.type="track",
 			.name=track.name,
-			.uri=track.url,
+			.uri=(track.url.empty() ? String() : createURI("track", track.url)),
 			.images=track.images.map<MediaItem::Image>([&](auto& image) {
 				return createImage(image);
 			})
 			},
 			.albumName=track.albumName,
-			.albumURI=track.albumURL,
+			.albumURI=(track.albumURL.empty() ? String() : createURI("album", track.albumURL)),
 			.artists=ArrayList<$<Artist>>{
 				Artist::new$(this,
 					track.artist ?
@@ -218,7 +253,7 @@ namespace sh {
 						.partial = true,
 						.type="artist",
 						.name=track.artistName,
-						.uri=track.artistURL,
+						.uri=(track.artistURL.empty() ? String() : createURI("artist", track.artistURL)),
 						.images=std::nullopt
 						},
 						.description=std::nullopt
@@ -249,7 +284,7 @@ namespace sh {
 				   maybe(ArrayList<Track::AudioSource>{})
 				   : std::nullopt)
 				),
-			.playable=track.playable.value_or(true)
+			.playable=track.playable.value_or(track.audioSources ? (track.audioSources->size() > 0) : true)
 		};
 	}
 
@@ -258,7 +293,7 @@ namespace sh {
 			.partial=partial,
 			.type="artist",
 			.name=artist.name,
-			.uri=artist.url,
+			.uri=(artist.url.empty() ? String() : createURI("artist", artist.url)),
 			.images=artist.images.map<MediaItem::Image>([&](auto& image) {
 				return createImage(image);
 			})
@@ -275,7 +310,7 @@ namespace sh {
 				.partial=true,
 				.type="artist",
 				.name=album.artistName,
-				.uri=album.artistURL,
+				.uri=(album.artistURL.empty() ? String() : createURI("artist", album.artistURL)),
 				.images=std::nullopt
 				},
 				.description=std::nullopt
@@ -285,7 +320,7 @@ namespace sh {
 			.partial=partial,
 			.type="album",
 			.name=album.name,
-			.uri=album.url,
+			.uri=(album.url.empty() ? String() : createURI("album", album.url)),
 			.images=album.images.map<MediaItem::Image>([&](auto& image) {
 				return createImage(std::move(image));
 			})
@@ -352,19 +387,22 @@ namespace sh {
 
 
 	Promise<Track::Data> BandcampProvider::getTrackData(String uri) {
-		return bandcamp->getTrack(uri).map<Track::Data>([=](auto track) {
+		auto uriParts = parseURI(uri);
+		return bandcamp->getTrack(uriParts.url).map<Track::Data>([=](auto track) {
 			return createTrackData(track, false);
 		});
 	}
 
 	Promise<Artist::Data> BandcampProvider::getArtistData(String uri) {
-		return bandcamp->getArtist(uri).map<Artist::Data>([=](auto artist) {
+		auto uriParts = parseURI(uri);
+		return bandcamp->getArtist(uriParts.url).map<Artist::Data>([=](auto artist) {
 			return createArtistData(artist, false);
 		});
 	}
 
 	Promise<Album::Data> BandcampProvider::getAlbumData(String uri) {
-		return bandcamp->getAlbum(uri).map<Album::Data>([=](auto album) {
+		auto uriParts = parseURI(uri);
+		return bandcamp->getAlbum(uriParts.url).map<Album::Data>([=](auto album) {
 			return createAlbumData(album, false);
 		});
 	}
@@ -386,7 +424,8 @@ namespace sh {
 
 	Promise<std::tuple<$<Artist>,LinkedList<$<Album>>>> BandcampProvider::getArtistAndAlbums(String artistURI) {
 		using ArtistAlbumsTuple = std::tuple<$<Artist>,LinkedList<$<Album>>>;
-		return bandcamp->getArtist(artistURI).map<ArtistAlbumsTuple>([=](auto bcArtist) {
+		auto uriParts = parseURI(artistURI);
+		return bandcamp->getArtist(uriParts.url).map<ArtistAlbumsTuple>([=](auto bcArtist) {
 			if(!bcArtist.albums) {
 				throw std::runtime_error("Failed to parse bandcamp artist's albums");
 			}
@@ -410,8 +449,9 @@ namespace sh {
 
 	BandcampProvider::ArtistAlbumsGenerator BandcampProvider::getArtistAlbums(String artistURI) {
 		using YieldResult = ArtistAlbumsGenerator::YieldResult;
+		auto uriParts = parseURI(artistURI);
 		return ArtistAlbumsGenerator([=]() {
-			return getArtistAndAlbums(artistURI).map<YieldResult>([=](auto tuple) {
+			return getArtistAndAlbums(uriParts.url).map<YieldResult>([=](auto tuple) {
 				auto& albums = std::get<LinkedList<$<Album>>>(tuple);
 				size_t total = albums.size();
 				return YieldResult{

@@ -67,6 +67,14 @@ namespace sh {
 		Album::Data createAlbumData(BandcampAlbum album, bool partial);
 		
 	private:
+		struct URI {
+			String provider;
+			String url;
+		};
+		URI parseURI(String uri) const;
+		URI parseURL(String url) const;
+		String createURI(String type, String url) const;
+		
 		static MediaItem::Image createImage(BandcampImage image);
 		
 		Bandcamp* bandcamp;
