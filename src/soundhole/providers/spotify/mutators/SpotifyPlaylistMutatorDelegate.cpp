@@ -413,6 +413,137 @@ namespace sh {
 
 
 	Promise<void> SpotifyPlaylistMutatorDelegate::moveItems(Mutator* mutator, size_t index, size_t count, size_t newIndex) {
-		return Promise<void>::reject(std::logic_error("Not yet implemented"));
+		if(count == 0) {
+			return Promise<void>::resolve();
+		}
+		size_t chunkSize = getChunkSize();
+		size_t halfChunkSize = chunkSize / 2;
+		size_t padding = halfChunkSize / 2;
+		
+		auto playlist = this->playlist.lock();
+		auto provider = (SpotifyProvider*)playlist->mediaProvider();
+		auto playlistId = provider->idFromURI(playlist->uri());
+		auto list = mutator->getList();
+		
+		auto moveIndexes = fgl::new$<LinkedList<AsyncListIndexMarker>>();
+		for(size_t i=0; i<count; i++) {
+			moveIndexes->pushBack(list->watchIndex(index+i));
+		}
+		auto destEndIndexMarker = list->watchIndex(newIndex+count);
+		
+		size_t lowerBound = index;
+		if(lowerBound > padding) {
+			lowerBound -= padding;
+		} else {
+			lowerBound = 0;
+		}
+		size_t upperBound = index + count + padding;
+		
+		return loadAPIItemsFromChunks(mutator, lowerBound, (upperBound - lowerBound))
+		.then([=]() {
+			moveIndexes->sort([](auto& a, auto& b) {
+				return a->index <= b->index;
+			});
+			Optional<size_t> prevIndex;
+			for(auto& indexMarker : *moveIndexes) {
+				if(indexMarker->state == AsyncListIndexMarkerState::REMOVED) {
+					throw std::runtime_error("item at index "+std::to_string(indexMarker->index)+" was removed");
+				}
+				auto item = list->itemAt(indexMarker->index).valueOr(nullptr);
+				if(!item) {
+					throw std::runtime_error("could not find a valid item at move index "+std::to_string(indexMarker->index));
+				}
+				if(!prevIndex || (prevIndex.value() + 1) == indexMarker->index) {
+					prevIndex = indexMarker->index;
+				} else {
+					throw std::runtime_error("move indexes are not consecutive after preload");
+				}
+			}
+			auto firstIndexMarker = moveIndexes->front();
+			return provider->spotify->movePlaylistTracks(playlistId, firstIndexMarker->index, destEndIndexMarker->index, {
+				.count=count
+			})
+			.then([=](SpotifyPlaylist::MoveResult moveResult) {
+				// update versionId
+				auto data = playlist->toData({
+					.tracksOffset = 0,
+					.tracksLimit = 0
+				});
+				data.versionId = moveResult.snapshotId;
+				playlist->applyData(data);
+			});
+		})
+		.then([=]() {
+			moveIndexes->sort([](auto& a, auto& b) {
+				return (a->index <= b->index);
+			});
+			
+			mutator->lock([&]() {
+				// check if indexes have changed
+				bool indexesChanged = false;
+				Optional<size_t> prevIndex;
+				for(auto& indexMarker : *moveIndexes) {
+					if(indexMarker->state == AsyncListIndexMarkerState::REMOVED) {
+						indexesChanged = true;
+						break;
+					}
+					if(!prevIndex || (prevIndex.value() + 1) == indexMarker->index) {
+						prevIndex = indexMarker->index;
+					} else {
+						indexesChanged = true;
+						break;
+					}
+				}
+				
+				// apply move
+				auto firstIndexMarker = moveIndexes->front();
+				size_t destEndIndex = destEndIndexMarker->index;
+				size_t destStartIndex = destEndIndex;
+				if(destStartIndex < count) {
+					destStartIndex = 0;
+				} else {
+					destStartIndex -= count;
+				}
+				size_t firstIndex = firstIndexMarker->index;
+				auto lastIndexMarker = moveIndexes->back();
+				size_t lastIndex = lastIndexMarker->index;
+				mutator->move(firstIndex, count, destStartIndex);
+				
+				// if indexes have changed, invalidate the ranges where that happened
+				if(indexesChanged) {
+					size_t invPadding = 10;
+					
+					size_t invalidateSourceRangeStart = firstIndex;
+					size_t invalidateSourceRangeEnd = lastIndex + 1;
+					if((invalidateSourceRangeEnd - invalidateSourceRangeStart) < count) {
+						invalidateSourceRangeEnd = invalidateSourceRangeStart + count;
+					}
+					if(invalidateSourceRangeStart < invPadding) {
+						invalidateSourceRangeStart = 0;
+					} else {
+						invalidateSourceRangeStart -= invPadding;
+					}
+					invalidateSourceRangeEnd += invPadding;
+					
+					size_t invalidateDestRangeStart = destStartIndex;
+					size_t invalidateDestRangeEnd = destEndIndex;
+					if(invalidateDestRangeStart < invPadding) {
+						invalidateDestRangeStart = 0;
+					} else {
+						invalidateSourceRangeStart -= invPadding;
+					}
+					invalidateDestRangeEnd += invPadding;
+					
+					mutator->invalidate(invalidateSourceRangeStart, (invalidateSourceRangeEnd-invalidateSourceRangeStart));
+					mutator->invalidate(invalidateDestRangeStart, (invalidateDestRangeEnd-invalidateDestRangeStart));
+				}
+			});
+		})
+		.finally([=]() {
+			for(auto& indexMarker : *moveIndexes) {
+				list->unwatchIndex(indexMarker);
+			}
+			list->unwatchIndex(destEndIndexMarker);
+		});
 	}
 }

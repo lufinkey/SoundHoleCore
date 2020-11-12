@@ -166,10 +166,10 @@ namespace sh {
 		};
 		Promise<SpotifyPlaylist::AddResult> addPlaylistTracks(String playlistId, ArrayList<String> trackURIs, AddPlaylistTracksOptions options = {});
 		struct MovePlaylistTracksOptions {
-			Optional<size_t> sourceLength;
+			Optional<size_t> count;
 			String snapshotId;
 		};
-		Promise<SpotifyPlaylist::MoveResult> movePlaylistTracks(String playlistId, size_t sourceIndex, size_t destIndex, MovePlaylistTracksOptions options = {});
+		Promise<SpotifyPlaylist::MoveResult> movePlaylistTracks(String playlistId, size_t rangeStart, size_t insertBefore, MovePlaylistTracksOptions options = {});
 		struct PlaylistTrackMarker {
 			String uri;
 			ArrayList<size_t> positions;

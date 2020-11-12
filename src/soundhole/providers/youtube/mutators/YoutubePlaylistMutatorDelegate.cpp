@@ -394,17 +394,18 @@ namespace sh {
 				promise = promise.then([=]() {
 					String uniqueItemId = collectionItem->uniqueId();
 					String resourceId = provider->parseURI(collectionItem->track()->uri()).id;
-					size_t sourceIndex = itemIndexMarker->index;
-					size_t destIndex = destIndexMarker->index;
 					return provider->youtube->updatePlaylistItem(uniqueItemId, {
 						.playlistId = playlistId,
 						.resourceId = resourceId,
-						.position = destIndex
+						.position = destIndexMarker->index
 					}).then([=](YoutubePlaylistItem ytItem) {
-						mutator->move(sourceIndex, 1, destIndex);
+						mutator->move(itemIndexMarker->index, 1, destIndexMarker->index);
 					});
 				});
 			}
+			promise = promise.finally([=]() {
+				list->unwatchIndex(destIndexMarker);
+			});
 		} else if(newIndex > index) {
 			// start from beginning index and move to end of destination
 			auto destEndIndexMarker = list->watchRemovedIndex(newIndex+count);
@@ -414,17 +415,18 @@ namespace sh {
 				promise = promise.then([=]() {
 					String uniqueItemId = collectionItem->uniqueId();
 					String resourceId = provider->parseURI(collectionItem->track()->uri()).id;
-					size_t sourceIndex = itemIndexMarker->index;
-					size_t destIndex = destEndIndexMarker->index - 1;
 					return provider->youtube->updatePlaylistItem(uniqueItemId, {
 						.playlistId = playlistId,
 						.resourceId = resourceId,
-						.position = destIndex
+						.position = (destEndIndexMarker->index - 1)
 					}).then([=](YoutubePlaylistItem ytItem) {
-						mutator->move(sourceIndex, 1, destIndex);
+						mutator->move(itemIndexMarker->index, 1, (destEndIndexMarker->index - 1));
 					});
 				});
 			}
+			promise = promise.finally([=]() {
+				list->unwatchIndex(destEndIndexMarker);
+			});
 		}
 		
 		// unwatch all indexes

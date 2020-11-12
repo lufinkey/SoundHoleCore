@@ -688,8 +688,7 @@ namespace sh {
 	Promise<SpotifyPage<SpotifyPlaylist::Item>> Spotify::getPlaylistTracks(String playlistId, GetPlaylistTracksOptions options) {
 		if(playlistId.empty()) {
 			return Promise<SpotifyPage<SpotifyPlaylist::Item>>::reject(
-				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "playlistId cannot be empty")
-			);
+				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "playlistId cannot be empty"));
 		}
 		std::map<std::string,Json> params;
 		if(!options.market.empty()) {
@@ -712,13 +711,11 @@ namespace sh {
 	Promise<SpotifyPlaylist::AddResult> Spotify::addPlaylistTracks(String playlistId, ArrayList<String> trackURIs, AddPlaylistTracksOptions options) {
 		if(playlistId.empty()) {
 			return Promise<SpotifyPlaylist::AddResult>::reject(
-				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "playlistId cannot be empty")
-			);
+				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "playlistId cannot be empty"));
 		}
 		if(trackURIs.empty()) {
 			return Promise<SpotifyPlaylist::AddResult>::reject(
-				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "trackURIs cannot be empty")
-			);
+				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "trackURIs cannot be empty"));
 		}
 		auto params = Json::object{
 			{ "uris", trackURIs.map<Json>([](auto& uri) {
@@ -730,6 +727,27 @@ namespace sh {
 		}
 		return sendRequest(utils::HttpMethod::POST, "v1/playlists/"+playlistId+"/tracks", params).map<SpotifyPlaylist::AddResult>([](auto json) {
 			return SpotifyPlaylist::AddResult::fromJson(json);
+		});
+	}
+
+	Promise<SpotifyPlaylist::MoveResult> Spotify::movePlaylistTracks(String playlistId, size_t rangeStart, size_t insertBefore, MovePlaylistTracksOptions options) {
+		if(playlistId.empty()) {
+			return Promise<SpotifyPlaylist::MoveResult>::reject(
+				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "playlistId cannot be empty")
+			);
+		}
+		auto params = Json::object{
+			{ "range_start", (int)rangeStart },
+			{ "insert_before", (int)insertBefore }
+		};
+		if(options.count) {
+			params["range_length"] = (int)options.count.value();
+		}
+		if(!options.snapshotId.empty()) {
+			params["snapshot_id"] = (std::string)options.snapshotId;
+		}
+		return sendRequest(utils::HttpMethod::POST, "v1/playlists/"+playlistId+"/tracks", params).map<SpotifyPlaylist::MoveResult>([](auto json) {
+			return SpotifyPlaylist::MoveResult::fromJson(json);
 		});
 	}
 
