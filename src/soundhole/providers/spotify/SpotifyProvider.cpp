@@ -9,6 +9,7 @@
 #include "SpotifyProvider.hpp"
 #include "mutators/SpotifyAlbumMutatorDelegate.hpp"
 #include "mutators/SpotifyPlaylistMutatorDelegate.hpp"
+#include <soundhole/utils/SoundHoleError.hpp>
 
 namespace sh {
 	SpotifyProvider::SpotifyProvider(Options options)
@@ -96,12 +97,23 @@ namespace sh {
 
 
 
-	String SpotifyProvider::idFromURI(String uri) {
+	SpotifyProvider::URI SpotifyProvider::parseURI(String uri) {
 		auto parts = uri.split(':');
-		if(parts.size() != 3) {
-			return uri;
+		if(parts.size() < 2) {
+			throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid spotify uri "+uri);
 		}
-		return parts.back();
+		else if(parts.size() == 2) {
+			return URI{
+				.provider=parts.front(),
+				.type=String(),
+				.id=parts.back()
+			};
+		}
+		return URI{
+			.provider=parts.front(),
+			.type=*std::prev(parts.end(),2),
+			.id=parts.back()
+		};
 	}
 
 	time_t SpotifyProvider::timeFromString(String time) {
@@ -267,31 +279,36 @@ namespace sh {
 
 
 	Promise<Track::Data> SpotifyProvider::getTrackData(String uri) {
-		return spotify->getTrack(idFromURI(uri),{.market="from_token"}).map<Track::Data>([=](SpotifyTrack track) {
+		auto uriParts = parseURI(uri);
+		return spotify->getTrack(uriParts.id,{.market="from_token"}).map<Track::Data>([=](SpotifyTrack track) {
 			return createTrackData(track, false);
 		});
 	}
 
 	Promise<Artist::Data> SpotifyProvider::getArtistData(String uri) {
-		return spotify->getArtist(idFromURI(uri)).map<Artist::Data>([=](SpotifyArtist artist) {
+		auto uriParts = parseURI(uri);
+		return spotify->getArtist(uriParts.id).map<Artist::Data>([=](SpotifyArtist artist) {
 			return createArtistData(artist, false);
 		});
 	}
 
 	Promise<Album::Data> SpotifyProvider::getAlbumData(String uri) {
-		return spotify->getAlbum(idFromURI(uri),{.market="from_token"}).map<Album::Data>([=](SpotifyAlbum album) {
+		auto uriParts = parseURI(uri);
+		return spotify->getAlbum(uriParts.id,{.market="from_token"}).map<Album::Data>([=](SpotifyAlbum album) {
 			return createAlbumData(album, false);
 		});
 	}
 
 	Promise<Playlist::Data> SpotifyProvider::getPlaylistData(String uri) {
-		return spotify->getPlaylist(idFromURI(uri),{.market="from_token"}).map<Playlist::Data>([=](SpotifyPlaylist playlist) {
+		auto uriParts = parseURI(uri);
+		return spotify->getPlaylist(uriParts.id,{.market="from_token"}).map<Playlist::Data>([=](SpotifyPlaylist playlist) {
 			return createPlaylistData(playlist, false);
 		});
 	}
 
 	Promise<UserAccount::Data> SpotifyProvider::getUserData(String uri) {
-		return spotify->getUser(idFromURI(uri)).map<UserAccount::Data>([=](SpotifyUser user) {
+		auto uriParts = parseURI(uri);
+		return spotify->getUser(uriParts.id).map<UserAccount::Data>([=](SpotifyUser user) {
 			return createUserAccountData(user, false);
 		});
 	}
@@ -300,7 +317,8 @@ namespace sh {
 
 
 	Promise<ArrayList<$<Track>>> SpotifyProvider::getArtistTopTracks(String artistURI) {
-		return spotify->getArtistTopTracks(idFromURI(artistURI),"from_token").map<ArrayList<$<Track>>>(nullptr, [=](ArrayList<SpotifyTrack> tracks) {
+		auto uriParts = parseURI(artistURI);
+		return spotify->getArtistTopTracks(uriParts.id,"from_token").map<ArrayList<$<Track>>>(nullptr, [=](ArrayList<SpotifyTrack> tracks) {
 			return tracks.map<$<Track>>([=](auto track) {
 				return Track::new$(this, createTrackData(track, false));
 			});
@@ -308,11 +326,11 @@ namespace sh {
 	}
 
 	SpotifyProvider::ArtistAlbumsGenerator SpotifyProvider::getArtistAlbums(String artistURI) {
-		String artistId = idFromURI(artistURI);
+		auto uriParts = parseURI(artistURI);
 		auto offset = fgl::new$<size_t>(0);
 		using YieldResult = typename ArtistAlbumsGenerator::YieldResult;
 		return ArtistAlbumsGenerator([=]() {
-			return spotify->getArtistAlbums(artistId, {
+			return spotify->getArtistAlbums(uriParts.id, {
 				.country="from_token",
 				.limit=20,
 				.offset=*offset
@@ -334,11 +352,11 @@ namespace sh {
 	}
 
 	SpotifyProvider::UserPlaylistsGenerator SpotifyProvider::getUserPlaylists(String userURI) {
-		String userId = idFromURI(userURI);
+		auto uriParts = parseURI(userURI);
 		auto offset = fgl::new$<size_t>(0);
 		using YieldResult = typename UserPlaylistsGenerator::YieldResult;
 		return UserPlaylistsGenerator([=]() {
-			return spotify->getUserPlaylists(userId, {
+			return spotify->getUserPlaylists(uriParts.id, {
 				.limit=20,
 				.offset=*offset
 			}).map<YieldResult>([=](auto page) {

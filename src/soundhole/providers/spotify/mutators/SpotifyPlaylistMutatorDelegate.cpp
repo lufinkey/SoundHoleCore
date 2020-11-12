@@ -23,8 +23,8 @@ namespace sh {
 	Promise<void> SpotifyPlaylistMutatorDelegate::loadAPIItems(Mutator* mutator, size_t index, size_t count) {
 		auto playlist = this->playlist.lock();
 		auto provider = (SpotifyProvider*)playlist->mediaProvider();
-		auto id = provider->idFromURI(playlist->uri());
-		return provider->spotify->getPlaylistTracks(id, {
+		auto uriParts = provider->parseURI(playlist->uri());
+		return provider->spotify->getPlaylistTracks(uriParts.id, {
 			.market="from_token",
 			.offset=index,
 			.limit=count
@@ -47,7 +47,7 @@ namespace sh {
 		auto playlist = this->playlist.lock();
 		auto list = mutator->getList();
 		auto provider = (SpotifyProvider*)playlist->mediaProvider();
-		auto id = provider->idFromURI(playlist->uri());
+		auto uriParts = provider->parseURI(playlist->uri());
 		
 		size_t i = index;
 		size_t endIndex = index + count;
@@ -61,7 +61,7 @@ namespace sh {
 		auto nextStr = fgl::new$<String>();
 		while(i < endIndex) {
 			promise = promise.then([=]() {
-				return provider->spotify->getPlaylistTracks(id, {
+				return provider->spotify->getPlaylistTracks(uriParts.id, {
 					.market="from_token",
 					.offset=i,
 					.limit=chunkSize
@@ -93,7 +93,6 @@ namespace sh {
 	Promise<void> SpotifyPlaylistMutatorDelegate::loadAPIItemsFromChunks(Mutator* mutator, size_t index, size_t count) {
 		auto playlist = this->playlist.lock();
 		auto provider = (SpotifyProvider*)playlist->mediaProvider();
-		auto id = provider->idFromURI(playlist->uri());
 		return fetchAPIItemsFromChunks(mutator, index, count).then([=](SpotifyPage<SpotifyPlaylist::Item> page) {
 			auto items = page.items.map<$<PlaylistItem>>([&](auto& item) {
 				return PlaylistItem::new$(playlist, provider->createPlaylistItemData(item));
@@ -125,7 +124,7 @@ namespace sh {
 		
 		auto playlist = this->playlist.lock();
 		auto provider = (SpotifyProvider*)playlist->mediaProvider();
-		auto id = provider->idFromURI(playlist->uri());
+		auto uriParts = provider->parseURI(playlist->uri());
 		auto list = mutator->getList();
 		
 		auto indexMarker = list->watchIndex(index);
@@ -143,7 +142,7 @@ namespace sh {
 		})
 		.then([=]() {
 			// add tracks to playlist
-			return provider->spotify->addPlaylistTracks(id, tracks.map<String>([](auto& track) {
+			return provider->spotify->addPlaylistTracks(uriParts.id, tracks.map<String>([](auto& track) {
 				return track->uri();
 			}), {
 				.position = indexMarker->index
@@ -233,7 +232,7 @@ namespace sh {
 		
 		auto playlist = this->playlist.lock();
 		auto provider = (SpotifyProvider*)playlist->mediaProvider();
-		auto id = provider->idFromURI(playlist->uri());
+		auto uriParts = provider->parseURI(playlist->uri());
 		auto list = mutator->getList();
 		
 		size_t origListSize = list->size().valueOr(0);
@@ -262,7 +261,7 @@ namespace sh {
 		})
 		.then([=]() {
 			// add tracks to playlist
-			return provider->spotify->addPlaylistTracks(id, tracks.map<String>([](auto& track) {
+			return provider->spotify->addPlaylistTracks(uriParts.id, tracks.map<String>([](auto& track) {
 				return track->uri();
 			})).then([=](SpotifyPlaylist::AddResult addResult) {
 				// update versionId
@@ -308,7 +307,7 @@ namespace sh {
 		
 		auto playlist = this->playlist.lock();
 		auto provider = (SpotifyProvider*)playlist->mediaProvider();
-		auto id = provider->idFromURI(playlist->uri());
+		auto uriParts = provider->parseURI(playlist->uri());
 		auto list = mutator->getList();
 		
 		auto removalIndexes = fgl::new$<LinkedList<AsyncListIndexMarker>>();
@@ -354,7 +353,7 @@ namespace sh {
 			if(playlistTrackMarkers.size() == 0) {
 				return Promise<void>::resolve();
 			}
-			return provider->spotify->removePlaylistTracks(id, playlistTrackMarkers)
+			return provider->spotify->removePlaylistTracks(uriParts.id, playlistTrackMarkers)
 			.then([=](SpotifyPlaylist::RemoveResult removeResult) {
 				// update versionId
 				auto data = playlist->toData({
@@ -422,7 +421,7 @@ namespace sh {
 		
 		auto playlist = this->playlist.lock();
 		auto provider = (SpotifyProvider*)playlist->mediaProvider();
-		auto playlistId = provider->idFromURI(playlist->uri());
+		auto uriParts = provider->parseURI(playlist->uri());
 		auto list = mutator->getList();
 		
 		auto moveIndexes = fgl::new$<LinkedList<AsyncListIndexMarker>>();
@@ -460,7 +459,7 @@ namespace sh {
 				}
 			}
 			auto firstIndexMarker = moveIndexes->front();
-			return provider->spotify->movePlaylistTracks(playlistId, firstIndexMarker->index, destEndIndexMarker->index, {
+			return provider->spotify->movePlaylistTracks(uriParts.id, firstIndexMarker->index, destEndIndexMarker->index, {
 				.count=count
 			})
 			.then([=](SpotifyPlaylist::MoveResult moveResult) {

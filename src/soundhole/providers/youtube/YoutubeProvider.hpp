@@ -65,15 +65,16 @@ namespace sh {
 		PlaylistItem::Data createPlaylistItemData(YoutubePlaylistItem playlistItem);
 		$<MediaItem> createMediaItem(YoutubeSearchResult searchResult);
 		
-	private:
 		struct URI {
 			String provider;
 			String type;
 			String id;
 		};
 		URI parseURI(String uri) const;
-		URI parseURL(String url) const;
 		String createURI(String type, String id) const;
+		
+	private:
+		URI parseURL(String url) const;
 		
 		static MediaItem::Image createImage(YoutubeImage image);
 		

@@ -102,8 +102,14 @@ namespace sh {
 		PlaylistItem::Data createPlaylistItemData(SpotifyPlaylist::Item playlistItem);
 		UserAccount::Data createUserAccountData(SpotifyUser user, bool partial);
 		
+		struct URI {
+			String provider;
+			String type;
+			String id;
+		};
+		URI parseURI(String uri);
+		
 	private:
-		static String idFromURI(String uri);
 		static time_t timeFromString(String time);
 		
 		static MediaItem::Image createImage(SpotifyImage image);

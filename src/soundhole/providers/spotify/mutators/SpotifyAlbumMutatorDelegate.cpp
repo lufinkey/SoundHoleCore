@@ -29,8 +29,8 @@ namespace sh {
 		else {
 			// online load
 			auto provider = (SpotifyProvider*)album->mediaProvider();
-			auto id = provider->idFromURI(album->uri());
-			return provider->spotify->getAlbumTracks(id, {
+			auto uriParts = provider->parseURI(album->uri());
+			return provider->spotify->getAlbumTracks(uriParts.id, {
 				.market="from_token",
 				.offset=index,
 				.limit=count
