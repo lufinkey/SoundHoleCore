@@ -129,6 +129,11 @@ namespace sh {
 		};
 		Promise<YoutubePage<YoutubePlaylist>> getPlaylists(GetPlaylistsOptions options);
 		Promise<YoutubePlaylist> getPlaylist(String id);
+		struct GetMyPlaylistsOptions {
+			Optional<size_t> maxResults;
+			String pageToken;
+		};
+		Promise<YoutubePage<YoutubePlaylist>> getMyPlaylists(GetMyPlaylistsOptions options = {});
 		struct CreatePlaylistOptions {
 			String description;
 			YoutubePrivacyStatus::Type privacyStatus;

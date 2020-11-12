@@ -422,6 +422,14 @@ namespace sh {
 		});
 	}
 
+	Promise<YoutubePage<YoutubePlaylist>> Youtube::getMyPlaylists(GetMyPlaylistsOptions options) {
+		return getPlaylists({
+			.mine=true,
+			.maxResults=options.maxResults,
+			.pageToken=options.pageToken
+		});
+	}
+
 	Promise<YoutubePlaylist> Youtube::createPlaylist(String title, CreatePlaylistOptions options) {
 		auto query = std::map<String,String>{
 			{ "part", "id,snippet,status,contentDetails,player,localizations" }
