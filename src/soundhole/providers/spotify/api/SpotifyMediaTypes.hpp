@@ -200,6 +200,12 @@ namespace sh {
 			static AddResult fromJson(const Json&);
 		};
 		
+		struct MoveResult {
+			String snapshotId;
+			
+			static MoveResult fromJson(const Json&);
+		};
+		
 		struct RemoveResult {
 			String snapshotId;
 			

@@ -165,6 +165,11 @@ namespace sh {
 			Optional<size_t> position;
 		};
 		Promise<SpotifyPlaylist::AddResult> addPlaylistTracks(String playlistId, ArrayList<String> trackURIs, AddPlaylistTracksOptions options = {});
+		struct MovePlaylistTracksOptions {
+			Optional<size_t> sourceLength;
+			String snapshotId;
+		};
+		Promise<SpotifyPlaylist::MoveResult> movePlaylistTracks(String playlistId, size_t sourceIndex, size_t destIndex, MovePlaylistTracksOptions options = {});
 		struct PlaylistTrackMarker {
 			String uri;
 			ArrayList<size_t> positions;
@@ -173,6 +178,7 @@ namespace sh {
 			String snapshotId;
 		};
 		Promise<SpotifyPlaylist::RemoveResult> removePlaylistTracks(String playlistId, ArrayList<PlaylistTrackMarker> tracks, RemovePlaylistTracksOptions options = {});
+		
 		
 		Promise<SpotifyUser> getUser(String userId);
 		struct GetUserPlaylistsOptions {

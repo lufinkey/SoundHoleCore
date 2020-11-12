@@ -344,7 +344,95 @@ namespace sh {
 		return promise;
 	}
 
+
+
 	Promise<void> YoutubePlaylistMutatorDelegate::moveItems(Mutator* mutator, size_t index, size_t count, size_t newIndex) {
-		return Promise<void>::reject(std::logic_error("Not yet implemented"));
+		if(count == 0) {
+			return Promise<void>::resolve();
+		}
+		auto playlist = this->playlist.lock();
+		auto provider = (YoutubeProvider*)playlist->mediaProvider();
+		auto playlistId = provider->parseURI(playlist->uri()).id;
+		
+		auto list = mutator->getList();
+		auto items = list->getLoadedItems({
+			.startIndex = index,
+			.limit = count,
+			.onlyValidItems = false
+		});
+		if(items.size() < count) {
+			return Promise<void>::reject(std::runtime_error("Cannot move youtube playlist items which are not loaded"));
+		}
+		size_t itemOffset = 0;
+		auto itemMarkers = items.map<std::tuple<$<PlaylistItem>,AsyncListIndexMarker>>([&](auto& item) {
+			if(item->uniqueId().empty()) {
+				throw std::runtime_error("Missing youtubePlaylistItemId prop for item at index "+std::to_string(index+itemOffset));
+			}
+			itemOffset++;
+			auto indexMarker = list->watchIndex(index+itemOffset);
+			return std::tuple<$<PlaylistItem>,AsyncListIndexMarker>(item, indexMarker);
+		});
+		// ensure there are no duplicates in moving items
+		{
+			auto movingItemIds = LinkedList<String>();
+			for(auto [ item, indexMarker ] : itemMarkers) {
+				if(movingItemIds.contains(item->uniqueId())) {
+					return Promise<void>::reject(std::runtime_error("Cannot move duplicate playlist items"));
+				}
+				movingItemIds.pushBack(item->uniqueId());
+			}
+		}
+		
+		// perform item move operations
+		auto promise = Promise<void>::resolve();
+		if(newIndex < index) {
+			// start from last item and move them all to the destinatin index
+			auto destIndexMarker = list->watchRemovedIndex(newIndex);
+			for(auto [ item, indexMarker ] : reversed(itemMarkers)) {
+				auto collectionItem = item;
+				auto itemIndexMarker = indexMarker;
+				promise = promise.then([=]() {
+					String uniqueItemId = collectionItem->uniqueId();
+					String resourceId = provider->parseURI(collectionItem->track()->uri()).id;
+					size_t sourceIndex = itemIndexMarker->index;
+					size_t destIndex = destIndexMarker->index;
+					return provider->youtube->updatePlaylistItem(uniqueItemId, {
+						.playlistId = playlistId,
+						.resourceId = resourceId,
+						.position = destIndex
+					}).then([=](YoutubePlaylistItem ytItem) {
+						mutator->move(sourceIndex, 1, destIndex);
+					});
+				});
+			}
+		} else if(newIndex > index) {
+			// start from beginning index and move to end of destination
+			auto destEndIndexMarker = list->watchRemovedIndex(newIndex+count);
+			for(auto [ item, indexMarker ] : itemMarkers) {
+				auto collectionItem = item;
+				auto itemIndexMarker = indexMarker;
+				promise = promise.then([=]() {
+					String uniqueItemId = collectionItem->uniqueId();
+					String resourceId = provider->parseURI(collectionItem->track()->uri()).id;
+					size_t sourceIndex = itemIndexMarker->index;
+					size_t destIndex = destEndIndexMarker->index - 1;
+					return provider->youtube->updatePlaylistItem(uniqueItemId, {
+						.playlistId = playlistId,
+						.resourceId = resourceId,
+						.position = destIndex
+					}).then([=](YoutubePlaylistItem ytItem) {
+						mutator->move(sourceIndex, 1, destIndex);
+					});
+				});
+			}
+		}
+		
+		// unwatch all indexes
+		promise = promise.finally([=]() {
+			for(auto& [ item, indexMarker ] : itemMarkers) {
+				list->unwatchIndex(indexMarker);
+			}
+		});
+		return promise;
 	}
 }

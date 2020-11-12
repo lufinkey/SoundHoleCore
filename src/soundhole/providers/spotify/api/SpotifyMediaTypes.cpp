@@ -261,6 +261,12 @@ namespace sh {
 		};
 	}
 
+	SpotifyPlaylist::MoveResult SpotifyPlaylist::MoveResult::fromJson(const Json& json) {
+		return MoveResult{
+			.snapshotId = json["snapshot_id"].string_value()
+		};
+	}
+
 	SpotifyPlaylist::RemoveResult SpotifyPlaylist::RemoveResult::fromJson(const Json& json) {
 		return RemoveResult{
 			.snapshotId = json["snapshot_id"].string_value()
