@@ -58,23 +58,8 @@ namespace sh {
 		size_t width;
 		size_t height;
 		
+		Json toJson() const;
 		static SpotifyImage fromJson(const Json&);
-	};
-
-
-	struct SpotifyExternalURL {
-		String name;
-		String url;
-		
-		static ArrayList<SpotifyExternalURL> arrayFromJson(const Json&);
-	};
-
-
-	struct SpotifyExternalId {
-		String name;
-		String id;
-		
-		static ArrayList<SpotifyExternalId> arrayFromJson(const Json&);
 	};
 
 
@@ -90,6 +75,7 @@ namespace sh {
 		String href;
 		size_t total;
 		
+		Json toJson() const;
 		static SpotifyFollowers fromJson(const Json&);
 		static Optional<SpotifyFollowers> maybeFromJson(const Json&);
 	};
@@ -109,9 +95,10 @@ namespace sh {
 		String href;
 		Optional<String> displayName;
 		Optional<ArrayList<SpotifyImage>> images;
-		ArrayList<SpotifyExternalURL> externalURLs;
+		std::map<String,String> externalURLs;
 		Optional<SpotifyFollowers> followers;
 		
+		Json toJson() const;
 		static SpotifyUser fromJson(const Json&);
 	};
 
@@ -122,7 +109,7 @@ namespace sh {
 		String uri;
 		String href;
 		String name;
-		ArrayList<SpotifyExternalURL> externalURLs;
+		std::map<String,String> externalURLs;
 		
 		Optional<ArrayList<SpotifyImage>> images;
 		Optional<ArrayList<String>> genres;
@@ -143,7 +130,7 @@ namespace sh {
 		
 		ArrayList<SpotifyArtist> artists;
 		ArrayList<SpotifyImage> images;
-		ArrayList<SpotifyExternalURL> externalURLs;
+		std::map<String,String> externalURLs;
 		Optional<ArrayList<String>> availableMarkets;
 		Optional<ArrayList<SpotifyCopyright>> copyrights;
 		
@@ -168,8 +155,8 @@ namespace sh {
 		Optional<SpotifyAlbum> album;
 		ArrayList<SpotifyArtist> artists;
 		Optional<ArrayList<String>> availableMarkets;
-		ArrayList<SpotifyExternalId> externalIds;
-		ArrayList<SpotifyExternalURL> externalURLs;
+		std::map<String,String> externalIds;
+		std::map<String,String> externalURLs;
 		
 		String previewURL;
 		size_t trackNumber;
@@ -222,7 +209,7 @@ namespace sh {
 		String snapshotId;
 		
 		ArrayList<SpotifyImage> images;
-		ArrayList<SpotifyExternalURL> externalURLs;
+		std::map<String,String> externalURLs;
 		Optional<SpotifyFollowers> followers;
 		SpotifyPage<SpotifyPlaylist::Item> tracks;
 		

@@ -32,6 +32,24 @@ namespace sh::jsutils {
 		return arrayListFromJson(json, transform);
 	}
 
+	template<typename T>
+	std::map<String,T> mapFromJson(const Json& json, const Function<T(const std::string& key,const Json& value)>& transform) {
+		std::map<String,T> map;
+		for(auto& pair : json.object_items()) {
+			map.insert_or_assign(pair.first, transform(pair.first,pair.second));
+		}
+		return map;
+	}
+
+	template<typename T>
+	Json jsonFromMap(const std::map<String,T>& map, const Function<Json(const String& key,const T&)>& transform) {
+		Json::object json;
+		for(auto& pair : map) {
+			json[pair.first] = transform(pair.first,pair.second);
+		}
+		return json;
+	}
+
 	Optional<bool> optBoolFromJson(const Json&);
 	Optional<size_t> optSizeFromJson(const Json&);
 	

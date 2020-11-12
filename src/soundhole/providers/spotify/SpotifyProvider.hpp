@@ -115,7 +115,15 @@ namespace sh {
 		
 		static MediaItem::Image createImage(SpotifyImage image);
 		
+		String getCachedCurrentSpotifyUserPath() const;
+		Promise<SpotifyUser> getCurrentSpotifyUser();
+		void setCurrentSpotifyUser(Optional<SpotifyUser> user);
+		
 		Spotify* spotify;
 		SpotifyPlaybackProvider* _player;
+		
+		Optional<SpotifyUser> _currentUser;
+		Optional<Promise<SpotifyUser>> _currentUserPromise;
+		bool _currentUserNeedsRefresh;
 	};
 }
