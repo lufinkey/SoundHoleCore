@@ -503,6 +503,13 @@ namespace sh {
 
 
 
+	Promise<bool> BandcampProvider::isPlaylistEditable($<Playlist> playlist) {
+		return Promise<bool>::resolve(false);
+	}
+
+
+
+
 	BandcampPlaybackProvider* BandcampProvider::player() {
 		return _player;
 	}

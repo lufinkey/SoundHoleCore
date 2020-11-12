@@ -54,6 +54,7 @@ namespace sh {
 		virtual bool canCreatePlaylists() const override;
 		virtual ArrayList<Playlist::Privacy> supportedPlaylistPrivacies() const override;
 		virtual Promise<$<Playlist>> createPlaylist(String name, CreatePlaylistOptions options) override;
+		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist) override;
 		
 		virtual YoutubePlaybackProvider* player() override;
 		virtual const YoutubePlaybackProvider* player() const override;

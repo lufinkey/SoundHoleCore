@@ -87,6 +87,13 @@ namespace sh {
 	MediaLibraryProvider::LibraryItemGenerator MediaLibraryProvider::generateLibrary(GenerateLibraryOptions options) {
 		throw std::runtime_error("MediaLibraryProvider cannot generate library");
 	}
+
+	Promise<bool> MediaLibraryProvider::isPlaylistEditable($<Playlist> playlist) {
+		if(playlist->mediaProvider() == this) {
+			return Promise<bool>::resolve(false);
+		}
+		return playlist->mediaProvider()->isPlaylistEditable(playlist);
+	}
 	
 	MediaPlaybackProvider* MediaLibraryProvider::player() {
 		return nullptr;

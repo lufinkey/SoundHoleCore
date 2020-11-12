@@ -58,6 +58,7 @@ namespace sh {
 		
 		virtual bool hasLibrary() const override;
 		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options = GenerateLibraryOptions()) override;
+		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist) override;
 		
 		virtual BandcampPlaybackProvider* player() override;
 		virtual const BandcampPlaybackProvider* player() const override;

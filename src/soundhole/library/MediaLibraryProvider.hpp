@@ -44,6 +44,7 @@ namespace sh {
 		
 		virtual bool hasLibrary() const override;
 		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options = GenerateLibraryOptions()) override;
+		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist) override;
 		
 		virtual MediaPlaybackProvider* player() override;
 		virtual const MediaPlaybackProvider* player() const override;

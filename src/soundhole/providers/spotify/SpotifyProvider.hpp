@@ -91,6 +91,7 @@ namespace sh {
 		virtual bool canCreatePlaylists() const override;
 		virtual ArrayList<Playlist::Privacy> supportedPlaylistPrivacies() const override;
 		virtual Promise<$<Playlist>> createPlaylist(String name, CreatePlaylistOptions options) override;
+		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist) override;
 		
 		virtual SpotifyPlaybackProvider* player() override;
 		virtual const SpotifyPlaybackProvider* player() const override;

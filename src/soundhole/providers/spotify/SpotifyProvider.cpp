@@ -35,7 +35,6 @@ namespace sh {
 
 
 
-
 	Spotify* SpotifyProvider::api() {
 		return spotify;
 	}
@@ -46,9 +45,39 @@ namespace sh {
 
 
 
+	SpotifyProvider::URI SpotifyProvider::parseURI(String uri) {
+		auto parts = uri.split(':');
+		if(parts.size() < 2) {
+			throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid spotify uri "+uri);
+		}
+		else if(parts.size() == 2) {
+			return URI{
+				.provider=parts.front(),
+				.type=String(),
+				.id=parts.back()
+			};
+		}
+		return URI{
+			.provider=parts.front(),
+			.type=*std::prev(parts.end(),2),
+			.id=parts.back()
+		};
+	}
+
+	time_t SpotifyProvider::timeFromString(String time) {
+		tm timeData;
+		strptime(time.c_str(), "%Y-%m-%dT%H:%M:%SZ", &timeData);
+		return mktime(&timeData);
+	}
+
+
+
 
 	Promise<bool> SpotifyProvider::login() {
-		return spotify->login();
+		return spotify->login().map<bool>([=](bool loggedIn) {
+			//
+			return loggedIn;
+		});
 	}
 
 	void SpotifyProvider::logout() {
@@ -93,33 +122,6 @@ namespace sh {
 					: std::nullopt,
 			};
 		});
-	}
-
-
-
-	SpotifyProvider::URI SpotifyProvider::parseURI(String uri) {
-		auto parts = uri.split(':');
-		if(parts.size() < 2) {
-			throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid spotify uri "+uri);
-		}
-		else if(parts.size() == 2) {
-			return URI{
-				.provider=parts.front(),
-				.type=String(),
-				.id=parts.back()
-			};
-		}
-		return URI{
-			.provider=parts.front(),
-			.type=*std::prev(parts.end(),2),
-			.id=parts.back()
-		};
-	}
-
-	time_t SpotifyProvider::timeFromString(String time) {
-		tm timeData;
-		strptime(time.c_str(), "%Y-%m-%dT%H:%M:%SZ", &timeData);
-		return mktime(&timeData);
 	}
 
 
@@ -777,6 +779,13 @@ namespace sh {
 		}).map<$<Playlist>>([=](SpotifyPlaylist playlist) {
 			return Playlist::new$(this, createPlaylistData(playlist, false));
 		});
+	}
+
+
+
+	Promise<bool> SpotifyProvider::isPlaylistEditable($<Playlist> playlist) {
+		// TODO check if playlist is editable
+		return Promise<bool>::resolve(false);
 	}
 
 

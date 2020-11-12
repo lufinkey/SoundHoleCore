@@ -91,6 +91,7 @@ namespace sh {
 			Playlist::Privacy privacy = Playlist::Privacy::UNKNOWN;
 		};
 		virtual Promise<$<Playlist>> createPlaylist(String name, CreatePlaylistOptions options);
+		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist) = 0;
 		
 		virtual MediaPlaybackProvider* player() = 0;
 		virtual const MediaPlaybackProvider* player() const = 0;

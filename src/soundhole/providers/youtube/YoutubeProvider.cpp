@@ -696,6 +696,11 @@ namespace sh {
 		});
 	}
 
+	Promise<bool> YoutubeProvider::isPlaylistEditable($<Playlist> playlist) {
+		// TODO check if playlist is editable
+		return Promise<bool>::resolve(false);
+	}
+
 
 
 	YoutubePlaybackProvider* YoutubeProvider::player() {
