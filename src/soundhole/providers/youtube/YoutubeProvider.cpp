@@ -7,6 +7,7 @@
 //
 
 #include "YoutubeProvider.hpp"
+#include "api/YoutubeError.hpp"
 #include "mutators/YoutubePlaylistMutatorDelegate.hpp"
 #include <soundhole/utils/SoundHoleError.hpp>
 
@@ -540,7 +541,7 @@ namespace sh {
 	Promise<Track::Data> YoutubeProvider::getTrackData(String uri) {
 		auto uriParts = parseURI(uri);
 		if(uriParts.type != "video") {
-			throw std::invalid_argument(uri+" is not a video URI");
+			return Promise<Track::Data>::reject(std::invalid_argument(uri+" is not a video URI"));
 		}
 		return youtube->getVideoInfo(uriParts.id).map<Track::Data>([=](auto track) {
 			return createTrackData(track);
@@ -549,11 +550,19 @@ namespace sh {
 
 	Promise<Artist::Data> YoutubeProvider::getArtistData(String uri) {
 		auto uriParts = parseURI(uri);
-		if(uriParts.type != "channel") {
-			throw std::invalid_argument(uri+" is not a channel URI");
+		Youtube::GetChannelsOptions options;
+		if(uriParts.type == "channel") {
+			options.ids = { uriParts.id };
+		} else if(uriParts.type == "user") {
+			options.forUsername = uriParts.id;
+		} else {
+			return Promise<Artist::Data>::reject(std::invalid_argument(uri+" is not a channel or user URI"));
 		}
-		return youtube->getChannel(uri).map<Artist::Data>([=](auto channel) {
-			return createArtistData(channel);
+		return youtube->getChannels(options).map<Artist::Data>([=](auto page) {
+			if(page.items.size() == 0) {
+				throw YoutubeError(YoutubeError::Code::NOT_FOUND, "Could not find channel with for uri "+uri);
+			}
+			return createArtistData(page.items.front());
 		});
 	}
 
