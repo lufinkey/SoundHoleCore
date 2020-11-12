@@ -198,6 +198,8 @@
 		A5D9E1372550EC7700E4762A /* BandcampSession_ObjC.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5D9E1362550EC7700E4762A /* BandcampSession_ObjC.mm */; };
 		A5D9E1382550EC7700E4762A /* BandcampSession_ObjC.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5D9E1362550EC7700E4762A /* BandcampSession_ObjC.mm */; };
 		A5D9EB182556741500E4762A /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5D9EB172556741500E4762A /* WebKit.framework */; };
+		A5D9F438255DC77300E4762A /* Utils_objc.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5D9F437255DC77300E4762A /* Utils_objc.mm */; };
+		A5D9F439255DC77300E4762A /* Utils_objc.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5D9F437255DC77300E4762A /* Utils_objc.mm */; };
 		A5E51BB523A3EE24006E061F /* StreamPlayer_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5E51BB423A3EE24006E061F /* StreamPlayer_iOS.mm */; };
 		A5E7852323CE70BC00BD1C67 /* YoutubePlaybackProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5E7852123CE70BC00BD1C67 /* YoutubePlaybackProvider.cpp */; };
 		A5E7852623CE73A300BD1C67 /* StreamPlaybackProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5E7852423CE73A300BD1C67 /* StreamPlaybackProvider.cpp */; };
@@ -435,6 +437,7 @@
 		A5D9E1362550EC7700E4762A /* BandcampSession_ObjC.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = BandcampSession_ObjC.mm; sourceTree = "<group>"; };
 		A5D9EB172556741500E4762A /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.1.sdk/System/Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
 		A5D9EBDB2557169800E4762A /* ObjcRuntimeUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjcRuntimeUtils.h; sourceTree = "<group>"; };
+		A5D9F437255DC77300E4762A /* Utils_objc.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Utils_objc.mm; sourceTree = "<group>"; };
 		A5E3615B24082C4200840E28 /* MediaProviderStash.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaProviderStash.hpp; sourceTree = "<group>"; };
 		A5E51BB423A3EE24006E061F /* StreamPlayer_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StreamPlayer_iOS.mm; sourceTree = "<group>"; };
 		A5E7852123CE70BC00BD1C67 /* YoutubePlaybackProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = YoutubePlaybackProvider.cpp; sourceTree = "<group>"; };
@@ -821,6 +824,7 @@
 				A5B7A78C2335C91800301FC0 /* SoundHoleError.cpp */,
 				A5485A22238DFB1300CB7749 /* Utils.hpp */,
 				A5485A21238DFB1300CB7749 /* Utils.cpp */,
+				A5D9F437255DC77300E4762A /* Utils_objc.mm */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -1352,6 +1356,7 @@
 				A5B1B9002548EB2300DACA2D /* SHKeychainUtils_objc.mm in Sources */,
 				A5B7A7A32337DA5700301FC0 /* SpotifyAuth_iOS.mm in Sources */,
 				A571E16A2333305D00603E14 /* Scripts.cpp in Sources */,
+				A5D9F438255DC77300E4762A /* Utils_objc.mm in Sources */,
 				A52C4708250EB6B000131918 /* SHWebAuthNavigationController_iOS.mm in Sources */,
 				A578785523DE547F00B6B0A5 /* PlaybackOrganizer.cpp in Sources */,
 				A5B7A79D2336C28B00301FC0 /* SpotifyError_iOS.mm in Sources */,
@@ -1500,6 +1505,7 @@
 				A5B7A79E2336C29200301FC0 /* SpotifyError.cpp in Sources */,
 				A513ED8E232DA20B000DCAC7 /* MediaProvider.cpp in Sources */,
 				A5E7852723CE741800BD1C67 /* YoutubePlaybackProvider.cpp in Sources */,
+				A5D9F439255DC77300E4762A /* Utils_objc.mm in Sources */,
 				A5B7A7DE233F126800301FC0 /* Spotify.cpp in Sources */,
 				A5F07D75254383FF00C41A36 /* YoutubeMediaTypes.cpp in Sources */,
 				A54F2548239DAA2700C81E1C /* StreamPlayer.cpp in Sources */,

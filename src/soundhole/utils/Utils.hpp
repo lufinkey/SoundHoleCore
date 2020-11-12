@@ -16,4 +16,7 @@ namespace sh::utils {
 		String message;
 	};
 	ExceptionDetails getExceptionDetails(std::exception_ptr error);
+
+	String getTmpDirectoryPath();
+	String getCacheDirectoryPath();
 }

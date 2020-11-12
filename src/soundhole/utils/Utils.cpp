@@ -28,4 +28,16 @@ namespace sh::utils {
 			};
 		}
 	}
+
+	#if !defined(TARGETPLATFORM_IOS) && !defined(TARGETPLATFORM_MAC)
+
+	String getTmpDirectoryPath() {
+		return fs::temporaryDirectory();
+	}
+
+	String getCacheDirectoryPath() {
+		return fs::temporaryDirectory();
+	}
+
+	#endif
 }

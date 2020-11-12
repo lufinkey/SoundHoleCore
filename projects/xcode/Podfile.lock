@@ -44,7 +44,7 @@ CHECKOUT OPTIONS:
     :commit: 637319f61061f19bef37e7ac9c0b3c8614d15024
     :git: "git@github.com:lufinkey/data-cpp.git"
   IOCpp:
-    :commit: e4bbc9642fd04d24740080d4e6a1c391003a5a80
+    :commit: af70d57f6b89d824bc395e3e4a443c425ce6010b
     :git: "git@github.com:lufinkey/io-cpp.git"
   NodeJSEmbed:
     :commit: 9a978697ee97eba2f37af3a982bbd40443906a39
