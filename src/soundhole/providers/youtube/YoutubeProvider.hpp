@@ -71,9 +71,9 @@ namespace sh {
 			String id;
 		};
 		URI parseURI(String uri) const;
-		String createURI(String type, String id) const;
 		
 	private:
+		String createURI(String type, String id) const;
 		URI parseURL(String url) const;
 		
 		static MediaItem::Image createImage(YoutubeImage image);

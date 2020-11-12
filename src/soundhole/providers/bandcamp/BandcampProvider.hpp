@@ -66,12 +66,13 @@ namespace sh {
 		Artist::Data createArtistData(BandcampArtist artist, bool partial);
 		Album::Data createAlbumData(BandcampAlbum album, bool partial);
 		
-	private:
 		struct URI {
 			String provider;
 			String url;
 		};
 		URI parseURI(String uri) const;
+		
+	private:
 		URI parseURL(String url) const;
 		String createURI(String type, String url) const;
 		
