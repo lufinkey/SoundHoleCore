@@ -16,22 +16,37 @@ namespace sh {
 
 		switch(code) {
 			CASE_CODE(NOT_INITIALIZED)
+			CASE_CODE(REQUEST_NOT_SENT)
 			CASE_CODE(REQUEST_FAILED)
+			CASE_CODE(SESSION_EXPIRED)
 			CASE_CODE(BAD_DATA)
 			CASE_CODE(NOT_FOUND)
+			CASE_CODE(OAUTH_REQUEST_FAILED)
 		}
 		
 		#undef CASE_CODE
 	}
 
 
-	YoutubeError::YoutubeError(Code code, String message)
-	: code(code), message(message) {
+	YoutubeError::YoutubeError(Code code, String message, std::map<String,Any> details)
+	: code(code), message(message), details(details) {
 		//
 	}
 
 	YoutubeError::Code YoutubeError::getCode() const {
 		return code;
+	}
+
+	const std::map<String,Any>& YoutubeError::getDetails() const {
+		return details;
+	}
+
+	Any YoutubeError::getDetail(const String& key) const {
+		try {
+			return details.at(key);
+		} catch(std::out_of_range&) {
+			return Any();
+		}
 	}
 	
 	String YoutubeError::getMessage() const {

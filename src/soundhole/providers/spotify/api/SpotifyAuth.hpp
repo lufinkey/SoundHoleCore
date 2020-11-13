@@ -8,10 +8,10 @@
 
 #pragma once
 
-#include <chrono>
 #include <soundhole/common.hpp>
 #include <soundhole/utils/OAuthSession.hpp>
 #include "SpotifyAuthEventListener.hpp"
+#include <chrono>
 
 namespace sh {
 	using SpotifySession = OAuthSession;

@@ -9,6 +9,7 @@
 #pragma once
 
 #include <soundhole/common.hpp>
+#include "OAuthError.hpp"
 
 namespace sh {
 	class OAuthSession {
@@ -18,12 +19,13 @@ namespace sh {
 		static Optional<OAuthSession> load(const String& key);
 		static void save(const String& key, Optional<OAuthSession> session);
 		
-		OAuthSession(String accessToken, TimePoint expireTime, String refreshToken, ArrayList<String> scopes);
+		OAuthSession(String accessToken, TimePoint expireTime, String tokenType, String refreshToken, ArrayList<String> scopes);
 		
 		void save(const String& key);
 		
 		const String& getAccessToken() const;
 		const TimePoint& getExpireTime() const;
+		const String& getTokenType() const;
 		const String& getRefreshToken() const;
 		const ArrayList<String>& getScopes() const;
 		
@@ -55,9 +57,15 @@ namespace sh {
 		static Optional<OAuthSession> fromAndroidSharedPrefs(JNIEnv* env, const String& key, jobject context);
 		#endif
 		
+		
+		static Promise<Json> performTokenRequest(String url, std::map<String,String> params);
+		static Promise<OAuthSession> swapCodeForToken(String url, String code, std::map<String,String> params);
+		static Promise<OAuthSession> refreshSession(String url, OAuthSession session, std::map<String,String> params);
+		
 	private:
 		String accessToken;
 		TimePoint expireTime;
+		String tokenType;
 		String refreshToken;
 		ArrayList<String> scopes;
 	};

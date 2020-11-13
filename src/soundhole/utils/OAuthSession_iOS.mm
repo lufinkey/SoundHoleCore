@@ -35,6 +35,7 @@ namespace sh {
 		NSMutableDictionary* dictionary = [NSMutableDictionary dictionary];
 		dictionary[@"accessToken"] = accessToken.toNSString();
 		dictionary[@"expireDate"] = [NSDate dateWithTimeIntervalSince1970:(NSTimeInterval)std::chrono::system_clock::to_time_t(expireTime)];
+		dictionary[@"tokenType"] = tokenType.toNSString();
 		if(refreshToken.size() > 0) {
 			dictionary[@"refreshToken"] = refreshToken.toNSString();
 		}
@@ -52,6 +53,7 @@ namespace sh {
 		NSDate* expireDate = [NSDate dateWithTimeIntervalSince1970:(NSTimeInterval)std::chrono::system_clock::to_time_t(expireTime)];
 		NSDateFormatter* dateFormmatter = OAuthSession_expireDateFormatter();
 		dictionary[@"expireDate"] = [dateFormmatter stringFromDate:expireDate];
+		dictionary[@"tokenType"] = tokenType.toNSString();
 		if(refreshToken.size() > 0) {
 			dictionary[@"refreshToken"] = refreshToken.toNSString();
 		}
@@ -100,11 +102,14 @@ namespace sh {
 	Optional<OAuthSession> OAuthSession::fromNSDictionary(NSDictionary* dictionary) {
 		NSString* accessToken = dictionary[@"accessToken"];
 		id expireDateVal = dictionary[@"expireDate"];
+		NSString* tokenType = dictionary[@"tokenType"];
 		NSString* refreshToken = dictionary[@"refreshToken"];
 		NSArray* scopesArr = dictionary[@"scopes"];
 		if(accessToken == nil || ![accessToken isKindOfClass:NSString.class]) {
 			return std::nullopt;
 		} else if(expireDateVal == nil || (![expireDateVal isKindOfClass:NSDate.class] && ![expireDateVal isKindOfClass:NSString.class])) {
+			return std::nullopt;
+		} else if(tokenType == nil || ![tokenType isKindOfClass:NSString.class]) {
 			return std::nullopt;
 		} else if(refreshToken != nil && ![refreshToken isKindOfClass:NSString.class]) {
 			return std::nullopt;
@@ -130,7 +135,7 @@ namespace sh {
 				scopes.pushBack(String(scope));
 			}
 		}
-		return OAuthSession(String(accessToken), expireTime, String(refreshToken), scopes);
+		return OAuthSession(String(accessToken), expireTime, String(tokenType), String(refreshToken), scopes);
 	}
 	
 	Optional<OAuthSession> OAuthSession::fromNSUserDefaults(const String& key, NSUserDefaults* userDefaults) {

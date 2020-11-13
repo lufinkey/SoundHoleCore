@@ -318,7 +318,7 @@ namespace sh {
 			auto accessToken = result["access_token"];
 			auto expireSeconds = result["expires_in"];
 			if(!accessToken.is_string() || !expireSeconds.is_number()) {
-				throw SpotifyError(SpotifyError::Code::BAD_RESPONSE, "token refresh response does not match expected shape", {
+				throw SpotifyError(SpotifyError::Code::BAD_DATA, "token refresh response does not match expected shape", {
 					{ "jsonResponse", result }
 				});
 			}
@@ -359,9 +359,9 @@ namespace sh {
 			callbacks.swap(renewalInfo->callbacks);
 			try {
 				std::rethrow_exception(errorPtr);
-			} catch(SpotifyError& error) {
+			} catch(OAuthError& error) {
 				// if the request wasn't sent, we should try again if needed, otherwise give up and forward the error
-				if(error.getCode() == SpotifyError::Code::REQUEST_NOT_SENT) {
+				if(error.getCode() == OAuthError::Code::REQUEST_NOT_SENT) {
 					if(renewalInfo->retryUntilResponseCallbacks.size() > 0) {
 						shouldRetry = true;
 					} else {
@@ -415,7 +415,8 @@ namespace sh {
 		return performTokenURLRequest(url, params).map<SpotifySession>([](Json result) -> SpotifySession {
 			auto resultShape = std::initializer_list<std::pair<std::string,Json::Type>>{
 				{ "access_token", Json::Type::STRING },
-				{ "expires_in", Json::Type::NUMBER }
+				{ "expires_in", Json::Type::NUMBER },
+				{ "token_type", Json::Type::STRING }
 			};
 			if(!result.is_object()) {
 				throw std::runtime_error("Bad response for token swap: result is not an object");
@@ -426,6 +427,7 @@ namespace sh {
 			}
 			String accessToken = result["access_token"].string_value();
 			int expireSeconds = (int)result["expires_in"].number_value();
+			String tokenType = result["token_type"].string_value();
 			String refreshToken;
 			Json refreshTokenVal = result["refresh_token"];
 			if(refreshTokenVal.is_string()) {
@@ -436,7 +438,7 @@ namespace sh {
 			if(scopeVal.is_string()) {
 				scopes = String(scopeVal.string_value()).split(' ');
 			}
-			return SpotifySession(accessToken, SpotifySession::getExpireTimeFromSeconds(expireSeconds), refreshToken, scopes);
+			return SpotifySession(accessToken, SpotifySession::getExpireTimeFromSeconds(expireSeconds), tokenType, refreshToken, scopes);
 		});
 	}
 	
@@ -455,14 +457,13 @@ namespace sh {
 			std::string parseError;
 			auto json = Json::parse(response->data, parseError);
 			if(parseError.length() > 0) {
-				throw SpotifyError(SpotifyError::Code::BAD_RESPONSE, parseError, {
+				throw SpotifyError(SpotifyError::Code::BAD_DATA, parseError, {
 					{ "httpResponse", response }
 				});
 			}
 			auto error = json["error"];
 			if(error.is_string()) {
 				auto error_description = json["error_description"];
-				auto error_uri = json["error_uri"];
 				throw SpotifyError(SpotifyError::Code::OAUTH_REQUEST_FAILED, error_description.string_value(), {
 					{ "statusCode", int(response->statusCode) },
 					{ "oauthError", String(error.string_value()) }

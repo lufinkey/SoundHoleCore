@@ -100,10 +100,11 @@ namespace sh {
 			NSInteger expireSeconds = [expiresIn integerValue];
 			if(expireSeconds == 0) {
 				if(completion != nil) {
-					completion(std::nullopt, std::make_exception_ptr(SpotifyError(SpotifyError::Code::BAD_RESPONSE, "Access token expire time was 0")));
+					completion(std::nullopt, std::make_exception_ptr(SpotifyError(SpotifyError::Code::BAD_DATA, "Access token expire time was 0")));
 				}
 				return;
 			}
+			NSString* tokenType = params[@"token_type"];
 			NSString* scope = params[@"scope"];
 			ArrayList<String> scopes;
 			if(scope != nil) {
@@ -118,6 +119,7 @@ namespace sh {
 			auto session = SpotifySession(
 				String(accessToken),
 				SpotifySession::getExpireTimeFromSeconds((int)expireSeconds),
+				String(tokenType),
 				(refreshToken != nil) ? String(refreshToken) : "",
 				scopes
 			);
@@ -135,6 +137,7 @@ namespace sh {
 					session = SpotifySession(
 						session.getAccessToken(),
 						session.getExpireTime(),
+						session.getTokenType(),
 						session.getRefreshToken(),
 						options.scopes);
 				}
@@ -148,7 +151,7 @@ namespace sh {
 			});
 		}
 		else {
-			completion(std::nullopt, std::make_exception_ptr(SpotifyError(SpotifyError::Code::BAD_RESPONSE, "Missing expected parameters in redirect URL")));
+			completion(std::nullopt, std::make_exception_ptr(SpotifyError(SpotifyError::Code::BAD_DATA, "Missing expected parameters in redirect URL")));
 		}
 	}
 }

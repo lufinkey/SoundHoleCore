@@ -285,7 +285,7 @@ namespace sh {
 					std::string parseError;
 					result = Json::parse((std::string)response->data, parseError);
 					if(!parseError.empty()) {
-						throw SpotifyError(SpotifyError::Code::BAD_RESPONSE, "Failed to parse response json: "+parseError);
+						throw SpotifyError(SpotifyError::Code::BAD_DATA, "Failed to parse response json: "+parseError);
 
 					}
 					auto errorObj = result["error"];
@@ -314,7 +314,7 @@ namespace sh {
 							}
 							throw SpotifyError(SpotifyError::Code::REQUEST_FAILED, errorMessage, details);
 						} else {
-							throw SpotifyError(SpotifyError::Code::BAD_RESPONSE, "Unknown error response format");
+							throw SpotifyError(SpotifyError::Code::BAD_DATA, "Unknown error response format");
 						}
 					}
 				}

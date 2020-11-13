@@ -1,9 +1,9 @@
 //
-//  YoutubeError.hpp
+//  OAuthError.hpp
 //  SoundHoleCore
 //
-//  Created by Luis Finke on 10/18/19.
-//  Copyright © 2019 Luis Finke. All rights reserved.
+//  Created by Luis Finke on 11/13/20.
+//  Copyright © 2020 Luis Finke. All rights reserved.
 //
 
 #pragma once
@@ -11,22 +11,26 @@
 #include <soundhole/common.hpp>
 
 namespace sh {
-	class YoutubeError: public Error {
+	class OAuthError: public Error {
 	public:
 		enum class Code {
-			NOT_INITIALIZED,
 			REQUEST_NOT_SENT,
 			REQUEST_FAILED,
-			SESSION_EXPIRED,
 			BAD_DATA,
-			NOT_FOUND,
-			
-			OAUTH_REQUEST_FAILED
+			INVALID_REQUEST,
+			INVALID_CLIENT,
+			INVALID_GRANT,
+			INVALID_SCOPE,
+			UNAUTHORIZED_CLIENT,
+			UNSUPPORTED_GRANT_TYPE,
+			SESSION_EXPIRED
 		};
 		
 		static String Code_toString(Code code);
+		static Optional<Code> Code_fromOAuthError(String error);
+		static String Code_getDescription(Code code);
 		
-		YoutubeError(Code code, String message, std::map<String,Any> details = {});
+		OAuthError(Code code, String message, std::map<String,Any> details = {});
 		
 		Code getCode() const;
 		const std::map<String,Any>& getDetails() const;
