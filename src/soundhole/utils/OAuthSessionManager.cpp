@@ -152,6 +152,7 @@ namespace sh {
 		auto oldSession = this->session;
 		auto tokenRefreshURL = delegate->getOAuthTokenRefreshURL(this);
 		auto tokenRefreshParams = delegate->getOAuthTokenRefreshParams(this);
+		auto tokenRefreshHeaders = delegate->getOAuthTokenRefreshHeaders(this);
 		if(!canRefreshSession() || tokenRefreshURL.empty() || !oldSession) {
 			// session has ended or cannot be refreshed, so call all callbacks with false and return
 			std::shared_ptr<RenewalInfo> renewalInfo;
@@ -170,7 +171,7 @@ namespace sh {
 		auto renewalInfo = this->renewalInfo;
 		lock.unlock();
 		// perform session renewal request
-		OAuthSession::refreshSession(tokenRefreshURL, oldSession.value(), tokenRefreshParams)
+		OAuthSession::refreshSession(tokenRefreshURL, oldSession.value(), tokenRefreshParams, tokenRefreshHeaders)
 		.then([=](OAuthSession newSession) {
 			// function to call for cancelling session renewal
 			auto cancelRenewal = [&]() {

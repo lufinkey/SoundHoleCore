@@ -58,10 +58,11 @@ namespace sh {
 
 	
 
-	Promise<Json> OAuthSession::performTokenRequest(String url, std::map<String,String> params) {
+	Promise<Json> OAuthSession::performTokenRequest(String url, std::map<String,String> params, std::map<String,String> headers) {
 		utils::HttpRequest request;
 		request.url = Url(url);
 		request.method = utils::HttpMethod::POST;
+		request.headers = headers;
 		request.headers["Content-Type"] = "application/x-www-form-urlencoded";
 		request.data = utils::makeQueryString(params);
 		return utils::performHttpRequest(request)
@@ -74,8 +75,8 @@ namespace sh {
 		.map<Json>([](utils::SharedHttpResponse response) -> Json {
 			std::string parseError;
 			auto json = Json::parse(response->data, parseError);
-			if((response->statusCode < 200 || response->statusCode >= 300) && response->data.size() == 0) {
-				auto error = json["error"];
+			auto error = json["error"];
+			if(response->statusCode < 200 || response->statusCode >= 300 || error.is_string()) {
 				if(error.is_string()) {
 					OAuthError::Code errorCode = OAuthError::Code_fromOAuthError(error.string_value()).valueOr(OAuthError::Code::REQUEST_FAILED);
 					String errorMessage = json["error_description"].string_value();
@@ -103,9 +104,9 @@ namespace sh {
 	}
 
 
-	Promise<OAuthSession> OAuthSession::swapCodeForToken(String url, String code, std::map<String,String> params) {
+	Promise<OAuthSession> OAuthSession::swapCodeForToken(String url, String code, std::map<String,String> params, std::map<String,String> headers) {
 		params.insert_or_assign("code", code);
-		return performTokenRequest(url, params).map<OAuthSession>([](Json result) -> OAuthSession {
+		return performTokenRequest(url, params, headers).map<OAuthSession>([](Json result) -> OAuthSession {
 			auto resultShape = std::initializer_list<std::pair<std::string,Json::Type>>{
 				{ "access_token", Json::Type::STRING },
 				{ "expires_in", Json::Type::NUMBER },
@@ -138,14 +139,14 @@ namespace sh {
 	}
 
 
-	Promise<OAuthSession> OAuthSession::refreshSession(String url, OAuthSession session, std::map<String,String> params) {
+	Promise<OAuthSession> OAuthSession::refreshSession(String url, OAuthSession session, std::map<String,String> params, std::map<String,String> headers) {
 		if(session.refreshToken.empty()) {
 			return Promise<OAuthSession>::reject(
 				OAuthError(OAuthError::Code::INVALID_REQUEST, "missing refresh token"));
 		}
 		params.insert_or_assign("refresh_token", session.refreshToken);
 		params.insert_or_assign("grant_type", "refresh_token");
-		return performTokenRequest(url, params).map<OAuthSession>([=](Json result) {
+		return performTokenRequest(url, params, headers).map<OAuthSession>([=](Json result) {
 			auto accessToken = result["access_token"];
 			auto expireSeconds = result["expires_in"];
 			if(!accessToken.is_string() || !expireSeconds.is_number()) {

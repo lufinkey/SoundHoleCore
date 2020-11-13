@@ -16,7 +16,7 @@
 #import <soundhole/utils/objc/SHObjcUtils.h>
 
 namespace sh {
-	Promise<Optional<YoutubeSession>> YoutubeAuth::authenticate(LoginOptions options) {
+	Promise<Optional<YoutubeSession>> YoutubeAuth::authenticate(AuthenticateOptions options) {
 		// TODO implement youtube authentication screen
 		return Promise<Optional<YoutubeSession>>::reject(std::logic_error("not implemented"));
 	}

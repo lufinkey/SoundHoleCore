@@ -58,9 +58,9 @@ namespace sh {
 		#endif
 		
 		
-		static Promise<Json> performTokenRequest(String url, std::map<String,String> params);
-		static Promise<OAuthSession> swapCodeForToken(String url, String code, std::map<String,String> params);
-		static Promise<OAuthSession> refreshSession(String url, OAuthSession session, std::map<String,String> params);
+		static Promise<Json> performTokenRequest(String url, std::map<String,String> params, std::map<String,String> headers);
+		static Promise<OAuthSession> swapCodeForToken(String url, String code, std::map<String,String> params, std::map<String,String> headers);
+		static Promise<OAuthSession> refreshSession(String url, OAuthSession session, std::map<String,String> params, std::map<String,String> headers);
 		
 	private:
 		String accessToken;

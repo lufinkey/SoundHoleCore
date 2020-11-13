@@ -18,16 +18,28 @@ namespace sh {
 
 	class YoutubeAuth: protected OAuthSessionManager::Delegate {
 	public:
+		struct AuthenticateOptions {
+			String clientId;
+			String clientSecret;
+			String redirectURL;
+			ArrayList<String> scopes;
+			String tokenSwapURL;
+			
+			String getWebAuthenticationURL(String codeChallenge) const;
+		};
+		
 		struct Options {
 			String clientId;
 			String clientSecret;
 			String redirectURL;
 			ArrayList<String> scopes;
-			std::map<String,String> params;
 			String sessionPersistKey;
 			std::chrono::seconds tokenRefreshEarliness = std::chrono::seconds(300);
 			
-			String getWebAuthenticationURL(String codeChallenge) const;
+			String tokenSwapURL;
+			String tokenRefreshURL;
+			
+			YoutubeAuth::AuthenticateOptions getAuthenticateOptions() const;
 		};
 		
 		YoutubeAuth(Options options);
@@ -43,13 +55,7 @@ namespace sh {
 		bool isSessionValid() const;
 		const Optional<YoutubeSession>& getSession() const;
 		
-		struct LoginOptions {
-			String clientId;
-			String clientSecret;
-			String redirectURL;
-			ArrayList<String> scopes;
-		};
-		static Promise<Optional<YoutubeSession>> authenticate(LoginOptions options);
+		static Promise<Optional<YoutubeSession>> authenticate(AuthenticateOptions options);
 		Promise<bool> login();
 		void loginWithSession(YoutubeSession session);
 		void logout();
@@ -58,17 +64,12 @@ namespace sh {
 		Promise<bool> renewSession(RenewOptions options = RenewOptions{.retryUntilResponse=false});
 		Promise<bool> renewSessionIfNeeded(RenewOptions options = RenewOptions{.retryUntilResponse=false});
 		
-	protected:
-		struct TokenSwapOptions {
-			String codeVerifier;
-			String clientId;
-			String clientSecret;
-			String redirectURL;
-		};
-		static Promise<YoutubeSession> swapCodeForToken(String code, TokenSwapOptions options);
+		static Promise<YoutubeSession> swapCodeForToken(String code, String codeVerifier, AuthenticateOptions options);
 		
+	protected:
 		virtual String getOAuthSessionPersistKey(const OAuthSessionManager* mgr) const override;
 		virtual std::map<String,String> getOAuthTokenRefreshParams(const OAuthSessionManager* mgr) const override;
+		virtual std::map<String,String> getOAuthTokenRefreshHeaders(const OAuthSessionManager* mgr) const override;
 		virtual std::chrono::seconds getOAuthTokenRefreshEarliness(const OAuthSessionManager* mgr) const override;
 		virtual String getOAuthTokenRefreshURL(const OAuthSessionManager* mgr) const override;
 		

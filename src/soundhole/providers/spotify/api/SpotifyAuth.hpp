@@ -9,37 +9,50 @@
 #pragma once
 
 #include <soundhole/common.hpp>
-#include <soundhole/utils/OAuthSession.hpp>
+#include <soundhole/utils/OAuthSessionManager.hpp>
 #include "SpotifyAuthEventListener.hpp"
 #include <chrono>
 
 namespace sh {
 	using SpotifySession = OAuthSession;
 
-	class SpotifyAuth {
+	class SpotifyAuth: protected OAuthSessionManager::Delegate {
 	public:
-		struct Options {
+		struct AuthenticateOptions {
 			String clientId;
+			String clientSecret;
 			String redirectURL;
 			ArrayList<String> scopes;
+			Optional<bool> showDialog;
+			
 			String tokenSwapURL;
-			String tokenRefreshURL;
-			std::map<String,String> params;
-			String sessionPersistKey;
-			std::chrono::seconds tokenRefreshEarliness = std::chrono::seconds(300);
-
+			
 			struct Android {
 				String loginLoadingText;
 			} android;
 			
-			String getWebAuthenticationURL(String state) const;
+			String getWebAuthenticationURL(String xssState) const;
+		};
+		
+		struct Options {
+			String clientId;
+			String clientSecret;
+			String redirectURL;
+			ArrayList<String> scopes;
+			String sessionPersistKey;
+			std::chrono::seconds tokenRefreshEarliness = std::chrono::seconds(300);
+			Optional<bool> showLoginDialog;
 			
-			bool hasTokenSwapURL() const;
-			bool hasTokenRefreshURL() const;
+			String tokenSwapURL;
+			String tokenRefreshURL;
+
+			using Android = AuthenticateOptions::Android;
+			Android android;
+			
+			SpotifyAuth::AuthenticateOptions getAuthenticateOptions() const;
 		};
 		
 		SpotifyAuth(Options options);
-		~SpotifyAuth();
 		
 		void load();
 		void save();
@@ -54,7 +67,7 @@ namespace sh {
 		bool canRefreshSession() const;
 		const Optional<SpotifySession>& getSession() const;
 		
-		static Promise<Optional<SpotifySession>> authenticate(Options options);
+		static Promise<Optional<SpotifySession>> authenticate(AuthenticateOptions options);
 		struct LoginOptions {
 			Optional<bool> showDialog;
 		};
@@ -63,45 +76,31 @@ namespace sh {
 		void loginWithSession(SpotifySession session);
 		void logout();
 		
-		struct RenewOptions {
-			bool retryUntilResponse = false;
-		};
+		using RenewOptions = OAuthSessionManager::RenewOptions;
 		Promise<bool> renewSession(RenewOptions options = RenewOptions{.retryUntilResponse=false});
 		Promise<bool> renewSessionIfNeeded(RenewOptions options = RenewOptions{.retryUntilResponse=false});
 		
-		static Promise<SpotifySession> swapCodeForToken(String code, String url);
+		static Promise<SpotifySession> swapCodeForToken(String code, AuthenticateOptions options);
 		
 	private:
-		void startSession(SpotifySession session);
-		void updateSession(String accessToken, SpotifySession::TimePoint expireTime);
-		void clearSession();
+		static String buildOAuthAuthorizationHeader(String clientId, String clientSecret);
 		
-		Promise<bool> performSessionRenewal();
-		static Promise<Json> performTokenURLRequest(String url, std::map<String,String> params);
+		virtual String getOAuthSessionPersistKey(const OAuthSessionManager* mgr) const override;
+		virtual std::map<String,String> getOAuthTokenRefreshParams(const OAuthSessionManager* mgr) const override;
+		virtual std::map<String,String> getOAuthTokenRefreshHeaders(const OAuthSessionManager* mgr) const override;
+		virtual std::chrono::seconds getOAuthTokenRefreshEarliness(const OAuthSessionManager* mgr) const override;
+		virtual String getOAuthTokenRefreshURL(const OAuthSessionManager* mgr) const override;
 		
-		void startRenewalTimer();
-		void rescheduleRenewalTimer();
-		void stopRenewalTimer();
-		void onRenewalTimerFire();
+		virtual void onOAuthSessionStart(OAuthSessionManager* mgr) override;
+		virtual void onOAuthSessionResume(OAuthSessionManager* mgr) override;
+		virtual void onOAuthSessionRenew(OAuthSessionManager* mgr) override;
+		virtual void onOAuthSessionExpire(OAuthSessionManager* mgr) override;
+		virtual void onOAuthSessionEnd(OAuthSessionManager* mgr) override;
 		
 		Options options;
-		Optional<SpotifySession> session;
-		std::recursive_mutex sessionMutex;
-		
-		struct WaitCallback {
-			Promise<bool>::Resolver resolve;
-			Promise<bool>::Rejecter reject;
-		};
-		struct RenewalInfo {
-			bool deleted = false;
-			LinkedList<WaitCallback> callbacks;
-			LinkedList<WaitCallback> retryUntilResponseCallbacks;
-		};
-		std::shared_ptr<RenewalInfo> renewalInfo;
+		OAuthSessionManager sessionMgr;
 		
 		LinkedList<SpotifyAuthEventListener*> listeners;
 		std::mutex listenersMutex;
-		
-		SharedTimer renewalTimer;
 	};
 }

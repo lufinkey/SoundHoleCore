@@ -11,7 +11,17 @@
 #include <soundhole/utils/HttpClient.hpp>
 
 namespace sh {
-	String YoutubeAuth::Options::getWebAuthenticationURL(String codeChallenge) const {
+	YoutubeAuth::AuthenticateOptions YoutubeAuth::Options::getAuthenticateOptions() const {
+		return {
+			.clientId=clientId,
+			.clientSecret=clientSecret,
+			.redirectURL=redirectURL,
+			.scopes=scopes,
+			.tokenSwapURL=tokenSwapURL
+		};
+	}
+
+	String YoutubeAuth::AuthenticateOptions::getWebAuthenticationURL(String codeChallenge) const {
 		std::map<String,String> query = {
 			{ "client_id", clientId },
 			{ "redirect_uri", redirectURL },
@@ -20,14 +30,6 @@ namespace sh {
 			{ "code_challenge", codeChallenge },
 			{ "code_challenge_method", "plain" }
 		};
-		for(auto& pair : params) {
-			auto it = query.find(pair.first);
-			if(it != query.end()) {
-				it->second = pair.second.toStdString<char>();
-			} else {
-				query.emplace(pair.first, pair.second);
-			}
-		}
 		return "https://accounts.google.com/o/oauth2/v2/auth?" + utils::makeQueryString(query);
 	}
 	
@@ -43,7 +45,6 @@ namespace sh {
 	void YoutubeAuth::load() {
 		sessionMgr.load();
 	}
-	
 	void YoutubeAuth::save() {
 		sessionMgr.save();
 	}
@@ -54,24 +55,22 @@ namespace sh {
 		std::unique_lock<std::mutex> lock(listenersMutex);
 		listeners.pushBack(listener);
 	}
-	
 	void YoutubeAuth::removeEventListener(YoutubeAuthEventListener* listener) {
 		std::unique_lock<std::mutex> lock(listenersMutex);
 		listeners.removeLastEqual(listener);
 	}
-	
+
+
+
 	const YoutubeAuth::Options& YoutubeAuth::getOptions() const {
 		return this->options;
 	}
-	
 	bool YoutubeAuth::isLoggedIn() const {
 		return sessionMgr.getSession().hasValue();
 	}
-	
 	bool YoutubeAuth::isSessionValid() const {
 		return sessionMgr.isSessionValid();
 	}
-
 	const Optional<YoutubeSession>& YoutubeAuth::getSession() const {
 		return sessionMgr.getSession();
 	}
@@ -79,50 +78,49 @@ namespace sh {
 
 
 	Promise<bool> YoutubeAuth::login() {
-		return authenticate({
-			.clientId = options.clientId,
-			.clientSecret = options.clientSecret,
-			.redirectURL = options.redirectURL,
-			.scopes = options.scopes
-		}).map<bool>([=](Optional<YoutubeSession> session) -> bool {
+		return authenticate(options.getAuthenticateOptions()).map<bool>([=](Optional<YoutubeSession> session) -> bool {
 			if(session) {
 				loginWithSession(session.value());
 			}
 			return session.hasValue();
 		});
 	}
-	
 	void YoutubeAuth::loginWithSession(YoutubeSession newSession) {
 		sessionMgr.startSession(newSession);
 	}
-	
 	void YoutubeAuth::logout() {
 		sessionMgr.endSession();
 	}
-	
+
 	Promise<bool> YoutubeAuth::renewSession(RenewOptions options) {
 		return sessionMgr.renewSession(options);
 	}
-	
 	Promise<bool> YoutubeAuth::renewSessionIfNeeded(RenewOptions options) {
 		return sessionMgr.renewSessionIfNeeded(options);
 	}
 
 
 
-	Promise<YoutubeSession> YoutubeAuth::swapCodeForToken(String code, TokenSwapOptions options) {
+	Promise<YoutubeSession> YoutubeAuth::swapCodeForToken(String code, String codeVerifier, AuthenticateOptions options) {
 		auto params = std::map<String,String>{
-			{ "client_id", options.clientId },
-			{ "grant_type", "authorization_code" },
-			{ "redirect_uri", options.redirectURL }
+			{ "grant_type", "authorization_code" }
 		};
-		if(!options.codeVerifier.empty()) {
-			params.insert_or_assign("code_verifier", options.codeVerifier);
+		if(!options.clientId.empty()) {
+			params.insert_or_assign("client_id", options.clientId);
+		}
+		if(!codeVerifier.empty()) {
+			params.insert_or_assign("code_verifier", codeVerifier);
 		}
 		if(!options.clientSecret.empty()) {
 			params.insert_or_assign("client_secret", options.clientSecret);
 		}
-		return YoutubeSession::swapCodeForToken("https://oauth2.googleapis.com/token", code, params);
+		if(!options.redirectURL.empty()) {
+			params.insert_or_assign("redirect_uri", options.redirectURL);
+		}
+		if(options.tokenSwapURL.empty()) {
+			options.tokenSwapURL = "https://oauth2.googleapis.com/token";
+		}
+		return YoutubeSession::swapCodeForToken(options.tokenSwapURL, code, params, {});
 	}
 
 
@@ -143,12 +141,19 @@ namespace sh {
 		return params;
 	}
 
+	std::map<String,String> YoutubeAuth::getOAuthTokenRefreshHeaders(const OAuthSessionManager* mgr) const {
+		return {};
+	}
+
 	std::chrono::seconds YoutubeAuth::getOAuthTokenRefreshEarliness(const OAuthSessionManager* mgr) const {
 		return options.tokenRefreshEarliness;
 	}
 
 	String YoutubeAuth::getOAuthTokenRefreshURL(const OAuthSessionManager* mgr) const {
-		return "https://oauth2.googleapis.com/token";
+		if(options.tokenRefreshURL.empty()) {
+			return "https://oauth2.googleapis.com/token";
+		}
+		return options.tokenRefreshURL;
 	}
 
 

@@ -20,6 +20,7 @@ namespace sh {
 			
 			virtual String getOAuthSessionPersistKey(const OAuthSessionManager* mgr) const = 0;
 			virtual std::map<String,String> getOAuthTokenRefreshParams(const OAuthSessionManager* mgr) const = 0;
+			virtual std::map<String,String> getOAuthTokenRefreshHeaders(const OAuthSessionManager* mgr) const = 0;
 			virtual std::chrono::seconds getOAuthTokenRefreshEarliness(const OAuthSessionManager* mgr) const = 0;
 			virtual String getOAuthTokenRefreshURL(const OAuthSessionManager* mgr) const = 0;
 			

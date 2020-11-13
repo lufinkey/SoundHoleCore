@@ -16,11 +16,11 @@
 #import <soundhole/utils/objc/SHObjcUtils.h>
 
 namespace sh {
-	void SpotifyAuth_handleRedirectParams(NSDictionary* params, const SpotifyAuth::Options& options, NSString* xssState, void(^completion)(Optional<SpotifySession>,std::exception_ptr));
+	void SpotifyAuth_handleRedirectParams(NSDictionary* params, const SpotifyAuth::AuthenticateOptions& options, NSString* xssState, void(^completion)(Optional<SpotifySession>,std::exception_ptr));
 
-	Promise<Optional<SpotifySession>> SpotifyAuth::authenticate(Options options) {
-		if(options.params.find("show_dialog") == options.params.end()) {
-			options.params["show_dialog"] = "true";
+	Promise<Optional<SpotifySession>> SpotifyAuth::authenticate(AuthenticateOptions options) {
+		if(!options.showDialog.hasValue()) {
+			options.showDialog = true;
 		}
 		return Promise<Optional<SpotifySession>>([=](auto resolve, auto reject) {
 			dispatch_async(dispatch_get_main_queue(), ^{
@@ -76,7 +76,7 @@ namespace sh {
 	}
 
 
-	void SpotifyAuth_handleRedirectParams(NSDictionary* params, const SpotifyAuth::Options& options, NSString* xssState, void(^completion)(Optional<SpotifySession>,std::exception_ptr)) {
+	void SpotifyAuth_handleRedirectParams(NSDictionary* params, const SpotifyAuth::AuthenticateOptions& options, NSString* xssState, void(^completion)(Optional<SpotifySession>,std::exception_ptr)) {
 		NSString* state = params[@"state"];
 		NSString* error = params[@"error"];
 		if(error != nil) {
@@ -127,12 +127,8 @@ namespace sh {
 		}
 		else if(params[@"code"] != nil) {
 			// authentication code
-			if(options.tokenSwapURL.empty()) {
-				completion(std::nullopt, std::make_exception_ptr(SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "Missing tokenSwapURL")));
-				return;
-			}
 			NSString* code = params[@"code"];
-			SpotifyAuth::swapCodeForToken(String(code), options.tokenSwapURL).then([=](SpotifySession session) {
+			SpotifyAuth::swapCodeForToken(String(code), options).then([=](SpotifySession session) {
 				if(session.getScopes().empty() && !options.scopes.empty()) {
 					session = SpotifySession(
 						session.getAccessToken(),

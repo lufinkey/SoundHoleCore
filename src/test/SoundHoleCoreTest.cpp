@@ -49,8 +49,8 @@ namespace sh::test {
 		
 		return Promise<void>::resolve()
 		.then([=]() {
-			PRINT("logging out bandcamp\n");
-			return bandcamp->logout();
+			//PRINT("logging out bandcamp\n");
+			//return bandcamp->logout();
 		})
 		.then([=]() {
 			if(bandcamp->isLoggedIn()) {
