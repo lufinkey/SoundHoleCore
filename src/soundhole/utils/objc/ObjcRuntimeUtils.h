@@ -24,12 +24,20 @@ namespace sh {
 
 	template<typename T>
 	inline T performObjcStretSelector(id target, SEL selector) {
-		return ((T(*)(id,SEL))objc_msgSend_stret)(target, selector);
+		#ifdef __aarch64__
+			return performObjcSelector<T>(target,selector);
+		#else
+			return ((T(*)(id,SEL))objc_msgSend_stret)(target, selector);
+		#endif
 	}
 
 	template<typename T, typename Arg>
 	inline T performObjcStretSelector(id target, SEL selector, Arg arg) {
-		return ((T(*)(id,SEL,Arg))objc_msgSend_stret)(target, selector, arg);
+		#ifdef __aarch64__
+			return performObjcSelector<T,Arg>(target,selector,arg);
+		#else
+			return ((T(*)(id,SEL,Arg))objc_msgSend_stret)(target, selector, arg);
+		#endif
 	}
 
 
