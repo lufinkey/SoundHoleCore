@@ -412,7 +412,7 @@ namespace sh {
 
 
 	Promise<void> SpotifyPlaylistMutatorDelegate::moveItems(Mutator* mutator, size_t index, size_t count, size_t newIndex) {
-		if(count == 0) {
+		if(count == 0 || index == newIndex) {
 			return Promise<void>::resolve();
 		}
 		size_t chunkSize = getChunkSize();
@@ -428,7 +428,7 @@ namespace sh {
 		for(size_t i=0; i<count; i++) {
 			moveIndexes->pushBack(list->watchIndex(index+i));
 		}
-		auto destEndIndexMarker = list->watchIndex(newIndex+count);
+		auto destEndIndexMarker = (index <= newIndex) ? list->watchRemovedIndex(newIndex) : list->watchRemovedIndex(newIndex+count);
 		
 		size_t lowerBound = index;
 		if(lowerBound > padding) {
