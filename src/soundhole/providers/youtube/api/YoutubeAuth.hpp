@@ -80,6 +80,8 @@ namespace sh {
 		virtual void onOAuthSessionEnd(OAuthSessionManager* mgr) override;
 		
 	private:
+		static Promise<Optional<YoutubeSession>> handleOAuthRedirect(std::map<String,String> params, AuthenticateOptions options, String codeVerifier);
+		
 		Options options;
 		OAuthSessionManager sessionMgr;
 		

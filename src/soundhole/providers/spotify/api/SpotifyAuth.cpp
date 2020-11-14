@@ -269,7 +269,6 @@ namespace sh {
 			listener->onSpotifyAuthSessionStart(this);
 		}
 	}
-
 	void SpotifyAuth::onOAuthSessionResume(OAuthSessionManager* mgr) {
 		std::unique_lock<std::mutex> lock(listenersMutex);
 		auto listeners = this->listeners;
@@ -278,7 +277,6 @@ namespace sh {
 			listener->onSpotifyAuthSessionResume(this);
 		}
 	}
-
 	void SpotifyAuth::onOAuthSessionRenew(OAuthSessionManager* mgr) {
 		std::unique_lock<std::mutex> lock(listenersMutex);
 		auto listeners = this->listeners;
@@ -287,7 +285,6 @@ namespace sh {
 			listener->onSpotifyAuthSessionRenew(this);
 		}
 	}
-
 	void SpotifyAuth::onOAuthSessionExpire(OAuthSessionManager* mgr) {
 		std::unique_lock<std::mutex> lock(listenersMutex);
 		auto listeners = this->listeners;
@@ -296,7 +293,6 @@ namespace sh {
 			listener->onSpotifyAuthSessionExpire(this);
 		}
 	}
-
 	void SpotifyAuth::onOAuthSessionEnd(OAuthSessionManager* mgr) {
 		std::unique_lock<std::mutex> lock(listenersMutex);
 		auto listeners = this->listeners;

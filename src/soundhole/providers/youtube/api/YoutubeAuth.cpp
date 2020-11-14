@@ -9,6 +9,7 @@
 #include "YoutubeAuth.hpp"
 #include "YoutubeError.hpp"
 #include <soundhole/utils/HttpClient.hpp>
+#include <soundhole/utils/Utils.hpp>
 
 namespace sh {
 	YoutubeAuth::AuthenticateOptions YoutubeAuth::Options::getAuthenticateOptions() const {
@@ -22,14 +23,16 @@ namespace sh {
 	}
 
 	String YoutubeAuth::AuthenticateOptions::getWebAuthenticationURL(String codeChallenge) const {
-		std::map<String,String> query = {
+		auto query = std::map<String,String>{
 			{ "client_id", clientId },
 			{ "redirect_uri", redirectURL },
 			{ "response_type", "code" },
-			{ "scopes", String::join(scopes, " ") },
-			{ "code_challenge", codeChallenge },
-			{ "code_challenge_method", "plain" }
+			{ "scopes", String::join(scopes, " ") }
 		};
+		if(!codeChallenge.empty()) {
+			query.insert_or_assign("code_challenge", codeChallenge);
+			query.insert_or_assign("code_challenge_method", "plain");
+		}
 		return "https://accounts.google.com/o/oauth2/v2/auth?" + utils::makeQueryString(query);
 	}
 	
@@ -125,6 +128,45 @@ namespace sh {
 
 
 
+	Promise<Optional<YoutubeSession>> YoutubeAuth::handleOAuthRedirect(std::map<String,String> params, AuthenticateOptions options, String codeVerifier) {
+		return Promise<void>::resolve().then([=]() -> Promise<Optional<YoutubeSession>> {
+			auto error = utils::getMapValueOrDefault<String,String>(params, "error", String());
+			auto code = utils::getMapValueOrDefault<String,String>(params, "code", String());
+			if(!error.empty()) {
+				if(error == "access_denied") {
+					// cancelled from webview
+					return Promise<Optional<YoutubeSession>>::resolve(std::nullopt);
+				}
+				else {
+					// error
+					return Promise<Optional<YoutubeSession>>::reject(
+						OAuthError(OAuthError::Code::REQUEST_FAILED, String(error)));
+				}
+			}
+			else if(!code.empty()) {
+				// authentication code
+				return swapCodeForToken(code, codeVerifier, options).map<Optional<YoutubeSession>>([=](YoutubeSession session) {
+					if(session.getScopes().empty() && !options.scopes.empty()) {
+						return YoutubeSession(
+							session.getAccessToken(),
+							session.getExpireTime(),
+							session.getTokenType(),
+							session.getRefreshToken(),
+							options.scopes);
+					}
+					return session;
+				});
+			}
+			else {
+				// missing parameters
+				return Promise<Optional<YoutubeSession>>::reject(
+					YoutubeError(YoutubeError::Code::BAD_DATA, "Missing expected parameters in redirect URL"));
+			}
+		});
+	}
+
+
+
 	#pragma mark OAuthSessionManager::Delegate
 
 	String YoutubeAuth::getOAuthSessionPersistKey(const OAuthSessionManager* mgr) const {
@@ -166,7 +208,6 @@ namespace sh {
 			listener->onYoutubeAuthSessionStart(this);
 		}
 	}
-
 	void YoutubeAuth::onOAuthSessionResume(OAuthSessionManager* mgr) {
 		std::unique_lock<std::mutex> lock(listenersMutex);
 		auto listeners = this->listeners;
@@ -175,7 +216,6 @@ namespace sh {
 			listener->onYoutubeAuthSessionResume(this);
 		}
 	}
-
 	void YoutubeAuth::onOAuthSessionRenew(OAuthSessionManager* mgr) {
 		std::unique_lock<std::mutex> lock(listenersMutex);
 		auto listeners = this->listeners;
@@ -184,7 +224,6 @@ namespace sh {
 			listener->onYoutubeAuthSessionRenew(this);
 		}
 	}
-
 	void YoutubeAuth::onOAuthSessionExpire(OAuthSessionManager* mgr) {
 		std::unique_lock<std::mutex> lock(listenersMutex);
 		auto listeners = this->listeners;
@@ -193,7 +232,6 @@ namespace sh {
 			listener->onYoutubeAuthSessionExpire(this);
 		}
 	}
-
 	void YoutubeAuth::onOAuthSessionEnd(OAuthSessionManager* mgr) {
 		std::unique_lock<std::mutex> lock(listenersMutex);
 		auto listeners = this->listeners;
