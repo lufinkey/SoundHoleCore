@@ -164,16 +164,15 @@ namespace sh {
 
 
 	Promise<bool> YoutubeProvider::login() {
-		// TODO implement login
-		return Promise<bool>::reject(std::logic_error("Youtube login is not available"));
+		return youtube->login();
 	}
 
 	void YoutubeProvider::logout() {
-		// TODO implement logout
+		youtube->logout();
 	}
 
 	bool YoutubeProvider::isLoggedIn() const {
-		return false;
+		return youtube->isLoggedIn();
 	}
 
 

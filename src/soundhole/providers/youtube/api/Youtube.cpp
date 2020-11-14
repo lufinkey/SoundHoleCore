@@ -60,7 +60,7 @@ namespace sh {
 
 	Youtube::Youtube(Options options)
 	: jsRef(nullptr), apiKey(options.apiKey), auth(new YoutubeAuth(options.auth)) {
-		//
+		auth->load();
 	}
 
 	Youtube::~Youtube() {
