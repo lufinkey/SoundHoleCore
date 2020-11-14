@@ -460,6 +460,14 @@ namespace sh {
 	}
 
 	template<typename ItemType>
+	TrackCollection::ItemIndexMarker SpecialTrackCollection<ItemType>::watchRemovedIndex(size_t index) {
+		if(!tracksAreAsync()) {
+			makeTracksAsync();
+		}
+		return asyncItemsList()->watchRemovedIndex(index);
+	}
+
+	template<typename ItemType>
 	void SpecialTrackCollection<ItemType>::unwatchIndex(ItemIndexMarker indexMarker) {
 		if(tracksAreAsync()) {
 			asyncItemsList()->unwatchIndex(indexMarker);

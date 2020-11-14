@@ -110,6 +110,7 @@ namespace sh {
 		virtual void resetItems() = 0;
 		
 		virtual ItemIndexMarker watchIndex(size_t index) = 0;
+		virtual ItemIndexMarker watchRemovedIndex(size_t index) = 0;
 		virtual void unwatchIndex(ItemIndexMarker indexMarker) = 0;
 		
 		virtual void subscribe(Subscriber* subscriber) = 0;
@@ -202,6 +203,7 @@ namespace sh {
 		virtual void resetItems() override;
 		
 		virtual ItemIndexMarker watchIndex(size_t index) override;
+		virtual ItemIndexMarker watchRemovedIndex(size_t index) override;
 		virtual void unwatchIndex(ItemIndexMarker indexMarker) override;
 		
 		virtual void subscribe(Subscriber* subscriber) override;
