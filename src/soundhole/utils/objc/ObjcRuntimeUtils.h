@@ -43,11 +43,19 @@ namespace sh {
 
 	template<typename T>
 	inline T performObjcFpretSelector(id target, SEL selector) {
-		return ((T(*)(id,SEL))objc_msgSend_fpret)(target, selector);
+		#ifdef __aarch64__
+			return performObjcSelector<T,Arg>(target,selector);
+		#else
+			return ((T(*)(id,SEL))objc_msgSend_fpret)(target, selector);
+		#endif
 	}
 
 	template<typename T, typename Arg>
 	inline T performObjcFpretSelector(id target, SEL selector, Arg arg) {
-		return ((T(*)(id,SEL,Arg))objc_msgSend_fpret)(target, selector, arg);
+		#ifdef __aarch64__
+			return performObjcSelector<T,Arg>(target,selector,arg);
+		#else
+			return ((T(*)(id,SEL,Arg))objc_msgSend_fpret)(target, selector, arg);
+		#endif
 	}
 }
