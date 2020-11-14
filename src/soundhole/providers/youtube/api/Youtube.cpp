@@ -59,7 +59,7 @@ namespace sh {
 
 
 	Youtube::Youtube(Options options)
-	: jsRef(nullptr), options(options) {
+	: jsRef(nullptr), apiKey(options.apiKey), auth(new YoutubeAuth(options.auth)) {
 		//
 	}
 
@@ -75,6 +75,7 @@ namespace sh {
 				}
 			});
 		}
+		delete auth;
 	}
 
 	void Youtube::initializeJS(napi_env env) {
@@ -90,8 +91,31 @@ namespace sh {
 
 
 
+	YoutubeAuth* Youtube::getAuth() {
+		return auth;
+	}
+	const YoutubeAuth* Youtube::getAuth() const {
+		return auth;
+	}
+
+	Promise<bool> Youtube::login() {
+		return auth->login();
+	}
+	void Youtube::logout() {
+		auth->logout();
+	}
+	bool Youtube::isLoggedIn() const {
+		return auth->isLoggedIn();
+	}
+
+
+
+
 	Promise<Json> Youtube::sendApiRequest(utils::HttpMethod method, String endpoint, std::map<String,String> query, Json body) {
-		query["key"] = options.apiKey;
+		auto session = auth->getSession();
+		if(!session && !apiKey.empty()) {
+			query["key"] = apiKey;
+		}
 		auto request = utils::HttpRequest{
 			.url = Url(YOUTUBE_API_URL+'/'+endpoint+'?'+utils::makeQueryString(query)),
 			.method = method,
@@ -100,6 +124,9 @@ namespace sh {
 			},
 			.data = ((!body.is_null()) ? body.dump() : "")
 		};
+		if(session) {
+			request.headers["Authorization"] = session->getTokenType()+" "+session->getAccessToken();
+		}
 		return utils::performHttpRequest(request).map<Json>([=](auto response) -> Json {
 			std::string parseError;
 			auto responseJson = (response->data.length() > 0) ? Json::parse(response->data, parseError) : Json();

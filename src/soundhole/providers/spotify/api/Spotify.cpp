@@ -242,7 +242,7 @@ namespace sh {
 			}
 			auto session = auth->getSession();
 			if(session) {
-				headers["Authorization"] = "Bearer "+session->getAccessToken();
+				headers["Authorization"] = session->getTokenType()+" "+session->getAccessToken();
 			}
 			auto request = utils::HttpRequest{
 				.url = Url(url),

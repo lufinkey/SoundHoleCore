@@ -11,6 +11,7 @@
 #include <soundhole/common.hpp>
 #include <soundhole/utils/js/JSWrapClass.hpp>
 #include <soundhole/utils/HttpClient.hpp>
+#include "YoutubeAuth.hpp"
 #include "YoutubeMediaTypes.hpp"
 
 namespace sh {
@@ -42,6 +43,7 @@ namespace sh {
 		
 		struct Options {
 			String apiKey;
+			YoutubeAuth::Options auth;
 		};
 		
 		Youtube(const Youtube&) = delete;
@@ -50,8 +52,15 @@ namespace sh {
 		Youtube(Options options);
 		~Youtube();
 		
-		Promise<Json> sendApiRequest(utils::HttpMethod method, String endpoint, std::map<String,String> query, Json body);
+		YoutubeAuth* getAuth();
+		const YoutubeAuth* getAuth() const;
 		
+		Promise<bool> login();
+		void logout();
+		bool isLoggedIn() const;
+		
+		
+		Promise<Json> sendApiRequest(utils::HttpMethod method, String endpoint, std::map<String,String> query, Json body);
 		
 		
 		struct SearchOptions {
@@ -183,6 +192,7 @@ namespace sh {
 		virtual void initializeJS(napi_env env) override;
 		
 		napi_ref jsRef;
-		Options options;
+		String apiKey;
+		YoutubeAuth* auth;
 	};
 }
