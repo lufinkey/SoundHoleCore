@@ -44,7 +44,7 @@ namespace sh {
 	template<typename T>
 	inline T performObjcFpretSelector(id target, SEL selector) {
 		#ifdef __aarch64__
-			return performObjcSelector<T,Arg>(target,selector);
+			return performObjcSelector<T>(target,selector);
 		#else
 			return ((T(*)(id,SEL))objc_msgSend_fpret)(target, selector);
 		#endif
