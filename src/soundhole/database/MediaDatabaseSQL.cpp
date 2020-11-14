@@ -357,7 +357,7 @@ String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collecti
 				MAYBE_COALESCE_FIELD(options.coalesce, params, "privacy", "TrackCollection", collection, Playlist::Privacy_toString(privacy.value()))
 				: sqlParam(params, Playlist::Privacy_toString(privacy.value()))
 			: sqlParam(params, Any())
-		),
+		),",",
 		// artists
 		MAYBE_COALESCE_FIELD(options.coalesce, params, "artists", "TrackCollection", collection, artists ? nonEmptyArtistsJson(artists.value()) : Any()),",",
 		// images
