@@ -152,4 +152,36 @@ namespace sh::utils {
 		}
 		return String::join(items, "&");
 	}
+
+	std::map<String,String> parseURLQueryParams(String urlString) {
+		auto params = std::map<String,String>();
+		auto query = Url(urlString).query();
+		for(auto& pair : query) {
+			params.insert_or_assign(pair.key(), pair.val());
+		}
+		return params;
+	}
+
+	bool checkURLMatch(const String& baseURLString, const String& urlString) {
+		if(urlString.empty() || baseURLString.empty()) {
+			return false;
+		}
+		if(!urlString.startsWith(baseURLString)) {
+			return false;
+		}
+		auto baseURL = Url(baseURLString);
+		auto url = Url(urlString);
+		auto path = baseURL.path();
+		if(path == "/") {
+			path = "";
+		}
+		auto cmpPath = url.path();
+		if(cmpPath == "/") {
+			cmpPath = "";
+		}
+		if(path != cmpPath) {
+			return false;
+		}
+		return true;
+	}
 }

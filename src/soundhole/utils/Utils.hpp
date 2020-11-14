@@ -19,4 +19,14 @@ namespace sh::utils {
 
 	String getTmpDirectoryPath();
 	String getCacheDirectoryPath();
+
+
+	template<typename Key,typename Value>
+	inline const Value& getMapValueOrDefault(const std::map<Key,Value>& map, const Key& key, const Value& defaultValue) {
+		auto it = map.find(key);
+		if(it == map.end()) {
+			return defaultValue;
+		}
+		return it->second;
+	}
 }

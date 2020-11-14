@@ -927,17 +927,17 @@
 		A5AE3F01247B88D600FB9AFF /* database */ = {
 			isa = PBXGroup;
 			children = (
-				A5AE3F2D247DCF3600FB9AFF /* SQLIndexRange.hpp */,
-				A5AE3F2F247DE0B800FB9AFF /* SQLOrder.hpp */,
-				A563A5CD24AFF43E0036A842 /* SQLOrder.cpp */,
-				A563A5C824AFEE770036A842 /* SQLOrderBy.hpp */,
-				A563A5CA24AFF3600036A842 /* SQLOrderBy.cpp */,
 				A5AE3F03247B890000FB9AFF /* MediaDatabase.hpp */,
 				A5AE3F02247B890000FB9AFF /* MediaDatabase.cpp */,
 				A5AE3F08247BA5B700FB9AFF /* MediaDatabaseSQL.hpp */,
 				A5AE3F07247BA5B700FB9AFF /* MediaDatabaseSQL.cpp */,
 				A5AE3F22247C937400FB9AFF /* MediaDatabaseSQLOperations.hpp */,
 				A5AE3F21247C937400FB9AFF /* MediaDatabaseSQLOperations.cpp */,
+				A5AE3F2D247DCF3600FB9AFF /* SQLIndexRange.hpp */,
+				A5AE3F2F247DE0B800FB9AFF /* SQLOrder.hpp */,
+				A563A5CD24AFF43E0036A842 /* SQLOrder.cpp */,
+				A563A5C824AFEE770036A842 /* SQLOrderBy.hpp */,
+				A563A5CA24AFF3600036A842 /* SQLOrderBy.cpp */,
 				A5AE3F1B247C593100FB9AFF /* SQLiteTransaction.hpp */,
 				A5AE3F1A247C593100FB9AFF /* SQLiteTransaction.cpp */,
 			);

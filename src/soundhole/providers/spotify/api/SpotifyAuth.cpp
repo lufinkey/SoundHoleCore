@@ -10,6 +10,7 @@
 #include "SpotifyError.hpp"
 #include <soundhole/utils/Base64.hpp>
 #include <soundhole/utils/HttpClient.hpp>
+#include <soundhole/utils/Utils.hpp>
 
 namespace sh {
 	SpotifyAuth::AuthenticateOptions SpotifyAuth::Options::getAuthenticateOptions() const {
@@ -149,6 +150,75 @@ namespace sh {
 
 	String SpotifyAuth::buildOAuthAuthorizationHeader(String clientId, String clientSecret) {
 		return "Basic "+utils::base64_encode(clientId+':'+clientSecret);
+	}
+
+	Promise<Optional<SpotifySession>> SpotifyAuth::handleOAuthRedirect(std::map<String,String> params, AuthenticateOptions options, String xssState) {
+		return Promise<void>::resolve().then([=]() -> Promise<Optional<SpotifySession>> {
+			auto state = utils::getMapValueOrDefault<String,String>(params, "state", String());
+			auto error = utils::getMapValueOrDefault<String,String>(params, "error", String());
+			auto accessToken = utils::getMapValueOrDefault<String,String>(params, "access_token", String());
+			auto code = utils::getMapValueOrDefault<String,String>(params, "code", String());
+			if(!error.empty()) {
+				if(error == "access_denied") {
+					// cancelled from webview
+					return Promise<Optional<SpotifySession>>::resolve(std::nullopt);
+				}
+				else {
+					// error
+					return Promise<Optional<SpotifySession>>::reject(
+						OAuthError(OAuthError::Code::REQUEST_FAILED, String(error)));
+				}
+			}
+			else if(!xssState.empty() && xssState != state) {
+				// state mismatch
+				return Promise<Optional<SpotifySession>>::reject(
+					OAuthError(OAuthError::Code::VERIFIER_MISMATCH, "State mismatch"));
+			}
+			else if(!accessToken.empty()) {
+				// access token
+				String expiresIn = params.at("expires_in");
+				long expireSeconds = expiresIn.toArithmeticValue<long>();
+				if(expireSeconds == 0) {
+					return Promise<Optional<SpotifySession>>::reject(
+						SpotifyError(SpotifyError::Code::BAD_DATA, "Access token expire time was 0"));
+				}
+				auto tokenType = params.at("token_type");
+				auto scope = utils::getMapValueOrDefault<String,String>(params, "scope", String());
+				ArrayList<String> scopes;
+				if(!scope.empty()) {
+					scopes = scope.split(' ');
+				} else {
+					scopes = options.scopes;
+				}
+				auto refreshToken = utils::getMapValueOrDefault<String,String>(params, "refreshToken", String());
+				return Promise<Optional<SpotifySession>>::resolve(
+					SpotifySession(
+						String(accessToken),
+						SpotifySession::getExpireTimeFromSeconds((int)expireSeconds),
+						String(tokenType),
+						refreshToken,
+						scopes));
+			}
+			else if(!code.empty()) {
+				// authentication code
+				return swapCodeForToken(code, options).map<Optional<SpotifySession>>([=](SpotifySession session) {
+					if(session.getScopes().empty() && !options.scopes.empty()) {
+						return SpotifySession(
+							session.getAccessToken(),
+							session.getExpireTime(),
+							session.getTokenType(),
+							session.getRefreshToken(),
+							options.scopes);
+					}
+					return session;
+				});
+			}
+			else {
+				// missing parameters
+				return Promise<Optional<SpotifySession>>::reject(
+					SpotifyError(SpotifyError::Code::BAD_DATA, "Missing expected parameters in redirect URL"));
+			}
+		});
 	}
 
 

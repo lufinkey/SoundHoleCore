@@ -11,13 +11,11 @@
 
 #if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
 #import <Foundation/Foundation.h>
+#import <soundhole/utils/HttpClient.hpp>
 #import <soundhole/utils/ios/SHWebAuthNavigationController_iOS.h>
 #import <soundhole/utils/ios/SHiOSUtils.h>
-#import <soundhole/utils/objc/SHObjcUtils.h>
 
 namespace sh {
-	void SpotifyAuth_handleRedirectParams(NSDictionary* params, const SpotifyAuth::AuthenticateOptions& options, NSString* xssState, void(^completion)(Optional<SpotifySession>,std::exception_ptr));
-
 	Promise<Optional<SpotifySession>> SpotifyAuth::authenticate(AuthenticateOptions options) {
 		if(!options.showDialog.hasValue()) {
 			options.showDialog = true;
@@ -30,29 +28,29 @@ namespace sh {
 				authController.onWebRedirect = ^BOOL(SHWebAuthNavigationController* authNav, WKWebView* webView, WKNavigationAction* action) {
 					// check if redirect URL matches
 					NSURL* url = action.request.URL;
-					if(![SHObjcUtils checkIfURL:url matchesRedirectURL:[NSURL URLWithString:options.redirectURL.toNSString()]]) {
+					if(!utils::checkURLMatch(options.redirectURL, String(url.absoluteString))) {
 						return NO;
 					}
 					[authNav setLoadingOverlayVisible:YES animated:YES];
-					NSDictionary* params = [SHObjcUtils parseOAuthQueryParams:url];
-					SpotifyAuth_handleRedirectParams(params, options, xssState, ^(Optional<SpotifySession> session, std::exception_ptr error) {
+					auto params = utils::parseURLQueryParams(String(url.absoluteString));
+					auto dismissAuthController = [=](void(^completion)(void)) {
 						[authNav setLoadingOverlayVisible:NO animated:YES];
-						auto finishLogin = [=]() {
-							if(error) {
-								reject(error);
+						dispatch_async(dispatch_get_main_queue(), ^{
+							if(authNav.presentingViewController != nil) {
+								[authNav.presentingViewController dismissViewControllerAnimated:YES completion:completion];
 							} else {
-								resolve(session);
+								completion();
 							}
-						};
-						if(authNav.presentingViewController != nil) {
-							dispatch_async(dispatch_get_main_queue(), ^{
-								[authNav.presentingViewController dismissViewControllerAnimated:YES completion:^{
-									finishLogin();
-								}];
-							});
-						} else {
-							finishLogin();
-						}
+						});
+					};
+					SpotifyAuth::handleOAuthRedirect(params, options, String(xssState)).then([=](Optional<SpotifySession> session) {
+						dismissAuthController(^{
+							resolve(session);
+						});
+					}).except([=](std::exception_ptr error) {
+						dismissAuthController(^{
+							reject(error);
+						});
 					});
 					return YES;
 				};
@@ -73,82 +71,6 @@ namespace sh {
 				[topViewController presentViewController:authController animated:YES completion:nil];
 			});
 		});
-	}
-
-
-	void SpotifyAuth_handleRedirectParams(NSDictionary* params, const SpotifyAuth::AuthenticateOptions& options, NSString* xssState, void(^completion)(Optional<SpotifySession>,std::exception_ptr)) {
-		NSString* state = params[@"state"];
-		NSString* error = params[@"error"];
-		if(error != nil) {
-			if([error isEqualToString:@"access_denied"]) {
-				// cancelled from webview
-				completion(std::nullopt, nullptr);
-			}
-			else {
-				// error
-				completion(std::nullopt, std::make_exception_ptr(SpotifyError(SpotifyError::Code::OAUTH_REQUEST_FAILED, String(error))));
-			}
-		}
-		else if(xssState != nil && (state == nil || ![xssState isEqualToString:state])) {
-			// state mismatch
-			completion(std::nullopt, std::make_exception_ptr(SpotifyError(SpotifyError::Code::OAUTH_STATE_MISMATCH, "State mismatch")));
-		}
-		else if(params[@"access_token"] != nil) {
-			// access token
-			NSString* accessToken = params[@"access_token"];
-			NSString* expiresIn = params[@"expires_in"];
-			NSInteger expireSeconds = [expiresIn integerValue];
-			if(expireSeconds == 0) {
-				if(completion != nil) {
-					completion(std::nullopt, std::make_exception_ptr(SpotifyError(SpotifyError::Code::BAD_DATA, "Access token expire time was 0")));
-				}
-				return;
-			}
-			NSString* tokenType = params[@"token_type"];
-			NSString* scope = params[@"scope"];
-			ArrayList<String> scopes;
-			if(scope != nil) {
-				NSArray* scopesArr = [scope componentsSeparatedByString:@" "];
-				for(NSString* scope in scopesArr) {
-					scopes.pushBack(String(scope));
-				}
-			} else {
-				scopes = options.scopes;
-			}
-			NSString* refreshToken = params[@"refreshToken"];
-			auto session = SpotifySession(
-				String(accessToken),
-				SpotifySession::getExpireTimeFromSeconds((int)expireSeconds),
-				String(tokenType),
-				(refreshToken != nil) ? String(refreshToken) : "",
-				scopes
-			);
-			completion(session, nullptr);
-		}
-		else if(params[@"code"] != nil) {
-			// authentication code
-			NSString* code = params[@"code"];
-			SpotifyAuth::swapCodeForToken(String(code), options).then([=](SpotifySession session) {
-				if(session.getScopes().empty() && !options.scopes.empty()) {
-					session = SpotifySession(
-						session.getAccessToken(),
-						session.getExpireTime(),
-						session.getTokenType(),
-						session.getRefreshToken(),
-						options.scopes);
-				}
-				dispatch_async(dispatch_get_main_queue(), ^{
-					completion(session, nullptr);
-				});
-			}).except([=](std::exception_ptr error) {
-				dispatch_async(dispatch_get_main_queue(), ^{
-					completion(std::nullopt, error);
-				});
-			});
-		}
-		else {
-			completion(std::nullopt, std::make_exception_ptr(SpotifyError(SpotifyError::Code::BAD_DATA, "Missing expected parameters in redirect URL")));
-		}
 	}
 }
 

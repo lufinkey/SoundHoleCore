@@ -23,7 +23,8 @@ namespace sh {
 			INVALID_SCOPE,
 			UNAUTHORIZED_CLIENT,
 			UNSUPPORTED_GRANT_TYPE,
-			SESSION_EXPIRED
+			SESSION_EXPIRED,
+			VERIFIER_MISMATCH
 		};
 		
 		static String Code_toString(Code code);

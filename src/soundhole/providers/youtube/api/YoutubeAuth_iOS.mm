@@ -11,9 +11,9 @@
 
 #if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
 #import <Foundation/Foundation.h>
+#import <soundhole/utils/HttpClient.hpp>
 #import <soundhole/utils/ios/SHWebAuthNavigationController_iOS.h>
 #import <soundhole/utils/ios/SHiOSUtils.h>
-#import <soundhole/utils/objc/SHObjcUtils.h>
 
 namespace sh {
 	Promise<Optional<YoutubeSession>> YoutubeAuth::authenticate(AuthenticateOptions options) {

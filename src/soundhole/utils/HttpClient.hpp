@@ -47,4 +47,7 @@ namespace sh::utils {
 	String encodeURLComponent(String);
 	String decodeURLComponent(String);
 	String makeQueryString(std::map<String,String> params);
+	std::map<String,String> parseURLQueryParams(String url);
+
+	bool checkURLMatch(const String& baseURL, const String& url);
 }

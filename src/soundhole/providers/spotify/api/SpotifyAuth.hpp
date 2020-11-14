@@ -84,6 +84,7 @@ namespace sh {
 		
 	private:
 		static String buildOAuthAuthorizationHeader(String clientId, String clientSecret);
+		static Promise<Optional<SpotifySession>> handleOAuthRedirect(std::map<String,String> params, AuthenticateOptions options, String xssState);
 		
 		virtual String getOAuthSessionPersistKey(const OAuthSessionManager* mgr) const override;
 		virtual std::map<String,String> getOAuthTokenRefreshParams(const OAuthSessionManager* mgr) const override;

@@ -25,6 +25,7 @@ namespace sh {
 			CASE_CODE(UNAUTHORIZED_CLIENT)
 			CASE_CODE(UNSUPPORTED_GRANT_TYPE)
 			CASE_CODE(SESSION_EXPIRED)
+			CASE_CODE(VERIFIER_MISMATCH)
 		}
 		
 		#undef CASE_CODE
@@ -71,6 +72,8 @@ namespace sh {
 				return "Unsupported grant type";
 			case Code::SESSION_EXPIRED:
 				return "Session is expired";
+			case Code::VERIFIER_MISMATCH:
+				return "Verifier mismatch";
 		}
 		return "Unknown error";
 	}
