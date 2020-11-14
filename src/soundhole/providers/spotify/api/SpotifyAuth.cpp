@@ -132,10 +132,13 @@ namespace sh {
 			{ "grant_type", "authorization_code" }
 		};
 		if(!options.clientId.empty()) {
-			params.insert_or_assign("client_id", options.clientId);
+			params["client_id"] = options.clientId;
 		}
 		if(!options.redirectURL.empty()) {
-			params.insert_or_assign("redirect_uri", options.redirectURL);
+			params["redirect_uri"] = options.redirectURL;
+		}
+		if(!options.scopes.empty()) {
+			params["scope"] = String::join(options.scopes, " ");
 		}
 		if(options.tokenSwapURL.empty()) {
 			options.tokenSwapURL = "https://accounts.spotify.com/api/token";
