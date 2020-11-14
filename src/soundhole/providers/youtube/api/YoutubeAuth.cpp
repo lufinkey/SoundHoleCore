@@ -27,7 +27,7 @@ namespace sh {
 			{ "client_id", clientId },
 			{ "redirect_uri", redirectURL },
 			{ "response_type", "code" },
-			{ "scopes", String::join(scopes, " ") }
+			{ "scope", String::join(scopes, " ") }
 		};
 		if(!codeChallenge.empty()) {
 			query.insert_or_assign("code_challenge", codeChallenge);
@@ -120,9 +120,6 @@ namespace sh {
 		if(!options.redirectURL.empty()) {
 			params["redirect_uri"] = options.redirectURL;
 		}
-		if(!options.scopes.empty()) {
-			params["scope"] = String::join(options.scopes, " ");
-		}
 		if(options.tokenSwapURL.empty()) {
 			options.tokenSwapURL = "https://oauth2.googleapis.com/token";
 		}
@@ -181,7 +178,7 @@ namespace sh {
 			{ "client_id", options.clientId }
 		};
 		if(!options.clientSecret.empty()) {
-			params.insert_or_assign("client_secret", options.clientSecret);
+			params["client_secret"] = options.clientSecret;
 		}
 		return params;
 	}

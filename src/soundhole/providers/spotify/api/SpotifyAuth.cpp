@@ -137,9 +137,6 @@ namespace sh {
 		if(!options.redirectURL.empty()) {
 			params["redirect_uri"] = options.redirectURL;
 		}
-		if(!options.scopes.empty()) {
-			params["scope"] = String::join(options.scopes, " ");
-		}
 		if(options.tokenSwapURL.empty()) {
 			options.tokenSwapURL = "https://accounts.spotify.com/api/token";
 		}
