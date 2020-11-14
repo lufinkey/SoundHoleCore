@@ -60,6 +60,7 @@ namespace sh {
 				// prepare auth controller
 				[authController loadViewIfNeeded];
 				[authController.webViewController loadViewIfNeeded];
+				authController.webViewController.webView.customUserAgent = @"Mozilla/5.0";
 				NSURL* url = [NSURL URLWithString:options.getWebAuthenticationURL(codeVerifier).toNSString()];
 				NSURLRequest* request = [NSURLRequest requestWithURL:url];
 				[authController.webViewController.webView loadRequest:request];
