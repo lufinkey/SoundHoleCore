@@ -20,19 +20,16 @@
 -(id)init {
 	SHWebViewController* webViewController = [[SHWebViewController alloc] init];
 	if(self = [super initWithRootViewController:webViewController]) {
-		self.modalPresentationStyle = UIModalPresentationFormSheet;
 		_statusBarStyle = UIStatusBarStyleDefault;
 		_webViewController = webViewController;
 		[_webViewController loadViewIfNeeded];
 		_webViewController.webView.navigationDelegate = self;
 		_webViewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(didPressCancelButton)];
+		
+		self.modalPresentationStyle = UIModalPresentationFormSheet;
+		self.presentationController.delegate = self;
 	}
 	return self;
-}
-
--(void)viewDidLoad {
-	[super viewDidLoad];
-	self.presentationController.delegate = self;
 }
 
 -(UIStatusBarStyle)preferredStatusBarStyle {
