@@ -125,6 +125,10 @@ namespace sh {
 			.chunkSize=24
 		});
 		
+		
+		using CreatePlaylistOptions = MediaProvider::CreatePlaylistOptions;
+		Promise<$<Playlist>> createPlaylist(String name, MediaProvider* provider, CreatePlaylistOptions options);
+		
 	private:
 		MediaLibraryProvider* libraryProvider;
 		MediaDatabase* db;

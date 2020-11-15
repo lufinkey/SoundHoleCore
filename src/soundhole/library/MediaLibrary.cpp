@@ -477,4 +477,20 @@ namespace sh {
 			});
 		});
 	}
+
+
+
+	Promise<$<Playlist>> MediaLibrary::createPlaylist(String name, MediaProvider* provider, CreatePlaylistOptions options) {
+		return provider->createPlaylist(name, options).then([=]($<Playlist> playlist) {
+			return db->cacheLibraryItems({
+				MediaProvider::LibraryItem{
+					.libraryProvider=provider,
+					.mediaItem=playlist,
+					.addedAt=String() // TODO add a default date possibly
+				}
+			}).map<$<Playlist>>([=]() {
+				return playlist;
+			});
+		});
+	}
 }
