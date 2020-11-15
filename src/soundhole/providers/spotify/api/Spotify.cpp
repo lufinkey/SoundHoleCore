@@ -746,7 +746,7 @@ namespace sh {
 		if(!options.snapshotId.empty()) {
 			params["snapshot_id"] = (std::string)options.snapshotId;
 		}
-		return sendRequest(utils::HttpMethod::POST, "v1/playlists/"+playlistId+"/tracks", params).map<SpotifyPlaylist::MoveResult>([](auto json) {
+		return sendRequest(utils::HttpMethod::PUT, "v1/playlists/"+playlistId+"/tracks", params).map<SpotifyPlaylist::MoveResult>([](auto json) {
 			return SpotifyPlaylist::MoveResult::fromJson(json);
 		});
 	}
