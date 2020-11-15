@@ -428,7 +428,7 @@ namespace sh {
 		for(size_t i=0; i<count; i++) {
 			moveIndexes->pushBack(list->watchIndex(index+i));
 		}
-		auto destEndIndexMarker = (index <= newIndex) ? list->watchRemovedIndex(newIndex) : list->watchRemovedIndex(newIndex+count);
+		auto destIndexMarker = (newIndex <= index) ? list->watchRemovedIndex(newIndex) : list->watchRemovedIndex(newIndex+count);
 		
 		size_t lowerBound = index;
 		if(lowerBound > padding) {
@@ -496,17 +496,18 @@ namespace sh {
 				
 				// apply move
 				auto firstIndexMarker = moveIndexes->front();
-				size_t destEndIndex = destEndIndexMarker->index;
-				size_t destStartIndex = destEndIndex;
-				if(destStartIndex < count) {
-					destStartIndex = 0;
-				} else {
-					destStartIndex -= count;
+				size_t destIndex = destIndexMarker->index;
+				if(destIndexMarker->index <= firstIndexMarker->index) {
+					if(destIndex >= count) {
+						destIndex -= count;
+					} else {
+						destIndex = 0;
+					}
 				}
 				size_t firstIndex = firstIndexMarker->index;
 				auto lastIndexMarker = moveIndexes->back();
 				size_t lastIndex = lastIndexMarker->index;
-				mutator->move(firstIndex, count, destStartIndex);
+				mutator->move(firstIndex, count, destIndex);
 				
 				// if indexes have changed, invalidate the ranges where that happened
 				if(indexesChanged) {
@@ -524,8 +525,8 @@ namespace sh {
 					}
 					invalidateSourceRangeEnd += invPadding;
 					
-					size_t invalidateDestRangeStart = destStartIndex;
-					size_t invalidateDestRangeEnd = destEndIndex;
+					size_t invalidateDestRangeStart = destIndex;
+					size_t invalidateDestRangeEnd = destIndex+count;
 					if(invalidateDestRangeStart < invPadding) {
 						invalidateDestRangeStart = 0;
 					} else {
@@ -542,7 +543,7 @@ namespace sh {
 			for(auto& indexMarker : *moveIndexes) {
 				list->unwatchIndex(indexMarker);
 			}
-			list->unwatchIndex(destEndIndexMarker);
+			list->unwatchIndex(destIndexMarker);
 		});
 	}
 }
