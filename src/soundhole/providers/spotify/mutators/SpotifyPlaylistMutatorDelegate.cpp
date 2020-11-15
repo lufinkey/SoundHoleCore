@@ -497,7 +497,7 @@ namespace sh {
 				// apply move
 				auto firstIndexMarker = moveIndexes->front();
 				size_t destIndex = destIndexMarker->index;
-				if(destIndexMarker->index <= firstIndexMarker->index) {
+				if(destIndexMarker->index > firstIndexMarker->index) {
 					if(destIndex >= count) {
 						destIndex -= count;
 					} else {
