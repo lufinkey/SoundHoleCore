@@ -459,7 +459,7 @@ namespace sh {
 				}
 			}
 			auto firstIndexMarker = moveIndexes->front();
-			return provider->spotify->movePlaylistTracks(uriParts.id, firstIndexMarker->index, destEndIndexMarker->index, {
+			return provider->spotify->movePlaylistTracks(uriParts.id, firstIndexMarker->index, destIndexMarker->index, {
 				.count=count
 			})
 			.then([=](SpotifyPlaylist::MoveResult moveResult) {
