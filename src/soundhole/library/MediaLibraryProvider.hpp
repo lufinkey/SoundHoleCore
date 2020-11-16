@@ -27,6 +27,7 @@ namespace sh {
 		virtual Promise<bool> login() override;
 		virtual void logout() override;
 		virtual bool isLoggedIn() const override;
+		virtual Promise<ArrayList<String>> getCurrentUserIds() override;
 		
 		virtual Promise<Track::Data> getTrackData(String uri) override;
 		virtual Promise<Artist::Data> getArtistData(String uri) override;

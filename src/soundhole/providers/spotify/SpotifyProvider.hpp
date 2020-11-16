@@ -34,6 +34,7 @@ namespace sh {
 		virtual Promise<bool> login() override;
 		virtual void logout() override;
 		bool isLoggedIn() const override;
+		virtual Promise<ArrayList<String>> getCurrentUserIds() override;
 		
 		struct SearchOptions {
 			ArrayList<String> types;
@@ -110,20 +111,21 @@ namespace sh {
 		};
 		URI parseURI(String uri);
 		
+		Promise<Optional<SpotifyUser>> getCurrentSpotifyUser();
+		
 	private:
 		static time_t timeFromString(String time);
 		
 		static MediaItem::Image createImage(SpotifyImage image);
 		
 		String getCachedCurrentSpotifyUserPath() const;
-		Promise<SpotifyUser> getCurrentSpotifyUser();
 		void setCurrentSpotifyUser(Optional<SpotifyUser> user);
 		
 		Spotify* spotify;
 		SpotifyPlaybackProvider* _player;
 		
 		Optional<SpotifyUser> _currentUser;
-		Optional<Promise<SpotifyUser>> _currentUserPromise;
+		Optional<Promise<Optional<SpotifyUser>>> _currentUserPromise;
 		bool _currentUserNeedsRefresh;
 	};
 }

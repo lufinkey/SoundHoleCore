@@ -32,6 +32,7 @@ namespace sh {
 		virtual Promise<bool> login() override;
 		virtual void logout() override;
 		virtual bool isLoggedIn() const override;
+		virtual Promise<ArrayList<String>> getCurrentUserIds() override;
 		
 		struct SearchResults {
 			String prevURL;

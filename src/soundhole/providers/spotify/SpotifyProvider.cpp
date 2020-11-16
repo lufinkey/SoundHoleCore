@@ -46,6 +46,16 @@ namespace sh {
 
 
 
+	time_t SpotifyProvider::timeFromString(String time) {
+		tm timeData;
+		strptime(time.c_str(), "%Y-%m-%dT%H:%M:%SZ", &timeData);
+		return mktime(&timeData);
+	}
+
+
+
+	#pragma mark URI parsing
+
 	SpotifyProvider::URI SpotifyProvider::parseURI(String uri) {
 		auto parts = uri.split(':');
 		if(parts.size() < 2) {
@@ -65,13 +75,9 @@ namespace sh {
 		};
 	}
 
-	time_t SpotifyProvider::timeFromString(String time) {
-		tm timeData;
-		strptime(time.c_str(), "%Y-%m-%dT%H:%M:%SZ", &timeData);
-		return mktime(&timeData);
-	}
 
 
+	#pragma mark Login
 
 	Promise<bool> SpotifyProvider::login() {
 		return spotify->login().map<bool>([=](bool loggedIn) {
@@ -91,30 +97,45 @@ namespace sh {
 
 
 
+	#pragma mark Current User
+
+	Promise<ArrayList<String>> SpotifyProvider::getCurrentUserIds() {
+		return getCurrentSpotifyUser().map<ArrayList<String>>([=](Optional<SpotifyUser> user) -> ArrayList<String> {
+			if(!user) {
+				return {};
+			}
+			return { user->id };
+		});
+	}
+
 	String SpotifyProvider::getCachedCurrentSpotifyUserPath() const {
 		String sessionPersistKey = spotify->getAuth()->getOptions().sessionPersistKey;
 		if(sessionPersistKey.empty()) {
 			return String();
 		}
-		return utils::getCacheDirectoryPath()+"/user_"+name()+"_"+sessionPersistKey+".json";
+		return utils::getCacheDirectoryPath()+"/"+name()+"_user_"+sessionPersistKey+".json";
 	}
 
-	Promise<SpotifyUser> SpotifyProvider::getCurrentSpotifyUser() {
+	Promise<Optional<SpotifyUser>> SpotifyProvider::getCurrentSpotifyUser() {
 		if(!isLoggedIn()) {
 			setCurrentSpotifyUser(std::nullopt);
-			return Promise<SpotifyUser>::reject(std::runtime_error("spotify is logged in"));
+			return Promise<Optional<SpotifyUser>>::resolve(std::nullopt);
 		}
 		if(_currentUserPromise) {
 			return _currentUserPromise.value();
 		}
 		if(_currentUser && !_currentUserNeedsRefresh) {
-			return Promise<SpotifyUser>::resolve(_currentUser.value());
+			return Promise<Optional<SpotifyUser>>::resolve(_currentUser);
 		}
-		auto promise = spotify->getMe().map<SpotifyUser>([=](SpotifyUser meUser) {
+		auto promise = spotify->getMe().map<Optional<SpotifyUser>>([=](SpotifyUser meUser) -> Optional<SpotifyUser> {
 			_currentUserPromise = std::nullopt;
+			if(!isLoggedIn()) {
+				setCurrentSpotifyUser(std::nullopt);
+				return std::nullopt;
+			}
 			setCurrentSpotifyUser(meUser);
 			return meUser;
-		}).except([=](std::exception_ptr error) -> SpotifyUser {
+		}).except([=](std::exception_ptr error) -> Optional<SpotifyUser> {
 			_currentUserPromise = std::nullopt;
 			// if current user is loaded, return it
 			if(_currentUser) {
@@ -158,8 +179,9 @@ namespace sh {
 			}
 		} else {
 			_currentUser = std::nullopt;
+			_currentUserPromise = std::nullopt;
 			_currentUserNeedsRefresh = true;
-			if(!userFilePath.empty()) {
+			if(!userFilePath.empty() && fs::exists(userFilePath)) {
 				fs::remove(userFilePath);
 			}
 		}
@@ -167,6 +189,7 @@ namespace sh {
 
 
 
+	#pragma mark Search
 
 	Promise<SpotifyProvider::SearchResults> SpotifyProvider::search(String query, SearchOptions options) {
 		Spotify::SearchOptions searchOptions = {
@@ -202,6 +225,8 @@ namespace sh {
 	}
 
 
+
+	#pragma mark Data transforming
 
 	Track::Data SpotifyProvider::createTrackData(SpotifyTrack track, bool partial) {
 		return Track::Data{{
@@ -357,6 +382,8 @@ namespace sh {
 
 
 
+	#pragma mark Media Item Fetching
+
 	Promise<Track::Data> SpotifyProvider::getTrackData(String uri) {
 		auto uriParts = parseURI(uri);
 		return spotify->getTrack(uriParts.id,{.market="from_token"}).map<Track::Data>([=](SpotifyTrack track) {
@@ -468,6 +495,7 @@ namespace sh {
 
 
 
+	#pragma mark User Library
 
 	SpotifyProvider::GenerateLibraryResumeData SpotifyProvider::GenerateLibraryResumeData::fromJson(const Json& json) {
 		auto mostRecentTrackSave = json["mostRecentTrackSave"];
@@ -829,6 +857,7 @@ namespace sh {
 
 
 
+	#pragma mark Playlists
 
 	bool SpotifyProvider::canCreatePlaylists() const {
 		return true;
@@ -864,14 +893,18 @@ namespace sh {
 		if(!isLoggedIn()) {
 			return Promise<bool>::resolve(false);
 		}
-		return getCurrentSpotifyUser().map<bool>([=](SpotifyUser user) -> bool {
+		return getCurrentSpotifyUser().map<bool>([=](Optional<SpotifyUser> user) -> bool {
+			if(!user) {
+				return false;
+			}
 			auto owner = playlist->owner();
-			return (owner != nullptr && owner->id() == user.id);
+			return (owner != nullptr && owner->id() == user->id);
 		});
 	}
 
 
 
+	#pragma mark Player
 
 	SpotifyPlaybackProvider* SpotifyProvider::player() {
 		return _player;

@@ -91,6 +91,11 @@ namespace sh {
 		return bandcamp->isLoggedIn();
 	}
 
+	Promise<ArrayList<String>> BandcampProvider::MediaProvider::getCurrentUserIds() {
+		// TODO fetch user IDs
+		return Promise<ArrayList<String>>::reject(std::runtime_error("not implemented yet"));
+	}
+
 
 
 

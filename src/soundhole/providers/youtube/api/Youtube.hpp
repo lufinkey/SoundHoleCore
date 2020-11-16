@@ -84,9 +84,17 @@ namespace sh {
 			String forUsername;
 			Optional<bool> managedByMe;
 			Optional<bool> mine;
+			Optional<size_t> maxResults;
+			String pageToken;
 		};
 		Promise<YoutubePage<YoutubeChannel>> getChannels(GetChannelsOptions options);
 		Promise<YoutubeChannel> getChannel(String channelId);
+		struct GetMyChannelsOptions {
+			Optional<size_t> maxResults;
+			String pageToken;
+		};
+		Promise<YoutubePage<YoutubeChannel>> getMyChannels(GetMyChannelsOptions options = GetMyChannelsOptions());
+		
 		struct GetChannelPlaylistsOptions {
 			Optional<size_t> maxResults;
 			String pageToken;

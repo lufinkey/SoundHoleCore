@@ -69,4 +69,8 @@ namespace sh {
 	Promise<$<Playlist>> MediaProvider::createPlaylist(String name, CreatePlaylistOptions options) {
 		return Promise<$<Playlist>>::reject(std::logic_error("createPlaylist is not implemented"));
 	}
+
+	Promise<bool> MediaProvider::isPlaylistEditable($<Playlist> playlist) {
+		return Promise<bool>::resolve(false);
+	}
 }

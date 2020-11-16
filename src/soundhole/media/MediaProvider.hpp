@@ -58,6 +58,7 @@ namespace sh {
 		virtual Promise<bool> login() = 0;
 		virtual void logout() = 0;
 		virtual bool isLoggedIn() const = 0;
+		virtual Promise<ArrayList<String>> getCurrentUserIds() = 0;
 		
 		virtual Promise<Track::Data> getTrackData(String uri) = 0;
 		virtual Promise<Artist::Data> getArtistData(String uri) = 0;
@@ -91,7 +92,7 @@ namespace sh {
 			Playlist::Privacy privacy = Playlist::Privacy::UNKNOWN;
 		};
 		virtual Promise<$<Playlist>> createPlaylist(String name, CreatePlaylistOptions options);
-		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist) = 0;
+		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist);
 		
 		virtual MediaPlaybackProvider* player() = 0;
 		virtual const MediaPlaybackProvider* player() const = 0;

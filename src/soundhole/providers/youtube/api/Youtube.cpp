@@ -238,6 +238,12 @@ namespace sh {
 		if(options.mine) {
 			query["mine"] = options.mine.value() ? "true" : "false";
 		}
+		if(options.maxResults) {
+			query["maxResults"] = std::to_string(options.maxResults.value());
+		}
+		if(!options.pageToken.empty()) {
+			query["pageToken"] = options.pageToken;
+		}
 		return sendApiRequest(utils::HttpMethod::GET, "channels", query, nullptr).map<YoutubePage<YoutubeChannel>>([=](auto json) {
 			return YoutubePage<YoutubeChannel>::fromJson(json);
 		});
@@ -253,6 +259,16 @@ namespace sh {
 			return page.items.front();
 		});
 	}
+
+	Promise<YoutubePage<YoutubeChannel>> Youtube::getMyChannels(GetMyChannelsOptions options) {
+		return getChannels({
+			.mine=true,
+			.maxResults=options.maxResults,
+			.pageToken=options.pageToken
+		});
+	}
+
+
 
 	Promise<YoutubePage<YoutubePlaylist>> Youtube::getChannelPlaylists(String id, GetChannelPlaylistsOptions options) {
 		return getPlaylists({

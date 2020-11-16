@@ -30,6 +30,7 @@ namespace sh {
 		virtual Promise<bool> login() override;
 		virtual void logout() override;
 		virtual bool isLoggedIn() const override;
+		virtual Promise<ArrayList<String>> getCurrentUserIds() override;
 		
 		using SearchOptions = Youtube::SearchOptions;
 		Promise<YoutubePage<$<MediaItem>>> search(String query, SearchOptions options);
@@ -73,13 +74,22 @@ namespace sh {
 		};
 		URI parseURI(String uri) const;
 		
+		Promise<ArrayList<YoutubeChannel>> getCurrentUserYoutubeChannels();
+		
 	private:
 		String createURI(String type, String id) const;
 		URI parseURL(String url) const;
 		
 		static MediaItem::Image createImage(YoutubeImage image);
 		
+		String getCachedCurrentUserYoutubeChannelsPath() const;
+		void setCurrentUserYoutubeChannels(ArrayList<YoutubeChannel> channels);
+		
 		Youtube* youtube;
 		YoutubePlaybackProvider* _player;
+		
+		ArrayList<YoutubeChannel> _currentUserChannels;
+		Optional<Promise<ArrayList<YoutubeChannel>>> _currentUserChannelsPromise;
+		bool _currentUserNeedsRefresh;
 	};
 }

@@ -10,6 +10,7 @@
 #include "api/YoutubeError.hpp"
 #include "mutators/YoutubePlaylistMutatorDelegate.hpp"
 #include <soundhole/utils/SoundHoleError.hpp>
+#include <soundhole/utils/Utils.hpp>
 
 namespace sh {
 	YoutubeProvider::YoutubeProvider(Options options)
@@ -43,6 +44,7 @@ namespace sh {
 
 
 
+	#pragma mark URI/URL parsing
 
 	YoutubeProvider::URI YoutubeProvider::parseURI(String uri) const {
 		auto uriParts = ArrayList<String>(uri.split(':'));
@@ -162,13 +164,18 @@ namespace sh {
 
 
 
+	#pragma mark Login
 
 	Promise<bool> YoutubeProvider::login() {
-		return youtube->login();
+		return youtube->login().map<bool>([=](bool loggedIn) {
+			getCurrentUserYoutubeChannels();
+			return loggedIn;
+		});
 	}
 
 	void YoutubeProvider::logout() {
 		youtube->logout();
+		setCurrentUserYoutubeChannels({});
 	}
 
 	bool YoutubeProvider::isLoggedIn() const {
@@ -177,6 +184,103 @@ namespace sh {
 
 
 
+	#pragma mark Current User
+
+	Promise<ArrayList<String>> YoutubeProvider::getCurrentUserIds() {
+		return getCurrentUserYoutubeChannels().map<ArrayList<String>>([=](ArrayList<YoutubeChannel> channels) -> ArrayList<String> {
+			return channels.map<String>([](auto& channel) {
+				return channel.id;
+			});
+		});
+	}
+
+	String YoutubeProvider::getCachedCurrentUserYoutubeChannelsPath() const {
+		String sessionPersistKey = youtube->getAuth()->getOptions().sessionPersistKey;
+		if(sessionPersistKey.empty()) {
+			return String();
+		}
+		return utils::getCacheDirectoryPath()+"/"+name()+"_channels_"+sessionPersistKey+".json";
+	}
+
+	Promise<ArrayList<YoutubeChannel>> YoutubeProvider::getCurrentUserYoutubeChannels() {
+		if(!isLoggedIn()) {
+			setCurrentUserYoutubeChannels({});
+			return Promise<ArrayList<YoutubeChannel>>::resolve({});
+		}
+		if(_currentUserChannelsPromise) {
+			return _currentUserChannelsPromise.value();
+		}
+		if(!_currentUserChannels.empty() && !_currentUserNeedsRefresh) {
+			return Promise<ArrayList<YoutubeChannel>>::resolve(_currentUserChannels);
+		}
+		auto promise = youtube->getMyChannels().map<ArrayList<YoutubeChannel>>([=](YoutubePage<YoutubeChannel> channelPage) -> ArrayList<YoutubeChannel> {
+			_currentUserChannelsPromise = std::nullopt;
+			if(!isLoggedIn()) {
+				setCurrentUserYoutubeChannels({});
+				return {};
+			}
+			setCurrentUserYoutubeChannels(channelPage.items);
+			return channelPage.items;
+		}).except([=](std::exception_ptr error) -> ArrayList<YoutubeChannel> {
+			_currentUserChannelsPromise = std::nullopt;
+			// if current user is loaded, return it
+			if(!_currentUserChannels.empty()) {
+				return _currentUserChannels;
+			}
+			// try to load user from filesystem
+			auto userFilePath = getCachedCurrentUserYoutubeChannelsPath();
+			if(!userFilePath.empty()) {
+				try {
+					String userString = fs::readFile(userFilePath);
+					std::string jsonError;
+					Json userJson = Json::parse(userString, jsonError);
+					if(userJson.is_null()) {
+						throw std::runtime_error("failed to parse user json: "+jsonError);
+					}
+					auto channels = ArrayList<Json>(userJson["channels"].array_items()).map<YoutubeChannel>([=](auto& json) {
+						return YoutubeChannel::fromJson(json);
+					});
+					_currentUserChannels = channels;
+					_currentUserNeedsRefresh = true;
+					return channels;
+				} catch(...) {
+					// ignore error
+				}
+			}
+			// rethrow error
+			std::rethrow_exception(error);
+		});
+		_currentUserChannelsPromise = promise;
+		if(_currentUserChannelsPromise && _currentUserChannelsPromise->isComplete()) {
+			_currentUserChannelsPromise = std::nullopt;
+		}
+		return promise;
+	}
+
+	void YoutubeProvider::setCurrentUserYoutubeChannels(ArrayList<YoutubeChannel> channels) {
+		auto userFilePath = getCachedCurrentUserYoutubeChannelsPath();
+		if(!channels.empty()) {
+			_currentUserChannels = channels;
+			_currentUserNeedsRefresh = false;
+			auto json = Json(channels.map<Json>([](auto& channel) {
+				return channel.toJson();
+			}));
+			if(!userFilePath.empty()) {
+				fs::writeFile(userFilePath, json.dump());
+			}
+		} else {
+			_currentUserChannels = {};
+			_currentUserChannelsPromise = std::nullopt;
+			_currentUserNeedsRefresh = true;
+			if(!userFilePath.empty() && fs::exists(userFilePath)) {
+				fs::remove(userFilePath);
+			}
+		}
+	}
+
+
+
+	#pragma mark Search
 
 	Promise<YoutubePage<$<MediaItem>>> YoutubeProvider::search(String query, SearchOptions options) {
 		return youtube->search(query, options).map<YoutubePage<$<MediaItem>>>([=](YoutubePage<YoutubeSearchResult> searchResults) {
@@ -188,6 +292,7 @@ namespace sh {
 
 
 
+	#pragma mark Data transforming
 
 	Track::Data YoutubeProvider::createTrackData(YoutubeVideo video) {
 		return Track::Data{{
@@ -536,6 +641,7 @@ namespace sh {
 
 
 
+	#pragma mark Media Item Fetching
 
 	Promise<Track::Data> YoutubeProvider::getTrackData(String uri) {
 		auto uriParts = parseURI(uri);
@@ -658,6 +764,8 @@ namespace sh {
 
 
 
+	#pragma mark User Library
+
 	bool YoutubeProvider::hasLibrary() const {
 		return false;
 	}
@@ -673,6 +781,8 @@ namespace sh {
 	}
 
 
+
+	#pragma mark Playlists
 
 	bool YoutubeProvider::canCreatePlaylists() const {
 		return true;
@@ -710,6 +820,8 @@ namespace sh {
 	}
 
 
+
+	#pragma mark Player
 
 	YoutubePlaybackProvider* YoutubeProvider::player() {
 		return _player;

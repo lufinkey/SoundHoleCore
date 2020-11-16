@@ -39,6 +39,7 @@ namespace sh {
 			MAXRES
 		};
 		static Size Size_fromString(const std::string& str);
+		static String Size_toString(Size);
 		
 		struct Dimensions {
 			size_t width;
@@ -50,6 +51,7 @@ namespace sh {
 		Optional<Dimensions> dimensions;
 		
 		static ArrayList<YoutubeImage> arrayFromJson(const Json&);
+		static Json jsonObjectFromArray(const ArrayList<YoutubeImage>&);
 	};
 
 
@@ -165,6 +167,7 @@ namespace sh {
 				String title;
 				String description;
 				
+				Json toJson() const;
 				static Localized fromJson(const Json&);
 			};
 			
@@ -178,6 +181,7 @@ namespace sh {
 			Localized localized;
 			String country;
 			
+			Json toJson() const;
 			static Snippet fromJson(const Json&);
 		};
 		
@@ -186,14 +190,14 @@ namespace sh {
 				String likes;
 				String favorites;
 				String uploads;
-				String watchHistory;
-				String watchLater;
 				
+				Json toJson() const;
 				static RelatedPlaylists fromJson(const Json&);
 			};
 			
 			RelatedPlaylists relatedPlaylists;
 			
+			Json toJson() const;
 			static ContentDetails fromJson(const Json&);
 		};
 		
@@ -204,6 +208,7 @@ namespace sh {
 			bool madeForKids;
 			Optional<bool> selfDeclaredMadeForKids;
 			
+			Json toJson() const;
 			static Status fromJson(const Json&);
 		};
 		
@@ -213,6 +218,7 @@ namespace sh {
 			Optional<size_t> videoCount;
 			bool hiddenSubscriberCount;
 			
+			Json toJson() const;
 			static Statistics fromJson(const Json&);
 		};
 		
@@ -220,6 +226,7 @@ namespace sh {
 			ArrayList<String> topicIds;
 			ArrayList<String> topicCategories;
 			
+			Json toJson() const;
 			static TopicDetails fromJson(const Json&);
 		};
 		
@@ -232,6 +239,7 @@ namespace sh {
 		Statistics statistics;
 		TopicDetails topicDetails;
 		
+		Json toJson() const;
 		static YoutubeChannel fromJson(const Json&);
 	};
 

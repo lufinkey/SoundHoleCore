@@ -40,6 +40,10 @@ namespace sh {
 		return false;
 	}
 
+	Promise<ArrayList<String>> MediaLibraryProvider::getCurrentUserIds() {
+		return Promise<ArrayList<String>>::resolve({});
+	}
+
 	Promise<Track::Data> MediaLibraryProvider::getTrackData(String uri) {
 		return Promise<Track::Data>::reject(std::runtime_error("MediaLibraryProvider cannot fetch tracks"));
 	}

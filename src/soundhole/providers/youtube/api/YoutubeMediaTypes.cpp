@@ -28,6 +28,22 @@ namespace sh {
 		}
 	}
 
+	String YoutubeImage::Size_toString(Size size) {
+		switch(size) {
+			case Size::DEFAULT:
+				return "default";
+			case Size::MEDIUM:
+				return "medium";
+			case Size::HIGH:
+				return "high";
+			case Size::STANDARD:
+				return "standard";
+			case Size::MAXRES:
+				return "maxres";
+		}
+		throw std::runtime_error("invalid youtube image size value");
+	}
+
 	ArrayList<YoutubeImage> YoutubeImage::arrayFromJson(const Json& json) {
 		ArrayList<YoutubeImage> images;
 		auto& items = json.object_items();
@@ -52,6 +68,21 @@ namespace sh {
 			});
 		}
 		return images;
+	}
+
+	Json YoutubeImage::jsonObjectFromArray(const ArrayList<YoutubeImage>& images) {
+		Json::object object;
+		for(auto& image : images) {
+			auto imageJson = Json::object{
+				{ "url", (std::string)image.url }
+			};
+			if(image.dimensions) {
+				imageJson["width"] = (int)image.dimensions->width;
+				imageJson["height"] = (int)image.dimensions->height;
+			}
+			object[(std::string)YoutubeImage::Size_toString(image.size)] = imageJson;
+		}
+		return object;
 	}
 
 
@@ -161,6 +192,19 @@ namespace sh {
 		};
 	}
 
+	Json YoutubeChannel::toJson() const {
+		return Json::object{
+			{ "kind", (std::string)kind },
+			{ "etag", (std::string)etag },
+			{ "id", (std::string)id },
+			{ "snippet", snippet.toJson() },
+			{ "contentDetails", contentDetails.toJson() },
+			{ "status", status.toJson() },
+			{ "statistics", statistics.toJson() },
+			{ "topicDetails", topicDetails.toJson() }
+		};
+	}
+
 	YoutubeChannel::Snippet YoutubeChannel::Snippet::fromJson(const Json& json) {
 		return Snippet{
 			.title = json["title"].string_value(),
@@ -174,10 +218,30 @@ namespace sh {
 		};
 	}
 
+	Json YoutubeChannel::Snippet::toJson() const {
+		return Json::object{
+			{ "title", (std::string)title },
+			{ "description", (std::string)description },
+			{ "customUrl", (std::string)customURL },
+			{ "publishedAt", (std::string)publishedAt },
+			{ "thumbnails", YoutubeImage::jsonObjectFromArray(thumbnails) },
+			{ "defaultLanguage", (std::string)defaultLanguage },
+			{ "localized", localized.toJson() },
+			{ "country", (std::string)country }
+		};
+	}
+
 	YoutubeChannel::Snippet::Localized YoutubeChannel::Snippet::Localized::fromJson(const Json& json) {
 		return Localized{
 			.title = json["title"].string_value(),
 			.description = json["description"].string_value()
+		};
+	}
+
+	Json YoutubeChannel::Snippet::Localized::toJson() const {
+		return Json::object {
+			{ "title", (std::string)title },
+			{ "description", (std::string)description }
 		};
 	}
 
@@ -196,13 +260,25 @@ namespace sh {
 		};
 	}
 
+	Json YoutubeChannel::ContentDetails::toJson() const {
+		return Json::object{
+			{ "relatedPlaylists", relatedPlaylists.toJson() }
+		};
+	}
+
 	YoutubeChannel::ContentDetails::RelatedPlaylists YoutubeChannel::ContentDetails::RelatedPlaylists::fromJson(const Json& json) {
 		return RelatedPlaylists{
-			.likes = json["liked"].string_value(),
+			.likes = json["likes"].string_value(),
 			.favorites = json["favorites"].string_value(),
-			.uploads = json["uploads"].string_value(),
-			.watchHistory = json["watchHistory"].string_value(),
-			.watchLater = json["watchLater"].string_value()
+			.uploads = json["uploads"].string_value()
+		};
+	}
+
+	Json YoutubeChannel::ContentDetails::RelatedPlaylists::toJson() const {
+		return Json::object{
+			{ "likes", (std::string)likes },
+			{ "favorites", (std::string)likes },
+			{ "uploads", (std::string)likes }
 		};
 	}
 
@@ -216,12 +292,31 @@ namespace sh {
 		};
 	}
 
+	Json YoutubeChannel::Status::toJson() const {
+		return Json::object{
+			{ "privacyStatus", (std::string)privacyStatus },
+			{ "longUploadsStatus", (std::string)longUploadsStatus },
+			{ "isLinked", isLinked },
+			{ "madeForKids", madeForKids },
+			{ "selfDeclaredMadeForKids", selfDeclaredMadeForKids ? Json(selfDeclaredMadeForKids.value()) : Json() }
+		};
+	}
+
 	YoutubeChannel::Statistics YoutubeChannel::Statistics::fromJson(const Json& json) {
 		return Statistics{
 			.viewCount = jsutils::optSizeFromJson(json["viewCount"]),
 			.subscriberCount = jsutils::optSizeFromJson(json["subscriberCount"]),
 			.videoCount = jsutils::optSizeFromJson(json["videoCount"]),
 			.hiddenSubscriberCount = json["hiddenSubscriberCount"].bool_value()
+		};
+	}
+
+	Json YoutubeChannel::Statistics::toJson() const {
+		return Json::object{
+			{ "viewCount", viewCount ? Json((double)viewCount.value()) : Json() },
+			{ "subscriberCount", subscriberCount ? Json((double)subscriberCount.value()) : Json() },
+			{ "videoCount", videoCount ? Json((double)videoCount.value()) : Json() },
+			{ "hiddenSubscriberCount", hiddenSubscriberCount }
 		};
 	}
 
@@ -233,6 +328,13 @@ namespace sh {
 			.topicCategories = jsutils::arrayListFromJson<String>(json["topicCategories"], [](auto& json) {
 				return json.string_value();
 			})
+		};
+	}
+
+	Json YoutubeChannel::TopicDetails::toJson() const {
+		return Json::object{
+			{ "topicIds", topicIds.map<Json>([](auto& id) { return Json((std::string)id); }) },
+			{ "topicCategories", topicCategories.map<Json>([](auto& cat) { return Json((std::string)cat); }) }
 		};
 	}
 
