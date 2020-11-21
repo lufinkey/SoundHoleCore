@@ -73,6 +73,9 @@ namespace sh {
 	}
 
 	String BandcampProvider::createURI(String type, String url) const {
+		if(url.empty()) {
+			throw std::logic_error("url cannot be empty in bandcamp uri");
+		}
 		return name()+':'+url;
 	}
 

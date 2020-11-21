@@ -159,6 +159,11 @@ namespace sh {
 	}
 
 	String YoutubeProvider::createURI(String type, String id) const {
+		if(id.empty()) {
+			throw std::runtime_error("Cannot create URI with empty id");
+		} else if(type.empty()) {
+			throw std::runtime_error("Cannot create URI with empty type");
+		}
 		return name()+':'+type+':'+id;
 	}
 
