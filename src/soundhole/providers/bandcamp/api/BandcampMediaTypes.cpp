@@ -216,4 +216,125 @@ namespace sh {
 			.url = jsutils::stringFromNapiValue(link.Get("url"))
 		};
 	}
+
+
+
+	BandcampIdentities BandcampIdentities::fromNapiObject(Napi::Object obj) {
+		return BandcampIdentities{
+			.fan = Fan::maybeFromNapiObject(obj.Get("fan").As<Napi::Object>())
+		};
+	}
+
+	Optional<BandcampIdentities::Fan> BandcampIdentities::Fan::maybeFromNapiObject(Napi::Object obj) {
+		if(obj.IsEmpty() || obj.IsNull() || obj.IsUndefined()) {
+			return std::nullopt;
+		}
+		return Fan::fromNapiObject(obj);
+	}
+
+	BandcampIdentities::Fan BandcampIdentities::Fan::fromNapiObject(Napi::Object obj) {
+		return Fan{
+			.id=obj.Get("id").As<Napi::String>().Utf8Value(),
+			.url=obj.Get("url").As<Napi::String>().Utf8Value(),
+			.username=obj.Get("username").As<Napi::String>().Utf8Value(),
+			.name=obj.Get("name").As<Napi::String>().Utf8Value(),
+			.images=jsutils::optArrayListFromNapiValue<BandcampImage>(obj.Get("images"), [](Napi::Value value) {
+				return BandcampImage::fromNapiObject(value.template As<Napi::Object>());
+			})
+		};
+	}
+
+
+
+	BandcampFan BandcampFan::fromNapiObject(Napi::Object obj) {
+		return BandcampFan{
+			.id=obj.Get("id").As<Napi::String>().Utf8Value(),
+			.url=obj.Get("url").As<Napi::String>().Utf8Value(),
+			.username=obj.Get("username").As<Napi::String>().Utf8Value(),
+			.name=obj.Get("name").As<Napi::String>().Utf8Value(),
+			.description=jsutils::stringFromNapiValue(obj.Get("description")),
+			.images=jsutils::optArrayListFromNapiValue<BandcampImage>(obj.Get("images"), [](Napi::Value value) {
+				return BandcampImage::fromNapiObject(value.template As<Napi::Object>());
+			}),
+			.collection=Section<CollectionItemNode>::maybeFromNapiObject(obj.Get("collection").As<Napi::Object>()),
+			.wishlist=Section<CollectionItemNode>::maybeFromNapiObject(obj.Get("wishlist").As<Napi::Object>()),
+			.followingArtists=Section<FollowItemNode<CollectionArtist>>::maybeFromNapiObject(obj.Get("followingArtists").As<Napi::Object>()),
+			.followingFans=Section<FollowItemNode<CollectionFan>>::maybeFromNapiObject(obj.Get("followingFans").As<Napi::Object>()),
+			.followers=Section<FollowItemNode<CollectionFan>>::maybeFromNapiObject(obj.Get("followers").As<Napi::Object>())
+		};
+	}
+
+	BandcampFan::CollectionItemNode BandcampFan::CollectionItemNode::fromNapiObject(Napi::Object obj) {
+		return CollectionItemNode{
+			.token=obj.Get("token").As<Napi::String>().Utf8Value(),
+			.dateAdded=obj.Get("dateAdded").As<Napi::String>().Utf8Value(),
+			.item=([&]() -> ItemVariant {
+				auto item = obj.Get("item").As<Napi::Object>();
+				auto itemType = item.Get("type").As<Napi::String>().Utf8Value();
+				if(itemType == "track") {
+					return CollectionTrack::fromNapiObject(item);
+				} else if(itemType == "album") {
+					return CollectionAlbum::fromNapiObject(item);
+				} else {
+					throw std::invalid_argument("invalid item type "+itemType);
+				}
+			})()
+		};
+	}
+
+	BandcampFan::CollectionTrack BandcampFan::CollectionTrack::fromNapiObject(Napi::Object obj) {
+		return CollectionTrack{
+			.type=obj.Get("type").As<Napi::String>().Utf8Value(),
+			.url=obj.Get("url").As<Napi::String>().Utf8Value(),
+			.images=jsutils::optArrayListFromNapiValue<BandcampImage>(obj.Get("images"), [](Napi::Value value) {
+				return BandcampImage::fromNapiObject(value.template As<Napi::Object>());
+			}),
+			.name=obj.Get("name").As<Napi::String>().Utf8Value(),
+			.artistName=obj.Get("artistName").As<Napi::String>().Utf8Value(),
+			.artistURL=obj.Get("artistURL").As<Napi::String>().Utf8Value(),
+			.duration=jsutils::optDoubleFromNapiValue(obj.Get("duration")),
+			.trackNumber=jsutils::sizeFromNapiValue(obj.Get("trackNumber")),
+			.albumURL=obj.Get("albumURL").As<Napi::String>().Utf8Value(),
+			.albumName=obj.Get("albumName").As<Napi::String>().Utf8Value(),
+			.albumSlug=obj.Get("albumSlug").As<Napi::String>().Utf8Value(),
+		};
+	}
+
+	BandcampFan::CollectionAlbum BandcampFan::CollectionAlbum::fromNapiObject(Napi::Object obj) {
+		return CollectionAlbum{
+			.type=obj.Get("type").As<Napi::String>().Utf8Value(),
+			.url=obj.Get("url").As<Napi::String>().Utf8Value(),
+			.name=obj.Get("name").As<Napi::String>().Utf8Value(),
+			.images=jsutils::optArrayListFromNapiValue<BandcampImage>(obj.Get("images"), [](Napi::Value value) {
+				return BandcampImage::fromNapiObject(value.template As<Napi::Object>());
+			}),
+			.artistName=obj.Get("artistName").As<Napi::String>().Utf8Value(),
+			.artistURL=obj.Get("artistURL").As<Napi::String>().Utf8Value()
+		};
+	}
+
+	BandcampFan::CollectionArtist BandcampFan::CollectionArtist::fromNapiObject(Napi::Object obj) {
+		return CollectionArtist{
+			.type=obj.Get("type").As<Napi::String>().Utf8Value(),
+			.url=obj.Get("url").As<Napi::String>().Utf8Value(),
+			.name=obj.Get("name").As<Napi::String>().Utf8Value(),
+			.location=jsutils::optStringFromNapiValue(obj.Get("location")),
+			.images=jsutils::optArrayListFromNapiValue<BandcampImage>(obj.Get("images"), [](Napi::Value value) {
+				return BandcampImage::fromNapiObject(value.template As<Napi::Object>());
+			})
+		};
+	}
+
+	BandcampFan::CollectionFan BandcampFan::CollectionFan::fromNapiObject(Napi::Object obj) {
+		return CollectionFan{
+			.id=obj.Get("id").As<Napi::String>().Utf8Value(),
+			.type=obj.Get("type").As<Napi::String>().Utf8Value(),
+			.url=obj.Get("url").As<Napi::String>().Utf8Value(),
+			.name=obj.Get("name").As<Napi::String>().Utf8Value(),
+			.location=jsutils::optStringFromNapiValue(obj.Get("location")),
+			.images=jsutils::optArrayListFromNapiValue<BandcampImage>(obj.Get("images"), [](Napi::Value value) {
+				return BandcampImage::fromNapiObject(value.template As<Napi::Object>());
+			})
+		};
+	}
 }

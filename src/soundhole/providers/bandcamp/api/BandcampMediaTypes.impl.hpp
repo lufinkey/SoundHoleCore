@@ -1,0 +1,47 @@
+//
+//  BandcampMediaTypes.impl.hpp
+//  SoundHoleCore
+//
+//  Created by Luis Finke on 11/22/20.
+//  Copyright © 2020 Luis Finke. All rights reserved.
+//
+
+#pragma once
+
+#include <soundhole/common.hpp>
+#include <soundhole/utils/js/JSUtils.hpp>
+
+namespace sh {
+	#ifdef NODE_API_MODULE
+
+	template<typename ItemType>
+	Optional<BandcampFan::Section<ItemType>> BandcampFan::Section<ItemType>::maybeFromNapiObject(Napi::Object obj) {
+		if(obj.IsEmpty() || obj.IsNull() || obj.IsUndefined()) {
+			return std::nullopt;
+		}
+		return fromNapiObject(obj);
+	}
+
+	template<typename ItemType>
+	BandcampFan::Section<ItemType> BandcampFan::Section<ItemType>::fromNapiObject(Napi::Object obj) {
+		return Section<ItemType>{
+			.itemCount=(size_t)obj.Get("itemCount").As<Napi::Number>().Int64Value(),
+			.batchSize=jsutils::optSizeFromNapiValue(obj.Get("batchSize")),
+			.lastToken=jsutils::optStringFromNapiValue(obj.Get("lastToken")).valueOr(String()),
+			.items=jsutils::arrayListFromNapiValue<ItemType>(obj.Get("items"), [](Napi::Value value) {
+				return ItemType::fromNapiObject(value.As<Napi::Object>());
+			})
+		};
+	}
+
+	template<typename ItemType>
+	BandcampFan::FollowItemNode<ItemType> BandcampFan::FollowItemNode<ItemType>::fromNapiObject(Napi::Object obj) {
+		return FollowItemNode<ItemType>{
+			.token=obj.Get("token").As<Napi::String>().Utf8Value(),
+			.dateFollowed=obj.Get("dateFollowed").As<Napi::String>().Utf8Value(),
+			.item=ItemType::fromNapiObject(obj.Get("item").As<Napi::Object>())
+		};
+	}
+
+	#endif
+}

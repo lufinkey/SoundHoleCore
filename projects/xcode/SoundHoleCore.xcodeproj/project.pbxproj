@@ -79,6 +79,7 @@
 		A5622C6E23430B1A008D6631 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5622C6D23430B1A008D6631 /* WebKit.framework */; };
 		A5622C7023430B20008D6631 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5622C6F23430B20008D6631 /* UIKit.framework */; };
 		A5622C7223430B27008D6631 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5622C7123430B27008D6631 /* Foundation.framework */; };
+		A56325D7256A3BDD00C005AE /* BandcampMediaTypes.impl.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A56325D6256A3BDD00C005AE /* BandcampMediaTypes.impl.hpp */; };
 		A563A5C924AFEE770036A842 /* SQLOrderBy.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A563A5C824AFEE770036A842 /* SQLOrderBy.hpp */; };
 		A563A5CB24AFF3600036A842 /* SQLOrderBy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A563A5CA24AFF3600036A842 /* SQLOrderBy.cpp */; };
 		A563A5CC24AFF3600036A842 /* SQLOrderBy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A563A5CA24AFF3600036A842 /* SQLOrderBy.cpp */; };
@@ -352,6 +353,7 @@
 		A5622C6D23430B1A008D6631 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS13.0.sdk/System/Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
 		A5622C6F23430B20008D6631 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS13.0.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		A5622C7123430B27008D6631 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS13.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		A56325D6256A3BDD00C005AE /* BandcampMediaTypes.impl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BandcampMediaTypes.impl.hpp; sourceTree = "<group>"; };
 		A563A5C824AFEE770036A842 /* SQLOrderBy.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SQLOrderBy.hpp; sourceTree = "<group>"; };
 		A563A5CA24AFF3600036A842 /* SQLOrderBy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SQLOrderBy.cpp; sourceTree = "<group>"; };
 		A563A5CD24AFF43E0036A842 /* SQLOrder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SQLOrder.cpp; sourceTree = "<group>"; };
@@ -1017,6 +1019,7 @@
 				A5E851A92357BECD0001F74D /* BandcampError.hpp */,
 				A5E851A82357BECD0001F74D /* BandcampError.cpp */,
 				A5E851CD235DFEBC0001F74D /* BandcampMediaTypes.hpp */,
+				A56325D6256A3BDD00C005AE /* BandcampMediaTypes.impl.hpp */,
 				A5E851CC235DFEBC0001F74D /* BandcampMediaTypes.cpp */,
 			);
 			path = api;
@@ -1119,6 +1122,7 @@
 				A571E1332332C65000603E14 /* SpotifyProvider.hpp in Headers */,
 				A540D83325508A1D00EE5CA8 /* SHiOSUtils.h in Headers */,
 				A513ED9C232DA20C000DCAC7 /* MediaItem.hpp in Headers */,
+				A56325D7256A3BDD00C005AE /* BandcampMediaTypes.impl.hpp in Headers */,
 				A5485A2F239432CE00CB7749 /* SpotifyPlaybackProvider.hpp in Headers */,
 				A5EDB8EF249ADC1200885BC2 /* MediaLibraryTracksCollection.hpp in Headers */,
 				A5D9F601255E4DD400E4762A /* OAuthError.hpp in Headers */,

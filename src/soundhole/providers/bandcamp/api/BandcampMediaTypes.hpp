@@ -91,7 +91,7 @@ namespace sh {
 		ArrayList<BandcampShow> shows;
 		ArrayList<BandcampLink> links;
 		Optional<ArrayList<BandcampAlbum>> albums;
-		bool isLabel;
+		Optional<bool> isLabel;
 		
 		#ifdef NODE_API_MODULE
 		static BandcampArtist fromNapiObject(Napi::Object);
@@ -169,4 +169,145 @@ namespace sh {
 		static BandcampLink fromNapiObject(Napi::Object);
 		#endif
 	};
+
+
+	struct BandcampIdentities {
+		struct Fan {
+			String id;
+			String url;
+			String username;
+			String name;
+			Optional<ArrayList<BandcampImage>> images;
+			
+			#ifdef NODE_API_MODULE
+			static Fan fromNapiObject(Napi::Object);
+			static Optional<Fan> maybeFromNapiObject(Napi::Object);
+			#endif
+		};
+		
+		Optional<Fan> fan;
+		
+		#ifdef NODE_API_MODULE
+		static BandcampIdentities fromNapiObject(Napi::Object);
+		#endif
+	};
+
+
+
+	struct BandcampFan {
+		template<typename ItemType>
+		struct Section {
+			size_t itemCount;
+			Optional<size_t> batchSize;
+			String lastToken;
+			ArrayList<ItemType> items;
+			
+			#ifdef NODE_API_MODULE
+			static Section<ItemType> fromNapiObject(Napi::Object);
+			static Optional<Section<ItemType>> maybeFromNapiObject(Napi::Object);
+			#endif
+		};
+		
+		struct CollectionTrack {
+			String type;
+			String url;
+			String name;
+			Optional<ArrayList<BandcampImage>> images;
+			String artistName;
+			String artistURL;
+			Optional<double> duration;
+			size_t trackNumber;
+			String albumURL;
+			Optional<String> albumName;
+			Optional<String> albumSlug;
+			
+			#ifdef NODE_API_MODULE
+			static CollectionTrack fromNapiObject(Napi::Object);
+			#endif
+		};
+		
+		struct CollectionAlbum {
+			String type;
+			String url;
+			String name;
+			Optional<ArrayList<BandcampImage>> images;
+			String artistName;
+			String artistURL;
+			
+			#ifdef NODE_API_MODULE
+			static CollectionAlbum fromNapiObject(Napi::Object);
+			#endif
+		};
+		
+		struct CollectionArtist {
+			String type;
+			String url;
+			String name;
+			Optional<String> location;
+			Optional<ArrayList<BandcampImage>> images;
+			
+			#ifdef NODE_API_MODULE
+			static CollectionArtist fromNapiObject(Napi::Object);
+			#endif
+		};
+		
+		struct CollectionFan {
+			String id;
+			String type;
+			String url;
+			String name;
+			Optional<String> location;
+			Optional<ArrayList<BandcampImage>> images;
+			
+			#ifdef NODE_API_MODULE
+			static CollectionFan fromNapiObject(Napi::Object);
+			#endif
+		};
+		
+		struct CollectionItemNode {
+			using ItemVariant = std::variant<CollectionTrack,CollectionAlbum>;
+			
+			String token;
+			String dateAdded;
+			ItemVariant item;
+			
+			Optional<CollectionTrack> trackItem() const;
+			Optional<CollectionAlbum> albumItem() const;
+			
+			#ifdef NODE_API_MODULE
+			static CollectionItemNode fromNapiObject(Napi::Object);
+			#endif
+		};
+		
+		template<typename ItemType>
+		struct FollowItemNode {
+			String token;
+			String dateFollowed;
+			ItemType item;
+			
+			#ifdef NODE_API_MODULE
+			static FollowItemNode<ItemType> fromNapiObject(Napi::Object);
+			#endif
+		};
+		
+		
+		String id;
+		String url;
+		String username;
+		String name;
+		String description;
+		Optional<ArrayList<BandcampImage>> images;
+		
+		Optional<Section<CollectionItemNode>> collection;
+		Optional<Section<CollectionItemNode>> wishlist;
+		Optional<Section<FollowItemNode<CollectionArtist>>> followingArtists;
+		Optional<Section<FollowItemNode<CollectionFan>>> followingFans;
+		Optional<Section<FollowItemNode<CollectionFan>>> followers;
+		
+		#ifdef NODE_API_MODULE
+		static BandcampFan fromNapiObject(Napi::Object);
+		#endif
+	};
 }
+
+#include "BandcampMediaTypes.impl.hpp"

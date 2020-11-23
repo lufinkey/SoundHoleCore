@@ -93,6 +93,14 @@ namespace sh::jsutils {
 		}
 		return arrayListFromNapiArray<T>(array, transform);
 	}
+
+	template<typename T>
+	Optional<ArrayList<T>> optArrayListFromNapiValue(Napi::Value array, Function<T(Napi::Value)> transform) {
+		if(array.IsEmpty() || array.IsNull() || array.IsUndefined()) {
+			return std::nullopt;
+		}
+		return arrayListFromNapiValue<T>(array, transform);
+	}
 	
 	template<typename T>
 	LinkedList<T> linkedListFromNapiArray(Napi::Array array, Function<T(Napi::Value)> transform) {

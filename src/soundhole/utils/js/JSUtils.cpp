@@ -43,7 +43,7 @@ namespace sh::jsutils {
 
 	String stringFromNapiValue(Napi::Value value) {
 		if(value.IsEmpty() || value.IsNull() || value.IsUndefined()) {
-			return "";
+			return String();
 		}
 		return value.ToString();
 	}

@@ -33,6 +33,8 @@ namespace sh {
 		void logout();
 		bool isLoggedIn() const;
 		
+		Promise<BandcampIdentities> getMyIdentities();
+		
 		struct SearchOptions {
 			size_t page = 0;
 		};
@@ -41,6 +43,7 @@ namespace sh {
 		Promise<BandcampTrack> getTrack(String url);
 		Promise<BandcampAlbum> getAlbum(String url);
 		Promise<BandcampArtist> getArtist(String url);
+		Promise<BandcampFan> getFan(String url);
 		
 	private:
 		virtual void initializeJS(napi_env env) override;
