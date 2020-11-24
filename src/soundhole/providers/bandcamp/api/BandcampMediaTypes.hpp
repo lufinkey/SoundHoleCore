@@ -30,11 +30,16 @@ namespace sh {
 			MEDIUM,
 			LARGE
 		};
+		static Size Size_fromString(const String&);
+		static String Size_toString(Size);
 		
 		String url;
 		Size size;
 		Optional<Dimensions> dimensions;
 		
+		Json toJson() const;
+		
+		static BandcampImage fromJson(const Json&);
 		#ifdef NODE_API_MODULE
 		static BandcampImage fromNapiObject(Napi::Object);
 		#endif
@@ -179,6 +184,10 @@ namespace sh {
 			String name;
 			Optional<ArrayList<BandcampImage>> images;
 			
+			Json toJson() const;
+			
+			static Fan fromJson(const Json&);
+			static Optional<Fan> maybeFromJson(const Json&);
 			#ifdef NODE_API_MODULE
 			static Fan fromNapiObject(Napi::Object);
 			static Optional<Fan> maybeFromNapiObject(Napi::Object);
@@ -187,6 +196,10 @@ namespace sh {
 		
 		Optional<Fan> fan;
 		
+		Json toJson() const;
+		
+		static BandcampIdentities fromJson(const Json&);
+		static Optional<BandcampIdentities> maybeFromJson(const Json&);
 		#ifdef NODE_API_MODULE
 		static BandcampIdentities fromNapiObject(Napi::Object);
 		#endif

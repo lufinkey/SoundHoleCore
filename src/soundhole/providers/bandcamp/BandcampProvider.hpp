@@ -59,7 +59,6 @@ namespace sh {
 		
 		virtual bool hasLibrary() const override;
 		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options = GenerateLibraryOptions()) override;
-		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist) override;
 		
 		virtual BandcampPlaybackProvider* player() override;
 		virtual const BandcampPlaybackProvider* player() const override;
@@ -67,6 +66,7 @@ namespace sh {
 		Track::Data createTrackData(BandcampTrack track, bool partial);
 		Artist::Data createArtistData(BandcampArtist artist, bool partial);
 		Album::Data createAlbumData(BandcampAlbum album, bool partial);
+		UserAccount::Data createUserData(BandcampFan fan);
 		
 		struct URI {
 			String provider;
@@ -74,13 +74,22 @@ namespace sh {
 		};
 		URI parseURI(String uri) const;
 		
+		Promise<Optional<BandcampIdentities>> getCurrentBandcampIdentities();
+		
 	private:
 		URI parseURL(String url) const;
 		String createURI(String type, String url) const;
 		
 		static MediaItem::Image createImage(BandcampImage image);
 		
+		String getCachedCurrentBandcampIdentitiesPath() const;
+		void setCurrentBandcampIdentities(Optional<BandcampIdentities> identities);
+		
 		Bandcamp* bandcamp;
 		BandcampPlaybackProvider* _player;
+		
+		Optional<BandcampIdentities> _currentIdentities;
+		Optional<Promise<Optional<BandcampIdentities>>> _currentIdentitiesPromise;
+		bool _currentIdentitiesNeedRefresh;
 	};
 }

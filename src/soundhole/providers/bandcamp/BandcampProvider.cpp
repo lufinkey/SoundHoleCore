@@ -9,12 +9,15 @@
 #include "BandcampProvider.hpp"
 #include "mutators/BandcampAlbumMutatorDelegate.hpp"
 #include <soundhole/utils/SoundHoleError.hpp>
+#include <soundhole/utils/Utils.hpp>
 #include <cxxurl/url.hpp>
 #include <regex>
 
 namespace sh {
 	BandcampProvider::BandcampProvider(Options options)
-	: bandcamp(new Bandcamp(options)), _player(new BandcampPlaybackProvider(this)) {
+	: bandcamp(new Bandcamp(options)),
+	_player(new BandcampPlaybackProvider(this)),
+	_currentIdentitiesNeedRefresh(true) {
 		//
 	}
 
@@ -43,6 +46,8 @@ namespace sh {
 	}
 
 
+
+	#pragma mark URI/URL parsing
 
 	BandcampProvider::URI BandcampProvider::parseURI(String uri) const {
 		size_t colonIndex = uri.indexOf(':');
@@ -81,26 +86,119 @@ namespace sh {
 
 
 
+	#pragma mark Login
 
 	Promise<bool> BandcampProvider::login() {
-		return bandcamp->login();
+		return bandcamp->login().map<bool>([=](bool loggedIn) {
+			getCurrentBandcampIdentities();
+			return loggedIn;
+		});
 	}
 
 	void BandcampProvider::logout() {
-		return bandcamp->logout();
+		bandcamp->logout();
+		setCurrentBandcampIdentities(std::nullopt);
 	}
 
 	bool BandcampProvider::isLoggedIn() const {
 		return bandcamp->isLoggedIn();
 	}
 
-	Promise<ArrayList<String>> BandcampProvider::MediaProvider::getCurrentUserIds() {
-		// TODO fetch user IDs
-		return Promise<ArrayList<String>>::reject(std::runtime_error("not implemented yet"));
+
+
+	#pragma mark Current User
+
+	Promise<ArrayList<String>> BandcampProvider::getCurrentUserIds() {
+		return getCurrentBandcampIdentities().map<ArrayList<String>>([=](Optional<BandcampIdentities> identities) -> ArrayList<String> {
+			if(!identities || !identities->fan) {
+				return {};
+			}
+			return { identities->fan->id };
+		});
+	}
+
+	String BandcampProvider::getCachedCurrentBandcampIdentitiesPath() const {
+		String sessionPersistKey = bandcamp->getAuth()->getOptions().sessionPersistKey;
+		if(sessionPersistKey.empty()) {
+			return String();
+		}
+		return utils::getCacheDirectoryPath()+"/"+name()+"_identities_"+sessionPersistKey+".json";
+	}
+
+	Promise<Optional<BandcampIdentities>> BandcampProvider::getCurrentBandcampIdentities() {
+		if(!isLoggedIn()) {
+			setCurrentBandcampIdentities(std::nullopt);
+			return Promise<Optional<BandcampIdentities>>::resolve(std::nullopt);
+		}
+		if(_currentIdentitiesPromise) {
+			return _currentIdentitiesPromise.value();
+		}
+		if(_currentIdentities && !_currentIdentitiesNeedRefresh) {
+			return Promise<Optional<BandcampIdentities>>::resolve(_currentIdentities);
+		}
+		auto promise = bandcamp->getMyIdentities().map<Optional<BandcampIdentities>>([=](BandcampIdentities identities) -> Optional<BandcampIdentities> {
+			_currentIdentitiesPromise = std::nullopt;
+			if(!isLoggedIn()) {
+				setCurrentBandcampIdentities(std::nullopt);
+				return std::nullopt;
+			}
+			setCurrentBandcampIdentities(identities);
+			return identities;
+		}).except([=](std::exception_ptr error) -> Optional<BandcampIdentities> {
+			_currentIdentitiesPromise = std::nullopt;
+			// if current identities are loaded, return it
+			if(_currentIdentities) {
+				return _currentIdentities.value();
+			}
+			// try to load identities from filesystem
+			auto userFilePath = getCachedCurrentBandcampIdentitiesPath();
+			if(!userFilePath.empty()) {
+				try {
+					String userString = fs::readFile(userFilePath);
+					std::string jsonError;
+					Json userJson = Json::parse(userString, jsonError);
+					if(userJson.is_null()) {
+						throw std::runtime_error("failed to parse user json: "+jsonError);
+					}
+					auto identities = BandcampIdentities::fromJson(userJson);
+					_currentIdentities = identities;
+					_currentIdentitiesNeedRefresh = true;
+					return identities;
+				} catch(...) {
+					// ignore error
+				}
+			}
+			// rethrow error
+			std::rethrow_exception(error);
+		});
+		_currentIdentitiesPromise = promise;
+		if(_currentIdentitiesPromise && _currentIdentitiesPromise->isComplete()) {
+			_currentIdentitiesPromise = std::nullopt;
+		}
+		return promise;
+	}
+
+	void BandcampProvider::setCurrentBandcampIdentities(Optional<BandcampIdentities> identities) {
+		auto userFilePath = getCachedCurrentBandcampIdentitiesPath();
+		if(identities) {
+			_currentIdentities = identities;
+			_currentIdentitiesNeedRefresh = false;
+			if(!userFilePath.empty()) {
+				fs::writeFile(userFilePath, identities->toJson().dump());
+			}
+		} else {
+			_currentIdentities = std::nullopt;
+			_currentIdentitiesPromise = std::nullopt;
+			_currentIdentitiesNeedRefresh = true;
+			if(!userFilePath.empty() && fs::exists(userFilePath)) {
+				fs::remove(userFilePath);
+			}
+		}
 	}
 
 
 
+	#pragma mark Search
 
 	Promise<BandcampProvider::SearchResults> BandcampProvider::search(String query, SearchOptions options) {
 		return bandcamp->search(query, options).map<SearchResults>([=](BandcampSearchResults searchResults) -> SearchResults {
@@ -240,6 +338,7 @@ namespace sh {
 
 
 
+	#pragma mark Data transforming
 
 	Track::Data BandcampProvider::createTrackData(BandcampTrack track, bool partial) {
 		return Track::Data{{
@@ -391,8 +490,24 @@ namespace sh {
 		};
 	}
 
+	UserAccount::Data BandcampProvider::createUserData(BandcampFan fan) {
+		return UserAccount::Data{{
+			.partial=false,
+			.type="user",
+			.name=fan.name,
+			.uri=(fan.url.empty() ? String() : createURI("fan", fan.url)),
+			.images=(fan.images ? maybe(fan.images->map<MediaItem::Image>([&](auto& image) {
+				return createImage(std::move(image));
+			})) : std::nullopt)
+			},
+			.id=fan.id,
+			.displayName=fan.name
+		};
+	}
 
 
+
+	#pragma mark Media Item Fetching
 
 	Promise<Track::Data> BandcampProvider::getTrackData(String uri) {
 		auto uriParts = parseURI(uri);
@@ -420,7 +535,10 @@ namespace sh {
 	}
 
 	Promise<UserAccount::Data> BandcampProvider::getUserData(String uri) {
-		return Promise<UserAccount::Data>::reject(std::logic_error("This method is not implemented yet"));
+		auto uriParts = parseURI(uri);
+		return bandcamp->getFan(uriParts.url).map<UserAccount::Data>([=](auto fan) {
+			return createUserData(fan);
+		});
 	}
 
 
@@ -493,6 +611,7 @@ namespace sh {
 
 
 
+	#pragma mark User Library
 
 	bool BandcampProvider::hasLibrary() const {
 		return false;
@@ -510,13 +629,7 @@ namespace sh {
 
 
 
-
-	Promise<bool> BandcampProvider::isPlaylistEditable($<Playlist> playlist) {
-		return Promise<bool>::resolve(false);
-	}
-
-
-
+	#pragma mark Player
 
 	BandcampPlaybackProvider* BandcampProvider::player() {
 		return _player;

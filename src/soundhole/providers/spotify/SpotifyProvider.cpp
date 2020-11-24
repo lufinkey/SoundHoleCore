@@ -14,8 +14,9 @@
 
 namespace sh {
 	SpotifyProvider::SpotifyProvider(Options options)
-	: spotify(new Spotify(options)), _currentUser(std::nullopt), _currentUserPromise(std::nullopt), _currentUserNeedsRefresh(true),
-	_player(new SpotifyPlaybackProvider(this)) {
+	: spotify(new Spotify(options)),
+	_player(new SpotifyPlaybackProvider(this)),
+	_currentUserNeedsRefresh(true) {
 		//
 	}
 

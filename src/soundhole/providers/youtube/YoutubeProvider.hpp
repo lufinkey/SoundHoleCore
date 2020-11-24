@@ -90,6 +90,6 @@ namespace sh {
 		
 		ArrayList<YoutubeChannel> _currentUserChannels;
 		Optional<Promise<ArrayList<YoutubeChannel>>> _currentUserChannelsPromise;
-		bool _currentUserNeedsRefresh;
+		bool _currentUserChannelsNeedRefresh;
 	};
 }

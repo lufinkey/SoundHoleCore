@@ -12,6 +12,36 @@
 #include <soundhole/utils/js/JSUtils.hpp>
 
 namespace sh {
+	Json BandcampImage::toJson() const {
+		auto json = Json::object{
+			{ "url", (std::string)url },
+			{ "size", (std::string)Size_toString(size) }
+		};
+		if(dimensions) {
+			json["width"] = (int)dimensions->width;
+			json["height"] = (int)dimensions->height;
+		}
+		return json;
+	}
+
+	BandcampImage BandcampImage::fromJson(const Json& json) {
+		return BandcampImage{
+			.url=json["url"].string_value(),
+			.size=Size_fromString(json["size"].string_value()),
+			.dimensions = ([&]() -> Optional<Dimensions> {
+				auto width = json["width"];
+				auto height = json["height"];
+				if(width.is_null() || height.is_null()) {
+					return std::nullopt;
+				}
+				return Dimensions{
+					.width = (size_t)width.number_value(),
+					.height = (size_t)height.number_value()
+				};
+			})()
+		};
+	}
+
 	BandcampImage BandcampImage::fromNapiObject(Napi::Object image) {
 		return BandcampImage{
 			.url = jsutils::stringFromNapiValue(image.Get("url")),
@@ -40,6 +70,31 @@ namespace sh {
 			})()
 		};
 	}
+
+	BandcampImage::Size BandcampImage::Size_fromString(const String& size) {
+		if(size == "small") {
+			return Size::SMALL;
+		} else if(size == "medium") {
+			return Size::MEDIUM;
+		} else if(size == "large") {
+			return Size::LARGE;
+		}
+		return Size::MEDIUM;
+	}
+
+	String BandcampImage::Size_toString(Size size) {
+		switch(size) {
+			case Size::SMALL:
+				return "small";
+			case Size::MEDIUM:
+				return "medium";
+			case Size::LARGE:
+				return "large";
+		}
+		return "medium";
+	}
+
+
 
 	BandcampSearchResults BandcampSearchResults::fromNapiObject(Napi::Object results) {
 		return BandcampSearchResults{
@@ -219,9 +274,60 @@ namespace sh {
 
 
 
+	Json BandcampIdentities::toJson() const {
+		return Json::object{
+			{ "fan", fan ? fan->toJson() : Json() }
+		};
+	}
+
+	Optional<BandcampIdentities> BandcampIdentities::maybeFromJson(const Json& json) {
+		if(json.is_null()) {
+			return std::nullopt;
+		}
+		return fromJson(json);
+	}
+
+	BandcampIdentities BandcampIdentities::fromJson(const Json& json) {
+		return BandcampIdentities{
+			.fan = Fan::maybeFromJson(json["fan"])
+		};
+	}
+
 	BandcampIdentities BandcampIdentities::fromNapiObject(Napi::Object obj) {
 		return BandcampIdentities{
 			.fan = Fan::maybeFromNapiObject(obj.Get("fan").As<Napi::Object>())
+		};
+	}
+
+
+	Json BandcampIdentities::Fan::toJson() const {
+		return Json::object{
+			{ "id", (std::string)id },
+			{ "url", (std::string)url },
+			{ "username", (std::string)username },
+			{ "name", (std::string)name },
+			{ "images", images ? images->map<Json>([](const BandcampImage& image) {
+				return image.toJson();
+			}) : Json() }
+		};
+	}
+
+	Optional<BandcampIdentities::Fan> BandcampIdentities::Fan::maybeFromJson(const Json& json) {
+		if(json.is_null()) {
+			return std::nullopt;
+		}
+		return fromJson(json);
+	}
+
+	BandcampIdentities::Fan BandcampIdentities::Fan::fromJson(const Json& json) {
+		return Fan{
+			.id=json["id"].string_value(),
+			.url=json["url"].string_value(),
+			.username=json["username"].string_value(),
+			.name=json["name"].string_value(),
+			.images=jsutils::optArrayListFromJson<BandcampImage>(json["images"], [](const Json& json) {
+				return BandcampImage::fromJson(json);
+			})
 		};
 	}
 
@@ -280,6 +386,20 @@ namespace sh {
 				}
 			})()
 		};
+	}
+
+	Optional<BandcampFan::CollectionTrack> BandcampFan::CollectionItemNode::trackItem() const {
+		if(auto track = std::get_if<CollectionTrack>(&item)) {
+			return *track;
+		}
+		return std::nullopt;
+	}
+
+	Optional<BandcampFan::CollectionAlbum> BandcampFan::CollectionItemNode::albumItem() const {
+		if(auto album = std::get_if<CollectionAlbum>(&item)) {
+			return *album;
+		}
+		return std::nullopt;
 	}
 
 	BandcampFan::CollectionTrack BandcampFan::CollectionTrack::fromNapiObject(Napi::Object obj) {

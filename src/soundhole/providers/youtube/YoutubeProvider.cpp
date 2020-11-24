@@ -14,7 +14,9 @@
 
 namespace sh {
 	YoutubeProvider::YoutubeProvider(Options options)
-	: youtube(new Youtube(options)), _player(new YoutubePlaybackProvider(this)) {
+	: youtube(new Youtube(options)),
+	_player(new YoutubePlaybackProvider(this)),
+	_currentUserChannelsNeedRefresh(true) {
 		//
 	}
 
@@ -215,7 +217,7 @@ namespace sh {
 		if(_currentUserChannelsPromise) {
 			return _currentUserChannelsPromise.value();
 		}
-		if(!_currentUserChannels.empty() && !_currentUserNeedsRefresh) {
+		if(!_currentUserChannels.empty() && !_currentUserChannelsNeedRefresh) {
 			return Promise<ArrayList<YoutubeChannel>>::resolve(_currentUserChannels);
 		}
 		auto promise = youtube->getMyChannels().map<ArrayList<YoutubeChannel>>([=](YoutubePage<YoutubeChannel> channelPage) -> ArrayList<YoutubeChannel> {
@@ -246,7 +248,7 @@ namespace sh {
 						return YoutubeChannel::fromJson(json);
 					});
 					_currentUserChannels = channels;
-					_currentUserNeedsRefresh = true;
+					_currentUserChannelsNeedRefresh = true;
 					return channels;
 				} catch(...) {
 					// ignore error
@@ -266,7 +268,7 @@ namespace sh {
 		auto userFilePath = getCachedCurrentUserYoutubeChannelsPath();
 		if(!channels.empty()) {
 			_currentUserChannels = channels;
-			_currentUserNeedsRefresh = false;
+			_currentUserChannelsNeedRefresh = false;
 			auto json = Json(channels.map<Json>([](auto& channel) {
 				return channel.toJson();
 			}));
@@ -276,7 +278,7 @@ namespace sh {
 		} else {
 			_currentUserChannels = {};
 			_currentUserChannelsPromise = std::nullopt;
-			_currentUserNeedsRefresh = true;
+			_currentUserChannelsNeedRefresh = true;
 			if(!userFilePath.empty() && fs::exists(userFilePath)) {
 				fs::remove(userFilePath);
 			}
