@@ -288,9 +288,9 @@ namespace sh {
 						case BandcampSearchResults::Item::Type::LABEL:
 							return std::static_pointer_cast<MediaItem>(Artist::new$(this, Artist::Data{{
 								.partial=true,
-								.type="label",
+								.type="artist",
 								.name=item.name,
-								.uri=(item.url.empty() ? String() : createURI("label", item.url)),
+								.uri=(item.url.empty() ? String() : createURI("artist", item.url)),
 								.images=images
 								},
 								.description=std::nullopt
@@ -383,8 +383,8 @@ namespace sh {
 					}
 					return Track::AudioSource{
 						.url=audioSource.url,
-						.encoding="mp3",
-						.bitrate=128.0
+						.encoding=encoding,
+						.bitrate=bitrate
 					};
 				}))
 				: ((track.playable.has_value() && !track.playable.value()) ?

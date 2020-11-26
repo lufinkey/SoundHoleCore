@@ -92,11 +92,11 @@ namespace sh {
 		String name;
 		String location;
 		String description;
+		bool isLabel;
 		ArrayList<BandcampImage> images;
 		ArrayList<BandcampShow> shows;
 		ArrayList<BandcampLink> links;
 		Optional<ArrayList<BandcampAlbum>> albums;
-		Optional<bool> isLabel;
 		
 		#ifdef NODE_API_MODULE
 		static BandcampArtist fromNapiObject(Napi::Object);
@@ -222,7 +222,6 @@ namespace sh {
 		};
 		
 		struct CollectionTrack {
-			String type;
 			String url;
 			String name;
 			Optional<ArrayList<BandcampImage>> images;
@@ -240,7 +239,6 @@ namespace sh {
 		};
 		
 		struct CollectionAlbum {
-			String type;
 			String url;
 			String name;
 			Optional<ArrayList<BandcampImage>> images;
@@ -253,7 +251,6 @@ namespace sh {
 		};
 		
 		struct CollectionArtist {
-			String type;
 			String url;
 			String name;
 			Optional<String> location;
@@ -266,7 +263,6 @@ namespace sh {
 		
 		struct CollectionFan {
 			String id;
-			String type;
 			String url;
 			String name;
 			Optional<String> location;
@@ -319,6 +315,19 @@ namespace sh {
 		
 		#ifdef NODE_API_MODULE
 		static BandcampFan fromNapiObject(Napi::Object);
+		#endif
+	};
+
+
+
+	template<typename ItemType>
+	struct BandcampFanSectionPage {
+		bool hasMore;
+		String lastToken;
+		ArrayList<ItemType> items;
+		
+		#ifdef NODE_API_MODULE
+		static BandcampFanSectionPage<ItemType> fromNapiObject(Napi::Object);
 		#endif
 	};
 }

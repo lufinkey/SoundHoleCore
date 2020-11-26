@@ -45,12 +45,25 @@ namespace sh {
 		Promise<BandcampArtist> getArtist(String url);
 		Promise<BandcampFan> getFan(String url);
 		
+		struct GetFanSectionItemsOptions {
+			String olderThanToken;
+			Optional<size_t> count;
+		};
+		Promise<BandcampFanSectionPage<BandcampFan::CollectionItemNode>> getFanCollectionItems(String fanURL, String fanId, GetFanSectionItemsOptions options);
+		Promise<BandcampFanSectionPage<BandcampFan::CollectionItemNode>> getFanWishlistItems(String fanURL, String fanId, GetFanSectionItemsOptions options);
+		Promise<BandcampFanSectionPage<BandcampFan::CollectionItemNode>> getFanHiddenItems(String fanURL, String fanId, GetFanSectionItemsOptions options);
+		
 	private:
 		virtual void initializeJS(napi_env env) override;
 		
 		void updateJSSession(napi_env env, Optional<BandcampSession> session);
 		void queueUpdateJSSession(Optional<BandcampSession> session);
 		void updateSessionFromJS(napi_env env);
+		
+		#ifdef NODE_API_MODULE
+		template<typename Result>
+		Promise<Result> performAsyncBandcampJSFunc(String funcName, Function<std::vector<napi_value>(napi_env)> createArgs, Function<Result(napi_env,Napi::Value)> mapper);
+		#endif
 		
 		napi_ref jsRef;
 		
