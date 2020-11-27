@@ -716,7 +716,6 @@ namespace sh {
 		
 		using YieldResult = typename LibraryItemGenerator::YieldResult;
 		return LibraryItemGenerator([=]() {
-			size_t sectionCount = 3;
 			return bandcamp->getMyIdentities().then([=](Optional<BandcampIdentities> identities) {
 				// verify that bandcamp is logged in
 				if(!identities) {
@@ -747,6 +746,7 @@ namespace sh {
 				// generate library items
 				return promise.then([=]() {
 					// generate media items function
+					size_t sectionCount = 3;
 					auto generateSectionMediaItems = [=](const Optional<BandcampFan::Section<BandcampFan::CollectionItemNode>>& collection, Optional<time_t>* mostRecentSave, Function<Promise<BandcampFanSectionPage<BandcampFan::CollectionItemNode>>()> fetcher) -> Promise<YieldResult> {
 						
 						// helper functions
@@ -849,15 +849,24 @@ namespace sh {
 							auto items = mapLibraryItems(this, page.items);
 							sharedData->offset += items.size();
 							// check if sync is finished
-							double progress = ((double)sharedData->type + ((double)sharedData->offset / (double)collection->itemCount)) / sectionCount;
-							if(checkIfSectionCaughtUp(items, *mostRecentSave) || !page.hasMore) {
+							bool done = false;
+							double progress = ((double)sharedData->type + ((double)sharedData->offset / (double)collection->itemCount)) / (double)sectionCount;
+							if(checkIfSectionCaughtUp(items, *mostRecentSave) || !page.hasMore || page.lastToken.empty()) {
 								// move to next section
 								*mostRecentSave = sharedData->syncMostRecentSave;
 								sharedData->type += 1;
+								if(sharedData->type >= sectionCount) {
+									sharedData->type = 0;
+									progress = 1.0;
+									done = true;
+								} else {
+									progress = ((double)sharedData->type / sectionCount);
+								}
 								sharedData->offset = 0;
 								sharedData->lastToken = String();
 								sharedData->syncMostRecentSave = std::nullopt;
-								progress = ((double)sharedData->type / sectionCount);
+							} else {
+								sharedData->lastToken = page.lastToken;
 							}
 							// return items
 							return Promise<YieldResult>::resolve(YieldResult{
@@ -865,7 +874,8 @@ namespace sh {
 									.resumeData = createResumeData(sharedData).toJson(),
 									.items = items,
 									.progress = progress
-								}
+								},
+								done = done
 							});
 						});
 					};
