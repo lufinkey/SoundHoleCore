@@ -73,6 +73,8 @@ namespace sh {
 				static Optional<Item> maybeFromJson(const Json&);
 			};
 			
+			String userId;
+			
 			Optional<time_t> mostRecentTrackSave;
 			Optional<time_t> mostRecentAlbumSave;
 			

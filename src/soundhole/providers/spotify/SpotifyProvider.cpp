@@ -504,6 +504,7 @@ namespace sh {
 		auto syncMostRecentSave = json["syncMostRecentSave"];
 		auto syncLastItemOffset = json["syncLastItemOffset"];
 		auto resumeData = GenerateLibraryResumeData{
+			.userId = json["userId"].string_value(),
 			.mostRecentTrackSave = mostRecentTrackSave.is_number() ? maybe((time_t)mostRecentTrackSave.number_value()) : std::nullopt,
 			.mostRecentAlbumSave = mostRecentAlbumSave.is_number() ? maybe((time_t)mostRecentAlbumSave.number_value()) : std::nullopt,
 			.syncCurrentType = json["syncCurrentType"].string_value(),
@@ -526,6 +527,7 @@ namespace sh {
 
 	Json SpotifyProvider::GenerateLibraryResumeData::toJson() const {
 		return Json::object{
+			{ "userId", (std::string)userId },
 			{ "mostRecentTrackSave", mostRecentTrackSave ? Json((double)mostRecentTrackSave.value()) : Json() },
 			{ "mostRecentAlbumSave", mostRecentAlbumSave ? Json((double)mostRecentAlbumSave.value()) : Json() },
 			{ "syncCurrentType", Json(syncCurrentType) },
@@ -586,14 +588,15 @@ namespace sh {
 	SpotifyProvider::LibraryItemGenerator SpotifyProvider::generateLibrary(GenerateLibraryOptions options) {
 		auto resumeData = GenerateLibraryResumeData::fromJson(options.resumeData);
 		struct SharedData {
+			String userId;
 			Optional<time_t> mostRecentTrackSave;
 			Optional<time_t> mostRecentAlbumSave;
 			Optional<GenerateLibraryResumeData::Item> syncLastItem;
 			Optional<size_t> syncLastItemOffset;
 			Optional<time_t> syncMostRecentSave;
-			size_t type;
-			size_t offset;
-			bool resuming;
+			size_t type = 0;
+			size_t offset = 0;
+			bool resuming = false;
 			
 			bool attemptRestoreSync(Optional<LibraryItem> firstItem) {
 				if(firstItem && syncLastItem && firstItem->mediaItem->uri() == syncLastItem->uri && firstItem->addedAt == syncLastItem->addedAt) {
@@ -609,6 +612,7 @@ namespace sh {
 		};
 		
 		auto sharedData = fgl::new$<SharedData>(SharedData{
+			.userId = resumeData.userId,
 			.mostRecentTrackSave = resumeData.mostRecentTrackSave,
 			.mostRecentAlbumSave = resumeData.mostRecentAlbumSave,
 			.syncLastItem = resumeData.syncLastItem,
@@ -618,8 +622,9 @@ namespace sh {
 			.offset = resumeData.syncLastItemOffset.value_or(0),
 			.resuming = (resumeData.syncLastItem.has_value() && resumeData.syncLastItemOffset.value_or(0) > 0)
 		});
-		auto createResumeData = std::function<GenerateLibraryResumeData($<SharedData>)>([]($<SharedData> data) {
+		auto createResumeData = Function<GenerateLibraryResumeData($<SharedData>)>([]($<SharedData> data) {
 			return GenerateLibraryResumeData{
+				.userId = data->userId,
 				.mostRecentTrackSave = data->mostRecentTrackSave,
 				.mostRecentAlbumSave = data->mostRecentAlbumSave,
 				.syncCurrentType = GenerateLibraryResumeData::typeFromSyncIndex(data->type),
@@ -631,83 +636,26 @@ namespace sh {
 		
 		using YieldResult = typename LibraryItemGenerator::YieldResult;
 		return LibraryItemGenerator([=]() {
-			switch(sharedData->type) {
-				// saved playlists
-				case 0: {
-					return spotify->getMyPlaylists({
-						.limit=50,
-						.offset=sharedData->offset
-					}).map<YieldResult>([=](auto page) {
-						auto items = page.items.template map<LibraryItem>([=](auto item) {
-							return LibraryItem{
-								.libraryProvider = this,
-								.mediaItem = Playlist::new$(this, createPlaylistData(item, false)),
-								.addedAt = String()
-							};
-						});
-						
-						if(sharedData->resuming) {
-							sharedData->resuming = false;
-							if(!sharedData->attemptRestoreSync(items.first())) {
-								return YieldResult{
-									.value=GenerateLibraryResults{
-										.resumeData = createResumeData(sharedData).toJson(),
-										.items = items,
-										.progress = 0
-									},
-									.done=false
-								};
-							}
-						}
-						
-						sharedData->offset += items.size();
-						if(items.size() > 0) {
-							auto& lastItem = items.back();
-							sharedData->syncLastItem = {
-								.uri = lastItem.mediaItem->uri(),
-								.addedAt = lastItem.addedAt
-							};
-							sharedData->syncLastItemOffset = sharedData->offset - 1;
-						}
-						sharedData->syncMostRecentSave = std::nullopt;
-						bool done = (sharedData->offset >= page.total || page.next.empty());
-						if(done) {
-							sharedData->syncLastItem = std::nullopt;
-							sharedData->syncLastItemOffset = std::nullopt;
-							sharedData->offset = 0;
-							sharedData->type += 1;
-						}
-						return YieldResult{
-							.value=GenerateLibraryResults{
-								.resumeData = createResumeData(sharedData).toJson(),
-								.items = items,
-								.progress = (done ? (1.0 / 3.0) : ((0.0 + ((double)sharedData->offset / (double)page.total)) / 3.0))
-							},
-							.done=false
-						};
-					});
+			return getCurrentSpotifyUser().then([=](Optional<SpotifyUser> user) {
+				// verify spotify is logged in
+				if(!user) {
+					return Promise<YieldResult>::reject(SpotifyError(SpotifyError::Code::NOT_LOGGED_IN, "Spotify is not logged in"));
+				}
+				// if current user has changed, completely reset the sync data
+				if(sharedData->userId.empty() || sharedData->userId != user->id) {
+					*sharedData = SharedData();
+					sharedData->userId = user->id;
 				}
 				
-				// saved albums
-				case 1: {
-					return spotify->getMyAlbums({
-						.market="from_token",
-						.limit=50,
-						.offset=sharedData->offset
-					}).map<YieldResult>([=](auto page) {
-						auto items = page.items.template map<LibraryItem>([=](auto item) {
-							return LibraryItem{
-								.libraryProvider = this,
-								.mediaItem = Album::new$(this, createAlbumData(item.album, false)),
-								.addedAt = item.addedAt
-							};
-						});
-						
+				size_t sectionCount = 3;
+				auto generateMediaItems = [=](Optional<time_t>* mostRecentSave, Function<Promise<SpotifyPage<LibraryItem>>()> fetcher) {
+					return fetcher().map<YieldResult>([=](SpotifyPage<LibraryItem> page) {
+						// check if sync is caught up
 						bool foundEndOfSync = false;
-						if(sharedData->mostRecentAlbumSave) {
-							for(auto& item : items) {
+						if(mostRecentSave != nullptr && *mostRecentSave) {
+							for(auto& item : page.items) {
 								time_t addedAt = item.addedAt.empty() ? 0 : timeFromString(item.addedAt);
-								if(addedAt < sharedData->mostRecentAlbumSave.value()) {
+								if(addedAt < mostRecentSave->value()) {
 									foundEndOfSync = true;
 									break;
 								}
@@ -716,142 +664,142 @@ namespace sh {
 						
 						if(sharedData->resuming) {
 							sharedData->resuming = false;
-							if(!sharedData->attemptRestoreSync(items.first())) {
-								if(foundEndOfSync) {
-									sharedData->mostRecentAlbumSave = sharedData->syncMostRecentSave;
-									sharedData->syncMostRecentSave = std::nullopt;
-									sharedData->syncLastItem = std::nullopt;
-									sharedData->syncLastItemOffset = std::nullopt;
-									sharedData->offset = 0;
-									sharedData->type += 1;
+							if(!sharedData->attemptRestoreSync(page.items.first())) {
+								bool done = false;
+								if(mostRecentSave != nullptr) {
+									if(foundEndOfSync) {
+										*mostRecentSave = sharedData->syncMostRecentSave;
+										sharedData->syncMostRecentSave = std::nullopt;
+										sharedData->syncLastItem = std::nullopt;
+										sharedData->syncLastItemOffset = std::nullopt;
+										sharedData->offset = 0;
+										sharedData->type += 1;
+										if(sharedData->type >= sectionCount) {
+											sharedData->type = 0;
+											done = true;
+										}
+									}
 								}
 								return YieldResult{
 									.value=GenerateLibraryResults{
 										.resumeData = createResumeData(sharedData).toJson(),
-										.items = items,
-										.progress = foundEndOfSync ? (2.0 / 3.0) : (1.0 / 3.0)
+										.items = page.items,
+										.progress = done ? 1.0 : ((double)sharedData->type / (double)sectionCount)
 									},
-									.done=false
+									.done=done
 								};
 							}
 						}
 						
-						if(sharedData->offset == 0 && items.size() > 0) {
-							auto latestAddedAt = items.front().addedAt;
-							sharedData->syncMostRecentSave = latestAddedAt.empty() ? 0 : timeFromString(latestAddedAt);
+						if(mostRecentSave != nullptr) {
+							if(sharedData->offset == 0 && page.items.size() > 0) {
+								auto latestAddedAt = page.items.front().addedAt;
+								sharedData->syncMostRecentSave = latestAddedAt.empty() ? 0 : timeFromString(latestAddedAt);
+							}
+						} else {
+							sharedData->syncMostRecentSave = std::nullopt;
 						}
-						sharedData->offset += items.size();
-						if(items.size() > 0) {
-							auto& lastItem = items.back();
+						
+						sharedData->offset += page.items.size();
+						if(page.items.size() > 0) {
+							auto& lastItem = page.items.back();
 							sharedData->syncLastItem = {
 								.uri = lastItem.mediaItem->uri(),
 								.addedAt = lastItem.addedAt
 							};
 							sharedData->syncLastItemOffset = sharedData->offset - 1;
 						}
-						bool done = (foundEndOfSync || sharedData->offset >= page.total || page.next.empty());
-						if(done) {
-							sharedData->mostRecentAlbumSave = sharedData->syncMostRecentSave;
+						
+						bool done = false;
+						bool sectionDone = (foundEndOfSync || sharedData->offset >= page.total || page.next.empty());
+						double progress = (((double)sharedData->type + ((double)sharedData->offset / (double)page.total)) / (double)sectionCount);
+						if(sectionDone) {
+							// if we're done, move to the next section
+							if(mostRecentSave != nullptr) {
+								*mostRecentSave = sharedData->syncMostRecentSave;
+							}
 							sharedData->syncMostRecentSave = std::nullopt;
 							sharedData->syncLastItem = std::nullopt;
 							sharedData->syncLastItemOffset = std::nullopt;
 							sharedData->offset = 0;
 							sharedData->type += 1;
+							if(sharedData->type >= sectionCount) {
+								sharedData->type = 0;
+								progress = 1.0;
+								done = true;
+							} else {
+								progress = (double)sharedData->type / (double)sectionCount;
+							}
 						}
 						return YieldResult{
 							.value=GenerateLibraryResults{
 								.resumeData = createResumeData(sharedData).toJson(),
-								.items = items,
-								.progress = (done ? (2.0 / 3.0) : ((1.0 + ((double)sharedData->offset / (double)page.total)) / 3.0))
+								.items = page.items,
+								.progress = progress
 							},
-							.done=false
+							.done=done
 						};
 					});
-				}
+				};
 				
-				// saved tracks
-				case 2: {
-					return spotify->getMyTracks({
-						.market="from_token",
-						.limit=50,
-						.offset=sharedData->offset
-					}).map<YieldResult>([=](auto page) {
-						auto items = page.items.template map<LibraryItem>([=](auto item) {
-							return LibraryItem{
-								.libraryProvider = this,
-								.mediaItem = Track::new$(this, createTrackData(item.track, false)),
-								.addedAt = item.addedAt
-							};
+				switch(sharedData->type) {
+					// saved playlists
+					case 0: {
+						return generateMediaItems(nullptr, [=](){
+							return spotify->getMyPlaylists({
+								.limit=50,
+								.offset=sharedData->offset
+							}).map<SpotifyPage<LibraryItem>>([=](SpotifyPage<SpotifyPlaylist> page) {
+								return page.map<LibraryItem>([=](auto& item) {
+									return LibraryItem{
+										.libraryProvider = this,
+										.mediaItem = Playlist::new$(this, createPlaylistData(item, false)),
+										.addedAt = String()
+									};
+								});
+							});
 						});
-						
-						bool foundEndOfSync = false;
-						if(sharedData->mostRecentTrackSave) {
-							for(auto& item : items) {
-								time_t addedAt = item.addedAt.empty() ? 0 : timeFromString(item.addedAt);
-								if(addedAt < sharedData->mostRecentTrackSave.value()) {
-									foundEndOfSync = true;
-									break;
-								}
-							}
-						}
-						
-						if(sharedData->resuming) {
-							sharedData->resuming = false;
-							if(!sharedData->attemptRestoreSync(items.first())) {
-								if(foundEndOfSync) {
-									sharedData->mostRecentTrackSave = sharedData->syncMostRecentSave;
-									sharedData->syncMostRecentSave = std::nullopt;
-									sharedData->syncLastItem = std::nullopt;
-									sharedData->syncLastItemOffset = std::nullopt;
-									sharedData->offset = 0;
-									sharedData->type += 1;
-								}
-								return YieldResult{
-									.value=GenerateLibraryResults{
-										.resumeData = createResumeData(sharedData).toJson(),
-										.items = items,
-										.progress = foundEndOfSync ? (3.0 / 3.0) : (2.0 / 3.0)
-									},
-									.done=false
-								};
-							}
-						}
-						
-						if(sharedData->offset == 0 && items.size() > 0) {
-							auto latestAddedAt = items.front().addedAt;
-							sharedData->syncMostRecentSave = latestAddedAt.empty() ? 0 : timeFromString(latestAddedAt);
-						}
-						sharedData->offset += items.size();
-						if(items.size() > 0) {
-							auto& lastItem = items.back();
-							sharedData->syncLastItem = {
-								.uri = lastItem.mediaItem->uri(),
-								.addedAt = lastItem.addedAt
-							};
-							sharedData->syncLastItemOffset = sharedData->offset - 1;
-						}
-						bool done = (foundEndOfSync || sharedData->offset >= page.total || page.next.empty());
-						if(done) {
-							sharedData->mostRecentTrackSave = sharedData->syncMostRecentSave;
-							sharedData->syncMostRecentSave = std::nullopt;
-							sharedData->syncLastItem = std::nullopt;
-							sharedData->syncLastItemOffset = std::nullopt;
-							sharedData->offset = 0;
-							sharedData->type += 1;
-						}
-						return YieldResult{
-							.value=GenerateLibraryResults{
-								.resumeData = createResumeData(sharedData).toJson(),
-								.items = items,
-								.progress = (done ? 1.0 : ((2.0 + ((double)sharedData->offset / (double)page.total)) / 3.0))
-							},
-							.done=false
-						};
-					});
+					}
+					
+					// saved albums
+					case 1: {
+						return generateMediaItems(&sharedData->mostRecentAlbumSave, [=](){
+							return spotify->getMyAlbums({
+								.market="from_token",
+								.limit=50,
+								.offset=sharedData->offset
+							}).map<SpotifyPage<LibraryItem>>([=](SpotifyPage<SpotifySavedAlbum> page) {
+								return page.map<LibraryItem>([=](auto& item) {
+									return LibraryItem{
+										.libraryProvider = this,
+										.mediaItem = Album::new$(this, createAlbumData(item.album, false)),
+										.addedAt = item.addedAt
+									};
+								});
+							});
+						});
+					}
+					
+					// saved tracks
+					case 2: {
+						return generateMediaItems(&sharedData->mostRecentTrackSave, [=](){
+							return spotify->getMyTracks({
+								.market="from_token",
+								.limit=50,
+								.offset=sharedData->offset
+							}).map<SpotifyPage<LibraryItem>>([=](SpotifyPage<SpotifySavedTrack> page) {
+								return page.map<LibraryItem>([=](auto& item) {
+									return LibraryItem{
+										.libraryProvider = this,
+										.mediaItem = Track::new$(this, createTrackData(item.track, false)),
+										.addedAt = item.addedAt
+									};
+								});
+							});
+						});
+					}
 				}
-			}
-			return Promise<YieldResult>::resolve(YieldResult{
-				.done=true
+				return Promise<YieldResult>::reject(std::runtime_error("invalid spotify sync section"));
 			});
 		});
 	}

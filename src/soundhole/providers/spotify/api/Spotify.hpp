@@ -38,8 +38,6 @@ namespace sh {
 		Promise<void> logout();
 		bool isLoggedIn() const;
 		
-		
-		
 		Promise<void> startPlayer();
 		void stopPlayer();
 		
@@ -81,7 +79,6 @@ namespace sh {
 		   Optional<size_t> offset;
 		};
 		Promise<SpotifyPage<SpotifyPlaylist>> getMyPlaylists(GetMyPlaylistsOptions options = {});
-		
 		
 		struct SearchOptions {
 			ArrayList<String> types;
