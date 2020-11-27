@@ -309,6 +309,7 @@ namespace sh {
 		
 		Optional<Section<CollectionItemNode>> collection;
 		Optional<Section<CollectionItemNode>> wishlist;
+		Optional<Section<CollectionItemNode>> hiddenCollection;
 		Optional<Section<FollowItemNode<CollectionArtist>>> followingArtists;
 		Optional<Section<FollowItemNode<CollectionFan>>> followingFans;
 		Optional<Section<FollowItemNode<CollectionFan>>> followers;

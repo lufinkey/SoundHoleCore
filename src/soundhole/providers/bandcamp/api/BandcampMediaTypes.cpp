@@ -363,6 +363,7 @@ namespace sh {
 			}),
 			.collection=Section<CollectionItemNode>::maybeFromNapiObject(obj.Get("collection").As<Napi::Object>()),
 			.wishlist=Section<CollectionItemNode>::maybeFromNapiObject(obj.Get("wishlist").As<Napi::Object>()),
+			.hiddenCollection=Section<CollectionItemNode>::maybeFromNapiObject(obj.Get("hiddenCollection").As<Napi::Object>()),
 			.followingArtists=Section<FollowItemNode<CollectionArtist>>::maybeFromNapiObject(obj.Get("followingArtists").As<Napi::Object>()),
 			.followingFans=Section<FollowItemNode<CollectionFan>>::maybeFromNapiObject(obj.Get("followingFans").As<Napi::Object>()),
 			.followers=Section<FollowItemNode<CollectionFan>>::maybeFromNapiObject(obj.Get("followers").As<Napi::Object>())

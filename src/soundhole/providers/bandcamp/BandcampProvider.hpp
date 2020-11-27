@@ -58,15 +58,37 @@ namespace sh {
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) override;
 		
 		virtual bool hasLibrary() const override;
+		struct GenerateLibraryResumeData {
+			String fanId;
+			
+			Optional<time_t> mostRecentHiddenSave;
+			Optional<time_t> mostRecentCollectionSave;
+			Optional<time_t> mostRecentWishlistSave;
+			
+			String syncCurrentType;
+			Optional<time_t> syncMostRecentSave;
+			String syncLastToken;
+			size_t syncOffset;
+			
+			Json toJson() const;
+			
+			static GenerateLibraryResumeData fromJson(const Json&);
+			static String typeFromSyncIndex(size_t index);
+			static Optional<size_t> syncIndexFromType(String type);
+		};
 		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options = GenerateLibraryOptions()) override;
 		
 		virtual BandcampPlaybackProvider* player() override;
 		virtual const BandcampPlaybackProvider* player() const override;
 		
 		Track::Data createTrackData(BandcampTrack track, bool partial);
+		Track::Data createTrackData(BandcampFan::CollectionTrack track);
 		Artist::Data createArtistData(BandcampArtist artist, bool partial);
+		Artist::Data createArtistData(BandcampFan::CollectionArtist artist);
 		Album::Data createAlbumData(BandcampAlbum album, bool partial);
+		Album::Data createAlbumData(BandcampFan::CollectionAlbum album);
 		UserAccount::Data createUserData(BandcampFan fan);
+		UserAccount::Data createUserData(BandcampFan::CollectionFan fan);
 		
 		struct URI {
 			String provider;
@@ -77,6 +99,8 @@ namespace sh {
 		Promise<Optional<BandcampIdentities>> getCurrentBandcampIdentities();
 		
 	private:
+		static time_t timeFromString(String time);
+		
 		URI parseURL(String url) const;
 		String createURI(String type, String url) const;
 		
