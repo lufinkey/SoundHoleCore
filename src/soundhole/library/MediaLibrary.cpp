@@ -150,6 +150,11 @@ namespace sh {
 						size_t libraryItemIndex = 0;
 						for(auto libraryItem : yieldResult.value->items) {
 							size_t index = libraryItemIndex;
+							if(libraryItem.mediaItem->needsData()) {
+								task->setStatusText("fetching "+libraryItem.mediaItem->type()+" "+libraryItem.mediaItem->name());
+								await(libraryItem.mediaItem->fetchDataIfNeeded());
+								task->setStatusText("Synchronizing "+libraryProvider->displayName()+" library");
+							}
 							libraryItemIndex += 1;
 							double itemProgressStart = prevProgress + (itemProgressDiff * (double)index);
 							if(auto collection = std::dynamic_pointer_cast<TrackCollection>(libraryItem.mediaItem)) {
