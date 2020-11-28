@@ -47,6 +47,15 @@ namespace sh {
 
 
 
+	time_t BandcampProvider::timeFromString(String time) {
+		if(auto date = DateTime::fromGmtString(time, "%Y-%m-%dT%H:%M:%SZ")) {
+			return date->toTimeType();
+		}
+		throw std::invalid_argument("Invalid date format");
+	}
+
+
+
 	#pragma mark URI/URL parsing
 
 	BandcampProvider::URI BandcampProvider::parseURI(String uri) const {
