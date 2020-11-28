@@ -109,6 +109,8 @@ namespace sh {
 		String getCachedCurrentBandcampIdentitiesPath() const;
 		void setCurrentBandcampIdentities(Optional<BandcampIdentities> identities);
 		
+		ArrayList<$<Artist>> createArtists(String artistURL, String artistName, Optional<BandcampArtist> artist, bool partial);
+		
 		Bandcamp* bandcamp;
 		BandcampPlaybackProvider* _player;
 		

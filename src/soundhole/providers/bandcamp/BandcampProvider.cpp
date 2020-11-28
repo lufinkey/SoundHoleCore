@@ -340,6 +340,28 @@ namespace sh {
 
 	#pragma mark Data transforming
 
+	ArrayList<$<Artist>> BandcampProvider::createArtists(String artistURL, String artistName, Optional<BandcampArtist> artist, bool partial) {
+		ArrayList<$<Artist>> artists;
+		if(artist && !artistURL.empty() && artist->url == artistURL && artist->name != artistName) {
+			artistURL = String();
+		}
+		if(!artist || (artistURL.empty() && !artistName.empty() && artist->name != artistName) || (!artistURL.empty() && artistURL != artist->url)) {
+			artists.pushBack(Artist::new$(this,Artist::Data{{
+				.partial = true,
+				.type="artist",
+				.name=artistName,
+				.uri=(artistURL.empty() ? String() : createURI("artist", artistURL)),
+				.images=std::nullopt
+				},
+				.description=std::nullopt
+			}));
+		}
+		if(artist) {
+			artists.pushBack(Artist::new$(this,createArtistData(artist.value(), partial)));
+		}
+		return artists;
+	}
+
 	Track::Data BandcampProvider::createTrackData(BandcampTrack track, bool partial) {
 		return Track::Data{{
 			.partial=partial,
@@ -352,21 +374,7 @@ namespace sh {
 			},
 			.albumName=track.albumName,
 			.albumURI=(track.albumURL.empty() ? String() : createURI("album", track.albumURL)),
-			.artists=ArrayList<$<Artist>>{
-				Artist::new$(this,
-					track.artist ?
-					createArtistData(track.artist.value(), partial)
-					: Artist::Data{{
-						.partial = true,
-						.type="artist",
-						.name=track.artistName,
-						.uri=(track.artistURL.empty() ? String() : createURI("artist", track.artistURL)),
-						.images=std::nullopt
-						},
-						.description=std::nullopt
-					}
-				)
-			},
+			.artists=createArtists(track.artistURL, track.artistName, track.artist, partial),
 			.tags=track.tags,
 			.discNumber=std::nullopt,
 			.trackNumber=std::nullopt,
@@ -395,6 +403,21 @@ namespace sh {
 		};
 	}
 
+	Track::Data BandcampProvider::createTrackData(BandcampFan::CollectionTrack track) {
+		return Track::Data{{
+			.partial=true,
+			.type="track",
+			.name=track.name,
+			.uri=(track.url.empty() ? String() : createURI("track", track.url)),
+			.images=(track.images ? maybe(track.images->map<MediaItem::Image>([&](auto& image) {
+				return createImage(image);
+			})) : std::nullopt)
+			},
+			.albumName=track.albumName.valueOr(track.albumSlug.valueOr(String())),
+			.albumURI=(track.albumURL.empty() ? String() : createURI("album", track.albumURL)),
+		};
+	}
+
 	Artist::Data BandcampProvider::createArtistData(BandcampArtist artist, bool partial) {
 		return Artist::Data{{
 			.partial=partial,
@@ -409,25 +432,28 @@ namespace sh {
 		};
 	}
 
+	Artist::Data BandcampProvider::createArtistData(BandcampFan::CollectionArtist artist) {
+		return Artist::Data{{
+			.partial=true,
+			.type="artist",
+			.name=artist.name,
+			.uri=(artist.url.empty() ? String() : createURI("artist", artist.url)),
+			.images=artist.images ? maybe(artist.images->map<MediaItem::Image>([&](auto& image) {
+				return createImage(image);
+			})) : std::nullopt
+			},
+			.description=std::nullopt
+		};
+	}
+
 	Album::Data BandcampProvider::createAlbumData(BandcampAlbum album, bool partial) {
-		auto artist = Artist::new$(this,
-			album.artist ?
-			createArtistData(album.artist.value(), partial)
-			: Artist::Data{{
-				.partial=true,
-				.type="artist",
-				.name=album.artistName,
-				.uri=(album.artistURL.empty() ? String() : createURI("artist", album.artistURL)),
-				.images=std::nullopt
-				},
-				.description=std::nullopt
-			}
-		);
+		auto artists = createArtists(album.artistURL, album.artistName, album.artist, partial);
+		auto albumURI = (album.url.empty() ? String() : createURI("album", album.url));
 		return Album::Data{{{
 			.partial=partial,
 			.type="album",
 			.name=album.name,
-			.uri=(album.url.empty() ? String() : createURI("album", album.url)),
+			.uri=albumURI,
 			.images=album.images.map<MediaItem::Image>([&](auto& image) {
 				return createImage(std::move(image));
 			})
@@ -440,15 +466,19 @@ namespace sh {
 					.items=album.tracks->map<AlbumItem::Data>([&](auto& track) {
 						auto trackData = createTrackData(track, true);
 						trackData.albumName = album.name;
-						trackData.albumURI = album.url;
+						trackData.albumURI = albumURI;
+						// pull duplicate artists from album artists
 						if(trackData.artists.size() == 0) {
-							trackData.artists = { artist };
+							trackData.artists = artists;
 						} else {
-							for(size_t i=0; i<trackData.artists.size(); i++) {
-								auto cmpArtist = trackData.artists[i];
-								if(cmpArtist->uri() == artist->uri() && cmpArtist->name() == artist->name()) {
-									trackData.artists[i] = artist;
-									break;
+							for(auto& artist : trackData.artists) {
+								if(artist->uri().empty()) {
+									continue;
+								}
+								if(auto matchingArtist = artists.firstWhere([&](auto& item){return (item->uri() == artist->uri());}, nullptr)) {
+									if(artist->name() == matchingArtist->name()) {
+										artist = matchingArtist;
+									}
 								}
 							}
 						}
@@ -459,9 +489,24 @@ namespace sh {
 				})
 				: std::nullopt)
 			},
-			.artists=ArrayList<$<Artist>>{
-				artist
+			.artists=artists,
+		};
+	}
+
+	Album::Data BandcampProvider::createAlbumData(BandcampFan::CollectionAlbum album) {
+		return Album::Data{{{
+			.partial=true,
+			.type="album",
+			.name=album.name,
+			.uri=(album.url.empty() ? String() : createURI("album", album.url)),
+			.images=album.images ? maybe(album.images->map<MediaItem::Image>([&](auto& image) {
+				return createImage(image);
+			})) : std::nullopt
 			},
+			.versionId=String(),
+			.tracks=std::nullopt,
+			},
+			.artists=createArtists(album.artistURL, album.artistName, std::nullopt, true)
 		};
 	}
 
@@ -491,6 +536,21 @@ namespace sh {
 	}
 
 	UserAccount::Data BandcampProvider::createUserData(BandcampFan fan) {
+		return UserAccount::Data{{
+			.partial=false,
+			.type="user",
+			.name=fan.name,
+			.uri=(fan.url.empty() ? String() : createURI("fan", fan.url)),
+			.images=(fan.images ? maybe(fan.images->map<MediaItem::Image>([&](auto& image) {
+				return createImage(std::move(image));
+			})) : std::nullopt)
+			},
+			.id=fan.id,
+			.displayName=fan.name
+		};
+	}
+
+	UserAccount::Data BandcampProvider::createUserData(BandcampFan::CollectionFan fan) {
 		return UserAccount::Data{{
 			.partial=false,
 			.type="user",
@@ -787,7 +847,7 @@ namespace sh {
 							bool done = false;
 							*mostRecentSave = std::nullopt;
 							sharedData->type += 1;
-							double progress = ((double)sharedData->type / (double)sectionCount);
+							double progress = (double)sharedData->type / (double)sectionCount;
 							if(sharedData->type >= sectionCount) {
 								sharedData->type = 0;
 								progress = 1.0;
@@ -815,7 +875,11 @@ namespace sh {
 								sharedData->syncMostRecentSave = std::nullopt;
 							}
 							sharedData->offset += collection->items.size();
-							double progress = ((double)sharedData->type + ((double)sharedData->offset / (double)collection->itemCount)) / (double)sectionCount;
+							double sectionProgress = (double)sharedData->offset / (double)collection->itemCount;
+							if(sectionProgress > 1.0) {
+								sectionProgress = 1.0;
+							}
+							double progress = ((double)sharedData->type + sectionProgress) / (double)sectionCount;
 							auto items = mapLibraryItems(this, collection->items);
 							// check if syncing is caught up or finished
 							bool done = false;
@@ -850,7 +914,11 @@ namespace sh {
 							sharedData->offset += items.size();
 							// check if sync is finished
 							bool done = false;
-							double progress = ((double)sharedData->type + ((double)sharedData->offset / (double)collection->itemCount)) / (double)sectionCount;
+							double sectionProgress = (double)sharedData->offset / (double)collection->itemCount;
+							if(sectionProgress > 1.0) {
+								sectionProgress = 1.0;
+							}
+							double progress = ((double)sharedData->type + sectionProgress) / (double)sectionCount;
 							if(checkIfSectionCaughtUp(items, *mostRecentSave) || !page.hasMore || page.lastToken.empty()) {
 								// move to next section
 								*mostRecentSave = sharedData->syncMostRecentSave;
