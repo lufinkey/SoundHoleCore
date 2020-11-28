@@ -147,13 +147,13 @@ namespace sh {
 			}), {
 				.position = indexMarker->index
 			}).then([=](SpotifyPlaylist::AddResult addResult) {
-				// update versionId
-				auto data = playlist->toData({
+				// TODO update versionId if we can figure out some way to ensure nothing has changed during the call
+				/*auto data = playlist->toData({
 					.tracksOffset = 0,
 					.tracksLimit = 0
 				});
 				data.versionId = addResult.snapshotId;
-				playlist->applyData(data);
+				playlist->applyData(data);*/
 			});
 		})
 		.then([=]() {
@@ -264,13 +264,13 @@ namespace sh {
 			return provider->spotify->addPlaylistTracks(uriParts.id, tracks.map<String>([](auto& track) {
 				return track->uri();
 			})).then([=](SpotifyPlaylist::AddResult addResult) {
-				// update versionId
-				auto data = playlist->toData({
+				// TODO update versionId if we can figure out some way to ensure nothing has changed during the call
+				/*auto data = playlist->toData({
 					.tracksOffset = 0,
 					.tracksLimit = 0
 				});
 				data.versionId = addResult.snapshotId;
-				playlist->applyData(data);
+				playlist->applyData(data);*/
 			});
 		})
 		.then([=]() {
@@ -355,13 +355,13 @@ namespace sh {
 			}
 			return provider->spotify->removePlaylistTracks(uriParts.id, playlistTrackMarkers)
 			.then([=](SpotifyPlaylist::RemoveResult removeResult) {
-				// update versionId
-				auto data = playlist->toData({
+				// TODO update versionId if we can figure out some way to ensure nothing has changed during the call
+				/*auto data = playlist->toData({
 					.tracksOffset = 0,
 					.tracksLimit = 0
 				});
-				data.versionId = removeResult.snapshotId;
-				playlist->applyData(data);
+				data.versionId = addResult.snapshotId;
+				playlist->applyData(data);*/
 			});
 		})
 		.then([=]() {
@@ -463,13 +463,13 @@ namespace sh {
 				.count=count
 			})
 			.then([=](SpotifyPlaylist::MoveResult moveResult) {
-				// update versionId
-				auto data = playlist->toData({
+				// TODO update versionId if we can figure out some way to ensure nothing has changed during the call
+				/*auto data = playlist->toData({
 					.tracksOffset = 0,
 					.tracksLimit = 0
 				});
 				data.versionId = moveResult.snapshotId;
-				playlist->applyData(data);
+				playlist->applyData(data);*/
 			});
 		})
 		.then([=]() {
