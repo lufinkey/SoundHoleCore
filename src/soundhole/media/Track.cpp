@@ -126,6 +126,27 @@ namespace sh {
 		_albumName = data.albumName;
 		_albumURI = data.albumURI;
 		_tags = data.tags;
+		if(data.artists.size() > 0) {
+			auto newArtists = data.artists;
+			for(auto& newArtist : newArtists) {
+				if(newArtist->uri().empty()) {
+					auto existingArtist = _artists.firstWhere([&](auto& item){
+						return !item->name().empty() && item->name() == newArtist->name();
+					}, nullptr);
+					if(existingArtist != nullptr && !existingArtist->needsData()) {
+						newArtist = existingArtist;
+					}
+				} else {
+					auto existingArtist = _artists.firstWhere([&](auto& item){
+						return !item->uri().empty() && item->uri() == newArtist->uri();
+					}, nullptr);
+					if(existingArtist != nullptr && !existingArtist->needsData()) {
+						newArtist = existingArtist;
+					}
+				}
+			}
+			_artists = newArtists;
+		}
 		if(data.discNumber) {
 			_discNumber = data.discNumber;
 		}
