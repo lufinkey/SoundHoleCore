@@ -876,6 +876,8 @@ namespace sh {
 						}
 						// if we don't have a last token, get the items from the fan page and set the last token
 						if(sharedData->lastToken.empty()) {
+							// map items
+							auto items = mapLibraryItems(this, collection->items);
 							// update last token, offset, and initial item save
 							sharedData->lastToken = collection->lastToken;
 							if(collection->items.size() > 0) {
@@ -889,7 +891,6 @@ namespace sh {
 								sectionProgress = 1.0;
 							}
 							double progress = ((double)sharedData->type + sectionProgress) / (double)sectionCount;
-							auto items = mapLibraryItems(this, collection->items);
 							// check if syncing is caught up or finished
 							bool done = false;
 							if(checkIfSectionCaughtUp(items, *mostRecentSave)
