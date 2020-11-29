@@ -376,7 +376,7 @@ namespace sh {
 			.dateAdded=jsutils::nonNullStringPropFromNapiObject(obj,"dateAdded"),
 			.item=([&]() -> ItemVariant {
 				auto item = obj.Get("item").As<Napi::Object>();
-				auto itemType = jsutils::nonNullStringPropFromNapiObject(obj,"type");
+				auto itemType = jsutils::nonNullStringPropFromNapiObject(item,"type");
 				if(itemType == "track") {
 					return CollectionTrack::fromNapiObject(item);
 				} else if(itemType == "album") {
