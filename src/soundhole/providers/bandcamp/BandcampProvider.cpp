@@ -879,12 +879,12 @@ namespace sh {
 							// map items
 							auto items = mapLibraryItems(this, collection->items);
 							// update last token, offset, and initial item save
-							sharedData->lastToken = collection->lastToken;
 							if(collection->items.size() > 0) {
 								sharedData->syncMostRecentSave = timeFromString(collection->items.front().dateAdded);
 							} else {
 								sharedData->syncMostRecentSave = std::nullopt;
 							}
+							sharedData->lastToken = collection->lastToken;
 							sharedData->offset += collection->items.size();
 							double sectionProgress = (double)sharedData->offset / (double)collection->itemCount;
 							if(sectionProgress > 1.0) {
