@@ -179,6 +179,7 @@ namespace sh {
 			})(),
 			.albumName = jsutils::nonNullStringPropFromNapiObject(track,"albumName"),
 			.albumURL = jsutils::nonNullStringPropFromNapiObject(track,"albumURL"),
+			.trackNumber = jsutils::optSizeFromNapiValue(track.Get("trackNumber")),
 			.duration = jsutils::optDoubleFromNapiValue(track.Get("duration")),
 			.tags = jsutils::optArrayListFromNapiArray<String>(track.Get("tags").As<Napi::Array>(), [](auto tag) -> String {
 				return tag.ToString();

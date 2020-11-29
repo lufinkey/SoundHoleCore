@@ -122,6 +122,7 @@ namespace sh {
 		Optional<BandcampArtist> artist;
 		String albumName;
 		String albumURL;
+		Optional<size_t> trackNumber;
 		Optional<double> duration;
 		Optional<ArrayList<String>> tags;
 		Optional<String> description;

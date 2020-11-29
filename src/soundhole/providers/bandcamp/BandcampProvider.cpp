@@ -386,7 +386,7 @@ namespace sh {
 			.artists=createArtists(track.artistURL, track.artistName, track.artist, partial),
 			.tags=track.tags,
 			.discNumber=std::nullopt,
-			.trackNumber=std::nullopt,
+			.trackNumber=track.trackNumber,
 			.duration=track.duration,
 			.audioSources=(track.audioSources.has_value() ?
 				maybe(track.audioSources->map<Track::AudioSource>([](auto& audioSource) {
@@ -424,6 +424,13 @@ namespace sh {
 			},
 			.albumName=track.albumName.valueOr(track.albumSlug.valueOr(String())),
 			.albumURI=(track.albumURL.empty() ? String() : createURI("album", track.albumURL)),
+			.artists=createArtists(track.artistURL, track.artistName, std::nullopt, true),
+			.tags=std::nullopt,
+			.discNumber=std::nullopt,
+			.trackNumber=track.trackNumber,
+			.duration=track.duration,
+			.audioSources=std::nullopt,
+			.playable=true
 		};
 	}
 
