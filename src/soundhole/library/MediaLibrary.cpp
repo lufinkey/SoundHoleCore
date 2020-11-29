@@ -149,14 +149,19 @@ namespace sh {
 						double itemProgressDiff = progressDiff / (double)yieldResult.value->items.size();
 						size_t libraryItemIndex = 0;
 						for(auto libraryItem : yieldResult.value->items) {
+							// get index and start progress
 							size_t index = libraryItemIndex;
+							double itemProgressStart = prevProgress + (itemProgressDiff * (double)index);
+							// fetch missing data if needed
 							if(libraryItem.mediaItem->needsData()) {
 								task->setStatusText("Fetching "+libraryProvider->displayName()+" "+libraryItem.mediaItem->type()+" "+libraryItem.mediaItem->name());
+								task->setStatusProgress(itemProgressStart);
 								await(libraryItem.mediaItem->fetchDataIfNeeded());
 								task->setStatusText("Synchronizing "+libraryProvider->displayName()+" library");
 							}
+							// increment index
 							libraryItemIndex += 1;
-							double itemProgressStart = prevProgress + (itemProgressDiff * (double)index);
+							// fetch tracks if item is a collection
 							if(auto collection = std::dynamic_pointer_cast<TrackCollection>(libraryItem.mediaItem)) {
 								auto existingCollection = maybeTryAwait(db->getTrackCollectionJson(collection->uri()), Json());
 								auto existingVersionId = existingCollection["versionId"];
@@ -213,6 +218,8 @@ namespace sh {
 								await(db->updateTrackCollectionVersionId(collection));
 								// sync library item
 								await(db->cacheLibraryItems({ libraryItem }));
+							} else {
+								task->setStatusProgress(itemProgressStart + itemProgressDiff);
 							}
 							task->setStatusText("Synchronizing "+libraryProvider->displayName()+" library");
 							yield();
