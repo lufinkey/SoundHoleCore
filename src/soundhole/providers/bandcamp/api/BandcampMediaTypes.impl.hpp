@@ -47,7 +47,7 @@ namespace sh {
 	BandcampFanSectionPage<ItemType> BandcampFanSectionPage<ItemType>::fromNapiObject(Napi::Object obj) {
 		return BandcampFanSectionPage<ItemType>{
 			.hasMore=obj.Get("hasMore").As<Napi::Boolean>().Value(),
-			.lastToken=obj.Get("lastToken").As<Napi::String>().Utf8Value(),
+			.lastToken=jsutils::stringFromNapiValue(obj.Get("lastToken")),
 			.items=jsutils::arrayListFromNapiValue<ItemType>(obj.Get("items"), [](Napi::Value value) {
 				return ItemType::fromNapiObject(value.As<Napi::Object>());
 			})

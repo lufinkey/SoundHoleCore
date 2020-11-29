@@ -919,6 +919,11 @@ namespace sh {
 						}
 						// fetch items
 						return fetcher().then([=](BandcampFanSectionPage<BandcampFan::CollectionItemNode> page) {
+							// ensure we have a token for the next page
+							if(page.hasMore && page.lastToken.empty()) {
+								return Promise<YieldResult>::reject(std::runtime_error("missing lastToken for bandcamp library page"));
+							}
+							// map items and increment offset
 							auto items = mapLibraryItems(this, page.items);
 							sharedData->offset += items.size();
 							// check if sync is finished
