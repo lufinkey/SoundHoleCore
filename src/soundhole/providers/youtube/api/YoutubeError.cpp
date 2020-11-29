@@ -56,4 +56,8 @@ namespace sh {
 	String YoutubeError::toString() const {
 		return "YoutubeError[" + Code_toString(code) + "]: " + getMessage();
 	}
+
+	const char* YoutubeError::what() const noexcept {
+		return message.c_str();
+	}
 }

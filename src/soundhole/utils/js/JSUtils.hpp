@@ -58,6 +58,7 @@ namespace sh::jsutils {
 	Json jsonFromNapiValue(napi_env env, napi_value value);
 	
 	Json jsonFromNapiValue(Napi::Value value);
+	String nonNullStringPropFromNapiObject(Napi::Object obj, const char* propName);
 	String stringFromNapiValue(Napi::Value value);
 	Optional<String> optStringFromNapiValue(Napi::Value value);
 	size_t sizeFromNapiValue(Napi::Value value);

@@ -40,4 +40,8 @@ namespace sh {
 	String BandcampError::toString() const {
 		return "BandcampError[" + Code_toString(code) + "]: " + getMessage();
 	}
+
+	const char* BandcampError::what() const noexcept {
+		return message.c_str();
+	}
 }

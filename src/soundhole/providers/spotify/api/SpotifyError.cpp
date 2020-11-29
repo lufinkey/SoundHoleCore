@@ -84,4 +84,8 @@ namespace sh {
 	String SpotifyError::toString() const {
 		return "SpotifyError[" + Code_toString(code) + "]: " + getMessage();
 	}
+
+	const char* SpotifyError::what() const noexcept {
+		return message.c_str();
+	}
 }

@@ -107,4 +107,8 @@ namespace sh {
 	String OAuthError::toString() const {
 		return "OAuthError[" + Code_toString(code) + "]: " + getMessage();
 	}
+
+	const char* OAuthError::what() const noexcept {
+		return message.c_str();
+	}
 }

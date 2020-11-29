@@ -11,7 +11,7 @@
 #include <soundhole/common.hpp>
 
 namespace sh {
-	class SoundHoleError: public Error {
+	class SoundHoleError: public BasicError<> {
 	public:
 		enum class Code {
 			REQUEST_NOT_SENT,
@@ -27,6 +27,7 @@ namespace sh {
 		String getCodeName() const;
 		virtual String getMessage() const override;
 		virtual String toString() const override;
+		virtual const char* what() const noexcept override;
 		
 	private:
 		Code code;

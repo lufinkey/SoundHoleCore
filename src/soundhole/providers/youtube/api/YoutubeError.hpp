@@ -11,7 +11,7 @@
 #include <soundhole/common.hpp>
 
 namespace sh {
-	class YoutubeError: public Error {
+	class YoutubeError: public BasicError<> {
 	public:
 		enum class Code {
 			NOT_INITIALIZED,
@@ -34,6 +34,7 @@ namespace sh {
 		
 		virtual String getMessage() const override;
 		virtual String toString() const override;
+		virtual const char* what() const noexcept override;
 		
 	private:
 		Code code;

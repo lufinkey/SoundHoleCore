@@ -44,4 +44,8 @@ namespace sh {
 	String SoundHoleError::toString() const {
 		return "SoundHoleError[" + getCodeName() + "]: " + getMessage();
 	}
+
+	const char* SoundHoleError::what() const noexcept {
+		return message.c_str();
+	}
 }

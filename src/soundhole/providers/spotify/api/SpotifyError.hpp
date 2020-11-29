@@ -18,7 +18,7 @@
 #endif
 
 namespace sh {
-	class SpotifyError: public Error {
+	class SpotifyError: public BasicError<> {
 	public:
 		enum class Code {
 			BAD_PARAMETERS,
@@ -75,6 +75,7 @@ namespace sh {
 		
 		virtual String getMessage() const override;
 		virtual String toString() const override;
+		virtual const char* what() const noexcept override;
 		
 	private:
 		Code code;

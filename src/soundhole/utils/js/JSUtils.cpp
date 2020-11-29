@@ -41,6 +41,20 @@ namespace sh::jsutils {
 		return jsonFromNapiValue(value.Env(), value);
 	}
 
+	String nonNullStringPropFromNapiObject(Napi::Object obj, const char* propName) {
+		Napi::String value = obj.Get(propName).As<Napi::String>();
+		if(value.IsEmpty()) {
+			throw std::runtime_error((std::string)"property "+propName+" is empty");
+		} else if(value.IsUndefined()) {
+			throw std::runtime_error((std::string)"property "+propName+" is undefined");
+		} else if(value.IsNull()) {
+			throw std::runtime_error((std::string)"property "+propName+" is null");
+		} else if(!value.IsString()) {
+			throw std::runtime_error((std::string)"property "+propName+" is not a string");
+		}
+		return value.Utf8Value();
+	}
+
 	String stringFromNapiValue(Napi::Value value) {
 		if(value.IsEmpty() || value.IsNull() || value.IsUndefined()) {
 			return String();

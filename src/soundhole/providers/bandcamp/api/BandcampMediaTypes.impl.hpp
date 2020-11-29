@@ -37,8 +37,8 @@ namespace sh {
 	template<typename ItemType>
 	BandcampFan::FollowItemNode<ItemType> BandcampFan::FollowItemNode<ItemType>::fromNapiObject(Napi::Object obj) {
 		return FollowItemNode<ItemType>{
-			.token=obj.Get("token").As<Napi::String>().Utf8Value(),
-			.dateFollowed=obj.Get("dateFollowed").As<Napi::String>().Utf8Value(),
+			.token=jsutils::nonNullStringPropFromNapiObject(obj,"token"),
+			.dateFollowed=jsutils::nonNullStringPropFromNapiObject(obj,"dateFollowed"),
 			.item=ItemType::fromNapiObject(obj.Get("item").As<Napi::Object>())
 		};
 	}

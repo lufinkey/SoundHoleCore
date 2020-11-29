@@ -163,13 +163,13 @@ namespace sh {
 
 	BandcampTrack BandcampTrack::fromNapiObject(Napi::Object track) {
 		return BandcampTrack{
-			.url = jsutils::stringFromNapiValue(track.Get("url")),
-			.name = jsutils::stringFromNapiValue(track.Get("name")),
+			.url = jsutils::nonNullStringPropFromNapiObject(track,"url"),
+			.name = jsutils::nonNullStringPropFromNapiObject(track,"name"),
 			.images = jsutils::arrayListFromNapiArray<BandcampImage>(track.Get("images").As<Napi::Array>(), [](auto image) -> BandcampImage {
 				return BandcampImage::fromNapiObject(image.template As<Napi::Object>());
 			}),
-			.artistName = jsutils::stringFromNapiValue(track.Get("artistName")),
-			.artistURL = jsutils::stringFromNapiValue(track.Get("artistURL")),
+			.artistName = jsutils::nonNullStringPropFromNapiObject(track,"artistName"),
+			.artistURL = jsutils::nonNullStringPropFromNapiObject(track,"artistURL"),
 			.artist = ([&]() -> Optional<BandcampArtist> {
 				auto artist = track.Get("artist");
 				if(artist.IsEmpty() || artist.IsNull() || artist.IsUndefined()) {
@@ -177,8 +177,8 @@ namespace sh {
 				}
 				return BandcampArtist::fromNapiObject(artist.template As<Napi::Object>());
 			})(),
-			.albumName = jsutils::stringFromNapiValue(track.Get("albumName")),
-			.albumURL = jsutils::stringFromNapiValue(track.Get("albumURL")),
+			.albumName = jsutils::nonNullStringPropFromNapiObject(track,"albumName"),
+			.albumURL = jsutils::nonNullStringPropFromNapiObject(track,"albumURL"),
 			.duration = jsutils::optDoubleFromNapiValue(track.Get("duration")),
 			.tags = jsutils::optArrayListFromNapiArray<String>(track.Get("tags").As<Napi::Array>(), [](auto tag) -> String {
 				return tag.ToString();
@@ -194,19 +194,19 @@ namespace sh {
 	BandcampTrack::AudioSource BandcampTrack::AudioSource::fromNapiObject(Napi::Object audioSource) {
 		return AudioSource{
 			.type = jsutils::stringFromNapiValue(audioSource.Get("type")),
-			.url = audioSource.Get("url").As<Napi::String>()
+			.url = jsutils::nonNullStringPropFromNapiObject(audioSource,"url")
 		};
 	}
 
 	BandcampAlbum BandcampAlbum::fromNapiObject(Napi::Object album) {
 		return BandcampAlbum{
-			.url = album.Get("url").As<Napi::String>().Utf8Value(),
-			.name = album.Get("name").As<Napi::String>().Utf8Value(),
+			.url = jsutils::nonNullStringPropFromNapiObject(album,"url"),
+			.name = jsutils::nonNullStringPropFromNapiObject(album,"name"),
 			.images = jsutils::arrayListFromNapiArray<BandcampImage>(album.Get("images").As<Napi::Array>(), [](auto image) -> BandcampImage {
 				return BandcampImage::fromNapiObject(image.template As<Napi::Object>());
 			}),
-			.artistName = jsutils::stringFromNapiValue(album.Get("artistName")),
-			.artistURL = jsutils::stringFromNapiValue(album.Get("artistURL")),
+			.artistName = jsutils::nonNullStringPropFromNapiObject(album,"artistName"),
+			.artistURL = jsutils::nonNullStringPropFromNapiObject(album,"artistURL"),
 			.artist = ([&]() -> Optional<BandcampArtist> {
 				auto artist = album.Get("artist");
 				if(artist.IsEmpty() || artist.IsNull() || artist.IsUndefined()) {
@@ -339,10 +339,10 @@ namespace sh {
 
 	BandcampIdentities::Fan BandcampIdentities::Fan::fromNapiObject(Napi::Object obj) {
 		return Fan{
-			.id=obj.Get("id").As<Napi::String>().Utf8Value(),
-			.url=obj.Get("url").As<Napi::String>().Utf8Value(),
-			.username=obj.Get("username").As<Napi::String>().Utf8Value(),
-			.name=obj.Get("name").As<Napi::String>().Utf8Value(),
+			.id=jsutils::nonNullStringPropFromNapiObject(obj,"id"),
+			.url=jsutils::nonNullStringPropFromNapiObject(obj,"url"),
+			.username=jsutils::nonNullStringPropFromNapiObject(obj,"username"),
+			.name=jsutils::nonNullStringPropFromNapiObject(obj,"name"),
 			.images=jsutils::optArrayListFromNapiValue<BandcampImage>(obj.Get("images"), [](Napi::Value value) {
 				return BandcampImage::fromNapiObject(value.template As<Napi::Object>());
 			})
@@ -353,10 +353,10 @@ namespace sh {
 
 	BandcampFan BandcampFan::fromNapiObject(Napi::Object obj) {
 		return BandcampFan{
-			.id=obj.Get("id").As<Napi::String>().Utf8Value(),
-			.url=obj.Get("url").As<Napi::String>().Utf8Value(),
-			.username=obj.Get("username").As<Napi::String>().Utf8Value(),
-			.name=obj.Get("name").As<Napi::String>().Utf8Value(),
+			.id=jsutils::nonNullStringPropFromNapiObject(obj,"id"),
+			.url=jsutils::nonNullStringPropFromNapiObject(obj,"url"),
+			.username=jsutils::nonNullStringPropFromNapiObject(obj,"username"),
+			.name=jsutils::nonNullStringPropFromNapiObject(obj,"name"),
 			.description=jsutils::stringFromNapiValue(obj.Get("description")),
 			.images=jsutils::optArrayListFromNapiValue<BandcampImage>(obj.Get("images"), [](Napi::Value value) {
 				return BandcampImage::fromNapiObject(value.template As<Napi::Object>());
@@ -372,11 +372,11 @@ namespace sh {
 
 	BandcampFan::CollectionItemNode BandcampFan::CollectionItemNode::fromNapiObject(Napi::Object obj) {
 		return CollectionItemNode{
-			.token=obj.Get("token").As<Napi::String>().Utf8Value(),
-			.dateAdded=obj.Get("dateAdded").As<Napi::String>().Utf8Value(),
+			.token=jsutils::nonNullStringPropFromNapiObject(obj,"token"),
+			.dateAdded=jsutils::nonNullStringPropFromNapiObject(obj,"dateAdded"),
 			.item=([&]() -> ItemVariant {
 				auto item = obj.Get("item").As<Napi::Object>();
-				auto itemType = item.Get("type").As<Napi::String>().Utf8Value();
+				auto itemType = jsutils::nonNullStringPropFromNapiObject(obj,"type");
 				if(itemType == "track") {
 					return CollectionTrack::fromNapiObject(item);
 				} else if(itemType == "album") {
@@ -408,33 +408,33 @@ namespace sh {
 			.images=jsutils::optArrayListFromNapiValue<BandcampImage>(obj.Get("images"), [](Napi::Value value) {
 				return BandcampImage::fromNapiObject(value.template As<Napi::Object>());
 			}),
-			.name=obj.Get("name").As<Napi::String>().Utf8Value(),
-			.artistName=obj.Get("artistName").As<Napi::String>().Utf8Value(),
-			.artistURL=obj.Get("artistURL").As<Napi::String>().Utf8Value(),
+			.name=jsutils::nonNullStringPropFromNapiObject(obj,"name"),
+			.artistName=jsutils::nonNullStringPropFromNapiObject(obj,"artistName"),
+			.artistURL=jsutils::nonNullStringPropFromNapiObject(obj,"artistURL"),
 			.duration=jsutils::optDoubleFromNapiValue(obj.Get("duration")),
 			.trackNumber=jsutils::sizeFromNapiValue(obj.Get("trackNumber")),
-			.albumURL=obj.Get("albumURL").As<Napi::String>().Utf8Value(),
-			.albumName=obj.Get("albumName").As<Napi::String>().Utf8Value(),
-			.albumSlug=obj.Get("albumSlug").As<Napi::String>().Utf8Value(),
+			.albumURL=jsutils::nonNullStringPropFromNapiObject(obj,"albumURL"),
+			.albumName=jsutils::optStringFromNapiValue(obj.Get("albumName")),
+			.albumSlug=jsutils::optStringFromNapiValue(obj.Get("albumSlug")),
 		};
 	}
 
 	BandcampFan::CollectionAlbum BandcampFan::CollectionAlbum::fromNapiObject(Napi::Object obj) {
 		return CollectionAlbum{
-			.url=obj.Get("url").As<Napi::String>().Utf8Value(),
-			.name=obj.Get("name").As<Napi::String>().Utf8Value(),
+			.url=jsutils::nonNullStringPropFromNapiObject(obj,"url"),
+			.name=jsutils::nonNullStringPropFromNapiObject(obj,"name"),
 			.images=jsutils::optArrayListFromNapiValue<BandcampImage>(obj.Get("images"), [](Napi::Value value) {
 				return BandcampImage::fromNapiObject(value.template As<Napi::Object>());
 			}),
-			.artistName=obj.Get("artistName").As<Napi::String>().Utf8Value(),
-			.artistURL=obj.Get("artistURL").As<Napi::String>().Utf8Value()
+			.artistName=jsutils::nonNullStringPropFromNapiObject(obj,"artistName"),
+			.artistURL=jsutils::nonNullStringPropFromNapiObject(obj,"artistURL")
 		};
 	}
 
 	BandcampFan::CollectionArtist BandcampFan::CollectionArtist::fromNapiObject(Napi::Object obj) {
 		return CollectionArtist{
-			.url=obj.Get("url").As<Napi::String>().Utf8Value(),
-			.name=obj.Get("name").As<Napi::String>().Utf8Value(),
+			.url=jsutils::nonNullStringPropFromNapiObject(obj,"url"),
+			.name=jsutils::nonNullStringPropFromNapiObject(obj,"name"),
 			.location=jsutils::optStringFromNapiValue(obj.Get("location")),
 			.images=jsutils::optArrayListFromNapiValue<BandcampImage>(obj.Get("images"), [](Napi::Value value) {
 				return BandcampImage::fromNapiObject(value.template As<Napi::Object>());
@@ -444,9 +444,9 @@ namespace sh {
 
 	BandcampFan::CollectionFan BandcampFan::CollectionFan::fromNapiObject(Napi::Object obj) {
 		return CollectionFan{
-			.id=obj.Get("id").As<Napi::String>().Utf8Value(),
-			.url=obj.Get("url").As<Napi::String>().Utf8Value(),
-			.name=obj.Get("name").As<Napi::String>().Utf8Value(),
+			.id=jsutils::nonNullStringPropFromNapiObject(obj,"id"),
+			.url=jsutils::nonNullStringPropFromNapiObject(obj,"url"),
+			.name=jsutils::nonNullStringPropFromNapiObject(obj,"name"),
 			.location=jsutils::optStringFromNapiValue(obj.Get("location")),
 			.images=jsutils::optArrayListFromNapiValue<BandcampImage>(obj.Get("images"), [](Napi::Value value) {
 				return BandcampImage::fromNapiObject(value.template As<Napi::Object>());
