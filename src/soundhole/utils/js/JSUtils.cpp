@@ -45,14 +45,20 @@ namespace sh::jsutils {
 		if(value.IsEmpty() || value.IsNull() || value.IsUndefined()) {
 			return String();
 		}
-		return value.ToString();
+		if(value.IsString()) {
+			return value.As<Napi::String>().Utf8Value();
+		}
+		return value.ToString().Utf8Value();
 	}
 
 	Optional<String> optStringFromNapiValue(Napi::Value value) {
 		if(value.IsEmpty() || value.IsNull() || value.IsUndefined()) {
 			return std::nullopt;
 		}
-		return String(value.ToString());
+		if(value.IsString()) {
+			return value.As<Napi::String>().Utf8Value();
+		}
+		return String(value.ToString().Utf8Value());
 	}
 
 	size_t sizeFromNapiValue(Napi::Value value) {
