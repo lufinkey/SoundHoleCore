@@ -151,7 +151,7 @@ namespace sh {
 						for(auto libraryItem : yieldResult.value->items) {
 							size_t index = libraryItemIndex;
 							if(libraryItem.mediaItem->needsData()) {
-								task->setStatusText("fetching "+libraryItem.mediaItem->type()+" "+libraryItem.mediaItem->name());
+								task->setStatusText("Fetching "+libraryProvider->displayName()+" "+libraryItem.mediaItem->type()+" "+libraryItem.mediaItem->name());
 								await(libraryItem.mediaItem->fetchDataIfNeeded());
 								task->setStatusText("Synchronizing "+libraryProvider->displayName()+" library");
 							}
@@ -261,7 +261,7 @@ namespace sh {
 			};
 			LinkedList<QueuedProviderNode> queuedProviders;
 			for(auto provider : libraryProvider->getMediaProviders()) {
-				if(provider->hasLibrary()) {
+				if(provider->hasLibrary() && provider->isLoggedIn()) {
 					String taskTag = "sync:"+provider->name();
 					auto taskNode = synchronizeQueue.getTaskWithTag(taskTag);
 					auto taskIndex = synchronizeQueue.indexOfTaskWithTag(taskTag);
