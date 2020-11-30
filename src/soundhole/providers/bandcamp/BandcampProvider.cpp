@@ -949,17 +949,19 @@ namespace sh {
 						}
 						
 						// helper functions
-						auto checkIfSectionCaughtUp = [](const LinkedList<LibraryItem>& items, Optional<time_t> mostRecentSave) -> bool {
+						auto checkIndexSectionCaughtUp = [](const LinkedList<LibraryItem>& items, Optional<time_t> mostRecentSave) -> Optional<size_t> {
 							if(!mostRecentSave) {
-								return false;
+								return std::nullopt;
 							}
+							size_t index = 0;
 							for(auto& item : items) {
 								time_t addedAt = item.addedAt.empty() ? 0 : timeFromString(item.addedAt);
 								if(addedAt < mostRecentSave.value()) {
-									return true;
+									return index;
 								}
+								index++;
 							}
-							return false;
+							return std::nullopt;
 						};
 						auto mapLibraryItems = [](BandcampProvider* provider, const ArrayList<BandcampFan::CollectionItemNode>& items) -> LinkedList<LibraryItem> {
 							LinkedList<LibraryItem> libraryItems;
@@ -1031,8 +1033,11 @@ namespace sh {
 							double progress = ((double)sharedData->type + sectionProgress) / (double)sectionCount;
 							// check if syncing is caught up or finished
 							bool done = false;
-							if(checkIfSectionCaughtUp(items, *mostRecentSave)
+							auto caughtUpIndex = checkIndexSectionCaughtUp(items, *mostRecentSave);
+							if(caughtUpIndex
 							   || collection->itemCount <= collection->items.size()) {
+								// trim items
+								items = LinkedList<LibraryItem>(items.begin(), std::next(items.begin(),caughtUpIndex.value()));
 								// move to next section
 								*mostRecentSave = sharedData->syncMostRecentSave;
 								sharedData->type += 1;
@@ -1092,7 +1097,10 @@ namespace sh {
 								sectionProgress = 1.0;
 							}
 							double progress = ((double)sharedData->type + sectionProgress) / (double)sectionCount;
-							if(checkIfSectionCaughtUp(items, *mostRecentSave) || !page.hasMore || page.lastToken.empty()) {
+							auto caughtUpIndex = checkIndexSectionCaughtUp(items, *mostRecentSave);
+							if(caughtUpIndex || !page.hasMore || page.lastToken.empty()) {
+								// trim items
+								items = LinkedList<LibraryItem>(items.begin(), std::next(items.begin(),caughtUpIndex.value()));
 								// move to next section
 								*mostRecentSave = sharedData->syncMostRecentSave;
 								sharedData->type += 1;
