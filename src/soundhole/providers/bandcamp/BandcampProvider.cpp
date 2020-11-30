@@ -1037,7 +1037,9 @@ namespace sh {
 							if(caughtUpIndex
 							   || collection->itemCount <= collection->items.size()) {
 								// trim items
-								items = LinkedList<LibraryItem>(items.begin(), std::next(items.begin(),caughtUpIndex.value()));
+								if(caughtUpIndex) {
+									items = LinkedList<LibraryItem>(items.begin(), std::next(items.begin(),caughtUpIndex.value()));
+								}
 								// move to next section
 								*mostRecentSave = sharedData->syncMostRecentSave;
 								sharedData->type += 1;
@@ -1100,7 +1102,9 @@ namespace sh {
 							auto caughtUpIndex = checkIndexSectionCaughtUp(items, *mostRecentSave);
 							if(caughtUpIndex || !page.hasMore || page.lastToken.empty()) {
 								// trim items
-								items = LinkedList<LibraryItem>(items.begin(), std::next(items.begin(),caughtUpIndex.value()));
+								if(caughtUpIndex) {
+									items = LinkedList<LibraryItem>(items.begin(), std::next(items.begin(),caughtUpIndex.value()));
+								}
 								// move to next section
 								*mostRecentSave = sharedData->syncMostRecentSave;
 								sharedData->type += 1;
