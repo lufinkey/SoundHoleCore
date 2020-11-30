@@ -690,11 +690,13 @@ namespace sh {
 	#pragma mark User Library
 
 	BandcampProvider::GenerateLibraryResumeData BandcampProvider::GenerateLibraryResumeData::fromJson(const Json& json) {
+		auto mostRecentHiddenSave = json["mostRecentHiddenSave"];
 		auto mostRecentCollectionSave = json["mostRecentCollectionSave"];
 		auto mostRecentWishlistSave = json["mostRecentWishlistSave"];
 		auto syncMostRecentSave = json["syncMostRecentSave"];
 		auto resumeData = GenerateLibraryResumeData{
 			.fanId = (std::string)json["fanId"].string_value(),
+			.mostRecentHiddenSave = mostRecentHiddenSave.is_number() ? maybe((time_t)mostRecentHiddenSave.number_value()) : std::nullopt,
 			.mostRecentCollectionSave = mostRecentCollectionSave.is_number() ? maybe((time_t)mostRecentCollectionSave.number_value()) : std::nullopt,
 			.mostRecentWishlistSave = mostRecentWishlistSave.is_number() ? maybe((time_t)mostRecentWishlistSave.number_value()) : std::nullopt,
 			.syncCurrentType = json["syncCurrentType"].string_value(),
@@ -718,6 +720,7 @@ namespace sh {
 	Json BandcampProvider::GenerateLibraryResumeData::toJson() const {
 		return Json::object{
 			{ "fanId", (std::string)fanId },
+			{ "mostRecentHiddenSave", mostRecentHiddenSave ? Json((double)mostRecentHiddenSave.value()) : Json() },
 			{ "mostRecentCollectionSave", mostRecentCollectionSave ? Json((double)mostRecentCollectionSave.value()) : Json() },
 			{ "mostRecentWishlistSave", mostRecentWishlistSave ? Json((double)mostRecentWishlistSave.value()) : Json() },
 			{ "syncCurrentType", Json(syncCurrentType) },
