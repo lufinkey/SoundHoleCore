@@ -480,7 +480,7 @@ namespace sh {
 					.total=album.tracks->size(),
 					.offset=0,
 					.items=album.tracks->map<AlbumItem::Data>([&](auto& track) {
-						auto trackData = createTrackData(track, true);
+						auto trackData = createTrackData(track, partial);
 						trackData.albumName = album.name;
 						trackData.albumURI = albumURI;
 						// pull duplicate artists from album artists
