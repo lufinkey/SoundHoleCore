@@ -853,7 +853,7 @@ namespace sh {
 						if(libraryItem.mediaItem->needsData()) {
 							promise = promise.then([=]() {
 								// append album tracks if needed
-								if(auto collection = std::dynamic_pointer_cast<TrackCollection>(libraryItem.mediaItem)) {
+								if(auto collection = std::dynamic_pointer_cast<TrackCollection>(libraryItem.mediaItem); saveAlbumTracks) {
 									return libraryItem.mediaItem->fetchDataIfNeeded().then([=]() {
 										if(!collection->itemCount().hasValue()) {
 											throw std::runtime_error("bandcamp collection has no item count after fetching data");
@@ -876,7 +876,7 @@ namespace sh {
 							});
 						} else {
 							// append album tracks if needed
-							if(auto collection = std::dynamic_pointer_cast<TrackCollection>(libraryItem.mediaItem)) {
+							if(auto collection = std::dynamic_pointer_cast<TrackCollection>(libraryItem.mediaItem); saveAlbumTracks) {
 								if(!collection->itemCount().hasValue()) {
 									throw std::runtime_error("bandcamp collection has no item count");
 								}
