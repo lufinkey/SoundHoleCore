@@ -71,8 +71,8 @@ namespace sh {
 			size_t syncOffset;
 			
 			Json toJson() const;
-			
 			static GenerateLibraryResumeData fromJson(const Json&);
+			
 			static String typeFromSyncIndex(size_t index);
 			static Optional<size_t> syncIndexFromType(String type);
 		};
