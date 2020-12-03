@@ -790,6 +790,7 @@ namespace sh {
 		});
 		auto createResumeData = Function<GenerateLibraryResumeData($<SharedData>)>([]($<SharedData> data) {
 			return GenerateLibraryResumeData{
+				.fanId = data->fanId,
 				.mostRecentHiddenSave = data->mostRecentHiddenSave,
 				.mostRecentCollectionSave = data->mostRecentCollectionSave,
 				.mostRecentWishlistSave = data->mostRecentWishlistSave,
