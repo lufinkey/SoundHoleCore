@@ -6,7 +6,7 @@
 	"scripts": {
 		"build": "npm install && npm run make-header",
 		"clean": "rm -rf node_modules build package-lock.json",
-		"bundle": "mkdir -p build &> /dev/null && browserify --node --standalone _ index.js -o build/output1.js && babel build/output1.js --out-file build/soundhole_js_bundle.js",
+		"bundle": "mkdir -p build &> /dev/null && browserify --node --external process --ignore-missing index.js -o build/output1.js && babel build/output1.js --out-file build/soundhole_js_bundle.js",
 		"make-header": "npm run bundle && cd build && xxd -i soundhole_js_bundle.js > soundhole_js_bundle.h",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
@@ -17,7 +17,7 @@
 		"google-spreadsheets": "^2.0.0",
 		"googleapis": "^66.0.0",
 		"uuid": "^8.3.2",
-		"ytdl-core": "^4.0.5"
+		"ytdl-core": "^4.2.1"
 	},
 	"devDependencies": {
 		"@babel/cli": "^7.12.7",
