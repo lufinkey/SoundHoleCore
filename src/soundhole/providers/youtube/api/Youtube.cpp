@@ -10,6 +10,7 @@
 #include "Youtube.hpp"
 #include "YoutubeError.hpp"
 #include <soundhole/scripts/Scripts.hpp>
+#include <soundhole/utils/js/JSWrapClass.impl.hpp>
 
 namespace sh {
 	String YOUTUBE_API_URL = "https://www.googleapis.com/youtube/v3";

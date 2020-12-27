@@ -9,6 +9,7 @@
 #pragma once
 
 #include <soundhole/common.hpp>
+#include "JSUtils.hpp"
 
 namespace sh {
 	class JSWrapClass {
@@ -19,6 +20,15 @@ namespace sh {
 		void initializeJSIfNeeded();
 		void queueJS(Function<void(napi_env)> work);
 		void queueJSDestruct(Function<void(napi_env)> work);
+		
+		#ifdef NODE_API_MODULE
+		struct PerformAsyncFuncOptions {
+			Function<void(napi_env)> beforeFuncCall;
+			Function<void(napi_env)> afterFuncFinish;
+		};
+		template<typename Result>
+		Promise<Result> performAsyncFunc(napi_ref jsObj, String funcName, Function<std::vector<napi_value>(napi_env)> createArgs, Function<Result(napi_env,Napi::Value)> mapper, PerformAsyncFuncOptions options = PerformAsyncFuncOptions());
+		#endif
 		
 	private:
 		bool initializingJS;

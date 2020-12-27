@@ -11,6 +11,7 @@
 #include "BandcampError.hpp"
 #include <soundhole/scripts/Scripts.hpp>
 #include <soundhole/utils/js/JSUtils.hpp>
+#include <soundhole/utils/js/JSWrapClass.impl.hpp>
 
 namespace sh {
 	Bandcamp::Bandcamp(Options options)
@@ -160,46 +161,17 @@ namespace sh {
 
 	template<typename Result>
 	Promise<Result> Bandcamp::performAsyncBandcampJSFunc(String funcName, Function<std::vector<napi_value>(napi_env)> createArgs, Function<Result(napi_env,Napi::Value)> mapper) {
-		return Promise<Result>([=](auto resolve, auto reject) {
-			queueJS([=](napi_env env) {
-				// update session
-				if(auto session = auth->getSession()) {
-					updateJSSession(env, session);
+		return performAsyncFunc<Result>(jsRef, funcName, createArgs, mapper, {
+			.beforeFuncCall = [=](napi_env env) {
+				// update session before function call
+				if(auto session = this->auth->getSession()) {
+					this->updateJSSession(env, session);
 				}
-				// get api object and make call
-				auto jsApi = jsutils::jsValue<Napi::Object>(env, jsRef);
-				if(jsApi.IsEmpty()) {
-					reject(BandcampError(BandcampError::Code::NOT_INITIALIZED, "Bandcamp not initialized"));
-					return;
-				}
-				auto promise = jsApi.Get(funcName).As<Napi::Function>().Call(jsApi, createArgs(env)).As<Napi::Object>();
-				promise.Get("then").As<Napi::Function>().Call(promise, {
-					// then
-					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
-						updateSessionFromJS(info.Env());
-						// decode result
-						auto value = info[0];
-						Optional<Result> result;
-						try {
-							result = mapper(env,value);
-						} catch(Napi::Error& error) {
-							reject(std::runtime_error(error.what()));
-							return;
-						} catch(...) {
-							reject(std::current_exception());
-							return;
-						}
-						resolve(result.value());
-					}),
-					// catch
-					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
-						updateSessionFromJS(info.Env());
-						// handle error
-						auto errorMessage = info[0].As<Napi::Object>().Get("message").ToString();
-						reject(BandcampError(BandcampError::Code::REQUEST_FAILED, errorMessage));
-					})
-				});
-			});
+			},
+			.afterFuncFinish = [=](napi_env env) {
+				// update session after function finishes
+				this->updateSessionFromJS(env);
+			}
 		});
 	}
 

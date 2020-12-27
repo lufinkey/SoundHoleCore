@@ -1,8 +1,13 @@
 
 const { google } = require('googleapis');
 const { v1: uuidv1 } = require('uuid');
+const StorageProvider = require('./StorageProvider');
 
-class GoogleDriveStorageProvider {
+const PLAYLIST_IMAGE_DATA_KEY = 'SHPLAYLIST_IMAGE_DATA';
+const PLAYLIST_IMAGE_MIMETYPE_KEY = 'SHPLAYLIST_IMAGE_MIMETYPE';
+
+
+class GoogleDriveStorageProvider extends StorageProvider {
 	constructor(options) {
 		if(!options || typeof options !== 'object') {
 			throw new Error("missing options");
@@ -38,6 +43,18 @@ class GoogleDriveStorageProvider {
 			auth: this._auth
 		});
 	}
+
+
+	get name() {
+		return 'googledrive';
+	}
+
+	get displayName() {
+		return "Google Drive";
+	}
+
+
+
 
 	get canStorePlaylists() {
 		return false;
@@ -108,9 +125,11 @@ class GoogleDriveStorageProvider {
 
 
 	_createPlaylistObject(file) {
+		// TODO add images, owner, privacy
 		return {
 			id: file.id,
 			name: file.name,
+			versionId: file.modifiedTime,
 			description: file.description
 		};
 	}
@@ -118,19 +137,29 @@ class GoogleDriveStorageProvider {
 
 
 	async createPlaylist(name, options={}) {
+		// prepare folder
 		await this._preparePlaylistsFolder();
 		const playlistsFolderId = this._playlistsFolderId;
 		if(playlistsFolderId == null) {
 			throw new Error("missing playlists folder ID");
 		}
+		// prepare properties
+		const properties = {};
+		if(options.image) {
+			properties[PLAYLIST_IMAGE_DATA_KEY] = options.image.data;
+			properties[PLAYLIST_IMAGE_MIMETYPE_KEY] = options.image.mimeType;
+		}
+		// create file
 		const file = await this._drive.files.create({
 			name: name,
 			description: options.description,
 			parents: [playlistsFolderId],
 			media: {
 				mimeType: 'application/vnd.google-apps.spreadsheet'
-			}
+			},
+			properties: properties
 		});
+		// transform result
 		return this._createPlaylistObject(file);
 	}
 

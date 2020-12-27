@@ -1,14 +1,17 @@
 
 const HttpClient = require('./src/HttpClient');
-const Bandcamp = require('./src/Bandcamp');
-const YoutubeDL = require('./src/YoutubeDL');
 const Test = require('./src/test');
 const Utils = require('./src/Utils');
 
+const Bandcamp = require('bandcamp-api');
+const ytdl = require('ytdl-core');
+const GoogleDriveStorageProvider = require('./src/storageProviders/GoogleDriveStorageProvider');
+
 module.exports = {
 	...HttpClient,
-	...Bandcamp,
-	...YoutubeDL,
 	...Test,
-	...Utils
+	...Utils,
+	Bandcamp,
+	GoogleDriveStorageProvider,
+	ytdl
 };
