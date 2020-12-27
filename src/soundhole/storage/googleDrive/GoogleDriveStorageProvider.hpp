@@ -22,7 +22,7 @@ namespace sh {
 			String sessionPersistKey;
 		};
 		
-		GoogleDriveStorageProvider();
+		GoogleDriveStorageProvider(Options options);
 		virtual ~GoogleDriveStorageProvider();
 		
 		virtual String name() const override;

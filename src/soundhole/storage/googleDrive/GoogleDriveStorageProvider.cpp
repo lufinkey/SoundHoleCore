@@ -12,8 +12,8 @@
 #include <soundhole/utils/js/JSWrapClass.impl.hpp>
 
 namespace sh {
-	GoogleDriveStorageProvider::GoogleDriveStorageProvider()
-	: jsRef(nullptr) {
+	GoogleDriveStorageProvider::GoogleDriveStorageProvider(Options options)
+	: jsRef(nullptr), options(options) {
 		//
 	}
 

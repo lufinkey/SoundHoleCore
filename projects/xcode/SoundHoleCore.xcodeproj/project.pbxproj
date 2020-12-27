@@ -196,6 +196,9 @@
 		A5C6CCFC2598178200596878 /* StorageProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5C6CCFB2598178200596878 /* StorageProvider.cpp */; };
 		A5C6CCFD2598178200596878 /* StorageProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5C6CCFB2598178200596878 /* StorageProvider.cpp */; };
 		A5C6CD692598582200596878 /* JSWrapClass.impl.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5C6CD682598582200596878 /* JSWrapClass.impl.hpp */; };
+		A5C6CDED259860BC00596878 /* SoundHoleProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5C6CDEB259860BC00596878 /* SoundHoleProvider.cpp */; };
+		A5C6CDEE259860BC00596878 /* SoundHoleProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5C6CDEB259860BC00596878 /* SoundHoleProvider.cpp */; };
+		A5C6CDEF259860BC00596878 /* SoundHoleProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5C6CDEC259860BC00596878 /* SoundHoleProvider.hpp */; };
 		A5D9E10E2550BAB500E4762A /* BandcampAuth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5D9E10C2550BAB500E4762A /* BandcampAuth.cpp */; };
 		A5D9E10F2550BAB500E4762A /* BandcampAuth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5D9E10C2550BAB500E4762A /* BandcampAuth.cpp */; };
 		A5D9E1102550BAB500E4762A /* BandcampAuth.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5D9E10D2550BAB500E4762A /* BandcampAuth.hpp */; };
@@ -457,6 +460,8 @@
 		A5C6CCEF2598013D00596878 /* GoogleDriveStorageProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GoogleDriveStorageProvider.hpp; sourceTree = "<group>"; };
 		A5C6CCFB2598178200596878 /* StorageProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = StorageProvider.cpp; sourceTree = "<group>"; };
 		A5C6CD682598582200596878 /* JSWrapClass.impl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = JSWrapClass.impl.hpp; sourceTree = "<group>"; };
+		A5C6CDEB259860BC00596878 /* SoundHoleProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SoundHoleProvider.cpp; sourceTree = "<group>"; };
+		A5C6CDEC259860BC00596878 /* SoundHoleProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SoundHoleProvider.hpp; sourceTree = "<group>"; };
 		A5D9E10C2550BAB500E4762A /* BandcampAuth.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampAuth.cpp; sourceTree = "<group>"; };
 		A5D9E10D2550BAB500E4762A /* BandcampAuth.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BandcampAuth.hpp; sourceTree = "<group>"; };
 		A5D9E1152550BC0B00E4762A /* BandcampSession.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampSession.cpp; sourceTree = "<group>"; };
@@ -683,6 +688,7 @@
 		A513DB6F232DA1F8000DCAC7 /* providers */ = {
 			isa = PBXGroup;
 			children = (
+				A5C6CDD925985CE800596878 /* soundhole */,
 				A571E12F2332C5AC00603E14 /* bandcamp */,
 				A571E1312332C5D000603E14 /* spotify */,
 				A571E1302332C5BC00603E14 /* youtube */,
@@ -1034,6 +1040,15 @@
 			path = googleDrive;
 			sourceTree = "<group>";
 		};
+		A5C6CDD925985CE800596878 /* soundhole */ = {
+			isa = PBXGroup;
+			children = (
+				A5C6CDEC259860BC00596878 /* SoundHoleProvider.hpp */,
+				A5C6CDEB259860BC00596878 /* SoundHoleProvider.cpp */,
+			);
+			path = soundhole;
+			sourceTree = "<group>";
+		};
 		A5E851A22357B1300001F74D /* api */ = {
 			isa = PBXGroup;
 			children = (
@@ -1172,6 +1187,7 @@
 				A5AE3F3F247DFFE400FB9AFF /* MediaLibraryProvider.hpp in Headers */,
 				A513ED8F232DA20B000DCAC7 /* YoutubeProvider.hpp in Headers */,
 				A513ED9D232DA20C000DCAC7 /* soundhole.hpp in Headers */,
+				A5C6CDEF259860BC00596878 /* SoundHoleProvider.hpp in Headers */,
 				A571E16C2333305D00603E14 /* Scripts.hpp in Headers */,
 				A5E7852C23CE743000BD1C67 /* BandcampPlaybackProvider.hpp in Headers */,
 				A5E851CA235A56BD0001F74D /* YoutubeError.hpp in Headers */,
@@ -1453,6 +1469,7 @@
 				A5AE3F42248728F600FB9AFF /* MediaLibrary.cpp in Sources */,
 				A52C4712250EE85800131918 /* OAuthSession.cpp in Sources */,
 				A5B7A78E2335C91800301FC0 /* SoundHoleError.cpp in Sources */,
+				A5C6CDED259860BC00596878 /* SoundHoleProvider.cpp in Sources */,
 				A5B7A7C1233EA76C00301FC0 /* SHWebViewController_iOS.mm in Sources */,
 				A5B7A7AB2337F1DE00301FC0 /* SpotifyPlayer.cpp in Sources */,
 				A578785023DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp in Sources */,
@@ -1603,6 +1620,7 @@
 				A5F07D75254383FF00C41A36 /* YoutubeMediaTypes.cpp in Sources */,
 				A54F2548239DAA2700C81E1C /* StreamPlayer.cpp in Sources */,
 				A5EDB8EE249ADC1200885BC2 /* MediaLibraryTracksCollection.cpp in Sources */,
+				A5C6CDEE259860BC00596878 /* SoundHoleProvider.cpp in Sources */,
 				A5F081612543CFAE00C41A36 /* SystemMediaControls.cpp in Sources */,
 				A5E851CF235DFEBC0001F74D /* BandcampMediaTypes.cpp in Sources */,
 				A571E1322332C64500603E14 /* SpotifyProvider.cpp in Sources */,
