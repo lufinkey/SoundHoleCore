@@ -134,8 +134,8 @@ namespace sh {
 			auto code = utils::getMapValueOrDefault<String,String>(params, "code", String());
 			if(!error.empty()) {
 				if(error == "access_denied") {
-					// cancelled from webview
-					return Promise<Optional<YoutubeSession>>::resolve(std::nullopt);
+					// denied from webview
+					return Promise<Optional<YoutubeSession>>::reject(std::runtime_error("Access Denied"));
 				}
 				else {
 					// error
@@ -160,7 +160,7 @@ namespace sh {
 			else {
 				// missing parameters
 				return Promise<Optional<YoutubeSession>>::reject(
-					YoutubeError(YoutubeError::Code::BAD_DATA, "Missing expected parameters in redirect URL"));
+					OAuthError(OAuthError::Code::BAD_DATA, "Missing expected parameters in redirect URL"));
 			}
 		});
 	}

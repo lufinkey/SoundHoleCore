@@ -28,8 +28,12 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		
 		this._auth = new google.auth.OAuth2({
 			clientId: options.clientId,
-			clientSecret: options.clientSecret
+			clientSecret: options.clientSecret,
+			redirectUri: options.redirectURL
 		});
+		if(options.apiKey) {
+			this._auth.apiKey = options.apiKey;
+		}
 		if(options.credentials) {
 			this._auth.setCredentials(options.credentials);
 		}
@@ -53,6 +57,42 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		return "Google Drive";
 	}
 
+	get auth() {
+		return this._auth;
+	}
+
+	get session() {
+		const credentials = this._auth.credentials;
+		if(!credentials) {
+			return null;
+		}
+		if(!credentials.access_token || !credentials.expiry_date
+		   || !credentials.id_token || !credentials.token_type) {
+			return null;
+		}
+		return credentials;
+	}
+
+
+
+	async loginWithRedirectParams(params, options) {
+		if(params.error) {
+			throw new Error(params.error);
+		}
+		if(!params.code) {
+			throw new Error("Missing expected parameters in redirect URL");
+		}
+		const { tokens } = await this._auth.getToken({
+			code: params.code,
+			codeVerifier: options.codeVerifier,
+			client_id: options.clientId
+		});
+		this._auth.setCredentials(tokens);
+	}
+
+	logout() {
+		this._auth.revokeCredentials();
+	}
 
 
 

@@ -6,7 +6,9 @@
 //  Copyright © 2019 Luis Finke. All rights reserved.
 //
 
+#include <napi.h>
 #include "JSWrapClass.hpp"
+#include "JSWrapClass.impl.hpp"
 #include <soundhole/scripts/Scripts.hpp>
 #include <embed/nodejs/NodeJS.hpp>
 

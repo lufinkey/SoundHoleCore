@@ -34,6 +34,58 @@ namespace sh {
 
 
 
+	void GoogleDriveStorageProvider::initializeJS(napi_env env) {
+		if(this->jsRef == nullptr) {
+			// create options
+			auto gdOptions = Napi::Object::New(env);
+			if(!options.clientId.empty()) {
+				gdOptions.Set("clientId", Napi::String::New(env, options.clientId));
+			}
+			if(!options.clientSecret.empty()) {
+				gdOptions.Set("clientSecret", Napi::String::New(env, options.clientSecret));
+			}
+			if(!options.redirectURL.empty()) {
+				gdOptions.Set("redirectURL", Napi::String::New(env, options.redirectURL));
+			}
+			
+			// instantiate bandcamp
+			auto jsExports = scripts::getJSExports(env);
+			auto GoogleDriveClass = jsExports.Get("GoogleDriveStorageProvider").As<Napi::Function>();
+			auto gDrive = GoogleDriveClass.New({ gdOptions });
+			auto gDriveRef = Napi::ObjectReference::New(gDrive, 1);
+			gDriveRef.SuppressDestruct();
+			jsRef = gDriveRef;
+		}
+	}
+
+	#ifdef NODE_API_MODULE
+	template<typename Result>
+	Promise<Result> GoogleDriveStorageProvider::performAsyncJSAPIFunc(String funcName, Function<std::vector<napi_value>(napi_env)> createArgs, Function<Result(napi_env,Napi::Value)> mapper) {
+		return performAsyncFunc<Result>(jsRef, funcName, createArgs, mapper, {
+			.beforeFuncCall=[=](napi_env env) {
+				this->updateSessionFromJS(env);
+			},
+			.afterFuncFinish=[=](napi_env env) {
+				this->updateSessionFromJS(env);
+			}
+		});
+	}
+	#endif
+
+
+
+	String GoogleDriveStorageProvider::name() const {
+		return "googledrive";
+	}
+
+	String GoogleDriveStorageProvider::displayName() const {
+		return "Google Drive";
+	}
+
+
+
+	#pragma mark Authentication
+
 	String GoogleDriveStorageProvider::getWebAuthenticationURL(String codeChallenge) const {
 		auto query = std::map<String,String>{
 			{ "client_id", options.clientId },
@@ -50,52 +102,79 @@ namespace sh {
 
 
 
-	void GoogleDriveStorageProvider::initializeJS(napi_env env) {
-		if(this->jsRef == nullptr) {
-			// create options
-			auto gdOptions = Napi::Object::New(env);
-			if(!options.clientId.empty()) {
-				gdOptions.Set("clientId", Napi::String::New(env, options.clientId));
-			}
-			if(!options.clientSecret.empty()) {
-				gdOptions.Set("clientSecret", Napi::String::New(env, options.clientSecret));
-			}
-			
-			// instantiate bandcamp
-			auto jsExports = scripts::getJSExports(env);
-			auto GoogleDriveClass = jsExports.Get("GoogleDriveStorageProvider").As<Napi::Function>();
-			auto gDrive = GoogleDriveClass.New({ gdOptions });
-			auto gDriveRef = Napi::ObjectReference::New(gDrive, 1);
-			gDriveRef.SuppressDestruct();
-			jsRef = gDriveRef;
+	Json GoogleDriveStorageProvider::sessionFromJS(napi_env env) {
+		// get api objects
+		auto jsApi = jsutils::jsValue<Napi::Object>(env, jsRef);
+		if(jsApi.IsEmpty()) {
+			throw std::logic_error("js object not initialized");
 		}
+		auto json_encode = scripts::getJSExports(env).Get("json_encode").As<Napi::Function>();
+		// get credentials object
+		auto credentialsObj = jsApi.Get("session");
+		auto credentialsJsonStr = json_encode.Call({ credentialsObj }).As<Napi::String>().Utf8Value();
+		std::string parseError;
+		auto credentials = Json::parse(credentialsJsonStr, parseError);
+		if(!parseError.empty()) {
+			return Json();
+		}
+		return credentials;
 	}
 
-
-
-	String GoogleDriveStorageProvider::name() const {
-		return "googledrive";
+	void GoogleDriveStorageProvider::updateSessionFromJS(napi_env env) {
+		credentials = sessionFromJS(env);
 	}
 
-	String GoogleDriveStorageProvider::displayName() const {
-		return "Google Drive";
+	Promise<void> GoogleDriveStorageProvider::handleOAuthRedirect(std::map<String,String> params, String codeVerifier) {
+		return performAsyncFunc<void>(jsRef, "loginWithRedirectParams", [=](napi_env env) {
+			auto paramsObj = Napi::Object::New(env);
+			for(auto& pair : params) {
+				paramsObj.Set(pair.first, Napi::String::New(env, pair.second));
+			}
+			auto optionsObj = Napi::Object::New(env);
+			if(!codeVerifier.empty()) {
+				optionsObj.Set("codeVerifier", Napi::String::New(env, codeVerifier));
+			}
+			if(!this->options.clientId.empty()) {
+				optionsObj.Set("clientId", Napi::String::New(env, this->options.clientId));
+			}
+			return std::vector<napi_value>{
+				paramsObj,
+				optionsObj
+			};
+		}, [=](napi_env env, Napi::Value value) {
+			auto credentials = sessionFromJS(env);
+			if(credentials.is_null() || !credentials.is_object()) {
+				throw std::runtime_error("Failed to login with authorization code");
+			}
+			this->credentials = credentials;
+		});
 	}
 
 
 
 	void GoogleDriveStorageProvider::logout() {
-		// TODO implement logout
+		queueJS([=](napi_env env) {
+			// get api object and make call
+			auto jsApi = jsutils::jsValue<Napi::Object>(env, jsRef);
+			if(jsApi.IsEmpty()) {
+				return;
+			}
+			// logout
+			jsApi.Get("logout").As<Napi::Function>().Call(jsApi, {});
+		});
+		credentials = Json();
 	}
 
 	bool GoogleDriveStorageProvider::isLoggedIn() const {
-		// TODO implement isLoggedIn
-		return false;
+		return !credentials.is_null();
 	}
 
 
 
+	#pragma mark Playlists
+
 	Promise<StorageProvider::Playlist> GoogleDriveStorageProvider::createPlaylist(String name, CreatePlaylistOptions options) {
-		return performAsyncFunc<StorageProvider::Playlist>(jsRef, "createPlaylist", [=](napi_env env) {
+		return performAsyncJSAPIFunc<StorageProvider::Playlist>("createPlaylist", [=](napi_env env) {
 			auto optionsObj = Napi::Object::New(env);
 			if(!options.description.empty()) {
 				optionsObj.Set("description", Napi::String::New(env, options.description));
@@ -110,7 +189,7 @@ namespace sh {
 	}
 
 	Promise<StorageProvider::Playlist> GoogleDriveStorageProvider::getPlaylist(String id) {
-		return performAsyncFunc<StorageProvider::Playlist>(jsRef, "getPlaylist", [=](napi_env env) {
+		return performAsyncJSAPIFunc<StorageProvider::Playlist>("getPlaylist", [=](napi_env env) {
 			return std::vector<napi_value>{
 				Napi::String::New(env, id)
 			};
@@ -120,7 +199,7 @@ namespace sh {
 	}
 
 	Promise<void> GoogleDriveStorageProvider::deletePlaylist(String id) {
-		return performAsyncFunc<void>(jsRef, "deletePlaylist", [=](napi_env env) {
+		return performAsyncJSAPIFunc<void>("deletePlaylist", [=](napi_env env) {
 			return std::vector<napi_value>{
 				Napi::String::New(env, id)
 			};

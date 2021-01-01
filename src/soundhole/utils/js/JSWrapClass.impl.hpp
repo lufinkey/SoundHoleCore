@@ -23,7 +23,7 @@ namespace sh {
 				// get api object and make call
 				auto jsApi = jsutils::jsValue<Napi::Object>(env, jsRef);
 				if(jsApi.IsEmpty()) {
-					reject(std::logic_error("object not initialized"));
+					reject(std::logic_error("js object not initialized"));
 					return;
 				}
 				auto promise = jsApi.Get(funcName).As<Napi::Function>().Call(jsApi, createArgs(env)).As<Napi::Object>();
@@ -37,7 +37,15 @@ namespace sh {
 						auto value = info[0];
 						if constexpr(std::is_same<Result,void>::value) {
 							if(mapper != nullptr) {
-								mapper(env,value);
+								try {
+									mapper(env,value);
+								} catch(Napi::Error& error) {
+									reject(std::runtime_error(error.what()));
+									return;
+								} catch(...) {
+									reject(std::current_exception());
+									return;
+								}
 							}
 							resolve();
 						} else {

@@ -43,8 +43,16 @@ namespace sh {
 		virtual void initializeJS(napi_env env) override;
 		
 		Promise<void> handleOAuthRedirect(std::map<String,String> params, String codeVerifier);
+		Json sessionFromJS(napi_env env);
+		void updateSessionFromJS(napi_env env);
+		
+		#ifdef NODE_API_MODULE
+		template<typename Result>
+		Promise<Result> performAsyncJSAPIFunc(String funcName, Function<std::vector<napi_value>(napi_env)> createArgs, Function<Result(napi_env,Napi::Value)> mapper);
+		#endif
 		
 		napi_ref jsRef;
 		Options options;
+		Json credentials;
 	};
 }
