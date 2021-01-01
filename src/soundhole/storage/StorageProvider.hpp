@@ -29,6 +29,10 @@ namespace sh {
 		virtual String name() const = 0;
 		virtual String displayName() const = 0;
 		
+		virtual Promise<bool> login() = 0;
+		virtual void logout() = 0;
+		virtual bool isLoggedIn() const = 0;
+		
 		virtual bool canStorePlaylists() const = 0;
 		struct CreatePlaylistOptions {
 			String description;

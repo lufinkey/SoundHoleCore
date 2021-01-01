@@ -25,8 +25,14 @@ namespace sh {
 		GoogleDriveStorageProvider(Options options);
 		virtual ~GoogleDriveStorageProvider();
 		
+		String getWebAuthenticationURL(String codeChallenge) const;
+		
 		virtual String name() const override;
 		virtual String displayName() const override;
+		
+		virtual Promise<bool> login() override;
+		virtual void logout() override;
+		virtual bool isLoggedIn() const override;
 		
 		virtual bool canStorePlaylists() const override;
 		virtual Promise<Playlist> createPlaylist(String name, CreatePlaylistOptions options = CreatePlaylistOptions()) override;
@@ -35,6 +41,8 @@ namespace sh {
 		
 	private:
 		virtual void initializeJS(napi_env env) override;
+		
+		Promise<void> handleOAuthRedirect(std::map<String,String> params, String codeVerifier);
 		
 		napi_ref jsRef;
 		Options options;

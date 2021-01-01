@@ -10,6 +10,7 @@
 #include "GoogleDriveStorageProvider.hpp"
 #include <soundhole/scripts/Scripts.hpp>
 #include <soundhole/utils/js/JSWrapClass.impl.hpp>
+#include <soundhole/utils/HttpClient.hpp>
 
 namespace sh {
 	GoogleDriveStorageProvider::GoogleDriveStorageProvider(Options options)
@@ -29,6 +30,22 @@ namespace sh {
 				}
 			});
 		}
+	}
+
+
+
+	String GoogleDriveStorageProvider::getWebAuthenticationURL(String codeChallenge) const {
+		auto query = std::map<String,String>{
+			{ "client_id", options.clientId },
+			{ "redirect_uri", options.redirectURL },
+			{ "response_type", "code" },
+			{ "scope", "https://www.googleapis.com/auth/drive" }
+		};
+		if(!codeChallenge.empty()) {
+			query.insert_or_assign("code_challenge", codeChallenge);
+			query.insert_or_assign("code_challenge_method", "plain");
+		}
+		return "https://accounts.google.com/o/oauth2/v2/auth?" + utils::makeQueryString(query);
 	}
 
 
@@ -62,6 +79,17 @@ namespace sh {
 
 	String GoogleDriveStorageProvider::displayName() const {
 		return "Google Drive";
+	}
+
+
+
+	void GoogleDriveStorageProvider::logout() {
+		// TODO implement logout
+	}
+
+	bool GoogleDriveStorageProvider::isLoggedIn() const {
+		// TODO implement isLoggedIn
+		return false;
 	}
 
 
