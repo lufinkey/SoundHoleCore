@@ -9,12 +9,17 @@
 #include "SoundHoleProvider.hpp"
 
 namespace sh {
-	SoundHoleProvider::SoundHoleProvider() {
-		//
+	SoundHoleProvider::SoundHoleProvider(Options options) {
+		if(options.googledrive) {
+			auto googledrive = new GoogleDriveStorageProvider(options.googledrive.value());
+			storageProviders.pushBack(googledrive);
+		}
 	}
 
 	SoundHoleProvider::~SoundHoleProvider() {
-		//
+		for(auto storageProvider : storageProviders) {
+			delete storageProvider;
+		}
 	}
 
 
@@ -29,18 +34,99 @@ namespace sh {
 
 
 
+	#pragma mark URI/ID parsing
+
+	SoundHoleProvider::URI SoundHoleProvider::parseURI(String uri) const {
+		if(uri.empty()) {
+			throw std::invalid_argument("Empty string is not a valid SoundHole uri");
+		}
+		auto uriParts = ArrayList<String>(uri.split(':'));
+		if(uriParts.size() != 4) {
+			throw std::invalid_argument("Invalid SoundHole uri "+uri);
+		}
+		if(uriParts[0] != name()) {
+			throw std::invalid_argument("URI prefix "+uriParts[0]+" does not match provider name "+name());
+		}
+		return URI{
+			.provider=uriParts[0],
+			.storageProvider=uriParts[1],
+			.type=uriParts[2],
+			.id=uriParts[3]
+		};
+	}
+
+	String SoundHoleProvider::createURI(String storageProvider, String type, String id) const {
+		return name()+":"+storageProvider+":"+type+":"+id;
+	}
+
+	SoundHoleProvider::UserID SoundHoleProvider::parseUserID(String userId) const {
+		if(userId.empty()) {
+			throw std::invalid_argument("Empty string is not a valid SoundHole userId");
+		}
+		auto index = userId.indexOf(':');
+		if(index == String::npos || index == (userId.length()-1)) {
+			throw std::invalid_argument("Invalid SoundHole userId "+userId);
+		}
+		return UserID{
+			.storageProvider=userId.substring(0, index),
+			.id=userId.substring(index+1)
+		};
+	}
+
+
+
+	#pragma mark Storage Providers
+
+	StorageProvider* SoundHoleProvider::primaryStorageProvider() {
+		return getStorageProvider(primaryStorageProviderName);
+	}
+	const StorageProvider* SoundHoleProvider::primaryStorageProvider() const {
+		return getStorageProvider(primaryStorageProviderName);
+	}
+
+	StorageProvider* SoundHoleProvider::getStorageProvider(const String& name) {
+		for(auto storageProvider : storageProviders) {
+			if(storageProvider->name() == name) {
+				return storageProvider;
+			}
+		}
+		return nullptr;
+	}
+	const StorageProvider* SoundHoleProvider::getStorageProvider(const String& name) const {
+		for(auto storageProvider : storageProviders) {
+			if(storageProvider->name() == name) {
+				return storageProvider;
+			}
+		}
+		return nullptr;
+	}
+
+
+
 	#pragma mark Login
 
 	Promise<bool> SoundHoleProvider::login() {
-		return Promise<bool>::reject(std::logic_error("SoundHoleProvider::login is unimplemented"));
+		auto storageProvider = primaryStorageProvider();
+		if(storageProvider == nullptr) {
+			return Promise<bool>::reject(std::runtime_error("missing primary storage provider"));
+		}
+		return storageProvider->login();
 	}
 
 	void SoundHoleProvider::logout() {
-		// do nothing
+		auto storageProvider = primaryStorageProvider();
+		if(storageProvider == nullptr) {
+			throw std::runtime_error("missing primary storage provider");
+		}
+		storageProvider->logout();
 	}
 
 	bool SoundHoleProvider::isLoggedIn() const {
-		return false;
+		auto storageProvider = primaryStorageProvider();
+		if(storageProvider == nullptr) {
+			throw std::runtime_error("missing primary storage provider");
+		}
+		return storageProvider->isLoggedIn();
 	}
 
 
@@ -48,7 +134,28 @@ namespace sh {
 	#pragma mark Current User
 
 	Promise<ArrayList<String>> SoundHoleProvider::getCurrentUserIds() {
-		return Promise<ArrayList<String>>::resolve({});
+		auto promises = ArrayList<Promise<ArrayList<String>>>();
+		promises.reserve(storageProviders.size());
+		for(auto storageProvider : storageProviders) {
+			auto providerName = storageProvider->name();
+			promises.pushBack(storageProvider->getCurrentUserIds().map<ArrayList<String>>([=](auto userIds) {
+				return userIds.template map<String>([&](auto& userId) {
+					return createUserID(providerName, userId);
+				});
+			}));
+		}
+		return Promise<ArrayList<String>>::all(promises).map<ArrayList<String>>([=](auto userIdLists) {
+			auto userIds = ArrayList<String>();
+			size_t count = 0;
+			for(auto& list : userIdLists) {
+				count += list.size();
+			}
+			userIds.reserve(count);
+			for(auto& list : userIdLists) {
+				userIds.pushBackList(std::move(list));
+			}
+			return userIds;
+		});
 	}
 
 

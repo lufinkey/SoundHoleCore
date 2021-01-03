@@ -15,8 +15,7 @@
 namespace sh {
 	YoutubeProvider::YoutubeProvider(Options options)
 	: youtube(new Youtube(options)),
-	_player(new YoutubePlaybackProvider(this)),
-	_currentUserChannelsNeedRefresh(true) {
+	_player(new YoutubePlaybackProvider(this)) {
 		//
 	}
 
@@ -175,14 +174,18 @@ namespace sh {
 
 	Promise<bool> YoutubeProvider::login() {
 		return youtube->login().map<bool>([=](bool loggedIn) {
-			getCurrentUserYoutubeChannels();
+			if(loggedIn) {
+				storeIdentity(std::nullopt);
+				setIdentityNeedsRefresh();
+			}
+			getIdentity();
 			return loggedIn;
 		});
 	}
 
 	void YoutubeProvider::logout() {
 		youtube->logout();
-		setCurrentUserYoutubeChannels({});
+		storeIdentity(std::nullopt);
 	}
 
 	bool YoutubeProvider::isLoggedIn() const {
@@ -194,95 +197,33 @@ namespace sh {
 	#pragma mark Current User
 
 	Promise<ArrayList<String>> YoutubeProvider::getCurrentUserIds() {
-		return getCurrentUserYoutubeChannels().map<ArrayList<String>>([=](ArrayList<YoutubeChannel> channels) -> ArrayList<String> {
-			return channels.map<String>([](auto& channel) {
+		return getIdentity().map<ArrayList<String>>([=](Optional<YoutubeProviderIdentity> identity) {
+			if(!identity) {
+				return ArrayList<String>{};
+			}
+			return identity->channels.map<String>([](auto& channel) {
 				return channel.id;
 			});
 		});
 	}
 
-	String YoutubeProvider::getCachedCurrentUserYoutubeChannelsPath() const {
+	String YoutubeProvider::getIdentityFilePath() const {
 		String sessionPersistKey = youtube->getAuth()->getOptions().sessionPersistKey;
 		if(sessionPersistKey.empty()) {
 			return String();
 		}
-		return utils::getCacheDirectoryPath()+"/"+name()+"_channels_"+sessionPersistKey+".json";
+		return utils::getCacheDirectoryPath()+"/"+name()+"_identity_"+sessionPersistKey+".json";
 	}
 
-	Promise<ArrayList<YoutubeChannel>> YoutubeProvider::getCurrentUserYoutubeChannels() {
+	Promise<Optional<YoutubeProviderIdentity>> YoutubeProvider::fetchIdentity() {
 		if(!isLoggedIn()) {
-			setCurrentUserYoutubeChannels({});
-			return Promise<ArrayList<YoutubeChannel>>::resolve({});
+			return Promise<Optional<YoutubeProviderIdentity>>::resolve(std::nullopt);
 		}
-		if(_currentUserChannelsPromise) {
-			return _currentUserChannelsPromise.value();
-		}
-		if(!_currentUserChannels.empty() && !_currentUserChannelsNeedRefresh) {
-			return Promise<ArrayList<YoutubeChannel>>::resolve(_currentUserChannels);
-		}
-		auto promise = youtube->getMyChannels().map<ArrayList<YoutubeChannel>>([=](YoutubePage<YoutubeChannel> channelPage) -> ArrayList<YoutubeChannel> {
-			_currentUserChannelsPromise = std::nullopt;
-			if(!isLoggedIn()) {
-				setCurrentUserYoutubeChannels({});
-				return {};
-			}
-			setCurrentUserYoutubeChannels(channelPage.items);
-			return channelPage.items;
-		}).except([=](std::exception_ptr error) -> ArrayList<YoutubeChannel> {
-			_currentUserChannelsPromise = std::nullopt;
-			// if current user is loaded, return it
-			if(!_currentUserChannels.empty()) {
-				return _currentUserChannels;
-			}
-			// try to load user from filesystem
-			auto userFilePath = getCachedCurrentUserYoutubeChannelsPath();
-			if(!userFilePath.empty()) {
-				try {
-					String userString = fs::readFile(userFilePath);
-					std::string jsonError;
-					Json userJson = Json::parse(userString, jsonError);
-					if(userJson.is_null()) {
-						throw std::runtime_error("failed to parse user json: "+jsonError);
-					}
-					auto channels = ArrayList<Json>(userJson["channels"].array_items()).map<YoutubeChannel>([=](auto& json) {
-						return YoutubeChannel::fromJson(json);
-					});
-					_currentUserChannels = channels;
-					_currentUserChannelsNeedRefresh = true;
-					return channels;
-				} catch(...) {
-					// ignore error
-				}
-			}
-			// rethrow error
-			std::rethrow_exception(error);
+		return youtube->getMyChannels().map<Optional<YoutubeProviderIdentity>>([=](YoutubePage<YoutubeChannel> channelPage) {
+			return maybe(YoutubeProviderIdentity{
+				.channels=channelPage.items
+			});
 		});
-		_currentUserChannelsPromise = promise;
-		if(_currentUserChannelsPromise && _currentUserChannelsPromise->isComplete()) {
-			_currentUserChannelsPromise = std::nullopt;
-		}
-		return promise;
-	}
-
-	void YoutubeProvider::setCurrentUserYoutubeChannels(ArrayList<YoutubeChannel> channels) {
-		auto userFilePath = getCachedCurrentUserYoutubeChannelsPath();
-		if(!channels.empty()) {
-			_currentUserChannels = channels;
-			_currentUserChannelsNeedRefresh = false;
-			auto json = Json(channels.map<Json>([](auto& channel) {
-				return channel.toJson();
-			}));
-			if(!userFilePath.empty()) {
-				fs::writeFile(userFilePath, json.dump());
-			}
-		} else {
-			_currentUserChannels = {};
-			_currentUserChannelsPromise = std::nullopt;
-			_currentUserChannelsNeedRefresh = true;
-			if(!userFilePath.empty() && fs::exists(userFilePath)) {
-				fs::remove(userFilePath);
-			}
-		}
 	}
 
 
@@ -836,5 +777,32 @@ namespace sh {
 
 	const YoutubePlaybackProvider* YoutubeProvider::player() const {
 		return _player;
+	}
+
+
+
+	#pragma mark YoutubeProviderIdentity
+
+	YoutubeProviderIdentity YoutubeProviderIdentity::fromJson(const Json& json) {
+		auto channelsJson = json["channels"];
+		if(!channelsJson.is_array()) {
+			throw std::invalid_argument("Invalid youtube provider identity json");
+		}
+		ArrayList<YoutubeChannel> channels;
+		channels.reserve(channelsJson.array_items().size());
+		for(auto& channelJson : channelsJson.array_items()) {
+			channels.pushBack(YoutubeChannel::fromJson(channelJson));
+		}
+		return YoutubeProviderIdentity{
+			.channels=channels
+		};
+	}
+
+	Json YoutubeProviderIdentity::toJson() const {
+		return Json::object{
+			{ "channels", channels.map<Json>([](auto& channel) {
+				return channel.toJson();
+			}) }
+		};
 	}
 }

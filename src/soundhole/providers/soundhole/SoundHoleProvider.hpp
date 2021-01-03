@@ -10,15 +10,26 @@
 
 #include <soundhole/common.hpp>
 #include <soundhole/media/MediaProvider.hpp>
+#include <soundhole/media/StorageProvider.hpp>
+#include <soundhole/storage/googledrive/GoogleDriveStorageProvider.hpp>
 
 namespace sh {
 	class SoundHoleProvider: public MediaProvider {
 	public:
-		SoundHoleProvider();
+		struct Options {
+			Optional<GoogleDriveStorageProvider::Options> googledrive;
+		};
+		
+		SoundHoleProvider(Options);
 		virtual ~SoundHoleProvider();
 		
 		virtual String name() const override;
 		virtual String displayName() const override;
+		
+		StorageProvider* primaryStorageProvider();
+		const StorageProvider* primaryStorageProvider() const;
+		StorageProvider* getStorageProvider(const String& name);
+		const StorageProvider* getStorageProvider(const String& name) const;
 		
 		virtual Promise<bool> login() override;
 		virtual void logout() override;
@@ -49,5 +60,26 @@ namespace sh {
 		
 		virtual MediaPlaybackProvider* player() override;
 		virtual const MediaPlaybackProvider* player() const override;
+		
+		struct URI {
+			String provider;
+			String storageProvider;
+			String type;
+			String id;
+		};
+		URI parseURI(String uri) const;
+		
+		struct UserID {
+			String storageProvider;
+			String id;
+		};
+		UserID parseUserID(String userId) const;
+		
+	private:
+		String createURI(String storageProvider, String type, String id) const;
+		String createUserID(String storageProvider, String id) const;
+		
+		String primaryStorageProviderName;
+		ArrayList<StorageProvider*> storageProviders;
 	};
 }

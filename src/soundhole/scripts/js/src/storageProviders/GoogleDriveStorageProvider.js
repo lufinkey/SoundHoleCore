@@ -67,7 +67,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			return null;
 		}
 		if(!credentials.access_token || !credentials.expiry_date
-		   || !credentials.id_token || !credentials.token_type) {
+		   || !credentials.token_type) {
 			return null;
 		}
 		return credentials;
@@ -92,6 +92,19 @@ class GoogleDriveStorageProvider extends StorageProvider {
 
 	logout() {
 		this._auth.revokeCredentials();
+	}
+
+	
+
+	async getCurrentUser() {
+		if(this.session == null) {
+			return null;
+		}
+		const about = await this._drive.about.get();
+		if(!about.user) {
+			return null;
+		}
+		return about.user;
 	}
 
 

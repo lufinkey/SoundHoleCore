@@ -15,8 +15,7 @@
 namespace sh {
 	SpotifyProvider::SpotifyProvider(Options options)
 	: spotify(new Spotify(options)),
-	_player(new SpotifyPlaybackProvider(this)),
-	_currentUserNeedsRefresh(true) {
+	_player(new SpotifyPlaybackProvider(this)) {
 		//
 	}
 
@@ -59,9 +58,12 @@ namespace sh {
 	#pragma mark URI parsing
 
 	SpotifyProvider::URI SpotifyProvider::parseURI(String uri) {
+		if(uri.empty()) {
+			throw std::invalid_argument("Empty string is not a valid Spotify uri");
+		}
 		auto parts = uri.split(':');
 		if(parts.size() < 2) {
-			throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid spotify uri "+uri);
+			throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid Spotify uri "+uri);
 		}
 		else if(parts.size() == 2) {
 			return URI{
@@ -83,14 +85,18 @@ namespace sh {
 
 	Promise<bool> SpotifyProvider::login() {
 		return spotify->login().map<bool>([=](bool loggedIn) {
-			getCurrentSpotifyUser();
+			if(loggedIn) {
+				storeIdentity(std::nullopt);
+				setIdentityNeedsRefresh();
+			}
+			getIdentity();
 			return loggedIn;
 		});
 	}
 
 	void SpotifyProvider::logout() {
 		spotify->logout();
-		setCurrentSpotifyUser(std::nullopt);
+		storeIdentity(std::nullopt);
 	}
 
 	bool SpotifyProvider::isLoggedIn() const {
@@ -102,7 +108,7 @@ namespace sh {
 	#pragma mark Current User
 
 	Promise<ArrayList<String>> SpotifyProvider::getCurrentUserIds() {
-		return getCurrentSpotifyUser().map<ArrayList<String>>([=](Optional<SpotifyUser> user) -> ArrayList<String> {
+		return getIdentity().map<ArrayList<String>>([=](Optional<SpotifyUser> user) -> ArrayList<String> {
 			if(!user) {
 				return {};
 			}
@@ -110,83 +116,21 @@ namespace sh {
 		});
 	}
 
-	String SpotifyProvider::getCachedCurrentSpotifyUserPath() const {
+	String SpotifyProvider::getIdentityFilePath() const {
 		String sessionPersistKey = spotify->getAuth()->getOptions().sessionPersistKey;
 		if(sessionPersistKey.empty()) {
 			return String();
 		}
-		return utils::getCacheDirectoryPath()+"/"+name()+"_user_"+sessionPersistKey+".json";
+		return utils::getCacheDirectoryPath()+"/"+name()+"_identity_"+sessionPersistKey+".json";
 	}
 
-	Promise<Optional<SpotifyUser>> SpotifyProvider::getCurrentSpotifyUser() {
+	Promise<Optional<SpotifyUser>> SpotifyProvider::fetchIdentity() {
 		if(!isLoggedIn()) {
-			setCurrentSpotifyUser(std::nullopt);
 			return Promise<Optional<SpotifyUser>>::resolve(std::nullopt);
 		}
-		if(_currentUserPromise) {
-			return _currentUserPromise.value();
-		}
-		if(_currentUser && !_currentUserNeedsRefresh) {
-			return Promise<Optional<SpotifyUser>>::resolve(_currentUser);
-		}
-		auto promise = spotify->getMe().map<Optional<SpotifyUser>>([=](SpotifyUser meUser) -> Optional<SpotifyUser> {
-			_currentUserPromise = std::nullopt;
-			if(!isLoggedIn()) {
-				setCurrentSpotifyUser(std::nullopt);
-				return std::nullopt;
-			}
-			setCurrentSpotifyUser(meUser);
-			return meUser;
-		}).except([=](std::exception_ptr error) -> Optional<SpotifyUser> {
-			_currentUserPromise = std::nullopt;
-			// if current user is loaded, return it
-			if(_currentUser) {
-				return _currentUser.value();
-			}
-			// try to load user from filesystem
-			auto userFilePath = getCachedCurrentSpotifyUserPath();
-			if(!userFilePath.empty()) {
-				try {
-					String userString = fs::readFile(userFilePath);
-					std::string jsonError;
-					Json userJson = Json::parse(userString, jsonError);
-					if(userJson.is_null()) {
-						throw std::runtime_error("failed to parse user json: "+jsonError);
-					}
-					auto user = SpotifyUser::fromJson(userJson);
-					_currentUser = user;
-					_currentUserNeedsRefresh = true;
-					return user;
-				} catch(...) {
-					// ignore error
-				}
-			}
-			// rethrow error
-			std::rethrow_exception(error);
+		return spotify->getMe().map<Optional<SpotifyUser>>([=](SpotifyUser user) {
+			return maybe(user);
 		});
-		_currentUserPromise = promise;
-		if(_currentUserPromise && _currentUserPromise->isComplete()) {
-			_currentUserPromise = std::nullopt;
-		}
-		return promise;
-	}
-
-	void SpotifyProvider::setCurrentSpotifyUser(Optional<SpotifyUser> user) {
-		auto userFilePath = getCachedCurrentSpotifyUserPath();
-		if(user) {
-			_currentUser = user;
-			_currentUserNeedsRefresh = false;
-			if(!userFilePath.empty()) {
-				fs::writeFile(userFilePath, user->toJson().dump());
-			}
-		} else {
-			_currentUser = std::nullopt;
-			_currentUserPromise = std::nullopt;
-			_currentUserNeedsRefresh = true;
-			if(!userFilePath.empty() && fs::exists(userFilePath)) {
-				fs::remove(userFilePath);
-			}
-		}
 	}
 
 
@@ -637,7 +581,7 @@ namespace sh {
 		
 		using YieldResult = typename LibraryItemGenerator::YieldResult;
 		return LibraryItemGenerator([=]() {
-			return getCurrentSpotifyUser().then([=](Optional<SpotifyUser> user) {
+			return getIdentity().then([=](Optional<SpotifyUser> user) {
 				// verify spotify is logged in
 				if(!user) {
 					return Promise<YieldResult>::reject(SpotifyError(SpotifyError::Code::NOT_LOGGED_IN, "Spotify is not logged in"));
@@ -843,7 +787,7 @@ namespace sh {
 		if(!isLoggedIn()) {
 			return Promise<bool>::resolve(false);
 		}
-		return getCurrentSpotifyUser().map<bool>([=](Optional<SpotifyUser> user) -> bool {
+		return getIdentity().map<bool>([=](Optional<SpotifyUser> user) -> bool {
 			if(!user) {
 				return false;
 			}

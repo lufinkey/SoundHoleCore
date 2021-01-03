@@ -9,9 +9,11 @@
 #pragma once
 
 #include <soundhole/common.hpp>
+#include "NamedProvider.hpp"
+#include "AuthedProvider.hpp"
 
 namespace sh {
-	class StorageProvider {
+	class StorageProvider: public NamedProvider, public AuthedProvider {
 	public:
 		virtual ~StorageProvider() {}
 		
@@ -25,13 +27,6 @@ namespace sh {
 			static Playlist fromNapiObject(Napi::Object);
 			#endif
 		};
-		
-		virtual String name() const = 0;
-		virtual String displayName() const = 0;
-		
-		virtual Promise<bool> login() = 0;
-		virtual void logout() = 0;
-		virtual bool isLoggedIn() const = 0;
 		
 		virtual bool canStorePlaylists() const = 0;
 		struct CreatePlaylistOptions {

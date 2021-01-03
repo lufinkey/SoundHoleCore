@@ -11,11 +11,12 @@
 #include <tuple>
 #include <soundhole/common.hpp>
 #include <soundhole/media/MediaProvider.hpp>
+#include <soundhole/media/AuthedProviderIdentityStore.hpp>
 #include "BandcampPlaybackProvider.hpp"
 #include "api/Bandcamp.hpp"
 
 namespace sh {
-	class BandcampProvider: public MediaProvider {
+	class BandcampProvider: public MediaProvider, public AuthedProviderIdentityStore<BandcampIdentities> {
 		friend class BandcampAlbumMutatorDelegate;
 	public:
 		using Options = Bandcamp::Options;
@@ -96,7 +97,9 @@ namespace sh {
 		};
 		URI parseURI(String uri) const;
 		
-		Promise<Optional<BandcampIdentities>> getCurrentBandcampIdentities();
+	protected:
+		virtual Promise<Optional<BandcampIdentities>> fetchIdentity() override;
+		virtual String getIdentityFilePath() const override;
 		
 	private:
 		static time_t timeFromString(String time);
@@ -105,17 +108,9 @@ namespace sh {
 		String createURI(String type, String url) const;
 		
 		static MediaItem::Image createImage(BandcampImage image);
-		
-		String getCachedCurrentBandcampIdentitiesPath() const;
-		void setCurrentBandcampIdentities(Optional<BandcampIdentities> identities);
-		
 		ArrayList<$<Artist>> createArtists(String artistURL, String artistName, Optional<BandcampArtist> artist, bool partial);
 		
 		Bandcamp* bandcamp;
 		BandcampPlaybackProvider* _player;
-		
-		Optional<BandcampIdentities> _currentIdentities;
-		Optional<Promise<Optional<BandcampIdentities>>> _currentIdentitiesPromise;
-		bool _currentIdentitiesNeedRefresh;
 	};
 }

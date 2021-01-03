@@ -9,6 +9,8 @@
 #pragma once
 
 #include <soundhole/common.hpp>
+#include "NamedProvider.hpp"
+#include "AuthedProvider.hpp"
 #include "MediaPlaybackProvider.hpp"
 #include "MediaItem.hpp"
 #include "Artist.hpp"
@@ -20,7 +22,7 @@
 namespace sh {
 	class MediaProviderStash;
 
-	class MediaProvider {
+	class MediaProvider: public NamedProvider, public AuthedProvider {
 	public:
 		struct LibraryItem {
 			MediaProvider* libraryProvider;
@@ -51,14 +53,6 @@ namespace sh {
 		
 		MediaProvider() {};
 		virtual ~MediaProvider() {}
-		
-		virtual String name() const = 0;
-		virtual String displayName() const = 0;
-		
-		virtual Promise<bool> login() = 0;
-		virtual void logout() = 0;
-		virtual bool isLoggedIn() const = 0;
-		virtual Promise<ArrayList<String>> getCurrentUserIds() = 0;
 		
 		virtual Promise<Track::Data> getTrackData(String uri) = 0;
 		virtual Promise<Artist::Data> getArtistData(String uri) = 0;

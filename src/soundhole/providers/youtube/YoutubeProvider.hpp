@@ -10,14 +10,24 @@
 
 #include <soundhole/common.hpp>
 #include <soundhole/media/MediaProvider.hpp>
+#include <soundhole/media/AuthedProviderIdentityStore.hpp>
 #include "YoutubePlaybackProvider.hpp"
 #include "api/Youtube.hpp"
 
 namespace sh {
-	class YoutubeProvider: public MediaProvider {
+	struct YoutubeProviderIdentity {
+		ArrayList<YoutubeChannel> channels;
+		
+		Json toJson() const;
+		static YoutubeProviderIdentity fromJson(const Json&);
+	};
+
+
+	class YoutubeProvider: public MediaProvider, public AuthedProviderIdentityStore<YoutubeProviderIdentity> {
 		friend class YoutubePlaylistMutatorDelegate;
 	public:
 		using Options = Youtube::Options;
+		
 		YoutubeProvider(Options options);
 		virtual ~YoutubeProvider();
 		
@@ -74,7 +84,9 @@ namespace sh {
 		};
 		URI parseURI(String uri) const;
 		
-		Promise<ArrayList<YoutubeChannel>> getCurrentUserYoutubeChannels();
+	protected:
+		virtual Promise<Optional<YoutubeProviderIdentity>> fetchIdentity() override;
+		virtual String getIdentityFilePath() const override;
 		
 	private:
 		String createURI(String type, String id) const;
@@ -82,14 +94,7 @@ namespace sh {
 		
 		static MediaItem::Image createImage(YoutubeImage image);
 		
-		String getCachedCurrentUserYoutubeChannelsPath() const;
-		void setCurrentUserYoutubeChannels(ArrayList<YoutubeChannel> channels);
-		
 		Youtube* youtube;
 		YoutubePlaybackProvider* _player;
-		
-		ArrayList<YoutubeChannel> _currentUserChannels;
-		Optional<Promise<ArrayList<YoutubeChannel>>> _currentUserChannelsPromise;
-		bool _currentUserChannelsNeedRefresh;
 	};
 }

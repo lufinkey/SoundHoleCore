@@ -8,6 +8,7 @@
 
 #include <napi.h>
 #include "GoogleDriveStorageProvider.hpp"
+#include "api/GoogleDriveMediaTypes.hpp"
 #include <soundhole/scripts/Scripts.hpp>
 #include <soundhole/utils/js/JSWrapClass.impl.hpp>
 #include <soundhole/utils/HttpClient.hpp>
@@ -121,7 +122,12 @@ namespace sh {
 	}
 
 	void GoogleDriveStorageProvider::updateSessionFromJS(napi_env env) {
-		credentials = sessionFromJS(env);
+		bool wasLoggedIn = isLoggedIn();
+		this->credentials = sessionFromJS(env);
+		bool loggedIn = isLoggedIn();
+		if(loggedIn != wasLoggedIn) {
+			// TODO refresh current user
+		}
 	}
 
 	Promise<void> GoogleDriveStorageProvider::handleOAuthRedirect(std::map<String,String> params, String codeVerifier) {
@@ -167,6 +173,15 @@ namespace sh {
 
 	bool GoogleDriveStorageProvider::isLoggedIn() const {
 		return !credentials.is_null();
+	}
+
+	Promise<ArrayList<String>> GoogleDriveStorageProvider::getCurrentUserIds() {
+		return performAsyncJSAPIFunc<ArrayList<String>>("getCurrentUser", [=](napi_env env) {
+			return std::vector<napi_value>{};
+		}, [](napi_env env, Napi::Value value) {
+			auto user = GoogleDriveUser::fromNapiObject(value.As<Napi::Object>());
+			return ArrayList<String>{ user.emailAddress };
+		});
 	}
 
 

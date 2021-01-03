@@ -11,11 +11,12 @@
 #include <chrono>
 #include <soundhole/common.hpp>
 #include <soundhole/media/MediaProvider.hpp>
+#include <soundhole/media/AuthedProviderIdentityStore.hpp>
 #include "SpotifyPlaybackProvider.hpp"
 #include "api/Spotify.hpp"
 
 namespace sh {
-	class SpotifyProvider: public MediaProvider {
+	class SpotifyProvider: public MediaProvider, public AuthedProviderIdentityStore<SpotifyUser> {
 		friend class SpotifyPlaybackProvider;
 		friend class SpotifyAlbumMutatorDelegate;
 		friend class SpotifyPlaylistMutatorDelegate;
@@ -113,21 +114,16 @@ namespace sh {
 		};
 		URI parseURI(String uri);
 		
-		Promise<Optional<SpotifyUser>> getCurrentSpotifyUser();
+	protected:
+		virtual Promise<Optional<SpotifyUser>> fetchIdentity() override;
+		virtual String getIdentityFilePath() const override;
 		
 	private:
 		static time_t timeFromString(String time);
-		
+
 		static MediaItem::Image createImage(SpotifyImage image);
-		
-		String getCachedCurrentSpotifyUserPath() const;
-		void setCurrentSpotifyUser(Optional<SpotifyUser> user);
 		
 		Spotify* spotify;
 		SpotifyPlaybackProvider* _player;
-		
-		Optional<SpotifyUser> _currentUser;
-		Optional<Promise<Optional<SpotifyUser>>> _currentUserPromise;
-		bool _currentUserNeedsRefresh;
 	};
 }

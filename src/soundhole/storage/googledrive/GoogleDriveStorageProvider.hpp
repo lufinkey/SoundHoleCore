@@ -9,8 +9,9 @@
 #pragma once
 
 #include <soundhole/common.hpp>
-#include <soundhole/storage/StorageProvider.hpp>
+#include <soundhole/media/StorageProvider.hpp>
 #include <soundhole/utils/js/JSWrapClass.hpp>
+#include "api/GoogleDriveMediaTypes.hpp"
 
 namespace sh {
 	class GoogleDriveStorageProvider: public StorageProvider, private JSWrapClass {
@@ -33,6 +34,7 @@ namespace sh {
 		virtual Promise<bool> login() override;
 		virtual void logout() override;
 		virtual bool isLoggedIn() const override;
+		virtual Promise<ArrayList<String>> getCurrentUserIds() override;
 		
 		virtual bool canStorePlaylists() const override;
 		virtual Promise<Playlist> createPlaylist(String name, CreatePlaylistOptions options = CreatePlaylistOptions()) override;

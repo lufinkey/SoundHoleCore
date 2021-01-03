@@ -16,8 +16,7 @@
 namespace sh {
 	BandcampProvider::BandcampProvider(Options options)
 	: bandcamp(new Bandcamp(options)),
-	_player(new BandcampPlaybackProvider(this)),
-	_currentIdentitiesNeedRefresh(true) {
+	_player(new BandcampPlaybackProvider(this)) {
 		//
 	}
 
@@ -99,14 +98,18 @@ namespace sh {
 
 	Promise<bool> BandcampProvider::login() {
 		return bandcamp->login().map<bool>([=](bool loggedIn) {
-			getCurrentBandcampIdentities();
+			if(loggedIn) {
+				storeIdentity(std::nullopt);
+				setIdentityNeedsRefresh();
+			}
+			getIdentity();
 			return loggedIn;
 		});
 	}
 
 	void BandcampProvider::logout() {
 		bandcamp->logout();
-		setCurrentBandcampIdentities(std::nullopt);
+		storeIdentity(std::nullopt);
 	}
 
 	bool BandcampProvider::isLoggedIn() const {
@@ -118,7 +121,7 @@ namespace sh {
 	#pragma mark Current User
 
 	Promise<ArrayList<String>> BandcampProvider::getCurrentUserIds() {
-		return getCurrentBandcampIdentities().map<ArrayList<String>>([=](Optional<BandcampIdentities> identities) -> ArrayList<String> {
+		return getIdentity().map<ArrayList<String>>([=](Optional<BandcampIdentities> identities) -> ArrayList<String> {
 			if(!identities || !identities->fan) {
 				return {};
 			}
@@ -126,83 +129,21 @@ namespace sh {
 		});
 	}
 
-	String BandcampProvider::getCachedCurrentBandcampIdentitiesPath() const {
+	String BandcampProvider::getIdentityFilePath() const {
 		String sessionPersistKey = bandcamp->getAuth()->getOptions().sessionPersistKey;
 		if(sessionPersistKey.empty()) {
 			return String();
 		}
-		return utils::getCacheDirectoryPath()+"/"+name()+"_identities_"+sessionPersistKey+".json";
+		return utils::getCacheDirectoryPath()+"/"+name()+"_identity_"+sessionPersistKey+".json";
 	}
 
-	Promise<Optional<BandcampIdentities>> BandcampProvider::getCurrentBandcampIdentities() {
+	Promise<Optional<BandcampIdentities>> BandcampProvider::fetchIdentity() {
 		if(!isLoggedIn()) {
-			setCurrentBandcampIdentities(std::nullopt);
 			return Promise<Optional<BandcampIdentities>>::resolve(std::nullopt);
 		}
-		if(_currentIdentitiesPromise) {
-			return _currentIdentitiesPromise.value();
-		}
-		if(_currentIdentities && !_currentIdentitiesNeedRefresh) {
-			return Promise<Optional<BandcampIdentities>>::resolve(_currentIdentities);
-		}
-		auto promise = bandcamp->getMyIdentities().map<Optional<BandcampIdentities>>([=](BandcampIdentities identities) -> Optional<BandcampIdentities> {
-			_currentIdentitiesPromise = std::nullopt;
-			if(!isLoggedIn()) {
-				setCurrentBandcampIdentities(std::nullopt);
-				return std::nullopt;
-			}
-			setCurrentBandcampIdentities(identities);
-			return identities;
-		}).except([=](std::exception_ptr error) -> Optional<BandcampIdentities> {
-			_currentIdentitiesPromise = std::nullopt;
-			// if current identities are loaded, return it
-			if(_currentIdentities) {
-				return _currentIdentities.value();
-			}
-			// try to load identities from filesystem
-			auto userFilePath = getCachedCurrentBandcampIdentitiesPath();
-			if(!userFilePath.empty()) {
-				try {
-					String userString = fs::readFile(userFilePath);
-					std::string jsonError;
-					Json userJson = Json::parse(userString, jsonError);
-					if(userJson.is_null()) {
-						throw std::runtime_error("failed to parse user json: "+jsonError);
-					}
-					auto identities = BandcampIdentities::fromJson(userJson);
-					_currentIdentities = identities;
-					_currentIdentitiesNeedRefresh = true;
-					return identities;
-				} catch(...) {
-					// ignore error
-				}
-			}
-			// rethrow error
-			std::rethrow_exception(error);
+		return bandcamp->getMyIdentities().map<Optional<BandcampIdentities>>([=](BandcampIdentities identities) {
+			return maybe(identities);
 		});
-		_currentIdentitiesPromise = promise;
-		if(_currentIdentitiesPromise && _currentIdentitiesPromise->isComplete()) {
-			_currentIdentitiesPromise = std::nullopt;
-		}
-		return promise;
-	}
-
-	void BandcampProvider::setCurrentBandcampIdentities(Optional<BandcampIdentities> identities) {
-		auto userFilePath = getCachedCurrentBandcampIdentitiesPath();
-		if(identities) {
-			_currentIdentities = identities;
-			_currentIdentitiesNeedRefresh = false;
-			if(!userFilePath.empty()) {
-				fs::writeFile(userFilePath, identities->toJson().dump());
-			}
-		} else {
-			_currentIdentities = std::nullopt;
-			_currentIdentitiesPromise = std::nullopt;
-			_currentIdentitiesNeedRefresh = true;
-			if(!userFilePath.empty() && fs::exists(userFilePath)) {
-				fs::remove(userFilePath);
-			}
-		}
 	}
 
 
