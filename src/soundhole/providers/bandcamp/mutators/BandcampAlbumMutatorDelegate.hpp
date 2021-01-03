@@ -12,10 +12,10 @@
 #include <soundhole/media/Album.hpp>
 
 namespace sh {
-	class BandcampProvider;
+	class BandcampMediaProvider;
 
 	class BandcampAlbumMutatorDelegate: public Album::MutatorDelegate {
-		friend class BandcampProvider;
+		friend class BandcampMediaProvider;
 	public:
 		virtual size_t getChunkSize() const override;
 		virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) override;

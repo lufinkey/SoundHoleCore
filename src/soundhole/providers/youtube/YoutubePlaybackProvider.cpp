@@ -10,7 +10,7 @@
 #include <soundhole/utils/SoundHoleError.hpp>
 
 namespace sh {
-	YoutubePlaybackProvider::YoutubePlaybackProvider(YoutubeProvider* provider, StreamPlayer* streamPlayer)
+	YoutubePlaybackProvider::YoutubePlaybackProvider(YoutubeMediaProvider* provider, StreamPlayer* streamPlayer)
 	: StreamPlaybackProvider(streamPlayer), provider(provider) {
 		//
 	}

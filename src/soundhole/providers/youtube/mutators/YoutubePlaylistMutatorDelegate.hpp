@@ -12,10 +12,10 @@
 #include <soundhole/media/Playlist.hpp>
 
 namespace sh {
-	class YoutubeProvider;
+	class YoutubeMediaProvider;
 
 	class YoutubePlaylistMutatorDelegate: public Playlist::MutatorDelegate {
-		friend class YoutubeProvider;
+		friend class YoutubeMediaProvider;
 	public:
 		virtual size_t getChunkSize() const override;
 		virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) override;

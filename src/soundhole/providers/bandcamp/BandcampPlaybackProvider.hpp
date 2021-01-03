@@ -13,13 +13,13 @@
 #include "api/Bandcamp.hpp"
 
 namespace sh {
-	class BandcampProvider;
+	class BandcampMediaProvider;
 
 	class BandcampPlaybackProvider: public StreamPlaybackProvider {
 	public:
-		BandcampPlaybackProvider(BandcampProvider* provider, StreamPlayer* streamPlayer = StreamPlayer::shared());
+		BandcampPlaybackProvider(BandcampMediaProvider* provider, StreamPlayer* streamPlayer = StreamPlayer::shared());
 		
 	private:
-		BandcampProvider* provider;
+		BandcampMediaProvider* provider;
 	};
 }

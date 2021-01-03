@@ -11,9 +11,9 @@
 #include <soundhole/common.hpp>
 #include <soundhole/media/MediaProvider.hpp>
 #include <soundhole/media/MediaProviderStash.hpp>
-#include <soundhole/providers/bandcamp/BandcampProvider.hpp>
-#include <soundhole/providers/spotify/SpotifyProvider.hpp>
-#include <soundhole/providers/youtube/YoutubeProvider.hpp>
+#include <soundhole/providers/bandcamp/BandcampMediaProvider.hpp>
+#include <soundhole/providers/spotify/SpotifyMediaProvider.hpp>
+#include <soundhole/providers/youtube/YoutubeMediaProvider.hpp>
 
 namespace sh {
 	class MediaLibraryProvider: public MediaProvider, public MediaProviderStash {

@@ -1,5 +1,5 @@
 //
-//  YoutubeProvider.hpp
+//  YoutubeMediaProvider.hpp
 //  SoundHoleCore
 //
 //  Created by Luis Finke on 8/23/19.
@@ -15,21 +15,21 @@
 #include "api/Youtube.hpp"
 
 namespace sh {
-	struct YoutubeProviderIdentity {
+	struct YoutubeMediaProviderIdentity {
 		ArrayList<YoutubeChannel> channels;
 		
 		Json toJson() const;
-		static YoutubeProviderIdentity fromJson(const Json&);
+		static YoutubeMediaProviderIdentity fromJson(const Json&);
 	};
 
 
-	class YoutubeProvider: public MediaProvider, public AuthedProviderIdentityStore<YoutubeProviderIdentity> {
+	class YoutubeMediaProvider: public MediaProvider, public AuthedProviderIdentityStore<YoutubeMediaProviderIdentity> {
 		friend class YoutubePlaylistMutatorDelegate;
 	public:
 		using Options = Youtube::Options;
 		
-		YoutubeProvider(Options options);
-		virtual ~YoutubeProvider();
+		YoutubeMediaProvider(Options options);
+		virtual ~YoutubeMediaProvider();
 		
 		virtual String name() const override;
 		virtual String displayName() const override;
@@ -85,7 +85,7 @@ namespace sh {
 		URI parseURI(String uri) const;
 		
 	protected:
-		virtual Promise<Optional<YoutubeProviderIdentity>> fetchIdentity() override;
+		virtual Promise<Optional<YoutubeMediaProviderIdentity>> fetchIdentity() override;
 		virtual String getIdentityFilePath() const override;
 		
 	private:

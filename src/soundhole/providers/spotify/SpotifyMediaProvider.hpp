@@ -1,5 +1,5 @@
 //
-//  SpotifyProvider.hpp
+//  SpotifyMediaProvider.hpp
 //  SoundHoleCore
 //
 //  Created by Luis Finke on 9/18/19.
@@ -16,15 +16,15 @@
 #include "api/Spotify.hpp"
 
 namespace sh {
-	class SpotifyProvider: public MediaProvider, public AuthedProviderIdentityStore<SpotifyUser> {
+	class SpotifyMediaProvider: public MediaProvider, public AuthedProviderIdentityStore<SpotifyUser> {
 		friend class SpotifyPlaybackProvider;
 		friend class SpotifyAlbumMutatorDelegate;
 		friend class SpotifyPlaylistMutatorDelegate;
 	public:
 		using Options = Spotify::Options;
 		
-		SpotifyProvider(Options options);
-		virtual ~SpotifyProvider();
+		SpotifyMediaProvider(Options options);
+		virtual ~SpotifyMediaProvider();
 		
 		virtual String name() const override;
 		virtual String displayName() const override;

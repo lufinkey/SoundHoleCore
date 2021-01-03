@@ -1,22 +1,22 @@
 //
-//  SoundHoleProvider.cpp
+//  SoundHoleMediaProvider.cpp
 //  SoundHoleCore
 //
 //  Created by Luis Finke on 12/27/20.
 //  Copyright © 2020 Luis Finke. All rights reserved.
 //
 
-#include "SoundHoleProvider.hpp"
+#include "SoundHoleMediaProvider.hpp"
 
 namespace sh {
-	SoundHoleProvider::SoundHoleProvider(Options options) {
+	SoundHoleMediaProvider::SoundHoleMediaProvider(Options options) {
 		if(options.googledrive) {
 			auto googledrive = new GoogleDriveStorageProvider(options.googledrive.value());
 			storageProviders.pushBack(googledrive);
 		}
 	}
 
-	SoundHoleProvider::~SoundHoleProvider() {
+	SoundHoleMediaProvider::~SoundHoleMediaProvider() {
 		for(auto storageProvider : storageProviders) {
 			delete storageProvider;
 		}
@@ -24,11 +24,11 @@ namespace sh {
 
 
 
-	String SoundHoleProvider::name() const {
+	String SoundHoleMediaProvider::name() const {
 		return "soundhole";
 	}
 
-	String SoundHoleProvider::displayName() const {
+	String SoundHoleMediaProvider::displayName() const {
 		return "SoundHole";
 	}
 
@@ -36,7 +36,7 @@ namespace sh {
 
 	#pragma mark URI/ID parsing
 
-	SoundHoleProvider::URI SoundHoleProvider::parseURI(String uri) const {
+	SoundHoleMediaProvider::URI SoundHoleMediaProvider::parseURI(String uri) const {
 		if(uri.empty()) {
 			throw std::invalid_argument("Empty string is not a valid SoundHole uri");
 		}
@@ -55,11 +55,11 @@ namespace sh {
 		};
 	}
 
-	String SoundHoleProvider::createURI(String storageProvider, String type, String id) const {
+	String SoundHoleMediaProvider::createURI(String storageProvider, String type, String id) const {
 		return name()+":"+storageProvider+":"+type+":"+id;
 	}
 
-	SoundHoleProvider::UserID SoundHoleProvider::parseUserID(String userId) const {
+	SoundHoleMediaProvider::UserID SoundHoleMediaProvider::parseUserID(String userId) const {
 		if(userId.empty()) {
 			throw std::invalid_argument("Empty string is not a valid SoundHole userId");
 		}
@@ -77,14 +77,14 @@ namespace sh {
 
 	#pragma mark Storage Providers
 
-	StorageProvider* SoundHoleProvider::primaryStorageProvider() {
+	StorageProvider* SoundHoleMediaProvider::primaryStorageProvider() {
 		return getStorageProvider(primaryStorageProviderName);
 	}
-	const StorageProvider* SoundHoleProvider::primaryStorageProvider() const {
+	const StorageProvider* SoundHoleMediaProvider::primaryStorageProvider() const {
 		return getStorageProvider(primaryStorageProviderName);
 	}
 
-	StorageProvider* SoundHoleProvider::getStorageProvider(const String& name) {
+	StorageProvider* SoundHoleMediaProvider::getStorageProvider(const String& name) {
 		for(auto storageProvider : storageProviders) {
 			if(storageProvider->name() == name) {
 				return storageProvider;
@@ -92,7 +92,7 @@ namespace sh {
 		}
 		return nullptr;
 	}
-	const StorageProvider* SoundHoleProvider::getStorageProvider(const String& name) const {
+	const StorageProvider* SoundHoleMediaProvider::getStorageProvider(const String& name) const {
 		for(auto storageProvider : storageProviders) {
 			if(storageProvider->name() == name) {
 				return storageProvider;
@@ -105,7 +105,7 @@ namespace sh {
 
 	#pragma mark Login
 
-	Promise<bool> SoundHoleProvider::login() {
+	Promise<bool> SoundHoleMediaProvider::login() {
 		auto storageProvider = primaryStorageProvider();
 		if(storageProvider == nullptr) {
 			return Promise<bool>::reject(std::runtime_error("missing primary storage provider"));
@@ -113,7 +113,7 @@ namespace sh {
 		return storageProvider->login();
 	}
 
-	void SoundHoleProvider::logout() {
+	void SoundHoleMediaProvider::logout() {
 		auto storageProvider = primaryStorageProvider();
 		if(storageProvider == nullptr) {
 			throw std::runtime_error("missing primary storage provider");
@@ -121,7 +121,7 @@ namespace sh {
 		storageProvider->logout();
 	}
 
-	bool SoundHoleProvider::isLoggedIn() const {
+	bool SoundHoleMediaProvider::isLoggedIn() const {
 		auto storageProvider = primaryStorageProvider();
 		if(storageProvider == nullptr) {
 			throw std::runtime_error("missing primary storage provider");
@@ -133,7 +133,7 @@ namespace sh {
 
 	#pragma mark Current User
 
-	Promise<ArrayList<String>> SoundHoleProvider::getCurrentUserIds() {
+	Promise<ArrayList<String>> SoundHoleMediaProvider::getCurrentUserIds() {
 		auto promises = ArrayList<Promise<ArrayList<String>>>();
 		promises.reserve(storageProviders.size());
 		for(auto storageProvider : storageProviders) {
@@ -162,68 +162,68 @@ namespace sh {
 
 	#pragma mark Media Item Fetching
 
-	Promise<Track::Data> SoundHoleProvider::getTrackData(String uri) {
-		return Promise<Track::Data>::reject(std::logic_error("SoundHoleProvider::getTrackData is unimplemented"));
+	Promise<Track::Data> SoundHoleMediaProvider::getTrackData(String uri) {
+		return Promise<Track::Data>::reject(std::logic_error("SoundHoleMediaProvider::getTrackData is unimplemented"));
 	}
 
-	Promise<Artist::Data> SoundHoleProvider::getArtistData(String uri) {
+	Promise<Artist::Data> SoundHoleMediaProvider::getArtistData(String uri) {
 		return Promise<Artist::Data>::reject(std::logic_error("SoundHole provider does not have artists"));
 	}
 
-	Promise<Album::Data> SoundHoleProvider::getAlbumData(String uri) {
+	Promise<Album::Data> SoundHoleMediaProvider::getAlbumData(String uri) {
 		return Promise<Album::Data>::reject(std::logic_error("SoundHole provider does not have albums"));
 	}
 
-	Promise<Playlist::Data> SoundHoleProvider::getPlaylistData(String uri) {
-		return Promise<Playlist::Data>::reject(std::logic_error("SoundHoleProvider::getPlaylistData is unimplemented"));
+	Promise<Playlist::Data> SoundHoleMediaProvider::getPlaylistData(String uri) {
+		return Promise<Playlist::Data>::reject(std::logic_error("SoundHoleMediaProvider::getPlaylistData is unimplemented"));
 	}
 
-	Promise<UserAccount::Data> SoundHoleProvider::getUserData(String uri) {
-		return Promise<UserAccount::Data>::reject(std::logic_error("SoundHoleProvider::getUserData is unimplemented"));
+	Promise<UserAccount::Data> SoundHoleMediaProvider::getUserData(String uri) {
+		return Promise<UserAccount::Data>::reject(std::logic_error("SoundHoleMediaProvider::getUserData is unimplemented"));
 	}
 
 
 
-	Promise<ArrayList<$<Track>>> SoundHoleProvider::getArtistTopTracks(String artistURI) {
+	Promise<ArrayList<$<Track>>> SoundHoleMediaProvider::getArtistTopTracks(String artistURI) {
 		return Promise<ArrayList<$<Track>>>::reject(std::logic_error("SoundHole doesn't have artist top tracks"));
 	}
 
-	SoundHoleProvider::ArtistAlbumsGenerator SoundHoleProvider::getArtistAlbums(String artistURI) {
+	SoundHoleMediaProvider::ArtistAlbumsGenerator SoundHoleMediaProvider::getArtistAlbums(String artistURI) {
 		using YieldResult = typename ArtistAlbumsGenerator::YieldResult;
 		return ArtistAlbumsGenerator([=]() {
 			return Promise<YieldResult>::reject(std::logic_error("SoundHole does not support artist albums"));
 		});
 	}
 
-	SoundHoleProvider::UserPlaylistsGenerator SoundHoleProvider::getUserPlaylists(String userURI) {
+	SoundHoleMediaProvider::UserPlaylistsGenerator SoundHoleMediaProvider::getUserPlaylists(String userURI) {
 		using YieldResult = typename UserPlaylistsGenerator::YieldResult;
 		return UserPlaylistsGenerator([=]() {
-			return Promise<YieldResult>::reject(std::logic_error("SoundHoleProvider::getUserPlaylists is unimplemented"));
+			return Promise<YieldResult>::reject(std::logic_error("SoundHoleMediaProvider::getUserPlaylists is unimplemented"));
 		});
 	}
 
 
 
-	Album::MutatorDelegate* SoundHoleProvider::createAlbumMutatorDelegate($<Album> album) {
+	Album::MutatorDelegate* SoundHoleMediaProvider::createAlbumMutatorDelegate($<Album> album) {
 		throw std::logic_error("SoundHole does not support albums");
 	}
 
-	Playlist::MutatorDelegate* SoundHoleProvider::createPlaylistMutatorDelegate($<Playlist> playlist) {
-		throw std::logic_error("SoundHoleProvider::createPlaylistMutatorDelegate is unimplemented");
+	Playlist::MutatorDelegate* SoundHoleMediaProvider::createPlaylistMutatorDelegate($<Playlist> playlist) {
+		throw std::logic_error("SoundHoleMediaProvider::createPlaylistMutatorDelegate is unimplemented");
 	}
 
 
 
 	#pragma mark User Library
 
-	bool SoundHoleProvider::hasLibrary() const {
+	bool SoundHoleMediaProvider::hasLibrary() const {
 		return false;
 	}
 
-	SoundHoleProvider::LibraryItemGenerator SoundHoleProvider::generateLibrary(GenerateLibraryOptions options) {
+	SoundHoleMediaProvider::LibraryItemGenerator SoundHoleMediaProvider::generateLibrary(GenerateLibraryOptions options) {
 		using YieldResult = typename LibraryItemGenerator::YieldResult;
 		return LibraryItemGenerator([=]() {
-			return Promise<YieldResult>::reject(std::logic_error("SoundHoleProvider::generateLibrary is unimplemented"));
+			return Promise<YieldResult>::reject(std::logic_error("SoundHoleMediaProvider::generateLibrary is unimplemented"));
 		});
 	}
 
@@ -231,31 +231,31 @@ namespace sh {
 
 	#pragma mark Playlists
 
-	bool SoundHoleProvider::canCreatePlaylists() const {
+	bool SoundHoleMediaProvider::canCreatePlaylists() const {
 		return true;
 	}
 
-	ArrayList<Playlist::Privacy> SoundHoleProvider::supportedPlaylistPrivacies() const {
+	ArrayList<Playlist::Privacy> SoundHoleMediaProvider::supportedPlaylistPrivacies() const {
 		return { Playlist::Privacy::PRIVATE, Playlist::Privacy::PUBLIC };
 	}
 
-	Promise<$<Playlist>> SoundHoleProvider::createPlaylist(String name, CreatePlaylistOptions options) {
-		return Promise<$<Playlist>>::reject(std::logic_error("SoundHoleProvider::createPlaylist is unimplemented"));
+	Promise<$<Playlist>> SoundHoleMediaProvider::createPlaylist(String name, CreatePlaylistOptions options) {
+		return Promise<$<Playlist>>::reject(std::logic_error("SoundHoleMediaProvider::createPlaylist is unimplemented"));
 	}
 
-	Promise<bool> SoundHoleProvider::isPlaylistEditable($<Playlist> playlist) {
-		return Promise<bool>::reject(std::logic_error("SoundHoleProvider::isPlaylistEditable is unimplemented"));
+	Promise<bool> SoundHoleMediaProvider::isPlaylistEditable($<Playlist> playlist) {
+		return Promise<bool>::reject(std::logic_error("SoundHoleMediaProvider::isPlaylistEditable is unimplemented"));
 	}
 
 
 
 	#pragma mark Player
 
-	MediaPlaybackProvider* SoundHoleProvider::player() {
+	MediaPlaybackProvider* SoundHoleMediaProvider::player() {
 		return nullptr;
 	}
 
-	const MediaPlaybackProvider* SoundHoleProvider::player() const {
+	const MediaPlaybackProvider* SoundHoleMediaProvider::player() const {
 		return nullptr;
 	}
 }

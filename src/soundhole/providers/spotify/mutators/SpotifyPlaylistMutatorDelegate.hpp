@@ -13,10 +13,10 @@
 #include <soundhole/providers/spotify/api/Spotify.hpp>
 
 namespace sh {
-	class SpotifyProvider;
+	class SpotifyMediaProvider;
 
 	class SpotifyPlaylistMutatorDelegate: public Playlist::MutatorDelegate {
-		friend class SpotifyProvider;
+		friend class SpotifyMediaProvider;
 	public:
 		virtual size_t getChunkSize() const override;
 		virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) override;

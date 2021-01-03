@@ -1,5 +1,5 @@
 //
-//  BandcampProvider.hpp
+//  BandcampMediaProvider.hpp
 //  SoundHoleCore
 //
 //  Created by Luis Finke on 8/18/19.
@@ -16,13 +16,13 @@
 #include "api/Bandcamp.hpp"
 
 namespace sh {
-	class BandcampProvider: public MediaProvider, public AuthedProviderIdentityStore<BandcampIdentities> {
+	class BandcampMediaProvider: public MediaProvider, public AuthedProviderIdentityStore<BandcampIdentities> {
 		friend class BandcampAlbumMutatorDelegate;
 	public:
 		using Options = Bandcamp::Options;
 		
-		BandcampProvider(Options options);
-		virtual ~BandcampProvider();
+		BandcampMediaProvider(Options options);
+		virtual ~BandcampMediaProvider();
 		
 		virtual String name() const override;
 		virtual String displayName() const override;

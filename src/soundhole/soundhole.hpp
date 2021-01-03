@@ -10,9 +10,9 @@
 
 #include <soundhole/common.hpp>
 #include <soundhole/library/MediaLibrary.hpp>
-#include <soundhole/providers/bandcamp/BandcampProvider.hpp>
-#include <soundhole/providers/spotify/SpotifyProvider.hpp>
-#include <soundhole/providers/youtube/YoutubeProvider.hpp>
+#include <soundhole/providers/bandcamp/BandcampMediaProvider.hpp>
+#include <soundhole/providers/spotify/SpotifyMediaProvider.hpp>
+#include <soundhole/providers/youtube/YoutubeMediaProvider.hpp>
 #include <soundhole/playback/Player.hpp>
 #include <soundhole/playback/SystemMediaControls.hpp>
 #include <soundhole/utils/Utils.hpp>

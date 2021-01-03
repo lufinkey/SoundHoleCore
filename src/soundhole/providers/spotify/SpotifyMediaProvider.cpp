@@ -1,52 +1,52 @@
 //
-//  SpotifyProvider.cpp
+//  SpotifyMediaProvider.cpp
 //  SoundHoleCore
 //
 //  Created by Luis Finke on 9/18/19.
 //  Copyright © 2019 Luis Finke. All rights reserved.
 //
 
-#include "SpotifyProvider.hpp"
+#include "SpotifyMediaProvider.hpp"
 #include "mutators/SpotifyAlbumMutatorDelegate.hpp"
 #include "mutators/SpotifyPlaylistMutatorDelegate.hpp"
 #include <soundhole/utils/SoundHoleError.hpp>
 #include <soundhole/utils/Utils.hpp>
 
 namespace sh {
-	SpotifyProvider::SpotifyProvider(Options options)
+	SpotifyMediaProvider::SpotifyMediaProvider(Options options)
 	: spotify(new Spotify(options)),
 	_player(new SpotifyPlaybackProvider(this)) {
 		//
 	}
 
-	SpotifyProvider::~SpotifyProvider() {
+	SpotifyMediaProvider::~SpotifyMediaProvider() {
 		delete _player;
 		delete spotify;
 	}
 
 
 
-	String SpotifyProvider::name() const {
+	String SpotifyMediaProvider::name() const {
 		return "spotify";
 	}
 	
-	String SpotifyProvider::displayName() const {
+	String SpotifyMediaProvider::displayName() const {
 		return "Spotify";
 	}
 
 
 
-	Spotify* SpotifyProvider::api() {
+	Spotify* SpotifyMediaProvider::api() {
 		return spotify;
 	}
 
-	const Spotify* SpotifyProvider::api() const {
+	const Spotify* SpotifyMediaProvider::api() const {
 		return spotify;
 	}
 
 
 
-	time_t SpotifyProvider::timeFromString(String time) {
+	time_t SpotifyMediaProvider::timeFromString(String time) {
 		if(auto date = DateTime::fromGmtString(time, "%Y-%m-%dT%H:%M:%SZ")) {
 			return date->toTimeType();
 		}
@@ -57,7 +57,7 @@ namespace sh {
 
 	#pragma mark URI parsing
 
-	SpotifyProvider::URI SpotifyProvider::parseURI(String uri) {
+	SpotifyMediaProvider::URI SpotifyMediaProvider::parseURI(String uri) {
 		if(uri.empty()) {
 			throw std::invalid_argument("Empty string is not a valid Spotify uri");
 		}
@@ -83,7 +83,7 @@ namespace sh {
 
 	#pragma mark Login
 
-	Promise<bool> SpotifyProvider::login() {
+	Promise<bool> SpotifyMediaProvider::login() {
 		return spotify->login().map<bool>([=](bool loggedIn) {
 			if(loggedIn) {
 				storeIdentity(std::nullopt);
@@ -94,12 +94,12 @@ namespace sh {
 		});
 	}
 
-	void SpotifyProvider::logout() {
+	void SpotifyMediaProvider::logout() {
 		spotify->logout();
 		storeIdentity(std::nullopt);
 	}
 
-	bool SpotifyProvider::isLoggedIn() const {
+	bool SpotifyMediaProvider::isLoggedIn() const {
 		return spotify->isLoggedIn();
 	}
 
@@ -107,7 +107,7 @@ namespace sh {
 
 	#pragma mark Current User
 
-	Promise<ArrayList<String>> SpotifyProvider::getCurrentUserIds() {
+	Promise<ArrayList<String>> SpotifyMediaProvider::getCurrentUserIds() {
 		return getIdentity().map<ArrayList<String>>([=](Optional<SpotifyUser> user) -> ArrayList<String> {
 			if(!user) {
 				return {};
@@ -116,7 +116,7 @@ namespace sh {
 		});
 	}
 
-	String SpotifyProvider::getIdentityFilePath() const {
+	String SpotifyMediaProvider::getIdentityFilePath() const {
 		String sessionPersistKey = spotify->getAuth()->getOptions().sessionPersistKey;
 		if(sessionPersistKey.empty()) {
 			return String();
@@ -124,7 +124,7 @@ namespace sh {
 		return utils::getCacheDirectoryPath()+"/"+name()+"_identity_"+sessionPersistKey+".json";
 	}
 
-	Promise<Optional<SpotifyUser>> SpotifyProvider::fetchIdentity() {
+	Promise<Optional<SpotifyUser>> SpotifyMediaProvider::fetchIdentity() {
 		if(!isLoggedIn()) {
 			return Promise<Optional<SpotifyUser>>::resolve(std::nullopt);
 		}
@@ -137,14 +137,14 @@ namespace sh {
 
 	#pragma mark Search
 
-	Promise<SpotifyProvider::SearchResults> SpotifyProvider::search(String query, SearchOptions options) {
+	Promise<SpotifyMediaProvider::SearchResults> SpotifyMediaProvider::search(String query, SearchOptions options) {
 		Spotify::SearchOptions searchOptions = {
 			.types=options.types,
 			.market="from_token",
 			.limit=options.limit,
 			.offset=options.offset
 		};
-		return spotify->search(query,searchOptions).map<SpotifyProvider::SearchResults>([=](auto searchResults) {
+		return spotify->search(query,searchOptions).map<SpotifyMediaProvider::SearchResults>([=](auto searchResults) {
 			return SearchResults{
 				.tracks = searchResults.tracks ?
 					maybe(searchResults.tracks->template map<$<Track>>([&](auto& track) {
@@ -174,7 +174,7 @@ namespace sh {
 
 	#pragma mark Data transforming
 
-	Track::Data SpotifyProvider::createTrackData(SpotifyTrack track, bool partial) {
+	Track::Data SpotifyMediaProvider::createTrackData(SpotifyTrack track, bool partial) {
 		return Track::Data{{
 			.partial=partial,
 			.type=track.type,
@@ -200,7 +200,7 @@ namespace sh {
 		};
 	}
 
-	Artist::Data SpotifyProvider::createArtistData(SpotifyArtist artist, bool partial) {
+	Artist::Data SpotifyMediaProvider::createArtistData(SpotifyArtist artist, bool partial) {
 		return Artist::Data{{
 			.partial=partial,
 			.type=artist.type,
@@ -216,7 +216,7 @@ namespace sh {
 		};
 	}
 
-	Album::Data SpotifyProvider::createAlbumData(SpotifyAlbum album, bool partial) {
+	Album::Data SpotifyMediaProvider::createAlbumData(SpotifyAlbum album, bool partial) {
 		auto artists = album.artists.map<$<Artist>>([&](SpotifyArtist& artist) {
 			return Artist::new$(this, createArtistData(artist, true));
 		});
@@ -262,7 +262,7 @@ namespace sh {
 		};
 	}
 
-	Playlist::Data SpotifyProvider::createPlaylistData(SpotifyPlaylist playlist, bool partial) {
+	Playlist::Data SpotifyMediaProvider::createPlaylistData(SpotifyPlaylist playlist, bool partial) {
 		return Playlist::Data{{{
 			.partial=partial,
 			.type=playlist.type,
@@ -293,7 +293,7 @@ namespace sh {
 		};
 	}
 
-	PlaylistItem::Data SpotifyProvider::createPlaylistItemData(SpotifyPlaylist::Item playlistItem) {
+	PlaylistItem::Data SpotifyMediaProvider::createPlaylistItemData(SpotifyPlaylist::Item playlistItem) {
 		return PlaylistItem::Data{{
 			.track=Track::new$(this, createTrackData(playlistItem.track, true))
 			},
@@ -302,7 +302,7 @@ namespace sh {
 		};
 	}
 
-	UserAccount::Data SpotifyProvider::createUserAccountData(SpotifyUser user, bool partial) {
+	UserAccount::Data SpotifyMediaProvider::createUserAccountData(SpotifyUser user, bool partial) {
 		return UserAccount::Data{{
 			.partial=partial,
 			.type=user.type,
@@ -317,7 +317,7 @@ namespace sh {
 		};
 	}
 
-	MediaItem::Image SpotifyProvider::createImage(SpotifyImage image) {
+	MediaItem::Image SpotifyMediaProvider::createImage(SpotifyImage image) {
 		auto dimensions = MediaItem::Image::Dimensions{ image.width, image.height };
 		return MediaItem::Image{
 			.url=image.url,
@@ -330,35 +330,35 @@ namespace sh {
 
 	#pragma mark Media Item Fetching
 
-	Promise<Track::Data> SpotifyProvider::getTrackData(String uri) {
+	Promise<Track::Data> SpotifyMediaProvider::getTrackData(String uri) {
 		auto uriParts = parseURI(uri);
 		return spotify->getTrack(uriParts.id,{.market="from_token"}).map<Track::Data>([=](SpotifyTrack track) {
 			return createTrackData(track, false);
 		});
 	}
 
-	Promise<Artist::Data> SpotifyProvider::getArtistData(String uri) {
+	Promise<Artist::Data> SpotifyMediaProvider::getArtistData(String uri) {
 		auto uriParts = parseURI(uri);
 		return spotify->getArtist(uriParts.id).map<Artist::Data>([=](SpotifyArtist artist) {
 			return createArtistData(artist, false);
 		});
 	}
 
-	Promise<Album::Data> SpotifyProvider::getAlbumData(String uri) {
+	Promise<Album::Data> SpotifyMediaProvider::getAlbumData(String uri) {
 		auto uriParts = parseURI(uri);
 		return spotify->getAlbum(uriParts.id,{.market="from_token"}).map<Album::Data>([=](SpotifyAlbum album) {
 			return createAlbumData(album, false);
 		});
 	}
 
-	Promise<Playlist::Data> SpotifyProvider::getPlaylistData(String uri) {
+	Promise<Playlist::Data> SpotifyMediaProvider::getPlaylistData(String uri) {
 		auto uriParts = parseURI(uri);
 		return spotify->getPlaylist(uriParts.id,{.market="from_token"}).map<Playlist::Data>([=](SpotifyPlaylist playlist) {
 			return createPlaylistData(playlist, false);
 		});
 	}
 
-	Promise<UserAccount::Data> SpotifyProvider::getUserData(String uri) {
+	Promise<UserAccount::Data> SpotifyMediaProvider::getUserData(String uri) {
 		auto uriParts = parseURI(uri);
 		return spotify->getUser(uriParts.id).map<UserAccount::Data>([=](SpotifyUser user) {
 			return createUserAccountData(user, false);
@@ -368,7 +368,7 @@ namespace sh {
 
 
 
-	Promise<ArrayList<$<Track>>> SpotifyProvider::getArtistTopTracks(String artistURI) {
+	Promise<ArrayList<$<Track>>> SpotifyMediaProvider::getArtistTopTracks(String artistURI) {
 		auto uriParts = parseURI(artistURI);
 		return spotify->getArtistTopTracks(uriParts.id,"from_token").map<ArrayList<$<Track>>>(nullptr, [=](ArrayList<SpotifyTrack> tracks) {
 			return tracks.map<$<Track>>([=](auto track) {
@@ -377,7 +377,7 @@ namespace sh {
 		});
 	}
 
-	SpotifyProvider::ArtistAlbumsGenerator SpotifyProvider::getArtistAlbums(String artistURI) {
+	SpotifyMediaProvider::ArtistAlbumsGenerator SpotifyMediaProvider::getArtistAlbums(String artistURI) {
 		auto uriParts = parseURI(artistURI);
 		auto offset = fgl::new$<size_t>(0);
 		using YieldResult = typename ArtistAlbumsGenerator::YieldResult;
@@ -403,7 +403,7 @@ namespace sh {
 		});
 	}
 
-	SpotifyProvider::UserPlaylistsGenerator SpotifyProvider::getUserPlaylists(String userURI) {
+	SpotifyMediaProvider::UserPlaylistsGenerator SpotifyMediaProvider::getUserPlaylists(String userURI) {
 		auto uriParts = parseURI(userURI);
 		auto offset = fgl::new$<size_t>(0);
 		using YieldResult = typename UserPlaylistsGenerator::YieldResult;
@@ -431,11 +431,11 @@ namespace sh {
 
 
 
-	Album::MutatorDelegate* SpotifyProvider::createAlbumMutatorDelegate($<Album> album) {
+	Album::MutatorDelegate* SpotifyMediaProvider::createAlbumMutatorDelegate($<Album> album) {
 		return new SpotifyAlbumMutatorDelegate(album);
 	}
 
-	Playlist::MutatorDelegate* SpotifyProvider::createPlaylistMutatorDelegate($<Playlist> playlist) {
+	Playlist::MutatorDelegate* SpotifyMediaProvider::createPlaylistMutatorDelegate($<Playlist> playlist) {
 		return new SpotifyPlaylistMutatorDelegate(playlist);
 	}
 
@@ -443,7 +443,7 @@ namespace sh {
 
 	#pragma mark User Library
 
-	SpotifyProvider::GenerateLibraryResumeData SpotifyProvider::GenerateLibraryResumeData::fromJson(const Json& json) {
+	SpotifyMediaProvider::GenerateLibraryResumeData SpotifyMediaProvider::GenerateLibraryResumeData::fromJson(const Json& json) {
 		auto mostRecentTrackSave = json["mostRecentTrackSave"];
 		auto mostRecentAlbumSave = json["mostRecentAlbumSave"];
 		auto syncMostRecentSave = json["syncMostRecentSave"];
@@ -470,7 +470,7 @@ namespace sh {
 		return resumeData;
 	}
 
-	Json SpotifyProvider::GenerateLibraryResumeData::toJson() const {
+	Json SpotifyMediaProvider::GenerateLibraryResumeData::toJson() const {
 		return Json::object{
 			{ "userId", (std::string)userId },
 			{ "mostRecentTrackSave", mostRecentTrackSave ? Json((double)mostRecentTrackSave.value()) : Json() },
@@ -482,7 +482,7 @@ namespace sh {
 		};
 	}
 
-	String SpotifyProvider::GenerateLibraryResumeData::typeFromSyncIndex(size_t index) {
+	String SpotifyMediaProvider::GenerateLibraryResumeData::typeFromSyncIndex(size_t index) {
 		switch(index) {
 			case 0:
 				return "playlists";
@@ -494,7 +494,7 @@ namespace sh {
 		return "";
 	}
 
-	Optional<size_t> SpotifyProvider::GenerateLibraryResumeData::syncIndexFromType(String type) {
+	Optional<size_t> SpotifyMediaProvider::GenerateLibraryResumeData::syncIndexFromType(String type) {
 		if(type == "playlists") {
 			return 0;
 		} else if(type == "albums") {
@@ -505,7 +505,7 @@ namespace sh {
 		return std::nullopt;
 	}
 
-	Optional<SpotifyProvider::GenerateLibraryResumeData::Item> SpotifyProvider::GenerateLibraryResumeData::Item::maybeFromJson(const Json& json) {
+	Optional<SpotifyMediaProvider::GenerateLibraryResumeData::Item> SpotifyMediaProvider::GenerateLibraryResumeData::Item::maybeFromJson(const Json& json) {
 		if(!json.is_object()) {
 			return std::nullopt;
 		}
@@ -519,18 +519,18 @@ namespace sh {
 		};
 	}
 
-	Json SpotifyProvider::GenerateLibraryResumeData::Item::toJson() const {
+	Json SpotifyMediaProvider::GenerateLibraryResumeData::Item::toJson() const {
 		return Json::object{
 			{ "uri", Json(uri) },
 			{ "addedAt", Json(addedAt) }
 		};
 	}
 
-	bool SpotifyProvider::hasLibrary() const {
+	bool SpotifyMediaProvider::hasLibrary() const {
 		return true;
 	}
 
-	SpotifyProvider::LibraryItemGenerator SpotifyProvider::generateLibrary(GenerateLibraryOptions options) {
+	SpotifyMediaProvider::LibraryItemGenerator SpotifyMediaProvider::generateLibrary(GenerateLibraryOptions options) {
 		auto resumeData = GenerateLibraryResumeData::fromJson(options.resumeData);
 		struct SharedData {
 			String userId;
@@ -753,15 +753,15 @@ namespace sh {
 
 	#pragma mark Playlists
 
-	bool SpotifyProvider::canCreatePlaylists() const {
+	bool SpotifyMediaProvider::canCreatePlaylists() const {
 		return true;
 	}
 
-	ArrayList<Playlist::Privacy> SpotifyProvider::supportedPlaylistPrivacies() const {
+	ArrayList<Playlist::Privacy> SpotifyMediaProvider::supportedPlaylistPrivacies() const {
 		return { Playlist::Privacy::PRIVATE, Playlist::Privacy::PUBLIC };
 	}
 
-	Promise<$<Playlist>> SpotifyProvider::createPlaylist(String name, CreatePlaylistOptions options) {
+	Promise<$<Playlist>> SpotifyMediaProvider::createPlaylist(String name, CreatePlaylistOptions options) {
 		Optional<bool> isPublic;
 		switch(options.privacy) {
 			case Playlist::Privacy::UNLISTED:
@@ -783,7 +783,7 @@ namespace sh {
 
 
 
-	Promise<bool> SpotifyProvider::isPlaylistEditable($<Playlist> playlist) {
+	Promise<bool> SpotifyMediaProvider::isPlaylistEditable($<Playlist> playlist) {
 		if(!isLoggedIn()) {
 			return Promise<bool>::resolve(false);
 		}
@@ -800,11 +800,11 @@ namespace sh {
 
 	#pragma mark Player
 
-	SpotifyPlaybackProvider* SpotifyProvider::player() {
+	SpotifyPlaybackProvider* SpotifyMediaProvider::player() {
 		return _player;
 	}
 
-	const SpotifyPlaybackProvider* SpotifyProvider::player() const {
+	const SpotifyPlaybackProvider* SpotifyMediaProvider::player() const {
 		return _player;
 	}
 }

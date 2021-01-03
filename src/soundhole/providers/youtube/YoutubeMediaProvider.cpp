@@ -1,45 +1,45 @@
 //
-//  YoutubeProvider.cpp
+//  YoutubeMediaProvider.cpp
 //  SoundHoleCore
 //
 //  Created by Luis Finke on 8/23/19.
 //  Copyright © 2019 Luis Finke. All rights reserved.
 //
 
-#include "YoutubeProvider.hpp"
+#include "YoutubeMediaProvider.hpp"
 #include "api/YoutubeError.hpp"
 #include "mutators/YoutubePlaylistMutatorDelegate.hpp"
 #include <soundhole/utils/SoundHoleError.hpp>
 #include <soundhole/utils/Utils.hpp>
 
 namespace sh {
-	YoutubeProvider::YoutubeProvider(Options options)
+	YoutubeMediaProvider::YoutubeMediaProvider(Options options)
 	: youtube(new Youtube(options)),
 	_player(new YoutubePlaybackProvider(this)) {
 		//
 	}
 
-	YoutubeProvider::~YoutubeProvider() {
+	YoutubeMediaProvider::~YoutubeMediaProvider() {
 		delete _player;
 		delete youtube;
 	}
 	
-	String YoutubeProvider::name() const {
+	String YoutubeMediaProvider::name() const {
 		return "youtube";
 	}
 	
-	String YoutubeProvider::displayName() const {
+	String YoutubeMediaProvider::displayName() const {
 		return "YouTube";
 	}
 
 
 
 
-	Youtube* YoutubeProvider::api() {
+	Youtube* YoutubeMediaProvider::api() {
 		return youtube;
 	}
 
-	const Youtube* YoutubeProvider::api() const {
+	const Youtube* YoutubeMediaProvider::api() const {
 		return youtube;
 	}
 
@@ -47,7 +47,7 @@ namespace sh {
 
 	#pragma mark URI/URL parsing
 
-	YoutubeProvider::URI YoutubeProvider::parseURI(String uri) const {
+	YoutubeMediaProvider::URI YoutubeMediaProvider::parseURI(String uri) const {
 		auto uriParts = ArrayList<String>(uri.split(':'));
 		if(uriParts.size() != 3 || uriParts.containsWhere([](auto& part) { return part.empty(); }) || uriParts.front() != name()) {
 			throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid youtube uri "+uri);
@@ -59,7 +59,7 @@ namespace sh {
 		};
 	}
 
-	YoutubeProvider::URI YoutubeProvider::parseURL(String url) const {
+	YoutubeMediaProvider::URI YoutubeMediaProvider::parseURL(String url) const {
 		auto urlObj = Url(url);
 		if(urlObj.host() != "www.youtube.com" && urlObj.host() != "youtube.com" && urlObj.host() != "youtu.be" && urlObj.host() != "www.youtu.be") {
 			throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid youtube URL");
@@ -159,7 +159,7 @@ namespace sh {
 		throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid youtube media URL "+url);
 	}
 
-	String YoutubeProvider::createURI(String type, String id) const {
+	String YoutubeMediaProvider::createURI(String type, String id) const {
 		if(id.empty()) {
 			throw std::runtime_error("Cannot create URI with empty id");
 		} else if(type.empty()) {
@@ -172,7 +172,7 @@ namespace sh {
 
 	#pragma mark Login
 
-	Promise<bool> YoutubeProvider::login() {
+	Promise<bool> YoutubeMediaProvider::login() {
 		return youtube->login().map<bool>([=](bool loggedIn) {
 			if(loggedIn) {
 				storeIdentity(std::nullopt);
@@ -183,12 +183,12 @@ namespace sh {
 		});
 	}
 
-	void YoutubeProvider::logout() {
+	void YoutubeMediaProvider::logout() {
 		youtube->logout();
 		storeIdentity(std::nullopt);
 	}
 
-	bool YoutubeProvider::isLoggedIn() const {
+	bool YoutubeMediaProvider::isLoggedIn() const {
 		return youtube->isLoggedIn();
 	}
 
@@ -196,8 +196,8 @@ namespace sh {
 
 	#pragma mark Current User
 
-	Promise<ArrayList<String>> YoutubeProvider::getCurrentUserIds() {
-		return getIdentity().map<ArrayList<String>>([=](Optional<YoutubeProviderIdentity> identity) {
+	Promise<ArrayList<String>> YoutubeMediaProvider::getCurrentUserIds() {
+		return getIdentity().map<ArrayList<String>>([=](Optional<YoutubeMediaProviderIdentity> identity) {
 			if(!identity) {
 				return ArrayList<String>{};
 			}
@@ -207,7 +207,7 @@ namespace sh {
 		});
 	}
 
-	String YoutubeProvider::getIdentityFilePath() const {
+	String YoutubeMediaProvider::getIdentityFilePath() const {
 		String sessionPersistKey = youtube->getAuth()->getOptions().sessionPersistKey;
 		if(sessionPersistKey.empty()) {
 			return String();
@@ -215,12 +215,12 @@ namespace sh {
 		return utils::getCacheDirectoryPath()+"/"+name()+"_identity_"+sessionPersistKey+".json";
 	}
 
-	Promise<Optional<YoutubeProviderIdentity>> YoutubeProvider::fetchIdentity() {
+	Promise<Optional<YoutubeMediaProviderIdentity>> YoutubeMediaProvider::fetchIdentity() {
 		if(!isLoggedIn()) {
-			return Promise<Optional<YoutubeProviderIdentity>>::resolve(std::nullopt);
+			return Promise<Optional<YoutubeMediaProviderIdentity>>::resolve(std::nullopt);
 		}
-		return youtube->getMyChannels().map<Optional<YoutubeProviderIdentity>>([=](YoutubePage<YoutubeChannel> channelPage) {
-			return maybe(YoutubeProviderIdentity{
+		return youtube->getMyChannels().map<Optional<YoutubeMediaProviderIdentity>>([=](YoutubePage<YoutubeChannel> channelPage) {
+			return maybe(YoutubeMediaProviderIdentity{
 				.channels=channelPage.items
 			});
 		});
@@ -230,7 +230,7 @@ namespace sh {
 
 	#pragma mark Search
 
-	Promise<YoutubePage<$<MediaItem>>> YoutubeProvider::search(String query, SearchOptions options) {
+	Promise<YoutubePage<$<MediaItem>>> YoutubeMediaProvider::search(String query, SearchOptions options) {
 		return youtube->search(query, options).map<YoutubePage<$<MediaItem>>>([=](YoutubePage<YoutubeSearchResult> searchResults) {
 			return searchResults.template map<$<MediaItem>>([&](auto& item) {
 				return createMediaItem(item);
@@ -242,7 +242,7 @@ namespace sh {
 
 	#pragma mark Data transforming
 
-	Track::Data YoutubeProvider::createTrackData(YoutubeVideo video) {
+	Track::Data YoutubeMediaProvider::createTrackData(YoutubeVideo video) {
 		return Track::Data{{
 			.partial=true,
 			.type="track",
@@ -274,7 +274,7 @@ namespace sh {
 		};
 	}
 
-	Track::Data YoutubeProvider::createTrackData(YoutubeVideoInfo video) {
+	Track::Data YoutubeMediaProvider::createTrackData(YoutubeVideoInfo video) {
 		String title = video.playerResponse.videoDetails.title;
 		String videoId = video.playerResponse.videoDetails.videoId;
 		if(videoId.empty()) {
@@ -396,7 +396,7 @@ namespace sh {
 		};
 	}
 
-	Artist::Data YoutubeProvider::createArtistData(YoutubeChannel channel) {
+	Artist::Data YoutubeMediaProvider::createArtistData(YoutubeChannel channel) {
 		return Artist::Data{{
 			.partial=false,
 			.type="artist",
@@ -410,7 +410,7 @@ namespace sh {
 		};
 	}
 
-	Playlist::Data YoutubeProvider::createPlaylistData(YoutubePlaylist playlist) {
+	Playlist::Data YoutubeMediaProvider::createPlaylistData(YoutubePlaylist playlist) {
 		return Playlist::Data{{{
 			.partial=false,
 			.type="playlist",
@@ -443,7 +443,7 @@ namespace sh {
 		};
 	}
 
-	PlaylistItem::Data YoutubeProvider::createPlaylistItemData(YoutubePlaylistItem playlistItem) {
+	PlaylistItem::Data YoutubeMediaProvider::createPlaylistItemData(YoutubePlaylistItem playlistItem) {
 		return PlaylistItem::Data{{
 			.track=Track::new$(this, Track::Data{{
 				.partial=true,
@@ -490,7 +490,7 @@ namespace sh {
 		};
 	}
 
-	MediaItem::Image YoutubeProvider::createImage(YoutubeImage image) {
+	MediaItem::Image YoutubeMediaProvider::createImage(YoutubeImage image) {
 		return MediaItem::Image{
 			.url=image.url,
 			.size=([&]() {
@@ -518,7 +518,7 @@ namespace sh {
 		};
 	}
 
-	$<MediaItem> YoutubeProvider::createMediaItem(YoutubeSearchResult searchResult) {
+	$<MediaItem> YoutubeMediaProvider::createMediaItem(YoutubeSearchResult searchResult) {
 		auto images = searchResult.snippet.thumbnails.template map<MediaItem::Image>([&](auto& image) {
 			return createImage(image);
 		});
@@ -591,7 +591,7 @@ namespace sh {
 
 	#pragma mark Media Item Fetching
 
-	Promise<Track::Data> YoutubeProvider::getTrackData(String uri) {
+	Promise<Track::Data> YoutubeMediaProvider::getTrackData(String uri) {
 		auto uriParts = parseURI(uri);
 		if(uriParts.type != "video") {
 			return Promise<Track::Data>::reject(std::invalid_argument(uri+" is not a video URI"));
@@ -601,7 +601,7 @@ namespace sh {
 		});
 	}
 
-	Promise<Artist::Data> YoutubeProvider::getArtistData(String uri) {
+	Promise<Artist::Data> YoutubeMediaProvider::getArtistData(String uri) {
 		auto uriParts = parseURI(uri);
 		Youtube::GetChannelsOptions options;
 		if(uriParts.type == "channel") {
@@ -619,11 +619,11 @@ namespace sh {
 		});
 	}
 
-	Promise<Album::Data> YoutubeProvider::getAlbumData(String uri) {
+	Promise<Album::Data> YoutubeMediaProvider::getAlbumData(String uri) {
 		return Promise<Album::Data>::reject(std::logic_error("Youtube does not support albums"));
 	}
 
-	Promise<Playlist::Data> YoutubeProvider::getPlaylistData(String uri) {
+	Promise<Playlist::Data> YoutubeMediaProvider::getPlaylistData(String uri) {
 		auto uriParts = parseURI(uri);
 		if(uriParts.type != "playlist") {
 			throw std::invalid_argument(uri+" is not a playlist URI");
@@ -633,13 +633,13 @@ namespace sh {
 		});
 	}
 
-	Promise<UserAccount::Data> YoutubeProvider::getUserData(String uri) {
+	Promise<UserAccount::Data> YoutubeMediaProvider::getUserData(String uri) {
 		return Promise<UserAccount::Data>::reject(std::logic_error("This method is not implemented yet"));
 	}
 
 
 
-	Promise<ArrayList<$<Track>>> YoutubeProvider::getArtistTopTracks(String artistURI) {
+	Promise<ArrayList<$<Track>>> YoutubeMediaProvider::getArtistTopTracks(String artistURI) {
 		auto uriParts = parseURI(artistURI);
 		if(uriParts.type != "channel") {
 			throw std::invalid_argument(artistURI+" is not a channel URI");
@@ -659,7 +659,7 @@ namespace sh {
 		});
 	}
 
-	YoutubeProvider::ArtistAlbumsGenerator YoutubeProvider::getArtistAlbums(String artistURI) {
+	YoutubeMediaProvider::ArtistAlbumsGenerator YoutubeMediaProvider::getArtistAlbums(String artistURI) {
 		using YieldResult = typename ArtistAlbumsGenerator::YieldResult;
 		return ArtistAlbumsGenerator([=]() {
 			return Promise<YieldResult>::reject(std::logic_error("Youtube does not support albums"));
@@ -668,7 +668,7 @@ namespace sh {
 
 
 
-	YoutubeProvider::UserPlaylistsGenerator YoutubeProvider::getUserPlaylists(String userURI) {
+	YoutubeMediaProvider::UserPlaylistsGenerator YoutubeMediaProvider::getUserPlaylists(String userURI) {
 		auto uriParts = parseURI(userURI);
 		if(uriParts.type != "channel") {
 			throw std::invalid_argument(userURI+" is not a channel URI");
@@ -702,11 +702,11 @@ namespace sh {
 
 
 
-	Album::MutatorDelegate* YoutubeProvider::createAlbumMutatorDelegate($<Album> album) {
+	Album::MutatorDelegate* YoutubeMediaProvider::createAlbumMutatorDelegate($<Album> album) {
 		throw std::logic_error("Youtube does not support albums");
 	}
 
-	Playlist::MutatorDelegate* YoutubeProvider::createPlaylistMutatorDelegate($<Playlist> playlist) {
+	Playlist::MutatorDelegate* YoutubeMediaProvider::createPlaylistMutatorDelegate($<Playlist> playlist) {
 		return new YoutubePlaylistMutatorDelegate(playlist);
 	}
 
@@ -714,14 +714,14 @@ namespace sh {
 
 	#pragma mark User Library
 
-	bool YoutubeProvider::hasLibrary() const {
+	bool YoutubeMediaProvider::hasLibrary() const {
 		return false;
 	}
 
-	YoutubeProvider::LibraryItemGenerator YoutubeProvider::generateLibrary(GenerateLibraryOptions options) {
+	YoutubeMediaProvider::LibraryItemGenerator YoutubeMediaProvider::generateLibrary(GenerateLibraryOptions options) {
 		using YieldResult = typename LibraryItemGenerator::YieldResult;
 		return LibraryItemGenerator([=]() {
-			// TODO implement YoutubeProvider::generateLibrary
+			// TODO implement YoutubeMediaProvider::generateLibrary
 			return Promise<YieldResult>::resolve(YieldResult{
 				.done=true
 			});
@@ -732,15 +732,15 @@ namespace sh {
 
 	#pragma mark Playlists
 
-	bool YoutubeProvider::canCreatePlaylists() const {
+	bool YoutubeMediaProvider::canCreatePlaylists() const {
 		return true;
 	}
 
-	ArrayList<Playlist::Privacy> YoutubeProvider::supportedPlaylistPrivacies() const {
+	ArrayList<Playlist::Privacy> YoutubeMediaProvider::supportedPlaylistPrivacies() const {
 		return { Playlist::Privacy::PRIVATE, Playlist::Privacy::UNLISTED, Playlist::Privacy::PUBLIC };
 	}
 
-	Promise<$<Playlist>> YoutubeProvider::createPlaylist(String name, CreatePlaylistOptions options) {
+	Promise<$<Playlist>> YoutubeMediaProvider::createPlaylist(String name, CreatePlaylistOptions options) {
 		YoutubePrivacyStatus::Type privacyStatus;
 		switch(options.privacy) {
 			case Playlist::Privacy::PRIVATE:
@@ -762,7 +762,7 @@ namespace sh {
 		});
 	}
 
-	Promise<bool> YoutubeProvider::isPlaylistEditable($<Playlist> playlist) {
+	Promise<bool> YoutubeMediaProvider::isPlaylistEditable($<Playlist> playlist) {
 		// TODO check if playlist is editable
 		return Promise<bool>::resolve(false);
 	}
@@ -771,19 +771,19 @@ namespace sh {
 
 	#pragma mark Player
 
-	YoutubePlaybackProvider* YoutubeProvider::player() {
+	YoutubePlaybackProvider* YoutubeMediaProvider::player() {
 		return _player;
 	}
 
-	const YoutubePlaybackProvider* YoutubeProvider::player() const {
+	const YoutubePlaybackProvider* YoutubeMediaProvider::player() const {
 		return _player;
 	}
 
 
 
-	#pragma mark YoutubeProviderIdentity
+	#pragma mark YoutubeMediaProviderIdentity
 
-	YoutubeProviderIdentity YoutubeProviderIdentity::fromJson(const Json& json) {
+	YoutubeMediaProviderIdentity YoutubeMediaProviderIdentity::fromJson(const Json& json) {
 		auto channelsJson = json["channels"];
 		if(!channelsJson.is_array()) {
 			throw std::invalid_argument("Invalid youtube provider identity json");
@@ -793,12 +793,12 @@ namespace sh {
 		for(auto& channelJson : channelsJson.array_items()) {
 			channels.pushBack(YoutubeChannel::fromJson(channelJson));
 		}
-		return YoutubeProviderIdentity{
+		return YoutubeMediaProviderIdentity{
 			.channels=channels
 		};
 	}
 
-	Json YoutubeProviderIdentity::toJson() const {
+	Json YoutubeMediaProviderIdentity::toJson() const {
 		return Json::object{
 			{ "channels", channels.map<Json>([](auto& channel) {
 				return channel.toJson();

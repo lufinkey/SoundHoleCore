@@ -10,7 +10,7 @@
 #include <soundhole/utils/SoundHoleError.hpp>
 
 namespace sh {
-	BandcampPlaybackProvider::BandcampPlaybackProvider(BandcampProvider* provider, StreamPlayer* streamPlayer)
+	BandcampPlaybackProvider::BandcampPlaybackProvider(BandcampMediaProvider* provider, StreamPlayer* streamPlayer)
 	: StreamPlaybackProvider(streamPlayer), provider(provider) {
 		//
 	}

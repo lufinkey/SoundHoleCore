@@ -13,11 +13,11 @@
 #include "api/Spotify.hpp"
 
 namespace sh {
-	class SpotifyProvider;
+	class SpotifyMediaProvider;
 
 	class SpotifyPlaybackProvider: public MediaPlaybackProvider, protected SpotifyPlayerEventListener {
 	public:
-		SpotifyPlaybackProvider(SpotifyProvider* provider);
+		SpotifyPlaybackProvider(SpotifyMediaProvider* provider);
 		~SpotifyPlaybackProvider();
 		
 		virtual bool usesPublicAudioStreams() const override;
@@ -39,7 +39,7 @@ namespace sh {
 	private:
 		Promise<void> setPlayingUntilSuccess();
 		
-		SpotifyProvider* provider;
+		SpotifyMediaProvider* provider;
 		AsyncQueue playQueue;
 		AsyncQueue setPlayingQueue;
 	};

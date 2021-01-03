@@ -7,7 +7,7 @@
 //
 
 #include "SpotifyPlaylistMutatorDelegate.hpp"
-#include <soundhole/providers/spotify/SpotifyProvider.hpp>
+#include <soundhole/providers/spotify/SpotifyMediaProvider.hpp>
 #include <soundhole/database/MediaDatabase.hpp>
 
 namespace sh {
@@ -22,7 +22,7 @@ namespace sh {
 
 	Promise<void> SpotifyPlaylistMutatorDelegate::loadAPIItems(Mutator* mutator, size_t index, size_t count) {
 		auto playlist = this->playlist.lock();
-		auto provider = (SpotifyProvider*)playlist->mediaProvider();
+		auto provider = (SpotifyMediaProvider*)playlist->mediaProvider();
 		auto uriParts = provider->parseURI(playlist->uri());
 		return provider->spotify->getPlaylistTracks(uriParts.id, {
 			.market="from_token",
@@ -46,7 +46,7 @@ namespace sh {
 	Promise<SpotifyPage<SpotifyPlaylist::Item>> SpotifyPlaylistMutatorDelegate::fetchAPIItemsFromChunks(Mutator* mutator, size_t index, size_t count) {
 		auto playlist = this->playlist.lock();
 		auto list = mutator->getList();
-		auto provider = (SpotifyProvider*)playlist->mediaProvider();
+		auto provider = (SpotifyMediaProvider*)playlist->mediaProvider();
 		auto uriParts = provider->parseURI(playlist->uri());
 		
 		size_t i = index;
@@ -92,7 +92,7 @@ namespace sh {
 
 	Promise<void> SpotifyPlaylistMutatorDelegate::loadAPIItemsFromChunks(Mutator* mutator, size_t index, size_t count) {
 		auto playlist = this->playlist.lock();
-		auto provider = (SpotifyProvider*)playlist->mediaProvider();
+		auto provider = (SpotifyMediaProvider*)playlist->mediaProvider();
 		return fetchAPIItemsFromChunks(mutator, index, count).then([=](SpotifyPage<SpotifyPlaylist::Item> page) {
 			auto items = page.items.map<$<PlaylistItem>>([&](auto& item) {
 				return PlaylistItem::new$(playlist, provider->createPlaylistItemData(item));
@@ -123,7 +123,7 @@ namespace sh {
 		size_t halfChunkSize = chunkSize / 2;
 		
 		auto playlist = this->playlist.lock();
-		auto provider = (SpotifyProvider*)playlist->mediaProvider();
+		auto provider = (SpotifyMediaProvider*)playlist->mediaProvider();
 		auto uriParts = provider->parseURI(playlist->uri());
 		auto list = mutator->getList();
 		
@@ -231,7 +231,7 @@ namespace sh {
 		size_t halfChunkSize = chunkSize / 2;
 		
 		auto playlist = this->playlist.lock();
-		auto provider = (SpotifyProvider*)playlist->mediaProvider();
+		auto provider = (SpotifyMediaProvider*)playlist->mediaProvider();
 		auto uriParts = provider->parseURI(playlist->uri());
 		auto list = mutator->getList();
 		
@@ -306,7 +306,7 @@ namespace sh {
 		size_t padding = halfChunkSize / 2;
 		
 		auto playlist = this->playlist.lock();
-		auto provider = (SpotifyProvider*)playlist->mediaProvider();
+		auto provider = (SpotifyMediaProvider*)playlist->mediaProvider();
 		auto uriParts = provider->parseURI(playlist->uri());
 		auto list = mutator->getList();
 		
@@ -420,7 +420,7 @@ namespace sh {
 		size_t padding = halfChunkSize / 2;
 		
 		auto playlist = this->playlist.lock();
-		auto provider = (SpotifyProvider*)playlist->mediaProvider();
+		auto provider = (SpotifyMediaProvider*)playlist->mediaProvider();
 		auto uriParts = provider->parseURI(playlist->uri());
 		auto list = mutator->getList();
 		

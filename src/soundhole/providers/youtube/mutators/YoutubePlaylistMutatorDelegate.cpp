@@ -7,7 +7,7 @@
 //
 
 #include "YoutubePlaylistMutatorDelegate.hpp"
-#include <soundhole/providers/youtube/YoutubeProvider.hpp>
+#include <soundhole/providers/youtube/YoutubeMediaProvider.hpp>
 #include <soundhole/database/MediaDatabase.hpp>
 #include <soundhole/utils/SoundHoleError.hpp>
 #include <tuple>
@@ -163,7 +163,7 @@ namespace sh {
 
 	Promise<YoutubePlaylistMutatorDelegate::LoadPager> YoutubePlaylistMutatorDelegate::loadItems(Mutator* mutator, String pageToken) {
 		auto playlist = this->playlist.lock();
-		auto provider = (YoutubeProvider*)playlist->mediaProvider();
+		auto provider = (YoutubeMediaProvider*)playlist->mediaProvider();
 		auto playlistId = provider->parseURI(playlist->uri()).id;
 		return provider->youtube->getPlaylistItems(playlistId, {
 			.maxResults=pageSize,
@@ -235,7 +235,7 @@ namespace sh {
 
 	Promise<void> YoutubePlaylistMutatorDelegate::insertItems(Mutator* mutator, size_t index, LinkedList<$<Track>> tracks) {
 		auto playlist = this->playlist.lock();
-		auto provider = (YoutubeProvider*)playlist->mediaProvider();
+		auto provider = (YoutubeMediaProvider*)playlist->mediaProvider();
 		auto playlistId = provider->parseURI(playlist->uri()).id;
 		
 		auto promise = Promise<void>::resolve();
@@ -260,7 +260,7 @@ namespace sh {
 
 	Promise<void> YoutubePlaylistMutatorDelegate::appendItems(Mutator* mutator, LinkedList<$<Track>> tracks) {
 		auto playlist = this->playlist.lock();
-		auto provider = (YoutubeProvider*)playlist->mediaProvider();
+		auto provider = (YoutubeMediaProvider*)playlist->mediaProvider();
 		auto playlistId = provider->parseURI(playlist->uri()).id;
 		
 		auto trackIds = tracks.map<String>([=](auto& track) {
@@ -282,7 +282,7 @@ namespace sh {
 
 	Promise<void> YoutubePlaylistMutatorDelegate::removeItems(Mutator* mutator, size_t index, size_t count) {
 		auto playlist = this->playlist.lock();
-		auto provider = (YoutubeProvider*)playlist->mediaProvider();
+		auto provider = (YoutubeMediaProvider*)playlist->mediaProvider();
 		auto playlistId = provider->parseURI(playlist->uri()).id;
 		
 		auto list = mutator->getList();
@@ -351,7 +351,7 @@ namespace sh {
 			return Promise<void>::resolve();
 		}
 		auto playlist = this->playlist.lock();
-		auto provider = (YoutubeProvider*)playlist->mediaProvider();
+		auto provider = (YoutubeMediaProvider*)playlist->mediaProvider();
 		auto playlistId = provider->parseURI(playlist->uri()).id;
 		
 		auto list = mutator->getList();

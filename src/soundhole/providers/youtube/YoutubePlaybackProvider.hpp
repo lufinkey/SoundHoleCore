@@ -13,13 +13,13 @@
 #include "api/Youtube.hpp"
 
 namespace sh {
-	class YoutubeProvider;
+	class YoutubeMediaProvider;
 
 	class YoutubePlaybackProvider: public StreamPlaybackProvider {
 	public:
-		YoutubePlaybackProvider(YoutubeProvider* provider, StreamPlayer* player = StreamPlayer::shared());
+		YoutubePlaybackProvider(YoutubeMediaProvider* provider, StreamPlayer* player = StreamPlayer::shared());
 		
 	private:
-		YoutubeProvider* provider;
+		YoutubeMediaProvider* provider;
 	};
 }

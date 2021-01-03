@@ -1,12 +1,12 @@
 //
-//  BandcampProvider.cpp
+//  BandcampMediaProvider.cpp
 //  SoundHoleCore
 //
 //  Created by Luis Finke on 8/18/19.
 //  Copyright © 2019 Luis Finke. All rights reserved.
 //
 
-#include "BandcampProvider.hpp"
+#include "BandcampMediaProvider.hpp"
 #include "mutators/BandcampAlbumMutatorDelegate.hpp"
 #include <soundhole/utils/SoundHoleError.hpp>
 #include <soundhole/utils/Utils.hpp>
@@ -14,39 +14,39 @@
 #include <regex>
 
 namespace sh {
-	BandcampProvider::BandcampProvider(Options options)
+	BandcampMediaProvider::BandcampMediaProvider(Options options)
 	: bandcamp(new Bandcamp(options)),
 	_player(new BandcampPlaybackProvider(this)) {
 		//
 	}
 
-	BandcampProvider::~BandcampProvider() {
+	BandcampMediaProvider::~BandcampMediaProvider() {
 		delete _player;
 		delete bandcamp;
 	}
 
-	String BandcampProvider::name() const {
+	String BandcampMediaProvider::name() const {
 		return "bandcamp";
 	}
 
-	String BandcampProvider::displayName() const {
+	String BandcampMediaProvider::displayName() const {
 		return "Bandcamp";
 	}
 
 
 
 
-	Bandcamp* BandcampProvider::api() {
+	Bandcamp* BandcampMediaProvider::api() {
 		return bandcamp;
 	}
 
-	const Bandcamp* BandcampProvider::api() const {
+	const Bandcamp* BandcampMediaProvider::api() const {
 		return bandcamp;
 	}
 
 
 
-	time_t BandcampProvider::timeFromString(String time) {
+	time_t BandcampMediaProvider::timeFromString(String time) {
 		if(auto date = DateTime::fromGmtString(time, "%Y-%m-%dT%H:%M:%SZ")) {
 			return date->toTimeType();
 		}
@@ -57,7 +57,7 @@ namespace sh {
 
 	#pragma mark URI/URL parsing
 
-	BandcampProvider::URI BandcampProvider::parseURI(String uri) const {
+	BandcampMediaProvider::URI BandcampMediaProvider::parseURI(String uri) const {
 		size_t colonIndex = uri.indexOf(':');
 		if(colonIndex == (size_t)-1) {
 			throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid bandcamp uri "+uri);
@@ -76,7 +76,7 @@ namespace sh {
 		};
 	}
 
-	BandcampProvider::URI BandcampProvider::parseURL(String url) const {
+	BandcampMediaProvider::URI BandcampMediaProvider::parseURL(String url) const {
 		// validate url
 		Url(url).str();
 		return URI{
@@ -85,7 +85,7 @@ namespace sh {
 		};
 	}
 
-	String BandcampProvider::createURI(String type, String url) const {
+	String BandcampMediaProvider::createURI(String type, String url) const {
 		if(url.empty()) {
 			throw std::logic_error("url cannot be empty in bandcamp uri");
 		}
@@ -96,7 +96,7 @@ namespace sh {
 
 	#pragma mark Login
 
-	Promise<bool> BandcampProvider::login() {
+	Promise<bool> BandcampMediaProvider::login() {
 		return bandcamp->login().map<bool>([=](bool loggedIn) {
 			if(loggedIn) {
 				storeIdentity(std::nullopt);
@@ -107,12 +107,12 @@ namespace sh {
 		});
 	}
 
-	void BandcampProvider::logout() {
+	void BandcampMediaProvider::logout() {
 		bandcamp->logout();
 		storeIdentity(std::nullopt);
 	}
 
-	bool BandcampProvider::isLoggedIn() const {
+	bool BandcampMediaProvider::isLoggedIn() const {
 		return bandcamp->isLoggedIn();
 	}
 
@@ -120,7 +120,7 @@ namespace sh {
 
 	#pragma mark Current User
 
-	Promise<ArrayList<String>> BandcampProvider::getCurrentUserIds() {
+	Promise<ArrayList<String>> BandcampMediaProvider::getCurrentUserIds() {
 		return getIdentity().map<ArrayList<String>>([=](Optional<BandcampIdentities> identities) -> ArrayList<String> {
 			if(!identities || !identities->fan) {
 				return {};
@@ -129,7 +129,7 @@ namespace sh {
 		});
 	}
 
-	String BandcampProvider::getIdentityFilePath() const {
+	String BandcampMediaProvider::getIdentityFilePath() const {
 		String sessionPersistKey = bandcamp->getAuth()->getOptions().sessionPersistKey;
 		if(sessionPersistKey.empty()) {
 			return String();
@@ -137,7 +137,7 @@ namespace sh {
 		return utils::getCacheDirectoryPath()+"/"+name()+"_identity_"+sessionPersistKey+".json";
 	}
 
-	Promise<Optional<BandcampIdentities>> BandcampProvider::fetchIdentity() {
+	Promise<Optional<BandcampIdentities>> BandcampMediaProvider::fetchIdentity() {
 		if(!isLoggedIn()) {
 			return Promise<Optional<BandcampIdentities>>::resolve(std::nullopt);
 		}
@@ -150,7 +150,7 @@ namespace sh {
 
 	#pragma mark Search
 
-	Promise<BandcampProvider::SearchResults> BandcampProvider::search(String query, SearchOptions options) {
+	Promise<BandcampMediaProvider::SearchResults> BandcampMediaProvider::search(String query, SearchOptions options) {
 		return bandcamp->search(query, options).map<SearchResults>([=](BandcampSearchResults searchResults) -> SearchResults {
 			return SearchResults{
 				.prevURL=searchResults.prevURL,
@@ -290,7 +290,7 @@ namespace sh {
 
 	#pragma mark Data transforming
 
-	ArrayList<$<Artist>> BandcampProvider::createArtists(String artistURL, String artistName, Optional<BandcampArtist> artist, bool partial) {
+	ArrayList<$<Artist>> BandcampMediaProvider::createArtists(String artistURL, String artistName, Optional<BandcampArtist> artist, bool partial) {
 		ArrayList<$<Artist>> artists;
 		if(artist && !artistURL.empty() && artist->url == artistURL && artist->name != artistName) {
 			artistURL = String();
@@ -312,7 +312,7 @@ namespace sh {
 		return artists;
 	}
 
-	Track::Data BandcampProvider::createTrackData(BandcampTrack track, bool partial) {
+	Track::Data BandcampMediaProvider::createTrackData(BandcampTrack track, bool partial) {
 		return Track::Data{{
 			.partial=partial,
 			.type="track",
@@ -353,7 +353,7 @@ namespace sh {
 		};
 	}
 
-	Track::Data BandcampProvider::createTrackData(BandcampFan::CollectionTrack track) {
+	Track::Data BandcampMediaProvider::createTrackData(BandcampFan::CollectionTrack track) {
 		return Track::Data{{
 			.partial=true,
 			.type="track",
@@ -375,7 +375,7 @@ namespace sh {
 		};
 	}
 
-	Artist::Data BandcampProvider::createArtistData(BandcampArtist artist, bool partial) {
+	Artist::Data BandcampMediaProvider::createArtistData(BandcampArtist artist, bool partial) {
 		return Artist::Data{{
 			.partial=partial,
 			.type="artist",
@@ -389,7 +389,7 @@ namespace sh {
 		};
 	}
 
-	Artist::Data BandcampProvider::createArtistData(BandcampFan::CollectionArtist artist) {
+	Artist::Data BandcampMediaProvider::createArtistData(BandcampFan::CollectionArtist artist) {
 		return Artist::Data{{
 			.partial=true,
 			.type="artist",
@@ -403,7 +403,7 @@ namespace sh {
 		};
 	}
 
-	Album::Data BandcampProvider::createAlbumData(BandcampAlbum album, bool partial) {
+	Album::Data BandcampMediaProvider::createAlbumData(BandcampAlbum album, bool partial) {
 		auto artists = createArtists(album.artistURL, album.artistName, album.artist, partial);
 		auto albumURI = (album.url.empty() ? String() : createURI("album", album.url));
 		return Album::Data{{{
@@ -450,7 +450,7 @@ namespace sh {
 		};
 	}
 
-	Album::Data BandcampProvider::createAlbumData(BandcampFan::CollectionAlbum album) {
+	Album::Data BandcampMediaProvider::createAlbumData(BandcampFan::CollectionAlbum album) {
 		return Album::Data{{{
 			.partial=true,
 			.type="album",
@@ -467,7 +467,7 @@ namespace sh {
 		};
 	}
 
-	MediaItem::Image BandcampProvider::createImage(BandcampImage image) {
+	MediaItem::Image BandcampMediaProvider::createImage(BandcampImage image) {
 		return MediaItem::Image{
 			.url=image.url,
 			.size=([&]() {
@@ -492,7 +492,7 @@ namespace sh {
 		};
 	}
 
-	UserAccount::Data BandcampProvider::createUserData(BandcampFan fan) {
+	UserAccount::Data BandcampMediaProvider::createUserData(BandcampFan fan) {
 		return UserAccount::Data{{
 			.partial=false,
 			.type="user",
@@ -507,7 +507,7 @@ namespace sh {
 		};
 	}
 
-	UserAccount::Data BandcampProvider::createUserData(BandcampFan::CollectionFan fan) {
+	UserAccount::Data BandcampMediaProvider::createUserData(BandcampFan::CollectionFan fan) {
 		return UserAccount::Data{{
 			.partial=false,
 			.type="user",
@@ -526,32 +526,32 @@ namespace sh {
 
 	#pragma mark Media Item Fetching
 
-	Promise<Track::Data> BandcampProvider::getTrackData(String uri) {
+	Promise<Track::Data> BandcampMediaProvider::getTrackData(String uri) {
 		auto uriParts = parseURI(uri);
 		return bandcamp->getTrack(uriParts.url).map<Track::Data>([=](auto track) {
 			return createTrackData(track, false);
 		});
 	}
 
-	Promise<Artist::Data> BandcampProvider::getArtistData(String uri) {
+	Promise<Artist::Data> BandcampMediaProvider::getArtistData(String uri) {
 		auto uriParts = parseURI(uri);
 		return bandcamp->getArtist(uriParts.url).map<Artist::Data>([=](auto artist) {
 			return createArtistData(artist, false);
 		});
 	}
 
-	Promise<Album::Data> BandcampProvider::getAlbumData(String uri) {
+	Promise<Album::Data> BandcampMediaProvider::getAlbumData(String uri) {
 		auto uriParts = parseURI(uri);
 		return bandcamp->getAlbum(uriParts.url).map<Album::Data>([=](auto album) {
 			return createAlbumData(album, false);
 		});
 	}
 
-	Promise<Playlist::Data> BandcampProvider::getPlaylistData(String uri) {
+	Promise<Playlist::Data> BandcampMediaProvider::getPlaylistData(String uri) {
 		return Promise<Playlist::Data>::reject(std::logic_error("Bandcamp does not support playlists"));
 	}
 
-	Promise<UserAccount::Data> BandcampProvider::getUserData(String uri) {
+	Promise<UserAccount::Data> BandcampMediaProvider::getUserData(String uri) {
 		auto uriParts = parseURI(uri);
 		return bandcamp->getFan(uriParts.url).map<UserAccount::Data>([=](auto fan) {
 			return createUserData(fan);
@@ -561,11 +561,11 @@ namespace sh {
 
 
 
-	Promise<ArrayList<$<Track>>> BandcampProvider::getArtistTopTracks(String artistURI) {
+	Promise<ArrayList<$<Track>>> BandcampMediaProvider::getArtistTopTracks(String artistURI) {
 		return Promise<ArrayList<$<Track>>>::reject(std::runtime_error("Bandcamp does not have Top Tracks"));
 	}
 
-	Promise<std::tuple<$<Artist>,LinkedList<$<Album>>>> BandcampProvider::getArtistAndAlbums(String artistURI) {
+	Promise<std::tuple<$<Artist>,LinkedList<$<Album>>>> BandcampMediaProvider::getArtistAndAlbums(String artistURI) {
 		using ArtistAlbumsTuple = std::tuple<$<Artist>,LinkedList<$<Album>>>;
 		auto uriParts = parseURI(artistURI);
 		return bandcamp->getArtist(uriParts.url).map<ArtistAlbumsTuple>([=](auto bcArtist) {
@@ -590,7 +590,7 @@ namespace sh {
 		});
 	}
 
-	BandcampProvider::ArtistAlbumsGenerator BandcampProvider::getArtistAlbums(String artistURI) {
+	BandcampMediaProvider::ArtistAlbumsGenerator BandcampMediaProvider::getArtistAlbums(String artistURI) {
 		using YieldResult = ArtistAlbumsGenerator::YieldResult;
 		auto uriParts = parseURI(artistURI);
 		return ArtistAlbumsGenerator([=]() {
@@ -608,7 +608,7 @@ namespace sh {
 		});
 	}
 
-	BandcampProvider::UserPlaylistsGenerator BandcampProvider::getUserPlaylists(String userURI) {
+	BandcampMediaProvider::UserPlaylistsGenerator BandcampMediaProvider::getUserPlaylists(String userURI) {
 		using YieldResult = typename UserPlaylistsGenerator::YieldResult;
 		return UserPlaylistsGenerator([=]() {
 			return Promise<YieldResult>::reject(std::runtime_error("Bandcamp does not have user playlists"));
@@ -618,11 +618,11 @@ namespace sh {
 
 
 
-	Album::MutatorDelegate* BandcampProvider::createAlbumMutatorDelegate($<Album> album) {
+	Album::MutatorDelegate* BandcampMediaProvider::createAlbumMutatorDelegate($<Album> album) {
 		return new BandcampAlbumMutatorDelegate(album);
 	}
 
-	Playlist::MutatorDelegate* BandcampProvider::createPlaylistMutatorDelegate($<Playlist> playlist) {
+	Playlist::MutatorDelegate* BandcampMediaProvider::createPlaylistMutatorDelegate($<Playlist> playlist) {
 		throw std::logic_error("Bandcamp does not support playlists");
 	}
 
@@ -630,7 +630,7 @@ namespace sh {
 
 	#pragma mark User Library
 
-	BandcampProvider::GenerateLibraryResumeData BandcampProvider::GenerateLibraryResumeData::fromJson(const Json& json) {
+	BandcampMediaProvider::GenerateLibraryResumeData BandcampMediaProvider::GenerateLibraryResumeData::fromJson(const Json& json) {
 		auto mostRecentHiddenSave = json["mostRecentHiddenSave"];
 		auto mostRecentCollectionSave = json["mostRecentCollectionSave"];
 		auto mostRecentWishlistSave = json["mostRecentWishlistSave"];
@@ -658,7 +658,7 @@ namespace sh {
 		return resumeData;
 	}
 
-	Json BandcampProvider::GenerateLibraryResumeData::toJson() const {
+	Json BandcampMediaProvider::GenerateLibraryResumeData::toJson() const {
 		return Json::object{
 			{ "fanId", (std::string)fanId },
 			{ "mostRecentHiddenSave", mostRecentHiddenSave ? Json((double)mostRecentHiddenSave.value()) : Json() },
@@ -671,7 +671,7 @@ namespace sh {
 		};
 	}
 
-	String BandcampProvider::GenerateLibraryResumeData::typeFromSyncIndex(size_t index) {
+	String BandcampMediaProvider::GenerateLibraryResumeData::typeFromSyncIndex(size_t index) {
 		switch(index) {
 			case 0:
 				return "hidden";
@@ -683,7 +683,7 @@ namespace sh {
 		return "";
 	}
 
-	Optional<size_t> BandcampProvider::GenerateLibraryResumeData::syncIndexFromType(String type) {
+	Optional<size_t> BandcampMediaProvider::GenerateLibraryResumeData::syncIndexFromType(String type) {
 		if(type == "hidden") {
 			return 0;
 		} else if(type == "collection") {
@@ -694,11 +694,11 @@ namespace sh {
 		return std::nullopt;
 	}
 
-	bool BandcampProvider::hasLibrary() const {
+	bool BandcampMediaProvider::hasLibrary() const {
 		return true;
 	}
 
-	BandcampProvider::LibraryItemGenerator BandcampProvider::generateLibrary(GenerateLibraryOptions options) {
+	BandcampMediaProvider::LibraryItemGenerator BandcampMediaProvider::generateLibrary(GenerateLibraryOptions options) {
 		auto resumeData = GenerateLibraryResumeData::fromJson(options.resumeData);
 		struct SharedData {
 			String fanId;
@@ -908,7 +908,7 @@ namespace sh {
 							}
 							return std::nullopt;
 						};
-						auto mapLibraryItems = [](BandcampProvider* provider, const ArrayList<BandcampFan::CollectionItemNode>& items) -> LinkedList<LibraryItem> {
+						auto mapLibraryItems = [](BandcampMediaProvider* provider, const ArrayList<BandcampFan::CollectionItemNode>& items) -> LinkedList<LibraryItem> {
 							LinkedList<LibraryItem> libraryItems;
 							for(auto& item : items) {
 								if(auto track = item.trackItem()) {
@@ -1135,11 +1135,11 @@ namespace sh {
 
 	#pragma mark Player
 
-	BandcampPlaybackProvider* BandcampProvider::player() {
+	BandcampPlaybackProvider* BandcampMediaProvider::player() {
 		return _player;
 	}
 
-	const BandcampPlaybackProvider* BandcampProvider::player() const {
+	const BandcampPlaybackProvider* BandcampMediaProvider::player() const {
 		return _player;
 	}
 }

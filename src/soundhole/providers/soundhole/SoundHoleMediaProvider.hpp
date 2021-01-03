@@ -1,5 +1,5 @@
 //
-//  SoundHoleProvider.hpp
+//  SoundHoleMediaProvider.hpp
 //  SoundHoleCore
 //
 //  Created by Luis Finke on 12/27/20.
@@ -14,14 +14,14 @@
 #include <soundhole/storage/googledrive/GoogleDriveStorageProvider.hpp>
 
 namespace sh {
-	class SoundHoleProvider: public MediaProvider {
+	class SoundHoleMediaProvider: public MediaProvider {
 	public:
 		struct Options {
 			Optional<GoogleDriveStorageProvider::Options> googledrive;
 		};
 		
-		SoundHoleProvider(Options);
-		virtual ~SoundHoleProvider();
+		SoundHoleMediaProvider(Options);
+		virtual ~SoundHoleMediaProvider();
 		
 		virtual String name() const override;
 		virtual String displayName() const override;

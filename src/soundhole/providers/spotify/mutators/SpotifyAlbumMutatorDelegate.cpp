@@ -7,7 +7,7 @@
 //
 
 #include "SpotifyAlbumMutatorDelegate.hpp"
-#include <soundhole/providers/spotify/SpotifyProvider.hpp>
+#include <soundhole/providers/spotify/SpotifyMediaProvider.hpp>
 #include <soundhole/database/MediaDatabase.hpp>
 
 namespace sh {
@@ -28,7 +28,7 @@ namespace sh {
 		}
 		else {
 			// online load
-			auto provider = (SpotifyProvider*)album->mediaProvider();
+			auto provider = (SpotifyMediaProvider*)album->mediaProvider();
 			auto uriParts = provider->parseURI(album->uri());
 			return provider->spotify->getAlbumTracks(uriParts.id, {
 				.market="from_token",

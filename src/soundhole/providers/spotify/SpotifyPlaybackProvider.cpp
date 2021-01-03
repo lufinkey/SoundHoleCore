@@ -7,11 +7,11 @@
 //
 
 #include "SpotifyPlaybackProvider.hpp"
-#include "SpotifyProvider.hpp"
+#include "SpotifyMediaProvider.hpp"
 #include <soundhole/utils/Utils.hpp>
 
 namespace sh {
-	SpotifyPlaybackProvider::SpotifyPlaybackProvider(SpotifyProvider* provider)
+	SpotifyPlaybackProvider::SpotifyPlaybackProvider(SpotifyMediaProvider* provider)
 	: provider(provider) {
 		provider->spotify->addPlayerEventListener(this);
 	}
