@@ -12,6 +12,7 @@
 #include <soundhole/scripts/Scripts.hpp>
 #include <soundhole/utils/js/JSWrapClass.impl.hpp>
 #include <soundhole/utils/HttpClient.hpp>
+#include <soundhole/utils/Utils.hpp>
 
 namespace sh {
 	GoogleDriveStorageProvider::GoogleDriveStorageProvider(Options options)
@@ -125,8 +126,13 @@ namespace sh {
 		bool wasLoggedIn = isLoggedIn();
 		this->credentials = sessionFromJS(env);
 		bool loggedIn = isLoggedIn();
+		// update identity if login state has changed
 		if(loggedIn != wasLoggedIn) {
-			// TODO refresh current user
+			if(loggedIn) {
+				this->setIdentityNeedsRefresh();
+			} else {
+				this->storeIdentity(std::nullopt);
+			}
 		}
 	}
 
@@ -153,6 +159,10 @@ namespace sh {
 				throw std::runtime_error("Failed to login with authorization code");
 			}
 			this->credentials = credentials;
+			// re-fetch identity
+			this->storeIdentity(std::nullopt);
+			this->setIdentityNeedsRefresh();
+			this->getIdentity();
 		});
 	}
 
@@ -169,18 +179,41 @@ namespace sh {
 			jsApi.Get("logout").As<Napi::Function>().Call(jsApi, {});
 		});
 		credentials = Json();
+		this->storeIdentity(std::nullopt);
 	}
 
 	bool GoogleDriveStorageProvider::isLoggedIn() const {
 		return !credentials.is_null();
 	}
 
+
+
+	#pragma mark Current User
+
 	Promise<ArrayList<String>> GoogleDriveStorageProvider::getCurrentUserIds() {
-		return performAsyncJSAPIFunc<ArrayList<String>>("getCurrentUser", [=](napi_env env) {
+		return getIdentity().map<ArrayList<String>>([=](Optional<GoogleDriveUser> user) {
+			if(!user) {
+				return ArrayList<String>{};
+			}
+			return ArrayList<String>{ user->emailAddress };
+		});
+	}
+
+	String GoogleDriveStorageProvider::getIdentityFilePath() const {
+		if(options.sessionPersistKey.empty()) {
+			return String();
+		}
+		return utils::getCacheDirectoryPath()+"/"+name()+"_identity_"+options.sessionPersistKey+".json";
+	}
+
+	Promise<Optional<GoogleDriveUser>> GoogleDriveStorageProvider::fetchIdentity() {
+		if(!isLoggedIn()) {
+			return Promise<Optional<GoogleDriveUser>>::resolve(std::nullopt);
+		}
+		return performAsyncJSAPIFunc<Optional<GoogleDriveUser>>("getCurrentUser", [=](napi_env env) {
 			return std::vector<napi_value>{};
 		}, [](napi_env env, Napi::Value value) {
-			auto user = GoogleDriveUser::fromNapiObject(value.As<Napi::Object>());
-			return ArrayList<String>{ user.emailAddress };
+			return GoogleDriveUser::fromNapiObject(value.As<Napi::Object>());
 		});
 	}
 

@@ -10,7 +10,7 @@
 
 #include <soundhole/common.hpp>
 #include <soundhole/media/MediaProvider.hpp>
-#include <soundhole/media/StorageProvider.hpp>
+#include <soundhole/storage/StorageProvider.hpp>
 #include <soundhole/storage/googledrive/GoogleDriveStorageProvider.hpp>
 
 namespace sh {

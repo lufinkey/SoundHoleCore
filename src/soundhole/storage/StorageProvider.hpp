@@ -22,7 +22,7 @@ namespace sh {
 			String name;
 			String description;
 			
-			static Playlist fromJson(Json);
+			static Playlist fromJson(const Json&);
 			#ifdef NODE_API_MODULE
 			static Playlist fromNapiObject(Napi::Object);
 			#endif

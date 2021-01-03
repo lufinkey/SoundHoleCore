@@ -756,8 +756,6 @@
 				A513DB70232DA1F8000DCAC7 /* MediaProvider.cpp */,
 				A5485A2723942EB800CB7749 /* MediaPlaybackProvider.hpp */,
 				A5485A2623942EB800CB7749 /* MediaPlaybackProvider.cpp */,
-				A5C6CCE32597DB0800596878 /* StorageProvider.hpp */,
-				A5C6CCFB2598178200596878 /* StorageProvider.cpp */,
 				A5E3615B24082C4200840E28 /* MediaProviderStash.hpp */,
 			);
 			path = media;
@@ -1046,6 +1044,8 @@
 		A5C6CCE22597DADC00596878 /* storage */ = {
 			isa = PBXGroup;
 			children = (
+				A5C6CCE32597DB0800596878 /* StorageProvider.hpp */,
+				A5C6CCFB2598178200596878 /* StorageProvider.cpp */,
 				A5C6CCED2598012400596878 /* googledrive */,
 			);
 			path = storage;

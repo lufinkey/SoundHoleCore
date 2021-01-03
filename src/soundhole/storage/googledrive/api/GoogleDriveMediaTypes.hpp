@@ -19,6 +19,9 @@ namespace sh {
 		String emailAddress;
 		bool me;
 		
+		Json toJson() const;
+		
+		static GoogleDriveUser fromJson(const Json&);
 		#ifdef NODE_API_MODULE
 		static GoogleDriveUser fromNapiObject(Napi::Object);
 		#endif

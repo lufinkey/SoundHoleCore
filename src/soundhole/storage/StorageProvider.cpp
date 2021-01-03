@@ -11,7 +11,7 @@
 #include <soundhole/utils/js/JSUtils.hpp>
 
 namespace sh {
-	StorageProvider::Playlist StorageProvider::Playlist::fromJson(Json json) {
+	StorageProvider::Playlist StorageProvider::Playlist::fromJson(const Json& json) {
 		return Playlist{
 			.id = json["id"].string_value(),
 			.name = json["name"].string_value(),

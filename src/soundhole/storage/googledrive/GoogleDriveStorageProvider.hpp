@@ -9,12 +9,13 @@
 #pragma once
 
 #include <soundhole/common.hpp>
-#include <soundhole/media/StorageProvider.hpp>
+#include <soundhole/storage/StorageProvider.hpp>
+#include <soundhole/media/AuthedProviderIdentityStore.hpp>
 #include <soundhole/utils/js/JSWrapClass.hpp>
 #include "api/GoogleDriveMediaTypes.hpp"
 
 namespace sh {
-	class GoogleDriveStorageProvider: public StorageProvider, private JSWrapClass {
+	class GoogleDriveStorageProvider: public StorageProvider, public AuthedProviderIdentityStore<GoogleDriveUser>, private JSWrapClass {
 	public:
 		struct Options {
 			String clientId;
@@ -40,6 +41,10 @@ namespace sh {
 		virtual Promise<Playlist> createPlaylist(String name, CreatePlaylistOptions options = CreatePlaylistOptions()) override;
 		virtual Promise<Playlist> getPlaylist(String id) override;
 		virtual Promise<void> deletePlaylist(String id) override;
+		
+	protected:
+		virtual Promise<Optional<GoogleDriveUser>> fetchIdentity() override;
+		virtual String getIdentityFilePath() const override;
 		
 	private:
 		virtual void initializeJS(napi_env env) override;
