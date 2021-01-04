@@ -9,11 +9,13 @@
 #include "SoundHoleMediaProvider.hpp"
 
 namespace sh {
-	SoundHoleMediaProvider::SoundHoleMediaProvider(Options options) {
+	SoundHoleMediaProvider::SoundHoleMediaProvider(Options options)
+	: sessionPersistKey(options.sessionPersistKey) {
 		if(options.googledrive) {
 			auto googledrive = new GoogleDriveStorageProvider(options.googledrive.value());
 			storageProviders.pushBack(googledrive);
 		}
+		loadUserPrefs();
 	}
 
 	SoundHoleMediaProvider::~SoundHoleMediaProvider() {
@@ -73,6 +75,10 @@ namespace sh {
 		};
 	}
 
+	String SoundHoleMediaProvider::createUserID(String storageProvider, String id) const {
+		return storageProvider+":"+id;
+	}
+
 
 
 	#pragma mark Storage Providers
@@ -105,18 +111,10 @@ namespace sh {
 
 	#pragma mark Login
 
-	Promise<bool> SoundHoleMediaProvider::login() {
-		auto storageProvider = primaryStorageProvider();
-		if(storageProvider == nullptr) {
-			return Promise<bool>::reject(std::runtime_error("missing primary storage provider"));
-		}
-		return storageProvider->login();
-	}
-
 	void SoundHoleMediaProvider::logout() {
 		auto storageProvider = primaryStorageProvider();
 		if(storageProvider == nullptr) {
-			throw std::runtime_error("missing primary storage provider");
+			return;
 		}
 		storageProvider->logout();
 	}
@@ -124,9 +122,18 @@ namespace sh {
 	bool SoundHoleMediaProvider::isLoggedIn() const {
 		auto storageProvider = primaryStorageProvider();
 		if(storageProvider == nullptr) {
-			throw std::runtime_error("missing primary storage provider");
+			return false;
 		}
 		return storageProvider->isLoggedIn();
+	}
+
+	void SoundHoleMediaProvider::setPrimaryStorageProvider(StorageProvider* storageProvider) {
+		if(storageProvider != nullptr) {
+			primaryStorageProviderName = storageProvider->name();
+		} else {
+			primaryStorageProviderName = String();
+		}
+		saveUserPrefs();
 	}
 
 

@@ -208,6 +208,8 @@
 		A5C6CF0325A250B800596878 /* AuthedProviderIdentityStore.impl.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5C6CF0225A250B800596878 /* AuthedProviderIdentityStore.impl.hpp */; };
 		A5C6CF1125A252C700596878 /* AuthedProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5C6CF1025A252C700596878 /* AuthedProvider.hpp */; };
 		A5C6CF1725A2575000596878 /* NamedProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5C6CF1625A2575000596878 /* NamedProvider.hpp */; };
+		A5C6D08025A28DE500596878 /* SoundHoleMediaProvider_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5C6D07F25A28DE500596878 /* SoundHoleMediaProvider_iOS.mm */; };
+		A5C6D08125A28DE500596878 /* SoundHoleMediaProvider_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5C6D07F25A28DE500596878 /* SoundHoleMediaProvider_iOS.mm */; };
 		A5D9E10E2550BAB500E4762A /* BandcampAuth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5D9E10C2550BAB500E4762A /* BandcampAuth.cpp */; };
 		A5D9E10F2550BAB500E4762A /* BandcampAuth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5D9E10C2550BAB500E4762A /* BandcampAuth.cpp */; };
 		A5D9E1102550BAB500E4762A /* BandcampAuth.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5D9E10D2550BAB500E4762A /* BandcampAuth.hpp */; };
@@ -478,6 +480,7 @@
 		A5C6CF0225A250B800596878 /* AuthedProviderIdentityStore.impl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AuthedProviderIdentityStore.impl.hpp; sourceTree = "<group>"; };
 		A5C6CF1025A252C700596878 /* AuthedProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AuthedProvider.hpp; sourceTree = "<group>"; };
 		A5C6CF1625A2575000596878 /* NamedProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = NamedProvider.hpp; sourceTree = "<group>"; };
+		A5C6D07F25A28DE500596878 /* SoundHoleMediaProvider_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SoundHoleMediaProvider_iOS.mm; sourceTree = "<group>"; };
 		A5D9E10C2550BAB500E4762A /* BandcampAuth.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampAuth.cpp; sourceTree = "<group>"; };
 		A5D9E10D2550BAB500E4762A /* BandcampAuth.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BandcampAuth.hpp; sourceTree = "<group>"; };
 		A5D9E1152550BC0B00E4762A /* BandcampSession.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampSession.cpp; sourceTree = "<group>"; };
@@ -1067,6 +1070,7 @@
 			children = (
 				A5C6CDEC259860BC00596878 /* SoundHoleMediaProvider.hpp */,
 				A5C6CDEB259860BC00596878 /* SoundHoleMediaProvider.cpp */,
+				A5C6D07F25A28DE500596878 /* SoundHoleMediaProvider_iOS.mm */,
 			);
 			path = soundhole;
 			sourceTree = "<group>";
@@ -1568,6 +1572,7 @@
 				A5B7A7C5233EA8CC00301FC0 /* SHProgressView_iOS.mm in Sources */,
 				A5B7A79F2336C29200301FC0 /* SpotifyError.cpp in Sources */,
 				A5F07D7E2543840100C41A36 /* YoutubeMediaTypes.cpp in Sources */,
+				A5C6D08025A28DE500596878 /* SoundHoleMediaProvider_iOS.mm in Sources */,
 				A5AE3F09247BA5B700FB9AFF /* MediaDatabaseSQL.cpp in Sources */,
 				A5AE3F3D247DFFE400FB9AFF /* MediaLibraryProvider.cpp in Sources */,
 				A563A60A24B633CF0036A842 /* soundhole.cpp in Sources */,
@@ -1594,6 +1599,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A578785623DE547F00B6B0A5 /* PlaybackOrganizer.cpp in Sources */,
+				A5C6D08125A28DE500596878 /* SoundHoleMediaProvider_iOS.mm in Sources */,
 				A5E851C9235A56BD0001F74D /* YoutubeError.cpp in Sources */,
 				A5D9E1382550EC7700E4762A /* BandcampSession_ObjC.mm in Sources */,
 				A571E16B2333305D00603E14 /* Scripts.cpp in Sources */,

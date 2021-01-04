@@ -17,6 +17,7 @@ namespace sh {
 	class SoundHoleMediaProvider: public MediaProvider {
 	public:
 		struct Options {
+			String sessionPersistKey;
 			Optional<GoogleDriveStorageProvider::Options> googledrive;
 		};
 		
@@ -79,6 +80,11 @@ namespace sh {
 		String createURI(String storageProvider, String type, String id) const;
 		String createUserID(String storageProvider, String id) const;
 		
+		void setPrimaryStorageProvider(StorageProvider*);
+		void loadUserPrefs();
+		void saveUserPrefs();
+		
+		String sessionPersistKey;
 		String primaryStorageProviderName;
 		ArrayList<StorageProvider*> storageProviders;
 	};
