@@ -3,8 +3,11 @@ const { google } = require('googleapis');
 const { v1: uuidv1 } = require('uuid');
 const StorageProvider = require('./StorageProvider');
 
-const PLAYLIST_IMAGE_DATA_KEY = 'SHPLAYLIST_IMAGE_DATA';
-const PLAYLIST_IMAGE_MIMETYPE_KEY = 'SHPLAYLIST_IMAGE_MIMETYPE';
+const SOUNDHOLE_FOLDER_NAME = "My SoundHole";
+const SOUNDHOLE_PLAYLISTS_FOLDER_NAME = "Playlists";
+const SOUNDHOLE_BASE_KEY = 'SOUNDHOLE_BASE';
+const PLAYLIST_IMAGE_DATA_KEY = 'SOUNDHOLEPLAYLIST_IMAGE_DATA';
+const PLAYLIST_IMAGE_MIMETYPE_KEY = 'SOUNDHOLEPLAYLIST_IMAGE_MIMETYPE';
 
 
 class GoogleDriveStorageProvider extends StorageProvider {
@@ -88,6 +91,12 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			client_id: options.clientId
 		});
 		this._auth.setCredentials(tokens);
+		try {
+			await this._prepareFolders();
+		} catch(error) {
+			this._auth.revokeCredentials();
+			throw error;
+		}
 	}
 
 	logout() {
@@ -104,7 +113,10 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		if(!about.user) {
 			return null;
 		}
-		return about.user;
+		return {
+			...about.user,
+			baseFolderId: this._baseFolderId
+		};
 	}
 
 
@@ -113,9 +125,21 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		return false;
 	}
 
+	async _prepareFolders() {
+		await this._prepareBaseFolder();
+		await this._preparePlaylistsFolder();
+	}
+
 	async _prepareBaseFolder() {
 		// if we have a base folder ID, we can stop
 		if(this._baseFolderId != null) {
+			if(this._baseFolder != null) {
+				return;
+			}
+			const baseFolder = await this._drive.files.get({
+				fileId:this._baseFolderId
+			});
+			this._baseFolder = baseFolder;
 			return;
 		}
 		// check for name of base folder
@@ -123,15 +147,16 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			throw new Error("missing options.baseFolderName");
 		}
 		// check for existing base folder
-		const folderName = options.baseFolderName;
+		const folderName = options.baseFolderName || SOUNDHOLE_FOLDER_NAME;
 		let baseFolder = (await this._drive.files.list({
-			q: `mimeType = 'application/vnd.google-apps.folder' and name = '${folderName}' and 'appDataFolder' in parents and trashed = false`,
+			q: `mimeType = 'application/vnd.google-apps.folder' and appProperties has {{ key='${SOUNDHOLE_BASE_KEY}' and value=true }} and trashed = false`,
 			fields: "nextPageToken, files(id, name)",
 			spaces: 'drive',
 			pageSize: 1
 		})).files[0];
 		if(baseFolder != null) {
 			this._baseFolderId = baseFolder.id;
+			this._baseFolder = baseFolder;
 			return;
 		}
 		// create base folder
@@ -140,9 +165,13 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			parents: ['root'],
 			media: {
 				mimeType: 'application/vnd.google-apps.folder'
+			},
+			appProperties: {
+				[SOUNDHOLE_BASE_KEY]: true
 			}
 		});
 		this._baseFolderId = baseFolder.id;
+		this._baseFolder = baseFolder;
 	}
 
 	async _preparePlaylistsFolder() {
@@ -153,7 +182,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		}
 		// check for existing playlists folder
 		const baseFolderId = this._baseFolderId;
-		const folderName = 'playlists';
+		const folderName = SOUNDHOLE_PLAYLISTS_FOLDER_NAME;
 		let playlistsFolder = (await this._drive.files.list({
 			q: `mimeType = 'application/vnd.google-apps.folder' and name = '${folderName}' and '${baseFolderId}' in parents and trashed = false`,
 			fields: "nextPageToken, files(id, name)",
@@ -177,13 +206,31 @@ class GoogleDriveStorageProvider extends StorageProvider {
 
 
 
-	_createPlaylistObject(file) {
-		// TODO add images, owner, privacy
+	_createPlaylistObject(file, userPermissionId, userFolderId) {
+		// TODO add images
+		const owner = file.owners[0];
+		if(userPermissionId && owner.permissionId === userPermissionId) {
+			owner.baseFolderId = userFolderId;
+		} else if(file.ownedByMe && this._baseFolderId) {
+			owner.baseFolderId = this._baseFolderId;
+		}
+		let privacy = 'private';
+		if(file.permissions instanceof Array && file.permissions.length > 0) {
+			if(file.permissions.find((p) => (p.type === 'anyone')) != null) {
+				privacy = 'public';
+			}
+		}
 		return {
 			id: file.id,
 			name: file.name,
 			versionId: file.modifiedTime,
-			description: file.description
+			description: file.description,
+			owner: owner ? {
+				id: owner.emailAddress ? owner.emailAddress : owner.permissionId,
+				name: owner.displayName,
+				imageURL: owner.photoLink
+			} : null,
+			privacy: privacy
 		};
 	}
 
@@ -192,6 +239,10 @@ class GoogleDriveStorageProvider extends StorageProvider {
 	async createPlaylist(name, options={}) {
 		// prepare folder
 		await this._preparePlaylistsFolder();
+		const baseFolderId = this._baseFolderId;
+		if(baseFolderId == null) {
+			throw new Error("missing base folder ID");
+		}
 		const playlistsFolderId = this._playlistsFolderId;
 		if(playlistsFolderId == null) {
 			throw new Error("missing playlists folder ID");
@@ -213,7 +264,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			properties: properties
 		});
 		// transform result
-		return this._createPlaylistObject(file);
+		return this._createPlaylistObject(file,baseFolderId);
 	}
 
 	async getPlaylist(playlistId) {
