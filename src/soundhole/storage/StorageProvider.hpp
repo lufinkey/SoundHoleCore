@@ -17,10 +17,24 @@ namespace sh {
 	public:
 		virtual ~StorageProvider() {}
 		
+		struct User {
+			String id;
+			String name;
+			String imageURL;
+			
+			static User fromJson(const Json&);
+			#ifdef NODE_API_MODULE
+			static User fromNapiObject(Napi::Object);
+			#endif
+		};
+		
 		struct Playlist {
 			String id;
 			String name;
+			String versionId;
 			String description;
+			String privacy;
+			Optional<User> owner;
 			
 			static Playlist fromJson(const Json&);
 			#ifdef NODE_API_MODULE

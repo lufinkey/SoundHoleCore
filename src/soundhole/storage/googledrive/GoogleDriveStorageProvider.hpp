@@ -12,10 +12,28 @@
 #include <soundhole/storage/StorageProvider.hpp>
 #include <soundhole/media/AuthedProviderIdentityStore.hpp>
 #include <soundhole/utils/js/JSWrapClass.hpp>
-#include "api/GoogleDriveMediaTypes.hpp"
 
 namespace sh {
-	class GoogleDriveStorageProvider: public StorageProvider, public AuthedProviderIdentityStore<GoogleDriveUser>, private JSWrapClass {
+	struct GoogleDriveStorageProviderUser {
+		String kind;
+		String displayName;
+		String photoLink;
+		String permissionId;
+		String emailAddress;
+		bool me;
+		String baseFolderId;
+		
+		Json toJson() const;
+		
+		static GoogleDriveStorageProviderUser fromJson(const Json&);
+		#ifdef NODE_API_MODULE
+		static GoogleDriveStorageProviderUser fromNapiObject(Napi::Object);
+		#endif
+	};
+
+
+
+	class GoogleDriveStorageProvider: public StorageProvider, public AuthedProviderIdentityStore<GoogleDriveStorageProviderUser>, private JSWrapClass {
 	public:
 		struct Options {
 			String clientId;
@@ -43,7 +61,7 @@ namespace sh {
 		virtual Promise<void> deletePlaylist(String id) override;
 		
 	protected:
-		virtual Promise<Optional<GoogleDriveUser>> fetchIdentity() override;
+		virtual Promise<Optional<GoogleDriveStorageProviderUser>> fetchIdentity() override;
 		virtual String getIdentityFilePath() const override;
 		
 	private:

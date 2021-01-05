@@ -8,7 +8,6 @@
 
 #include <napi.h>
 #include "GoogleDriveStorageProvider.hpp"
-#include "api/GoogleDriveMediaTypes.hpp"
 #include <soundhole/scripts/Scripts.hpp>
 #include <soundhole/utils/js/JSWrapClass.impl.hpp>
 #include <soundhole/utils/HttpClient.hpp>
@@ -191,7 +190,7 @@ namespace sh {
 	#pragma mark Current User
 
 	Promise<ArrayList<String>> GoogleDriveStorageProvider::getCurrentUserIds() {
-		return getIdentity().map<ArrayList<String>>([=](Optional<GoogleDriveUser> user) {
+		return getIdentity().map<ArrayList<String>>([=](Optional<GoogleDriveStorageProviderUser> user) {
 			if(!user) {
 				return ArrayList<String>{};
 			}
@@ -206,14 +205,14 @@ namespace sh {
 		return utils::getCacheDirectoryPath()+"/"+name()+"_identity_"+options.sessionPersistKey+".json";
 	}
 
-	Promise<Optional<GoogleDriveUser>> GoogleDriveStorageProvider::fetchIdentity() {
+	Promise<Optional<GoogleDriveStorageProviderUser>> GoogleDriveStorageProvider::fetchIdentity() {
 		if(!isLoggedIn()) {
-			return Promise<Optional<GoogleDriveUser>>::resolve(std::nullopt);
+			return Promise<Optional<GoogleDriveStorageProviderUser>>::resolve(std::nullopt);
 		}
-		return performAsyncJSAPIFunc<Optional<GoogleDriveUser>>("getCurrentUser", [=](napi_env env) {
+		return performAsyncJSAPIFunc<Optional<GoogleDriveStorageProviderUser>>("getCurrentUser", [=](napi_env env) {
 			return std::vector<napi_value>{};
 		}, [](napi_env env, Napi::Value value) {
-			return GoogleDriveUser::fromNapiObject(value.As<Napi::Object>());
+			return GoogleDriveStorageProviderUser::fromNapiObject(value.As<Napi::Object>());
 		});
 	}
 
@@ -253,4 +252,47 @@ namespace sh {
 			};
 		}, nullptr);
 	}
+
+
+
+
+	#pragma mark GoogleDriveStorageProviderUser
+
+	Json GoogleDriveStorageProviderUser::toJson() const {
+		return Json::object{
+			{ "kind", (std::string)kind },
+			{ "displayName", (std::string)displayName },
+			{ "photoLink", (std::string)photoLink },
+			{ "permissionId", (std::string)permissionId },
+			{ "emailAddress", (std::string)emailAddress },
+			{ "me", me },
+			{ "baseFolderId", baseFolderId.empty() ? Json() : Json((std::string)baseFolderId) }
+		};
+	}
+
+	GoogleDriveStorageProviderUser GoogleDriveStorageProviderUser::fromJson(const Json& json) {
+		return GoogleDriveStorageProviderUser{
+			.kind=json["kind"].string_value(),
+			.displayName=json["displayName"].string_value(),
+			.photoLink=json["photoLink"].string_value(),
+			.permissionId=json["permissionId"].string_value(),
+			.emailAddress=json["emailAddress"].string_value(),
+			.me=json["me"].bool_value(),
+			.baseFolderId=json["baseFolderId"].string_value()
+		};
+	}
+
+	#ifdef NODE_API_MODULE
+	GoogleDriveStorageProviderUser GoogleDriveStorageProviderUser::fromNapiObject(Napi::Object obj) {
+		return GoogleDriveStorageProviderUser{
+			.kind=jsutils::nonNullStringPropFromNapiObject(obj, "kind"),
+			.displayName=jsutils::nonNullStringPropFromNapiObject(obj, "displayName"),
+			.photoLink=jsutils::nonNullStringPropFromNapiObject(obj, "photoLink"),
+			.permissionId=jsutils::nonNullStringPropFromNapiObject(obj, "permissionId"),
+			.emailAddress=jsutils::nonNullStringPropFromNapiObject(obj, "emailAddress"),
+			.me=obj.Get("me").ToBoolean().Value(),
+			.baseFolderId=jsutils::stringFromNapiValue(obj.Get("baseFolderId"))
+		};
+	}
+	#endif
 }

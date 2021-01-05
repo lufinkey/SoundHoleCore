@@ -167,6 +167,44 @@ namespace sh {
 
 
 
+	#pragma mark Data transforming
+
+	Playlist::Data SoundHoleMediaProvider::createPlaylistData(StorageProvider* provider, StorageProvider::Playlist playlist) {
+		return Playlist::Data{{{
+			.partial=true,
+			.type="playlist",
+			.name=playlist.name,
+			.uri=createURI(provider->name(), "playlist", playlist.id),
+			.images=std::nullopt // TODO get playlist images
+			},
+			.versionId=playlist.versionId,
+			.tracks=std::nullopt
+			},
+			.owner=playlist.owner ? UserAccount::new$(this, createUserData(provider, playlist.owner.value())) : nullptr,
+			.privacy=Playlist::Privacy_fromString(playlist.privacy)
+		};
+	}
+
+	UserAccount::Data SoundHoleMediaProvider::createUserData(StorageProvider* provider, StorageProvider::User user) {
+		return UserAccount::Data{{
+			.partial=true,
+			.type="user",
+			.name=user.name,
+			.uri=createURI(provider->name(), "user", user.id),
+			.images=ArrayList<MediaItem::Image>{
+				MediaItem::Image{
+					.url=user.imageURL,
+					.size=MediaItem::Image::Size::MEDIUM
+				}
+			}
+			},
+			.id=user.id,
+			.displayName=user.name
+		};
+	}
+
+
+
 	#pragma mark Media Item Fetching
 
 	Promise<Track::Data> SoundHoleMediaProvider::getTrackData(String uri) {
@@ -182,7 +220,17 @@ namespace sh {
 	}
 
 	Promise<Playlist::Data> SoundHoleMediaProvider::getPlaylistData(String uri) {
-		return Promise<Playlist::Data>::reject(std::logic_error("SoundHoleMediaProvider::getPlaylistData is unimplemented"));
+		auto uriParts = parseURI(uri);
+		if(uriParts.type != "playlist") {
+			return Promise<Playlist::Data>::reject(std::runtime_error("SoundHole URI "+uri+" is not a playlist URI"));
+		}
+		auto storageProvider = getStorageProvider(uriParts.storageProvider);
+		if(storageProvider == nullptr) {
+			return Promise<Playlist::Data>::reject(std::runtime_error("Could not find storage provider "+uriParts.storageProvider));
+		}
+		return storageProvider->getPlaylist(uriParts.id).map<Playlist::Data>([=](auto playlist) {
+			return createPlaylistData(storageProvider,playlist);
+		});
 	}
 
 	Promise<UserAccount::Data> SoundHoleMediaProvider::getUserData(String uri) {

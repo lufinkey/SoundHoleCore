@@ -76,6 +76,9 @@ namespace sh {
 		};
 		UserID parseUserID(String userId) const;
 		
+		Playlist::Data createPlaylistData(StorageProvider* provider, StorageProvider::Playlist playlist);
+		UserAccount::Data createUserData(StorageProvider* provider, StorageProvider::User user);
+		
 	private:
 		String createURI(String storageProvider, String type, String id) const;
 		String createUserID(String storageProvider, String id) const;

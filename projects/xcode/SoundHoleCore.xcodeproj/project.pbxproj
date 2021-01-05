@@ -201,9 +201,6 @@
 		A5C6CDEF259860BC00596878 /* SoundHoleMediaProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5C6CDEC259860BC00596878 /* SoundHoleMediaProvider.hpp */; };
 		A5C6CE2C259C176300596878 /* GoogleDriveStorageProvider_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5C6CE2B259C176300596878 /* GoogleDriveStorageProvider_iOS.mm */; };
 		A5C6CE2D259C176300596878 /* GoogleDriveStorageProvider_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5C6CE2B259C176300596878 /* GoogleDriveStorageProvider_iOS.mm */; };
-		A5C6CEB025A03F0C00596878 /* GoogleDriveMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5C6CEAE25A03F0C00596878 /* GoogleDriveMediaTypes.cpp */; };
-		A5C6CEB125A03F0C00596878 /* GoogleDriveMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5C6CEAE25A03F0C00596878 /* GoogleDriveMediaTypes.cpp */; };
-		A5C6CEB225A03F0C00596878 /* GoogleDriveMediaTypes.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5C6CEAF25A03F0C00596878 /* GoogleDriveMediaTypes.hpp */; };
 		A5C6CEFD25A24FE800596878 /* AuthedProviderIdentityStore.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5C6CEFC25A24FE800596878 /* AuthedProviderIdentityStore.hpp */; };
 		A5C6CF0325A250B800596878 /* AuthedProviderIdentityStore.impl.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5C6CF0225A250B800596878 /* AuthedProviderIdentityStore.impl.hpp */; };
 		A5C6CF1125A252C700596878 /* AuthedProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5C6CF1025A252C700596878 /* AuthedProvider.hpp */; };
@@ -474,8 +471,6 @@
 		A5C6CDEB259860BC00596878 /* SoundHoleMediaProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SoundHoleMediaProvider.cpp; sourceTree = "<group>"; };
 		A5C6CDEC259860BC00596878 /* SoundHoleMediaProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SoundHoleMediaProvider.hpp; sourceTree = "<group>"; };
 		A5C6CE2B259C176300596878 /* GoogleDriveStorageProvider_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = GoogleDriveStorageProvider_iOS.mm; sourceTree = "<group>"; };
-		A5C6CEAE25A03F0C00596878 /* GoogleDriveMediaTypes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GoogleDriveMediaTypes.cpp; sourceTree = "<group>"; };
-		A5C6CEAF25A03F0C00596878 /* GoogleDriveMediaTypes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GoogleDriveMediaTypes.hpp; sourceTree = "<group>"; };
 		A5C6CEFC25A24FE800596878 /* AuthedProviderIdentityStore.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AuthedProviderIdentityStore.hpp; sourceTree = "<group>"; };
 		A5C6CF0225A250B800596878 /* AuthedProviderIdentityStore.impl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AuthedProviderIdentityStore.impl.hpp; sourceTree = "<group>"; };
 		A5C6CF1025A252C700596878 /* AuthedProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AuthedProvider.hpp; sourceTree = "<group>"; };
@@ -1057,7 +1052,6 @@
 		A5C6CCED2598012400596878 /* googledrive */ = {
 			isa = PBXGroup;
 			children = (
-				A5C6CEAD25A03EDF00596878 /* api */,
 				A5C6CCEF2598013D00596878 /* GoogleDriveStorageProvider.hpp */,
 				A5C6CCEE2598013D00596878 /* GoogleDriveStorageProvider.cpp */,
 				A5C6CE2B259C176300596878 /* GoogleDriveStorageProvider_iOS.mm */,
@@ -1073,15 +1067,6 @@
 				A5C6D07F25A28DE500596878 /* SoundHoleMediaProvider_iOS.mm */,
 			);
 			path = soundhole;
-			sourceTree = "<group>";
-		};
-		A5C6CEAD25A03EDF00596878 /* api */ = {
-			isa = PBXGroup;
-			children = (
-				A5C6CEAF25A03F0C00596878 /* GoogleDriveMediaTypes.hpp */,
-				A5C6CEAE25A03F0C00596878 /* GoogleDriveMediaTypes.cpp */,
-			);
-			path = api;
 			sourceTree = "<group>";
 		};
 		A5E851A22357B1300001F74D /* api */ = {
@@ -1227,7 +1212,6 @@
 				A513ED9D232DA20C000DCAC7 /* soundhole.hpp in Headers */,
 				A5C6CDEF259860BC00596878 /* SoundHoleMediaProvider.hpp in Headers */,
 				A571E16C2333305D00603E14 /* Scripts.hpp in Headers */,
-				A5C6CEB225A03F0C00596878 /* GoogleDriveMediaTypes.hpp in Headers */,
 				A5E7852C23CE743000BD1C67 /* BandcampPlaybackProvider.hpp in Headers */,
 				A5E851CA235A56BD0001F74D /* YoutubeError.hpp in Headers */,
 				A5C6CF0325A250B800596878 /* AuthedProviderIdentityStore.impl.hpp in Headers */,
@@ -1559,7 +1543,6 @@
 				A578785A23E37A7B00B6B0A5 /* QueueItem.cpp in Sources */,
 				A5D9E1172550BC0B00E4762A /* BandcampSession.cpp in Sources */,
 				A513ED9A232DA20C000DCAC7 /* MediaItem.cpp in Sources */,
-				A5C6CEB025A03F0C00596878 /* GoogleDriveMediaTypes.cpp in Sources */,
 				A54F2539239984EC00C81E1C /* SpotifyPlaybackEvent_iOS.mm in Sources */,
 				A5E851C8235A56BD0001F74D /* YoutubeError.cpp in Sources */,
 				A52826E223F09B6200360508 /* Player.cpp in Sources */,
@@ -1644,7 +1627,6 @@
 				A5D9F600255E4DD400E4762A /* OAuthError.cpp in Sources */,
 				A5AE3F1D247C593100FB9AFF /* SQLiteTransaction.cpp in Sources */,
 				A5E851AB2357BECD0001F74D /* BandcampError.cpp in Sources */,
-				A5C6CEB125A03F0C00596878 /* GoogleDriveMediaTypes.cpp in Sources */,
 				A5B9735C2381FBA700FB3F1C /* Artist.cpp in Sources */,
 				A52C4713250EE85800131918 /* OAuthSession.cpp in Sources */,
 				A5B973522381F16A00FB3F1C /* JSWrapClass.cpp in Sources */,
