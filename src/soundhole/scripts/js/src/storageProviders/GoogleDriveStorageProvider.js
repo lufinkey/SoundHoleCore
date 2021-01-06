@@ -6,8 +6,9 @@ const StorageProvider = require('./StorageProvider');
 const SOUNDHOLE_FOLDER_NAME = "My SoundHole";
 const SOUNDHOLE_PLAYLISTS_FOLDER_NAME = "Playlists";
 const SOUNDHOLE_BASE_KEY = 'SOUNDHOLE_BASE';
-const PLAYLIST_IMAGE_DATA_KEY = 'SOUNDHOLEPLAYLIST_IMAGE_DATA';
-const PLAYLIST_IMAGE_MIMETYPE_KEY = 'SOUNDHOLEPLAYLIST_IMAGE_MIMETYPE';
+const SOUNDHOLE_PLAYLIST_KEY = 'SOUNDHOLE_PLAYLIST';
+const PLAYLIST_IMAGE_DATA_KEY = 'SOUNDHOLEPLAYLIST_IMG_DATA';
+const PLAYLIST_IMAGE_MIMETYPE_KEY = 'SOUNDHOLEPLAYLIST_IMG_MIMETYPE';
 
 
 class GoogleDriveStorageProvider extends StorageProvider {
@@ -137,7 +138,8 @@ class GoogleDriveStorageProvider extends StorageProvider {
 				return;
 			}
 			const baseFolder = await this._drive.files.get({
-				fileId:this._baseFolderId
+				fileId: this._baseFolderId,
+				fields: "*"
 			});
 			this._baseFolder = baseFolder;
 			return;
@@ -150,7 +152,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		const folderName = options.baseFolderName || SOUNDHOLE_FOLDER_NAME;
 		let baseFolder = (await this._drive.files.list({
 			q: `mimeType = 'application/vnd.google-apps.folder' and appProperties has {{ key='${SOUNDHOLE_BASE_KEY}' and value=true }} and trashed = false`,
-			fields: "nextPageToken, files(id, name)",
+			fields: "*",
 			spaces: 'drive',
 			pageSize: 1
 		})).files[0];
@@ -186,7 +188,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		let playlistsFolder = (await this._drive.files.list({
 			q: `mimeType = 'application/vnd.google-apps.folder' and name = '${folderName}' and '${baseFolderId}' in parents and trashed = false`,
 			fields: "nextPageToken, files(id, name)",
-			spaces: 'appDataFolder',
+			spaces: 'drive',
 			pageSize: 1
 		})).files[0];
 		if(playlistsFolder != null) {
@@ -206,31 +208,105 @@ class GoogleDriveStorageProvider extends StorageProvider {
 
 
 
+	_parsePlaylistID(playlistId) {
+		const index = playistId.indexOf('/');
+		if(index === -1) {
+			return {
+				fileId: playlistId
+			};
+		}
+		const baseFolderId = playlistId.substring(0, index);
+		const fileId = playlistId.substring(index+1);
+		return {
+			fileId,
+			baseFolderId
+		};
+	}
+
+	_createPlaylistID(fileId, baseFolderId) {
+		if(!fileId) {
+			throw new Error("missing fileId for _createPlaylistID");
+		} else if(!baseFolderId) {
+			return fileId;
+		}
+		return `${fileId}/${baseFolderId}`;
+	}
+
+	_parseUserID(userId) {
+		const index = userId.indexOf('/');
+		if(index === -1) {
+			if(userId.indexOf('@') !== -1) {
+				return {
+					email: userId
+				};
+			} else {
+				return {
+					permissionId: userId
+				};
+			}
+		}
+		const baseFolderId = userId.substring(0, index);
+		const userIdPart = userId.substring(index+1);
+		if(userIdPart.indexOf('@') !== -1) {
+			return {
+				email: userId,
+				baseFolderId
+			};
+		} else {
+			return {
+				permissionId: userId,
+				baseFolderId
+			};
+		}
+	}
+
+	_createUserID(identifier, baseFolderId) {
+		if(!identifier) {
+			throw new Error("missing identifier for _createUserID");
+		} else if(!baseFolderId) {
+			return identifier;
+		}
+		return `${identifier}/${baseFolderId}`;
+	}
+
+	_createUserObject(owner) {
+		return {
+			id: this._createUserID(owner.emailAddress || owner.permissionId || owner.id, baseFolderId),
+			name: owner.displayName,
+			imageURL: owner.photoLink
+		}
+	}
+
 	_createPlaylistObject(file, userPermissionId, userFolderId) {
-		// TODO add images
+		// validate appProperties
+		if(!file.appProperties[SOUNDHOLE_PLAYLIST_KEY] && !file.properties[SOUNDHOLE_PLAYLIST_KEY]) {
+			throw new Error("file is not a SoundHole playlist");
+		}
+		// parse owner and base folder ID
 		const owner = file.owners[0];
-		if(userPermissionId && owner.permissionId === userPermissionId) {
+		let baseFolderId = null;
+		if(userPermissionId && (owner.permissionId === userPermissionId || owner.emailAddress === userPermissionId)) {
 			owner.baseFolderId = userFolderId;
+			baseFolderId = userFolderId;
 		} else if(file.ownedByMe && this._baseFolderId) {
 			owner.baseFolderId = this._baseFolderId;
+			baseFolderId = this._baseFolderId;
 		}
+		// parse privacy level
 		let privacy = 'private';
 		if(file.permissions instanceof Array && file.permissions.length > 0) {
 			if(file.permissions.find((p) => (p.type === 'anyone')) != null) {
 				privacy = 'public';
 			}
 		}
+		// TODO parse images
 		return {
-			id: file.id,
+			id: this._createPlaylistID(file.id, baseFolderId),
 			name: file.name,
 			versionId: file.modifiedTime,
 			description: file.description,
-			owner: owner ? {
-				id: owner.emailAddress ? owner.emailAddress : owner.permissionId,
-				name: owner.displayName,
-				imageURL: owner.photoLink
-			} : null,
-			privacy: privacy
+			privacy: privacy,
+			owner: owner ? this._createUserObject(owner) : null
 		};
 	}
 
@@ -239,19 +315,21 @@ class GoogleDriveStorageProvider extends StorageProvider {
 	async createPlaylist(name, options={}) {
 		// prepare folder
 		await this._preparePlaylistsFolder();
-		const baseFolderId = this._baseFolderId;
-		if(baseFolderId == null) {
-			throw new Error("missing base folder ID");
+		const baseFolder = this._baseFolder;
+		if(baseFolder == null) {
+			throw new Error("missing base folder");
 		}
+		const baseFolderOwner = baseFolder.owners[0];
 		const playlistsFolderId = this._playlistsFolderId;
 		if(playlistsFolderId == null) {
 			throw new Error("missing playlists folder ID");
 		}
-		// prepare properties
-		const properties = {};
+		// prepare appProperties
+		const appProperties = {};
 		if(options.image) {
-			properties[PLAYLIST_IMAGE_DATA_KEY] = options.image.data;
-			properties[PLAYLIST_IMAGE_MIMETYPE_KEY] = options.image.mimeType;
+			appProperties[SOUNDHOLE_PLAYLIST_KEY] = true;
+			appProperties[PLAYLIST_IMAGE_DATA_KEY] = options.image.data;
+			appProperties[PLAYLIST_IMAGE_MIMETYPE_KEY] = options.image.mimeType;
 		}
 		// create file
 		const file = await this._drive.files.create({
@@ -261,23 +339,64 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			media: {
 				mimeType: 'application/vnd.google-apps.spreadsheet'
 			},
-			properties: properties
+			appProperties: appProperties
 		});
 		// transform result
-		return this._createPlaylistObject(file,baseFolderId);
+		return this._createPlaylistObject(file, (baseFolderOwner ? baseFolderOwner.permissionId : null), baseFolder.id);
 	}
+
 
 	async getPlaylist(playlistId) {
-		throw new Error("getPlaylist is not implemented");
+		const idParts = this._parsePlaylistID(playlistId);
+		// get file
+		const file = await this._drive.files.get({
+			fileId: idParts.fileId,
+			fields: "*"
+		});
+		// transform result
+		return this._createPlaylistObject(file, idParts.permissionId || idParts.email, idParts.baseFolderId);
 	}
 
-	async deletePlaylist(playlistId) {
-		throw new Error("deletePlaylist is not implemented");
+
+	async deletePlaylist(playlistId, options={}) {
+		const idParts = this._parsePlaylistID(playlistId);
+		if(options.permanent) {
+			// delete file
+			await this._drive.files.delete(idParts.fileId);
+		} else {
+			// move file to trash
+			await this._drive.files.update(idParts.fileId, {trashed:true});
+		}
 	}
 
-	async getPlaylists(options={}) {
-		throw new Error("getPlaylists is not implemented");
+
+	async getMyPlaylists(options={}) {
+		// prepare playlists folder
+		await this._preparePlaylistsFolder();
+		const baseFolder = this._baseFolder;
+		if(baseFolder == null) {
+			throw new Error("missing base folder");
+		}
+		const baseFolderOwner = baseFolder.owners[0];
+		const playlistsFolderId = this._playlistsFolderId;
+		if(playlistsFolderId == null) {
+			throw new Error("missing playlists folder ID");
+		}
+		// get files
+		const { files, nextPageToken } = await this._drive.files.list({
+			q: `mimeType = 'application/vnd.google-apps.spreadsheet' and '${playlistsFolderId}' in parents and trashed = false`,
+			fields: "*",
+			pageToken: options.pageToken
+		});
+		// transform result
+		return {
+			items: (files || []).map((file) => (
+				this._createPlaylistObject(file, (baseFolderOwner ? baseFolderOwner.permissionId : null), baseFolder.id)
+			)),
+			nextPageToken
+		};
 	}
+
 
 	async getPlaylistItems(options) {
 		throw new Error("getPlaylistItems is not implemented");
