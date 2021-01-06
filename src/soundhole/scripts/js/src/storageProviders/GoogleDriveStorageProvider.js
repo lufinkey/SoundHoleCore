@@ -4,9 +4,9 @@ const { v1: uuidv1 } = require('uuid');
 const StorageProvider = require('./StorageProvider');
 
 const SOUNDHOLE_FOLDER_NAME = "My SoundHole";
-const SOUNDHOLE_PLAYLISTS_FOLDER_NAME = "Playlists";
+const PLAYLISTS_FOLDER_NAME = "Playlists";
 const SOUNDHOLE_BASE_KEY = 'SOUNDHOLE_BASE';
-const SOUNDHOLE_PLAYLIST_KEY = 'SOUNDHOLE_PLAYLIST';
+const PLAYLIST_KEY = 'SOUNDHOLE_PLAYLIST';
 const PLAYLIST_IMAGE_DATA_KEY = 'SOUNDHOLEPLAYLIST_IMG_DATA';
 const PLAYLIST_IMAGE_MIMETYPE_KEY = 'SOUNDHOLEPLAYLIST_IMG_MIMETYPE';
 
@@ -123,7 +123,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 
 
 	get canStorePlaylists() {
-		return false;
+		return true;
 	}
 
 	async _prepareFolders() {
@@ -184,7 +184,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		}
 		// check for existing playlists folder
 		const baseFolderId = this._baseFolderId;
-		const folderName = SOUNDHOLE_PLAYLISTS_FOLDER_NAME;
+		const folderName = PLAYLISTS_FOLDER_NAME;
 		let playlistsFolder = (await this._drive.files.list({
 			q: `mimeType = 'application/vnd.google-apps.folder' and name = '${folderName}' and '${baseFolderId}' in parents and trashed = false`,
 			fields: "nextPageToken, files(id, name)",
@@ -279,7 +279,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 
 	_createPlaylistObject(file, userPermissionId, userFolderId) {
 		// validate appProperties
-		if(!file.appProperties[SOUNDHOLE_PLAYLIST_KEY] && !file.properties[SOUNDHOLE_PLAYLIST_KEY]) {
+		if(!file.appProperties[PLAYLIST_KEY] && !file.properties[PLAYLIST_KEY]) {
 			throw new Error("file is not a SoundHole playlist");
 		}
 		// parse owner and base folder ID
@@ -327,7 +327,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		// prepare appProperties
 		const appProperties = {};
 		if(options.image) {
-			appProperties[SOUNDHOLE_PLAYLIST_KEY] = true;
+			appProperties[PLAYLIST_KEY] = true;
 			appProperties[PLAYLIST_IMAGE_DATA_KEY] = options.image.data;
 			appProperties[PLAYLIST_IMAGE_MIMETYPE_KEY] = options.image.mimeType;
 		}
@@ -387,6 +387,54 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			q: `mimeType = 'application/vnd.google-apps.spreadsheet' and '${playlistsFolderId}' in parents and trashed = false`,
 			fields: "*",
 			pageToken: options.pageToken
+		});
+		// transform result
+		return {
+			items: (files || []).map((file) => (
+				this._createPlaylistObject(file, (baseFolderOwner ? baseFolderOwner.permissionId : null), baseFolder.id)
+			)),
+			nextPageToken
+		};
+	}
+
+
+	async getUserPlaylists(userId, options={}) {
+		const idParts = this._parseUserID(userId);
+		if(!idParts.baseFolderId) {
+			throw new Error("user ID does not include SoundHole folder ID");
+		}
+		// parse page token if available
+		let playlistsFolderId = null;
+		let pageToken = undefined;
+		if(options.pageToken) {
+			const index = options.pageToken.indexOf(':');
+			if(index === -1) {
+				throw new Error("invalid page token");
+			}
+			playlistsFolderId = options.pageToken.substring(0, index);
+			pageToken = options.pageToken.substring(index+1);
+		}
+		// get playlists folder if needed
+		if(!playlistsFolderId) {
+			const folderName = PLAYLISTS_FOLDER_NAME;
+			const playlistsFolder = (await this._drive.files.list({
+				q: `mimeType = 'application/vnd.google-apps.folder' and name = '${folderName}' and '${idParts.baseFolderId}' in parents and trashed = false`,
+				fields: "*",
+				pageSize: 1
+			})).files[0];
+			if(!playlistsFolder) {
+				return {
+					items: [],
+					nextPageToken: null
+				};
+			}
+			playlistsFolderId = playlistsFolder.id;
+		}
+		// get files in playlists folder
+		const { files, nextPageToken } = await this._drive.files.list({
+			q: `mimeType = 'application/vnd.google-apps.spreadsheet' and '${playlistsFolderId}' in parents and trashed = false`,
+			fields: "*",
+			pageToken: pageToken
 		});
 		// transform result
 		return {

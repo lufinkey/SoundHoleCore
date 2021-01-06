@@ -220,6 +220,10 @@ namespace sh {
 
 	#pragma mark Playlists
 
+	bool GoogleDriveStorageProvider::canStorePlaylists() const {
+		return true;
+	}
+
 	Promise<StorageProvider::Playlist> GoogleDriveStorageProvider::createPlaylist(String name, CreatePlaylistOptions options) {
 		return performAsyncJSAPIFunc<StorageProvider::Playlist>("createPlaylist", [=](napi_env env) {
 			auto optionsObj = Napi::Object::New(env);
