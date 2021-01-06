@@ -441,7 +441,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			items: (files || []).map((file) => (
 				this._createPlaylistObject(file, (baseFolderOwner ? baseFolderOwner.permissionId : null), baseFolder.id)
 			)),
-			nextPageToken
+			nextPageToken: (nextPageToken ? `${playlistsFolderid}:${nextPageToken}` : null)
 		};
 	}
 
