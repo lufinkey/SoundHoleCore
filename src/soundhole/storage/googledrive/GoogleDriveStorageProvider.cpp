@@ -264,6 +264,7 @@ namespace sh {
 
 	Json GoogleDriveStorageProviderUser::toJson() const {
 		return Json::object{
+			{ "id", (std::string)id },
 			{ "kind", (std::string)kind },
 			{ "displayName", (std::string)displayName },
 			{ "photoLink", (std::string)photoLink },
@@ -276,6 +277,7 @@ namespace sh {
 
 	GoogleDriveStorageProviderUser GoogleDriveStorageProviderUser::fromJson(const Json& json) {
 		return GoogleDriveStorageProviderUser{
+			.id=json["id"].string_value(),
 			.kind=json["kind"].string_value(),
 			.displayName=json["displayName"].string_value(),
 			.photoLink=json["photoLink"].string_value(),
@@ -289,6 +291,7 @@ namespace sh {
 	#ifdef NODE_API_MODULE
 	GoogleDriveStorageProviderUser GoogleDriveStorageProviderUser::fromNapiObject(Napi::Object obj) {
 		return GoogleDriveStorageProviderUser{
+			.id=jsutils::nonNullStringPropFromNapiObject(obj, "id"),
 			.kind=jsutils::nonNullStringPropFromNapiObject(obj, "kind"),
 			.displayName=jsutils::nonNullStringPropFromNapiObject(obj, "displayName"),
 			.photoLink=jsutils::nonNullStringPropFromNapiObject(obj, "photoLink"),

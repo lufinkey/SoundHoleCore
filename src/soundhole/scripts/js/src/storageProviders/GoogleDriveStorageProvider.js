@@ -60,6 +60,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		this._options = options;
 		this._baseFolderId = null;
 		this._playlistsFolderId = null;
+		this._currentDriveInfo = null;
 		
 		this._auth = new google.auth.OAuth2({
 			clientId: options.clientId,
@@ -125,6 +126,15 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		this._auth.setCredentials(tokens);
 		try {
 			await this._prepareFolders();
+			const baseFolderId = this._baseFolderId;
+			if(!baseFolderId) {
+				throw new Error("could not find base folder id");
+			}
+			const about = await this._drive.about.get();
+			if(!about.user) {
+				throw new Error("unable to fetch current user data");
+			}
+			this._currentDriveInfo = about;
 		} catch(error) {
 			this._auth.revokeCredentials();
 			throw error;
@@ -133,8 +143,10 @@ class GoogleDriveStorageProvider extends StorageProvider {
 
 	logout() {
 		this._auth.revokeCredentials();
+		this._currentDriveInfo = null;
 	}
 
+	
 	
 
 	async getCurrentUser() {
@@ -145,8 +157,10 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		if(!about.user) {
 			return null;
 		}
+		this._currentDriveInfo = about;
 		return {
 			...about.user,
+			id: this._createUserIDFromUser(about.user, this._baseFolderId),
 			baseFolderId: this._baseFolderId
 		};
 	}
@@ -260,7 +274,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		} else if(!baseFolderId) {
 			return fileId;
 		}
-		return `${fileId}/${baseFolderId}`;
+		return `${baseFolderId}/${fileId}`;
 	}
 
 	_parseUserID(userId) {
@@ -297,12 +311,16 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		} else if(!baseFolderId) {
 			return identifier;
 		}
-		return `${identifier}/${baseFolderId}`;
+		return `${baseFolderId}/${identifier}`;
 	}
 
-	_createUserObject(owner) {
+	_createUserIDFromUser(user, baseFolderId) {
+		return this._createUserID(user.emailAddress || user.permissionId || user.id, baseFolderId);
+	}
+
+	_createUserObject(owner, baseFolderId) {
 		return {
-			id: this._createUserID(owner.emailAddress || owner.permissionId || owner.id, baseFolderId),
+			id: this._createUserIDFromUser(owner, baseFolderId),
 			name: owner.displayName,
 			imageURL: owner.photoLink
 		}
@@ -337,7 +355,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			versionId: file.modifiedTime,
 			description: file.description,
 			privacy: privacy,
-			owner: owner ? this._createUserObject(owner) : null
+			owner: owner ? this._createUserObject(owner, baseFolderId) : null
 		};
 	}
 
@@ -415,7 +433,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		const [ file, spreadsheet ] = await Promise.all([ filePromise, sheetPromise ]);
 		// transform result
 		const playlist = this._createPlaylistObject(file, idParts.permissionId || idParts.email, idParts.baseFolderId);
-		const sheetProps = this._parsePlaylistSheetProperties(spreadhseet, 0);
+		const sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
 		playlist.tracks = this._parsePlaylistSheetItems(spreadsheet, 1, sheetProps);
 		if(playlist.tracks && playlist.tracks.total != null) {
 			playlist.itemCount = playlist.tracks.total;
@@ -505,7 +523,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		// transform result
 		return {
 			items: (files || []).map((file) => (
-				this._createPlaylistObject(file, (baseFolderOwner ? baseFolderOwner.permissionId : null), baseFolder.id)
+				this._createPlaylistObject(file, (idParts.permissionId || idParts.email), baseFolder.id)
 			)),
 			nextPageToken: (nextPageToken ? `${playlistsFolderid}:${nextPageToken}` : null)
 		};
@@ -538,6 +556,27 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			throw new Error("itemCount must be a positive non-zero integer");
 		}
 		return this._a1Range(0,(PLAYLIST_ITEMS_START_OFFSET+startIndex), (PLAYLIST_COLUMNS.length+10),(PLAYLIST_ITEMS_START_OFFSET+itemCount));
+	}
+	_playlistColumnsA1Range() {
+		return this._a1Range(0,1, PLAYLIST_COLUMNS.length,1);
+	}
+
+	_parseUserEnteredValue(val) {
+		if(!val) {
+			return undefined;
+		} else if(val.stringValue != null) {
+			return val.stringValue;
+		} else if(val.numberValue != null) {
+			return ''+val.numberValue;
+		} else if(val.boolValue != null) {
+			return ''+val.boolValue;
+		} else if(val.formulaValue != null) {
+			return ''+val.formulaValue;
+		} else if(val.errorValue != null) {
+			return `Error(type=${JSON.stringify(val.errorValue.type)}, message=${JSON.stringify(val.errorValue.message)})`;
+		} else {
+			return undefined;
+		}
 	}
 
 	async _preparePlaylistSheet(playlistId) {
@@ -610,10 +649,10 @@ class GoogleDriveStorageProvider extends StorageProvider {
 				{updateCells: {
 					rows: [
 						{values: [
-							{userEnteredValue: PLAYLIST_LATEST_VERSION}
+							{userEnteredValue: {stringValue: PLAYLIST_LATEST_VERSION}}
 						]},
 						{values: PLAYLIST_COLUMNS.map((column) => (
-							{userEnteredValue: column}
+							{userEnteredValue: {stringValue: column}}
 						))}
 					]
 				}}
@@ -622,8 +661,6 @@ class GoogleDriveStorageProvider extends StorageProvider {
 	}
 
 	_parsePlaylistSheetProperties(spreadsheet, rangeIndex) {
-		let columns = [];
-		let version = null;
 		// get sheet data
 		if(!spreadsheet || !spreadsheet.sheets || !spreadsheet.sheets[0]) {
 			throw new Error(`Missing spreadsheet sheets`);
@@ -637,18 +674,21 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		const itemsStartOffset = PLAYLIST_ITEMS_START_OFFSET;
 		const itemCount = gridProps.rowCount - itemsStartOffset;
 		// parse top row properties
+		let version = null;
 		const data = sheet.data[rangeIndex];
 		if(data.rowData[0]) {
 			const rowDataValues = data.rowData[0].values;
 			if(rowDataValues[0]) {
-				version = rowDataValues[0].userEnteredValue;
+				version = this._parseUserEnteredValue(rowDataValues[0].userEnteredValue);
 			}
 		}
 		// parse columns
+		let columns = [];
 		if(data.rowData[1]) {
 			for(const cell of data.rowData[1].values) {
-				if(cell.userEnteredValue != null && cell.userEnteredValue !== '') {
-					columns.push(`${cell.userEnteredValue}`);
+				const cellValue = this._parseUserEnteredValue(cell.userEnteredValue);
+				if(cellValue != null && cellValue !== '') {
+					columns.push(`${cellValue}`);
 				} else {
 					break;
 				}
@@ -689,22 +729,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			if(index >= itemCount) {
 				break;
 			}
-			if(row.values.length < columns.length) {
-				throw new Error("Not enough columns in row");
-			}
-			const item = {};
-			const track = {};
-			for(let i=0; i<columns.length; i++) {
-				const columnName = columns[i];
-				const cell = row.values[i];
-				const value = JSON.parse(`${cell.userEnteredValue}`);
-				if(PLAYLIST_ITEM_ONLY_COLUMNS.indexOf(columnName) !== -1) {
-					item[columnName] = value;
-				} else {
-					track[columnName] = value;
-				}
-			}
-			item.track = track;
+			const item = this._parsePlaylistSheetItemRow(row, columns);
 			items.push(item);
 		}
 		return {
@@ -712,6 +737,26 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			total: itemCount,
 			items
 		};
+	}
+
+	_parsePlaylistSheetItemRow(row, columns) {
+		if(row.values.length < columns.length) {
+			throw new Error("Not enough columns in row");
+		}
+		const item = {};
+		const track = {};
+		for(let i=0; i<columns.length; i++) {
+			const columnName = columns[i];
+			const cell = row.values[i];
+			const value = JSON.parse(this._parseUserEnteredValue(cell.userEnteredValue));
+			if(PLAYLIST_ITEM_ONLY_COLUMNS.indexOf(columnName) !== -1) {
+				item[columnName] = value;
+			} else {
+				track[columnName] = value;
+			}
+		}
+		item.track = track;
+		return item;
 	}
 
 

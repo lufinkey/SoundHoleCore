@@ -15,6 +15,7 @@
 
 namespace sh {
 	struct GoogleDriveStorageProviderUser {
+		String id;
 		String kind;
 		String displayName;
 		String photoLink;
