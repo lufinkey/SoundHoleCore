@@ -9,6 +9,39 @@ const SOUNDHOLE_BASE_KEY = 'SOUNDHOLE_BASE';
 const PLAYLIST_KEY = 'SOUNDHOLE_PLAYLIST';
 const PLAYLIST_IMAGE_DATA_KEY = 'SOUNDHOLEPLAYLIST_IMG_DATA';
 const PLAYLIST_IMAGE_MIMETYPE_KEY = 'SOUNDHOLEPLAYLIST_IMG_MIMETYPE';
+const PLAYLIST_ITEMS_NAMED_RANGE_ID = 'soundholePlaylistItems';
+const PLAYLIST_ITEMS_NAMES_RANGE_NAME = 'SoundholePlaylistItems';
+const MIN_PLAYLIST_COLUMNS = [
+	'uri',
+	'provider',
+	'name',
+	'albumName',
+	'albumURI',
+	'artists',
+	'images',
+	'duration',
+	'addedAt',
+	'addedBy'
+];
+const PLAYLIST_COLUMNS = [
+	'uri',
+	'provider',
+	'name',
+	'albumName',
+	'albumURI',
+	'artists',
+	'images',
+	'duration',
+	'addedAt',
+	'addedBy'
+];
+const PLAYLIST_ITEM_ONLY_COLUMNS = [
+	'addedAt',
+	'addedBy'
+];
+const PLAYLIST_VERSIONS = [ 'v1.0' ];
+const PLAYLIST_LATEST_VERSION = 'v1.0';
+const PLAYLIST_ITEMS_START_OFFSET = 2;
 
 
 class GoogleDriveStorageProvider extends StorageProvider {
@@ -341,20 +374,55 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			},
 			appProperties: appProperties
 		});
+		// update sheet
+		await this._preparePlaylistSheet(file.id);
 		// transform result
-		return this._createPlaylistObject(file, (baseFolderOwner ? baseFolderOwner.permissionId : null), baseFolder.id);
+		const playlist = this._createPlaylistObject(file, (baseFolderOwner ? baseFolderOwner.permissionId : null), baseFolder.id);
+		playlist.tracks = {
+			offset: 0,
+			total: 0,
+			items: []
+		};
+		return playlist;
 	}
 
 
-	async getPlaylist(playlistId) {
+	async getPlaylist(playlistId, options) {
+		// validate options
+		if(options.itemsStartIndex != null && (!Number.isInteger(options.itemsStartIndex) || options.itemsStartIndex < 0)) {
+			throw new Error("options.itemsStartIndex must be a positive integer");
+		}
+		if(options.itemsLimit != null && (!Number.isInteger(options.itemsLimit) || options.itemsLimit < 0)) {
+			throw new Error("options.itemsLimit must be a positive integer");
+		}
+		// parse id
 		const idParts = this._parsePlaylistID(playlistId);
 		// get file
-		const file = await this._drive.files.get({
+		const filePromise = this._drive.files.get({
 			fileId: idParts.fileId,
 			fields: "*"
 		});
+		// get spreadsheet data if needed
+		const sheetPromise = (Number.isInteger(options.itemsStartIndex) || Number.isInteger(options.itemsLimit)) ?
+			this._sheets.spreadsheets.get({
+				spreadsheetId: idParts.fileId,
+				includeGridData: true,
+				ranges: [
+					this._playlistHeaderA1Range(),
+					this._playlistItemsA1Range(options.itemsStartIndex || 0, options.itemsLimit || 100)
+				]
+			})
+			: Promise.resolve(null);
+		// await results
+		const [ file, spreadsheet ] = await Promise.all([ filePromise, sheetPromise ]);
 		// transform result
-		return this._createPlaylistObject(file, idParts.permissionId || idParts.email, idParts.baseFolderId);
+		const playlist = this._createPlaylistObject(file, idParts.permissionId || idParts.email, idParts.baseFolderId);
+		const sheetProps = this._parsePlaylistSheetProperties(spreadhseet, 0);
+		playlist.tracks = this._parsePlaylistSheetItems(spreadsheet, 1, sheetProps);
+		if(playlist.tracks && playlist.tracks.total != null) {
+			playlist.itemCount = playlist.tracks.total;
+		}
+		return playlist;
 	}
 
 
@@ -446,8 +514,259 @@ class GoogleDriveStorageProvider extends StorageProvider {
 	}
 
 
-	async getPlaylistItems(options) {
-		throw new Error("getPlaylistItems is not implemented");
+
+	_indexToColumn(index) {
+		let letter = '', temp;
+		while(index >= 0) {
+			temp = index % 26;
+			letter = String.fromCharCode(temp + 65) + letter;
+			index = (index - temp - 1) / 26;
+		}
+		return letter;
+	}
+	_a1Notation(x,y) {
+		return ''+this._indexToColumn(x)+(y+1);
+	}
+	_a1Range(x1,y1,x2,y2) {
+		return this._a1Notation(x1,y1)+':'+this._a1Notation(x2,y2)
+	}
+	_playlistHeaderA1Range() {
+		return this._a1Range(0,0, PLAYLIST_COLUMNS.length+10,1);
+	}
+	_playlistItemsA1Range(startIndex, itemCount) {
+		if(!Number.isInteger(startIndex) || startIndex < 0) {
+			throw new Error("startIndex must be a positive integer");
+		} else if(!Number.isInteger(itemCount) || itemCount <= 0) {
+			throw new Error("itemCount must be a positive non-zero integer");
+		}
+		return this._a1Range(0,(PLAYLIST_ITEMS_START_OFFSET+startIndex), (PLAYLIST_COLUMNS.length+10),(PLAYLIST_ITEMS_START_OFFSET+itemCount));
+	}
+
+	async _preparePlaylistSheet(playlistId) {
+		const idParts = this._parsePlaylistID(playlistId);
+		// get spreadsheet header
+		let spreadsheet = await this._sheets.spreadsheets.get({
+			spreadsheetId: idParts.fileId,
+			includeGridData: true,
+			ranges: [ this._playlistHeaderA1Range() ]
+		});
+		// validate properties
+		try {
+			this._parsePlaylistSheetProperties(spreadsheet, 0);
+			// properties are valid, we don't need to continue with preparing the playlist
+			return;
+		} catch(error) {
+			// continue on preparing the sheet
+		}
+		// get sheet
+		if(!spreadsheet || !spreadsheet.sheets || !spreadsheet.sheets[0]) {
+			throw new Error(`Missing spreadsheet sheets`);
+		}
+		const sheet = spreadsheet.sheets[0];
+		if(!sheet.data || !sheet.data[rangeIndex] || !sheet.data[rangeIndex].rowData) {
+			throw new Error(`Missing spreadsheet data`);
+		}
+		const gridProps = sheet.properties.gridProperties;
+		const maxColumnsCount = PLAYLIST_COLUMNS.length;
+		const maxRowsCount = PLAYLIST_ITEMS_START_OFFSET+1;
+		const rowDiff = maxColumnsCount - gridProps.columnCount;
+		const colDiff = maxRowsCount - gridProps.rowCount;
+		// perform batch update
+		await this._sheets.spreadsheets.batchUpdate({
+			requests: [
+				// resize columns
+				...((colDiff > 0) ? [
+					{appendDimension: {
+						sheetId: 0,
+						dimension: 'COLUMNS',
+						length: colDiff
+					}}
+				] : (colDiff < 0) ? [
+					{deleteDimension: {
+						range: {
+							sheetId: 0,
+							dimension: 'COLUMNS',
+							startIndex: maxColumnsCount,
+							endIndex: gridProps.columnCount
+						}
+					}}
+				] : []),
+				// resize rows
+				...((rowDiff > 0) ? [
+					{appendDimension: {
+						sheetId: 0,
+						dimension: 'ROWS',
+						length: rowDiff
+					}}
+				] : (rowDiff < 0) ? [
+					{deleteDimension: {
+						range: {
+							sheetId: 0,
+							dimension: 'ROWS',
+							startIndex: maxRowsCount,
+							endIndex: gridProps.rowCount
+						}
+					}}
+				] : []),
+				// update version, add columns
+				{updateCells: {
+					rows: [
+						{values: [
+							{userEnteredValue: PLAYLIST_LATEST_VERSION}
+						]},
+						{values: PLAYLIST_COLUMNS.map((column) => (
+							{userEnteredValue: column}
+						))},
+						{values: [
+							{userEnteredValue: "END PLAYLIST ITEMS"}
+						]}
+					]
+				}},
+				// add named range
+				{addNamedRange: {
+					namedRange: {
+						namedRangeId: PLAYLIST_ITEMS_NAMED_RANGE_ID,
+						name: PLAYLIST_ITEMS_NAMES_RANGE_NAME,
+						range: {
+							sheetId: 0,
+							startRowIndex: (PLAYLIST_ITEMS_START_OFFSET-1),
+							endRowIndex: maxRowsCount,
+							startColumnIndex: 0,
+							endColumnIndex: maxColumnsCount
+						}
+					}
+				}}
+			]
+		});
+	}
+
+	_parsePlaylistSheetProperties(spreadsheet, rangeIndex) {
+		let columns = [];
+		let version = null;
+		// get sheet data
+		if(!spreadsheet || !spreadsheet.sheets || !spreadsheet.sheets[0]) {
+			throw new Error(`Missing spreadsheet sheets`);
+		}
+		const sheet = spreadsheet.sheets[0];
+		if(!sheet.data || !sheet.data[rangeIndex] || !sheet.data[rangeIndex].rowData) {
+			throw new Error(`Missing spreadsheet data`);
+		}
+		const data = sheet.data[rangeIndex];
+		// parse named range
+		const itemsRange = sheet.namedRanges.find((item) => (item.namedRangeId === PLAYLIST_ITEMS_NAMED_RANGE_ID));
+		if(itemsRange == null) {
+			throw new Error(`Could not find named range with id '${PLAYLIST_ITEMS_NAMED_RANGE_ID}'`);
+		}
+		if(itemsRange.range.sheetId !== 0) {
+			throw new Error("playlist items range must refer to the first sheet");
+		}
+		if(itemsRange.range.startRowIndex !== (PLAYLIST_ITEMS_START_OFFSET-1)) {
+			throw new Error("playlist items range is not in the expected position");
+		}
+		const itemsRangeHeight = itemsRange.endRowIndex - itemsRange.startRowIndex;
+		if(itemsRangeHeight < 2) {
+			throw new Error("playlist items range is less than the minimum height");
+		}
+		const itemCount = itemsRangeHeight - 2;
+		// parse top row properties
+		if(data.rowData[0]) {
+			const rowDataValues = data.rowData[0].values;
+			if(rowDataValues[0]) {
+				version = rowDataValues[0].userEnteredValue;
+			}
+		}
+		// parse columns
+		if(data.rowData[1]) {
+			for(const cell of data.rowData[1].values) {
+				if(cell.userEnteredValue != null && cell.userEnteredValue !== '') {
+					columns.push(`${cell.userEnteredValue}`);
+				} else {
+					break;
+				}
+			}
+		}
+		// validate version
+		if(PLAYLIST_VERSIONS.indexOf(version) === -1) {
+			throw new Error(`Invalid playlist version '${version}'`);
+		}
+		// ensure we have columns
+		if(columns.length === 0) {
+			throw new Error(`Missing track columns`);
+		}
+		// check for minimum necessary columns
+		for(const column of MIN_PLAYLIST_COLUMNS) {
+			if(columns.indexOf(column) === -1) {
+				throw new Error(`Missing track column ${column}`);
+			}
+		}
+		return { columns, itemCount, itemsStartRowIndex: (itemsRange.range.startRowIndex + 1) };
+	}
+
+	_parsePlaylistSheetItems(spreadsheet, rangeIndex, { columns, itemCount, itemsStartRowIndex }) {
+		// parse out sheet data
+		if(!spreadsheet || !spreadsheet.sheets || !spreadsheet.sheets[0]) {
+			throw new Error(`Missing spreadsheet sheets`);
+		}
+		const sheet = spreadsheet.sheets[0];
+		if(!sheet.data || !sheet.data[rangeIndex] || !sheet.data[rangeIndex].rowData) {
+			throw new Error(`Missing spreadsheet data`);
+		}
+		const data = sheet.data[rangeIndex];
+		// parse tracks
+		const startIndex = data.startRow - itemsStartRowIndex;
+		const items = [];
+		for(const row of data.rowData) {
+			const index = startIndex + items.length;
+			if(index >= itemCount) {
+				break;
+			}
+			if(row.values.length < columns.length) {
+				throw new Error("Not enough columns in row");
+			}
+			const item = {};
+			const track = {};
+			for(let i=0; i<columns.length; i++) {
+				const columnName = columns[i];
+				const cell = row.values[i];
+				const value = JSON.parse(`${cell.userEnteredValue}`);
+				if(PLAYLIST_ITEM_ONLY_COLUMNS.indexOf(columnName) !== -1) {
+					item[columnName] = value;
+				} else {
+					track[columnName] = value;
+				}
+			}
+			item.track = track;
+			items.push(item);
+		}
+		return {
+			offset: startIndex,
+			total: itemCount,
+			items
+		};
+	}
+
+
+	async getPlaylistItems(playlistId, { offset, limit }) {
+		if(!Number.isInteger(offset) || offset < 0) {
+			throw new Error("options.offset must be a positive integer");
+		} else if(!Number.isInteger(limit) || limit <= 0) {
+			throw new Error("options.limit must be a positive non-zero integer");
+		}
+		// parse id
+		const idParts = this._parsePlaylistID(playlistId);
+		// get spreadsheet data
+		const spreadsheet = await this._sheets.spreadsheets.get({
+			spreadsheetId: idParts.fileId,
+			includeGridData: true,
+			ranges: [
+				this._playlistHeaderA1Range(),
+				this._playlistItemsA1Range(options.offset, options.limit)
+			]
+		});
+		// parse spreadsheet data
+		const sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
+		const itemsPage = this._parsePlaylistSheetItems(spreadsheet, 1, sheetProps);
+		return itemsPage;
 	}
 }
 
