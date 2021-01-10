@@ -9,8 +9,6 @@ const SOUNDHOLE_BASE_KEY = 'SOUNDHOLE_BASE';
 const PLAYLIST_KEY = 'SOUNDHOLE_PLAYLIST';
 const PLAYLIST_IMAGE_DATA_KEY = 'SOUNDHOLEPLAYLIST_IMG_DATA';
 const PLAYLIST_IMAGE_MIMETYPE_KEY = 'SOUNDHOLEPLAYLIST_IMG_MIMETYPE';
-const PLAYLIST_ITEMS_NAMED_RANGE_ID = 'soundholePlaylistItems';
-const PLAYLIST_ITEMS_NAMES_RANGE_NAME = 'SoundholePlaylistItems';
 const MIN_PLAYLIST_COLUMNS = [
 	'uri',
 	'provider',
@@ -568,7 +566,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		}
 		const gridProps = sheet.properties.gridProperties;
 		const maxColumnsCount = PLAYLIST_COLUMNS.length;
-		const maxRowsCount = PLAYLIST_ITEMS_START_OFFSET+1;
+		const maxRowsCount = PLAYLIST_ITEMS_START_OFFSET;
 		const rowDiff = maxColumnsCount - gridProps.columnCount;
 		const colDiff = maxRowsCount - gridProps.rowCount;
 		// perform batch update
@@ -616,25 +614,8 @@ class GoogleDriveStorageProvider extends StorageProvider {
 						]},
 						{values: PLAYLIST_COLUMNS.map((column) => (
 							{userEnteredValue: column}
-						))},
-						{values: [
-							{userEnteredValue: "END PLAYLIST ITEMS"}
-						]}
+						))}
 					]
-				}},
-				// add named range
-				{addNamedRange: {
-					namedRange: {
-						namedRangeId: PLAYLIST_ITEMS_NAMED_RANGE_ID,
-						name: PLAYLIST_ITEMS_NAMES_RANGE_NAME,
-						range: {
-							sheetId: 0,
-							startRowIndex: (PLAYLIST_ITEMS_START_OFFSET-1),
-							endRowIndex: maxRowsCount,
-							startColumnIndex: 0,
-							endColumnIndex: maxColumnsCount
-						}
-					}
 				}}
 			]
 		});
@@ -651,24 +632,12 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		if(!sheet.data || !sheet.data[rangeIndex] || !sheet.data[rangeIndex].rowData) {
 			throw new Error(`Missing spreadsheet data`);
 		}
-		const data = sheet.data[rangeIndex];
-		// parse named range
-		const itemsRange = sheet.namedRanges.find((item) => (item.namedRangeId === PLAYLIST_ITEMS_NAMED_RANGE_ID));
-		if(itemsRange == null) {
-			throw new Error(`Could not find named range with id '${PLAYLIST_ITEMS_NAMED_RANGE_ID}'`);
-		}
-		if(itemsRange.range.sheetId !== 0) {
-			throw new Error("playlist items range must refer to the first sheet");
-		}
-		if(itemsRange.range.startRowIndex !== (PLAYLIST_ITEMS_START_OFFSET-1)) {
-			throw new Error("playlist items range is not in the expected position");
-		}
-		const itemsRangeHeight = itemsRange.endRowIndex - itemsRange.startRowIndex;
-		if(itemsRangeHeight < 2) {
-			throw new Error("playlist items range is less than the minimum height");
-		}
-		const itemCount = itemsRangeHeight - 2;
+		const gridProps = sheet.properties.gridProperties;
+		// calculate item count
+		const itemsStartOffset = PLAYLIST_ITEMS_START_OFFSET;
+		const itemCount = gridProps.rowCount - itemsStartOffset;
 		// parse top row properties
+		const data = sheet.data[rangeIndex];
 		if(data.rowData[0]) {
 			const rowDataValues = data.rowData[0].values;
 			if(rowDataValues[0]) {
@@ -699,7 +668,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 				throw new Error(`Missing track column ${column}`);
 			}
 		}
-		return { columns, itemCount, itemsStartRowIndex: (itemsRange.range.startRowIndex + 1) };
+		return { columns, itemCount, itemsStartRowIndex: itemsStartOffset };
 	}
 
 	_parsePlaylistSheetItems(spreadsheet, rangeIndex, { columns, itemCount, itemsStartRowIndex }) {
