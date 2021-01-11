@@ -9,6 +9,7 @@ const SOUNDHOLE_BASE_KEY = 'SOUNDHOLE_BASE';
 const PLAYLIST_KEY = 'SOUNDHOLE_PLAYLIST';
 const PLAYLIST_IMAGE_DATA_KEY = 'SOUNDHOLEPLAYLIST_IMG_DATA';
 const PLAYLIST_IMAGE_MIMETYPE_KEY = 'SOUNDHOLEPLAYLIST_IMG_MIMETYPE';
+const PLAYLIST_ROW_ITEM_METADATA_KEY = 'soundholePlaylistItemId';
 const MIN_PLAYLIST_COLUMNS = [
 	'uri',
 	'provider',
@@ -148,6 +149,23 @@ class GoogleDriveStorageProvider extends StorageProvider {
 
 	
 	
+	async _getCurrentDriveInfo() {
+		if(this.session == null) {
+			throw new Error("Google Drive is not logged in");
+		}
+		if(this._currentDriveInfo != null) {
+			return this._currentDriveInfo;
+		}
+		const about = await this._drive.about.get();
+		if(!about.user) {
+			throw new Error("Unable to fetch current user data");
+		}
+		if(this.session == null) {
+			throw new Error("Google Drive is not logged in");
+		}
+		this._currentDriveInfo = about;
+		return about;
+	}
 
 	async getCurrentUser() {
 		if(this.session == null) {
@@ -315,7 +333,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 	}
 
 	_createUserIDFromUser(user, baseFolderId) {
-		return this._createUserID(user.emailAddress || user.permissionId || user.id, baseFolderId);
+		return this._createUserID(user.emailAddress || user.permissionId, baseFolderId);
 	}
 
 	_createUserObject(owner, baseFolderId) {
@@ -579,6 +597,16 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		}
 	}
 
+	_formatDate(date) {
+		const fixedDate = new Date(Math.floor(date.getTime() / 1000) * 1000);
+		let dateString = fixedDate.toISOString();
+		const suffix = ".000Z";
+		if(dateString.endsWith(suffix)) {
+			dateString = dateString.substring(0,dateString.length-suffix.length)+'Z';
+		}
+		return dateString;
+	}
+
 	async _preparePlaylistSheet(playlistId) {
 		const idParts = this._parsePlaylistID(playlistId);
 		// get spreadsheet header
@@ -610,53 +638,62 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		const colDiff = maxRowsCount - gridProps.rowCount;
 		// perform batch update
 		await this._sheets.spreadsheets.batchUpdate({
-			requests: [
-				// resize columns
-				...((colDiff > 0) ? [
-					{appendDimension: {
-						sheetId: 0,
-						dimension: 'COLUMNS',
-						length: colDiff
-					}}
-				] : (colDiff < 0) ? [
-					{deleteDimension: {
-						range: {
+			spreadsheetId: idParts.fileId,
+			requestBody: {
+				requests: [
+					// resize columns
+					...((colDiff > 0) ? [
+						{appendDimension: {
 							sheetId: 0,
 							dimension: 'COLUMNS',
-							startIndex: maxColumnsCount,
-							endIndex: gridProps.columnCount
-						}
-					}}
-				] : []),
-				// resize rows
-				...((rowDiff > 0) ? [
-					{appendDimension: {
-						sheetId: 0,
-						dimension: 'ROWS',
-						length: rowDiff
-					}}
-				] : (rowDiff < 0) ? [
-					{deleteDimension: {
-						range: {
+							length: colDiff
+						}}
+					] : (colDiff < 0) ? [
+						{deleteDimension: {
+							range: {
+								sheetId: 0,
+								dimension: 'COLUMNS',
+								startIndex: maxColumnsCount,
+								endIndex: gridProps.columnCount
+							}
+						}}
+					] : []),
+					// resize rows
+					...((rowDiff > 0) ? [
+						{appendDimension: {
 							sheetId: 0,
 							dimension: 'ROWS',
-							startIndex: maxRowsCount,
-							endIndex: gridProps.rowCount
-						}
+							length: rowDiff
+						}}
+					] : (rowDiff < 0) ? [
+						{deleteDimension: {
+							range: {
+								sheetId: 0,
+								dimension: 'ROWS',
+								startIndex: maxRowsCount,
+								endIndex: gridProps.rowCount
+							}
+						}}
+					] : []),
+					// update version, add columns
+					{updateCells: {
+						fields: 'userEnteredValue',
+						start: {
+							sheetId: 0,
+							rowIndex: 0,
+							columnIndex: 0
+						},
+						rows: [
+							{values: [
+								{userEnteredValue: {stringValue: PLAYLIST_LATEST_VERSION}}
+							]},
+							{values: PLAYLIST_COLUMNS.map((column) => (
+								{userEnteredValue: {stringValue: column}}
+							))}
+						]
 					}}
-				] : []),
-				// update version, add columns
-				{updateCells: {
-					rows: [
-						{values: [
-							{userEnteredValue: {stringValue: PLAYLIST_LATEST_VERSION}}
-						]},
-						{values: PLAYLIST_COLUMNS.map((column) => (
-							{userEnteredValue: {stringValue: column}}
-						))}
-					]
-				}}
-			]
+				]
+			}
 		});
 	}
 
@@ -781,6 +818,131 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		const sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
 		const itemsPage = this._parsePlaylistSheetItems(spreadsheet, 1, sheetProps);
 		return itemsPage;
+	}
+
+
+
+	async _insertPlaylistTracks(playlistId, index, tracks, sheetProps, driveInfo) {
+		// parse id
+		const idParts = this._parsePlaylistID(playlistId);
+		// build items data
+		const addedAt = this._formatDate(new Date());
+		const addedBy = this._createUserObject(driveInfo.user, this._baseFolderId);
+		const items = tracks.map((track) => (
+			{
+				uniqueId: uuidv1(),
+				addedAt,
+				addedBy,
+				track
+			}
+		));
+		// insert tracks into playlist
+		await this._sheets.spreadsheets.batchUpdate({
+			spreadsheetId: idParts.fileId,
+			requestBody: {
+				requests: [
+					// insert empty rows
+					{insertDimension: {
+						inheritFromBefore: true,
+						range: {
+							dimension: 'ROWS',
+							startIndex: index,
+							endIndex: index + tracks.length
+						}
+					}},
+					// add content to new rows
+					{updateCells: {
+						fields: 'userEnteredValue',
+						start: {
+							sheetId: 0,
+							rowIndex: index,
+							columnIndex: 0
+						},
+						rows: items.map((item) => {
+							const track = item.track;
+							const rowValues = [];
+							for(const columnName of sheetProps.columns) {
+								let trackProp;
+								if(PLAYLIST_ITEM_ONLY_COLUMNS.indexOf(columnName) === -1) {
+									trackProp = item[columnName];
+								} else {
+									trackProp = track[columnName];
+								}
+								rowValues.push({
+									userEnteredValue: {
+										stringValue: JSON.stringify(trackProp)
+									}
+								});
+							}
+							return { values: rowValues };
+						})
+					}},
+					// add developer metadata for tracks
+					...itemIds.map((itemId, i) => (
+						{createDeveloperMetadata: {
+							developerMetadata: {
+								metadataKey: PLAYLIST_ROW_ITEM_METADATA_KEY,
+								metadataValue: itemId,
+								location: {
+									dimensionRange: {
+										dimension: 'ROWS',
+										sheetId: 0,
+										startIndex: i,
+										endIndex: (i+1)
+									}
+								},
+								visibility: 'DOCUMENT'
+							}
+						}}
+					))
+				]
+			}
+		});
+		// return resulting tracks
+		return {
+			offset: index,
+			total: (sheetProps.itemCount + items.length),
+			items
+		};
+	}
+
+	async insertPlaylistTracks(playlistId, index, tracks) {
+		if(!Number.isInteger(index) || index < 0) {
+			throw new Error("index must be a positive integer");
+		}
+		// parse id
+		const idParts = this._parsePlaylistID(playlistId);
+		// get drive info
+		const driveInfo = await this._getCurrentDriveInfo();
+		// get spreadsheet info
+		const spreadsheet = await this._sheets.spreadsheets.get({
+			spreadsheetId: idParts.fileId,
+			includeGridData: true,
+			ranges: [
+				this._playlistHeaderA1Range()
+			]
+		});
+		const sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
+		// insert new row
+		return await this._insertPlaylistTrackRows(playlistId, index, tracks, sheetProps, driveInfo);
+	}
+
+	async appendPlaylistTracks(playlistId, tracks) {
+		// parse id
+		const idParts = this._parsePlaylistID(playlistId);
+		// get drive info
+		const driveInfo = await this._getCurrentDriveInfo();
+		// get spreadsheet info
+		const spreadsheet = await this._sheets.spreadsheets.get({
+			spreadsheetId: idParts.fileId,
+			includeGridData: true,
+			ranges: [
+				this._playlistHeaderA1Range()
+			]
+		});
+		const sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
+		// insert new row
+		return await this._insertPlaylistTrackRows(playlistId, sheetProps.itemCount, tracks, sheetProps, driveInfo);
 	}
 }
 
