@@ -110,20 +110,20 @@ namespace sh {
 			throw std::logic_error("js object not initialized");
 		}
 		auto json_encode = scripts::getJSExports(env).Get("json_encode").As<Napi::Function>();
-		// get credentials object
-		auto credentialsObj = jsApi.Get("session");
-		auto credentialsJsonStr = json_encode.Call({ credentialsObj }).As<Napi::String>().Utf8Value();
+		// get session object
+		auto sessionObj = jsApi.Get("session");
+		auto sessionJsonStr = json_encode.Call({ sessionObj }).As<Napi::String>().Utf8Value();
 		std::string parseError;
-		auto credentials = Json::parse(credentialsJsonStr, parseError);
+		auto session = Json::parse(sessionJsonStr, parseError);
 		if(!parseError.empty()) {
 			return Json();
 		}
-		return credentials;
+		return session;
 	}
 
 	void GoogleDriveStorageProvider::updateSessionFromJS(napi_env env) {
 		bool wasLoggedIn = isLoggedIn();
-		this->credentials = sessionFromJS(env);
+		this->session = sessionFromJS(env);
 		bool loggedIn = isLoggedIn();
 		// update identity if login state has changed
 		if(loggedIn != wasLoggedIn) {
@@ -153,11 +153,11 @@ namespace sh {
 				optionsObj
 			};
 		}, [=](napi_env env, Napi::Value value) {
-			auto credentials = sessionFromJS(env);
-			if(credentials.is_null() || !credentials.is_object()) {
+			auto session = sessionFromJS(env);
+			if(session.is_null() || !session.is_object()) {
 				throw std::runtime_error("Failed to login with authorization code");
 			}
-			this->credentials = credentials;
+			this->session = session;
 			// re-fetch identity
 			this->storeIdentity(std::nullopt);
 			this->setIdentityNeedsRefresh();
@@ -177,12 +177,12 @@ namespace sh {
 			// logout
 			jsApi.Get("logout").As<Napi::Function>().Call(jsApi, {});
 		});
-		credentials = Json();
+		session = Json();
 		this->storeIdentity(std::nullopt);
 	}
 
 	bool GoogleDriveStorageProvider::isLoggedIn() const {
-		return !credentials.is_null();
+		return !session.is_null();
 	}
 
 

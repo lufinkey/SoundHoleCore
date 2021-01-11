@@ -79,6 +79,6 @@ namespace sh {
 		
 		napi_ref jsRef;
 		Options options;
-		Json credentials;
+		Json session;
 	};
 }
