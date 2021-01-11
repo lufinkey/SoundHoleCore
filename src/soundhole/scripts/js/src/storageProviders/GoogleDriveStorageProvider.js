@@ -954,6 +954,81 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		// append new rows
 		return await this._insertPlaylistTrackRows(playlistId, sheetProps.itemCount, tracks, sheetProps, driveInfo);
 	}
+
+	async deletePlaylistTracks(playlistId, itemIds) {
+		// parse id
+		const idParts = this._parsePlaylistID(playlistId);
+		// find matching item ids
+		const { matchedDeveloperMetadata } = await this._sheets.spreadsheets.developerMetadata.search({
+			spreadsheetId: idParts.fileId,
+			requestBody: {
+				dataFilters: itemIds.map((itemId) => ({
+					developerMetadata: {
+						metadataKey: PLAYLIST_ROW_ITEM_ID_METADATA_KEY,
+						metadataValue: itemId
+					}
+				}))
+			}
+		});
+		// get row indexes
+		const rowIndexes = itemIds.map((itemId) => {
+			const metadata = matchedDeveloperMetadata.find((metadata) => {
+				const devMeta = metadata.developerMetadata;
+				return (devMeta.metadataKey === PLAYLIST_ROW_ITEM_ID_METADATA_KEY && devMeta.metadataValue == itemId);
+			});
+			if(!metadata) {
+				throw new Error(`Could not find playlist item with id ${itemId}`);
+			}
+			return metadata.developerMetadata.location.dimensionRange.startIndex;
+		});
+		rowIndexes.sort();
+		// group indexes for simpler removal
+		const rowIndexGroups = [];
+		let expectedNextIndex = null;
+		let groupStartIndex = null;
+		for(const rowIndex of rowIndexes) {
+			if(groupStartIndex == null) {
+				groupStartIndex = rowIndex;
+				expectedNextIndex = rowIndex+1;
+			} else if(rowIndex === expectedNextIndex) {
+				expectedNextIndex = rowIndex + 1;
+			} else {
+				rowIndexGroups.push({
+					startIndex: groupStartIndex,
+					endIndex: expectedNextIndex
+				});
+				groupStartIndex = rowIndex;
+				expectedNextIndex = rowindex+1;
+			}
+		}
+		if(groupStartIndex != null) {
+			rowIndexGroups.push({
+				startIndex: groupStartIndex,
+				endIndex: expectedNextIndex
+			});
+		}
+		rowIndexGroups.reverse();
+		// delete row index groups
+		await this._sheets.spreadsheets.batchUpdate({
+			spreadsheetId: idParts.fileId,
+			requestBody: {
+				requests: rowIndexGroups.map((group) => (
+					{deleteDimension: {
+						range: {
+							sheetId: 0,
+							startIndex: group.startIndex,
+							endIndex: group.endIndex,
+							dimension: 'ROWS'
+						}
+					}}
+				))
+			}
+		});
+		// transform result
+		return {
+			indexes: rowIndexes.map((index) => (index - PLAYLIST_ITEMS_START_OFFSET))
+		};
+	}
 }
 
 
