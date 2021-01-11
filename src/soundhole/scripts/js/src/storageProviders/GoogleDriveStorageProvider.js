@@ -923,7 +923,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			]
 		});
 		const sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
-		// insert new row
+		// insert new rows
 		return await this._insertPlaylistTrackRows(playlistId, index, tracks, sheetProps, driveInfo);
 	}
 
@@ -941,7 +941,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			]
 		});
 		const sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
-		// insert new row
+		// append new rows
 		return await this._insertPlaylistTrackRows(playlistId, sheetProps.itemCount, tracks, sheetProps, driveInfo);
 	}
 }
