@@ -9,7 +9,7 @@ const SOUNDHOLE_BASE_KEY = 'SOUNDHOLE_BASE';
 const PLAYLIST_KEY = 'SOUNDHOLE_PLAYLIST';
 const PLAYLIST_IMAGE_DATA_KEY = 'SOUNDHOLEPLAYLIST_IMG_DATA';
 const PLAYLIST_IMAGE_MIMETYPE_KEY = 'SOUNDHOLEPLAYLIST_IMG_MIMETYPE';
-const PLAYLIST_ROW_ITEM_METADATA_KEY = 'soundholePlaylistItemId';
+const PLAYLIST_ROW_ITEM_ID_METADATA_KEY = 'soundholePlaylistItemId';
 const MIN_PLAYLIST_COLUMNS = [
 	'uri',
 	'provider',
@@ -761,13 +761,16 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		// parse tracks
 		const startIndex = data.startRow - itemsStartRowIndex;
 		const items = [];
+		let i = 0;
 		for(const row of data.rowData) {
+			const rowMetadata = data.rowMetadata[i];
 			const index = startIndex + items.length;
 			if(index >= itemCount) {
 				break;
 			}
-			const item = this._parsePlaylistSheetItemRow(row, columns);
+			const item = this._parsePlaylistSheetItemRow(row, rowMetadata, columns, index);
 			items.push(item);
+			i++;
 		}
 		return {
 			offset: startIndex,
@@ -776,7 +779,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		};
 	}
 
-	_parsePlaylistSheetItemRow(row, columns) {
+	_parsePlaylistSheetItemRow(row, rowMetadata, columns, index) {
 		if(row.values.length < columns.length) {
 			throw new Error("Not enough columns in row");
 		}
@@ -791,6 +794,13 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			} else {
 				track[columnName] = value;
 			}
+			const itemIdMetadata = rowMetadata.developerMetadata.find((metadata) => {
+				return metadata.metadataKey === PLAYLIST_ROW_ITEM_ID_METADATA_KEY
+			});
+			if(!itemIdMetadata) {
+				throw new Error(`Missing developer metadata '${PLAYLIST_ROW_ITEM_ID_METADATA_KEY}' for track at index ${index}`);
+			}
+			item.uniqueId = itemIdMetadata.metadataValue;
 		}
 		item.track = track;
 		return item;
@@ -878,11 +888,11 @@ class GoogleDriveStorageProvider extends StorageProvider {
 						})
 					}},
 					// add developer metadata for tracks
-					...itemIds.map((itemId, i) => (
+					...items.map((item, i) => (
 						{createDeveloperMetadata: {
 							developerMetadata: {
-								metadataKey: PLAYLIST_ROW_ITEM_METADATA_KEY,
-								metadataValue: itemId,
+								metadataKey: PLAYLIST_ROW_ITEM_ID_METADATA_KEY,
+								metadataValue: item.uniqueId,
 								location: {
 									dimensionRange: {
 										dimension: 'ROWS',
