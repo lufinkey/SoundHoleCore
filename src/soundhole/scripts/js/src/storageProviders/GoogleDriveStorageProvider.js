@@ -832,7 +832,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 
 
 
-	async _insertPlaylistTracks(playlistId, index, tracks, sheetProps, driveInfo) {
+	async _insertPlaylistItems(playlistId, index, tracks, sheetProps, driveInfo) {
 		// parse id
 		const idParts = this._parsePlaylistID(playlistId);
 		// build items data
@@ -916,7 +916,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		};
 	}
 
-	async insertPlaylistTracks(playlistId, index, tracks) {
+	async insertPlaylistItems(playlistId, index, tracks) {
 		if(!Number.isInteger(index) || index < 0) {
 			throw new Error("index must be a positive integer");
 		}
@@ -937,7 +937,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		return await this._insertPlaylistTrackRows(playlistId, index, tracks, sheetProps, driveInfo);
 	}
 
-	async appendPlaylistTracks(playlistId, tracks) {
+	async appendPlaylistItems(playlistId, tracks) {
 		// parse id
 		const idParts = this._parsePlaylistID(playlistId);
 		// get drive info
@@ -955,7 +955,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		return await this._insertPlaylistTrackRows(playlistId, sheetProps.itemCount, tracks, sheetProps, driveInfo);
 	}
 
-	async deletePlaylistTracks(playlistId, itemIds) {
+	async deletePlaylistItems(playlistId, itemIds) {
 		// parse id
 		const idParts = this._parsePlaylistID(playlistId);
 		// find matching item ids
@@ -1028,6 +1028,42 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		return {
 			indexes: rowIndexes.map((index) => (index - PLAYLIST_ITEMS_START_OFFSET))
 		};
+	}
+
+	async reorderPlaylistItems(playlistId, { index, count, newIndex }) {
+		if(!Number.isInteger(index) || index < 0) {
+			throw new Error("index must be a positive integer");
+		}
+		if(!Number.isInteger(count) || count <= 0) {
+			throw new Error("count must be a positive non-zero integer");
+		}
+		if(!Number.isInteger(newIndex) || newIndex < 0) {
+			throw new Error("index must be a positive integer");
+		}
+		// parse id
+		const idParts = this._parsePlaylistID(playlistId);
+		// calculate destination index
+		let destIndex = newIndex;
+		if(destIndex > index) {
+			destIndex += count;
+		}
+		// reorder items
+		await this._sheets.spreadsheets.batchUpdate({
+			spreadsheetId: idParts.fileId,
+			requestBody: {
+				requests: [
+					{moveDimension: {
+						source: {
+							sheetId: 0,
+							dimension: 'ROWS',
+							startIndex: PLAYLIST_ITEMS_START_OFFSET + index,
+							endIndex: PLAYLIST_ITEMS_START_OFFSET + index + count
+						},
+						destinationIndex: destIndex
+					}}
+				]
+			}
+		});
 	}
 }
 
