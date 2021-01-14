@@ -15,3 +15,5 @@ module.exports = {
 	GoogleDriveStorageProvider,
 	ytdl
 };
+
+console.log("module.exports = ", module.exports);
