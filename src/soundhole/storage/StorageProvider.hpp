@@ -9,8 +9,8 @@
 #pragma once
 
 #include <soundhole/common.hpp>
-#include "NamedProvider.hpp"
-#include "AuthedProvider.hpp"
+#include <soundhole/media/NamedProvider.hpp>
+#include <soundhole/media/AuthedProvider.hpp>
 
 namespace sh {
 	class StorageProvider: public NamedProvider, public AuthedProvider {
