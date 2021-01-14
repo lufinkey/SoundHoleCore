@@ -7,23 +7,22 @@
 //
 
 #include "MediaLibrary.hpp"
-#include "MediaLibraryProvider.hpp"
+#include "MediaLibraryProxyProvider.hpp"
 #include <soundhole/utils/Utils.hpp>
 
 namespace sh {
 	MediaLibrary::MediaLibrary(Options options)
-	: libraryProvider(nullptr),
-		db(nullptr) {
-		libraryProvider = new MediaLibraryProvider(options.mediaProviders);
+	: libraryProxyProvider(nullptr), db(nullptr) {
+		libraryProxyProvider = new MediaLibraryProxyProvider(options.mediaProviders);
 		db = new MediaDatabase({
 		   .path=options.dbPath,
-		   .stash=libraryProvider
+		   .stash=libraryProxyProvider
 		});
 	}
 
 	MediaLibrary::~MediaLibrary() {
 		delete db;
-		delete libraryProvider;
+		delete libraryProxyProvider;
 	}
 
 	Promise<void> MediaLibrary::initialize() {
@@ -46,11 +45,11 @@ namespace sh {
 	}
 	
 	MediaProvider* MediaLibrary::getMediaProvider(String name) {
-		return libraryProvider->getMediaProvider(name);
+		return libraryProxyProvider->getMediaProvider(name);
 	}
 
 	ArrayList<MediaProvider*> MediaLibrary::getMediaProviders() {
-		return libraryProvider->getMediaProviders();
+		return libraryProxyProvider->getMediaProviders();
 	}
 	
 	bool MediaLibrary::isSynchronizingLibrary(String libraryProviderName) {
@@ -62,7 +61,7 @@ namespace sh {
 	}
 
 	bool MediaLibrary::isSynchronizingLibraries() {
-		for(MediaProvider* provider : libraryProvider->getMediaProviders()) {
+		for(MediaProvider* provider : libraryProxyProvider->getMediaProviders()) {
 			if(isSynchronizingLibrary(provider->name())) {
 				return true;
 			}
@@ -267,7 +266,7 @@ namespace sh {
 				MediaProvider* provider;
 			};
 			LinkedList<QueuedProviderNode> queuedProviders;
-			for(auto provider : libraryProvider->getMediaProviders()) {
+			for(auto provider : libraryProxyProvider->getMediaProviders()) {
 				if(provider->hasLibrary() && provider->isLoggedIn()) {
 					String taskTag = "sync:"+provider->name();
 					auto taskNode = synchronizeQueue.getTaskWithTag(taskTag);
@@ -365,17 +364,18 @@ namespace sh {
 	}
 
 	Promise<$<MediaLibraryTracksCollection>> MediaLibrary::getLibraryTracksCollection(GetLibraryTracksFilters filters, GetLibraryTracksOptions options) {
+		size_t startIndex = options.offset.valueOr(0);
 		return db->getSavedTracksJson({
-			.startIndex=options.offset.valueOr(0),
-			.endIndex=(options.offset.valueOr(0) + options.limit.valueOr(24))
+			.startIndex=startIndex,
+			.endIndex=(startIndex + options.limit.valueOr(24))
 		}, {
 			.libraryProvider=(filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : String(),
 			.orderBy=filters.orderBy,
 			.order=filters.order
 		}).map<$<MediaLibraryTracksCollection>>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
-			Json::array items;
-			items.reserve(results.items.size());
-			for(auto jsonItem : results.items) {
+			auto items = std::map<size_t,MediaLibraryTracksCollectionItem::Data>();
+			size_t itemIndex = startIndex;
+			for(auto& jsonItem : results.items) {
 				auto jsonItemObj = jsonItem.object_items();
 				auto trackJsonIt = jsonItemObj.find("mediaItem");
 				if(trackJsonIt != jsonItemObj.end()) {
@@ -383,24 +383,26 @@ namespace sh {
 					jsonItemObj.erase(trackJsonIt);
 					jsonItemObj["track"] = trackJson;
 				}
-				items.push_back(jsonItemObj);
+				items.insert_or_assign(itemIndex, MediaLibraryTracksCollectionItem::Data::fromJson(jsonItemObj, this->libraryProxyProvider));
+				itemIndex++;
 			}
-			auto json = Json::object{
-				{ "partial", false },
-				{ "type", "libraryTracks" },
-				{ "provider", Json((std::string)libraryProvider->name()) },
-				{ "name", Json((filters.libraryProvider != nullptr) ?
-					(std::string)("My "+filters.libraryProvider->displayName()+" Tracks")
-					: std::string("My Tracks")) },
-				{ "uri", Json((std::string)getLibraryTracksCollectionURI(filters)) },
-				{ "images", Json::array() },
-				{ "itemCount", Json((double)results.total) },
-				{ "items", items },
-				{ "libraryProvider", (filters.libraryProvider != nullptr) ? Json((std::string)filters.libraryProvider->name()) : Json() },
-				{ "orderBy", (std::string)sql::LibraryItemOrderBy_toString(filters.orderBy) },
-				{ "order", (std::string)sql::Order_toString(filters.order) }
-			};
-			return MediaLibraryTracksCollection::fromJson(json, db);
+			return MediaLibraryTracksCollection::new$(db, this->libraryProxyProvider, MediaLibraryTracksCollection::Data{{{
+				.partial = false,
+				.type = "libraryTracks",
+				.name = filters.libraryProvider ? ("My "+filters.libraryProvider->displayName()+" Tracks") : "My Tracks",
+				.uri = getLibraryTracksCollectionURI(filters),
+				.images = ArrayList<MediaItem::Image>{}
+				},
+				.versionId = String(),
+				.itemCount = results.total,
+				.items = items,
+				},
+				.filters = MediaLibraryTracksCollection::Filters{
+					.libraryProvider = filters.libraryProvider,
+					.orderBy = filters.orderBy,
+					.order = filters.order
+				}
+			});
 		});
 	}
 
@@ -411,7 +413,16 @@ namespace sh {
 			.order=filters.order
 		}).map<LinkedList<$<Album>>>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
 			return results.items.map<$<Album>>([=](Json json) {
-				return Album::fromJson(json["mediaItem"], this->libraryProvider);
+				auto mediaItemJson = json["mediaItem"];
+				auto providerName = mediaItemJson["provider"];
+				if(!providerName.is_string()) {
+					throw std::invalid_argument("album provider must be a string");
+				}
+				auto provider = this->libraryProxyProvider->getMediaProvider(providerName.string_value());
+				if(provider == nullptr) {
+					throw std::invalid_argument("invalid provider name for album: "+providerName.string_value());
+				}
+				return provider->album(Album::Data::fromJson(mediaItemJson, this->libraryProxyProvider));
 			});
 		});
 	}
@@ -430,7 +441,16 @@ namespace sh {
 				.order=filters.order
 			}).map<YieldResult>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
 				auto albums = results.items.map<$<Album>>([=](Json json) {
-					return Album::fromJson(json["mediaItem"], this->libraryProvider);
+					auto mediaItemJson = json["mediaItem"];
+					auto providerName = mediaItemJson["provider"];
+					if(!providerName.is_string()) {
+						throw std::invalid_argument("album provider must be a string");
+					}
+					auto provider = this->libraryProxyProvider->getMediaProvider(providerName.string_value());
+					if(provider == nullptr) {
+						throw std::invalid_argument("invalid provider name for album: "+providerName.string_value());
+					}
+					return provider->album(Album::Data::fromJson(mediaItemJson, this->libraryProxyProvider));
 				});
 				size_t albumsOffset = *offset;
 				*offset += options.chunkSize;
@@ -454,7 +474,16 @@ namespace sh {
 			.order=filters.order
 		}).map<LinkedList<$<Playlist>>>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
 			return results.items.map<$<Playlist>>([=](Json json) {
-				return Playlist::fromJson(json["mediaItem"], this->libraryProvider);
+				auto mediaItemJson = json["mediaItem"];
+				auto providerName = mediaItemJson["provider"];
+				if(!providerName.is_string()) {
+					throw std::invalid_argument("playlist provider must be a string");
+				}
+				auto provider = this->libraryProxyProvider->getMediaProvider(providerName.string_value());
+				if(provider == nullptr) {
+					throw std::invalid_argument("invalid provider name for playlist: "+providerName.string_value());
+				}
+				return provider->playlist(Playlist::Data::fromJson(mediaItemJson, this->libraryProxyProvider));
 			});
 		});
 	}
@@ -473,7 +502,16 @@ namespace sh {
 				.order=filters.order
 			}).map<YieldResult>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
 				auto playlists = results.items.map<$<Playlist>>([=](Json json) {
-					return Playlist::fromJson(json["mediaItem"], this->libraryProvider);
+					auto mediaItemJson = json["mediaItem"];
+					auto providerName = mediaItemJson["provider"];
+					if(!providerName.is_string()) {
+						throw std::invalid_argument("playlist provider must be a string");
+					}
+					auto provider = this->libraryProxyProvider->getMediaProvider(providerName.string_value());
+					if(provider == nullptr) {
+						throw std::invalid_argument("invalid provider name for playlist: "+providerName.string_value());
+					}
+					return provider->playlist(Playlist::Data::fromJson(mediaItemJson, this->libraryProxyProvider));
 				});
 				size_t playlistsOffset = *offset;
 				*offset += options.chunkSize;

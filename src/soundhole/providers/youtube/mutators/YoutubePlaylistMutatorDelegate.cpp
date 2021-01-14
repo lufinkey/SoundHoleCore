@@ -174,7 +174,7 @@ namespace sh {
 				LinkedList<$<PlaylistItem>> applyItems;
 				size_t prevIndex = -1;
 				for(auto& item : page.items) {
-					auto playlistItem = PlaylistItem::new$(playlist, provider->createPlaylistItemData(item));
+					auto playlistItem = playlist->createCollectionItem(provider->createPlaylistItemData(item));
 					if(applyItems.size() == 0) {
 						applyItems.pushBack(playlistItem);
 						insertStartIndex = item.snippet.position;
@@ -248,7 +248,7 @@ namespace sh {
 				return provider->youtube->insertPlaylistItem(playlistId, trackId, {
 					.position = i
 				}).then([=](YoutubePlaylistItem youtubeItem) {
-					auto item = PlaylistItem::new$(playlist, provider->createPlaylistItemData(youtubeItem));
+					auto item = playlist->createCollectionItem(provider->createPlaylistItemData(youtubeItem));
 					mutator->lock([&]() {
 						mutator->insert(youtubeItem.snippet.position, { item });
 					});
@@ -270,7 +270,7 @@ namespace sh {
 		for(auto trackId : trackIds) {
 			promise = promise.then([=]() {
 				return provider->youtube->insertPlaylistItem(playlistId, trackId).then([=](YoutubePlaylistItem youtubeItem) {
-					auto item = PlaylistItem::new$(playlist, provider->createPlaylistItemData(youtubeItem));
+					auto item = playlist->createCollectionItem(provider->createPlaylistItemData(youtubeItem));
 					mutator->lock([&]() {
 						mutator->insert(youtubeItem.snippet.position, { item });
 					});

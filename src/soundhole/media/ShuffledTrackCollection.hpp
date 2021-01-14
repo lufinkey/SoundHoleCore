@@ -19,21 +19,19 @@ namespace sh {
 	public:
 		struct Data: public SpecialTrackCollectionItem<ShuffledTrackCollection>::Data {
 			$<TrackCollectionItem> sourceItem;
+			
+			static Data forSourceItem($<TrackCollectionItem> sourceItem);
 		};
 		
 		static $<ShuffledTrackCollectionItem> new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, const Data& data);
-		static $<ShuffledTrackCollectionItem> new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, $<TrackCollectionItem> sourceItem);
 		
 		ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, const Data& data);
-		ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, $<TrackCollectionItem> sourceItem);
-		ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, const Json& json, MediaProviderStash* stash);
 		
 		$<TrackCollectionItem> sourceItem();
 		$<const TrackCollectionItem> sourceItem() const;
 		
 		virtual bool matchesItem(const TrackCollectionItem* item) const override;
 		
-		static $<ShuffledTrackCollectionItem> fromJson($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, const Json& json, MediaProviderStash* stash);
 		virtual Json toJson() const override;
 		
 	protected:

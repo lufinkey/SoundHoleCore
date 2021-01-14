@@ -10,6 +10,36 @@
 #include "MediaProvider.hpp"
 
 namespace sh {
+
+	#pragma mark PlaylistItem::Data
+
+	PlaylistItem::Data PlaylistItem::Data::fromJson(const Json& json, MediaProviderStash* stash) {
+		auto collectionItemData = SpecialTrackCollectionItem<Playlist>::Data::fromJson(json, stash);
+		auto addedByJson = json["addedBy"];
+		$<UserAccount> addedBy;
+		if(!addedByJson.is_null()) {
+			auto userProviderName = addedByJson["provider"].string_value();
+			if(userProviderName.empty()) {
+				throw std::invalid_argument("user json is missing provider");
+			}
+			auto provider = stash->getMediaProvider(userProviderName);
+			if(provider == nullptr) {
+				throw std::invalid_argument("invalid provider name for user: "+userProviderName);
+			}
+			addedBy = provider->userAccount(UserAccount::Data::fromJson(addedByJson, stash));
+		}
+		return PlaylistItem::Data{
+			collectionItemData,
+			.uniqueId = json["uniqueId"].string_value(),
+			.addedAt = json["addedAt"].string_value(),
+			.addedBy = addedBy
+		};
+	}
+
+
+
+	#pragma mark PlaylistItem
+
 	$<PlaylistItem> PlaylistItem::new$($<SpecialTrackCollection<PlaylistItem>> playlist, const Data& data) {
 		return fgl::new$<PlaylistItem>(playlist, data);
 	}
@@ -59,18 +89,6 @@ namespace sh {
 		};
 	}
 
-	$<PlaylistItem> PlaylistItem::fromJson($<SpecialTrackCollection<PlaylistItem>> playlist, const Json& json, MediaProviderStash* stash) {
-		return fgl::new$<PlaylistItem>(playlist, json, stash);
-	}
-
-	PlaylistItem::PlaylistItem($<SpecialTrackCollection<PlaylistItem>> playlist, const Json& json, MediaProviderStash* stash)
-	: SpecialTrackCollectionItem<Playlist>(playlist, json, stash) {
-		_uniqueId = json["uniqueId"].string_value();
-		auto addedBy = json["addedBy"];
-		_addedBy = (!addedBy.is_null()) ? UserAccount::fromJson(addedBy, stash) : nullptr;
-		_addedAt = json["addedAt"].string_value();
-	}
-
 	Json PlaylistItem::toJson() const {
 		auto json = SpecialTrackCollectionItem<Playlist>::toJson().object_items();
 		json.merge(Json::object{
@@ -82,6 +100,8 @@ namespace sh {
 	}
 
 
+
+	#pragma mark Playlist::Privacy
 
 	String Playlist::Privacy_toString(Privacy privacy) {
 		switch(privacy) {
@@ -108,6 +128,40 @@ namespace sh {
 			return Privacy::UNKNOWN;
 		}
 	}
+
+
+
+	#pragma mark Playlist::Data
+
+	Playlist::Data Playlist::Data::fromJson(const Json& json, MediaProviderStash* stash) {
+		auto collectionData = SpecialTrackCollection<PlaylistItem>::Data::fromJson(json, stash);
+		auto ownerJson = json["owner"];
+		$<UserAccount> owner;
+		if(!ownerJson.is_null()) {
+			auto userProviderName = ownerJson["provider"].string_value();
+			if(userProviderName.empty()) {
+				throw std::invalid_argument("user json is missing provider");
+			}
+			auto provider = stash->getMediaProvider(userProviderName);
+			if(provider == nullptr) {
+				throw std::invalid_argument("invalid provider name for user: "+userProviderName);
+			}
+			owner = provider->userAccount(UserAccount::Data::fromJson(ownerJson, stash));
+		}
+		auto privacyJson = json["privacy"];
+		if(!privacyJson.is_string()) {
+			throw std::logic_error("missing required property privacy");
+		}
+		return Playlist::Data{
+			collectionData,
+			.owner = owner,
+			.privacy = Privacy_fromString(privacyJson.string_value())
+		};
+	}
+
+
+
+	#pragma mark Playlist
 
 	$<Playlist> Playlist::new$(MediaProvider* provider, const Data& data) {
 		auto playlist = fgl::new$<Playlist>(provider, data);
@@ -154,23 +208,6 @@ namespace sh {
 			.owner=_owner,
 			.privacy=_privacy
 		};
-	}
-
-	$<Playlist> Playlist::fromJson(const Json& json, MediaProviderStash* stash) {
-		auto playlist = fgl::new$<Playlist>(json, stash);
-		playlist->lazyLoadContentIfNeeded();
-		return playlist;
-	}
-
-	Playlist::Playlist(const Json& json, MediaProviderStash* stash)
-	: SpecialTrackCollection<PlaylistItem>(json, stash) {
-		auto owner = json["owner"];
-		_owner = (!owner.is_null()) ? UserAccount::fromJson(owner, stash) : nullptr;
-		auto privacy = json["privacy"];
-		if(!privacy.is_string()) {
-			throw std::logic_error("missing required property privacy");
-		}
-		_privacy = Privacy_fromString(privacy.string_value());
 	}
 
 	Json Playlist::toJson(const ToJsonOptions& options) const {

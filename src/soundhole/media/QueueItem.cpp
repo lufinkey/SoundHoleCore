@@ -7,6 +7,7 @@
 //
 
 #include "QueueItem.hpp"
+#include "MediaProvider.hpp"
 
 namespace sh {
 	$<QueueItem> QueueItem::new$($<Track> track) {
@@ -32,12 +33,16 @@ namespace sh {
 
 
 	$<QueueItem> QueueItem::fromJson(const Json& json, MediaProviderStash* stash) {
-		return fgl::new$<QueueItem>(json, stash);
-	}
-
-	QueueItem::QueueItem(const Json& json, MediaProviderStash* stash)
-	: _track(Track::fromJson(json["track"], stash)) {
-		//
+		auto trackJson = json["track"];
+		auto providerName = trackJson["provider"];
+		if(!providerName.is_string()) {
+			throw std::invalid_argument("artist provider must be a string");
+		}
+		auto provider = stash->getMediaProvider(providerName.string_value());
+		if(provider == nullptr) {
+			throw std::invalid_argument("invalid provider name for track: "+providerName.string_value());
+		}
+		return fgl::new$<QueueItem>(provider->track(Track::Data::fromJson(trackJson, stash)));
 	}
 
 	Json QueueItem::toJson() const {

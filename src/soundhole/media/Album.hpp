@@ -32,6 +32,8 @@ namespace sh {
 	public:
 		struct Data: public SpecialTrackCollection<AlbumItem>::Data {
 			ArrayList<$<Artist>> artists;
+			
+			static Data fromJson(const Json& json, MediaProviderStash* stash);
 		};
 		
 		static $<Album> new$(MediaProvider* provider, const Data& data);

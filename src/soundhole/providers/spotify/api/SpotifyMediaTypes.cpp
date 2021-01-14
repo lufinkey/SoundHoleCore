@@ -192,7 +192,6 @@ namespace sh {
 			})(),
 			.releaseDate = json["release_date"].string_value(),
 			.releaseDatePrecision = json["release_date_precision"].string_value(),
-			.totalTracks = (size_t)json["total_tracks"].number_value(),
 			.tracks = SpotifyPage<SpotifyTrack>::maybeFromJson(json["tracks"])
 		};
 	}
@@ -273,9 +272,10 @@ namespace sh {
 	}
 
 	SpotifyPlaylist::Item SpotifyPlaylist::Item::fromJson(const Json& json) {
+		auto addedBy = json["added_by"];
 		return Item{
 			.addedAt = json["added_at"].string_value(),
-			.addedBy = SpotifyUser::fromJson(json["added_by"]),
+			.addedBy = addedBy.is_object() ? maybe(SpotifyUser::fromJson(addedBy)) : std::nullopt,
 			.videoThumbnail = SpotifyVideoThumbnail::fromJson(json["video_thumbnail"]),
 			.track = SpotifyTrack::fromJson(json["track"])
 		};

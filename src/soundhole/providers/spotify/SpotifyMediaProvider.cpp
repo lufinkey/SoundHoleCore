@@ -148,22 +148,22 @@ namespace sh {
 			return SearchResults{
 				.tracks = searchResults.tracks ?
 					maybe(searchResults.tracks->template map<$<Track>>([&](auto& track) {
-						return Track::new$(this, createTrackData(track, false));
+						return this->track(createTrackData(track, false));
 					}))
 					: std::nullopt,
 				.albums = searchResults.albums ?
 					maybe(searchResults.albums->template map<$<Album>>([&](auto& album) {
-						return Album::new$(this, createAlbumData(album, true));
+						return this->album(createAlbumData(album, true));
 					}))
 					: std::nullopt,
 				.artists = searchResults.artists ?
 					maybe(searchResults.artists->template map<$<Artist>>([&](auto& artist) {
-						return Artist::new$(this, createArtistData(artist, false));
+						return this->artist(createArtistData(artist, false));
 					}))
 					: std::nullopt,
 				.playlists = searchResults.playlists ?
 					maybe(searchResults.playlists->template map<$<Playlist>>([&](auto& playlist) {
-						return Playlist::new$(this, createPlaylistData(playlist, true));
+						return this->playlist(createPlaylistData(playlist, true));
 					}))
 					: std::nullopt,
 			};
@@ -189,7 +189,7 @@ namespace sh {
 			.albumName=(track.album ? track.album->name : ""),
 			.albumURI=(track.album ? track.album->uri : ""),
 			.artists=track.artists.map<$<Artist>>([&](SpotifyArtist& artist) {
-				return Artist::new$(this, createArtistData(std::move(artist), true));
+				return this->artist(createArtistData(std::move(artist), true));
 			}),
 			.tags=ArrayList<String>(),
 			.discNumber=track.discNumber,
@@ -218,7 +218,7 @@ namespace sh {
 
 	Album::Data SpotifyMediaProvider::createAlbumData(SpotifyAlbum album, bool partial) {
 		auto artists = album.artists.map<$<Artist>>([&](SpotifyArtist& artist) {
-			return Artist::new$(this, createArtistData(artist, true));
+			return this->artist(createArtistData(artist, true));
 		});
 		auto albumImages = album.images.map<MediaItem::Image>([&](SpotifyImage& image) {
 			return createImage(std::move(image));
@@ -231,32 +231,35 @@ namespace sh {
 			.images=albumImages
 			},
 			.versionId=album.releaseDate,
-			.tracks=(album.tracks ?
-				maybe(Album::Data::Tracks{
-					.total=album.tracks->total,
-					.offset=album.tracks->offset,
-					.items=album.tracks->items.map<AlbumItem::Data>([&](SpotifyTrack& track) {
-						auto trackData = createTrackData(track, true);
-						trackData.albumName = album.name;
-						trackData.albumURI = album.uri;
-						if(!trackData.images) {
-							trackData.images = albumImages;
+			.itemCount=(album.tracks ? maybe(album.tracks->total) : std::nullopt),
+			.items=([&]() {
+				auto items = std::map<size_t,AlbumItem::Data>();
+				if(!album.tracks) {
+					return items;
+				}
+				for(size_t i=0; i<album.tracks->items.size(); i++) {
+					auto trackData = createTrackData(album.tracks->items[i], true);
+					trackData.albumName = album.name;
+					trackData.albumURI = album.uri;
+					if(!trackData.images) {
+						trackData.images = albumImages;
+					}
+					for(size_t i=0; i<trackData.artists.size(); i++) {
+						auto cmpArtist = trackData.artists[i];
+						auto artist = artists.firstWhere([&](auto artist) {
+							return (artist->uri() == cmpArtist->uri() && artist->name() == cmpArtist->name());
+						}, nullptr);
+						if(artist) {
+							trackData.artists[i] = artist;
 						}
-						for(size_t i=0; i<trackData.artists.size(); i++) {
-							auto cmpArtist = trackData.artists[i];
-							auto artist = artists.firstWhere([&](auto artist) {
-								return (artist->uri() == cmpArtist->uri() && artist->name() == cmpArtist->name());
-							}, nullptr);
-							if(artist) {
-								trackData.artists[i] = artist;
-							}
-						}
-						return AlbumItem::Data{
-							.track=Track::new$(this, trackData)
-						};
-					})
-				})
-				: std::nullopt)
+					}
+					size_t index = album.tracks->offset + i;
+					items.insert_or_assign(index, AlbumItem::Data{
+						.track=this->track(trackData)
+					});
+				}
+				return items;
+			})(),
 			},
 			.artists=artists
 		};
@@ -264,29 +267,32 @@ namespace sh {
 
 	Playlist::Data SpotifyMediaProvider::createPlaylistData(SpotifyPlaylist playlist, bool partial) {
 		return Playlist::Data{{{
-			.partial=partial,
-			.type=playlist.type,
-			.name=playlist.name,
-			.uri=playlist.uri,
-			.images=playlist.images.map<MediaItem::Image>([&](SpotifyImage& image) {
+			.partial = partial,
+			.type = playlist.type,
+			.name = playlist.name,
+			.uri = playlist.uri,
+			.images = playlist.images.map<MediaItem::Image>([&](SpotifyImage& image) {
 				return createImage(std::move(image));
 			})
 			},
-			.versionId=playlist.snapshotId,
-			.tracks=Playlist::Data::Tracks{
-				.total=playlist.tracks.total,
-				.offset=playlist.tracks.offset,
-				.items=playlist.tracks.items.map<PlaylistItem::Data>([&](SpotifyPlaylist::Item& item) {
-					return PlaylistItem::Data{{
-						.track=Track::new$(this, createTrackData(item.track, true))
+			.versionId = playlist.snapshotId,
+			.itemCount = playlist.tracks.total,
+			.items = ([&]() {
+				auto items = std::map<size_t,PlaylistItem::Data>();
+				for(size_t i=0; i<playlist.tracks.items.size(); i++) {
+					auto& item = playlist.tracks.items[i];
+					size_t index = playlist.tracks.offset + i;
+					items.insert_or_assign(index, PlaylistItem::Data{{
+						.track=this->track(createTrackData(item.track, true))
 						},
 						.addedAt=item.addedAt,
-						.addedBy=UserAccount::new$(this, createUserAccountData(item.addedBy, true))
-					};
-				})
-			}
+						.addedBy=item.addedBy ? this->userAccount(createUserAccountData(item.addedBy.value(), true)) : nullptr
+					});
+				}
+				return items;
+			})(),
 			},
-			.owner=UserAccount::new$(this, createUserAccountData(playlist.owner, true)),
+			.owner=this->userAccount(createUserAccountData(playlist.owner, true)),
 			.privacy=(playlist.isPublic ?
 				(playlist.isPublic.value() ? Playlist::Privacy::PUBLIC : Playlist::Privacy::PRIVATE)
 				: Playlist::Privacy::UNKNOWN)
@@ -295,10 +301,10 @@ namespace sh {
 
 	PlaylistItem::Data SpotifyMediaProvider::createPlaylistItemData(SpotifyPlaylist::Item playlistItem) {
 		return PlaylistItem::Data{{
-			.track=Track::new$(this, createTrackData(playlistItem.track, true))
+			.track = this->track(createTrackData(playlistItem.track, true))
 			},
-			.addedAt=playlistItem.addedAt,
-			.addedBy=UserAccount::new$(this, createUserAccountData(playlistItem.addedBy, true))
+			.addedAt = playlistItem.addedAt,
+			.addedBy = playlistItem.addedBy ? this->userAccount(createUserAccountData(playlistItem.addedBy.value(), true)) : nullptr
 		};
 	}
 
@@ -372,7 +378,7 @@ namespace sh {
 		auto uriParts = parseURI(artistURI);
 		return spotify->getArtistTopTracks(uriParts.id,"from_token").map<ArrayList<$<Track>>>(nullptr, [=](ArrayList<SpotifyTrack> tracks) {
 			return tracks.map<$<Track>>([=](auto track) {
-				return Track::new$(this, createTrackData(track, false));
+				return this->track(createTrackData(track, false));
 			});
 		});
 	}
@@ -389,7 +395,7 @@ namespace sh {
 			}).map<YieldResult>([=](auto page) {
 				auto loadBatch = LoadBatch<$<Album>>{
 					.items=page.items.template map<$<Album>>([=](auto album) {
-						return Album::new$(this, createAlbumData(album, true));
+						return this->album(createAlbumData(album, true));
 					}),
 					.total=page.total
 				};
@@ -414,7 +420,7 @@ namespace sh {
 			}).map<YieldResult>([=](auto page) {
 				auto loadBatch = LoadBatch<$<Playlist>>{
 					.items=page.items.template map<$<Playlist>>([=](auto playlist) {
-						return Playlist::new$(this, createPlaylistData(playlist, true));
+						return this->playlist(createPlaylistData(playlist, true));
 					}),
 					.total=page.total
 				};
@@ -698,7 +704,7 @@ namespace sh {
 								return page.map<LibraryItem>([=](auto& item) {
 									return LibraryItem{
 										.libraryProvider = this,
-										.mediaItem = Playlist::new$(this, createPlaylistData(item, false)),
+										.mediaItem = this->playlist(createPlaylistData(item, false)),
 										.addedAt = String()
 									};
 								});
@@ -717,7 +723,7 @@ namespace sh {
 								return page.map<LibraryItem>([=](auto& item) {
 									return LibraryItem{
 										.libraryProvider = this,
-										.mediaItem = Album::new$(this, createAlbumData(item.album, false)),
+										.mediaItem = this->album(createAlbumData(item.album, false)),
 										.addedAt = item.addedAt
 									};
 								});
@@ -736,7 +742,7 @@ namespace sh {
 								return page.map<LibraryItem>([=](auto& item) {
 									return LibraryItem{
 										.libraryProvider = this,
-										.mediaItem = Track::new$(this, createTrackData(item.track, false)),
+										.mediaItem = this->track(createTrackData(item.track, false)),
 										.addedAt = item.addedAt
 									};
 								});
@@ -777,7 +783,7 @@ namespace sh {
 		return spotify->createPlaylist(name, {
 			.isPublic = isPublic
 		}).map<$<Playlist>>([=](SpotifyPlaylist playlist) {
-			return Playlist::new$(this, createPlaylistData(playlist, false));
+			return this->playlist(createPlaylistData(playlist, false));
 		});
 	}
 

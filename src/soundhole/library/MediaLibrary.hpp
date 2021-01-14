@@ -11,7 +11,7 @@
 #include <soundhole/common.hpp>
 #include <soundhole/database/MediaDatabase.hpp>
 #include "collections/librarytracks/MediaLibraryTracksCollection.hpp"
-#include "MediaLibraryProvider.hpp"
+#include "MediaLibraryProxyProvider.hpp"
 
 namespace sh {
 	class MediaLibrary {
@@ -130,7 +130,7 @@ namespace sh {
 		Promise<$<Playlist>> createPlaylist(String name, MediaProvider* provider, CreatePlaylistOptions options);
 		
 	private:
-		MediaLibraryProvider* libraryProvider;
+		MediaLibraryProxyProvider* libraryProxyProvider;
 		MediaDatabase* db;
 		AsyncQueue synchronizeQueue;
 		AsyncQueue synchronizeAllQueue;
@@ -140,6 +140,6 @@ namespace sh {
 
 	template<typename MediaProviderType>
 	MediaProviderType* MediaLibrary::getMediaProvider() {
-		return libraryProvider->getMediaProvider<MediaProviderType>();
+		return libraryProxyProvider->getMediaProvider<MediaProviderType>();
 	}
 }

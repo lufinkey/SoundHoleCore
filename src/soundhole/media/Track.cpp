@@ -10,6 +10,87 @@
 #include "MediaProvider.hpp"
 
 namespace sh {
+
+	#pragma mark Track::AudioSource
+
+	Track::AudioSource Track::AudioSource::fromJson(const Json& json) {
+		auto url = json["url"];
+		auto encoding = json["encoding"];
+		auto bitrate = json["bitrate"];
+		auto videoBitrate = json["videoBitrate"];
+		if(!url.is_string() || !encoding.is_string() || !bitrate.is_number() || (!videoBitrate.is_null() && !videoBitrate.is_number())) {
+			throw std::invalid_argument("invalid json for Track::AudioSource");
+		}
+		return AudioSource{
+			.url=url.string_value(),
+			.encoding=encoding.string_value(),
+			.bitrate=(double)bitrate.number_value(),
+			.videoBitrate=(!videoBitrate.is_null()) ? maybe((double)videoBitrate.number_value()) : std::nullopt
+		};
+	}
+
+	Json Track::AudioSource::toJson() const {
+		return Json::object{
+			{"url",(std::string)url},
+			{"encoding",(std::string)encoding},
+			{"bitrate",bitrate},
+			{"videoBitrate",(videoBitrate ? Json(videoBitrate.value()) : Json())}
+		};
+	}
+
+
+
+	#pragma mark Track::Data
+
+	Track::Data Track::Data::fromJson(const Json& json, MediaProviderStash* stash) {
+		auto mediaItemData = MediaItem::Data::fromJson(json, stash);
+		auto albumName = json["albumName"];
+		auto albumURI = json["albumURI"];
+		auto artists = json["artists"];
+		auto tags = json["tags"];
+		auto discNumber = json["discNumber"];
+		auto trackNumber = json["trackNumber"];
+		auto duration = json["duration"];
+		auto audioSources = json["audioSources"];
+		auto playable = json["playable"];
+		if(!albumName.is_string() || !albumURI.is_string() || !artists.is_array() || (!tags.is_null() && !tags.is_array())
+		   || (!discNumber.is_null() && !discNumber.is_number()) || (!trackNumber.is_null() && !trackNumber.is_number())
+		   || (!duration.is_null() && !duration.is_number()) || (!audioSources.is_null() && !audioSources.is_array())
+		   || (!playable.is_bool() && !playable.is_number())) {
+			throw std::invalid_argument("invalid json for Track");
+		}
+		return Track::Data{
+			mediaItemData,
+			.albumName = albumName.string_value(),
+			.albumURI = albumURI.string_value(),
+			.artists = ArrayList<Json>(artists.array_items()).map<$<Artist>>([=](auto& artistJson) {
+				auto providerName = artistJson["provider"];
+				if(!providerName.is_string()) {
+					throw std::invalid_argument("artist provider must be a string");
+				}
+				auto provider = stash->getMediaProvider(providerName.string_value());
+				if(provider == nullptr) {
+					throw std::invalid_argument("invalid provider name for artist: "+providerName.string_value());
+				}
+				return provider->artist(Artist::Data::fromJson(artistJson, stash));
+			}),
+			.tags = ArrayList<Json>(tags.array_items()).map<String>([](auto& tagJson) {
+				return tagJson.string_value();
+			}),
+			.discNumber = (!discNumber.is_null()) ? maybe((size_t)discNumber.number_value()) : std::nullopt,
+			.trackNumber = (!trackNumber.is_null()) ? maybe((size_t)trackNumber.number_value()) : std::nullopt,
+			.duration = (!duration.is_null()) ? maybe(duration.number_value()) : std::nullopt,
+			.audioSources = ArrayList<Json>(audioSources.array_items()).map<AudioSource>([](auto& audioSourceJson) {
+				return AudioSource::fromJson(audioSourceJson);
+			}),
+			.playable = playable.is_number() ? (playable.number_value() != 0) : playable.bool_value()
+		};
+	}
+
+
+
+	#pragma mark Track
+
 	$<Track> Track::new$(MediaProvider* provider, const Data& data) {
 		return fgl::new$<Track>(provider, data);
 	}
@@ -177,92 +258,6 @@ namespace sh {
 			.audioSources=_audioSources,
 			.playable=_playable
 		};
-	}
-
-
-
-
-	Track::AudioSource Track::AudioSource::fromJson(const Json& json) {
-		auto url = json["url"];
-		auto encoding = json["encoding"];
-		auto bitrate = json["bitrate"];
-		auto videoBitrate = json["videoBitrate"];
-		if(!url.is_string() || !encoding.is_string() || !bitrate.is_number() || (!videoBitrate.is_null() && !videoBitrate.is_number())) {
-			throw std::invalid_argument("invalid json for Track::AudioSource");
-		}
-		return AudioSource{
-			.url=url.string_value(),
-			.encoding=encoding.string_value(),
-			.bitrate=(double)bitrate.number_value(),
-			.videoBitrate=(!videoBitrate.is_null()) ? maybe((double)videoBitrate.number_value()) : std::nullopt
-		};
-	}
-
-	Json Track::AudioSource::toJson() const {
-		return Json::object{
-			{"url",(std::string)url},
-			{"encoding",(std::string)encoding},
-			{"bitrate",bitrate},
-			{"videoBitrate",(videoBitrate ? Json(videoBitrate.value()) : Json())}
-		};
-	}
-
-
-
-	$<Track> Track::fromJson(const Json& json, MediaProviderStash* stash) {
-		return fgl::new$<Track>(json, stash);
-	}
-
-	Track::Track(const Json& json, MediaProviderStash* stash)
-	: MediaItem(json, stash) {
-		auto albumName = json["albumName"];
-		auto albumURI = json["albumURI"];
-		auto artists = json["artists"];
-		auto tags = json["tags"];
-		auto discNumber = json["discNumber"];
-		auto trackNumber = json["trackNumber"];
-		auto duration = json["duration"];
-		auto audioSources = json["audioSources"];
-		auto playable = json["playable"];
-		if(!albumName.is_string() || !albumURI.is_string() || !artists.is_array() || (!tags.is_null() && !tags.is_array())
-		   || (!discNumber.is_null() && !discNumber.is_number()) || (!trackNumber.is_null() && !trackNumber.is_number())
-		   || (!duration.is_null() && !duration.is_number()) || (!audioSources.is_null() && !audioSources.is_array())
-		   || (!playable.is_bool() && !playable.is_number())) {
-			throw std::invalid_argument("invalid json for Track");
-		}
-		_albumName = albumName.string_value();
-		_albumURI = albumURI.string_value();
-		_artists = ArrayList<$<Artist>>();
-		_artists.reserve(artists.array_items().size());
-		for(auto artist : artists.array_items()) {
-			_artists.pushBack(Artist::fromJson(artist, stash));
-		}
-		if(tags.is_null()) {
-			_tags = std::nullopt;
-		} else {
-			_tags = ArrayList<String>();
-			_tags->reserve(tags.array_items().size());
-			for(auto tag : tags.array_items()) {
-				_tags->pushBack(tag.string_value());
-			}
-		}
-		_discNumber = (!discNumber.is_null()) ? maybe((size_t)discNumber.number_value()) : std::nullopt;
-		_trackNumber = (!trackNumber.is_null()) ? maybe((size_t)trackNumber.number_value()) : std::nullopt;
-		_duration = (!duration.is_null()) ? maybe(duration.number_value()) : std::nullopt;
-		if(audioSources.is_null()) {
-			_audioSources = std::nullopt;
-		} else {
-			_audioSources = ArrayList<AudioSource>();
-			_audioSources->reserve(audioSources.array_items().size());
-			for(auto audioSource : audioSources.array_items()) {
-				_audioSources->pushBack(AudioSource::fromJson(audioSource));
-			}
-		}
-		if(playable.is_number()) {
-			_playable = (playable.number_value() != 0);
-		} else {
-			_playable = playable.bool_value();
-		}
 	}
 
 	Json Track::toJson() const {

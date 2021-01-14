@@ -10,6 +10,27 @@
 #include "MediaProvider.hpp"
 
 namespace sh {
+
+	#pragma mark UserAccount::Data
+
+	UserAccount::Data UserAccount::Data::fromJson(const Json& json, MediaProviderStash* stash) {
+		auto mediaItemData = MediaItem::Data::fromJson(json, stash);
+		auto idJson = json["id"];
+		auto displayNameJson = json["displayName"];
+		if(!idJson.is_string() || (!displayNameJson.is_null() && !displayNameJson.is_string())) {
+			throw std::invalid_argument("invalid json for UserAccount");
+		}
+		return UserAccount::Data{
+			mediaItemData,
+			.id = idJson.string_value(),
+			.displayName = (!displayNameJson.is_null()) ? maybe((String)displayNameJson.string_value()) : std::nullopt
+		};
+	}
+
+
+
+	#pragma mark UserAccount
+
 	$<UserAccount> UserAccount::new$(MediaProvider* provider, const Data& data) {
 		return fgl::new$<UserAccount>(provider, data);
 	}
@@ -49,23 +70,6 @@ namespace sh {
 			.id=_id,
 			.displayName=_displayName
 		};
-	}
-
-
-
-	$<UserAccount> UserAccount::fromJson(const Json& json, MediaProviderStash* stash) {
-		return fgl::new$<UserAccount>(json, stash);
-	}
-
-	UserAccount::UserAccount(const Json& json, MediaProviderStash* stash)
-	: MediaItem(json, stash) {
-		auto id = json["id"];
-		auto displayName = json["displayName"];
-		if(!id.is_string() || (!displayName.is_null() && !displayName.is_string())) {
-			throw std::invalid_argument("invalid json for UserAccount");
-		}
-		_id = id.string_value();
-		_displayName = (!displayName.is_null()) ? maybe((String)displayName.string_value()) : std::nullopt;
 	}
 
 	Json UserAccount::toJson() const {

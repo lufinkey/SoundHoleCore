@@ -90,5 +90,11 @@ namespace sh {
 		
 		virtual MediaPlaybackProvider* player() = 0;
 		virtual const MediaPlaybackProvider* player() const = 0;
+		
+		virtual $<Track> track(const Track::Data& data);
+		virtual $<Artist> artist(const Artist::Data& data);
+		virtual $<Album> album(const Album::Data& data);
+		virtual $<Playlist> playlist(const Playlist::Data& data);
+		virtual $<UserAccount> userAccount(const UserAccount::Data& data);
 	};
 }

@@ -17,7 +17,6 @@ namespace sh {
 		static $<QueueItem> new$($<Track> track);
 		
 		QueueItem($<Track> track);
-		QueueItem(const Json& json, MediaProviderStash* stash);
 		virtual ~QueueItem();
 		
 		$<Track> track();

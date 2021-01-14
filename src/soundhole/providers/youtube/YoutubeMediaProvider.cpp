@@ -255,7 +255,7 @@ namespace sh {
 			.albumName="",
 			.albumURI="",
 			.artists=ArrayList<$<Artist>>{
-				Artist::new$(this, Artist::Data{{
+				this->artist(Artist::Data{{
 					.partial=true,
 					.type="artist",
 					.name=video.snippet.channelTitle,
@@ -312,7 +312,7 @@ namespace sh {
 			.artists=([&]() {
 				ArrayList<$<Artist>> artists;
 				if(video.author && !video.author->id.empty()) {
-					artists.pushBack(Artist::new$(this, Artist::Data{{
+					artists.pushBack(this->artist(Artist::Data{{
 						.partial=true,
 						.type="artist",
 						.name=video.author->name,
@@ -333,7 +333,7 @@ namespace sh {
 						.description=std::nullopt
 					}));
 				} else if(!video.playerResponse.videoDetails.channelId.empty()) {
-					artists.pushBack(Artist::new$(this, Artist::Data{{
+					artists.pushBack(this->artist(Artist::Data{{
 						.partial=true,
 						.type="artist",
 						.name=video.playerResponse.videoDetails.author,
@@ -357,7 +357,7 @@ namespace sh {
 						}
 					}
 					if(artistURI.empty() || !artists.containsWhere([&](auto& cmpArtist) { return (artistURI == cmpArtist->uri()); })) {
-						artists.pushBack(Artist::new$(this, Artist::Data{{
+						artists.pushBack(this->artist(Artist::Data{{
 							.partial=true,
 							.type="artist",
 							.name=video.playerResponse.videoDetails.author,
@@ -421,9 +421,10 @@ namespace sh {
 			})
 			},
 			.versionId=playlist.etag,
-			.tracks=std::nullopt,
+			.itemCount=std::nullopt,
+			.items={}
 			},
-			.owner=UserAccount::new$(this, UserAccount::Data{{
+			.owner=this->userAccount(UserAccount::Data{{
 				.partial=true,
 				.type="user",
 				.name=playlist.snippet.channelTitle,
@@ -445,7 +446,7 @@ namespace sh {
 
 	PlaylistItem::Data YoutubeMediaProvider::createPlaylistItemData(YoutubePlaylistItem playlistItem) {
 		return PlaylistItem::Data{{
-			.track=Track::new$(this, Track::Data{{
+			.track=this->track(Track::Data{{
 				.partial=true,
 				.type="track",
 				.name=playlistItem.snippet.title,
@@ -457,7 +458,7 @@ namespace sh {
 				.albumName="",
 				.albumURI="",
 				.artists=ArrayList<$<Artist>>{
-					Artist::new$(this, Artist::Data{{
+					this->artist(Artist::Data{{
 						.partial=true,
 						.type="artist",
 						.name=playlistItem.snippet.channelTitle,
@@ -477,7 +478,7 @@ namespace sh {
 			},
 			.uniqueId=playlistItem.id,
 			.addedAt=playlistItem.snippet.publishedAt,
-			.addedBy=UserAccount::new$(this, UserAccount::Data{{
+			.addedBy=this->userAccount(UserAccount::Data{{
 				.partial=true,
 				.type="user",
 				.name=playlistItem.snippet.channelTitle,
@@ -523,7 +524,7 @@ namespace sh {
 			return createImage(image);
 		});
 		if(searchResult.id.kind == "youtube#video") {
-			return std::static_pointer_cast<MediaItem>(Track::new$(this, Track::Data{{
+			return this->track(Track::Data{{
 				.partial=true,
 				.type="track",
 				.name=searchResult.snippet.title,
@@ -533,7 +534,7 @@ namespace sh {
 				.albumName="",
 				.albumURI="",
 				.artists=ArrayList<$<Artist>>{
-					Artist::new$(this, Artist::Data{{
+					this->artist(Artist::Data{{
 						.partial=true,
 						.type="artist",
 						.name=searchResult.snippet.channelTitle,
@@ -549,9 +550,9 @@ namespace sh {
 				.duration=std::nullopt,
 				.audioSources=std::nullopt,
 				.playable=true
-			}));
+			});
 		} else if(searchResult.id.kind == "youtube#channel") {
-			return std::static_pointer_cast<MediaItem>(Artist::new$(this, Artist::Data{{
+			return this->artist(Artist::Data{{
 				.partial=true,
 				.type="artist",
 				.name=searchResult.snippet.title,
@@ -559,9 +560,9 @@ namespace sh {
 				.images=images
 				},
 				.description=searchResult.snippet.description
-			}));
+			});
 		} else if(searchResult.id.kind == "youtube#playlist") {
-			return std::static_pointer_cast<MediaItem>(Playlist::new$(this, Playlist::Data{{{
+			return this->playlist(Playlist::Data{{{
 				.partial=true,
 				.type="playlist",
 				.name=searchResult.snippet.title,
@@ -569,9 +570,10 @@ namespace sh {
 				.images=images
 				},
 				.versionId=searchResult.etag,
-				.tracks=std::nullopt
+				.itemCount=std::nullopt,
+				.items={}
 				},
-				.owner=UserAccount::new$(this, UserAccount::Data{{
+				.owner=this->userAccount(UserAccount::Data{{
 					.partial=true,
 					.type="user",
 					.name=searchResult.snippet.channelTitle,
@@ -582,7 +584,7 @@ namespace sh {
 					.displayName=searchResult.snippet.channelTitle
 				}),
 				.privacy=Playlist::Privacy::UNKNOWN
-			}));
+			});
 		}
 		throw std::logic_error("Invalid youtube item kind "+searchResult.id.kind);
 	}
@@ -686,7 +688,7 @@ namespace sh {
 			}).map<YieldResult>([=](auto page) {
 				auto loadBatch = LoadBatch<$<Playlist>>{
 					.items=page.items.template map<$<Playlist>>([=](auto playlist) {
-						return Playlist::new$(this, createPlaylistData(playlist));
+						return this->playlist(createPlaylistData(playlist));
 					}),
 					.total=page.pageInfo.totalResults
 				};
@@ -758,7 +760,7 @@ namespace sh {
 		return youtube->createPlaylist(name, {
 			.privacyStatus = privacyStatus
 		}).map<$<Playlist>>([=](YoutubePlaylist playlist) {
-			return Playlist::new$(this, createPlaylistData(playlist));
+			return this->playlist(createPlaylistData(playlist));
 		});
 	}
 

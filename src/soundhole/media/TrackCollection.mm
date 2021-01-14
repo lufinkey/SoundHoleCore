@@ -8,6 +8,7 @@
 
 #include "TrackCollection.hpp"
 #ifdef __OBJC__
+#import <Foundation/Foundation.h>
 
 namespace sh {
 	class TrackCollectionObjcSubscriber: public TrackCollection::AutoDeletedSubscriber {

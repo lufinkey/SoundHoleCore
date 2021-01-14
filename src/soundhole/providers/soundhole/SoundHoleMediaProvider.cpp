@@ -171,17 +171,18 @@ namespace sh {
 
 	Playlist::Data SoundHoleMediaProvider::createPlaylistData(StorageProvider* provider, StorageProvider::Playlist playlist) {
 		return Playlist::Data{{{
-			.partial=true,
-			.type="playlist",
-			.name=playlist.name,
-			.uri=createURI(provider->name(), "playlist", playlist.id),
-			.images=std::nullopt // TODO get playlist images
+			.partial = true,
+			.type = "playlist",
+			.name = playlist.name,
+			.uri = createURI(provider->name(), "playlist", playlist.id),
+			.images = std::nullopt // TODO get playlist images
 			},
-			.versionId=playlist.versionId,
-			.tracks=std::nullopt
+			.versionId = playlist.versionId,
+			.itemCount = std::nullopt,
+			.items = {}
 			},
-			.owner=playlist.owner ? UserAccount::new$(this, createUserData(provider, playlist.owner.value())) : nullptr,
-			.privacy=Playlist::Privacy_fromString(playlist.privacy)
+			.owner = playlist.owner ? this->userAccount(createUserData(provider, playlist.owner.value())) : nullptr,
+			.privacy = Playlist::Privacy_fromString(playlist.privacy)
 		};
 	}
 

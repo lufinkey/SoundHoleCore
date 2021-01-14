@@ -11,11 +11,60 @@
 #include <soundhole/common.hpp>
 
 namespace sh {
+
+	#pragma mark SpecialTrackCollection::Data
+
+	template<typename ItemType>
+	typename SpecialTrackCollection<ItemType>::Data SpecialTrackCollection<ItemType>::Data::fromJson(const Json& json, MediaProviderStash* stash) {
+		auto collectionData = TrackCollection::Data::fromJson(json,stash);
+		auto itemCountJson = json["itemCount"];
+		Optional<size_t> itemCount = itemCountJson.is_number() ? maybe((size_t)itemCountJson.number_value()) : std::nullopt;
+		std::map<size_t,typename ItemType::Data> items;
+		auto itemsJson = json["items"];
+		if(itemsJson.is_object()) {
+			for(auto& pair : itemsJson.object_items()) {
+				size_t index;
+				try {
+					index = (size_t)std::stod(pair.first);
+				} catch(std::exception&) {
+					continue;
+				}
+				if(pair.second.is_null()) {
+					continue;
+				}
+				items[index] = ItemType::Data::fromJson(pair.second, stash);
+			}
+		}
+		else if(itemsJson.is_array()) {
+			size_t i = 0;
+			for(auto& itemJson : itemsJson.array_items()) {
+				if(itemJson.is_null()) {
+					i++;
+					continue;
+				}
+				items[i] = ItemType::Data::fromJson(itemJson, stash);
+				i++;
+			}
+		}
+		return SpecialTrackCollection<ItemType>::Data{
+			collectionData,
+			.versionId = json["versionId"].string_value(),
+			.itemCount = itemCount,
+			.items = items
+		};
+	}
+
+
+
+	#pragma mark SpecialTrackCollection
+
 	template<typename ItemType>
 	SpecialTrackCollection<ItemType>::SpecialTrackCollection(MediaProvider* provider, const Data& data)
 	: TrackCollection(provider, data), _versionId(data.versionId), _items(nullptr), _mutatorDelegate(nullptr), autoDeleteMutatorDelegate(true) {
+		auto items = data.items;
+		auto itemCount = data.itemCount;
 		_lazyContentLoader = [=]() {
-			_items = constructItems(data.tracks);
+			_items = constructItems(items, itemCount);
 		};
 	}
 
@@ -45,36 +94,68 @@ namespace sh {
 
 	template<typename ItemType>
 	typename SpecialTrackCollection<ItemType>::ItemsListVariant
-	SpecialTrackCollection<ItemType>::constructItems(const Optional<typename Data::Tracks>& tracks) {
-		auto self = std::static_pointer_cast<SpecialTrackCollection<ItemType>>(shared_from_this());
-		if(!self) {
+	SpecialTrackCollection<ItemType>::constructItems(std::map<size_t,typename ItemType::Data> itemDatas, Optional<size_t> itemCount) {
+		if(!shared_from_this()) {
 			throw std::runtime_error("cannot call constructItems before constructor has finished");
 		}
-		if(!tracks.has_value()) {
-			return std::nullptr_t();
-		} else if(tracks->items.size() == 0) {
-			return EmptyTracks{
-				.total = tracks->total
-			};
-		} else if(tracks->offset == 0 && tracks->items.size() == tracks->total) {
-			return tracks->items.template map<$<ItemType>>([&](auto& data) {
-				return ItemType::new$(self, data);
-			});
+		if(itemDatas.size() == 0) {
+			if(!itemCount) {
+				return std::nullptr_t();
+			} else {
+				return EmptyTracks{
+					.total = itemCount.value()
+				};
+			}
 		} else {
-			return AsyncList::new$({
-				.delegate=this,
-				.initialItemsOffset=tracks->offset,
-				.initialItems=ArrayList<$<ItemType>>(tracks->items.template map<$<ItemType>>([&](auto& data) {
-					return ItemType::new$(self, data);
-				})),
-				.initialSize=tracks->total
-			});
+			if(itemDatas.begin()->first == 0 && itemCount && itemCount == itemDatas.size()
+			   && itemDatas.size() == ((std::prev(itemDatas.end(),1)->first + 1) - itemDatas.begin()->first)) {
+				auto items = LinkedList<$<ItemType>>();
+				for(auto& pair : itemDatas) {
+					items.pushBack(this->createCollectionItem(pair.second));
+				}
+				return items;
+			} else {
+				auto items = std::map<size_t,$<ItemType>>();
+				for(auto& pair : itemDatas) {
+					items.insert_or_assign(pair.first, this->createCollectionItem(pair.second));
+				}
+				return AsyncList::new$({
+					.delegate=this,
+					.initialItems=items,
+					.initialSize=itemCount
+				});
+			}
 		}
 	}
 
 	template<typename ItemType>
 	String SpecialTrackCollection<ItemType>::versionId() const {
 		return _versionId;
+	}
+
+	template<typename ItemType>
+	$<ItemType> SpecialTrackCollection<ItemType>::createCollectionItem(const typename ItemType::Data& data) {
+		if(!shared_from_this()) {
+			throw std::runtime_error("cannot call createCollectionItem before constructor has finished");
+		}
+		return ItemType::new$(std::static_pointer_cast<SpecialTrackCollection<ItemType>>(shared_from_this()), data);
+	}
+
+	template<typename ItemType>
+	$<TrackCollectionItem> SpecialTrackCollection<ItemType>::createCollectionItem(const Json& json, MediaProviderStash* stash) {
+		auto self = std::static_pointer_cast<SpecialTrackCollection<ItemType>>(shared_from_this());
+		if(!self) {
+			throw std::runtime_error("cannot call createCollectionItem before constructor has finished");
+		}
+		if constexpr(has_staticfunc_fromJson<typename ItemType::Data, typename ItemType::Data,
+			$<SpecialTrackCollection<ItemType>>, const Json&, MediaProviderStash*>::value) {
+			return this->createCollectionItem(ItemType::Data::fromJson(self,json,stash));
+		} else if constexpr(has_staticfunc_fromJson<typename ItemType::Data, typename ItemType::Data,
+			const Json&, MediaProviderStash*>::value) {
+			return this->createCollectionItem(ItemType::Data::fromJson(json,stash));
+		} else {
+			throw std::runtime_error("Cannot convert json to collection item type "+stringify_type<ItemType>());
+		}
 	}
 
 	template<typename ItemType>
@@ -508,16 +589,19 @@ namespace sh {
 	void SpecialTrackCollection<ItemType>::applyData(const Data& data) {
 		lazyLoadContentIfNeeded();
 		TrackCollection::applyData(data);
-		if(data.tracks) {
-			auto tracks = data.tracks.value();
+		if(data.items.size() > 0 || (data.itemCount && data.itemCount != itemCount())) {
 			makeTracksAsync();
 			// apply tracks
-			auto self = std::static_pointer_cast<SpecialTrackCollection<ItemType>>(shared_from_this());
 			asyncItemsList()->lock([&](auto mutator) {
 				mutator->lock([&]() {
-					mutator->applyAndResize(tracks.offset, tracks.total, tracks.items.template map<$<ItemType>>([&](auto& data) {
-						return ItemType::new$(self, data);
-					}));
+					auto items = data.items.mapValues([&](auto index, auto& itemData) -> $<ItemType> {
+						return this->createCollectionItem(itemData);
+					});
+					if(data.itemCount) {
+						mutator->applyAndResize(data.itemCount.value(), items);
+					} else {
+						mutator->apply(items);
+					}
 				});
 			});
 		}
@@ -654,129 +738,68 @@ namespace sh {
 			}
 		} else {
 			auto& tracks = itemsList();
+			std::map<size_t,$<ItemType>> items;
+			for(auto& track : tracks) {
+				size_t index = items.size();
+				items.insert_or_assign(index, track);
+			}
 			_items = AsyncList::new$({
 				.delegate=this,
-				.initialItemsOffset=0,
-				.initialItems=tracks,
-				.initialSize=tracks.size()
+				.initialItems=items,
+				.initialSize=items.size()
 			});
 		}
 	}
 
+
 	template<typename ItemType>
 	typename SpecialTrackCollection<ItemType>::Data SpecialTrackCollection<ItemType>::toData(const DataOptions& options) const {
+		using ItemDataMap = std::map<size_t,typename ItemType::Data>;
 		lazyLoadContentIfNeeded();
 		return SpecialTrackCollection<ItemType>::Data{
 			TrackCollection::toData(),
-			.tracks=([&]() -> Optional<typename Data::Tracks> {
+			.itemCount = itemCount(),
+			.items = ([&]() -> ItemDataMap {
 				if(auto emptyTracks = std::get_if<EmptyTracks>(&_items)) {
-					return typename Data::Tracks{
-						.total=emptyTracks->total,
-						.offset=0,
-						.items={}
-					};
-				} else if(auto items = std::get_if<LinkedList<$<ItemType>>>(&_items)) {
-					return typename Data::Tracks{
-						.total=items->size(),
-						.offset=0,
-						.items=items->template map<typename ItemType::Data>([&]($<ItemType> item) -> typename ItemType::Data {
-							return item->toData();
-						})
-					};
+					return ItemDataMap();
+				} else if(auto itemsList = std::get_if<LinkedList<$<ItemType>>>(&_items)) {
+					ItemDataMap items;
+					size_t index = 0;
+					for(auto& item : *itemsList) {
+						if(items.size() >= options.itemsLimit) {
+							break;
+						}
+						if(index >= options.itemsEndIndex) {
+							break;
+						} else if(index >= options.itemsStartIndex) {
+							items.insert_or_assign(index, item->toData());
+						}
+						index++;
+					}
+					return items;
 				} else if(auto asyncItemsPtr = std::get_if<$<AsyncList>>(&_items)) {
 					auto asyncItems = *asyncItemsPtr;
-					return typename Data::Tracks{
-						.total=asyncItems->length(),
-						.offset=0,
-						.items=asyncItems->getLoadedItems({
-							.startIndex=options.tracksOffset,
-							.limit=options.tracksLimit
-						}).template map<typename ItemType::Data>([&]($<ItemType> item) -> typename ItemType::Data {
-							return item->toData();
-						})
-					};
+					auto& itemsMap = asyncItems->getMap();
+					ItemDataMap items;
+					for(auto it = itemsMap.lower_bound(options.itemsStartIndex),
+						end = itemsMap.lower_bound(options.itemsEndIndex);
+						it != end;
+						it++) {
+						if(items.size() >= options.itemsLimit) {
+							break;
+						}
+						auto& itemNode = it->second;
+						if(itemNode.valid) {
+							items.insert_or_assign(it->first, itemNode.item->toData());
+						}
+					}
+					return items;
 				}
-				return std::nullopt;
+				return ItemDataMap();
 			})()
 		};
 	}
 
-
-
-
-	template<typename ItemType>
-	SpecialTrackCollection<ItemType>::SpecialTrackCollection(const Json& json, MediaProviderStash* stash)
-	: TrackCollection(json, stash), _items(std::nullptr_t()), _mutatorDelegate(nullptr), autoDeleteMutatorDelegate(true) {
-		_versionId = json["versionId"].string_value();
-		_lazyContentLoader = [=]() {
-			std::map<size_t,$<ItemType>> items;
-			auto itemCountJson = json["itemCount"];
-			size_t itemCount = (size_t)itemCountJson.number_value();
-			auto itemsJson = json["items"];
-			if(itemsJson.is_object()) {
-				for(auto& pair : itemsJson.object_items()) {
-					size_t index;
-					try {
-						index = (size_t)std::stod(pair.first);
-					} catch(std::exception&) {
-						continue;
-					}
-					if(itemCount <= index) {
-						itemCount = index+1;
-					}
-					items[index] = std::static_pointer_cast<ItemType>(this->itemFromJson(pair.second, stash));
-				}
-			}
-			else if(itemsJson.is_array()) {
-				size_t i = 0;
-				for(auto& itemJson : itemsJson.array_items()) {
-					if(itemJson.is_null()) {
-						i++;
-						continue;
-					}
-					items[i] = std::static_pointer_cast<ItemType>(this->itemFromJson(itemJson, stash));
-					i++;
-				}
-			}
-			bool needsAsync = false;
-			if(items.size() == itemCount) {
-				size_t i=0;
-				for(auto& pair : items) {
-					if(pair.first != i) {
-						needsAsync = true;
-						break;
-					}
-					i++;
-				}
-			} else {
-				needsAsync = true;
-			}
-			if(itemCountJson.is_null() && items.size() == 0) {
-				_items = std::nullptr_t();
-			} else if(needsAsync) {
-				_items = AsyncList::new$({
-					.delegate=this,
-					.initialItemsMap=items,
-					.initialSize=itemCount
-				});
-			} else {
-				LinkedList<$<ItemType>> itemList;
-				for(auto& pair : items) {
-					itemList.pushBack(pair.second);
-				}
-				_items = itemList;
-			}
-		};
-	}
-
-	template<typename ItemType>
-	$<TrackCollectionItem> SpecialTrackCollection<ItemType>::itemFromJson(const Json& json, MediaProviderStash* stash) {
-		auto self = std::static_pointer_cast<SpecialTrackCollection<ItemType>>(shared_from_this());
-		if(!self) {
-			throw std::runtime_error("cannot call itemFromJson before constructor has finished");
-		}
-		return ItemType::fromJson(self, json, stash);
-	}
 
 	template<typename ItemType>
 	Json SpecialTrackCollection<ItemType>::toJson(const ToJsonOptions& options) const {
@@ -790,13 +813,11 @@ namespace sh {
 			});
 		} else if(auto asyncItemsPtr = std::get_if<$<AsyncList>>(&_items)) {
 			auto asyncItems = *asyncItemsPtr;
-			size_t endIndex = options.tracksOffset + options.tracksLimit;
-			if(endIndex < options.tracksLimit || endIndex < options.tracksOffset) {
-				endIndex = -1;
-			}
 			Json::object itemsJson;
-			asyncItems->forEachInRange(options.tracksOffset, endIndex, [&](auto& item, size_t index) {
-				itemsJson[std::to_string(index)] = item->toJson();
+			asyncItems->forEachInRange(options.itemsStartIndex, options.itemsEndIndex, [&](auto& item, size_t index) {
+				if(itemsJson.size() < options.itemsLimit) {
+					itemsJson[std::to_string(index)] = item->toJson();
+				}
 			});
 			json.merge(Json::object{
 				{ "items", itemsJson }
@@ -806,6 +827,8 @@ namespace sh {
 	}
 
 
+
+	#pragma mark SpecialTrackCollectionItem
 
 	template<typename Context>
 	w$<Context> SpecialTrackCollectionItem<Context>::context() {

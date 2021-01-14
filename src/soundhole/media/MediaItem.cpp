@@ -10,6 +10,9 @@
 #include "MediaProvider.hpp"
 
 namespace sh {
+
+	#pragma mark MediaItem::Image
+
 	MediaItem::Image::Size MediaItem::Image::Dimensions::toSize() const {
 		if(height <= 100 || width <= 100) {
 			return Size::TINY;
@@ -21,6 +24,106 @@ namespace sh {
 			return Size::LARGE;
 		}
 	}
+
+	MediaItem::Image::Size MediaItem::Image::Size_fromJson(const Json& json) {
+		if(!json.is_string()) {
+			throw std::invalid_argument("invalid json for MediaItem::Image::Size: "+json.string_value());
+		}
+		auto& str = json.string_value();
+		if(str == "TINY") {
+			return Size::TINY;
+		} else if(str == "SMALL") {
+			return Size::SMALL;
+		} else if(str == "MEDIUM") {
+			return Size::MEDIUM;
+		} else if(str == "LARGE") {
+			return Size::LARGE;
+		} else {
+			throw std::invalid_argument("invalid MediaItem::Image::Size " + str);
+		}
+	}
+
+	Json MediaItem::Image::Size_toJson(const Size& size) {
+		switch(size) {
+			case Size::TINY:
+				return Json("TINY");
+			case Size::SMALL:
+				return Json("SMALL");
+			case Size::MEDIUM:
+				return Json("MEDIUM");
+			case Size::LARGE:
+				return Json("LARGE");
+		}
+	}
+
+	MediaItem::Image::Dimensions MediaItem::Image::Dimensions::fromJson(const Json& json) {
+		auto width = json["width"];
+		auto height = json["height"];
+		if(!width.is_number() || !height.is_number()) {
+			throw std::invalid_argument("invalid json for MediaItem::Image::Dimensions");
+		}
+		return Dimensions{
+			.width=(size_t)width.number_value(),
+			.height=(size_t)height.number_value()
+		};
+	}
+
+	Json MediaItem::Image::Dimensions::toJson() const {
+		return Json::object{
+			{"width", (double)width},
+			{"height", (double)height}
+		};
+	}
+
+	MediaItem::Image MediaItem::Image::fromJson(const Json& json) {
+		auto url = json["url"];
+		auto dimensions = json["dimensions"];
+		if(!url.is_string() || (!dimensions.is_null() && !dimensions.is_object())) {
+			throw std::invalid_argument("invalid json for MediaItem::Image");
+		}
+		return Image{
+			.url=url.string_value(),
+			.size=Size_fromJson(json["size"]),
+			.dimensions=(!dimensions.is_null()) ? maybe(Dimensions::fromJson(dimensions)) : std::nullopt
+		};
+	}
+
+	Json MediaItem::Image::toJson() const {
+		return Json::object{
+			{"url", (std::string)url},
+			{"size",Size_toJson(size)},
+			{"dimensions",(dimensions ? dimensions->toJson() : Json())}
+		};
+	}
+
+
+
+	#pragma mark MediaItem::Data
+
+	MediaItem::Data MediaItem::Data::fromJson(const Json& json, MediaProviderStash* stash) {
+		auto partial = json["partial"];
+		auto type = json["type"];
+		auto name = json["name"];
+		auto uri = json["uri"];
+		auto images = json["images"];
+		if(!!type.is_string() || !name.is_string() || !uri.is_string()
+		   || (!images.is_null() && !images.is_array())) {
+			throw std::invalid_argument("invalid json for MediaItem");
+		}
+		return MediaItem::Data{
+			.partial = partial.is_bool() ? partial.bool_value() : true,
+			.type = type.string_value(),
+			.name = name.string_value(),
+			.uri = uri.string_value(),
+			.images = (!images.is_null()) ? maybe(ArrayList<Json>(images.array_items()).map<Image>([](auto& imgJson) {
+				return Image::fromJson(imgJson);
+			})) : std::nullopt
+		};
+	}
+
+
+
+	#pragma mark MediaItem
 
 	MediaItem::MediaItem(MediaProvider* provider, const Data& data)
 	: provider(provider),
@@ -146,112 +249,6 @@ namespace sh {
 			.uri=_uri,
 			.images=_images
 		};
-	}
-
-
-
-
-	MediaItem::Image::Size MediaItem::Image::Size_fromJson(const Json& json) {
-		if(!json.is_string()) {
-			throw std::invalid_argument("invalid json for MediaItem::Image::Size: "+json.string_value());
-		}
-		auto& str = json.string_value();
-		if(str == "TINY") {
-			return Size::TINY;
-		} else if(str == "SMALL") {
-			return Size::SMALL;
-		} else if(str == "MEDIUM") {
-			return Size::MEDIUM;
-		} else if(str == "LARGE") {
-			return Size::LARGE;
-		} else {
-			throw std::invalid_argument("invalid MediaItem::Image::Size " + str);
-		}
-	}
-
-	Json MediaItem::Image::Size_toJson(const Size& size) {
-		switch(size) {
-			case Size::TINY:
-				return Json("TINY");
-			case Size::SMALL:
-				return Json("SMALL");
-			case Size::MEDIUM:
-				return Json("MEDIUM");
-			case Size::LARGE:
-				return Json("LARGE");
-		}
-	}
-
-	MediaItem::Image::Dimensions MediaItem::Image::Dimensions::fromJson(const Json& json) {
-		auto width = json["width"];
-		auto height = json["height"];
-		if(!width.is_number() || !height.is_number()) {
-			throw std::invalid_argument("invalid json for MediaItem::Image::Dimensions");
-		}
-		return Dimensions{
-			.width=(size_t)width.number_value(),
-			.height=(size_t)height.number_value()
-		};
-	}
-
-	Json MediaItem::Image::Dimensions::toJson() const {
-		return Json::object{
-			{"width", (double)width},
-			{"height", (double)height}
-		};
-	}
-
-	MediaItem::Image MediaItem::Image::fromJson(const Json& json) {
-		auto url = json["url"];
-		auto dimensions = json["dimensions"];
-		if(!url.is_string() || (!dimensions.is_null() && !dimensions.is_object())) {
-			throw std::invalid_argument("invalid json for MediaItem::Image");
-		}
-		return Image{
-			.url=url.string_value(),
-			.size=Size_fromJson(json["size"]),
-			.dimensions=(!dimensions.is_null()) ? maybe(Dimensions::fromJson(dimensions)) : std::nullopt
-		};
-	}
-
-	Json MediaItem::Image::toJson() const {
-		return Json::object{
-			{"url", (std::string)url},
-			{"size",Size_toJson(size)},
-			{"dimensions",(dimensions ? dimensions->toJson() : Json())}
-		};
-	}
-
-
-
-	MediaItem::MediaItem(const Json& json, MediaProviderStash* stash) {
-		auto providerName = json["provider"];
-		auto partial = json["partial"];
-		auto type = json["type"];
-		auto name = json["name"];
-		auto uri = json["uri"];
-		auto images = json["images"];
-		if(!providerName.is_string() || !type.is_string() || !name.is_string()
-		   || !uri.is_string() || (!images.is_null() && !images.is_array())) {
-			throw std::invalid_argument("invalid json for MediaItem");
-		}
-		provider = stash->getMediaProvider(providerName.string_value());
-		if(provider == nullptr) {
-			throw std::invalid_argument("invalid provider name: "+providerName.string_value());
-		}
-		_partial = partial.is_bool() ? partial.bool_value() : true;
-		_type = type.string_value();
-		_name = name.string_value();
-		_uri = uri.string_value();
-		if(images.is_null()) {
-			_images = std::nullopt;
-		} else {
-			_images = ArrayList<Image>();
-			_images->reserve(images.array_items().size());
-			for(auto image : images.array_items()) {
-				_images->pushBack(Image::fromJson(image));
-			}
-		}
 	}
 
 	Json MediaItem::toJson() const {

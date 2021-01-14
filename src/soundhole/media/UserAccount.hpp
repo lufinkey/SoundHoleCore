@@ -19,12 +19,13 @@ namespace sh {
 		struct Data: public MediaItem::Data {
 			String id;
 			Optional<String> displayName;
+			
+			static Data fromJson(const Json& json, MediaProviderStash* stash);
 		};
 		
 		static $<UserAccount> new$(MediaProvider* provider, const Data& data);
 		
 		UserAccount(MediaProvider* provider, const Data& data);
-		UserAccount(const Json& json, MediaProviderStash* stash);
 		
 		const String& id() const;
 		const Optional<String>& displayName() const;
@@ -34,7 +35,6 @@ namespace sh {
 		
 		Data toData() const;
 		
-		static $<UserAccount> fromJson(const Json& json, MediaProviderStash* stash);
 		virtual Json toJson() const override;
 		
 	protected:

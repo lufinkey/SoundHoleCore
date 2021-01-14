@@ -30,14 +30,15 @@ namespace sh {
 			// online load
 			auto provider = (BandcampMediaProvider*)album->mediaProvider();
 			return provider->getAlbumData(album->uri()).then([=](Album::Data albumData) {
-				if(!albumData.tracks) {
-					throw SoundHoleError(SoundHoleError::Code::REQUEST_FAILED, "Failed to get tracks for bandcamp album");
-				}
 				mutator->lock([&]() {
-					mutator->applyAndResize(albumData.tracks->offset, albumData.tracks->total,
-					   albumData.tracks->items.map<$<AlbumItem>>([&](auto& albumItem) {
-						return AlbumItem::new$(album, albumItem);
-					}));
+					auto items = albumData.items.mapValues([&](auto index, auto& albumItem) -> $<AlbumItem> {
+						return album->createCollectionItem(albumItem);
+					});
+					if(albumData.itemCount) {
+						mutator->applyAndResize(albumData.itemCount.value(), items);
+					} else {
+						mutator->apply(items);
+					}
 				});
 			});
 		}

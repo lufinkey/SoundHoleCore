@@ -10,6 +10,9 @@
 #include "MediaProvider.hpp"
 
 namespace sh {
+
+	#pragma mark AlbumItem
+
 	$<AlbumItem> AlbumItem::new$($<SpecialTrackCollection<AlbumItem>> album, const Data& data) {
 		return fgl::new$<AlbumItem>(album, data);
 	}
@@ -30,16 +33,35 @@ namespace sh {
 		return false;
 	}
 
-	AlbumItem::AlbumItem($<SpecialTrackCollection<AlbumItem>> album, const Json& json, MediaProviderStash* stash)
-	: SpecialTrackCollectionItem<Album>(album, json, stash) {
-		//
+
+
+	#pragma mark Album::Data
+
+	Album::Data Album::Data::fromJson(const Json& json, MediaProviderStash* stash) {
+		auto collectionData = SpecialTrackCollection<AlbumItem>::Data::fromJson(json, stash);
+		auto artistsJson = json["artists"];
+		ArrayList<$<Artist>> artists;
+		artists.reserve(artistsJson.array_items().size());
+		for(auto& artistJson : artistsJson.array_items()) {
+			auto providerName = artistJson["provider"];
+			if(!providerName.is_string()) {
+				throw std::invalid_argument("artist provider must be a string");
+			}
+			auto provider = stash->getMediaProvider(providerName.string_value());
+			if(provider == nullptr) {
+				throw std::invalid_argument("invalid provider name for artist: "+providerName.string_value());
+			}
+			artists.pushBack(provider->artist(Artist::Data::fromJson(artistJson, stash)));
+		}
+		return Album::Data{
+			collectionData,
+			.artists=artists
+		};
 	}
 
-	$<AlbumItem> AlbumItem::fromJson($<SpecialTrackCollection<AlbumItem>> album, const Json& json, MediaProviderStash* stash) {
-		return fgl::new$<AlbumItem>(album, json, stash);
-	}
 
 
+	#pragma mark Album
 
 	$<Album> Album::new$(MediaProvider* provider, const Data& data) {
 		return fgl::new$<Album>(provider, data);
@@ -82,21 +104,6 @@ namespace sh {
 			SpecialTrackCollection<AlbumItem>::toData(options),
 			.artists=_artists
 		};
-	}
-
-	$<Album> Album::fromJson(const Json& json, MediaProviderStash* stash) {
-		auto album = fgl::new$<Album>(json, stash);
-		album->lazyLoadContentIfNeeded();
-		return album;
-	}
-
-	Album::Album(const Json& json, MediaProviderStash* stash)
-	: SpecialTrackCollection<AlbumItem>(json, stash) {
-		auto artists = json["artists"];
-		_artists.reserve(artists.array_items().size());
-		for(auto& artist : artists.array_items()) {
-			_artists.pushBack(Artist::fromJson(artist, stash));
-		}
 	}
 
 	Json Album::toJson(const ToJsonOptions& options) const {

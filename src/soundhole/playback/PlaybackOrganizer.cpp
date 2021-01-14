@@ -48,8 +48,8 @@ namespace sh {
 			}
 		}
 		auto contextJson = context ? context->toJson({
-			.tracksOffset = tracksOffset,
-			.tracksLimit = tracksLimit
+			.itemsStartIndex = tracksOffset,
+			.itemsLimit = tracksLimit
 		}) : Json();
 		// add current item to context if needed
 		if(!contextJson.is_null() && sourceContextIndex && currentItem.index() != 0 && std::get_if<$<TrackCollectionItem>>(&currentItem)) {
@@ -98,7 +98,7 @@ namespace sh {
 			auto shuffling = json["shuffling"].bool_value();
 			auto context = contextJson.is_null() ? $<TrackCollection>()
 				: std::dynamic_pointer_cast<TrackCollection>(
-					stash->createMediaItem(contextJson));
+					stash->parseMediaItem(contextJson));
 			$<TrackCollectionItem> contextItem;
 			ItemVariant currentItem = NoItem();
 			auto itemType = currentItemJson["type"].string_value();
@@ -109,16 +109,16 @@ namespace sh {
 					if(cmpContextItem && cmpContextItem->track()->uri() == trackUri) {
 						contextItem = cmpContextItem;
 					} else {
-						contextItem = context->itemFromJson(currentItemJson, stash);
+						contextItem = context->createCollectionItem(currentItemJson, stash);
 					}
 				} else {
-					contextItem = context->itemFromJson(currentItemJson, stash);
+					contextItem = context->createCollectionItem(currentItemJson, stash);
 				}
 				currentItem = contextItem;
 			} else if(itemType == "queueItem") {
 				currentItem = QueueItem::fromJson(currentItemJson, stash);
 			} else if(itemType == "track") {
-				auto track = std::dynamic_pointer_cast<Track>(stash->createMediaItem(currentItemJson));
+				auto track = std::dynamic_pointer_cast<Track>(stash->parseMediaItem(currentItemJson));
 				if(track) {
 					currentItem = track;
 				}

@@ -43,6 +43,24 @@ ArrayList<Json> splitJoinedResults(ArrayList<JoinTable> tables, Json row) {
 
 
 
+String sqlOffsetAndLimitFromRange(Optional<sql::IndexRange> range, LinkedList<Any>& params) {
+	if(!range) {
+		return String();
+	}
+	if(range->endIndex == (size_t)-1) {
+		if(range->startIndex == 0) {
+			return String();
+		}
+		return String::join({" OFFSET ",sqlParam(params, range->startIndex)});
+	}
+	return String::join({
+		" OFFSET ",sqlParam(params, range->startIndex),
+		" LIMIT ",sqlParam(params, (range->endIndex - range->startIndex))
+	});
+}
+
+
+
 void insertOrReplaceArtists(SQLiteTransaction& tx, const ArrayList<$<Artist>>& artists) {
 	if(artists.size() == 0) {
 		return;
@@ -472,11 +490,7 @@ void selectSavedTracksAndTracks(SQLiteTransaction& tx, String outKey, LibraryIte
 			}
 			return "";
 		})(),
-		(options.range ?
-			String::join({
-				" LIMIT ",sqlParam(params, (options.range->endIndex - options.range->startIndex))," OFFSET ",sqlParam(params, options.range->startIndex)
-			})
-			: "")
+		sqlOffsetAndLimitFromRange(options.range, params)
 	});
 	tx.addSQL(query, params, {
 		.outKey=outKey,
@@ -539,11 +553,7 @@ void selectSavedAlbumsAndAlbums(SQLiteTransaction& tx, String outKey, LibraryIte
 			}
 			return "";
 		})(),
-		(options.range ?
-			String::join({
-				" LIMIT ",sqlParam(params, (options.range->endIndex - options.range->startIndex))," OFFSET ",sqlParam(params, options.range->startIndex)
-			})
-			: "")
+		sqlOffsetAndLimitFromRange(options.range, params)
 	});
 	tx.addSQL(query, params, {
 		.outKey=outKey,
@@ -606,11 +616,7 @@ void selectSavedPlaylistsAndPlaylists(SQLiteTransaction& tx, String outKey, Libr
 			}
 			return "";
 		})(),
-		(options.range ?
-			String::join({
-				" LIMIT ",sqlParam(params, (options.range->endIndex - options.range->startIndex))," OFFSET ",sqlParam(params, options.range->startIndex)
-			})
-			: "")
+		sqlOffsetAndLimitFromRange(options.range, params)
 	});
 	tx.addSQL(query, params, {
 		.outKey=outKey,
@@ -680,11 +686,7 @@ void selectLibraryArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelec
 			}
 			return "";
 		})(),
-		(options.range ?
-			String::join({
-				" LIMIT ",sqlParam(params, (options.range->endIndex - options.range->startIndex))," OFFSET ",sqlParam(params, options.range->startIndex)
-			})
-			: "")
+		sqlOffsetAndLimitFromRange(options.range, params)
 	});
 	tx.addSQL(query, params, { .outKey=outKey });
 }

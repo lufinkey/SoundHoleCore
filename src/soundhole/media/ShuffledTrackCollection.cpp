@@ -11,22 +11,29 @@
 #include <cstdlib>
 
 namespace sh {
+
+	#pragma mark ShuffledTrackCollectionItem::Data
+
+	ShuffledTrackCollectionItem::Data ShuffledTrackCollectionItem::Data::forSourceItem($<TrackCollectionItem> sourceItem) {
+		FGL_ASSERT(std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(sourceItem) == nullptr, "Cannot create ShuffledTrackCollectionItem::Data with a ShuffledTrackCollectionItem source item");
+		return ShuffledTrackCollectionItem::Data{{
+			.track=sourceItem->track()
+			},
+			.sourceItem=sourceItem
+		};
+	}
+
+
+
+	#pragma mark ShuffledTrackCollectionItem
+
 	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, const Data& data) {
 		return fgl::new$<ShuffledTrackCollectionItem>(context, data);
-	}
-	
-	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, $<TrackCollectionItem> sourceItem) {
-		return fgl::new$<ShuffledTrackCollectionItem>(context, sourceItem);
 	}
 	
 	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, const Data& data)
 	: SpecialTrackCollectionItem<ShuffledTrackCollection>(context, data), _sourceItem(data.sourceItem) {
 		FGL_ASSERT(std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(data.sourceItem) == nullptr, "Cannot create ShuffledTrackCollectionItem with another ShuffledTrackCollectionItem");
-	}
-	
-	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, $<TrackCollectionItem> sourceItem)
-	: SpecialTrackCollectionItem<ShuffledTrackCollection>(context, {.track=sourceItem->track()}), _sourceItem(sourceItem) {
-		FGL_ASSERT(std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(sourceItem) == nullptr, "Cannot create ShuffledTrackCollectionItem with another ShuffledTrackCollectionItem");
 	}
 	
 	$<TrackCollectionItem> ShuffledTrackCollectionItem::sourceItem() {
@@ -42,18 +49,6 @@ namespace sh {
 			return _sourceItem->matchesItem(shuffledItem->sourceItem().get());
 		}
 		return false;
-	}
-
-	$<ShuffledTrackCollectionItem> ShuffledTrackCollectionItem::fromJson($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, const Json& json, MediaProviderStash* stash) {
-		return fgl::new$<ShuffledTrackCollectionItem>(context, json, stash);
-	}
-
-	ShuffledTrackCollectionItem::ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, const Json& json, MediaProviderStash* stash)
-	: SpecialTrackCollectionItem<ShuffledTrackCollection>(context, json, stash) {
-		auto shuffledContext = std::static_pointer_cast<ShuffledTrackCollection>(context);
-		auto sourceContext = shuffledContext->source();
-		_sourceItem = sourceContext->itemFromJson(json["sourceItem"], stash);
-		_track = _sourceItem->track();
 	}
 
 	Json ShuffledTrackCollectionItem::toJson() const {
@@ -84,18 +79,16 @@ namespace sh {
 		.images=std::nullopt,
 		},
 		.versionId=source->versionId(),
-		.tracks=SpecialTrackCollection<ShuffledTrackCollectionItem>::Data::Tracks{
-			.total=source->itemCount().value_or(initialItems.size()),
-			.offset=0,
-			.items=initialItems.map<ShuffledTrackCollectionItem::Data>([&](auto& item) {
-				FGL_ASSERT(std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(item) == nullptr, "Cannot use ShuffledTrackCollectionItem as sourceItem");
-				return ShuffledTrackCollectionItem::Data{{
-					.track=item->track(),
-					},
-					.sourceItem=item
-				};
-			})
-		}
+		.itemCount=source->itemCount().valueOr(initialItems.size()),
+		.items=([&]() {
+			auto items = std::map<size_t,ShuffledTrackCollectionItem::Data>();
+			for(size_t i=0; i<initialItems.size(); i++) {
+				auto sourceItem = initialItems[i];
+				FGL_ASSERT(std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(sourceItem) == nullptr, "Cannot use ShuffledTrackCollectionItem as sourceItem");
+				items.insert_or_assign(i, ShuffledTrackCollectionItem::Data::forSourceItem(sourceItem));
+			}
+			return items;
+		})()
 	}), _source(source) {
 		FGL_ASSERT(std::dynamic_pointer_cast<ShuffledTrackCollection>(source) == nullptr, "Cannot create ShuffledTrackCollection with another ShuffledTrackCollection");
 		
@@ -203,12 +196,12 @@ namespace sh {
 		_source->lockItems([&]() {
 			filterRemainingIndexes();
 			size_t endIndex = index+count;
-			auto items = fgl::new$<LinkedList<$<ShuffledTrackCollectionItem>>>();
+			auto items = fgl::new$<LinkedList<$<Item>>>();
 			auto promise = Promise<void>::resolve();
 			auto tmpRemainingIndexes = _remainingIndexes;
 			auto chosenIndexes = LinkedList<AsyncListIndexMarker>();
 			for(size_t i=index; i<endIndex; i++) {
-				auto existingItem = std::static_pointer_cast<ShuffledTrackCollectionItem>(itemAt(i));
+				auto existingItem = std::static_pointer_cast<Item>(itemAt(i));
 				if(existingItem) {
 					promise = promise.then(nullptr, [=]() {
 						items->pushBack(existingItem);
@@ -227,7 +220,7 @@ namespace sh {
 							if(!item) {
 								throw std::runtime_error("Item not found at index "+stringify(randomIndex->index));
 							}
-							items->pushBack(ShuffledTrackCollectionItem::new$(self, item));
+							items->pushBack(self->createCollectionItem(Item::Data::forSourceItem(item)));
 						});
 					});
 				}
@@ -272,7 +265,10 @@ namespace sh {
 	Json ShuffledTrackCollection::toJson(const ToJsonOptions& options) const {
 		auto json = SpecialTrackCollection<ShuffledTrackCollectionItem>::toJson(options).object_items();
 		json.merge(Json::object{
-			{ "source", _source->toJson({.tracksOffset=0,.tracksLimit=options.tracksLimit}) }
+			{ "source", _source->toJson({
+				.itemsStartIndex = options.itemsStartIndex,
+				.itemsEndIndex = options.itemsEndIndex
+			}) }
 		});
 		return json;
 	}

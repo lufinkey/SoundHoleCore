@@ -1,5 +1,5 @@
 //
-//  MediaLibraryProvider.hpp
+//  MediaLibraryProxyProvider.hpp
 //  SoundHoleCore
 //
 //  Created by Luis Finke on 5/26/20.
@@ -16,10 +16,10 @@
 #include <soundhole/providers/youtube/YoutubeMediaProvider.hpp>
 
 namespace sh {
-	class MediaLibraryProvider: public MediaProvider, public MediaProviderStash {
+	class MediaLibraryProxyProvider: public MediaProvider, public MediaProviderStash {
 	public:
-		MediaLibraryProvider(ArrayList<MediaProvider*> mediaProviders);
-		virtual ~MediaLibraryProvider();
+		MediaLibraryProxyProvider(ArrayList<MediaProvider*> mediaProviders);
+		virtual ~MediaLibraryProxyProvider();
 		
 		virtual String name() const override;
 		virtual String displayName() const override;
@@ -50,7 +50,6 @@ namespace sh {
 		virtual MediaPlaybackProvider* player() override;
 		virtual const MediaPlaybackProvider* player() const override;
 		
-		virtual $<MediaItem> createMediaItem(Json json) override;
 		ArrayList<MediaProvider*> getMediaProviders();
 		void addMediaProvider(MediaProvider*);
 		void removeMediaProvider(MediaProvider*);
@@ -65,7 +64,7 @@ namespace sh {
 
 
 	template<typename MediaProviderType>
-	MediaProviderType* MediaLibraryProvider::getMediaProvider() {
+	MediaProviderType* MediaLibraryProxyProvider::getMediaProvider() {
 		for(auto& provider : mediaProviders) {
 			if(auto mediaProvider = dynamic_cast<MediaProviderType*>(provider)) {
 				return mediaProvider;

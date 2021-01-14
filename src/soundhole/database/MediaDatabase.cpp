@@ -712,7 +712,7 @@ namespace sh {
 					if(albumItems.size() == 0) {
 						albumItemsStartIndex = pair.first;
 					}
-					albumItems.pushBack(std::static_pointer_cast<AlbumItem>(album->itemFromJson(pair.second, options.stash)));
+					albumItems.pushBack(std::static_pointer_cast<AlbumItem>(album->createCollectionItem(pair.second, options.stash)));
 					nextIndex = pair.first + 1;
 				}
 				if(albumItems.size() > 0) {
@@ -739,7 +739,7 @@ namespace sh {
 					if(playlistItems.size() == 0) {
 						playlistItemsStartIndex = pair.first;
 					}
-					playlistItems.pushBack(std::static_pointer_cast<PlaylistItem>(playlist->itemFromJson(pair.second, options.stash)));
+					playlistItems.pushBack(std::static_pointer_cast<PlaylistItem>(playlist->createCollectionItem(pair.second, options.stash)));
 					nextIndex = pair.first + 1;
 				}
 				if(playlistItems.size() > 0) {

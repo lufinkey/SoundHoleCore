@@ -42,8 +42,8 @@ namespace sh {
 					if(!trackData.images) {
 						trackData.images = album->images();
 					}
-					return AlbumItem::new$(album, {
-						.track=Track::new$(provider, trackData)
+					return album->createCollectionItem({
+						.track=provider->track(trackData)
 					});
 				});
 				mutator->lock([&]() {

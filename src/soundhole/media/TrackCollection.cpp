@@ -10,6 +10,31 @@
 #include <soundhole/database/MediaDatabase.hpp>
 
 namespace sh {
+
+	#pragma mark TrackCollectionItem::Data
+
+	TrackCollectionItem::Data TrackCollectionItem::Data::fromJson(const Json& json, MediaProviderStash* stash) {
+		auto trackJson = json["track"];
+		if(trackJson.is_null() || !trackJson.is_object()) {
+			throw std::invalid_argument("track json cannot be null");
+		}
+		auto trackProviderName = trackJson["provider"].string_value();
+		if(trackProviderName.empty()) {
+			throw std::invalid_argument("track json is missing provider");
+		}
+		auto provider = stash->getMediaProvider(trackProviderName);
+		if(provider == nullptr) {
+			throw std::invalid_argument("invalid provider name for track: "+trackProviderName);
+		}
+		return TrackCollectionItem::Data{
+			.track = provider->track(Track::Data::fromJson(trackJson, stash))
+		};
+	}
+
+
+
+	#pragma mark TrackCollectionItem
+
 	TrackCollectionItem::TrackCollectionItem($<TrackCollection> context, const Data& data)
 	: _context(context), _track(data.track) {
 		//
@@ -57,12 +82,9 @@ namespace sh {
 		};
 	}
 
-	TrackCollectionItem::TrackCollectionItem($<TrackCollection> context, const Json& json, MediaProviderStash* stash)
-	: _context(context), _track(Track::fromJson(json["track"], stash)) {
-		//
-	}
 
 
+	#pragma mark TrackCollection::LoadItemOptions
 
 	std::map<String,Any> TrackCollection::LoadItemOptions::toDict() const {
 		return {
@@ -90,6 +112,10 @@ namespace sh {
 		return LoadItemOptions();
 	}
 
+
+
+	#pragma mark TrackCollection
+
 	String TrackCollection::versionId() const {
 		return String();
 	}
@@ -100,15 +126,18 @@ namespace sh {
 
 	Json TrackCollection::toJson(const ToJsonOptions& options) const {
 		auto json = MediaItem::toJson().object_items();
+		auto versionId = this->versionId();
 		auto itemCount = this->itemCount();
 		json.merge(Json::object{
-			{ "versionId", (std::string)versionId() },
+			{ "versionId", versionId.empty() ? Json() : Json((std::string)versionId) },
 			{ "itemCount", itemCount ? Json((double)itemCount.value()) : Json() }
 		});
 		return json;
 	}
 
 
+
+	#pragma mark TrackCollection::Subscriber
 
 	TrackCollection::Subscriber::~Subscriber() {
 		//

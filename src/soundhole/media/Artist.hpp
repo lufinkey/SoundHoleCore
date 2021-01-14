@@ -16,12 +16,13 @@ namespace sh {
 	public:
 		struct Data: public MediaItem::Data {
 			Optional<String> description;
+			
+			static Data fromJson(const Json& json, MediaProviderStash* stash);
 		};
 		
 		static $<Artist> new$(MediaProvider* provider, const Data& data);
 		
 		Artist(MediaProvider* provider, const Data& data);
-		Artist(const Json& json, MediaProviderStash* stash);
 		
 		const Optional<String>& description() const;
 		
@@ -29,8 +30,6 @@ namespace sh {
 		void applyData(const Data& data);
 		
 		Data toData() const;
-		
-		static $<Artist> fromJson(const Json& json, MediaProviderStash* stash);
 		virtual Json toJson() const override;
 		
 	protected:

@@ -18,7 +18,7 @@ namespace sh {
 	public:
 		virtual ~MediaProviderStash() {}
 		
-		virtual $<MediaItem> createMediaItem(Json json) = 0;
+		virtual $<MediaItem> parseMediaItem(const Json& json);
 		virtual MediaProvider* getMediaProvider(const String& name) = 0;
 	};
 }

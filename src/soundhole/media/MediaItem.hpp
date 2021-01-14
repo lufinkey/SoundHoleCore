@@ -13,6 +13,8 @@
 
 namespace sh {
 	class MediaProvider;
+
+	CREATE_HAS_STATIC_FUNC(fromJson)
 	
 	class MediaItem: public std::enable_shared_from_this<MediaItem> {
 	public:
@@ -49,10 +51,11 @@ namespace sh {
 			String name;
 			String uri;
 			Optional<ArrayList<Image>> images;
+			
+			static Data fromJson(const Json& json, MediaProviderStash* stash);
 		};
 		
 		MediaItem(MediaProvider* provider, const Data& data);
-		MediaItem(const Json& json, MediaProviderStash* stash);
 		virtual ~MediaItem();
 		
 		const String& type() const;

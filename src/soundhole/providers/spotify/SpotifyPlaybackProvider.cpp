@@ -88,13 +88,13 @@ namespace sh {
 		auto& nextTrack = spotifyMetadata.nextTrack;
 		return Metadata{
 			.previousTrack=prevTrack.has_value() ?
-				Track::new$(provider, createTrackData(std::move(prevTrack.value())))
+				provider->track(createTrackData(std::move(prevTrack.value())))
 				: nullptr,
 			.currentTrack=currentTrack.has_value() ?
-				Track::new$(provider, createTrackData(std::move(currentTrack.value())))
+				provider->track(createTrackData(std::move(currentTrack.value())))
 				: nullptr,
 			.nextTrack=nextTrack.has_value() ?
-				Track::new$(provider, createTrackData(std::move(nextTrack.value())))
+				provider->track(createTrackData(std::move(nextTrack.value())))
 				: nullptr,
 		};
 	}
@@ -154,7 +154,7 @@ namespace sh {
 			.albumName=track.albumName,
 			.albumURI=track.albumURI,
 			.artists=ArrayList<$<Artist>>{
-				Artist::new$(provider, Artist::Data{{
+				provider->artist(Artist::Data{{
 					.partial=true,
 					.type="artist",
 					.name=track.artistName,

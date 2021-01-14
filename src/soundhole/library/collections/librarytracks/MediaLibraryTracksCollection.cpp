@@ -9,6 +9,20 @@
 #include "MediaLibraryTracksCollection.hpp"
 
 namespace sh {
+
+	#pragma mark MediaLibraryTracksCollectionItem::Data
+
+	MediaLibraryTracksCollectionItem::Data MediaLibraryTracksCollectionItem::Data::fromJson(const Json& json, MediaProviderStash* stash) {
+		return MediaLibraryTracksCollectionItem::Data{
+			SpecialTrackCollectionItem<MediaLibraryTracksCollection>::Data::fromJson(json, stash),
+			.addedAt = json["addedAt"].string_value()
+		};
+	}
+
+
+
+	#pragma mark MediaLibraryTracksCollectionItem
+
 	$<MediaLibraryTracksCollectionItem> MediaLibraryTracksCollectionItem::new$($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> context, const Data& data) {
 		return fgl::new$<MediaLibraryTracksCollectionItem>(context, data);
 	}
@@ -36,24 +50,47 @@ namespace sh {
 		};
 	}
 
-	$<MediaLibraryTracksCollectionItem> MediaLibraryTracksCollectionItem::fromJson($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> context, const Json& json, MediaProviderStash* stash) {
-		return fgl::new$<MediaLibraryTracksCollectionItem>(context, json, stash);
-	}
-
-	MediaLibraryTracksCollectionItem::MediaLibraryTracksCollectionItem($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> context, const Json& json, MediaProviderStash* stash)
-	: SpecialTrackCollectionItem<MediaLibraryTracksCollection>(context, json, stash) {
-		_addedAt = json["addedAt"].string_value();
-	}
-
 	Json MediaLibraryTracksCollectionItem::toJson() const {
 		auto json = SpecialTrackCollectionItem<MediaLibraryTracksCollection>::toJson().object_items();
 		json.merge(Json::object{
-			{ "addedAt", Json(_addedAt) }
+			{ "addedAt", _addedAt.empty() ? Json() : Json(_addedAt) }
 		});
 		return json;
 	}
 
 
+
+	#pragma mark MediaLibraryTracksCollection::Data
+
+	MediaLibraryTracksCollection::Data MediaLibraryTracksCollection::Data::fromJson(const Json& json, MediaProviderStash* stash) {
+		return MediaLibraryTracksCollection::Data{
+			SpecialTrackCollection<MediaLibraryTracksCollectionItem>::Data::fromJson(json,stash),
+			.filters = Filters::fromJson(json["filters"], stash)
+		};
+	}
+
+	#pragma mark MediaLibraryTracksCollection::Filters
+
+	MediaLibraryTracksCollection::Filters MediaLibraryTracksCollection::Filters::fromJson(const Json& json, MediaProviderStash* stash) {
+		auto filters = Filters();
+		auto libraryProvider = json["libraryProvider"];
+		if(libraryProvider.is_string()) {
+			filters.libraryProvider = stash->getMediaProvider(libraryProvider.string_value());
+		}
+		auto orderBy = json["orderBy"];
+		if(orderBy.is_string()) {
+			filters.orderBy = sql::LibraryItemOrderBy_fromString(orderBy.string_value());
+		}
+		auto order = json["order"];
+		if(order.is_string()) {
+			filters.order = sql::Order_fromString(order.string_value());
+		}
+		return filters;
+	}
+
+
+
+	#pragma mark MediaLibraryTracksCollection
 
 	$<MediaLibraryTracksCollection> MediaLibraryTracksCollection::new$(MediaDatabase* database, MediaProvider* provider, const Data& data) {
 		auto collection = fgl::new$<MediaLibraryTracksCollection>(database, provider, data);
@@ -98,36 +135,14 @@ namespace sh {
 		};
 	}
 
-	$<MediaLibraryTracksCollection> MediaLibraryTracksCollection::fromJson(const Json& json, MediaDatabase* database) {
-		auto collection = fgl::new$<MediaLibraryTracksCollection>(json, database);
-		collection->lazyLoadContentIfNeeded();
-		return collection;
-	}
-
-	MediaLibraryTracksCollection::MediaLibraryTracksCollection(const Json& json, MediaDatabase* database)
-	: SpecialTrackCollection<MediaLibraryTracksCollectionItem>(json, database->getProviderStash()),
-	_database(database) {
-		auto stash = database->getProviderStash();
-		auto libraryProvider = json["libraryProvider"];
-		if(libraryProvider.is_string()) {
-			_filters.libraryProvider = stash->getMediaProvider(libraryProvider.string_value());
-		}
-		auto orderBy = json["orderBy"];
-		if(orderBy.is_string()) {
-			_filters.orderBy = sql::LibraryItemOrderBy_fromString(orderBy.string_value());
-		}
-		auto order = json["order"];
-		if(order.is_string()) {
-			_filters.order = sql::Order_fromString(order.string_value());
-		}
-	}
-
 	Json MediaLibraryTracksCollection::toJson(const ToJsonOptions& options) const {
 		auto json = SpecialTrackCollection<MediaLibraryTracksCollectionItem>::toJson(options).object_items();
 		json.merge(Json::object{
-			{ "libraryProvider", (_filters.libraryProvider != nullptr) ? Json((std::string)_filters.libraryProvider->name()) : Json() },
-			{ "orderBy", (std::string)sql::LibraryItemOrderBy_toString(_filters.orderBy) },
-			{ "order", (std::string)sql::Order_toString(_filters.order) }
+			{ "filters", Json::object{
+				{ "libraryProvider", (_filters.libraryProvider != nullptr) ? Json((std::string)_filters.libraryProvider->name()) : Json() },
+				{ "orderBy", (std::string)sql::LibraryItemOrderBy_toString(_filters.orderBy) },
+				{ "order", (std::string)sql::Order_toString(_filters.order) }
+			} }
 		});
 		return json;
 	}
@@ -162,7 +177,8 @@ namespace sh {
 					jsonObj.erase(trackJsonIt);
 					jsonObj["track"] = trackJson;
 				}
-				return MediaLibraryTracksCollectionItem::fromJson(self, jsonObj, database->getProviderStash());
+				return std::static_pointer_cast<MediaLibraryTracksCollectionItem>(
+					self->createCollectionItem(jsonObj, database->getProviderStash()));
 			}));
 		});
 	}

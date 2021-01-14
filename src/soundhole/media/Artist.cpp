@@ -10,6 +10,25 @@
 #include "MediaProvider.hpp"
 
 namespace sh {
+
+	#pragma mark Artist::Data
+
+	Artist::Data Artist::Data::fromJson(const Json& json, MediaProviderStash* stash) {
+		auto mediaItemData = MediaItem::Data::fromJson(json, stash);
+		auto description = json["description"];
+		if((!description.is_null() && !description.is_string())) {
+			throw std::invalid_argument("invalid json for Artist");
+		}
+		return Artist::Data{
+			mediaItemData,
+			.description = (!description.is_null()) ? maybe((String)description.string_value()) : std::nullopt
+		};
+	}
+
+
+
+	#pragma mark Artist
+
 	$<Artist> Artist::new$(MediaProvider* provider, const Data& data) {
 		return fgl::new$<Artist>(provider, data);
 	}
@@ -47,21 +66,6 @@ namespace sh {
 			MediaItem::toData(),
 			.description=_description
 		};
-	}
-
-
-
-	$<Artist> Artist::fromJson(const Json& json, MediaProviderStash* stash) {
-		return fgl::new$<Artist>(json, stash);
-	}
-
-	Artist::Artist(const Json& json, MediaProviderStash* stash)
-	: MediaItem(json, stash) {
-		auto description = json["description"];
-		if((!description.is_null() && !description.is_string())) {
-			throw std::invalid_argument("invalid json for Artist");
-		}
-		_description = (!description.is_null()) ? maybe((String)description.string_value()) : std::nullopt;
 	}
 
 	Json Artist::toJson() const {

@@ -30,7 +30,7 @@ namespace sh {
 			.limit=count
 		}).then([=](SpotifyPage<SpotifyPlaylist::Item> page) -> void {
 			auto items = page.items.map<$<PlaylistItem>>([&](auto& item) {
-				return PlaylistItem::new$(playlist, provider->createPlaylistItemData(item));
+				return playlist->createCollectionItem(provider->createPlaylistItemData(item));
 			});
 			mutator->lock([&]() {
 				mutator->applyAndResize(page.offset, page.total, items);
@@ -95,7 +95,7 @@ namespace sh {
 		auto provider = (SpotifyMediaProvider*)playlist->mediaProvider();
 		return fetchAPIItemsFromChunks(mutator, index, count).then([=](SpotifyPage<SpotifyPlaylist::Item> page) {
 			auto items = page.items.map<$<PlaylistItem>>([&](auto& item) {
-				return PlaylistItem::new$(playlist, provider->createPlaylistItemData(item));
+				return playlist->createCollectionItem(provider->createPlaylistItemData(item));
 			});
 			mutator->lock([&]() {
 				mutator->applyAndResize(index, page.total, items);
@@ -169,7 +169,7 @@ namespace sh {
 			size_t fetchCount = upperBound - lowerBound;
 			return fetchAPIItemsFromChunks(mutator, lowerBound, fetchCount).then([=](SpotifyPage<SpotifyPlaylist::Item> page) {
 				auto items = page.items.map<$<PlaylistItem>>([&](auto& item) {
-					return PlaylistItem::new$(playlist, provider->createPlaylistItemData(item));
+					return playlist->createCollectionItem(provider->createPlaylistItemData(item));
 				});
 				size_t startOffset = indexMarker->index - lowerBound;
 				size_t endOffset = startOffset + tracks.size();

@@ -37,12 +37,13 @@ namespace sh {
 			Optional<double> duration;
 			Optional<ArrayList<AudioSource>> audioSources;
 			bool playable;
+			
+			static Data fromJson(const Json&, MediaProviderStash* stash);
 		};
 		
 		static $<Track> new$(MediaProvider* provider, const Data& data);
 		
 		Track(MediaProvider* provider, const Data& data);
-		Track(const Json& json, MediaProviderStash* stash);
 		
 		const String& albumName() const;
 		const String& albumURI() const;
@@ -70,8 +71,6 @@ namespace sh {
 		void applyData(const Data& data);
 		
 		Data toData() const;
-		
-		static $<Track> fromJson(const Json& json, MediaProviderStash* stash);
 		virtual Json toJson() const override;
 		
 	protected:

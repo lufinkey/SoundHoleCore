@@ -137,7 +137,6 @@ namespace sh {
 		Optional<String> label;
 		String releaseDate;
 		String releaseDatePrecision;
-		size_t totalTracks;
 		
 		Optional<SpotifyPage<SpotifyTrack>> tracks;
 		
@@ -174,7 +173,7 @@ namespace sh {
 	struct SpotifyPlaylist {
 		struct Item {
 			String addedAt;
-			SpotifyUser addedBy;
+			Optional<SpotifyUser> addedBy;
 			SpotifyVideoThumbnail videoThumbnail;
 			SpotifyTrack track;
 			

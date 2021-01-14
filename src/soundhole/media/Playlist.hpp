@@ -22,6 +22,8 @@ namespace sh {
 			String uniqueId;
 			String addedAt;
 			$<UserAccount> addedBy;
+			
+			static Data fromJson(const Json& json, MediaProviderStash* stash);
 		};
 		
 		static $<PlaylistItem> new$($<SpecialTrackCollection<PlaylistItem>> playlist, const Data& data);
@@ -62,6 +64,8 @@ namespace sh {
 		struct Data: public SpecialTrackCollection<PlaylistItem>::Data {
 			$<UserAccount> owner;
 			Privacy privacy;
+			
+			static Data fromJson(const Json& json, MediaProviderStash* stash);
 		};
 		
 		static $<Playlist> new$(MediaProvider* provider, const Data& data);

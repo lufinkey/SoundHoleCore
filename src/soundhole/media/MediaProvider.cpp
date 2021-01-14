@@ -21,39 +21,61 @@ namespace sh {
 		}
 		return LibraryItem{
 			.libraryProvider=stash->getMediaProvider(libraryProvider.string_value()),
-			.mediaItem=stash->createMediaItem(mediaItem),
+			.mediaItem=stash->parseMediaItem(mediaItem),
 			.addedAt=json["addedAt"].string_value()
 		};
 	}
 
 	Promise<$<Track>> MediaProvider::getTrack(String uri) {
 		return getTrackData(uri).map<$<Track>>(nullptr, [=](auto data) {
-			return Track::new$(this, data);
+			return track(data);
 		});
 	}
 
 	Promise<$<Artist>> MediaProvider::getArtist(String uri) {
 		return getArtistData(uri).map<$<Artist>>(nullptr, [=](auto data) {
-			return Artist::new$(this, data);
+			return artist(data);
 		});
 	}
 
 	Promise<$<Album>> MediaProvider::getAlbum(String uri) {
 		return getAlbumData(uri).map<$<Album>>(nullptr, [=](auto data) {
-			return Album::new$(this, data);
+			return album(data);
 		});
 	}
 
 	Promise<$<Playlist>> MediaProvider::getPlaylist(String uri) {
 		return getPlaylistData(uri).map<$<Playlist>>(nullptr, [=](auto data) {
-			return Playlist::new$(this, data);
+			return playlist(data);
 		});
 	}
 
 	Promise<$<UserAccount>> MediaProvider::getUser(String uri) {
 		return getUserData(uri).map<$<UserAccount>>(nullptr, [=](auto data) {
-			return UserAccount::new$(this, data);
+			return userAccount(data);
 		});
+	}
+
+
+
+	$<Track> MediaProvider::track(const Track::Data& data) {
+		return Track::new$(this, data);
+	}
+
+	$<Artist> MediaProvider::artist(const Artist::Data& data) {
+		return Artist::new$(this, data);
+	}
+
+	$<Album> MediaProvider::album(const Album::Data& data) {
+		return Album::new$(this, data);
+	}
+
+	$<Playlist> MediaProvider::playlist(const Playlist::Data& data) {
+		return Playlist::new$(this, data);
+	}
+
+	$<UserAccount> MediaProvider::userAccount(const UserAccount::Data& data) {
+		return UserAccount::new$(this, data);
 	}
 
 

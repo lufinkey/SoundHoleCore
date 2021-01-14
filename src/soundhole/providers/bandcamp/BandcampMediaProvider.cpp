@@ -157,7 +157,7 @@ namespace sh {
 				.nextURL=searchResults.nextURL,
 				.items=searchResults.items.where([&](auto& item) {
 					return (item.type != BandcampSearchResults::Item::Type::UNKNOWN);
-				}).template map<$<MediaItem>>([&](auto& item) {
+				}).template map<$<MediaItem>>([&](auto& item) -> $<MediaItem> {
 					auto images = (!item.imageURL.empty()) ?
 						maybe(ArrayList<MediaItem::Image>{{
 							.url=item.imageURL,
@@ -166,17 +166,17 @@ namespace sh {
 						: std::nullopt;
 					switch(item.type) {
 						case BandcampSearchResults::Item::Type::TRACK:
-							return std::static_pointer_cast<MediaItem>(Track::new$(this, Track::Data{{
-								.partial=true,
-								.type="track",
-								.name=item.name,
-								.uri=(item.url.empty() ? String() : createURI("track", item.url)),
-								.images=images
+							return this->track(Track::Data{{
+								.partial = true,
+								.type = "track",
+								.name = item.name,
+								.uri = (item.url.empty() ? String() : createURI("track", item.url)),
+								.images = images
 								},
-								.albumName=item.albumName,
-								.albumURI=(item.albumURL.empty() ? String() : createURI("album", item.albumURL)),
-								.artists=ArrayList<$<Artist>>{
-									Artist::new$(this, Artist::Data{{
+								.albumName = item.albumName,
+								.albumURI = (item.albumURL.empty() ? String() : createURI("album", item.albumURL)),
+								.artists = ArrayList<$<Artist>>{
+									this->artist(Artist::Data{{
 										.partial=true,
 										.type="artist",
 										.name=item.artistName,
@@ -186,33 +186,28 @@ namespace sh {
 										.description=std::nullopt
 									})
 								},
-								.tags=item.tags,
-								.discNumber=std::nullopt,
-								.trackNumber=std::nullopt,
-								.duration=std::nullopt,
-								.audioSources=std::nullopt,
-								.playable=true
-							}));
+								.tags = item.tags,
+								.discNumber = std::nullopt,
+								.trackNumber = std::nullopt,
+								.duration = std::nullopt,
+								.audioSources = std::nullopt,
+								.playable = true
+							});
 							
 						case BandcampSearchResults::Item::Type::ALBUM:
-							return std::static_pointer_cast<MediaItem>(Album::new$(this, Album::Data{{{
-								.partial=true,
-								.type="album",
-								.name=item.name,
-								.uri=(item.url.empty() ? String() : createURI("album", item.url)),
-								.images=images
+							return this->album(Album::Data{{{
+								.partial = true,
+								.type = "album",
+								.name = item.name,
+								.uri = (item.url.empty() ? String() : createURI("album", item.url)),
+								.images = images
 								},
-								.versionId=String(),
-								.tracks=item.numTracks ?
-									maybe(Album::Data::Tracks{
-										.total=item.numTracks.value(),
-										.offset=0,
-										.items={}
-									})
-									: std::nullopt
+								.versionId = String(),
+								.itemCount = item.numTracks,
+								.items = {}
 								},
-								.artists=ArrayList<$<Artist>>{
-									Artist::new$(this, Artist::Data{{
+								.artists = ArrayList<$<Artist>>{
+									this->artist(Artist::Data{{
 										.partial=true,
 										.type="artist",
 										.name=item.artistName,
@@ -222,39 +217,39 @@ namespace sh {
 										.description=std::nullopt
 									})
 								}
-							}));
+							});
 							
 						case BandcampSearchResults::Item::Type::ARTIST:
-							return std::static_pointer_cast<MediaItem>(Artist::new$(this, Artist::Data{{
-								.partial=true,
-								.type="artist",
-								.name=item.name,
-								.uri=(item.url.empty() ? String() : createURI("artist", item.url)),
-								.images=images
+							return this->artist(Artist::Data{{
+								.partial = true,
+								.type = "artist",
+								.name = item.name,
+								.uri = (item.url.empty() ? String() : createURI("artist", item.url)),
+								.images = images
 								},
-								.description=std::nullopt
-							}));
+								.description = std::nullopt
+							});
 							
 						case BandcampSearchResults::Item::Type::LABEL:
-							return std::static_pointer_cast<MediaItem>(Artist::new$(this, Artist::Data{{
-								.partial=true,
-								.type="artist",
-								.name=item.name,
-								.uri=(item.url.empty() ? String() : createURI("artist", item.url)),
-								.images=images
+							return this->artist(Artist::Data{{
+								.partial = true,
+								.type = "artist",
+								.name = item.name,
+								.uri = (item.url.empty() ? String() : createURI("artist", item.url)),
+								.images = images
 								},
-								.description=std::nullopt
-							}));
+								.description = std::nullopt
+							});
 							
 						case BandcampSearchResults::Item::Type::FAN:
-							return std::static_pointer_cast<MediaItem>(UserAccount::new$(this, UserAccount::Data{{
-								.partial=true,
-								.type="user",
-								.name=item.name,
-								.uri=(item.url.empty() ? String() : createURI("user", item.url)),
-								.images=images
+							return this->userAccount(UserAccount::Data{{
+								.partial = true,
+								.type = "user",
+								.name = item.name,
+								.uri = (item.url.empty() ? String() : createURI("user", item.url)),
+								.images = images
 								},
-								.id=([&]() -> String {
+								.id = ([&]() -> String {
 									if(item.url.empty()) {
 										return item.url;
 									}
@@ -276,7 +271,7 @@ namespace sh {
 									}
 								})(),
 								.displayName=item.name
-							}));
+							});
 							
 						case BandcampSearchResults::Item::Type::UNKNOWN:
 							throw std::logic_error("found unknown bandcamp item");
@@ -296,7 +291,7 @@ namespace sh {
 			artistURL = String();
 		}
 		if(!artist || (artistURL.empty() && !artistName.empty() && artist->name != artistName) || (!artistURL.empty() && artistURL != artist->url)) {
-			artists.pushBack(Artist::new$(this,Artist::Data{{
+			artists.pushBack(this->artist(Artist::Data{{
 				.partial = true,
 				.type="artist",
 				.name=artistName,
@@ -307,7 +302,7 @@ namespace sh {
 			}));
 		}
 		if(artist) {
-			artists.pushBack(Artist::new$(this,createArtistData(artist.value(), partial)));
+			artists.pushBack(this->artist(createArtistData(artist.value(), partial)));
 		}
 		return artists;
 	}
@@ -407,44 +402,41 @@ namespace sh {
 		auto artists = createArtists(album.artistURL, album.artistName, album.artist, partial);
 		auto albumURI = (album.url.empty() ? String() : createURI("album", album.url));
 		return Album::Data{{{
-			.partial=partial,
-			.type="album",
-			.name=album.name,
-			.uri=albumURI,
-			.images=album.images.map<MediaItem::Image>([&](auto& image) {
+			.partial = partial,
+			.type = "album",
+			.name = album.name,
+			.uri = albumURI,
+			.images = album.images.map<MediaItem::Image>([&](auto& image) {
 				return createImage(std::move(image));
 			})
 			},
-			.versionId=String(),
-			.tracks=(album.tracks ?
-				maybe(Album::Data::Tracks{
-					.total=album.tracks->size(),
-					.offset=0,
-					.items=album.tracks->map<AlbumItem::Data>([&](auto& track) {
-						auto trackData = createTrackData(track, partial);
-						trackData.albumName = album.name;
-						trackData.albumURI = albumURI;
-						// pull duplicate artists from album artists
-						if(trackData.artists.size() == 0) {
-							trackData.artists = artists;
-						} else {
-							for(auto& artist : trackData.artists) {
-								if(artist->uri().empty()) {
-									continue;
-								}
-								if(auto matchingArtist = artists.firstWhere([&](auto& item){return (item->uri() == artist->uri());}, nullptr)) {
-									if(artist->name() == matchingArtist->name()) {
-										artist = matchingArtist;
-									}
+			.versionId = String(),
+			.itemCount = album.numTracks,
+			.items = (album.tracks ?
+				album.tracks->toMap([&](auto& track, size_t index) {
+					auto trackData = createTrackData(track, partial);
+					trackData.albumName = album.name;
+					trackData.albumURI = albumURI;
+					// pull duplicate artists from album artists
+					if(trackData.artists.size() == 0) {
+						trackData.artists = artists;
+					} else {
+						for(auto& artist : trackData.artists) {
+							if(artist->uri().empty()) {
+								continue;
+							}
+							if(auto matchingArtist = artists.firstWhere([&](auto& item){return (item->uri() == artist->uri());}, nullptr)) {
+								if(artist->name() == matchingArtist->name()) {
+									artist = matchingArtist;
 								}
 							}
 						}
-						return AlbumItem::Data{
-							.track=Track::new$(this, trackData)
-						};
-					})
+					}
+					return make_pair(index, AlbumItem::Data{
+						.track=this->track(trackData)
+					});
 				})
-				: std::nullopt)
+				: Map<size_t,AlbumItem::Data>{})
 			},
 			.artists=artists,
 		};
@@ -452,18 +444,19 @@ namespace sh {
 
 	Album::Data BandcampMediaProvider::createAlbumData(BandcampFan::CollectionAlbum album) {
 		return Album::Data{{{
-			.partial=true,
-			.type="album",
-			.name=album.name,
-			.uri=(album.url.empty() ? String() : createURI("album", album.url)),
-			.images=album.images ? maybe(album.images->map<MediaItem::Image>([&](auto& image) {
+			.partial = true,
+			.type = "album",
+			.name = album.name,
+			.uri = (album.url.empty() ? String() : createURI("album", album.url)),
+			.images = album.images ? maybe(album.images->map<MediaItem::Image>([&](auto& image) {
 				return createImage(image);
 			})) : std::nullopt
 			},
-			.versionId=String(),
-			.tracks=std::nullopt,
+			.versionId = String(),
+			.itemCount = std::nullopt,
+			.items = {}
 			},
-			.artists=createArtists(album.artistURL, album.artistName, std::nullopt, true)
+			.artists = createArtists(album.artistURL, album.artistName, std::nullopt, true)
 		};
 	}
 
@@ -572,7 +565,7 @@ namespace sh {
 			if(!bcArtist.albums) {
 				throw std::runtime_error("Failed to parse bandcamp artist's albums");
 			}
-			auto artist = Artist::new$(this, createArtistData(bcArtist, false));
+			auto artist = this->artist(createArtistData(bcArtist, false));
 			return ArtistAlbumsTuple{
 				artist,
 				bcArtist.albums->template map<$<Album>>([=](auto bcAlbum) {
@@ -584,7 +577,7 @@ namespace sh {
 							break;
 						}
 					}
-					return Album::new$(this,data);
+					return this->album(data);
 				})
 			};
 		});
@@ -914,13 +907,13 @@ namespace sh {
 								if(auto track = item.trackItem()) {
 									libraryItems.pushBack(LibraryItem{
 										.libraryProvider = provider,
-										.mediaItem = Track::new$(provider, provider->createTrackData(track.value())),
+										.mediaItem = provider->track(provider->createTrackData(track.value())),
 										.addedAt = item.dateAdded
 									});
 								} else if(auto album = item.albumItem()) {
 									libraryItems.pushBack(LibraryItem{
 										.libraryProvider = provider,
-										.mediaItem = Album::new$(provider, provider->createAlbumData(album.value())),
+										.mediaItem = provider->album(provider->createAlbumData(album.value())),
 										.addedAt = item.dateAdded
 									});
 								}

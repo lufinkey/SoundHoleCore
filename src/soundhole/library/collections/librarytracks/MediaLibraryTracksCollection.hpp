@@ -22,20 +22,19 @@ namespace sh {
 	public:
 		struct Data: public SpecialTrackCollectionItem<MediaLibraryTracksCollection>::Data {
 			String addedAt;
+			
+			static Data fromJson(const Json& json, MediaProviderStash* stash);
 		};
 		
 		static $<MediaLibraryTracksCollectionItem> new$($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> collection, const Data& data);
 		
 		MediaLibraryTracksCollectionItem($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> collection, const Data& data);
-		MediaLibraryTracksCollectionItem($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> collection, const Json& json, MediaProviderStash* stash);
 		
 		const String& addedAt() const;
 		
 		virtual bool matchesItem(const TrackCollectionItem* item) const override;
 		
 		Data toData() const;
-		
-		static $<MediaLibraryTracksCollectionItem> fromJson($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> collection, const Json& json, MediaProviderStash* stash);
 		virtual Json toJson() const override;
 		
 	protected:
@@ -51,16 +50,19 @@ namespace sh {
 			MediaProvider* libraryProvider = nullptr;
 			sql::LibraryItemOrderBy orderBy = sql::LibraryItemOrderBy::ADDED_AT;
 			sql::Order order = sql::Order::DESC;
+			
+			static Filters fromJson(const Json& json, MediaProviderStash* stash);
 		};
 		
 		struct Data: public SpecialTrackCollection<MediaLibraryTracksCollectionItem>::Data {
 			Filters filters;
+			
+			static Data fromJson(const Json& json, MediaProviderStash* stash);
 		};
 		
 		static $<MediaLibraryTracksCollection> new$(MediaDatabase* database, MediaProvider* provider, const Data& data);
 		
 		MediaLibraryTracksCollection(MediaDatabase* database, MediaProvider* provider, const Data& data);
-		MediaLibraryTracksCollection(const Json& json, MediaDatabase* database);
 		
 		MediaProvider* libraryProvider();
 		const MediaProvider* libraryProvider() const;
@@ -70,8 +72,6 @@ namespace sh {
 		void applyData(const Data& data);
 		
 		Data toData(const DataOptions& options = DataOptions()) const;
-		
-		static $<MediaLibraryTracksCollection> fromJson(const Json& json, MediaDatabase* database);
 		virtual Json toJson(const ToJsonOptions& options) const override;
 		
 	protected:
