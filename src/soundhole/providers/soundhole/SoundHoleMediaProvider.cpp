@@ -10,9 +10,13 @@
 
 namespace sh {
 	SoundHoleMediaProvider::SoundHoleMediaProvider(Options options)
-	: sessionPersistKey(options.sessionPersistKey) {
+	: sessionPersistKey(options.auth.sessionPersistKey) {
 		if(options.googledrive) {
-			auto googledrive = new GoogleDriveStorageProvider(options.googledrive.value());
+			auto googledrive = new GoogleDriveStorageProvider({
+				.mediaItemBuilder = this,
+				.mediaProviderStash = options.mediaProviderStash,
+				.auth = options.googledrive.value()
+			});
 			storageProviders.pushBack(googledrive);
 		}
 		loadUserPrefs();
@@ -61,24 +65,6 @@ namespace sh {
 		return name()+":"+storageProvider+":"+type+":"+id;
 	}
 
-	SoundHoleMediaProvider::UserID SoundHoleMediaProvider::parseUserID(String userId) const {
-		if(userId.empty()) {
-			throw std::invalid_argument("Empty string is not a valid SoundHole userId");
-		}
-		auto index = userId.indexOf(':');
-		if(index == String::npos || index == (userId.length()-1)) {
-			throw std::invalid_argument("Invalid SoundHole userId "+userId);
-		}
-		return UserID{
-			.storageProvider=userId.substring(0, index),
-			.id=userId.substring(index+1)
-		};
-	}
-
-	String SoundHoleMediaProvider::createUserID(String storageProvider, String id) const {
-		return storageProvider+":"+id;
-	}
-
 
 
 	#pragma mark Storage Providers
@@ -105,6 +91,10 @@ namespace sh {
 			}
 		}
 		return nullptr;
+	}
+
+	void SoundHoleMediaProvider::addStorageProvider(StorageProvider* storageProvider) {
+		storageProviders.pushBack(storageProvider);
 	}
 
 
@@ -140,68 +130,25 @@ namespace sh {
 
 	#pragma mark Current User
 
-	Promise<ArrayList<String>> SoundHoleMediaProvider::getCurrentUserIds() {
+	Promise<ArrayList<String>> SoundHoleMediaProvider::getCurrentUserURIs() {
 		auto promises = ArrayList<Promise<ArrayList<String>>>();
 		promises.reserve(storageProviders.size());
 		for(auto storageProvider : storageProviders) {
 			auto providerName = storageProvider->name();
-			promises.pushBack(storageProvider->getCurrentUserIds().map<ArrayList<String>>([=](auto userIds) {
-				return userIds.template map<String>([&](auto& userId) {
-					return createUserID(providerName, userId);
-				});
-			}));
+			promises.pushBack(storageProvider->getCurrentUserURIs());
 		}
-		return Promise<ArrayList<String>>::all(promises).map<ArrayList<String>>([=](auto userIdLists) {
-			auto userIds = ArrayList<String>();
+		return Promise<ArrayList<String>>::all(promises).map<ArrayList<String>>([=](auto userURILists) {
+			auto userURIs = ArrayList<String>();
 			size_t count = 0;
-			for(auto& list : userIdLists) {
+			for(auto& list : userURILists) {
 				count += list.size();
 			}
-			userIds.reserve(count);
-			for(auto& list : userIdLists) {
-				userIds.pushBackList(std::move(list));
+			userURIs.reserve(count);
+			for(auto& list : userURILists) {
+				userURIs.pushBackList(std::move(list));
 			}
-			return userIds;
+			return userURIs;
 		});
-	}
-
-
-
-	#pragma mark Data transforming
-
-	Playlist::Data SoundHoleMediaProvider::createPlaylistData(StorageProvider* provider, StorageProvider::Playlist playlist) {
-		return Playlist::Data{{{
-			.partial = true,
-			.type = "playlist",
-			.name = playlist.name,
-			.uri = createURI(provider->name(), "playlist", playlist.id),
-			.images = std::nullopt // TODO get playlist images
-			},
-			.versionId = playlist.versionId,
-			.itemCount = std::nullopt,
-			.items = {}
-			},
-			.owner = playlist.owner ? this->userAccount(createUserData(provider, playlist.owner.value())) : nullptr,
-			.privacy = Playlist::Privacy_fromString(playlist.privacy)
-		};
-	}
-
-	UserAccount::Data SoundHoleMediaProvider::createUserData(StorageProvider* provider, StorageProvider::User user) {
-		return UserAccount::Data{{
-			.partial=true,
-			.type="user",
-			.name=user.name,
-			.uri=createURI(provider->name(), "user", user.id),
-			.images=ArrayList<MediaItem::Image>{
-				MediaItem::Image{
-					.url=user.imageURL,
-					.size=MediaItem::Image::Size::MEDIUM
-				}
-			}
-			},
-			.id=user.id,
-			.displayName=user.name
-		};
 	}
 
 
@@ -229,9 +176,7 @@ namespace sh {
 		if(storageProvider == nullptr) {
 			return Promise<Playlist::Data>::reject(std::runtime_error("Could not find storage provider "+uriParts.storageProvider));
 		}
-		return storageProvider->getPlaylist(uriParts.id).map<Playlist::Data>([=](auto playlist) {
-			return createPlaylistData(storageProvider,playlist);
-		});
+		return storageProvider->getPlaylistData(uri);
 	}
 
 	Promise<UserAccount::Data> SoundHoleMediaProvider::getUserData(String uri) {

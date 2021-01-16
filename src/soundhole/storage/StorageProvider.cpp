@@ -11,43 +11,39 @@
 #include <soundhole/utils/js/JSUtils.hpp>
 
 namespace sh {
-	StorageProvider::User StorageProvider::User::fromJson(const Json& json) {
-		return User{
-			.id = json["id"].string_value(),
-			.name = json["name"].string_value(),
-			.imageURL = json["imageURL"].string_value()
+	Json StorageProvider::URI::toJson() const {
+		return Json::object{
+			{ "storageProvider", (std::string)storageProvider },
+			{ "type", (std::string)type },
+			{ "id", (std::string)id }
+		};
+	}
+
+	StorageProvider::URI StorageProvider::URI::fromJson(const Json& json) {
+		return URI{
+			.storageProvider = json["storageProvider"].string_value(),
+			.type = json["type"].string_value(),
+			.id = json["id"].string_value()
 		};
 	}
 
 	#ifdef NODE_API_MODULE
-	StorageProvider::User StorageProvider::User::fromNapiObject(Napi::Object obj) {
-		return User{
-			.id = jsutils::nonNullStringPropFromNapiObject(obj, "id"),
-			.name = jsutils::nonNullStringPropFromNapiObject(obj, "name"),
-			.imageURL = jsutils::nonNullStringPropFromNapiObject(obj, "imageURL")
-		};
-	}
-	#endif
 
-	StorageProvider::Playlist StorageProvider::Playlist::fromJson(const Json& json) {
-		return Playlist{
-			.id = json["id"].string_value(),
-			.name = json["name"].string_value(),
-			.description = json["description"].string_value()
-		};
+	Napi::Object StorageProvider::URI::toNapiObject(napi_env env) const {
+		auto uri = Napi::Object::New(env);
+		uri.Set("storageProvider", Napi::String::New(env, storageProvider));
+		uri.Set("type", Napi::String::New(env, type));
+		uri.Set("id", Napi::String::New(env, id));
+		return uri;
 	}
 
-	#ifdef NODE_API_MODULE
-	StorageProvider::Playlist StorageProvider::Playlist::fromNapiObject(Napi::Object obj) {
-		auto owner = obj.Get("owner").As<Napi::Object>();
-		return Playlist{
-			.id = jsutils::nonNullStringPropFromNapiObject(obj, "id"),
-			.name = jsutils::nonNullStringPropFromNapiObject(obj, "name"),
-			.versionId = jsutils::stringFromNapiValue(obj.Get("versionId")),
-			.description = jsutils::stringFromNapiValue(obj.Get("description")),
-			.privacy = jsutils::stringFromNapiValue(obj.Get("privacy")),
-			.owner = (owner.IsEmpty() || owner.IsNull() || owner.IsUndefined()) ? std::nullopt : maybe(User::fromNapiObject(owner))
+	StorageProvider::URI StorageProvider::URI::fromNapiObject(Napi::Object obj) {
+		return URI{
+			.storageProvider = obj.Get("storageProvider").As<Napi::String>().Utf8Value(),
+			.type = obj.Get("type").As<Napi::String>().Utf8Value(),
+			.id = obj.Get("id").ToString().Utf8Value()
 		};
 	}
+
 	#endif
 }

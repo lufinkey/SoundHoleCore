@@ -11,11 +11,12 @@
 #include <soundhole/common.hpp>
 #include <soundhole/storage/StorageProvider.hpp>
 #include <soundhole/media/AuthedProviderIdentityStore.hpp>
+#include <soundhole/media/MediaProviderStash.hpp>
 #include <soundhole/utils/js/JSWrapClass.hpp>
 
 namespace sh {
 	struct GoogleDriveStorageProviderUser {
-		String id;
+		String uri;
 		String kind;
 		String displayName;
 		String photoLink;
@@ -36,11 +37,17 @@ namespace sh {
 
 	class GoogleDriveStorageProvider: public StorageProvider, public AuthedProviderIdentityStore<GoogleDriveStorageProviderUser>, private JSWrapClass {
 	public:
-		struct Options {
+		struct AuthOptions {
 			String clientId;
 			String clientSecret;
 			String redirectURL;
 			String sessionPersistKey;
+		};
+		
+		struct Options {
+			MediaItemBuilder* mediaItemBuilder = nullptr;
+			MediaProviderStash* mediaProviderStash = nullptr;
+			AuthOptions auth;
 		};
 		
 		GoogleDriveStorageProvider(Options options);
@@ -54,12 +61,12 @@ namespace sh {
 		virtual Promise<bool> login() override;
 		virtual void logout() override;
 		virtual bool isLoggedIn() const override;
-		virtual Promise<ArrayList<String>> getCurrentUserIds() override;
+		virtual Promise<ArrayList<String>> getCurrentUserURIs() override;
 		
 		virtual bool canStorePlaylists() const override;
-		virtual Promise<Playlist> createPlaylist(String name, CreatePlaylistOptions options = CreatePlaylistOptions()) override;
-		virtual Promise<Playlist> getPlaylist(String id) override;
-		virtual Promise<void> deletePlaylist(String id) override;
+		virtual Promise<$<Playlist>> createPlaylist(String name, CreatePlaylistOptions options = CreatePlaylistOptions()) override;
+		virtual Promise<Playlist::Data> getPlaylistData(String uri) override;
+		virtual Promise<void> deletePlaylist(String uri) override;
 		
 	protected:
 		virtual Promise<Optional<GoogleDriveStorageProviderUser>> fetchIdentity() override;

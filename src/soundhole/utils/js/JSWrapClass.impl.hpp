@@ -30,8 +30,9 @@ namespace sh {
 				promise.Get("then").As<Napi::Function>().Call(promise, {
 					// then
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
+						napi_env env = info.Env();
 						if(options.afterFuncFinish != nullptr) {
-							options.afterFuncFinish(info.Env());
+							options.afterFuncFinish(env);
 						}
 						// decode result
 						auto value = info[0];
@@ -64,8 +65,9 @@ namespace sh {
 					}),
 					// catch
 					Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
+						napi_env env = info.Env();
 						if(options.afterFuncFinish != nullptr) {
-							options.afterFuncFinish(info.Env());
+							options.afterFuncFinish(env);
 						}
 						// handle error
 						auto errorMessage = info[0].As<Napi::Object>().Get("message").ToString().Utf8Value();

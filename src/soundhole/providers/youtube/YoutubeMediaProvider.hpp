@@ -40,7 +40,7 @@ namespace sh {
 		virtual Promise<bool> login() override;
 		virtual void logout() override;
 		virtual bool isLoggedIn() const override;
-		virtual Promise<ArrayList<String>> getCurrentUserIds() override;
+		virtual Promise<ArrayList<String>> getCurrentUserURIs() override;
 		
 		using SearchOptions = Youtube::SearchOptions;
 		Promise<YoutubePage<$<MediaItem>>> search(String query, SearchOptions options);

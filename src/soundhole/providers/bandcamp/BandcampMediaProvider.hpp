@@ -33,7 +33,7 @@ namespace sh {
 		virtual Promise<bool> login() override;
 		virtual void logout() override;
 		virtual bool isLoggedIn() const override;
-		virtual Promise<ArrayList<String>> getCurrentUserIds() override;
+		virtual Promise<ArrayList<String>> getCurrentUserURIs() override;
 		
 		struct SearchResults {
 			String prevURL;
@@ -106,6 +106,8 @@ namespace sh {
 		
 		URI parseURL(String url) const;
 		String createURI(String type, String url) const;
+		
+		String idFromUserURL(String url) const;
 		
 		static MediaItem::Image createImage(BandcampImage image);
 		ArrayList<$<Artist>> createArtists(String artistURL, String artistName, Optional<BandcampArtist> artist, bool partial);

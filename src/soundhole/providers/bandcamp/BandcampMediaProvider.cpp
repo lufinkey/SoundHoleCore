@@ -92,6 +92,25 @@ namespace sh {
 		return name()+':'+url;
 	}
 
+	String BandcampMediaProvider::idFromUserURL(String url) const {
+		if(url.empty()) {
+			throw std::invalid_argument("Invalid empty user url");
+		}
+		auto urlObj = Url(url);
+		if(urlObj.host() == "bandcamp.com" || urlObj.host() == "www.bandcamp.com") {
+			String id = urlObj.path();
+			while(id.startsWith("/")) {
+				id = id.substring(1);
+			}
+			while(id.endsWith("/")) {
+				id = id.substring(0, id.length()-1);
+			}
+			return id;
+		} else {
+			throw std::invalid_argument("Invalid bandcamp url "+url);
+		}
+	}
+
 
 
 	#pragma mark Login
@@ -120,12 +139,12 @@ namespace sh {
 
 	#pragma mark Current User
 
-	Promise<ArrayList<String>> BandcampMediaProvider::getCurrentUserIds() {
+	Promise<ArrayList<String>> BandcampMediaProvider::getCurrentUserURIs() {
 		return getIdentity().map<ArrayList<String>>([=](Optional<BandcampIdentities> identities) -> ArrayList<String> {
 			if(!identities || !identities->fan) {
 				return {};
 			}
-			return { identities->fan->id };
+			return { createURI("user", identities->fan->url) };
 		});
 	}
 
@@ -242,35 +261,12 @@ namespace sh {
 							});
 							
 						case BandcampSearchResults::Item::Type::FAN:
-							return this->userAccount(UserAccount::Data{{
+							return this->userAccount(UserAccount::Data{
 								.partial = true,
 								.type = "user",
-								.name = item.name,
+								.name = (!item.name.empty()) ? item.name : idFromUserURL(item.url),
 								.uri = (item.url.empty() ? String() : createURI("user", item.url)),
 								.images = images
-								},
-								.id = ([&]() -> String {
-									if(item.url.empty()) {
-										return item.url;
-									}
-									try {
-										auto url = Url(item.url);
-										if(url.host() == "bandcamp.com" || url.host() == "www.bandcamp.com") {
-											String id = url.path();
-											while(id.startsWith("/")) {
-												id = id.substring(1);
-											}
-											while(id.endsWith("/")) {
-												id = id.substring(0, id.length()-1);
-											}
-											return id;
-										}
-										return item.url;
-									} catch(Url::parse_error& error) {
-										return item.url;
-									}
-								})(),
-								.displayName=item.name
 							});
 							
 						case BandcampSearchResults::Item::Type::UNKNOWN:
@@ -486,32 +482,26 @@ namespace sh {
 	}
 
 	UserAccount::Data BandcampMediaProvider::createUserData(BandcampFan fan) {
-		return UserAccount::Data{{
-			.partial=false,
-			.type="user",
-			.name=fan.name,
-			.uri=(fan.url.empty() ? String() : createURI("fan", fan.url)),
-			.images=(fan.images ? maybe(fan.images->map<MediaItem::Image>([&](auto& image) {
+		return UserAccount::Data{
+			.partial = false,
+			.type = "user",
+			.name = (!fan.name.empty()) ? fan.name : fan.id,
+			.uri = (fan.url.empty() ? String() : createURI("fan", fan.url)),
+			.images = (fan.images ? maybe(fan.images->map<MediaItem::Image>([&](auto& image) {
 				return createImage(std::move(image));
 			})) : std::nullopt)
-			},
-			.id=fan.id,
-			.displayName=fan.name
 		};
 	}
 
 	UserAccount::Data BandcampMediaProvider::createUserData(BandcampFan::CollectionFan fan) {
-		return UserAccount::Data{{
-			.partial=false,
-			.type="user",
-			.name=fan.name,
-			.uri=(fan.url.empty() ? String() : createURI("fan", fan.url)),
-			.images=(fan.images ? maybe(fan.images->map<MediaItem::Image>([&](auto& image) {
+		return UserAccount::Data{
+			.partial = false,
+			.type = "user",
+			.name = (!fan.name.empty()) ? fan.name : fan.id,
+			.uri = (fan.url.empty() ? String() : createURI("fan", fan.url)),
+			.images = (fan.images ? maybe(fan.images->map<MediaItem::Image>([&](auto& image) {
 				return createImage(std::move(image));
 			})) : std::nullopt)
-			},
-			.id=fan.id,
-			.displayName=fan.name
 		};
 	}
 

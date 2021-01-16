@@ -16,6 +16,6 @@ namespace sh {
 		virtual Promise<bool> login() = 0;
 		virtual void logout() = 0;
 		virtual bool isLoggedIn() const = 0;
-		virtual Promise<ArrayList<String>> getCurrentUserIds() = 0;
+		virtual Promise<ArrayList<String>> getCurrentUserURIs() = 0;
 	};
 }

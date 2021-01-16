@@ -14,11 +14,16 @@
 #include <soundhole/storage/googledrive/GoogleDriveStorageProvider.hpp>
 
 namespace sh {
-	class SoundHoleMediaProvider: public MediaProvider {
+	class SoundHoleMediaProvider: public MediaProvider, protected StorageProvider::MediaItemBuilder {
 	public:
-		struct Options {
+		struct AuthOptions {
 			String sessionPersistKey;
-			Optional<GoogleDriveStorageProvider::Options> googledrive;
+		};
+		
+		struct Options {
+			MediaProviderStash* mediaProviderStash = nullptr;
+			AuthOptions auth;
+			Optional<GoogleDriveStorageProvider::AuthOptions> googledrive;
 		};
 		
 		SoundHoleMediaProvider(Options);
@@ -31,11 +36,12 @@ namespace sh {
 		const StorageProvider* primaryStorageProvider() const;
 		StorageProvider* getStorageProvider(const String& name);
 		const StorageProvider* getStorageProvider(const String& name) const;
+		void addStorageProvider(StorageProvider*);
 		
 		virtual Promise<bool> login() override;
 		virtual void logout() override;
 		virtual bool isLoggedIn() const override;
-		virtual Promise<ArrayList<String>> getCurrentUserIds() override;
+		virtual Promise<ArrayList<String>> getCurrentUserURIs() override;
 		
 		virtual Promise<Track::Data> getTrackData(String uri) override;
 		virtual Promise<Artist::Data> getArtistData(String uri) override;
@@ -70,18 +76,11 @@ namespace sh {
 		};
 		URI parseURI(String uri) const;
 		
-		struct UserID {
-			String storageProvider;
-			String id;
-		};
-		UserID parseUserID(String userId) const;
+	protected:
 		
-		Playlist::Data createPlaylistData(StorageProvider* provider, StorageProvider::Playlist playlist);
-		UserAccount::Data createUserData(StorageProvider* provider, StorageProvider::User user);
 		
 	private:
 		String createURI(String storageProvider, String type, String id) const;
-		String createUserID(String storageProvider, String id) const;
 		
 		void setPrimaryStorageProvider(StorageProvider*);
 		void loadUserPrefs();

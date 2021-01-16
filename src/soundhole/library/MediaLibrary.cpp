@@ -431,11 +431,16 @@ namespace sh {
 		auto offset = fgl::new$<size_t>(options.offset);
 		using YieldResult = typename LibraryAlbumsGenerator::YieldResult;
 		return LibraryAlbumsGenerator([=]() {
+			size_t startIndex = *offset;
+			size_t endIndex = (size_t)-1;
+			if(options.chunkSize != (size_t)-1) {
+				endIndex = startIndex + options.chunkSize;
+			}
 			return db->getSavedAlbumsJson({
 				.libraryProvider = (filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : String(),
 				.range = sql::IndexRange{
-					.startIndex = *offset,
-					.endIndex = *offset + options.chunkSize
+					.startIndex = startIndex,
+					.endIndex = endIndex
 				},
 				.orderBy=filters.orderBy,
 				.order=filters.order
@@ -492,11 +497,16 @@ namespace sh {
 		auto offset = fgl::new$<size_t>(options.offset);
 		using YieldResult = typename LibraryPlaylistsGenerator::YieldResult;
 		return LibraryPlaylistsGenerator([=]() {
+			size_t startIndex = *offset;
+			size_t endIndex = (size_t)-1;
+			if(options.chunkSize != (size_t)-1) {
+				endIndex = startIndex + options.chunkSize;
+			}
 			return db->getSavedPlaylistsJson({
 				.libraryProvider = (filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : String(),
 				.range = sql::IndexRange{
-					.startIndex = *offset,
-					.endIndex = *offset + options.chunkSize
+					.startIndex = startIndex,
+					.endIndex = endIndex
 				},
 				.orderBy=filters.orderBy,
 				.order=filters.order

@@ -107,12 +107,12 @@ namespace sh {
 
 	#pragma mark Current User
 
-	Promise<ArrayList<String>> SpotifyMediaProvider::getCurrentUserIds() {
+	Promise<ArrayList<String>> SpotifyMediaProvider::getCurrentUserURIs() {
 		return getIdentity().map<ArrayList<String>>([=](Optional<SpotifyUser> user) -> ArrayList<String> {
 			if(!user) {
 				return {};
 			}
-			return { user->id };
+			return { user->uri };
 		});
 	}
 
@@ -309,17 +309,14 @@ namespace sh {
 	}
 
 	UserAccount::Data SpotifyMediaProvider::createUserAccountData(SpotifyUser user, bool partial) {
-		return UserAccount::Data{{
-			.partial=partial,
-			.type=user.type,
-			.name=user.displayName.value_or(user.id),
-			.uri=user.uri,
-			.images=(user.images ? maybe(user.images->map<MediaItem::Image>([&](SpotifyImage& image) {
+		return UserAccount::Data{
+			.partial = partial,
+			.type = user.type,
+			.name = user.displayName.value_or(user.id),
+			.uri = user.uri,
+			.images = (user.images ? maybe(user.images->map<MediaItem::Image>([&](SpotifyImage& image) {
 				return createImage(std::move(image));
 			})) : std::nullopt)
-			},
-			.id=user.id,
-			.displayName=user.displayName
 		};
 	}
 
@@ -798,7 +795,7 @@ namespace sh {
 				return false;
 			}
 			auto owner = playlist->owner();
-			return (owner != nullptr && owner->id() == user->id);
+			return (owner != nullptr && owner->uri() == user->uri);
 		});
 	}
 

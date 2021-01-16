@@ -196,13 +196,13 @@ namespace sh {
 
 	#pragma mark Current User
 
-	Promise<ArrayList<String>> YoutubeMediaProvider::getCurrentUserIds() {
+	Promise<ArrayList<String>> YoutubeMediaProvider::getCurrentUserURIs() {
 		return getIdentity().map<ArrayList<String>>([=](Optional<YoutubeMediaProviderIdentity> identity) {
 			if(!identity) {
 				return ArrayList<String>{};
 			}
-			return identity->channels.map<String>([](auto& channel) {
-				return channel.id;
+			return identity->channels.map<String>([&](auto& channel) {
+				return createURI("channel", channel.id);
 			});
 		});
 	}
@@ -424,14 +424,11 @@ namespace sh {
 			.itemCount=std::nullopt,
 			.items={}
 			},
-			.owner=this->userAccount(UserAccount::Data{{
-				.partial=true,
-				.type="user",
-				.name=playlist.snippet.channelTitle,
-				.uri=createURI("channel", playlist.snippet.channelId)
-				},
-				.id=playlist.snippet.channelId,
-				.displayName=playlist.snippet.channelTitle
+			.owner=this->userAccount(UserAccount::Data{
+				.partial = true,
+				.type = "user",
+				.name = playlist.snippet.channelTitle,
+				.uri = createURI("channel", playlist.snippet.channelId)
 			}),
 			.privacy=(
 				(playlist.status.privacyStatus == YoutubePrivacyStatus::PRIVATE) ?
@@ -478,15 +475,12 @@ namespace sh {
 			},
 			.uniqueId=playlistItem.id,
 			.addedAt=playlistItem.snippet.publishedAt,
-			.addedBy=this->userAccount(UserAccount::Data{{
-				.partial=true,
-				.type="user",
-				.name=playlistItem.snippet.channelTitle,
-				.uri=createURI("channel", playlistItem.snippet.channelId),
-				.images=std::nullopt
-				},
-				.id=playlistItem.snippet.channelId,
-				.displayName=playlistItem.snippet.channelTitle
+			.addedBy=this->userAccount(UserAccount::Data{
+				.partial = true,
+				.type = "user",
+				.name = playlistItem.snippet.channelTitle,
+				.uri = createURI("channel", playlistItem.snippet.channelId),
+				.images = std::nullopt
 			})
 		};
 	}
@@ -573,15 +567,12 @@ namespace sh {
 				.itemCount=std::nullopt,
 				.items={}
 				},
-				.owner=this->userAccount(UserAccount::Data{{
-					.partial=true,
-					.type="user",
-					.name=searchResult.snippet.channelTitle,
-					.uri=createURI("channel", searchResult.snippet.channelId),
-					.images=std::nullopt
-					},
-					.id=searchResult.snippet.channelId,
-					.displayName=searchResult.snippet.channelTitle
+				.owner=this->userAccount(UserAccount::Data{
+					.partial = true,
+					.type = "user",
+					.name = searchResult.snippet.channelTitle,
+					.uri = createURI("channel", searchResult.snippet.channelId),
+					.images = std::nullopt
 				}),
 				.privacy=Playlist::Privacy::UNKNOWN
 			});

@@ -78,7 +78,7 @@ namespace sh {
 		
 		struct GenerateLibraryAlbumsOptions {
 			size_t offset = 0;
-			size_t chunkSize = 24;
+			size_t chunkSize = (size_t)-1;
 		};
 		struct GenerateLibraryAlbumsResult {
 			LinkedList<$<Album>> albums;
@@ -91,8 +91,8 @@ namespace sh {
 			.orderBy = sql::LibraryItemOrderBy::NAME,
 			.order = sql::Order::ASC
 		}, GenerateLibraryAlbumsOptions options = GenerateLibraryAlbumsOptions{
-			.offset=0,
-			.chunkSize=24
+			.offset = 0,
+			.chunkSize = (size_t)-1
 		});
 		
 		struct GetLibraryPlaylistsFilters {
@@ -108,7 +108,7 @@ namespace sh {
 		
 		struct GenerateLibraryPlaylistsOptions {
 			size_t offset = 0;
-			size_t chunkSize = 24;
+			size_t chunkSize = (size_t)-1;
 		};
 		struct GenerateLibraryPlaylistsResult {
 			LinkedList<$<Playlist>> playlists;

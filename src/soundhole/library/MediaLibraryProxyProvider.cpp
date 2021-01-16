@@ -21,11 +21,11 @@ namespace sh {
 	}
 
 	String MediaLibraryProxyProvider::name() const {
-		return "medialibrary";
+		return "localmedialibrary";
 	}
 
 	String MediaLibraryProxyProvider::displayName() const {
-		return "MediaLibrary";
+		return "Media Library";
 	}
 	
 	Promise<bool> MediaLibraryProxyProvider::login() {
@@ -40,7 +40,7 @@ namespace sh {
 		return false;
 	}
 
-	Promise<ArrayList<String>> MediaLibraryProxyProvider::getCurrentUserIds() {
+	Promise<ArrayList<String>> MediaLibraryProxyProvider::getCurrentUserURIs() {
 		return Promise<ArrayList<String>>::resolve({});
 	}
 

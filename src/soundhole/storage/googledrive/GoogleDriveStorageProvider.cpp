@@ -39,14 +39,52 @@ namespace sh {
 		if(this->jsRef == nullptr) {
 			// create options
 			auto gdOptions = Napi::Object::New(env);
-			if(!options.clientId.empty()) {
-				gdOptions.Set("clientId", Napi::String::New(env, options.clientId));
+			if(!options.auth.clientId.empty()) {
+				gdOptions.Set("clientId", Napi::String::New(env, options.auth.clientId));
 			}
-			if(!options.clientSecret.empty()) {
-				gdOptions.Set("clientSecret", Napi::String::New(env, options.clientSecret));
+			if(!options.auth.clientSecret.empty()) {
+				gdOptions.Set("clientSecret", Napi::String::New(env, options.auth.clientSecret));
 			}
-			if(!options.redirectURL.empty()) {
-				gdOptions.Set("redirectURL", Napi::String::New(env, options.redirectURL));
+			if(!options.auth.redirectURL.empty()) {
+				gdOptions.Set("redirectURL", Napi::String::New(env, options.auth.redirectURL));
+			}
+			
+			// create media item builder
+			if(options.mediaItemBuilder != nullptr) {
+				Napi::Object mediaItemBuilder;
+				// createStorageProviderURI
+				mediaItemBuilder.Set("createStorageProviderURI", Napi::Function::New(env, [=](const Napi::CallbackInfo& info) -> Napi::Value {
+					napi_env env = info.Env();
+					if(info.Length() != 3) {
+						throw std::invalid_argument(std::to_string(info.Length())+" is not a valid number of arguments for createStorageProviderURI");
+					}
+					auto storageProvider = info[0].As<Napi::String>();
+					auto type = info[1].As<Napi::String>();
+					auto id = info[2].As<Napi::String>();
+					if(!storageProvider.IsString()) {
+						throw std::invalid_argument("storageProvider argument must be a string");
+					} else if(!type.IsString()) {
+						throw std::invalid_argument("type argument must be a string");
+					} else if(!id.IsString() && !id.IsNumber()) {
+						throw std::invalid_argument("id argument must be a string");
+					}
+					auto uri = this->options.mediaItemBuilder->createStorageProviderURI(storageProvider.Utf8Value(), type.Utf8Value(), id.ToString().Utf8Value());
+					return Napi::String::New(env, uri);
+				}));
+				// parseStorageProviderURI
+				mediaItemBuilder.Set("parseStorageProviderURI", Napi::Function::New(env, [=](const Napi::CallbackInfo& info) {
+					napi_env env = info.Env();
+					if(info.Length() != 1) {
+						throw std::invalid_argument(std::to_string(info.Length())+" is not a valid number of arguments for parseStorageProviderURI");
+					}
+					auto uri = info[0].As<Napi::String>();
+					if(!uri.IsString()) {
+						throw std::invalid_argument("uri argument must be a string");
+					}
+					auto uriParts = this->options.mediaItemBuilder->parseStorageProviderURI(uri.Utf8Value());
+					return uriParts.toNapiObject(env);
+				}));
+				gdOptions.Set("mediaItemBuilder", mediaItemBuilder);
 			}
 			
 			// instantiate bandcamp
@@ -89,8 +127,8 @@ namespace sh {
 
 	String GoogleDriveStorageProvider::getWebAuthenticationURL(String codeChallenge) const {
 		auto query = std::map<String,String>{
-			{ "client_id", options.clientId },
-			{ "redirect_uri", options.redirectURL },
+			{ "client_id", options.auth.clientId },
+			{ "redirect_uri", options.auth.redirectURL },
 			{ "response_type", "code" },
 			{ "scope", "https://www.googleapis.com/auth/drive" }
 		};
@@ -145,8 +183,8 @@ namespace sh {
 			if(!codeVerifier.empty()) {
 				optionsObj.Set("codeVerifier", Napi::String::New(env, codeVerifier));
 			}
-			if(!this->options.clientId.empty()) {
-				optionsObj.Set("clientId", Napi::String::New(env, this->options.clientId));
+			if(!this->options.auth.clientId.empty()) {
+				optionsObj.Set("clientId", Napi::String::New(env, this->options.auth.clientId));
 			}
 			return std::vector<napi_value>{
 				paramsObj,
@@ -189,20 +227,20 @@ namespace sh {
 
 	#pragma mark Current User
 
-	Promise<ArrayList<String>> GoogleDriveStorageProvider::getCurrentUserIds() {
+	Promise<ArrayList<String>> GoogleDriveStorageProvider::getCurrentUserURIs() {
 		return getIdentity().map<ArrayList<String>>([=](Optional<GoogleDriveStorageProviderUser> user) {
 			if(!user) {
 				return ArrayList<String>{};
 			}
-			return ArrayList<String>{ user->emailAddress };
+			return ArrayList<String>{ user->uri };
 		});
 	}
 
 	String GoogleDriveStorageProvider::getIdentityFilePath() const {
-		if(options.sessionPersistKey.empty()) {
+		if(options.auth.sessionPersistKey.empty()) {
 			return String();
 		}
-		return utils::getCacheDirectoryPath()+"/"+name()+"_identity_"+options.sessionPersistKey+".json";
+		return utils::getCacheDirectoryPath()+"/"+name()+"_identity_"+options.auth.sessionPersistKey+".json";
 	}
 
 	Promise<Optional<GoogleDriveStorageProviderUser>> GoogleDriveStorageProvider::fetchIdentity() {
@@ -224,8 +262,8 @@ namespace sh {
 		return true;
 	}
 
-	Promise<StorageProvider::Playlist> GoogleDriveStorageProvider::createPlaylist(String name, CreatePlaylistOptions options) {
-		return performAsyncJSAPIFunc<StorageProvider::Playlist>("createPlaylist", [=](napi_env env) {
+	Promise<$<Playlist>> GoogleDriveStorageProvider::createPlaylist(String name, CreatePlaylistOptions options) {
+		return performAsyncJSAPIFunc<$<Playlist>>("createPlaylist", [=](napi_env env) {
 			auto optionsObj = Napi::Object::New(env);
 			if(!options.description.empty()) {
 				optionsObj.Set("description", Napi::String::New(env, options.description));
@@ -234,25 +272,42 @@ namespace sh {
 				Napi::String::New(env, name),
 				optionsObj
 			};
-		}, [](napi_env env, Napi::Value value) {
-			return StorageProvider::Playlist::fromNapiObject(value.As<Napi::Object>());
+		}, [=](napi_env env, Napi::Value value) {
+			auto jsExports = scripts::getJSExports(env);
+			auto json_encode = jsExports.Get("json_encode").As<Napi::Function>();
+			auto jsonString = json_encode.Call({ value }).As<Napi::String>().Utf8Value();
+			std::string jsonError;
+			auto json = Json::parse(jsonString, jsonError);
+			if(!jsonError.empty()) {
+				throw std::runtime_error("failed to decode json for createPlaylist result");
+			}
+			return this->options.mediaItemBuilder->playlist(
+				Playlist::Data::fromJson(json, this->options.mediaProviderStash));
 		});
 	}
 
-	Promise<StorageProvider::Playlist> GoogleDriveStorageProvider::getPlaylist(String id) {
-		return performAsyncJSAPIFunc<StorageProvider::Playlist>("getPlaylist", [=](napi_env env) {
+	Promise<Playlist::Data> GoogleDriveStorageProvider::getPlaylistData(String uri) {
+		return performAsyncJSAPIFunc<Playlist::Data>("getPlaylist", [=](napi_env env) {
 			return std::vector<napi_value>{
-				Napi::String::New(env, id)
+				Napi::String::New(env, uri)
 			};
-		}, [](napi_env env, Napi::Value value) {
-			return StorageProvider::Playlist::fromNapiObject(value.As<Napi::Object>());
+		}, [=](napi_env env, Napi::Value value) {
+			auto jsExports = scripts::getJSExports(env);
+			auto json_encode = jsExports.Get("json_encode").As<Napi::Function>();
+			auto jsonString = json_encode.Call({ value }).As<Napi::String>().Utf8Value();
+			std::string jsonError;
+			auto json = Json::parse(jsonString, jsonError);
+			if(!jsonError.empty()) {
+				throw std::runtime_error("failed to decode json for createPlaylist result");
+			}
+			return Playlist::Data::fromJson(json, this->options.mediaProviderStash);
 		});
 	}
 
-	Promise<void> GoogleDriveStorageProvider::deletePlaylist(String id) {
+	Promise<void> GoogleDriveStorageProvider::deletePlaylist(String uri) {
 		return performAsyncJSAPIFunc<void>("deletePlaylist", [=](napi_env env) {
 			return std::vector<napi_value>{
-				Napi::String::New(env, id)
+				Napi::String::New(env, uri)
 			};
 		}, nullptr);
 	}
@@ -264,7 +319,7 @@ namespace sh {
 
 	Json GoogleDriveStorageProviderUser::toJson() const {
 		return Json::object{
-			{ "id", (std::string)id },
+			{ "uri", (std::string)uri },
 			{ "kind", (std::string)kind },
 			{ "displayName", (std::string)displayName },
 			{ "photoLink", (std::string)photoLink },
@@ -277,28 +332,28 @@ namespace sh {
 
 	GoogleDriveStorageProviderUser GoogleDriveStorageProviderUser::fromJson(const Json& json) {
 		return GoogleDriveStorageProviderUser{
-			.id=json["id"].string_value(),
-			.kind=json["kind"].string_value(),
-			.displayName=json["displayName"].string_value(),
-			.photoLink=json["photoLink"].string_value(),
-			.permissionId=json["permissionId"].string_value(),
-			.emailAddress=json["emailAddress"].string_value(),
-			.me=json["me"].bool_value(),
-			.baseFolderId=json["baseFolderId"].string_value()
+			.uri = json["uri"].string_value(),
+			.kind = json["kind"].string_value(),
+			.displayName = json["displayName"].string_value(),
+			.photoLink = json["photoLink"].string_value(),
+			.permissionId = json["permissionId"].string_value(),
+			.emailAddress = json["emailAddress"].string_value(),
+			.me = json["me"].bool_value(),
+			.baseFolderId = json["baseFolderId"].string_value()
 		};
 	}
 
 	#ifdef NODE_API_MODULE
 	GoogleDriveStorageProviderUser GoogleDriveStorageProviderUser::fromNapiObject(Napi::Object obj) {
 		return GoogleDriveStorageProviderUser{
-			.id=jsutils::nonNullStringPropFromNapiObject(obj, "id"),
-			.kind=jsutils::nonNullStringPropFromNapiObject(obj, "kind"),
-			.displayName=jsutils::nonNullStringPropFromNapiObject(obj, "displayName"),
-			.photoLink=jsutils::nonNullStringPropFromNapiObject(obj, "photoLink"),
-			.permissionId=jsutils::nonNullStringPropFromNapiObject(obj, "permissionId"),
-			.emailAddress=jsutils::nonNullStringPropFromNapiObject(obj, "emailAddress"),
-			.me=obj.Get("me").ToBoolean().Value(),
-			.baseFolderId=jsutils::stringFromNapiValue(obj.Get("baseFolderId"))
+			.uri = jsutils::nonNullStringPropFromNapiObject(obj, "uri"),
+			.kind = jsutils::nonNullStringPropFromNapiObject(obj, "kind"),
+			.displayName = jsutils::nonNullStringPropFromNapiObject(obj, "displayName"),
+			.photoLink = jsutils::nonNullStringPropFromNapiObject(obj, "photoLink"),
+			.permissionId = jsutils::nonNullStringPropFromNapiObject(obj, "permissionId"),
+			.emailAddress = jsutils::nonNullStringPropFromNapiObject(obj, "emailAddress"),
+			.me = obj.Get("me").ToBoolean().Value(),
+			.baseFolderId = jsutils::stringFromNapiValue(obj.Get("baseFolderId"))
 		};
 	}
 	#endif
