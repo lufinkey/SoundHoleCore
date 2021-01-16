@@ -77,7 +77,8 @@ namespace sh {
 		URI parseURI(String uri) const;
 		
 	protected:
-		
+		virtual StorageProvider::URI parseStorageProviderURI(String uri) const override;
+		virtual String createStorageProviderURI(String storageProvider, String type, String id) const override;
 		
 	private:
 		String createURI(String storageProvider, String type, String id) const;

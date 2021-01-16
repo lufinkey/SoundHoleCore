@@ -259,4 +259,21 @@ namespace sh {
 	const MediaPlaybackProvider* SoundHoleMediaProvider::player() const {
 		return nullptr;
 	}
+
+
+
+	#pragma mark StorageProvider::URI
+
+	StorageProvider::URI SoundHoleMediaProvider::parseStorageProviderURI(String uri) const {
+		auto uriParts = parseURI(uri);
+		return StorageProvider::URI{
+			.storageProvider = uriParts.storageProvider,
+			.type = uriParts.type,
+			.id = uriParts.id
+		};
+	}
+
+	String SoundHoleMediaProvider::createStorageProviderURI(String storageProvider, String type, String id) const {
+		return createURI(storageProvider, type, id);
+	}
 }
