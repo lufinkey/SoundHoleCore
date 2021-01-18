@@ -54,6 +54,18 @@ namespace sh {
 
 
 
+	#pragma mark Library Proxy Provider
+
+	MediaLibraryProxyProvider* MediaLibrary::proxyProvider() {
+		return libraryProxyProvider;
+	}
+
+	const MediaLibraryProxyProvider* MediaLibrary::proxyProvider() const {
+		return libraryProxyProvider;
+	}
+
+
+
 	#pragma mark Synchronization
 	
 	bool MediaLibrary::isSynchronizingLibrary(const String& libraryProviderName) {

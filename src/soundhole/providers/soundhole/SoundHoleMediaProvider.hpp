@@ -23,12 +23,11 @@ namespace sh {
 		};
 		
 		struct Options {
-			MediaProviderStash* mediaProviderStash = nullptr;
 			AuthOptions auth;
 			Optional<GoogleDriveStorageProvider::AuthOptions> googledrive;
 		};
 		
-		SoundHoleMediaProvider(Options);
+		SoundHoleMediaProvider(MediaProviderStash* mediaProviderStash, Options options);
 		virtual ~SoundHoleMediaProvider();
 		
 		virtual String name() const override;
@@ -50,6 +49,12 @@ namespace sh {
 		virtual Promise<Album::Data> getAlbumData(String uri) override;
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) override;
 		virtual Promise<UserAccount::Data> getUserData(String uri) override;
+		
+		virtual $<Track> track(const Track::Data& data) override;
+		virtual $<Artist> artist(const Artist::Data& data) override;
+		virtual $<Album> album(const Album::Data& data) override;
+		virtual $<Playlist> playlist(const Playlist::Data& data) override;
+		virtual $<UserAccount> userAccount(const UserAccount::Data& data) override;
 		
 		virtual Promise<ArrayList<$<Track>>> getArtistTopTracks(String artistURI) override;
 		virtual ArtistAlbumsGenerator getArtistAlbums(String artistURI) override;
@@ -89,6 +94,7 @@ namespace sh {
 		void loadUserPrefs();
 		void saveUserPrefs();
 		
+		MediaProviderStash* mediaProviderStash;
 		String sessionPersistKey;
 		String primaryStorageProviderName;
 		ArrayList<StorageProvider*> storageProviders;

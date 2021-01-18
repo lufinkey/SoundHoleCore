@@ -111,7 +111,7 @@ namespace sh {
 	MediaLibraryTracksCollection::Data MediaLibraryTracksCollection::data(const Filters &filters, Optional<size_t> itemCount, Map<size_t,MediaLibraryTracksCollectionItem::Data> items) {
 		return MediaLibraryTracksCollection::Data{{{
 			.partial = false,
-			.type = "collection",
+			.type = TYPE,
 			.name = name(filters),
 			.uri = uri(filters),
 			.images = ArrayList<MediaItem::Image>{}

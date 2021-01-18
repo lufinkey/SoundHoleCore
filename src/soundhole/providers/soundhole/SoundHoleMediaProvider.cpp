@@ -9,12 +9,12 @@
 #include "SoundHoleMediaProvider.hpp"
 
 namespace sh {
-	SoundHoleMediaProvider::SoundHoleMediaProvider(Options options)
-	: sessionPersistKey(options.auth.sessionPersistKey) {
+	SoundHoleMediaProvider::SoundHoleMediaProvider(MediaProviderStash* mediaProviderStash, Options options)
+	: mediaProviderStash(mediaProviderStash), sessionPersistKey(options.auth.sessionPersistKey) {
 		if(options.googledrive) {
 			auto googledrive = new GoogleDriveStorageProvider({
 				.mediaItemBuilder = this,
-				.mediaProviderStash = options.mediaProviderStash,
+				.mediaProviderStash = mediaProviderStash,
 				.auth = options.googledrive.value()
 			});
 			storageProviders.pushBack(googledrive);
@@ -181,6 +181,28 @@ namespace sh {
 
 	Promise<UserAccount::Data> SoundHoleMediaProvider::getUserData(String uri) {
 		return Promise<UserAccount::Data>::reject(std::logic_error("SoundHoleMediaProvider::getUserData is unimplemented"));
+	}
+
+
+
+	$<Track> SoundHoleMediaProvider::track(const Track::Data& data) {
+		return MediaProvider::track(data);
+	}
+
+	$<Artist> SoundHoleMediaProvider::artist(const Artist::Data& data) {
+		return MediaProvider::artist(data);
+	}
+
+	$<Album> SoundHoleMediaProvider::album(const Album::Data& data) {
+		return MediaProvider::album(data);
+	}
+
+	$<Playlist> SoundHoleMediaProvider::playlist(const Playlist::Data& data) {
+		return MediaProvider::playlist(data);
+	}
+
+	$<UserAccount> SoundHoleMediaProvider::userAccount(const UserAccount::Data& data) {
+		return MediaProvider::userAccount(data);
 	}
 
 

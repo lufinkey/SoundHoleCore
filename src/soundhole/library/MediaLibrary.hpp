@@ -20,6 +20,7 @@ namespace sh {
 		MediaLibrary(const MediaLibrary&) = delete;
 		MediaLibrary& operator=(const MediaLibrary&) = delete;
 		
+		
 		struct Options {
 			String dbPath;
 			MediaProviderStash* mediaProviderStash;
@@ -27,11 +28,15 @@ namespace sh {
 		MediaLibrary(Options);
 		~MediaLibrary();
 		
+		
 		Promise<void> initialize();
 		Promise<void> resetDatabase();
 		
 		MediaDatabase* database();
 		const MediaDatabase* database() const;
+		
+		MediaLibraryProxyProvider* proxyProvider();
+		const MediaLibraryProxyProvider* proxyProvider() const;
 		
 		
 		bool isSynchronizingLibrary(const String& libraryProviderName);
@@ -43,10 +48,8 @@ namespace sh {
 		AsyncQueue::TaskNode synchronizeAllLibraries();
 		
 		
-		
 		using GetLibraryTracksOptions = MediaLibraryProxyProvider::GetLibraryTracksOptions;
 		Promise<$<MediaLibraryTracksCollection>> getLibraryTracksCollection(GetLibraryTracksOptions options = GetLibraryTracksOptions());
-		
 		
 		
 		struct LibraryAlbumsFilters {
@@ -82,7 +85,6 @@ namespace sh {
 		});
 		
 		
-		
 		struct LibraryPlaylistsFilters {
 			MediaProvider* libraryProvider = nullptr;
 			sql::LibraryItemOrderBy orderBy = sql::LibraryItemOrderBy::NAME;
@@ -114,7 +116,6 @@ namespace sh {
 				.order = sql::Order::ASC
 			}
 		});
-		
 		
 		
 		using CreatePlaylistOptions = MediaProvider::CreatePlaylistOptions;

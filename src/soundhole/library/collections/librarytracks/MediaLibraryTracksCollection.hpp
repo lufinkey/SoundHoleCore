@@ -47,6 +47,7 @@ namespace sh {
 		friend class MediaLibraryProxyProvider;
 	public:
 		using LoadItemOptions = TrackCollection::LoadItemOptions;
+		static auto constexpr TYPE = "library tracks";
 		
 		struct Filters {
 			MediaProvider* libraryProvider = nullptr;
