@@ -15,7 +15,7 @@
 namespace sh {
 	class StreamPlaybackProvider: public MediaPlaybackProvider, protected StreamPlayer::Listener {
 	public:
-		StreamPlaybackProvider(StreamPlayer* player = StreamPlayer::shared());
+		StreamPlaybackProvider(StreamPlayer* player);
 		virtual ~StreamPlaybackProvider();
 		
 		virtual bool usesPublicAudioStreams() const override;

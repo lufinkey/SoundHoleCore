@@ -19,14 +19,16 @@ namespace sh {
 	: options(options),
 	organizer(PlaybackOrganizer::new$({.delegate=this})),
 	mediaProvider(nullptr),
-	preparedMediaProvider(nullptr),
-	systemMediaControls(nullptr) {
+	preparedMediaProvider(nullptr) {
 		organizer->addEventListener(this);
+		if(options.mediaControls != nullptr) {
+			options.mediaControls->addListener(this);
+		}
 	}
 
 	Player::~Player() {
-		if(systemMediaControls != nullptr) {
-			systemMediaControls->removeListener(this);
+		if(options.mediaControls != nullptr) {
+			options.mediaControls->removeListener(this);
 		}
 		organizer->removeEventListener(this);
 		organizer->stop();
@@ -75,6 +77,7 @@ namespace sh {
 				return organizer->load(metadataPath, stash).then([=](bool loaded) {
 					// apply progress data
 					this->resumableProgress = progressData;
+					// TODO possibly update media controls?
 				});
 			});
 		}).promise;
@@ -372,42 +375,42 @@ namespace sh {
 
 	#pragma mark SystemMediaControls
 
-	void Player::setSystemMediaControls(SystemMediaControls* controls) {
-		if(systemMediaControls != nullptr) {
-			systemMediaControls->removeListener(this);
+	void Player::setMediaControls(MediaControls* controls) {
+		if(options.mediaControls != nullptr) {
+			options.mediaControls->removeListener(this);
 		}
-		systemMediaControls = controls;
-		if(systemMediaControls != nullptr) {
-			systemMediaControls->addListener(this);
+		options.mediaControls = controls;
+		if(options.mediaControls != nullptr) {
+			options.mediaControls->addListener(this);
 			auto metadata = this->metadata();
 			if(metadata.currentTrack) {
-				updateSystemMediaControls();
+				updateMediaControls();
 			}
 		}
 	}
 
-	SystemMediaControls* Player::getSystemMediaControls() {
-		return systemMediaControls;
+	MediaControls* Player::getMediaControls() {
+		return options.mediaControls;
 	}
 
-	const SystemMediaControls* Player::getSystemMediaControls() const {
-		return systemMediaControls;
+	const MediaControls* Player::getMediaControls() const {
+		return options.mediaControls;
 	}
 
-	void Player::updateSystemMediaControls() {
-		using PlaybackState = SystemMediaControls::PlaybackState;
-		using ButtonState = SystemMediaControls::ButtonState;
-		using RepeatMode = SystemMediaControls::RepeatMode;
-		if(systemMediaControls != nullptr) {
+	void Player::updateMediaControls() {
+		using PlaybackState = MediaControls::PlaybackState;
+		using ButtonState = MediaControls::ButtonState;
+		using RepeatMode = MediaControls::RepeatMode;
+		if(options.mediaControls != nullptr) {
 			auto context = this->context();
 			auto contextIndex = this->contextIndex();
 			auto state = this->state();
 			auto metadata = this->metadata();
 			
 			auto playbackState = metadata.currentTrack ? (state.playing ? PlaybackState::PLAYING : PlaybackState::PAUSED) : PlaybackState::STOPPED;
-			systemMediaControls->setPlaybackState(playbackState);
+			options.mediaControls->setPlaybackState(playbackState);
 			
-			systemMediaControls->setButtonState(ButtonState{
+			options.mediaControls->setButtonState(ButtonState{
 				.playEnabled = (metadata.currentTrack != nullptr),
 				.pauseEnabled = (metadata.currentTrack != nullptr),
 				.stopEnabled = (metadata.currentTrack != nullptr),
@@ -419,7 +422,7 @@ namespace sh {
 				.shuffleMode = state.shuffling
 			});
 			
-			auto nowPlaying = SystemMediaControls::NowPlaying();
+			auto nowPlaying = MediaControls::NowPlaying();
 			if(metadata.currentTrack) {
 				nowPlaying.title = metadata.currentTrack->name();
 				auto artists = metadata.currentTrack->artists();
@@ -443,7 +446,7 @@ namespace sh {
 					nowPlaying.trackCount = itemCount;
 				}
 			}
-			systemMediaControls->setNowPlaying(nowPlaying);
+			options.mediaControls->setNowPlaying(nowPlaying);
 		}
 	}
 
@@ -508,7 +511,7 @@ namespace sh {
 			}
 			return playbackProvider->play(track, position).then([=]() {
 				this->resumableProgress = std::nullopt;
-				updateSystemMediaControls();
+				updateMediaControls();
 				saveInBackground({.includeMetadata=true});
 			});
 		}).promise;
@@ -619,7 +622,7 @@ namespace sh {
 					return;
 				}
 				// update media controls
-				self->updateSystemMediaControls();
+				self->updateMediaControls();
 				// emit metadata change event
 				callPlayerListenerEvent(&EventListener::onPlayerMetadataChange, self, createEvent());
 			}).except([=](std::exception_ptr error) {
@@ -634,7 +637,7 @@ namespace sh {
 					return;
 				}
 				// update media controls
-				self->updateSystemMediaControls();
+				self->updateMediaControls();
 				// emit metadata change event
 				callPlayerListenerEvent(&EventListener::onPlayerMetadataChange, self, createEvent());
 			}).except([=](std::exception_ptr error) {
@@ -646,7 +649,7 @@ namespace sh {
 	void Player::onPlaybackOrganizerQueueChange($<PlaybackOrganizer> organizer) {
 		auto self = shared_from_this();
 		// update media controls
-		updateSystemMediaControls();
+		updateMediaControls();
 		// emit queue change event
 		callPlayerListenerEvent(&EventListener::onPlayerQueueChange, self, createEvent());
 	}
@@ -664,7 +667,7 @@ namespace sh {
 		#endif
 		
 		// update media controls
-		updateSystemMediaControls();
+		updateMediaControls();
 		
 		// emit state change event
 		auto event = createEvent();
@@ -679,7 +682,7 @@ namespace sh {
 		stopPlayerStateInterval();
 		
 		// update media controls
-		updateSystemMediaControls();
+		updateMediaControls();
 		
 		// emit state change event
 		auto event = createEvent();
@@ -695,7 +698,7 @@ namespace sh {
 		saveInBackground({.includeMetadata=false});
 		
 		// update media controls
-		updateSystemMediaControls();
+		updateMediaControls();
 		
 		// emit track finish event
 		callPlayerListenerEvent(&EventListener::onPlayerTrackFinish, self, createEvent());
@@ -718,7 +721,7 @@ namespace sh {
 		onMediaPlaybackProviderEvent();
 		
 		// update media controls
-		updateSystemMediaControls();
+		updateMediaControls();
 		
 		// emit metadata change event
 		callPlayerListenerEvent(&EventListener::onPlayerMetadataChange, self, createEvent());
@@ -762,8 +765,8 @@ namespace sh {
 
 	#pragma mark SystemMediaControls::Listener
 
-	SystemMediaControls::HandlerStatus Player::onSystemMediaControlsPause() {
-		using HandlerStatus = SystemMediaControls::HandlerStatus;
+	MediaControls::HandlerStatus Player::onMediaControlsPause() {
+		using HandlerStatus = MediaControls::HandlerStatus;
 		if(metadata().currentTrack) {
 			setPlaying(false);
 			return HandlerStatus::SUCCESS;
@@ -772,8 +775,8 @@ namespace sh {
 		}
 	}
 
-	SystemMediaControls::HandlerStatus Player::onSystemMediaControlsPlay() {
-		using HandlerStatus = SystemMediaControls::HandlerStatus;
+	MediaControls::HandlerStatus Player::onMediaControlsPlay() {
+		using HandlerStatus = MediaControls::HandlerStatus;
 		if(metadata().currentTrack) {
 			setPlaying(true);
 			return HandlerStatus::SUCCESS;
@@ -782,28 +785,28 @@ namespace sh {
 		}
 	}
 
-	SystemMediaControls::HandlerStatus Player::onSystemMediaControlsStop() {
-		using HandlerStatus = SystemMediaControls::HandlerStatus;
+	MediaControls::HandlerStatus Player::onMediaControlsStop() {
+		using HandlerStatus = MediaControls::HandlerStatus;
 		// TODO actually stop player
 		setPlaying(false);
 		return HandlerStatus::SUCCESS;
 	}
 
-	SystemMediaControls::HandlerStatus Player::onSystemMediaControlsPrevious() {
-		using HandlerStatus = SystemMediaControls::HandlerStatus;
+	MediaControls::HandlerStatus Player::onMediaControlsPrevious() {
+		using HandlerStatus = MediaControls::HandlerStatus;
 		skipToPrevious();
 		return HandlerStatus::SUCCESS;
 	}
 
-	SystemMediaControls::HandlerStatus Player::onSystemMediaControlsNext() {
-		using HandlerStatus = SystemMediaControls::HandlerStatus;
+	MediaControls::HandlerStatus Player::onMediaControlsNext() {
+		using HandlerStatus = MediaControls::HandlerStatus;
 		skipToNext();
 		return HandlerStatus::SUCCESS;
 	}
 
-	SystemMediaControls::HandlerStatus Player::onSystemMediaControlsChangeRepeatMode(SystemMediaControls::RepeatMode repeatMode) {
-		using HandlerStatus = SystemMediaControls::HandlerStatus;
-		if(repeatMode == SystemMediaControls::RepeatMode::ALL) {
+	MediaControls::HandlerStatus Player::onMediaControlsChangeRepeatMode(MediaControls::RepeatMode repeatMode) {
+		using HandlerStatus = MediaControls::HandlerStatus;
+		if(repeatMode == MediaControls::RepeatMode::ALL) {
 			// TODO set repeating
 		} else {
 			// TODO set not repeating
@@ -811,8 +814,8 @@ namespace sh {
 		return HandlerStatus::FAILED;
 	}
 
-	SystemMediaControls::HandlerStatus Player::onSystemMediaControlsChangeShuffleMode(bool shuffleMode) {
-		using HandlerStatus = SystemMediaControls::HandlerStatus;
+	MediaControls::HandlerStatus Player::onMediaControlsChangeShuffleMode(bool shuffleMode) {
+		using HandlerStatus = MediaControls::HandlerStatus;
 		setShuffling(shuffleMode);
 		return HandlerStatus::SUCCESS;
 	}

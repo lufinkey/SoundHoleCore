@@ -20,8 +20,6 @@
 namespace sh {
 	class StreamPlayer {
 	public:
-		static StreamPlayer* shared();
-		
 		class Listener {
 		public:
 			virtual ~Listener() {}

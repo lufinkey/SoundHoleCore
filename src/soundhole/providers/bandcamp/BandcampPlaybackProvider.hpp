@@ -17,7 +17,7 @@ namespace sh {
 
 	class BandcampPlaybackProvider: public StreamPlaybackProvider {
 	public:
-		BandcampPlaybackProvider(BandcampMediaProvider* provider, StreamPlayer* streamPlayer = StreamPlayer::shared());
+		BandcampPlaybackProvider(BandcampMediaProvider* provider, StreamPlayer* streamPlayer);
 		
 	private:
 		BandcampMediaProvider* provider;

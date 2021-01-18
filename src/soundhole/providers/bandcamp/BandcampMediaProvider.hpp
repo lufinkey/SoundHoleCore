@@ -22,7 +22,7 @@ namespace sh {
 		static constexpr auto NAME = "bandcamp";
 		using Options = Bandcamp::Options;
 		
-		BandcampMediaProvider(Options options);
+		BandcampMediaProvider(Options options, StreamPlayer* streamPlayer);
 		virtual ~BandcampMediaProvider();
 		
 		virtual String name() const override;

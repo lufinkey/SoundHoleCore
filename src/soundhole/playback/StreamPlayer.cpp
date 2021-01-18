@@ -9,15 +9,6 @@
 #include "StreamPlayer.hpp"
 
 namespace sh {
-	StreamPlayer* sharedStreamPlayer = nullptr;
-
-	StreamPlayer* StreamPlayer::shared() {
-		if(sharedStreamPlayer == nullptr) {
-			sharedStreamPlayer = new StreamPlayer();
-		}
-		return sharedStreamPlayer;
-	}
-
 	void StreamPlayer::addListener(Listener* listener) {
 		std::unique_lock<std::mutex> lock(listenersMutex);
 		this->listeners.pushBack(listener);

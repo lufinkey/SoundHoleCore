@@ -209,6 +209,7 @@
 		A5C6D08125A28DE500596878 /* SoundHoleMediaProvider_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5C6D07F25A28DE500596878 /* SoundHoleMediaProvider_iOS.mm */; };
 		A5C6D17525AD697900596878 /* MediaProviderStash.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5C6D17425AD697900596878 /* MediaProviderStash.cpp */; };
 		A5C6D17625AD697900596878 /* MediaProviderStash.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5C6D17425AD697900596878 /* MediaProviderStash.cpp */; };
+		A5C6DA5125B616D300596878 /* MediaControls.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5C6DA5025B616D300596878 /* MediaControls.hpp */; };
 		A5D9E10E2550BAB500E4762A /* BandcampAuth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5D9E10C2550BAB500E4762A /* BandcampAuth.cpp */; };
 		A5D9E10F2550BAB500E4762A /* BandcampAuth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5D9E10C2550BAB500E4762A /* BandcampAuth.cpp */; };
 		A5D9E1102550BAB500E4762A /* BandcampAuth.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5D9E10D2550BAB500E4762A /* BandcampAuth.hpp */; };
@@ -479,6 +480,7 @@
 		A5C6CF1625A2575000596878 /* NamedProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = NamedProvider.hpp; sourceTree = "<group>"; };
 		A5C6D07F25A28DE500596878 /* SoundHoleMediaProvider_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SoundHoleMediaProvider_iOS.mm; sourceTree = "<group>"; };
 		A5C6D17425AD697900596878 /* MediaProviderStash.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MediaProviderStash.cpp; sourceTree = "<group>"; };
+		A5C6DA5025B616D300596878 /* MediaControls.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaControls.hpp; sourceTree = "<group>"; };
 		A5D9E10C2550BAB500E4762A /* BandcampAuth.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampAuth.cpp; sourceTree = "<group>"; };
 		A5D9E10D2550BAB500E4762A /* BandcampAuth.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BandcampAuth.hpp; sourceTree = "<group>"; };
 		A5D9E1152550BC0B00E4762A /* BandcampSession.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampSession.cpp; sourceTree = "<group>"; };
@@ -802,6 +804,7 @@
 				A5A970DF23CBDCD0009887CA /* StreamPlayerEventHandler_iOS.mm */,
 				A5E7852523CE73A300BD1C67 /* StreamPlaybackProvider.hpp */,
 				A5E7852423CE73A300BD1C67 /* StreamPlaybackProvider.cpp */,
+				A5C6DA5025B616D300596878 /* MediaControls.hpp */,
 				A5F0815F2543CFAE00C41A36 /* SystemMediaControls.hpp */,
 				A5F0815E2543CFAE00C41A36 /* SystemMediaControls.cpp */,
 				A5F0817E2543D64B00C41A36 /* SystemMediaControls_iOS.h */,
@@ -1177,6 +1180,7 @@
 				A5AE3F2E247DCF3600FB9AFF /* SQLIndexRange.hpp in Headers */,
 				A5C0A8EA23CFE59100CDB59E /* SpotifyPlaylistMutatorDelegate.hpp in Headers */,
 				A571E1A8233440A800603E14 /* HttpClient.hpp in Headers */,
+				A5C6DA5125B616D300596878 /* MediaControls.hpp in Headers */,
 				A578785723DE547F00B6B0A5 /* PlaybackOrganizer.hpp in Headers */,
 				A5E851A72357B1660001F74D /* Bandcamp.hpp in Headers */,
 				A5B7A7DF233F126800301FC0 /* Spotify.hpp in Headers */,

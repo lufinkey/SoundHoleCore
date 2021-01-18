@@ -11,7 +11,7 @@
 #include <soundhole/common.hpp>
 #include <soundhole/media/MediaProvider.hpp>
 #include "PlaybackOrganizer.hpp"
-#include "SystemMediaControls.hpp"
+#include "MediaControls.hpp"
 
 #ifdef __OBJC__
 #import <Foundation/Foundation.h>
@@ -19,7 +19,7 @@
 #endif
 
 namespace sh {
-	class Player: public std::enable_shared_from_this<Player>, protected PlaybackOrganizer::Delegate, protected PlaybackOrganizer::EventListener, protected MediaPlaybackProvider::EventListener, protected SystemMediaControls::Listener {
+	class Player: public std::enable_shared_from_this<Player>, protected PlaybackOrganizer::Delegate, protected PlaybackOrganizer::EventListener, protected MediaPlaybackProvider::EventListener, protected MediaControls::Listener {
 	public:
 		using NoItem = PlaybackOrganizer::NoItem;
 		using ItemVariant = PlaybackOrganizer::ItemVariant;
@@ -60,6 +60,7 @@ namespace sh {
 			String savePrefix;
 			double nextTrackPreloadTime = 10.0;
 			double progressSaveInterval = 1.0;
+			MediaControls* mediaControls = nullptr;
 		};
 		
 		static $<Player> new$(Options options);
@@ -109,9 +110,9 @@ namespace sh {
 		
 		LinkedList<$<QueueItem>> queueItems() const;
 		
-		void setSystemMediaControls(SystemMediaControls* controls);
-		SystemMediaControls* getSystemMediaControls();
-		const SystemMediaControls* getSystemMediaControls() const;
+		void setMediaControls(MediaControls*);
+		MediaControls* getMediaControls();
+		const MediaControls* getMediaControls() const;
 		
 	protected:
 		virtual Promise<void> onPlaybackOrganizerPrepareTrack($<PlaybackOrganizer> organizer, $<Track> track) override;
@@ -124,13 +125,13 @@ namespace sh {
 		virtual void onMediaPlaybackProviderTrackFinish(MediaPlaybackProvider* provider) override;
 		virtual void onMediaPlaybackProviderMetadataChange(MediaPlaybackProvider* provider) override;
 		
-		virtual SystemMediaControls::HandlerStatus onSystemMediaControlsPause() override;
-		virtual SystemMediaControls::HandlerStatus onSystemMediaControlsPlay() override;
-		virtual SystemMediaControls::HandlerStatus onSystemMediaControlsStop() override;
-		virtual SystemMediaControls::HandlerStatus onSystemMediaControlsPrevious() override;
-		virtual SystemMediaControls::HandlerStatus onSystemMediaControlsNext() override;
-		virtual SystemMediaControls::HandlerStatus onSystemMediaControlsChangeRepeatMode(SystemMediaControls::RepeatMode) override;
-		virtual SystemMediaControls::HandlerStatus onSystemMediaControlsChangeShuffleMode(bool) override;
+		virtual MediaControls::HandlerStatus onMediaControlsPause() override;
+		virtual MediaControls::HandlerStatus onMediaControlsPlay() override;
+		virtual MediaControls::HandlerStatus onMediaControlsStop() override;
+		virtual MediaControls::HandlerStatus onMediaControlsPrevious() override;
+		virtual MediaControls::HandlerStatus onMediaControlsNext() override;
+		virtual MediaControls::HandlerStatus onMediaControlsChangeRepeatMode(MediaControls::RepeatMode) override;
+		virtual MediaControls::HandlerStatus onMediaControlsChangeShuffleMode(bool) override;
 		
 	private:
 		String getProgressFilePath() const;
@@ -172,7 +173,7 @@ namespace sh {
 		void deactivateAudioSession();
 		#endif
 		
-		void updateSystemMediaControls();
+		void updateMediaControls();
 		
 		Options options;
 		
@@ -195,8 +196,6 @@ namespace sh {
 		
 		std::mutex listenersMutex;
 		LinkedList<EventListener*> listeners;
-		
-		SystemMediaControls* systemMediaControls;
 	};
 
 

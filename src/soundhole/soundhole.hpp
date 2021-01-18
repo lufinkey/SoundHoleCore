@@ -24,6 +24,7 @@ namespace sh {
 	public:
 		struct Options {
 			String dbPath;
+			Optional<Player::Options> player;
 			
 			Optional<SoundHoleMediaProvider::Options> soundhole;
 			Optional<SpotifyMediaProvider::Options> spotify;
@@ -38,6 +39,12 @@ namespace sh {
 		
 		MediaLibrary* mediaLibrary();
 		const MediaLibrary* mediaLibrary() const;
+		
+		StreamPlayer* streamPlayer();
+		const StreamPlayer* streamPlayer() const;
+		
+		$<Player> player();
+		$<const Player> player() const;
 		
 		void addMediaProvider(MediaProvider* mediaProvider);
 		
@@ -80,6 +87,8 @@ namespace sh {
 	private:
 		MediaLibrary* _mediaLibrary;
 		LinkedList<MediaProvider*> _mediaProviders;
+		StreamPlayer* _streamPlayer;
+		$<Player> _player;
 	};
 
 

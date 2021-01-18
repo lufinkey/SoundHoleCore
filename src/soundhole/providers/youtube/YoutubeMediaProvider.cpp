@@ -13,9 +13,9 @@
 #include <soundhole/utils/Utils.hpp>
 
 namespace sh {
-	YoutubeMediaProvider::YoutubeMediaProvider(Options options)
+	YoutubeMediaProvider::YoutubeMediaProvider(Options options, StreamPlayer* streamPlayer)
 	: youtube(new Youtube(options)),
-	_player(new YoutubePlaybackProvider(this)) {
+	_player(new YoutubePlaybackProvider(this, streamPlayer)) {
 		//
 	}
 

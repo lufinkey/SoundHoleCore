@@ -29,7 +29,7 @@ namespace sh {
 		static constexpr auto NAME = "youtube";
 		using Options = Youtube::Options;
 		
-		YoutubeMediaProvider(Options options);
+		YoutubeMediaProvider(Options options, StreamPlayer* streamPlayer);
 		virtual ~YoutubeMediaProvider();
 		
 		virtual String name() const override;

@@ -9,87 +9,28 @@
 #pragma once
 
 #include <soundhole/common.hpp>
+#include "MediaControls.hpp"
 
 namespace sh {
 	struct _SystemMediaControlsNativeData;
 	struct _SystemMediaControlsListenerNode;
 
-	class SystemMediaControls {
+	class SystemMediaControls: public MediaControls {
 	public:
 		static SystemMediaControls* shared();
-		
-		enum class RepeatMode: uint8_t {
-			OFF,
-			ONE,
-			ALL
-		};
-		
-		enum class HandlerStatus {
-			SUCCESS,
-			FAILED,
-			NO_SUCH_CONTENT,
-			NO_NOW_PLAYING_ITEM,
-			DEVICE_NOT_FOUND
-		};
-		
-		class Listener {
-		public:
-			virtual ~Listener() {}
-			
-			virtual HandlerStatus onSystemMediaControlsPause() = 0;
-			virtual HandlerStatus onSystemMediaControlsPlay() = 0;
-			virtual HandlerStatus onSystemMediaControlsStop() = 0;
-			
-			virtual HandlerStatus onSystemMediaControlsPrevious() = 0;
-			virtual HandlerStatus onSystemMediaControlsNext() = 0;
-			
-			virtual HandlerStatus onSystemMediaControlsChangeRepeatMode(RepeatMode) = 0;
-			virtual HandlerStatus onSystemMediaControlsChangeShuffleMode(bool) = 0;
-		};
-		
 		~SystemMediaControls();
 		
-		void addListener(Listener*);
-		void removeListener(Listener*);
+		virtual void addListener(Listener*) override;
+		virtual void removeListener(Listener*) override;
 		
-		struct ButtonState {
-			bool playEnabled = false;
-			bool pauseEnabled = false;
-			bool stopEnabled = false;
-			bool previousEnabled = false;
-			bool nextEnabled = false;
-			bool repeatEnabled = false;
-			RepeatMode repeatMode = RepeatMode::OFF;
-			bool shuffleEnabled = false;
-			bool shuffleMode = false;
-		};
+		virtual void setButtonState(ButtonState) override;
+		virtual ButtonState getButtonState() const override;
 		
-		void setButtonState(ButtonState);
-		ButtonState getButtonState() const;
+		virtual void setPlaybackState(PlaybackState) override;
+		virtual PlaybackState getPlaybackState() const override;
 		
-		enum PlaybackState {
-			PLAYING,
-			PAUSED,
-			STOPPED,
-			UNKNOWN,
-			INTERRUPTED
-		};
-		
-		void setPlaybackState(PlaybackState);
-		PlaybackState getPlaybackState() const;
-		
-		struct NowPlaying {
-			Optional<String> title;
-			Optional<String> artist;
-			Optional<String> albumTitle;
-			Optional<size_t> trackIndex;
-			Optional<size_t> trackCount;
-			Optional<double> elapsedTime;
-			Optional<double> duration;
-		};
-		
-		void setNowPlaying(NowPlaying);
-		NowPlaying getNowPlaying() const;
+		virtual void setNowPlaying(NowPlaying) override;
+		virtual NowPlaying getNowPlaying() const override;
 		
 	private:
 		SystemMediaControls();

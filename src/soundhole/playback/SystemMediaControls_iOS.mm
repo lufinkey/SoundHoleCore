@@ -138,35 +138,35 @@
 }
 
 -(MPRemoteCommandHandlerStatus)remoteCommandCenterDidPlay:(MPRemoteCommandEvent*)event {
-	return nativeHandlerStatus(_listener->onSystemMediaControlsPlay());
+	return nativeHandlerStatus(_listener->onMediaControlsPlay());
 }
 
 -(MPRemoteCommandHandlerStatus)remoteCommandCenterDidPause:(MPRemoteCommandEvent*)event {
-	return nativeHandlerStatus(_listener->onSystemMediaControlsPause());
+	return nativeHandlerStatus(_listener->onMediaControlsPause());
 }
 
 -(MPRemoteCommandHandlerStatus)remoteCommandCenterDidStop:(MPRemoteCommandEvent*)event {
-	return nativeHandlerStatus(_listener->onSystemMediaControlsStop());
+	return nativeHandlerStatus(_listener->onMediaControlsStop());
 }
 
 -(MPRemoteCommandHandlerStatus)remoteCommandCenterDidGoToPrevious:(MPRemoteCommandEvent*)event {
-	return nativeHandlerStatus(_listener->onSystemMediaControlsPrevious());
+	return nativeHandlerStatus(_listener->onMediaControlsPrevious());
 }
 
 -(MPRemoteCommandHandlerStatus)remoteCommandCenterDidGoToNext:(MPRemoteCommandEvent*)event {
-	return nativeHandlerStatus(_listener->onSystemMediaControlsNext());
+	return nativeHandlerStatus(_listener->onMediaControlsNext());
 }
 
 -(MPRemoteCommandHandlerStatus)remoteCommandCenterDidChangeRepeatMode:(MPRemoteCommandEvent*)event {
 	MPChangeRepeatModeCommand* command = (MPChangeRepeatModeCommand*)event.command;
 	auto repeatMode = [self.class repeatModeFrom:command.currentRepeatType];
-	return nativeHandlerStatus(_listener->onSystemMediaControlsChangeRepeatMode(repeatMode));
+	return nativeHandlerStatus(_listener->onMediaControlsChangeRepeatMode(repeatMode));
 }
 
 -(MPRemoteCommandHandlerStatus)remoteCommandCenterDidChangeShuffleMode:(MPRemoteCommandEvent*)event {
 	MPChangeShuffleModeCommand* command = (MPChangeShuffleModeCommand*)event.command;
 	auto shuffleMode = [self.class shuffleModeFrom:command.currentShuffleType];
-	return nativeHandlerStatus(_listener->onSystemMediaControlsChangeShuffleMode(shuffleMode));
+	return nativeHandlerStatus(_listener->onMediaControlsChangeShuffleMode(shuffleMode));
 }
 
 @end

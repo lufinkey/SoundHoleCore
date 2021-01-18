@@ -17,7 +17,7 @@ namespace sh {
 
 	class YoutubePlaybackProvider: public StreamPlaybackProvider {
 	public:
-		YoutubePlaybackProvider(YoutubeMediaProvider* provider, StreamPlayer* player = StreamPlayer::shared());
+		YoutubePlaybackProvider(YoutubeMediaProvider* provider, StreamPlayer* player);
 		
 	private:
 		YoutubeMediaProvider* provider;
