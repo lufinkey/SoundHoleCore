@@ -79,12 +79,12 @@ namespace sh {
 
 	template<typename MediaProviderType>
 	MediaProviderType* SoundHole::getMediaProvider() {
-		for(auto& provider : mediaProviders) {
+		for(auto& provider : _mediaProviders) {
 			if(auto mediaProvider = dynamic_cast<MediaProviderType*>(provider)) {
 				return mediaProvider;
 			}
 		}
-		if(auto mediaProvider = dynamic_cast<MediaProviderType*>(mediaLibrary->proxyProvider())) {
+		if(auto mediaProvider = dynamic_cast<MediaProviderType*>(_mediaLibrary->proxyProvider())) {
 			return mediaProvider;
 		}
 		return nullptr;
