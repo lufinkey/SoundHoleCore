@@ -93,6 +93,14 @@ namespace sh {
 		return nullptr;
 	}
 
+	ArrayList<StorageProvider*> SoundHoleMediaProvider::getStorageProviders() {
+		return storageProviders;
+	}
+
+	ArrayList<const StorageProvider*> SoundHoleMediaProvider::getStorageProviders() const {
+		return reinterpret_cast<const ArrayList<const StorageProvider*>&>(storageProviders);
+	}
+
 	void SoundHoleMediaProvider::addStorageProvider(StorageProvider* storageProvider) {
 		storageProviders.pushBack(storageProvider);
 	}

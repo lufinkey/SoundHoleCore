@@ -35,8 +35,17 @@ namespace sh {
 		
 		StorageProvider* primaryStorageProvider();
 		const StorageProvider* primaryStorageProvider() const;
+		
 		StorageProvider* getStorageProvider(const String& name);
 		const StorageProvider* getStorageProvider(const String& name) const;
+		template<typename StorageProviderType>
+		StorageProviderType* getStorageProvider();
+		template<typename StorageProviderType>
+		const StorageProviderType* getStorageProvider() const;
+		
+		ArrayList<StorageProvider*> getStorageProviders();
+		ArrayList<const StorageProvider*> getStorageProviders() const;
+		
 		void addStorageProvider(StorageProvider*);
 		
 		virtual Promise<bool> login() override;
@@ -99,4 +108,26 @@ namespace sh {
 		String primaryStorageProviderName;
 		ArrayList<StorageProvider*> storageProviders;
 	};
+
+
+
+	template<typename StorageProviderType>
+	StorageProviderType* SoundHoleMediaProvider::getStorageProvider() {
+		for(auto& provider : storageProviders) {
+			if(auto storageProvider = dynamic_cast<StorageProviderType*>(provider)) {
+				return storageProvider;
+			}
+		}
+		return nullptr;
+	}
+
+	template<typename StorageProviderType>
+	const StorageProviderType* SoundHoleMediaProvider::getStorageProvider() const {
+		for(auto& provider : storageProviders) {
+			if(auto storageProvider = dynamic_cast<const StorageProviderType*>(provider)) {
+				return storageProvider;
+			}
+		}
+		return nullptr;
+	}
 }
