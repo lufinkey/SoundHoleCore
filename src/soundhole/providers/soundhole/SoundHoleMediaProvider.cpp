@@ -196,19 +196,15 @@ namespace sh {
 	$<Track> SoundHoleMediaProvider::track(const Track::Data& data) {
 		return MediaProvider::track(data);
 	}
-
 	$<Artist> SoundHoleMediaProvider::artist(const Artist::Data& data) {
 		return MediaProvider::artist(data);
 	}
-
 	$<Album> SoundHoleMediaProvider::album(const Album::Data& data) {
 		return MediaProvider::album(data);
 	}
-
 	$<Playlist> SoundHoleMediaProvider::playlist(const Playlist::Data& data) {
 		return MediaProvider::playlist(data);
 	}
-
 	$<UserAccount> SoundHoleMediaProvider::userAccount(const UserAccount::Data& data) {
 		return MediaProvider::userAccount(data);
 	}
