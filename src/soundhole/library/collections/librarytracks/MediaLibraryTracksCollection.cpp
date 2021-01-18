@@ -133,6 +133,12 @@ namespace sh {
 		collection->lazyLoadContentIfNeeded();
 		return collection;
 	}
+
+	$<MediaLibraryTracksCollection> MediaLibraryTracksCollection::new$(MediaLibraryProxyProvider* provider, const Data& data) {
+		auto collection = fgl::new$<MediaLibraryTracksCollection>(provider, data);
+		collection->lazyLoadContentIfNeeded();
+		return collection;
+	}
 	
 	MediaLibraryTracksCollection::MediaLibraryTracksCollection(MediaLibraryProxyProvider* provider, const Filters& filters)
 	: MediaLibraryTracksCollection(provider, data(filters, std::nullopt, {})) {
