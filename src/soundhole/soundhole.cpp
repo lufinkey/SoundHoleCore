@@ -48,7 +48,7 @@ namespace sh {
 		return _mediaLibrary;
 	}
 
-	const MediaLibrary SoundHole::mediaLibrary() const {
+	const MediaLibrary* SoundHole::mediaLibrary() const {
 		return _mediaLibrary;
 	}
 
