@@ -32,7 +32,6 @@ namespace sh {
 			.dbPath = options.dbPath,
 			.mediaProviderStash = this
 		});
-		_mediaLibrary->initialize();
 	}
 
 	SoundHole::~SoundHole() {
@@ -40,6 +39,12 @@ namespace sh {
 			delete provider;
 		}
 		delete _mediaLibrary;
+	}
+
+
+
+	Promise<void> SoundHole::initialize() {
+		return _mediaLibrary->initialize();
 	}
 
 

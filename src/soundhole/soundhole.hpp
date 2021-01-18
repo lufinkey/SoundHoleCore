@@ -34,6 +34,8 @@ namespace sh {
 		SoundHole(Options);
 		virtual ~SoundHole();
 		
+		Promise<void> initialize();
+		
 		MediaLibrary* mediaLibrary();
 		const MediaLibrary* mediaLibrary() const;
 		
