@@ -27,10 +27,12 @@ namespace sh {
 		if(options.youtube) {
 			_mediaProviders.pushBack(new YoutubeMediaProvider(options.youtube.value()));
 		}
+		
 		_mediaLibrary = new MediaLibrary({
 			.dbPath = options.dbPath,
 			.mediaProviderStash = this
 		});
+		_mediaLibrary->initialize();
 	}
 
 	SoundHole::~SoundHole() {
