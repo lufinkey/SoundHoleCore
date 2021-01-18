@@ -68,7 +68,9 @@ namespace sh {
 		static Data data(const Filters& filters, Optional<size_t> itemCount, Map<size_t,MediaLibraryTracksCollectionItem::Data> items);
 		
 		static $<MediaLibraryTracksCollection> new$(MediaLibraryProxyProvider* provider, const Filters& filters);
+		static $<MediaLibraryTracksCollection> new$(MediaLibraryProxyProvider* provider, const Data& data);
 		MediaLibraryTracksCollection(MediaLibraryProxyProvider* provider, const Filters& filters);
+		MediaLibraryTracksCollection(MediaLibraryProxyProvider* provider, const Data& data);
 		
 		const Filters& filters() const;
 		MediaDatabase* database();
@@ -81,9 +83,6 @@ namespace sh {
 		virtual Json toJson(const ToJsonOptions& options) const override;
 		
 	protected:
-		static $<MediaLibraryTracksCollection> new$(MediaLibraryProxyProvider* provider, const Data& data);
-		MediaLibraryTracksCollection(MediaLibraryProxyProvider* provider, const Data& data);
-		
 		virtual MutatorDelegate* createMutatorDelegate() override final;
 		
 		virtual size_t getChunkSize() const override;
