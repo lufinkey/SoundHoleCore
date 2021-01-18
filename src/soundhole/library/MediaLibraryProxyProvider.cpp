@@ -7,26 +7,41 @@
 //
 
 #include "MediaLibraryProxyProvider.hpp"
+#include "MediaLibrary.hpp"
 
 namespace sh {
-	MediaLibraryProxyProvider::MediaLibraryProxyProvider(ArrayList<MediaProvider*> mediaProviders)
-	: mediaProviders(mediaProviders) {
+	MediaLibraryProxyProvider::MediaLibraryProxyProvider(MediaLibrary* library)
+	: library(library) {
 		//
 	}
 
 	MediaLibraryProxyProvider::~MediaLibraryProxyProvider() {
-		for(auto provider : mediaProviders) {
-			delete provider;
-		}
+		//
 	}
 
+
+
+	MediaDatabase* MediaLibraryProxyProvider::database() {
+		return library->database();
+	}
+
+	const MediaDatabase* MediaLibraryProxyProvider::database() const {
+		return library->database();
+	}
+
+
+
 	String MediaLibraryProxyProvider::name() const {
-		return "localmedialibrary";
+		return NAME;
 	}
 
 	String MediaLibraryProxyProvider::displayName() const {
 		return "Media Library";
 	}
+
+
+
+	#pragma mark Login (non-functional stubs)
 	
 	Promise<bool> MediaLibraryProxyProvider::login() {
 		return Promise<bool>::reject(std::runtime_error("MediaLibraryProxyProvider has no login"));
@@ -43,6 +58,10 @@ namespace sh {
 	Promise<ArrayList<String>> MediaLibraryProxyProvider::getCurrentUserURIs() {
 		return Promise<ArrayList<String>>::resolve({});
 	}
+
+
+
+	#pragma mark Media Item Fetching
 
 	Promise<Track::Data> MediaLibraryProxyProvider::getTrackData(String uri) {
 		return Promise<Track::Data>::reject(std::runtime_error("MediaLibraryProxyProvider cannot fetch tracks"));
@@ -68,6 +87,8 @@ namespace sh {
 		return Promise<ArrayList<$<Track>>>::reject(std::runtime_error("MediaLibraryProxyProvider cannot fetch artist top tracks"));
 	}
 
+
+
 	MediaLibraryProxyProvider::ArtistAlbumsGenerator MediaLibraryProxyProvider::getArtistAlbums(String artistURI) {
 		throw std::runtime_error("MediaLibraryProxyProvider cannot fetch artist albums");
 	}
@@ -75,6 +96,8 @@ namespace sh {
 	MediaLibraryProxyProvider::UserPlaylistsGenerator MediaLibraryProxyProvider::getUserPlaylists(String userURI) {
 		throw std::runtime_error("MediaLibraryProxyProvider cannot fetch user playlists");
 	}
+
+
 	
 	Album::MutatorDelegate* MediaLibraryProxyProvider::createAlbumMutatorDelegate($<Album> album) {
 		return nullptr;
@@ -84,6 +107,10 @@ namespace sh {
 		return nullptr;
 	}
 
+
+
+	#pragma mark User Library
+
 	bool MediaLibraryProxyProvider::hasLibrary() const {
 		return false;
 	}
@@ -92,12 +119,9 @@ namespace sh {
 		throw std::runtime_error("MediaLibraryProxyProvider cannot generate library");
 	}
 
-	Promise<bool> MediaLibraryProxyProvider::isPlaylistEditable($<Playlist> playlist) {
-		if(playlist->mediaProvider() == this) {
-			return Promise<bool>::resolve(false);
-		}
-		return playlist->mediaProvider()->isPlaylistEditable(playlist);
-	}
+
+
+	#pragma mark Player
 	
 	MediaPlaybackProvider* MediaLibraryProxyProvider::player() {
 		return nullptr;
@@ -107,27 +131,44 @@ namespace sh {
 		return nullptr;
 	}
 
-	ArrayList<MediaProvider*> MediaLibraryProxyProvider::getMediaProviders() {
-		return mediaProviders;
+
+
+	#pragma mark Library Tracks Collection
+
+	$<MediaLibraryTracksCollection> MediaLibraryProxyProvider::libraryTracksCollection(const MediaLibraryTracksCollection::Data& data) {
+		return MediaLibraryTracksCollection::new$(this, data);
 	}
 
-	void MediaLibraryProxyProvider::addMediaProvider(MediaProvider* mediaProvider) {
-		mediaProviders.pushBack(mediaProvider);
+	$<MediaLibraryTracksCollection> MediaLibraryProxyProvider::libraryTracksCollection(const LibraryTracksFilters& filters, Optional<size_t> itemCount, Map<size_t,MediaLibraryTracksCollectionItem::Data> items) {
+		return libraryTracksCollection(MediaLibraryTracksCollection::data(filters, itemCount, items));
 	}
 
-	void MediaLibraryProxyProvider::removeMediaProvider(MediaProvider* mediaProvider) {
-		mediaProviders.removeLastEqual(mediaProvider);
-	}
-
-	MediaProvider* MediaLibraryProxyProvider::getMediaProvider(const String& name) {
-		for(auto provider : mediaProviders) {
-			if(provider->name() == name) {
-				return provider;
+	Promise<$<MediaLibraryTracksCollection>> MediaLibraryProxyProvider::getLibraryTracksCollection(GetLibraryTracksOptions options) {
+		auto db = database();
+		size_t startIndex = options.itemsStartIndex.valueOr(0);
+		size_t endIndex = startIndex + options.itemsLimit.valueOr(24);
+		return db->getSavedTracksJson({
+			.startIndex=startIndex,
+			.endIndex=endIndex
+		}, {
+			.libraryProvider = (options.filters.libraryProvider != nullptr) ? options.filters.libraryProvider->name() : String(),
+			.orderBy = options.filters.orderBy,
+			.order = options.filters.order
+		}).map<$<MediaLibraryTracksCollection>>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
+			auto items = Map<size_t,MediaLibraryTracksCollectionItem::Data>();
+			size_t itemIndex = startIndex;
+			for(auto& jsonItem : results.items) {
+				auto jsonItemObj = jsonItem.object_items();
+				auto trackJsonIt = jsonItemObj.find("mediaItem");
+				if(trackJsonIt != jsonItemObj.end()) {
+					auto trackJson = trackJsonIt->second;
+					jsonItemObj.erase(trackJsonIt);
+					jsonItemObj["track"] = trackJson;
+				}
+				items.insert_or_assign(itemIndex, MediaLibraryTracksCollectionItem::Data::fromJson(jsonItemObj, library->mediaProviderStash));
+				itemIndex++;
 			}
-		}
-		if(name == this->name()) {
-			return this;
-		}
-		return nullptr;
+			return libraryTracksCollection(options.filters, results.total, items);
+		});
 	}
 }

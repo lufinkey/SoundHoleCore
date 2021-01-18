@@ -20,7 +20,6 @@ namespace sh {
 		static $<AlbumItem> new$($<SpecialTrackCollection<AlbumItem>> album, const Data& data);
 		
 		AlbumItem($<SpecialTrackCollection<AlbumItem>> album, const Data& data);
-		AlbumItem($<SpecialTrackCollection<AlbumItem>> album, const Json& json, MediaProviderStash* stash);
 		
 		virtual bool matchesItem(const TrackCollectionItem* item) const override;
 		
@@ -39,7 +38,6 @@ namespace sh {
 		static $<Album> new$(MediaProvider* provider, const Data& data);
 		
 		Album(MediaProvider* provider, const Data& data);
-		Album(const Json& json, MediaProviderStash* stash);
 		
 		const ArrayList<$<Artist>>& artists();
 		const ArrayList<$<const Artist>>& artists() const;

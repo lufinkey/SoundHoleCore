@@ -21,6 +21,7 @@ namespace sh {
 		friend class SpotifyAlbumMutatorDelegate;
 		friend class SpotifyPlaylistMutatorDelegate;
 	public:
+		static constexpr auto NAME = "spotify";
 		using Options = Spotify::Options;
 		
 		SpotifyMediaProvider(Options options);

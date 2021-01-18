@@ -31,7 +31,7 @@ namespace sh {
 
 
 	String SoundHoleMediaProvider::name() const {
-		return "soundhole";
+		return NAME;
 	}
 
 	String SoundHoleMediaProvider::displayName() const {

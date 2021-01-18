@@ -7,6 +7,7 @@
 //
 
 #include "MediaLibraryTracksCollection.hpp"
+#include <soundhole/library/MediaLibraryProxyProvider.hpp>
 
 namespace sh {
 
@@ -90,31 +91,70 @@ namespace sh {
 
 
 
+	#pragma mark MediaLibraryTracksCollection static helpers
+
+	String MediaLibraryTracksCollection::uri(const Filters& filters) {
+		String uri = (String)MediaLibraryProxyProvider::NAME + ":collection:librarytracks";
+		LinkedList<String> query;
+		if(filters.libraryProvider != nullptr) {
+			query.pushBack("libraryProvider="+filters.libraryProvider->name());
+		}
+		query.pushBack("orderBy="+sql::LibraryItemOrderBy_toString(filters.orderBy));
+		query.pushBack("order="+sql::Order_toString(filters.order));
+		return String::join({ uri,"?",String::join(query) });
+	}
+
+	String MediaLibraryTracksCollection::name(const Filters& filters) {
+		return filters.libraryProvider ? ("My "+filters.libraryProvider->displayName()+" Tracks") : "My Tracks";
+	}
+
+	MediaLibraryTracksCollection::Data MediaLibraryTracksCollection::data(const Filters &filters, Optional<size_t> itemCount, Map<size_t,MediaLibraryTracksCollectionItem::Data> items) {
+		return MediaLibraryTracksCollection::Data{{{
+			.partial = false,
+			.type = "collection",
+			.name = name(filters),
+			.uri = uri(filters),
+			.images = ArrayList<MediaItem::Image>{}
+			},
+			.versionId = String(),
+			.itemCount = itemCount,
+			.items = items,
+			},
+			.filters = filters
+		};
+	}
+
+
+
 	#pragma mark MediaLibraryTracksCollection
 
-	$<MediaLibraryTracksCollection> MediaLibraryTracksCollection::new$(MediaDatabase* database, MediaProvider* provider, const Data& data) {
-		auto collection = fgl::new$<MediaLibraryTracksCollection>(database, provider, data);
+	$<MediaLibraryTracksCollection> MediaLibraryTracksCollection::new$(MediaLibraryProxyProvider* provider, const Filters& filters) {
+		auto collection = fgl::new$<MediaLibraryTracksCollection>(provider, filters);
 		collection->lazyLoadContentIfNeeded();
 		return collection;
 	}
 	
-	MediaLibraryTracksCollection::MediaLibraryTracksCollection(MediaDatabase* database, MediaProvider* provider, const Data& data)
+	MediaLibraryTracksCollection::MediaLibraryTracksCollection(MediaLibraryProxyProvider* provider, const Filters& filters)
+	: MediaLibraryTracksCollection(provider, data(filters, std::nullopt, {})) {
+		//
+	}
+
+	MediaLibraryTracksCollection::MediaLibraryTracksCollection(MediaLibraryProxyProvider* provider, const Data& data)
 	: SpecialTrackCollection<MediaLibraryTracksCollectionItem>(provider, data),
-	_database(database),
 	_filters(data.filters) {
 		//
 	}
 
-	MediaProvider* MediaLibraryTracksCollection::libraryProvider() {
-		return _filters.libraryProvider;
+	const MediaLibraryTracksCollection::Filters& MediaLibraryTracksCollection::filters() const {
+		return _filters;
 	}
 
-	const MediaProvider* MediaLibraryTracksCollection::libraryProvider() const {
-		return _filters.libraryProvider;
+	MediaDatabase* MediaLibraryTracksCollection::database() {
+		return static_cast<MediaLibraryProxyProvider*>(mediaProvider())->database();
 	}
 
-	String MediaLibraryTracksCollection::libraryProviderName() const {
-		return (_filters.libraryProvider != nullptr) ? _filters.libraryProvider->name() : "";
+	const MediaDatabase* MediaLibraryTracksCollection::database() const {
+		return static_cast<const MediaLibraryProxyProvider*>(mediaProvider())->database();
 	}
 
 	Promise<void> MediaLibraryTracksCollection::fetchData() {
@@ -157,15 +197,15 @@ namespace sh {
 
 	Promise<void> MediaLibraryTracksCollection::loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) {
 		auto self = std::static_pointer_cast<MediaLibraryTracksCollection>(shared_from_this());
-		MediaDatabase* database = _database;
+		auto db = database();
 		if(options.database != nullptr) {
-			database = options.database;
+			db = options.database;
 		}
-		return database->getSavedTracksJson(sql::IndexRange{
+		return db->getSavedTracksJson(sql::IndexRange{
 			.startIndex=index,
 			.endIndex=(index+count)
 		}, {
-			.libraryProvider=(_filters.libraryProvider != nullptr) ? _filters.libraryProvider->name() : "",
+			.libraryProvider = (_filters.libraryProvider != nullptr) ? _filters.libraryProvider->name() : String(),
 			.orderBy = _filters.orderBy,
 			.order = _filters.order
 		}).then([=](MediaDatabase::GetJsonItemsListResult results) {
@@ -178,7 +218,7 @@ namespace sh {
 					jsonObj["track"] = trackJson;
 				}
 				return std::static_pointer_cast<MediaLibraryTracksCollectionItem>(
-					self->createCollectionItem(jsonObj, database->getProviderStash()));
+					self->createCollectionItem(jsonObj, db->getProviderStash()));
 			}));
 		});
 	}

@@ -27,9 +27,7 @@ namespace sh {
 		};
 		
 		static $<PlaylistItem> new$($<SpecialTrackCollection<PlaylistItem>> playlist, const Data& data);
-		
 		PlaylistItem($<SpecialTrackCollection<PlaylistItem>> playlist, const Data& data);
-		PlaylistItem($<SpecialTrackCollection<PlaylistItem>> playlist, const Json& json, MediaProviderStash* stash);
 		
 		const String& uniqueId() const;
 		const String& addedAt() const;
@@ -69,9 +67,7 @@ namespace sh {
 		};
 		
 		static $<Playlist> new$(MediaProvider* provider, const Data& data);
-		
 		Playlist(MediaProvider* provider, const Data& data);
-		Playlist(const Json& json, MediaProviderStash* stash);
 		
 		$<UserAccount> owner();
 		$<const UserAccount> owner() const;

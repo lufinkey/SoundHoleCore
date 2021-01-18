@@ -20,5 +20,6 @@ namespace sh {
 		
 		virtual $<MediaItem> parseMediaItem(const Json& json);
 		virtual MediaProvider* getMediaProvider(const String& name) = 0;
+		virtual ArrayList<MediaProvider*> getMediaProviders() = 0;
 	};
 }

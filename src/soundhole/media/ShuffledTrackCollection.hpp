@@ -24,7 +24,6 @@ namespace sh {
 		};
 		
 		static $<ShuffledTrackCollectionItem> new$($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, const Data& data);
-		
 		ShuffledTrackCollectionItem($<SpecialTrackCollection<ShuffledTrackCollectionItem>> context, const Data& data);
 		
 		$<TrackCollectionItem> sourceItem();

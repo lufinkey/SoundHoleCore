@@ -26,6 +26,7 @@ namespace sh {
 	class YoutubeMediaProvider: public MediaProvider, public AuthedProviderIdentityStore<YoutubeMediaProviderIdentity> {
 		friend class YoutubePlaylistMutatorDelegate;
 	public:
+		static constexpr auto NAME = "youtube";
 		using Options = Youtube::Options;
 		
 		YoutubeMediaProvider(Options options);

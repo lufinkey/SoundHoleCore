@@ -16,6 +16,7 @@
 
 namespace sh {
 	class MediaLibraryTracksCollection;
+	class MediaLibraryProxyProvider;
 
 
 	class MediaLibraryTracksCollectionItem: public SpecialTrackCollectionItem<MediaLibraryTracksCollection> {
@@ -43,6 +44,7 @@ namespace sh {
 
 
 	class MediaLibraryTracksCollection: public SpecialTrackCollection<MediaLibraryTracksCollectionItem>, public SpecialTrackCollection<MediaLibraryTracksCollectionItem>::MutatorDelegate {
+		friend class MediaLibraryProxyProvider;
 	public:
 		using LoadItemOptions = TrackCollection::LoadItemOptions;
 		
@@ -60,13 +62,16 @@ namespace sh {
 			static Data fromJson(const Json& json, MediaProviderStash* stash);
 		};
 		
-		static $<MediaLibraryTracksCollection> new$(MediaDatabase* database, MediaProvider* provider, const Data& data);
+		static String uri(const Filters& filters);
+		static String name(const Filters& filters);
+		static Data data(const Filters& filters, Optional<size_t> itemCount, Map<size_t,MediaLibraryTracksCollectionItem::Data> items);
 		
-		MediaLibraryTracksCollection(MediaDatabase* database, MediaProvider* provider, const Data& data);
+		static $<MediaLibraryTracksCollection> new$(MediaLibraryProxyProvider* provider, const Filters& filters);
+		MediaLibraryTracksCollection(MediaLibraryProxyProvider* provider, const Filters& filters);
 		
-		MediaProvider* libraryProvider();
-		const MediaProvider* libraryProvider() const;
-		String libraryProviderName() const;
+		const Filters& filters() const;
+		MediaDatabase* database();
+		const MediaDatabase* database() const;
 		
 		virtual Promise<void> fetchData() override;
 		void applyData(const Data& data);
@@ -75,7 +80,10 @@ namespace sh {
 		virtual Json toJson(const ToJsonOptions& options) const override;
 		
 	protected:
-		virtual MutatorDelegate* createMutatorDelegate() override;
+		static $<MediaLibraryTracksCollection> new$(MediaLibraryProxyProvider* provider, const Data& data);
+		MediaLibraryTracksCollection(MediaLibraryProxyProvider* provider, const Data& data);
+		
+		virtual MutatorDelegate* createMutatorDelegate() override final;
 		
 		virtual size_t getChunkSize() const override;
 		virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) override;
@@ -84,7 +92,6 @@ namespace sh {
 		virtual Promise<void> removeItems(Mutator* mutator, size_t index, size_t count) override;
 		virtual Promise<void> moveItems(Mutator* mutator, size_t index, size_t count, size_t newIndex) override;
 		
-		MediaDatabase* _database;
 		Filters _filters;
 	};
 }

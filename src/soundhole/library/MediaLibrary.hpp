@@ -10,18 +10,19 @@
 
 #include <soundhole/common.hpp>
 #include <soundhole/database/MediaDatabase.hpp>
-#include "collections/librarytracks/MediaLibraryTracksCollection.hpp"
 #include "MediaLibraryProxyProvider.hpp"
+#include "collections/librarytracks/MediaLibraryTracksCollection.hpp"
 
 namespace sh {
 	class MediaLibrary {
+		friend class MediaLibraryProxyProvider;
 	public:
 		MediaLibrary(const MediaLibrary&) = delete;
 		MediaLibrary& operator=(const MediaLibrary&) = delete;
 		
 		struct Options {
 			String dbPath;
-			ArrayList<MediaProvider*> mediaProviders;
+			MediaProviderStash* mediaProviderStash;
 		};
 		MediaLibrary(Options);
 		~MediaLibrary();
@@ -32,45 +33,28 @@ namespace sh {
 		MediaDatabase* database();
 		const MediaDatabase* database() const;
 		
-		MediaProvider* getMediaProvider(String name);
-		template<typename MediaProviderType>
-		MediaProviderType* getMediaProvider();
-		ArrayList<MediaProvider*> getMediaProviders();
 		
-		bool isSynchronizingLibrary(String libraryProviderName);
+		bool isSynchronizingLibrary(const String& libraryProviderName);
 		bool isSynchronizingLibraries();
-		Optional<AsyncQueue::TaskNode> getSynchronizeLibraryTask(String libraryProviderName);
+		Optional<AsyncQueue::TaskNode> getSynchronizeLibraryTask(const String& libraryProviderName);
 		Optional<AsyncQueue::TaskNode> getSynchronizeAllLibrariesTask();
-		AsyncQueue::TaskNode synchronizeProviderLibrary(String libraryProviderName);
+		AsyncQueue::TaskNode synchronizeProviderLibrary(const String& libraryProviderName);
 		AsyncQueue::TaskNode synchronizeProviderLibrary(MediaProvider* libraryProvider);
 		AsyncQueue::TaskNode synchronizeAllLibraries();
 		
-		struct GetLibraryTracksFilters {
-			MediaProvider* libraryProvider = nullptr;
-			sql::LibraryItemOrderBy orderBy = sql::LibraryItemOrderBy::ADDED_AT;
-			sql::Order order = sql::Order::DESC;
-		};
-		String getLibraryTracksCollectionURI(GetLibraryTracksFilters filters = GetLibraryTracksFilters{
-			.libraryProvider=nullptr,
-			.orderBy = sql::LibraryItemOrderBy::ADDED_AT,
-			.order = sql::Order::DESC
-		}) const;
-		struct GetLibraryTracksOptions {
-			Optional<size_t> offset;
-			Optional<size_t> limit;
-		};
-		Promise<$<MediaLibraryTracksCollection>> getLibraryTracksCollection(GetLibraryTracksFilters filters = GetLibraryTracksFilters{
-			.libraryProvider=nullptr,
-			.orderBy = sql::LibraryItemOrderBy::ADDED_AT,
-			.order = sql::Order::DESC
-		}, GetLibraryTracksOptions options = GetLibraryTracksOptions());
 		
-		struct GetLibraryAlbumsFilters {
+		
+		using GetLibraryTracksOptions = MediaLibraryProxyProvider::GetLibraryTracksOptions;
+		Promise<$<MediaLibraryTracksCollection>> getLibraryTracksCollection(GetLibraryTracksOptions options = GetLibraryTracksOptions());
+		
+		
+		
+		struct LibraryAlbumsFilters {
 			MediaProvider* libraryProvider = nullptr;
 			sql::LibraryItemOrderBy orderBy = sql::LibraryItemOrderBy::NAME;
 			sql::Order order = sql::Order::ASC;
 		};
-		Promise<LinkedList<$<Album>>> getLibraryAlbums(GetLibraryAlbumsFilters filters = GetLibraryAlbumsFilters{
+		Promise<LinkedList<$<Album>>> getLibraryAlbums(LibraryAlbumsFilters filters = LibraryAlbumsFilters{
 			.libraryProvider=nullptr,
 			.orderBy = sql::LibraryItemOrderBy::NAME,
 			.order = sql::Order::ASC
@@ -79,6 +63,7 @@ namespace sh {
 		struct GenerateLibraryAlbumsOptions {
 			size_t offset = 0;
 			size_t chunkSize = (size_t)-1;
+			LibraryAlbumsFilters filters = LibraryAlbumsFilters();
 		};
 		struct GenerateLibraryAlbumsResult {
 			LinkedList<$<Album>> albums;
@@ -86,21 +71,24 @@ namespace sh {
 			size_t total;
 		};
 		using LibraryAlbumsGenerator = ContinuousGenerator<GenerateLibraryAlbumsResult,void>;
-		LibraryAlbumsGenerator generateLibraryAlbums(GetLibraryAlbumsFilters filters = GetLibraryAlbumsFilters{
-			.libraryProvider=nullptr,
-			.orderBy = sql::LibraryItemOrderBy::NAME,
-			.order = sql::Order::ASC
-		}, GenerateLibraryAlbumsOptions options = GenerateLibraryAlbumsOptions{
+		LibraryAlbumsGenerator generateLibraryAlbums(GenerateLibraryAlbumsOptions options = GenerateLibraryAlbumsOptions{
 			.offset = 0,
-			.chunkSize = (size_t)-1
+			.chunkSize = (size_t)-1,
+			.filters = {
+				.libraryProvider=nullptr,
+				.orderBy = sql::LibraryItemOrderBy::NAME,
+				.order = sql::Order::ASC
+			}
 		});
 		
-		struct GetLibraryPlaylistsFilters {
+		
+		
+		struct LibraryPlaylistsFilters {
 			MediaProvider* libraryProvider = nullptr;
 			sql::LibraryItemOrderBy orderBy = sql::LibraryItemOrderBy::NAME;
 			sql::Order order = sql::Order::ASC;
 		};
-		Promise<LinkedList<$<Playlist>>> getLibraryPlaylists(GetLibraryPlaylistsFilters filters = GetLibraryPlaylistsFilters{
+		Promise<LinkedList<$<Playlist>>> getLibraryPlaylists(LibraryPlaylistsFilters filters = LibraryPlaylistsFilters{
 			.libraryProvider=nullptr,
 			.orderBy = sql::LibraryItemOrderBy::NAME,
 			.order = sql::Order::ASC
@@ -109,6 +97,7 @@ namespace sh {
 		struct GenerateLibraryPlaylistsOptions {
 			size_t offset = 0;
 			size_t chunkSize = (size_t)-1;
+			LibraryPlaylistsFilters filters;
 		};
 		struct GenerateLibraryPlaylistsResult {
 			LinkedList<$<Playlist>> playlists;
@@ -116,30 +105,27 @@ namespace sh {
 			size_t total;
 		};
 		using LibraryPlaylistsGenerator = ContinuousGenerator<GenerateLibraryPlaylistsResult,void>;
-		LibraryPlaylistsGenerator generateLibraryPlaylists(GetLibraryPlaylistsFilters filters = GetLibraryPlaylistsFilters{
-			.libraryProvider=nullptr,
-			.orderBy = sql::LibraryItemOrderBy::NAME,
-			.order = sql::Order::ASC
-		}, GenerateLibraryPlaylistsOptions options = GenerateLibraryPlaylistsOptions{
+		LibraryPlaylistsGenerator generateLibraryPlaylists(GenerateLibraryPlaylistsOptions options = GenerateLibraryPlaylistsOptions{
 			.offset=0,
-			.chunkSize=24
+			.chunkSize=24,
+			.filters = {
+				.libraryProvider=nullptr,
+				.orderBy = sql::LibraryItemOrderBy::NAME,
+				.order = sql::Order::ASC
+			}
 		});
+		
 		
 		
 		using CreatePlaylistOptions = MediaProvider::CreatePlaylistOptions;
 		Promise<$<Playlist>> createPlaylist(String name, MediaProvider* provider, CreatePlaylistOptions options);
 		
+		
 	private:
-		MediaLibraryProxyProvider* libraryProxyProvider;
 		MediaDatabase* db;
+		MediaProviderStash* mediaProviderStash;
+		MediaLibraryProxyProvider* libraryProxyProvider;
 		AsyncQueue synchronizeQueue;
 		AsyncQueue synchronizeAllQueue;
 	};
-
-
-
-	template<typename MediaProviderType>
-	MediaProviderType* MediaLibrary::getMediaProvider() {
-		return libraryProxyProvider->getMediaProvider<MediaProviderType>();
-	}
 }

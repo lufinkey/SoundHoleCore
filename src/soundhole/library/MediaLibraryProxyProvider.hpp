@@ -10,16 +10,21 @@
 
 #include <soundhole/common.hpp>
 #include <soundhole/media/MediaProvider.hpp>
-#include <soundhole/media/MediaProviderStash.hpp>
-#include <soundhole/providers/bandcamp/BandcampMediaProvider.hpp>
-#include <soundhole/providers/spotify/SpotifyMediaProvider.hpp>
-#include <soundhole/providers/youtube/YoutubeMediaProvider.hpp>
+#include "collections/librarytracks/MediaLibraryTracksCollection.hpp"
 
 namespace sh {
-	class MediaLibraryProxyProvider: public MediaProvider, public MediaProviderStash {
+	class MediaLibrary;
+
+
+	class MediaLibraryProxyProvider: public MediaProvider {
 	public:
-		MediaLibraryProxyProvider(ArrayList<MediaProvider*> mediaProviders);
+		static constexpr auto NAME = "localmedialibrary";
+		
+		MediaLibraryProxyProvider(MediaLibrary* mediaLibrary);
 		virtual ~MediaLibraryProxyProvider();
+		
+		MediaDatabase* database();
+		const MediaDatabase* database() const;
 		
 		virtual String name() const override;
 		virtual String displayName() const override;
@@ -45,34 +50,23 @@ namespace sh {
 		
 		virtual bool hasLibrary() const override;
 		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options = GenerateLibraryOptions()) override;
-		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist) override;
 		
 		virtual MediaPlaybackProvider* player() override;
 		virtual const MediaPlaybackProvider* player() const override;
 		
-		ArrayList<MediaProvider*> getMediaProviders();
-		void addMediaProvider(MediaProvider*);
-		void removeMediaProvider(MediaProvider*);
-		virtual MediaProvider* getMediaProvider(const String& name) override;
-		template<typename MediaProviderType>
-		MediaProviderType* getMediaProvider();
+		
+		using LibraryTracksFilters = MediaLibraryTracksCollection::Filters;
+		struct GetLibraryTracksOptions {
+			Optional<size_t> itemsStartIndex;
+			Optional<size_t> itemsLimit;
+			LibraryTracksFilters filters;
+		};
+		Promise<$<MediaLibraryTracksCollection>> getLibraryTracksCollection(GetLibraryTracksOptions options = GetLibraryTracksOptions());
+		
+		$<MediaLibraryTracksCollection> libraryTracksCollection(const MediaLibraryTracksCollection::Data& data);
+		$<MediaLibraryTracksCollection> libraryTracksCollection(const LibraryTracksFilters& filters, Optional<size_t> itemCount, Map<size_t,MediaLibraryTracksCollectionItem::Data> items);
 		
 	private:
-		ArrayList<MediaProvider*> mediaProviders;
+		MediaLibrary* library;
 	};
-
-
-
-	template<typename MediaProviderType>
-	MediaProviderType* MediaLibraryProxyProvider::getMediaProvider() {
-		for(auto& provider : mediaProviders) {
-			if(auto mediaProvider = dynamic_cast<MediaProviderType*>(provider)) {
-				return mediaProvider;
-			}
-		}
-		if(auto mediaProvider = dynamic_cast<MediaProviderType*>(this)) {
-			return mediaProvider;
-		}
-		return nullptr;
-	}
 }

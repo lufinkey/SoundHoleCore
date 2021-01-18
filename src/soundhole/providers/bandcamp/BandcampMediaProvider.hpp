@@ -19,6 +19,7 @@ namespace sh {
 	class BandcampMediaProvider: public MediaProvider, public AuthedProviderIdentityStore<BandcampIdentities> {
 		friend class BandcampAlbumMutatorDelegate;
 	public:
+		static constexpr auto NAME = "bandcamp";
 		using Options = Bandcamp::Options;
 		
 		BandcampMediaProvider(Options options);

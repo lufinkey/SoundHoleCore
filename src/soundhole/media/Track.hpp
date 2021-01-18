@@ -42,7 +42,6 @@ namespace sh {
 		};
 		
 		static $<Track> new$(MediaProvider* provider, const Data& data);
-		
 		Track(MediaProvider* provider, const Data& data);
 		
 		const String& albumName() const;

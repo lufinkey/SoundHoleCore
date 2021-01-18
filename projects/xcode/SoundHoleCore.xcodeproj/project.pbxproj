@@ -687,9 +687,9 @@
 		A513DB6D232DA1F8000DCAC7 /* soundhole */ = {
 			isa = PBXGroup;
 			children = (
+				A513DB6E232DA1F8000DCAC7 /* common.hpp */,
 				A513ED86232DA20A000DCAC7 /* soundhole.hpp */,
 				A563A60924B633CF0036A842 /* soundhole.cpp */,
-				A513DB6E232DA1F8000DCAC7 /* common.hpp */,
 				A5AE3F01247B88D600FB9AFF /* database */,
 				A5AE3F00247B88C500FB9AFF /* library */,
 				A513ED83232DA20A000DCAC7 /* media */,

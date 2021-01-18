@@ -16,6 +16,8 @@
 namespace sh {
 	class SoundHoleMediaProvider: public MediaProvider, protected StorageProvider::MediaItemBuilder {
 	public:
+		static constexpr auto NAME = "soundhole";
+		
 		struct AuthOptions {
 			String sessionPersistKey;
 		};

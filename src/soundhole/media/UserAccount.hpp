@@ -17,7 +17,6 @@ namespace sh {
 	class UserAccount: public MediaItem {
 	public:
 		static $<UserAccount> new$(MediaProvider* provider, const Data& data);
-		
 		UserAccount(MediaProvider* provider, const Data& data);
 		
 		virtual Promise<void> fetchData() override;

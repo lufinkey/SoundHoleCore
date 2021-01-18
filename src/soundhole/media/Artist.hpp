@@ -21,7 +21,6 @@ namespace sh {
 		};
 		
 		static $<Artist> new$(MediaProvider* provider, const Data& data);
-		
 		Artist(MediaProvider* provider, const Data& data);
 		
 		const Optional<String>& description() const;

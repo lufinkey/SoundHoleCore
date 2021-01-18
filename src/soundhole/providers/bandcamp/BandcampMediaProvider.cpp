@@ -26,7 +26,7 @@ namespace sh {
 	}
 
 	String BandcampMediaProvider::name() const {
-		return "bandcamp";
+		return NAME;
 	}
 
 	String BandcampMediaProvider::displayName() const {
@@ -120,8 +120,8 @@ namespace sh {
 			if(loggedIn) {
 				storeIdentity(std::nullopt);
 				setIdentityNeedsRefresh();
+				getIdentity();
 			}
-			getIdentity();
 			return loggedIn;
 		});
 	}

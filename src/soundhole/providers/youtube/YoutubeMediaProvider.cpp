@@ -25,7 +25,7 @@ namespace sh {
 	}
 	
 	String YoutubeMediaProvider::name() const {
-		return "youtube";
+		return NAME;
 	}
 	
 	String YoutubeMediaProvider::displayName() const {
@@ -177,8 +177,8 @@ namespace sh {
 			if(loggedIn) {
 				storeIdentity(std::nullopt);
 				setIdentityNeedsRefresh();
+				getIdentity();
 			}
-			getIdentity();
 			return loggedIn;
 		});
 	}

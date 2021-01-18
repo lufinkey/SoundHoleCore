@@ -27,7 +27,7 @@ namespace sh {
 
 
 	String SpotifyMediaProvider::name() const {
-		return "spotify";
+		return NAME;
 	}
 	
 	String SpotifyMediaProvider::displayName() const {
@@ -88,8 +88,8 @@ namespace sh {
 			if(loggedIn) {
 				storeIdentity(std::nullopt);
 				setIdentityNeedsRefresh();
+				getIdentity();
 			}
-			getIdentity();
 			return loggedIn;
 		});
 	}
