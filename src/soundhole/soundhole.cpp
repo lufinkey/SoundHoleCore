@@ -151,4 +151,10 @@ namespace sh {
 	SoundHole::LibraryPlaylistsGenerator SoundHole::generateLibraryPlaylists(GenerateLibraryPlaylistsOptions options) {
 		return _mediaLibrary->generateLibraryPlaylists(options);
 	}
+
+
+
+	Promise<$<Playlist>> SoundHole::createPlaylist(String name, MediaProvider* provider, CreatePlaylistOptions options) {
+		return _mediaLibrary->createPlaylist(name, provider, options);
+	}
 }

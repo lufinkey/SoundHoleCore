@@ -70,6 +70,11 @@ namespace sh {
 		using LibraryPlaylistsGenerator = MediaLibrary::LibraryPlaylistsGenerator;
 		LibraryPlaylistsGenerator generateLibraryPlaylists(GenerateLibraryPlaylistsOptions options = GenerateLibraryPlaylistsOptions());
 		
+		
+		using CreatePlaylistOptions = MediaLibrary::CreatePlaylistOptions;
+		virtual Promise<$<Playlist>> createPlaylist(String name, MediaProvider* provider, CreatePlaylistOptions options);
+		
+		
 	private:
 		MediaLibrary* _mediaLibrary;
 		LinkedList<MediaProvider*> _mediaProviders;
