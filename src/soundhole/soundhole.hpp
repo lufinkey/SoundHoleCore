@@ -23,6 +23,8 @@ namespace sh {
 	class SoundHole: public MediaProviderStash {
 	public:
 		struct Options {
+			String dbPath;
+			
 			Optional<SoundHoleMediaProvider::Options> soundhole;
 			Optional<SpotifyMediaProvider::Options> spotify;
 			Optional<BandcampMediaProvider::Options> bandcamp;
@@ -31,6 +33,9 @@ namespace sh {
 		
 		SoundHole(Options);
 		virtual ~SoundHole();
+		
+		MediaLibrary* mediaLibrary();
+		const MediaLibrary* mediaLibrary() const;
 		
 		void addMediaProvider(MediaProvider* mediaProvider);
 		
@@ -66,8 +71,8 @@ namespace sh {
 		LibraryPlaylistsGenerator generateLibraryPlaylists(GenerateLibraryPlaylistsOptions options = GenerateLibraryPlaylistsOptions());
 		
 	private:
-		MediaLibrary* mediaLibrary;
-		LinkedList<MediaProvider*> mediaProviders;
+		MediaLibrary* _mediaLibrary;
+		LinkedList<MediaProvider*> _mediaProviders;
 	};
 
 

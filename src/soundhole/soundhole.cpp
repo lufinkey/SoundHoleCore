@@ -13,29 +13,47 @@
 #endif
 
 namespace sh {
-	SoundHole::SoundHole(Options options) {
+	SoundHole::SoundHole(Options options)
+	: _mediaLibrary(nullptr) {
 		if(options.soundhole) {
-			mediaProviders.pushBack(new SoundHoleMediaProvider(this, options.soundhole.value()));
+			_mediaProviders.pushBack(new SoundHoleMediaProvider(this, options.soundhole.value()));
 		}
 		if(options.spotify) {
-			mediaProviders.pushBack(new SpotifyMediaProvider(options.spotify.value()));
+			_mediaProviders.pushBack(new SpotifyMediaProvider(options.spotify.value()));
 		}
 		if(options.bandcamp) {
-			mediaProviders.pushBack(new BandcampMediaProvider(options.bandcamp.value()));
+			_mediaProviders.pushBack(new BandcampMediaProvider(options.bandcamp.value()));
 		}
 		if(options.youtube) {
-			mediaProviders.pushBack(new YoutubeMediaProvider(options.youtube.value()));
+			_mediaProviders.pushBack(new YoutubeMediaProvider(options.youtube.value()));
 		}
+		_mediaLibrary = new MediaLibrary({
+			.dbPath = options.dbPath,
+			.mediaProviderStash = this
+		});
 	}
 
 	SoundHole::~SoundHole() {
-		for(auto provider : mediaProviders) {
+		for(auto provider : _mediaProviders) {
 			delete provider;
 		}
+		delete _mediaLibrary;
 	}
 
+
+
+	MediaLibrary* SoundHole::mediaLibrary() {
+		return _mediaLibrary;
+	}
+
+	const MediaLibrary SoundHole::mediaLibrary() const {
+		return _mediaLibrary;
+	}
+
+
+
 	void SoundHole::addMediaProvider(MediaProvider* mediaProvider) {
-		mediaProviders.pushBack(mediaProvider);
+		_mediaProviders.pushBack(mediaProvider);
 	}
 
 	$<MediaItem> SoundHole::parseMediaItem(const Json& json) {
@@ -64,7 +82,7 @@ namespace sh {
 			return provider->playlist(Playlist::Data::fromJson(json,this));
 		} else if(type == "user") {
 			return provider->userAccount(UserAccount::Data::fromJson(json,this));
-		} else if(type == MediaLibraryTracksCollection::TYPE && provider == mediaLibrary->proxyProvider()) {
+		} else if(type == MediaLibraryTracksCollection::TYPE && provider == _mediaLibrary->proxyProvider()) {
 			auto libraryProvider = static_cast<MediaLibraryProxyProvider*>(provider);
 			return libraryProvider->libraryTracksCollection(MediaLibraryTracksCollection::Data::fromJson(json, this));
 		}
@@ -72,63 +90,63 @@ namespace sh {
 	}
 
 	MediaProvider* SoundHole::getMediaProvider(const String& name) {
-		for(auto provider : mediaProviders) {
+		for(auto provider : _mediaProviders) {
 			if(provider->name() == name) {
 				return provider;
 			}
 		}
-		if(mediaLibrary->proxyProvider()->name() == name) {
-			return mediaLibrary->proxyProvider();
+		if(_mediaLibrary->proxyProvider()->name() == name) {
+			return _mediaLibrary->proxyProvider();
 		}
 		return nullptr;
 	}
 
 	ArrayList<MediaProvider*> SoundHole::getMediaProviders() {
-		return mediaProviders;
+		return _mediaProviders;
 	}
 
 	bool SoundHole::isSynchronizingLibrary(const String& libraryProviderName) {
-		return mediaLibrary->isSynchronizingLibrary(libraryProviderName);
+		return _mediaLibrary->isSynchronizingLibrary(libraryProviderName);
 	}
 	bool SoundHole::isSynchronizingLibraries() {
-		return mediaLibrary->isSynchronizingLibraries();
+		return _mediaLibrary->isSynchronizingLibraries();
 	}
 
 	Optional<AsyncQueue::TaskNode> SoundHole::getSynchronizeLibraryTask(const String& libraryProviderName) {
-		return mediaLibrary->getSynchronizeLibraryTask(libraryProviderName);
+		return _mediaLibrary->getSynchronizeLibraryTask(libraryProviderName);
 	}
 	Optional<AsyncQueue::TaskNode> SoundHole::getSynchronizeAllLibrariesTask() {
-		return mediaLibrary->getSynchronizeAllLibrariesTask();
+		return _mediaLibrary->getSynchronizeAllLibrariesTask();
 	}
 
 	AsyncQueue::TaskNode SoundHole::synchronizeProviderLibrary(const String& libraryProviderName) {
-		return mediaLibrary->synchronizeProviderLibrary(libraryProviderName);
+		return _mediaLibrary->synchronizeProviderLibrary(libraryProviderName);
 	}
 	AsyncQueue::TaskNode SoundHole::synchronizeProviderLibrary(MediaProvider* libraryProvider) {
-		return mediaLibrary->synchronizeProviderLibrary(libraryProvider);
+		return _mediaLibrary->synchronizeProviderLibrary(libraryProvider);
 	}
 
 	AsyncQueue::TaskNode SoundHole::synchronizeAllLibraries() {
-		return mediaLibrary->synchronizeAllLibraries();
+		return _mediaLibrary->synchronizeAllLibraries();
 	}
 
 	Promise<$<MediaLibraryTracksCollection>> SoundHole::getLibraryTracksCollection(GetLibraryTracksOptions options) {
-		return mediaLibrary->getLibraryTracksCollection(options);
+		return _mediaLibrary->getLibraryTracksCollection(options);
 	}
 
 	Promise<LinkedList<$<Album>>> SoundHole::getLibraryAlbums(LibraryAlbumsFilters filters) {
-		return mediaLibrary->getLibraryAlbums(filters);
+		return _mediaLibrary->getLibraryAlbums(filters);
 	}
 
 	SoundHole::LibraryAlbumsGenerator SoundHole::generateLibraryAlbums(GenerateLibraryAlbumsOptions options) {
-		return mediaLibrary->generateLibraryAlbums(options);
+		return _mediaLibrary->generateLibraryAlbums(options);
 	}
 
 	Promise<LinkedList<$<Playlist>>> SoundHole::getLibraryPlaylists(LibraryPlaylistsFilters filters) {
-		return mediaLibrary->getLibraryPlaylists(filters);
+		return _mediaLibrary->getLibraryPlaylists(filters);
 	}
 
 	SoundHole::LibraryPlaylistsGenerator SoundHole::generateLibraryPlaylists(GenerateLibraryPlaylistsOptions options) {
-		return mediaLibrary->generateLibraryPlaylists(options);
+		return _mediaLibrary->generateLibraryPlaylists(options);
 	}
 }
