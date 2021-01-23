@@ -18,12 +18,9 @@ namespace sh {
 	class AlbumItem: public SpecialTrackCollectionItem<Album> {
 	public:
 		static $<AlbumItem> new$($<SpecialTrackCollection<AlbumItem>> album, const Data& data);
-		
 		AlbumItem($<SpecialTrackCollection<AlbumItem>> album, const Data& data);
 		
 		virtual bool matchesItem(const TrackCollectionItem* item) const override;
-		
-		static $<AlbumItem> fromJson($<SpecialTrackCollection<AlbumItem>> album, const Json& json, MediaProviderStash* stash);
 	};
 
 
@@ -46,8 +43,6 @@ namespace sh {
 		void applyData(const Data& data);
 		
 		Data toData(const DataOptions& options = DataOptions()) const;
-		
-		static $<Album> fromJson(const Json& json, MediaProviderStash* stash);
 		virtual Json toJson(const ToJsonOptions& options) const override;
 		
 	protected:

@@ -314,47 +314,25 @@ namespace sh {
 
 
 
+	#pragma mark Playlist Items
 
-	#pragma mark GoogleDriveStorageProviderUser
-
-	Json GoogleDriveStorageProviderUser::toJson() const {
-		return Json::object{
-			{ "uri", (std::string)uri },
-			{ "kind", (std::string)kind },
-			{ "displayName", (std::string)displayName },
-			{ "photoLink", (std::string)photoLink },
-			{ "permissionId", (std::string)permissionId },
-			{ "emailAddress", (std::string)emailAddress },
-			{ "me", me },
-			{ "baseFolderId", baseFolderId.empty() ? Json() : Json((std::string)baseFolderId) }
-		};
+	Promise<GoogleDrivePlaylistItemsPage> GoogleDriveStorageProvider::getPlaylistItems(String uri, size_t offset, size_t limit) {
+		return performAsyncJSAPIFunc<GoogleDrivePlaylistItemsPage>("getPlaylistItems", [=](napi_env env) {
+			return std::vector<napi_value>{
+				Napi::String::New(env, uri),
+				Napi::Number::New(env, (double)offset),
+				Napi::Number::New(env, (double)limit)
+			};
+		}, [=](napi_env env, Napi::Value value) {
+			auto jsExports = scripts::getJSExports(env);
+			auto json_encode = jsExports.Get("json_encode").As<Napi::Function>();
+			auto jsonString = json_encode.Call({ value }).As<Napi::String>().Utf8Value();
+			std::string jsonError;
+			auto json = Json::parse(jsonString, jsonError);
+			if(!jsonError.empty()) {
+				throw std::runtime_error("failed to decode json for getPlaylistItems result");
+			}
+			return GoogleDrivePlaylistItemsPage::fromJson(json, this->options.mediaProviderStash);
+		});
 	}
-
-	GoogleDriveStorageProviderUser GoogleDriveStorageProviderUser::fromJson(const Json& json) {
-		return GoogleDriveStorageProviderUser{
-			.uri = json["uri"].string_value(),
-			.kind = json["kind"].string_value(),
-			.displayName = json["displayName"].string_value(),
-			.photoLink = json["photoLink"].string_value(),
-			.permissionId = json["permissionId"].string_value(),
-			.emailAddress = json["emailAddress"].string_value(),
-			.me = json["me"].bool_value(),
-			.baseFolderId = json["baseFolderId"].string_value()
-		};
-	}
-
-	#ifdef NODE_API_MODULE
-	GoogleDriveStorageProviderUser GoogleDriveStorageProviderUser::fromNapiObject(Napi::Object obj) {
-		return GoogleDriveStorageProviderUser{
-			.uri = jsutils::nonNullStringPropFromNapiObject(obj, "uri"),
-			.kind = jsutils::nonNullStringPropFromNapiObject(obj, "kind"),
-			.displayName = jsutils::nonNullStringPropFromNapiObject(obj, "displayName"),
-			.photoLink = jsutils::nonNullStringPropFromNapiObject(obj, "photoLink"),
-			.permissionId = jsutils::nonNullStringPropFromNapiObject(obj, "permissionId"),
-			.emailAddress = jsutils::nonNullStringPropFromNapiObject(obj, "emailAddress"),
-			.me = obj.Get("me").ToBoolean().Value(),
-			.baseFolderId = jsutils::stringFromNapiValue(obj.Get("baseFolderId"))
-		};
-	}
-	#endif
 }

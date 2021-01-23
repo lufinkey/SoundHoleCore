@@ -495,11 +495,8 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		await this._preparePlaylistSheet(file.id);
 		// transform result
 		const playlist = this._createPlaylistObject(file, (baseFolderOwner ? baseFolderOwner.permissionId : null), baseFolder.id);
-		playlist.tracks = {
-			offset: 0,
-			total: 0,
-			items: []
-		};
+		playlist.itemCount = 0;
+		playlist.items = [];
 		return playlist;
 	}
 
@@ -535,10 +532,19 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		// transform result
 		const playlist = this._createPlaylistObject(file, uriParts.permissionId || uriParts.email, uriParts.baseFolderId);
 		const sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
-		playlist.tracks = this._parsePlaylistSheetItems(spreadsheet, 1, sheetProps);
-		if(playlist.tracks && playlist.tracks.total != null) {
-			playlist.itemCount = playlist.tracks.total;
+		const tracks = this._parsePlaylistSheetItems(spreadsheet, 1, sheetProps);
+		if(tracks && tracks.total != null) {
+			playlist.itemCount = tracks.total;
 		}
+		const playlistItems = [];
+		if(tracks && tracks.offset != null) {
+			let i = tracks.offset;
+			for(const item of tracks.items) {
+				playlistItems[i] = item;
+				i++;
+			}
+		}
+		playlist.items = playlistItems;
 		return playlist;
 	}
 

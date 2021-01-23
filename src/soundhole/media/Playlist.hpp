@@ -37,8 +37,6 @@ namespace sh {
 		virtual bool matchesItem(const TrackCollectionItem* item) const override;
 		
 		Data toData() const;
-		
-		static $<PlaylistItem> fromJson($<SpecialTrackCollection<PlaylistItem>> playlist, const Json& json, MediaProviderStash* stash);
 		virtual Json toJson() const override;
 		
 	protected:
@@ -78,8 +76,6 @@ namespace sh {
 		void applyData(const Data& data);
 		
 		Data toData(const DataOptions& options = DataOptions()) const;
-		
-		static $<Playlist> fromJson(const Json& json, MediaProviderStash* stash);
 		virtual Json toJson(const ToJsonOptions& options) const override;
 		
 		Promise<void> insertItems(size_t index, LinkedList<$<Track>> items);
