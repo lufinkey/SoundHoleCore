@@ -295,7 +295,7 @@ namespace sh {
 		auto itemMarkers = items.map<std::tuple<String,AsyncListIndexMarker>>([&](auto& item) {
 			auto itemId = item->uniqueId();
 			if(itemId.empty()) {
-				throw std::runtime_error("Missing youtubePlaylistItemId prop for item at index "+std::to_string(index+itemIdOffset));
+				throw std::runtime_error("Missing uniqueId prop for item at index "+std::to_string(index+itemIdOffset));
 			}
 			itemIdOffset++;
 			auto indexMarker = list->watchIndex(index+itemIdOffset);

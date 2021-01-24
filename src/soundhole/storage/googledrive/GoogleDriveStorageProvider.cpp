@@ -12,6 +12,7 @@
 #include <soundhole/utils/js/JSWrapClass.impl.hpp>
 #include <soundhole/utils/HttpClient.hpp>
 #include <soundhole/utils/Utils.hpp>
+#include "mutators/GoogleDrivePlaylistMutatorDelegate.hpp"
 
 namespace sh {
 	GoogleDriveStorageProvider::GoogleDriveStorageProvider(Options options)
@@ -313,6 +314,11 @@ namespace sh {
 	}
 
 
+	Playlist::MutatorDelegate* GoogleDriveStorageProvider::createPlaylistMutatorDelegate($<Playlist> playlist) {
+		return new GoogleDrivePlaylistMutatorDelegate(playlist, this);
+	}
+
+
 
 	#pragma mark Playlist Items
 
@@ -334,5 +340,91 @@ namespace sh {
 			}
 			return GoogleDrivePlaylistItemsPage::fromJson(json, this->options.mediaProviderStash);
 		});
+	}
+
+	Promise<GoogleDrivePlaylistItemsPage> GoogleDriveStorageProvider::insertPlaylistItems(String uri, size_t index, ArrayList<$<Track>> tracks) {
+		return performAsyncJSAPIFunc<GoogleDrivePlaylistItemsPage>("insertPlaylistItems", [=](napi_env env) {
+			auto jsExports = scripts::getJSExports(env);
+			auto json_decode = jsExports.Get("json_decode").As<Napi::Function>();
+			auto tracksJson = Json(tracks.map<Json>([&](auto& track) {
+				return track->toJson();
+			})).dump();
+			auto tracksArray = json_decode.Call({ Napi::String::New(env, tracksJson) }).As<Napi::Object>();
+			return std::vector<napi_value>{
+				Napi::String::New(env, uri),
+				Napi::Number::New(env, (double)index),
+				tracksArray
+			};
+		}, [=](napi_env env, Napi::Value value) {
+			auto jsExports = scripts::getJSExports(env);
+			auto json_encode = jsExports.Get("json_encode").As<Napi::Function>();
+			auto jsonString = json_encode.Call({ value }).As<Napi::String>().Utf8Value();
+			std::string jsonError;
+			auto json = Json::parse(jsonString, jsonError);
+			if(!jsonError.empty()) {
+				throw std::runtime_error("failed to decode json for getPlaylistItems result");
+			}
+			return GoogleDrivePlaylistItemsPage::fromJson(json, this->options.mediaProviderStash);
+		});
+	}
+
+	Promise<GoogleDrivePlaylistItemsPage> GoogleDriveStorageProvider::appendPlaylistItems(String uri, ArrayList<$<Track>> tracks) {
+		return performAsyncJSAPIFunc<GoogleDrivePlaylistItemsPage>("appendPlaylistItems", [=](napi_env env) {
+			auto jsExports = scripts::getJSExports(env);
+			auto json_decode = jsExports.Get("json_decode").As<Napi::Function>();
+			auto tracksJson = Json(tracks.map<Json>([&](auto& track) {
+				return track->toJson();
+			})).dump();
+			auto tracksArray = json_decode.Call({ Napi::String::New(env, tracksJson) }).As<Napi::Object>();
+			return std::vector<napi_value>{
+				Napi::String::New(env, uri),
+				tracksArray
+			};
+		}, [=](napi_env env, Napi::Value value) {
+			auto jsExports = scripts::getJSExports(env);
+			auto json_encode = jsExports.Get("json_encode").As<Napi::Function>();
+			auto jsonString = json_encode.Call({ value }).As<Napi::String>().Utf8Value();
+			std::string jsonError;
+			auto json = Json::parse(jsonString, jsonError);
+			if(!jsonError.empty()) {
+				throw std::runtime_error("failed to decode json for getPlaylistItems result");
+			}
+			return GoogleDrivePlaylistItemsPage::fromJson(json, this->options.mediaProviderStash);
+		});
+	}
+
+	Promise<ArrayList<size_t>> GoogleDriveStorageProvider::deletePlaylistItems(String uri, ArrayList<String> itemIds) {
+		return performAsyncJSAPIFunc<ArrayList<size_t>>("deletePlaylistItems", [=](napi_env env) {
+			auto itemIdsList = Napi::Array::New(env, itemIds.size());
+			uint32_t i = 0;
+			for(auto& itemId : itemIds) {
+				itemIdsList.Set(i, Napi::String::New(env, itemId));
+				i++;
+			}
+			return std::vector<napi_value>{
+				Napi::String::New(env, uri),
+				itemIdsList
+			};
+		}, [=](napi_env env, Napi::Value value) {
+			ArrayList<size_t> indexes;
+			auto indexesArray = value.As<Napi::Object>().Get("indexes").As<Napi::Array>();
+			indexes.reserve(indexesArray.Length());
+			for(uint32_t i=0; i<indexesArray.Length(); i++) {
+				auto index = indexesArray.Get(i).As<Napi::Number>();
+				indexes.pushBack((size_t)index.DoubleValue());
+			}
+			return indexes;
+		});
+	}
+
+	Promise<void> GoogleDriveStorageProvider::reorderPlaylistItems(String uri, size_t index, size_t count, size_t insertBefore) {
+		return performAsyncJSAPIFunc<void>("reorderPlaylistItems", [=](napi_env env) {
+			return std::vector<napi_value>{
+				Napi::String::New(env, uri),
+				Napi::Number::New(env, (double)index),
+				Napi::Number::New(env, (double)count),
+				Napi::Number::New(env, (double)insertBefore)
+			};
+		}, nullptr);
 	}
 }

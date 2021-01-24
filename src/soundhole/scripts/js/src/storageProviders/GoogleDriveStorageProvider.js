@@ -897,11 +897,11 @@ class GoogleDriveStorageProvider extends StorageProvider {
 	}
 
 
-	async getPlaylistItems(playlistURI, { offset, limit }) {
+	async getPlaylistItems(playlistURI, offset, limit) {
 		if(!Number.isInteger(offset) || offset < 0) {
-			throw new Error("options.offset must be a positive integer");
+			throw new Error("offset must be a positive integer");
 		} else if(!Number.isInteger(limit) || limit <= 0) {
-			throw new Error("options.limit must be a positive non-zero integer");
+			throw new Error("limit must be a positive non-zero integer");
 		}
 		// parse uri
 		const uriParts = this._parsePlaylistURI(playlistURI);
@@ -1120,23 +1120,18 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		};
 	}
 
-	async reorderPlaylistItems(playlistURI, { index, count, newIndex }) {
+	async reorderPlaylistItems(playlistURI, index, count, insertBefore) {
 		if(!Number.isInteger(index) || index < 0) {
 			throw new Error("index must be a positive integer");
 		}
 		if(!Number.isInteger(count) || count <= 0) {
 			throw new Error("count must be a positive non-zero integer");
 		}
-		if(!Number.isInteger(newIndex) || newIndex < 0) {
-			throw new Error("index must be a positive integer");
+		if(!Number.isInteger(insertBefore) || insertBefore < 0) {
+			throw new Error("insertBefore must be a positive integer");
 		}
 		// parse uri
 		const uriParts = this._parsePlaylistURI(playlistURI);
-		// calculate destination index
-		let destIndex = newIndex;
-		if(destIndex > index) {
-			destIndex += count;
-		}
 		// reorder items
 		await this._sheets.spreadsheets.batchUpdate({
 			spreadsheetId: uriParts.fileId,
@@ -1149,7 +1144,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 							startIndex: PLAYLIST_ITEMS_START_OFFSET + index,
 							endIndex: PLAYLIST_ITEMS_START_OFFSET + index + count
 						},
-						destinationIndex: destIndex
+						destinationIndex: insertBefore
 					}}
 				]
 			}

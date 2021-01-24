@@ -25,6 +25,9 @@ namespace sh {
 		virtual Promise<void> removeItems(Mutator* mutator, size_t index, size_t count) override;
 		virtual Promise<void> moveItems(Mutator* mutator, size_t index, size_t count, size_t newIndex) override;
 		
+	protected:
+		Promise<void> loadAPIItems(Mutator* mutator, size_t index, size_t count);
+		
 	private:
 		GoogleDrivePlaylistMutatorDelegate($<Playlist> playlist, GoogleDriveStorageProvider* storageProvider);
 		

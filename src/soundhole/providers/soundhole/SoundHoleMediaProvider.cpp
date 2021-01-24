@@ -236,7 +236,9 @@ namespace sh {
 	}
 
 	Playlist::MutatorDelegate* SoundHoleMediaProvider::createPlaylistMutatorDelegate($<Playlist> playlist) {
-		throw std::logic_error("SoundHoleMediaProvider::createPlaylistMutatorDelegate is unimplemented");
+		auto uriParts = parseURI(playlist->uri());
+		auto storageProvider = this->getStorageProvider(uriParts.storageProvider);
+		return storageProvider->createPlaylistMutatorDelegate(playlist);
 	}
 
 
