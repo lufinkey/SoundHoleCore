@@ -6,6 +6,7 @@
 //  Copyright © 2019 Luis Finke. All rights reserved.
 //
 
+#include <napi.h>
 #include "MediaProvider.hpp"
 
 namespace sh {
@@ -95,4 +96,20 @@ namespace sh {
 	Promise<bool> MediaProvider::isPlaylistEditable($<Playlist> playlist) {
 		return Promise<bool>::resolve(false);
 	}
+
+
+
+	Json MediaProvider::CreatePlaylistOptions::toJson() const {
+		return Json::object{
+			{ "privacy", (std::string)Playlist::Privacy_toString(privacy) }
+		};
+	}
+
+	#ifdef NODE_API_MODULE
+	Napi::Object MediaProvider::CreatePlaylistOptions::toNapiObject(napi_env env) const {
+		auto obj = Napi::Object::New(env);
+		obj.Set("privacy", Napi::String::New(env, Playlist::Privacy_toString(privacy)));
+		return obj;
+	}
+	#endif
 }

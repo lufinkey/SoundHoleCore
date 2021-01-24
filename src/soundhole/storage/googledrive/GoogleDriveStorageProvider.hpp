@@ -50,6 +50,8 @@ namespace sh {
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) override;
 		virtual Promise<void> deletePlaylist(String uri) override;
 		
+		virtual UserPlaylistsGenerator getUserPlaylists(String userURI) override;
+		
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) override;
 		
 	protected:

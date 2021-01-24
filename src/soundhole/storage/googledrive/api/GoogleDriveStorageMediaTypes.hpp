@@ -10,6 +10,7 @@
 
 #include <soundhole/common.hpp>
 #include <soundhole/media/Playlist.hpp>
+#include <soundhole/media/MediaProviderStash.hpp>
 
 namespace sh {
 	struct GoogleDriveStorageProviderUser {
@@ -36,6 +37,18 @@ namespace sh {
 		size_t total;
 		ArrayList<PlaylistItem::Data> items;
 		
-		static GoogleDrivePlaylistItemsPage fromJson(const Json&, MediaProviderStash* stash);
+		static GoogleDrivePlaylistItemsPage fromJson(const Json& json, MediaProviderStash* stash);
+	};
+
+
+	template<typename T>
+	struct GoogleDriveFilesPage {
+		ArrayList<T> items;
+		String nextPageToken;
+		
+		static GoogleDriveFilesPage<T> fromJson(const Json& json);
+		static GoogleDriveFilesPage<T> fromJson(const Json& json, MediaProviderStash* stash);
 	};
 }
+
+#include "GoogleDriveStorageMediaTypes.impl.hpp"

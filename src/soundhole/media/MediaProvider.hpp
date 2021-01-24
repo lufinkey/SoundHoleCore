@@ -82,8 +82,14 @@ namespace sh {
 		
 		virtual bool canCreatePlaylists() const;
 		virtual ArrayList<Playlist::Privacy> supportedPlaylistPrivacies() const;
+		
 		struct CreatePlaylistOptions {
 			Playlist::Privacy privacy = Playlist::Privacy::UNKNOWN;
+			
+			Json toJson() const;
+			#ifdef NODE_API_MODULE
+			Napi::Object toNapiObject(napi_env) const;
+			#endif
 		};
 		virtual Promise<$<Playlist>> createPlaylist(String name, CreatePlaylistOptions options);
 		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist);

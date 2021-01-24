@@ -216,6 +216,7 @@
 		A5C6DB0C25BCDCA600596878 /* GoogleDriveStorageMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5C6DB0A25BCDCA600596878 /* GoogleDriveStorageMediaTypes.cpp */; };
 		A5C6DB0D25BCDCA600596878 /* GoogleDriveStorageMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5C6DB0A25BCDCA600596878 /* GoogleDriveStorageMediaTypes.cpp */; };
 		A5C6DB0E25BCDCA600596878 /* GoogleDriveStorageMediaTypes.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5C6DB0B25BCDCA600596878 /* GoogleDriveStorageMediaTypes.hpp */; };
+		A5C6DB4A25BE03E600596878 /* GoogleDriveStorageMediaTypes.impl.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5C6DB4925BE03E600596878 /* GoogleDriveStorageMediaTypes.impl.hpp */; };
 		A5D9E10E2550BAB500E4762A /* BandcampAuth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5D9E10C2550BAB500E4762A /* BandcampAuth.cpp */; };
 		A5D9E10F2550BAB500E4762A /* BandcampAuth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5D9E10C2550BAB500E4762A /* BandcampAuth.cpp */; };
 		A5D9E1102550BAB500E4762A /* BandcampAuth.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5D9E10D2550BAB500E4762A /* BandcampAuth.hpp */; };
@@ -491,6 +492,7 @@
 		A5C6DAF825BCD9B100596878 /* GoogleDrivePlaylistMutatorDelegate.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GoogleDrivePlaylistMutatorDelegate.hpp; sourceTree = "<group>"; };
 		A5C6DB0A25BCDCA600596878 /* GoogleDriveStorageMediaTypes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GoogleDriveStorageMediaTypes.cpp; sourceTree = "<group>"; };
 		A5C6DB0B25BCDCA600596878 /* GoogleDriveStorageMediaTypes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GoogleDriveStorageMediaTypes.hpp; sourceTree = "<group>"; };
+		A5C6DB4925BE03E600596878 /* GoogleDriveStorageMediaTypes.impl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GoogleDriveStorageMediaTypes.impl.hpp; sourceTree = "<group>"; };
 		A5D9E10C2550BAB500E4762A /* BandcampAuth.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampAuth.cpp; sourceTree = "<group>"; };
 		A5D9E10D2550BAB500E4762A /* BandcampAuth.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BandcampAuth.hpp; sourceTree = "<group>"; };
 		A5D9E1152550BC0B00E4762A /* BandcampSession.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampSession.cpp; sourceTree = "<group>"; };
@@ -1101,6 +1103,7 @@
 			isa = PBXGroup;
 			children = (
 				A5C6DB0B25BCDCA600596878 /* GoogleDriveStorageMediaTypes.hpp */,
+				A5C6DB4925BE03E600596878 /* GoogleDriveStorageMediaTypes.impl.hpp */,
 				A5C6DB0A25BCDCA600596878 /* GoogleDriveStorageMediaTypes.cpp */,
 			);
 			path = api;
@@ -1190,6 +1193,7 @@
 				A5E851D0235DFEBC0001F74D /* BandcampMediaTypes.hpp in Headers */,
 				A5D9F568255E0BC100E4762A /* YoutubeAuthEventListener.hpp in Headers */,
 				A5D9F54B255E0B4700E4762A /* YoutubeAuth.hpp in Headers */,
+				A5C6DB4A25BE03E600596878 /* GoogleDriveStorageMediaTypes.impl.hpp in Headers */,
 				A57378A423D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.hpp in Headers */,
 				A5B9736723822C0100FB3F1C /* TrackCollection.hpp in Headers */,
 				A5E851BE235A4AE90001F74D /* JSUtils.hpp in Headers */,

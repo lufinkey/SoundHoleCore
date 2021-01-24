@@ -11,6 +11,7 @@
 #include <soundhole/common.hpp>
 #include <soundhole/media/NamedProvider.hpp>
 #include <soundhole/media/AuthedProvider.hpp>
+#include <soundhole/media/MediaProvider.hpp>
 #include <soundhole/media/Track.hpp>
 #include <soundhole/media/Album.hpp>
 #include <soundhole/media/Artist.hpp>
@@ -19,6 +20,8 @@
 namespace sh {
 	class StorageProvider: public NamedProvider, public AuthedProvider {
 	public:
+		using UserPlaylistsGenerator = MediaProvider::UserPlaylistsGenerator;
+		
 		struct URI {
 			String storageProvider;
 			String type;
@@ -50,12 +53,12 @@ namespace sh {
 		virtual ~StorageProvider() {}
 		
 		virtual bool canStorePlaylists() const = 0;
-		struct CreatePlaylistOptions {
-			String description;
-		};
+		using CreatePlaylistOptions = MediaProvider::CreatePlaylistOptions;
 		virtual Promise<$<Playlist>> createPlaylist(String name, CreatePlaylistOptions options = CreatePlaylistOptions()) = 0;
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) = 0;
 		virtual Promise<void> deletePlaylist(String uri) = 0;
+		
+		virtual UserPlaylistsGenerator getUserPlaylists(String userURI) = 0;
 		
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) = 0;
 	};

@@ -265,13 +265,9 @@ namespace sh {
 
 	Promise<$<Playlist>> GoogleDriveStorageProvider::createPlaylist(String name, CreatePlaylistOptions options) {
 		return performAsyncJSAPIFunc<$<Playlist>>("createPlaylist", [=](napi_env env) {
-			auto optionsObj = Napi::Object::New(env);
-			if(!options.description.empty()) {
-				optionsObj.Set("description", Napi::String::New(env, options.description));
-			}
 			return std::vector<napi_value>{
 				Napi::String::New(env, name),
-				optionsObj
+				options.toNapiObject(env)
 			};
 		}, [=](napi_env env, Napi::Value value) {
 			auto jsExports = scripts::getJSExports(env);
@@ -311,6 +307,49 @@ namespace sh {
 				Napi::String::New(env, uri)
 			};
 		}, nullptr);
+	}
+
+
+	GoogleDriveStorageProvider::UserPlaylistsGenerator GoogleDriveStorageProvider::getUserPlaylists(String userURI) {
+		struct SharedData {
+			String pageToken;
+		};
+		auto sharedData = fgl::new$<SharedData>();
+		using YieldResult = typename UserPlaylistsGenerator::YieldResult;
+		return UserPlaylistsGenerator([=]() {
+			return performAsyncJSAPIFunc<YieldResult>("getUserPlaylists", [=](napi_env env) {
+				auto optionsObj = Napi::Object::New(env);
+				if(!sharedData->pageToken.empty()) {
+					optionsObj.Set("pageToken", Napi::String::New(env, sharedData->pageToken));
+				}
+				return std::vector<napi_value>{
+					Napi::String::New(env, userURI),
+					optionsObj
+				};
+			}, [=](napi_env env, Napi::Value value) {
+				auto jsExports = scripts::getJSExports(env);
+				auto json_encode = jsExports.Get("json_encode").As<Napi::Function>();
+				auto jsonString = json_encode.Call({ value }).As<Napi::String>().Utf8Value();
+				std::string jsonError;
+				auto json = Json::parse(jsonString, jsonError);
+				if(!jsonError.empty()) {
+					throw std::runtime_error("failed to decode json for createPlaylist result");
+				}
+				auto page = GoogleDriveFilesPage<Playlist::Data>::fromJson(json, this->options.mediaProviderStash);
+				auto loadBatch = MediaProvider::LoadBatch<$<Playlist>>{
+					.items = page.items.template map<$<Playlist>>([=](auto& playlistData) {
+						return this->options.mediaItemBuilder->playlist(playlistData);
+					}),
+					.total = std::nullopt
+				};
+				sharedData->pageToken = page.nextPageToken;
+				bool done = sharedData->pageToken.empty();
+				return YieldResult{
+					.value = loadBatch,
+					.done = done
+				};
+			});
+		});
 	}
 
 
