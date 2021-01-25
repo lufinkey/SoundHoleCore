@@ -6,7 +6,7 @@
 	"scripts": {
 		"build": "npm install && npm run make-header",
 		"clean": "rm -rf node_modules build package-lock.json",
-		"bundle": "mkdir -p build &> /dev/null && browserify --node --standalone _ --external process --ignore-missing index.js -o build/output1.js && babel build/output1.js --out-file build/soundhole_js_bundle.js",
+		"bundle": "mkdir -p build &> /dev/null && browserify --node --standalone _ --external process --ignore-missing index.js -o build/output1.js && minify build/output1.js --out-file build/soundhole_js_bundle.js",
 		"make-header": "npm run bundle && cd build && xxd -i soundhole_js_bundle.js > soundhole_js_bundle.h",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
@@ -19,10 +19,7 @@
 		"ytdl-core": "^4.4.2"
 	},
 	"devDependencies": {
-		"@babel/cli": "^7.12.10",
-		"@babel/core": "^7.12.10",
-		"@babel/plugin-proposal-object-rest-spread": "^7.12.1",
-		"@babel/plugin-transform-spread": "^7.12.1",
+		"babel-minify": "^0.5.1",
 		"browserify": "^17.0.0"
 	}
 }
