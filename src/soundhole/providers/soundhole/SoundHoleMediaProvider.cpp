@@ -20,6 +20,9 @@ namespace sh {
 			storageProviders.pushBack(googledrive);
 		}
 		loadUserPrefs();
+		if(primaryStorageProviderName.empty() && storageProviders.size() > 0) {
+			primaryStorageProviderName = storageProviders.front()->name();
+		}
 	}
 
 	SoundHoleMediaProvider::~SoundHoleMediaProvider() {
@@ -223,16 +226,15 @@ namespace sh {
 	}
 
 	SoundHoleMediaProvider::UserPlaylistsGenerator SoundHoleMediaProvider::getUserPlaylists(String userURI) {
-		using YieldResult = typename UserPlaylistsGenerator::YieldResult;
-		return UserPlaylistsGenerator([=]() {
-			return Promise<YieldResult>::reject(std::logic_error("SoundHoleMediaProvider::getUserPlaylists is unimplemented"));
-		});
+		auto uriParts = parseURI(userURI);
+		auto storageProvider = getStorageProvider(uriParts.storageProvider);
+		return storageProvider->getUserPlaylists(userURI);
 	}
 
 
 
 	Album::MutatorDelegate* SoundHoleMediaProvider::createAlbumMutatorDelegate($<Album> album) {
-		throw std::logic_error("SoundHole does not support albums");
+		throw std::logic_error("SoundHoleMediaProvider does not support albums");
 	}
 
 	Playlist::MutatorDelegate* SoundHoleMediaProvider::createPlaylistMutatorDelegate($<Playlist> playlist) {
@@ -261,19 +263,32 @@ namespace sh {
 	#pragma mark Playlists
 
 	bool SoundHoleMediaProvider::canCreatePlaylists() const {
-		return true;
+		auto storageProvider = primaryStorageProvider();
+		if(storageProvider == nullptr) {
+			return false;
+		}
+		return storageProvider->canStorePlaylists();
 	}
 
 	ArrayList<Playlist::Privacy> SoundHoleMediaProvider::supportedPlaylistPrivacies() const {
-		return { Playlist::Privacy::PRIVATE, Playlist::Privacy::PUBLIC };
+		return { Playlist::Privacy::PRIVATE, Playlist::Privacy::UNLISTED, Playlist::Privacy::PUBLIC };
 	}
 
 	Promise<$<Playlist>> SoundHoleMediaProvider::createPlaylist(String name, CreatePlaylistOptions options) {
-		return Promise<$<Playlist>>::reject(std::logic_error("SoundHoleMediaProvider::createPlaylist is unimplemented"));
+		auto storageProvider = primaryStorageProvider();
+		if(storageProvider == nullptr) {
+			return Promise<$<Playlist>>::reject(std::runtime_error("No primary storage provider has been set"));
+		}
+		return storageProvider->createPlaylist(name, options);
 	}
 
 	Promise<bool> SoundHoleMediaProvider::isPlaylistEditable($<Playlist> playlist) {
-		return Promise<bool>::reject(std::logic_error("SoundHoleMediaProvider::isPlaylistEditable is unimplemented"));
+		auto uriParts = parseURI(playlist->uri());
+		auto storageProvider = getStorageProvider(uriParts.storageProvider);
+		if(storageProvider == nullptr) {
+			return Promise<bool>::reject(std::invalid_argument("could not find storage provider with name "+uriParts.storageProvider));
+		}
+		return storageProvider->isPlaylistEditable(playlist);
 	}
 
 

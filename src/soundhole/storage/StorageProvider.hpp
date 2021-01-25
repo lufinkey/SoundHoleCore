@@ -57,6 +57,7 @@ namespace sh {
 		virtual Promise<$<Playlist>> createPlaylist(String name, CreatePlaylistOptions options = CreatePlaylistOptions()) = 0;
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) = 0;
 		virtual Promise<void> deletePlaylist(String uri) = 0;
+		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist) = 0;
 		
 		virtual UserPlaylistsGenerator getUserPlaylists(String userURI) = 0;
 		

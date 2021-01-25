@@ -49,6 +49,7 @@ namespace sh {
 		virtual Promise<$<Playlist>> createPlaylist(String name, CreatePlaylistOptions options = CreatePlaylistOptions()) override;
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) override;
 		virtual Promise<void> deletePlaylist(String uri) override;
+		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist) override;
 		
 		virtual UserPlaylistsGenerator getUserPlaylists(String userURI) override;
 		

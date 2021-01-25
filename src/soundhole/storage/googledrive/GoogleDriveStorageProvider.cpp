@@ -309,6 +309,17 @@ namespace sh {
 		}, nullptr);
 	}
 
+	Promise<bool> GoogleDriveStorageProvider::isPlaylistEditable($<Playlist> playlist) {
+		auto uri = playlist->uri();
+		return performAsyncJSAPIFunc<bool>("isPlaylistEditable", [=](napi_env env) {
+			return std::vector<napi_value>{
+				Napi::String::New(env, uri)
+			};
+		}, [=](napi_env env, Napi::Value value) {
+			return value.As<Napi::Boolean>().Value();
+		});
+	}
+
 
 	GoogleDriveStorageProvider::UserPlaylistsGenerator GoogleDriveStorageProvider::getUserPlaylists(String userURI) {
 		struct SharedData {
@@ -363,10 +374,12 @@ namespace sh {
 
 	Promise<GoogleDrivePlaylistItemsPage> GoogleDriveStorageProvider::getPlaylistItems(String uri, size_t offset, size_t limit) {
 		return performAsyncJSAPIFunc<GoogleDrivePlaylistItemsPage>("getPlaylistItems", [=](napi_env env) {
+			auto optionsObj = Napi::Object::New(env);
+			optionsObj.Set("offset", Napi::Number::New(env, (double)offset));
+			optionsObj.Set("limit", Napi::Number::New(env, (double)limit));
 			return std::vector<napi_value>{
 				Napi::String::New(env, uri),
-				Napi::Number::New(env, (double)offset),
-				Napi::Number::New(env, (double)limit)
+				optionsObj
 			};
 		}, [=](napi_env env, Napi::Value value) {
 			auto jsExports = scripts::getJSExports(env);

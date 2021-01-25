@@ -41,6 +41,7 @@ const PLAYLIST_ITEM_ONLY_COLUMNS = [
 const PLAYLIST_VERSIONS = [ 'v1.0' ];
 const PLAYLIST_LATEST_VERSION = 'v1.0';
 const PLAYLIST_ITEMS_START_OFFSET = 2;
+const PLAYLIST_PRIVACIES = ['public','unlisted','private'];
 
 
 class GoogleDriveStorageProvider extends StorageProvider {
@@ -156,7 +157,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		if(this._currentDriveInfo != null) {
 			return this._currentDriveInfo;
 		}
-		const about = await this._drive.about.get();
+		const about = (await this._drive.about.get()).data;
 		if(!about.user) {
 			throw new Error("Unable to fetch current user data");
 		}
@@ -171,7 +172,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		if(this.session == null) {
 			return null;
 		}
-		const about = await this._drive.about.get();
+		const about = (await this._drive.about.get()).data;
 		if(!about.user) {
 			return null;
 		}
@@ -200,10 +201,10 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			if(this._baseFolder != null) {
 				return;
 			}
-			const baseFolder = await this._drive.files.get({
+			const baseFolder = (await this._drive.files.get({
 				fileId: this._baseFolderId,
 				fields: "*"
-			});
+			})).data;
 			this._baseFolder = baseFolder;
 			return;
 		}
@@ -218,14 +219,14 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			fields: "*",
 			spaces: 'drive',
 			pageSize: 1
-		})).files[0];
+		})).data.files[0];
 		if(baseFolder != null) {
 			this._baseFolderId = baseFolder.id;
 			this._baseFolder = baseFolder;
 			return;
 		}
 		// create base folder
-		baseFolder = await this._drive.files.create({
+		baseFolder = (await this._drive.files.create({
 			name: folderName,
 			parents: ['root'],
 			media: {
@@ -234,7 +235,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			appProperties: {
 				[SOUNDHOLE_BASE_KEY]: true
 			}
-		});
+		})).data;
 		this._baseFolderId = baseFolder.id;
 		this._baseFolder = baseFolder;
 	}
@@ -253,19 +254,19 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			fields: "nextPageToken, files(id, name)",
 			spaces: 'drive',
 			pageSize: 1
-		})).files[0];
+		})).data.files[0];
 		if(playlistsFolder != null) {
 			this._playlistsFolderId = playlistsFolder.id;
 			return;
 		}
 		// create playlists folder
-		playlistsFolder = await this._drive.files.create({
+		playlistsFolder = (await this._drive.files.create({
 			name: folderName,
 			parents: [baseFolderId],
 			media: {
 				mimeType: 'application/vnd.google-apps.folder'
 			}
-		});
+		})).data;
 		this._playlistsFolderId = playlistsFolder.id;
 	}
 
@@ -441,28 +442,46 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			owner.baseFolderId = this._baseFolderId;
 			baseFolderId = this._baseFolderId;
 		}
-		// parse privacy level
-		let privacy = 'private';
-		if(file.permissions instanceof Array && file.permissions.length > 0) {
-			if(file.permissions.find((p) => (p.type === 'anyone')) != null) {
-				privacy = 'public';
-			}
-		}
 		// TODO parse images
 		return {
 			type: 'playlist',
 			uri: this._createPlaylistURI(file.id, baseFolderId),
 			name: file.name,
-			versionId: file.modifiedTime,
 			description: file.description,
-			privacy: privacy,
+			versionId: file.modifiedTime,
+			privacy: this._determinePrivacy(file.permissions),
 			owner: owner ? this._createUserObject(owner, baseFolderId) : null
 		};
 	}
 
 
 
+	_validatePrivacy(privacy) {
+		if(privacy && PLAYLIST_PRIVACIES.indexOf(privacy) === -1) {
+			throw new Error(`invalid privacy value "${privacy}" for google drive storage provider`);
+		}
+	}
+
+	_determinePrivacy(permissions) {
+		let privacy = 'private';
+		for(const p of permissions) {
+			if(p.type === 'anyone') {
+				if(p.allowFileDiscovery) {
+					privacy = 'public';
+					break;
+				} else {
+					privacy = 'unlisted';
+				}
+			}
+		}
+		return privacy;
+	}
+
+
+
 	async createPlaylist(name, options={}) {
+		// validate input
+		this._validatePrivacy(options.privacy);
 		// prepare folder
 		await this._preparePlaylistsFolder();
 		const baseFolder = this._baseFolder;
@@ -476,13 +495,13 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		}
 		// prepare appProperties
 		const appProperties = {};
+		appProperties[PLAYLIST_KEY] = true;
 		if(options.image) {
-			appProperties[PLAYLIST_KEY] = true;
 			appProperties[PLAYLIST_IMAGE_DATA_KEY] = options.image.data;
 			appProperties[PLAYLIST_IMAGE_MIMETYPE_KEY] = options.image.mimeType;
 		}
 		// create file
-		const file = await this._drive.files.create({
+		const file = (await this._drive.files.create({
 			name: name,
 			description: options.description,
 			parents: [playlistsFolderId],
@@ -490,9 +509,31 @@ class GoogleDriveStorageProvider extends StorageProvider {
 				mimeType: 'application/vnd.google-apps.spreadsheet'
 			},
 			appProperties: appProperties
-		});
+		})).data;
 		// update sheet
 		await this._preparePlaylistSheet(file.id);
+		// add privacy if necessary
+		if(options.privacy) {
+			if(options.privacy === 'public') {
+				await this._drive.permissions.create({
+					fileId: file.id,
+					type: 'anyone',
+					role: 'reader',
+					allowFileDiscovery: true
+				});
+			} else if(options.privacy === 'unlisted') {
+				await this._drive.permissions.create({
+					fileId: file.id,
+					type: 'anyone',
+					role: 'reader',
+					allowFileDiscovery: false
+				});
+			} else if(options.privacy === 'private') {
+				// no need to add any extra permissions
+			} else {
+				throw new Error(`unsupported privacy value "${options.privacy}"`);
+			}
+		}
 		// transform result
 		const playlist = this._createPlaylistObject(file, (baseFolderOwner ? baseFolderOwner.permissionId : null), baseFolder.id);
 		playlist.itemCount = 0;
@@ -512,10 +553,10 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		// parse uri
 		const uriParts = this._parsePlaylistURI(playlistURI);
 		// get file
-		const filePromise = this._drive.files.get({
+		const filePromise = (this._drive.files.get({
 			fileId: uriParts.fileId,
 			fields: "*"
-		});
+		})).data;
 		// get spreadsheet data if needed
 		const sheetPromise = (Number.isInteger(options.itemsStartIndex) || Number.isInteger(options.itemsLimit)) ?
 			this._sheets.spreadsheets.get({
@@ -526,9 +567,9 @@ class GoogleDriveStorageProvider extends StorageProvider {
 					this._playlistItemsA1Range(options.itemsStartIndex || 0, options.itemsLimit || 100)
 				]
 			})
-			: Promise.resolve(null);
+			: Promise.resolve({data: null});
 		// await results
-		const [ file, spreadsheet ] = await Promise.all([ filePromise, sheetPromise ]);
+		const [ {data: file}, {data: spreadsheet} ] = await Promise.all([ filePromise, sheetPromise ]);
 		// transform result
 		const playlist = this._createPlaylistObject(file, uriParts.permissionId || uriParts.email, uriParts.baseFolderId);
 		const sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
@@ -574,11 +615,11 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			throw new Error("missing playlists folder ID");
 		}
 		// get files
-		const { files, nextPageToken } = await this._drive.files.list({
+		const { files, nextPageToken } = (await this._drive.files.list({
 			q: `mimeType = 'application/vnd.google-apps.spreadsheet' and '${playlistsFolderId}' in parents and trashed = false`,
 			fields: "*",
 			pageToken: options.pageToken
-		});
+		})).data;
 		// transform result
 		return {
 			items: (files || []).map((file) => (
@@ -613,7 +654,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 				q: `mimeType = 'application/vnd.google-apps.folder' and name = '${folderName}' and '${baseFolderId}' in parents and trashed = false`,
 				fields: "*",
 				pageSize: 1
-			})).files[0];
+			})).data.files[0];
 			if(!playlistsFolder) {
 				return {
 					items: [],
@@ -623,11 +664,11 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			playlistsFolderId = playlistsFolder.id;
 		}
 		// get files in playlists folder
-		const { files, nextPageToken } = await this._drive.files.list({
+		const { files, nextPageToken } = (await this._drive.files.list({
 			q: `mimeType = 'application/vnd.google-apps.spreadsheet' and '${playlistsFolderId}' in parents and trashed = false`,
 			fields: "*",
 			pageToken: pageToken
-		});
+		})).data;
 		// transform result
 		return {
 			items: (files || []).map((file) => (
@@ -635,6 +676,39 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			)),
 			nextPageToken: (nextPageToken ? `${playlistsFolderid}:${nextPageToken}` : null)
 		};
+	}
+
+
+
+	async isPlaylistEditable(playlistURI) {
+		const driveInfo = await this._getCurrentDriveInfo();
+		const uriParts = this._parsePlaylistURI(playlistURI);
+		let done = false;
+		let pageToken = undefined;
+		const editRoles = ['writer','fileOrganizer','organizer','owner'];
+		while(!done) {
+			const { permissions, nextPageToken } = (await this._drive.permissions.list({
+				fileId: uriParts.fileId,
+				pageSize: 100,
+				pageToken
+			})).data;
+			for(const p of permissions) {
+				if(editRoles.indexOf(p.role) === -1) {
+					continue;
+				}
+				if(p.type === 'anyone') {
+					return true;
+				}
+				else if(p.type === 'user' && driveInfo.user && p.emailAddress === driveInfo.user.emailAddress) {
+					return true;
+				}
+			}
+			pageToken = nextPageToken;
+			if(!pageToken) {
+				done = true;
+			}
+		}
+		return false;
 	}
 
 
@@ -700,11 +774,11 @@ class GoogleDriveStorageProvider extends StorageProvider {
 	async _preparePlaylistSheet(playlistURI) {
 		const uriParts = this._parsePlaylistURI(playlistURI);
 		// get spreadsheet header
-		let spreadsheet = await this._sheets.spreadsheets.get({
+		let spreadsheet = (await this._sheets.spreadsheets.get({
 			spreadsheetId: uriParts.fileId,
 			includeGridData: true,
 			ranges: [ this._playlistHeaderA1Range() ]
-		});
+		})).data;
 		// validate properties
 		try {
 			this._parsePlaylistSheetProperties(spreadsheet, 0);
@@ -897,7 +971,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 	}
 
 
-	async getPlaylistItems(playlistURI, offset, limit) {
+	async getPlaylistItems(playlistURI, { offset, limit }) {
 		if(!Number.isInteger(offset) || offset < 0) {
 			throw new Error("offset must be a positive integer");
 		} else if(!Number.isInteger(limit) || limit <= 0) {
@@ -906,14 +980,14 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		// parse uri
 		const uriParts = this._parsePlaylistURI(playlistURI);
 		// get spreadsheet data
-		const spreadsheet = await this._sheets.spreadsheets.get({
+		const spreadsheet = (await this._sheets.spreadsheets.get({
 			spreadsheetId: uriParts.fileId,
 			includeGridData: true,
 			ranges: [
 				this._playlistHeaderA1Range(),
 				this._playlistItemsA1Range(options.offset, options.limit)
 			]
-		});
+		})).data;
 		// parse spreadsheet data
 		const sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
 		const itemsPage = this._parsePlaylistSheetItems(spreadsheet, 1, sheetProps);
@@ -1015,13 +1089,13 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		// get drive info
 		const driveInfo = await this._getCurrentDriveInfo();
 		// get spreadsheet info
-		const spreadsheet = await this._sheets.spreadsheets.get({
+		const spreadsheet = (await this._sheets.spreadsheets.get({
 			spreadsheetId: uriParts.fileId,
 			includeGridData: true,
 			ranges: [
 				this._playlistHeaderA1Range()
 			]
-		});
+		})).data;
 		const sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
 		// insert new rows
 		return await this._insertPlaylistItems(playlistURI, index, tracks, sheetProps, driveInfo);
@@ -1033,13 +1107,13 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		// get drive info
 		const driveInfo = await this._getCurrentDriveInfo();
 		// get spreadsheet info
-		const spreadsheet = await this._sheets.spreadsheets.get({
+		const spreadsheet = (await this._sheets.spreadsheets.get({
 			spreadsheetId: uriParts.fileId,
 			includeGridData: true,
 			ranges: [
 				this._playlistHeaderA1Range()
 			]
-		});
+		})).data;
 		const sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
 		// append new rows
 		return await this._insertPlaylistItems(playlistURI, sheetProps.itemCount, tracks, sheetProps, driveInfo);
@@ -1049,7 +1123,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		// parse uri
 		const uriParts = this._parsePlaylistURI(playlistURI);
 		// find matching item ids
-		const { matchedDeveloperMetadata } = await this._sheets.spreadsheets.developerMetadata.search({
+		const { matchedDeveloperMetadata } = (await this._sheets.spreadsheets.developerMetadata.search({
 			spreadsheetId: uriParts.fileId,
 			requestBody: {
 				dataFilters: itemIds.map((itemId) => ({
@@ -1059,7 +1133,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 					}
 				}))
 			}
-		});
+		})).data;
 		// get row indexes
 		const rowIndexes = itemIds.map((itemId) => {
 			const metadata = matchedDeveloperMetadata.find((metadata) => {
