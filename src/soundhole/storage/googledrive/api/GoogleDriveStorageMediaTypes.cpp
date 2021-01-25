@@ -6,6 +6,7 @@
 //  Copyright © 2021 Luis Finke. All rights reserved.
 //
 
+#include <napi.h>
 #include "GoogleDriveStorageMediaTypes.hpp"
 #include <soundhole/utils/js/JSUtils.hpp>
 
