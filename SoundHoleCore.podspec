@@ -51,7 +51,8 @@ Pod::Spec.new do |s|
 			"$(PODS_ROOT)/dtl",
 			"$(PODS_ROOT)/SoundHoleCore/external"
 		],
-		'CLANG_CXX_LANGUAGE_STANDARD' => 'gnu++17'
+		'CLANG_CXX_LANGUAGE_STANDARD' => 'gnu++17',
+		'GCC_OPTIMIZATION_LEVEL' => 's'
 	}
 	s.ios.pod_target_xcconfig = {
 		'HEADER_SEARCH_PATHS' => [
