@@ -14,14 +14,14 @@
 namespace sh {
 	#ifdef NODE_API_MODULE
 	template<typename Result>
-	Promise<Result> JSWrapClass::performAsyncFunc(napi_ref jsRef, String funcName, Function<std::vector<napi_value>(napi_env)> createArgs, Function<Result(napi_env,Napi::Value)> mapper, PerformAsyncFuncOptions options) {
+	Promise<Result> JSWrapClass::performAsyncFunc(Function<Napi::Value(napi_env)> jsGetter, String funcName, Function<std::vector<napi_value>(napi_env)> createArgs, Function<Result(napi_env,Napi::Value)> mapper, PerformAsyncFuncOptions options) {
 		return Promise<Result>([=](auto resolve, auto reject) {
 			queueJS([=](napi_env env) {
 				if(options.beforeFuncCall != nullptr) {
 					options.beforeFuncCall(env);
 				}
 				// get api object and make call
-				auto jsApi = jsutils::jsValue<Napi::Object>(env, jsRef);
+				auto jsApi = jsGetter(env).As<Napi::Object>();
 				if(jsApi.IsEmpty()) {
 					reject(std::logic_error("js object not initialized"));
 					return;

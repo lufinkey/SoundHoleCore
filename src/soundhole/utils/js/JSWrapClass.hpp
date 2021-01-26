@@ -27,7 +27,12 @@ namespace sh {
 			Function<void(napi_env)> afterFuncFinish;
 		};
 		template<typename Result>
-		Promise<Result> performAsyncFunc(napi_ref jsObj, String funcName, Function<std::vector<napi_value>(napi_env)> createArgs, Function<Result(napi_env,Napi::Value)> mapper, PerformAsyncFuncOptions options = PerformAsyncFuncOptions());
+		Promise<Result> performAsyncFunc(
+			Function<Napi::Value(napi_env)> jsGetter,
+			String funcName,
+			Function<std::vector<napi_value>(napi_env)> createArgs,
+			Function<Result(napi_env,Napi::Value)> mapper,
+			PerformAsyncFuncOptions options = PerformAsyncFuncOptions());
 		#endif
 		
 	private:

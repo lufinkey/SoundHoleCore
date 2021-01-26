@@ -99,7 +99,9 @@ namespace sh {
 	#ifdef NODE_API_MODULE
 	template<typename Result>
 	Promise<Result> GoogleDriveStorageProvider::performAsyncJSAPIFunc(String funcName, Function<std::vector<napi_value>(napi_env)> createArgs, Function<Result(napi_env,Napi::Value)> mapper) {
-		return performAsyncFunc<Result>(jsRef, funcName, createArgs, mapper, {
+		return performAsyncFunc<Result>([=](napi_env env) {
+			return jsutils::jsValue<Napi::Object>(env, this->jsRef);
+		}, funcName, createArgs, mapper, {
 			.beforeFuncCall=[=](napi_env env) {
 				this->updateSessionFromJS(env);
 			},
@@ -173,7 +175,9 @@ namespace sh {
 	}
 
 	Promise<void> GoogleDriveStorageProvider::handleOAuthRedirect(std::map<String,String> params, String codeVerifier) {
-		return performAsyncFunc<void>(jsRef, "loginWithRedirectParams", [=](napi_env env) {
+		return performAsyncFunc<void>([=](napi_env env) {
+			return jsutils::jsValue<Napi::Object>(env, this->jsRef);
+		}, "loginWithRedirectParams", [=](napi_env env) {
 			auto paramsObj = Napi::Object::New(env);
 			for(auto& pair : params) {
 				paramsObj.Set(pair.first, Napi::String::New(env, pair.second));

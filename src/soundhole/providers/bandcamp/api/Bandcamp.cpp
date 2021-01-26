@@ -161,7 +161,9 @@ namespace sh {
 
 	template<typename Result>
 	Promise<Result> Bandcamp::performAsyncBandcampJSFunc(String funcName, Function<std::vector<napi_value>(napi_env)> createArgs, Function<Result(napi_env,Napi::Value)> mapper) {
-		return performAsyncFunc<Result>(jsRef, funcName, createArgs, mapper, {
+		return performAsyncFunc<Result>([=](napi_env env) {
+			return jsutils::jsValue<Napi::Object>(env, this->jsRef);
+		}, funcName, createArgs, mapper, {
 			.beforeFuncCall = [=](napi_env env) {
 				// update session before function call
 				if(auto session = this->auth->getSession()) {
