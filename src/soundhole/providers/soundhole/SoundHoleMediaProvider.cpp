@@ -12,11 +12,7 @@ namespace sh {
 	SoundHoleMediaProvider::SoundHoleMediaProvider(MediaProviderStash* mediaProviderStash, Options options)
 	: mediaProviderStash(mediaProviderStash), sessionPersistKey(options.auth.sessionPersistKey) {
 		if(options.googledrive) {
-			auto googledrive = new GoogleDriveStorageProvider({
-				.mediaItemBuilder = this,
-				.mediaProviderStash = mediaProviderStash,
-				.auth = options.googledrive.value()
-			});
+			auto googledrive = new GoogleDriveStorageProvider(this, mediaProviderStash, options.googledrive.value());
 			storageProviders.pushBack(googledrive);
 		}
 		loadUserPrefs();

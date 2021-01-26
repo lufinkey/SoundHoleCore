@@ -15,8 +15,8 @@
 #include "mutators/GoogleDrivePlaylistMutatorDelegate.hpp"
 
 namespace sh {
-	GoogleDriveStorageProvider::GoogleDriveStorageProvider(Options options)
-	: jsRef(nullptr), options(options) {
+	GoogleDriveStorageProvider::GoogleDriveStorageProvider(MediaItemBuilder* mediaItemBuilder, MediaProviderStash* mediaProviderStash, Options options)
+	: jsRef(nullptr), mediaItemBuilder(mediaItemBuilder), mediaProviderStash(mediaProviderStash), options(options) {
 		//
 	}
 
@@ -40,18 +40,18 @@ namespace sh {
 		if(this->jsRef == nullptr) {
 			// create options
 			auto gdOptions = Napi::Object::New(env);
-			if(!options.auth.clientId.empty()) {
-				gdOptions.Set("clientId", Napi::String::New(env, options.auth.clientId));
+			if(!options.clientId.empty()) {
+				gdOptions.Set("clientId", Napi::String::New(env, options.clientId));
 			}
-			if(!options.auth.clientSecret.empty()) {
-				gdOptions.Set("clientSecret", Napi::String::New(env, options.auth.clientSecret));
+			if(!options.clientSecret.empty()) {
+				gdOptions.Set("clientSecret", Napi::String::New(env, options.clientSecret));
 			}
-			if(!options.auth.redirectURL.empty()) {
-				gdOptions.Set("redirectURL", Napi::String::New(env, options.auth.redirectURL));
+			if(!options.redirectURL.empty()) {
+				gdOptions.Set("redirectURL", Napi::String::New(env, options.redirectURL));
 			}
 			
 			// create media item builder
-			if(options.mediaItemBuilder != nullptr) {
+			if(mediaItemBuilder != nullptr) {
 				Napi::Object mediaItemBuilder;
 				// createStorageProviderURI
 				mediaItemBuilder.Set("createStorageProviderURI", Napi::Function::New(env, [=](const Napi::CallbackInfo& info) -> Napi::Value {
@@ -69,7 +69,7 @@ namespace sh {
 					} else if(!id.IsString() && !id.IsNumber()) {
 						throw std::invalid_argument("id argument must be a string");
 					}
-					auto uri = this->options.mediaItemBuilder->createStorageProviderURI(storageProvider.Utf8Value(), type.Utf8Value(), id.ToString().Utf8Value());
+					auto uri = this->mediaItemBuilder->createStorageProviderURI(storageProvider.Utf8Value(), type.Utf8Value(), id.ToString().Utf8Value());
 					return Napi::String::New(env, uri);
 				}));
 				// parseStorageProviderURI
@@ -82,7 +82,7 @@ namespace sh {
 					if(!uri.IsString()) {
 						throw std::invalid_argument("uri argument must be a string");
 					}
-					auto uriParts = this->options.mediaItemBuilder->parseStorageProviderURI(uri.Utf8Value());
+					auto uriParts = this->mediaItemBuilder->parseStorageProviderURI(uri.Utf8Value());
 					return uriParts.toNapiObject(env);
 				}));
 				gdOptions.Set("mediaItemBuilder", mediaItemBuilder);
@@ -128,8 +128,8 @@ namespace sh {
 
 	String GoogleDriveStorageProvider::getWebAuthenticationURL(String codeChallenge) const {
 		auto query = std::map<String,String>{
-			{ "client_id", options.auth.clientId },
-			{ "redirect_uri", options.auth.redirectURL },
+			{ "client_id", options.clientId },
+			{ "redirect_uri", options.redirectURL },
 			{ "response_type", "code" },
 			{ "scope", "https://www.googleapis.com/auth/drive" }
 		};
@@ -184,8 +184,8 @@ namespace sh {
 			if(!codeVerifier.empty()) {
 				optionsObj.Set("codeVerifier", Napi::String::New(env, codeVerifier));
 			}
-			if(!this->options.auth.clientId.empty()) {
-				optionsObj.Set("clientId", Napi::String::New(env, this->options.auth.clientId));
+			if(!this->options.clientId.empty()) {
+				optionsObj.Set("clientId", Napi::String::New(env, this->options.clientId));
 			}
 			return std::vector<napi_value>{
 				paramsObj,
@@ -238,10 +238,10 @@ namespace sh {
 	}
 
 	String GoogleDriveStorageProvider::getIdentityFilePath() const {
-		if(options.auth.sessionPersistKey.empty()) {
+		if(options.sessionPersistKey.empty()) {
 			return String();
 		}
-		return utils::getCacheDirectoryPath()+"/"+name()+"_identity_"+options.auth.sessionPersistKey+".json";
+		return utils::getCacheDirectoryPath()+"/"+name()+"_identity_"+options.sessionPersistKey+".json";
 	}
 
 	Promise<Optional<GoogleDriveStorageProviderUser>> GoogleDriveStorageProvider::fetchIdentity() {
@@ -278,8 +278,8 @@ namespace sh {
 			if(!jsonError.empty()) {
 				throw std::runtime_error("failed to decode json for createPlaylist result");
 			}
-			return this->options.mediaItemBuilder->playlist(
-				Playlist::Data::fromJson(json, this->options.mediaProviderStash));
+			return this->mediaItemBuilder->playlist(
+				Playlist::Data::fromJson(json, this->mediaProviderStash));
 		});
 	}
 
@@ -297,7 +297,7 @@ namespace sh {
 			if(!jsonError.empty()) {
 				throw std::runtime_error("failed to decode json for createPlaylist result");
 			}
-			return Playlist::Data::fromJson(json, this->options.mediaProviderStash);
+			return Playlist::Data::fromJson(json, this->mediaProviderStash);
 		});
 	}
 
@@ -346,10 +346,10 @@ namespace sh {
 				if(!jsonError.empty()) {
 					throw std::runtime_error("failed to decode json for createPlaylist result");
 				}
-				auto page = GoogleDriveFilesPage<Playlist::Data>::fromJson(json, this->options.mediaProviderStash);
+				auto page = GoogleDriveFilesPage<Playlist::Data>::fromJson(json, this->mediaProviderStash);
 				auto loadBatch = MediaProvider::LoadBatch<$<Playlist>>{
 					.items = page.items.template map<$<Playlist>>([=](auto& playlistData) {
-						return this->options.mediaItemBuilder->playlist(playlistData);
+						return this->mediaItemBuilder->playlist(playlistData);
 					}),
 					.total = std::nullopt
 				};
@@ -390,7 +390,7 @@ namespace sh {
 			if(!jsonError.empty()) {
 				throw std::runtime_error("failed to decode json for getPlaylistItems result");
 			}
-			return GoogleDrivePlaylistItemsPage::fromJson(json, this->options.mediaProviderStash);
+			return GoogleDrivePlaylistItemsPage::fromJson(json, this->mediaProviderStash);
 		});
 	}
 
@@ -416,7 +416,7 @@ namespace sh {
 			if(!jsonError.empty()) {
 				throw std::runtime_error("failed to decode json for getPlaylistItems result");
 			}
-			return GoogleDrivePlaylistItemsPage::fromJson(json, this->options.mediaProviderStash);
+			return GoogleDrivePlaylistItemsPage::fromJson(json, this->mediaProviderStash);
 		});
 	}
 
@@ -441,7 +441,7 @@ namespace sh {
 			if(!jsonError.empty()) {
 				throw std::runtime_error("failed to decode json for getPlaylistItems result");
 			}
-			return GoogleDrivePlaylistItemsPage::fromJson(json, this->options.mediaProviderStash);
+			return GoogleDrivePlaylistItemsPage::fromJson(json, this->mediaProviderStash);
 		});
 	}
 

@@ -19,20 +19,14 @@ namespace sh {
 	class GoogleDriveStorageProvider: public StorageProvider, public AuthedProviderIdentityStore<GoogleDriveStorageProviderUser>, private JSWrapClass {
 		friend class GoogleDrivePlaylistMutatorDelegate;
 	public:
-		struct AuthOptions {
+		struct Options {
 			String clientId;
 			String clientSecret;
 			String redirectURL;
 			String sessionPersistKey;
 		};
 		
-		struct Options {
-			MediaItemBuilder* mediaItemBuilder = nullptr;
-			MediaProviderStash* mediaProviderStash = nullptr;
-			AuthOptions auth;
-		};
-		
-		GoogleDriveStorageProvider(Options options);
+		GoogleDriveStorageProvider(MediaItemBuilder* mediaItemBuilder, MediaProviderStash* mediaProviderStash, Options options);
 		virtual ~GoogleDriveStorageProvider();
 		
 		String getWebAuthenticationURL(String codeChallenge) const;
@@ -78,6 +72,8 @@ namespace sh {
 		#endif
 		
 		napi_ref jsRef;
+		MediaItemBuilder* mediaItemBuilder;
+		MediaProviderStash* mediaProviderStash;
 		Options options;
 		Json session;
 	};

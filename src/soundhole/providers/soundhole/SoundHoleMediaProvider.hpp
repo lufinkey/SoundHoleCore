@@ -24,7 +24,7 @@ namespace sh {
 		
 		struct Options {
 			AuthOptions auth;
-			Optional<GoogleDriveStorageProvider::AuthOptions> googledrive;
+			Optional<GoogleDriveStorageProvider::Options> googledrive;
 		};
 		
 		SoundHoleMediaProvider(MediaProviderStash* mediaProviderStash, Options options);

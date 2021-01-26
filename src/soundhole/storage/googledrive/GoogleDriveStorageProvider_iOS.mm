@@ -25,7 +25,7 @@ namespace sh {
 				authController.onWebRedirect = ^BOOL(SHWebAuthNavigationController* authNav, WKWebView* webView, WKNavigationAction* action) {
 					// check if redirect URL matches
 					NSURL* url = action.request.URL;
-					if(!utils::checkURLMatch(options.auth.redirectURL, String(url.absoluteString))) {
+					if(!utils::checkURLMatch(options.redirectURL, String(url.absoluteString))) {
 						return NO;
 					}
 					[authNav setLoadingOverlayVisible:YES animated:YES];
