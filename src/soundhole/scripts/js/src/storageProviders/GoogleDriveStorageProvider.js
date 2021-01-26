@@ -121,7 +121,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		const { tokens } = await this._auth.getToken({
 			code: params.code,
 			codeVerifier: options.codeVerifier,
-			client_id: options.clientId
+			client_id: options.clientId || this._options.clientId
 		});
 		this._auth.setCredentials(tokens);
 		try {
@@ -211,7 +211,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			throw new Error("missing options.baseFolderName");
 		}
 		// check for existing base folder
-		const folderName = options.baseFolderName || SOUNDHOLE_FOLDER_NAME;
+		const folderName = this._options.baseFolderName || SOUNDHOLE_FOLDER_NAME;
 		let baseFolder = (await this._drive.files.list({
 			q: `mimeType = 'application/vnd.google-apps.folder' and appProperties has {{ key='${SOUNDHOLE_BASE_KEY}' and value=true }} and trashed = false`,
 			fields: "*",
