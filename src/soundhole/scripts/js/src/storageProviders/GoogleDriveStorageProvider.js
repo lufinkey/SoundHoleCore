@@ -46,6 +46,7 @@ const PLAYLIST_PRIVACIES = ['public','unlisted','private'];
 
 class GoogleDriveStorageProvider extends StorageProvider {
 	constructor(options) {
+		super();
 		if(!options || typeof options !== 'object') {
 			throw new Error("missing options");
 		}
