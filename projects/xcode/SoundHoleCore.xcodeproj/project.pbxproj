@@ -430,6 +430,7 @@
 		A5AE3F3C247DFFE400FB9AFF /* MediaLibraryProxyProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaLibraryProxyProvider.hpp; sourceTree = "<group>"; };
 		A5AE3F40248728F600FB9AFF /* MediaLibrary.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MediaLibrary.cpp; sourceTree = "<group>"; };
 		A5AE3F41248728F600FB9AFF /* MediaLibrary.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaLibrary.hpp; sourceTree = "<group>"; };
+		A5B043E625BFD2F300D15AF4 /* build-quick.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-quick.sh"; sourceTree = "<group>"; };
 		A5B1B8FF2548EB2300DACA2D /* SHKeychainUtils_objc.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SHKeychainUtils_objc.mm; sourceTree = "<group>"; };
 		A5B1B9062548EB3600DACA2D /* SHKeychainUtils_objc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SHKeychainUtils_objc.h; sourceTree = "<group>"; };
 		A5B2BBF62360E84C00ED010C /* SpotifyMediaTypes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyMediaTypes.cpp; sourceTree = "<group>"; };
@@ -733,6 +734,7 @@
 				A571E1692333305D00603E14 /* Scripts.hpp */,
 				A571E1682333305D00603E14 /* Scripts.cpp */,
 				A513ED81232DA20A000DCAC7 /* build.sh */,
+				A5B043E625BFD2F300D15AF4 /* build-quick.sh */,
 				A513ED82232DA20A000DCAC7 /* clean.sh */,
 				A571E16D233331A000603E14 /* js */,
 				A513ED9F232DA253000DCAC7 /* py */,
@@ -1508,7 +1510,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "../../src/soundhole/scripts/build.sh\n";
+			shellScript = "#if [ \"${CONFIGURATION}\" = \"Debug\" ]; then\n#\t../../src/soundhole/scripts/build-quick.sh\n#else\n\t../../src/soundhole/scripts/build.sh\n#fi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1950,6 +1952,7 @@
 					"$(PROJECT_DIR)/Pods/NodeMobile/out_ios/Release-universal",
 					"$(PROJECT_DIR)/../../external/spotify-ios-streaming-sdk",
 				);
+				GCC_OPTIMIZATION_LEVEL = s;
 				INFOPLIST_FILE = "$(SRCROOT)/../../src/test/main/iOS/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
