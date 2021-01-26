@@ -21,6 +21,7 @@ namespace sh {
 	class StorageProvider: public NamedProvider, public AuthedProvider {
 	public:
 		using UserPlaylistsGenerator = MediaProvider::UserPlaylistsGenerator;
+		static constexpr auto BASE_FOLDER_NAME = "My SoundHole";
 		
 		struct URI {
 			String storageProvider;

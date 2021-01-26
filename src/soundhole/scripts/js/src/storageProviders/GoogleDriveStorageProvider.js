@@ -55,9 +55,6 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		if(!options.clientId || typeof options.clientId !== 'string') {
 			throw new Error("missing options.clientId");
 		}
-		if(!options.clientSecret || typeof options.clientSecret !== 'string') {
-			throw new Error("missing options.clientSecret");
-		}
 
 		this._options = options;
 		this._baseFolderId = null;

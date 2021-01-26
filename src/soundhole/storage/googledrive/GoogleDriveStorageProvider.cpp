@@ -46,6 +46,7 @@ namespace sh {
 			if(!options.redirectURL.empty()) {
 				gdOptions.Set("redirectURL", Napi::String::New(env, options.redirectURL));
 			}
+			gdOptions.Set("baseFolderName", Napi::String::New(env, BASE_FOLDER_NAME));
 			
 			// create media item builder
 			if(mediaItemBuilder != nullptr) {
