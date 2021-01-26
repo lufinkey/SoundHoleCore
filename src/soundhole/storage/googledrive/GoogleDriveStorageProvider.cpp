@@ -49,7 +49,7 @@ namespace sh {
 			
 			// create media item builder
 			if(mediaItemBuilder != nullptr) {
-				Napi::Object mediaItemBuilder;
+				auto mediaItemBuilder = Napi::Object::New(env);
 				// createStorageProviderURI
 				mediaItemBuilder.Set("createStorageProviderURI", Napi::Function::New(env, [=](const Napi::CallbackInfo& info) -> Napi::Value {
 					napi_env env = info.Env();
