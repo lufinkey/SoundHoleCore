@@ -21,5 +21,6 @@ if [ "$old_md5" = "$new_md5" ] && [ -e "$2" ]; then
 fi
 
 echo "minifying file $1"
-minify "$1" --out-file "$2" || exit $?
+# minify "$1" --out-file "$2" || exit $?
+babel "$1" --out-file "$2" || exit $?
 echo "$new_md5" > "$1.md5"
