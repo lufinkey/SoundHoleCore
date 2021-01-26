@@ -43,9 +43,6 @@ namespace sh {
 			if(!options.clientId.empty()) {
 				gdOptions.Set("clientId", Napi::String::New(env, options.clientId));
 			}
-			if(!options.clientSecret.empty()) {
-				gdOptions.Set("clientSecret", Napi::String::New(env, options.clientSecret));
-			}
 			if(!options.redirectURL.empty()) {
 				gdOptions.Set("redirectURL", Napi::String::New(env, options.redirectURL));
 			}

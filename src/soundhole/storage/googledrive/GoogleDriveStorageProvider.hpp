@@ -21,7 +21,6 @@ namespace sh {
 	public:
 		struct Options {
 			String clientId;
-			String clientSecret;
 			String redirectURL;
 			String sessionPersistKey;
 		};
