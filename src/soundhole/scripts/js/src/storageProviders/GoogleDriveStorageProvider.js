@@ -113,7 +113,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 
 	async loginWithRedirectParams(params, options) {
 		if(params.error) {
-			throw new Error(params.error);
+			throw new Error(`Error logging in from redirect: ${params.error}`);
 		}
 		if(!params.code) {
 			throw new Error("Missing expected parameters in redirect URL");

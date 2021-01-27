@@ -353,7 +353,6 @@
 		A52C4710250EE85800131918 /* OAuthSession.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = OAuthSession.cpp; sourceTree = "<group>"; };
 		A52C4711250EE85800131918 /* OAuthSession.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = OAuthSession.hpp; sourceTree = "<group>"; };
 		A52C4715250EE98B00131918 /* OAuthSession_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = OAuthSession_iOS.mm; sourceTree = "<group>"; };
-		A5382A0F2355774100E22A29 /* Bandcamp.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Bandcamp.js; sourceTree = "<group>"; };
 		A538982123CD3D36008638D1 /* BandcampPlaybackProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampPlaybackProvider.cpp; sourceTree = "<group>"; };
 		A538982223CD3D36008638D1 /* BandcampPlaybackProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BandcampPlaybackProvider.hpp; sourceTree = "<group>"; };
 		A540D7BF2550790D00EE5CA8 /* HttpClient_objc.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HttpClient_objc.mm; sourceTree = "<group>"; };
@@ -395,15 +394,12 @@
 		A571E1692333305D00603E14 /* Scripts.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Scripts.hpp; sourceTree = "<group>"; };
 		A571E16F233331B900603E14 /* index.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = index.js; sourceTree = "<group>"; };
 		A571E170233331B900603E14 /* package.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = package.json; sourceTree = "<group>"; };
-		A571E172233331C100603E14 /* test.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = test.js; sourceTree = "<group>"; };
-		A571E173233331C100603E14 /* YoutubeDL.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = YoutubeDL.js; sourceTree = "<group>"; };
 		A571E1842333E5D800603E14 /* build */ = {isa = PBXFileReference; lastKnownFileType = folder; path = build; sourceTree = "<group>"; };
 		A571E1992334121500603E14 /* string.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = string.hpp; sourceTree = "<group>"; };
 		A571E19A2334121500603E14 /* url.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = url.cpp; sourceTree = "<group>"; };
 		A571E19B2334121500603E14 /* url.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = url.hpp; sourceTree = "<group>"; };
 		A571E1A4233440A800603E14 /* HttpClient.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = HttpClient.cpp; sourceTree = "<group>"; };
 		A571E1A5233440A800603E14 /* HttpClient.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = HttpClient.hpp; sourceTree = "<group>"; };
-		A571E1A92334438600603E14 /* HttpClient.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = HttpClient.js; sourceTree = "<group>"; };
 		A57378A023D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = YoutubePlaylistMutatorDelegate.cpp; sourceTree = "<group>"; };
 		A57378A123D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = YoutubePlaylistMutatorDelegate.hpp; sourceTree = "<group>"; };
 		A578784E23DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ShuffledTrackCollection.cpp; sourceTree = "<group>"; };
@@ -431,6 +427,8 @@
 		A5AE3F40248728F600FB9AFF /* MediaLibrary.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MediaLibrary.cpp; sourceTree = "<group>"; };
 		A5AE3F41248728F600FB9AFF /* MediaLibrary.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaLibrary.hpp; sourceTree = "<group>"; };
 		A5B0455825C0FFE100D15AF4 /* build-release.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-release.sh"; sourceTree = "<group>"; };
+		A5B0455925C101E100D15AF4 /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = src; sourceTree = "<group>"; };
+		A5B0455A25C101EA00D15AF4 /* tools */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tools; sourceTree = "<group>"; };
 		A5B1B8FF2548EB2300DACA2D /* SHKeychainUtils_objc.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SHKeychainUtils_objc.mm; sourceTree = "<group>"; };
 		A5B1B9062548EB3600DACA2D /* SHKeychainUtils_objc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SHKeychainUtils_objc.h; sourceTree = "<group>"; };
 		A5B2BBF62360E84C00ED010C /* SpotifyMediaTypes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyMediaTypes.cpp; sourceTree = "<group>"; };
@@ -522,7 +520,6 @@
 		A5E851A42357B1660001F74D /* Bandcamp.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Bandcamp.hpp; sourceTree = "<group>"; };
 		A5E851A82357BECD0001F74D /* BandcampError.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampError.cpp; sourceTree = "<group>"; };
 		A5E851A92357BECD0001F74D /* BandcampError.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BandcampError.hpp; sourceTree = "<group>"; };
-		A5E851AF2358DADE0001F74D /* Utils.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Utils.js; sourceTree = "<group>"; };
 		A5E851BC235A4AE90001F74D /* JSUtils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = JSUtils.hpp; sourceTree = "<group>"; };
 		A5E851BD235A4AE90001F74D /* JSUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSUtils.cpp; sourceTree = "<group>"; };
 		A5E851C1235A505B0001F74D /* Youtube.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Youtube.hpp; sourceTree = "<group>"; };
@@ -924,23 +921,12 @@
 			isa = PBXGroup;
 			children = (
 				A571E16F233331B900603E14 /* index.js */,
-				A571E171233331C100603E14 /* src */,
 				A571E170233331B900603E14 /* package.json */,
+				A5B0455925C101E100D15AF4 /* src */,
+				A5B0455A25C101EA00D15AF4 /* tools */,
 				A571E1842333E5D800603E14 /* build */,
 			);
 			path = js;
-			sourceTree = "<group>";
-		};
-		A571E171233331C100603E14 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				A571E172233331C100603E14 /* test.js */,
-				A571E173233331C100603E14 /* YoutubeDL.js */,
-				A571E1A92334438600603E14 /* HttpClient.js */,
-				A5382A0F2355774100E22A29 /* Bandcamp.js */,
-				A5E851AF2358DADE0001F74D /* Utils.js */,
-			);
-			path = src;
 			sourceTree = "<group>";
 		};
 		A571E197233411CD00603E14 /* external */ = {
