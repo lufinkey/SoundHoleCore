@@ -7,7 +7,7 @@ base_dir="$PWD"
 
 # bundle js file
 cd "$base_dir/js"
-npm run build-quick || exit $?
+npm run build-release || exit $?
 
 # bundle py file
 # cd "$base_dir/py"

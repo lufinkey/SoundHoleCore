@@ -5,12 +5,12 @@
 	"main": "index.js",
 	"scripts": {
 		"build": "npm install && npm run make-header",
-		"build-quick": "npm install && npm run make-header-quick",
+		"build-release": "npm install && npm run make-header-release",
 		"clean": "rm -rf node_modules build package-lock.json",
-		"bundle": "mkdir -p build &> /dev/null && browserify --node --standalone _ --external process --ignore-missing index.js -o build/output1.js && ./tools/minify_if_changed.sh build/output1.js build/soundhole_js_bundle.js",
-		"bundle-quick": "mkdir -p build &> /dev/null && browserify --node --standalone _ --external process --ignore-missing index.js -o build/soundhole_js_bundle.js",
+		"bundle": "mkdir -p build &> /dev/null && browserify --node --standalone _ --external process --ignore-missing index.js -o build/output1.js && babel build/output1.js --out-file build/soundhole_js_bundle.js",
+		"bundle-release": "mkdir -p build-release &> /dev/null && browserify --node --standalone _ --external process --ignore-missing index.js -o build/output1.js && ./tools/minify_if_changed.sh build/output1.js build/soundhole_js_bundle.js",
 		"make-header": "npm run bundle && cd build && xxd -i soundhole_js_bundle.js > soundhole_js_bundle.h",
-		"make-header-quick": "npm run bundle-quick && cd build && xxd -i soundhole_js_bundle.js > soundhole_js_bundle.h",
+		"make-header-release": "npm run bundle-release && cd build && xxd -i soundhole_js_bundle.js > soundhole_js_bundle.h",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"author": "Luis Finke (luisfinke@gmail.com)",
