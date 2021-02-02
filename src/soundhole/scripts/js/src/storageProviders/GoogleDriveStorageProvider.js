@@ -123,13 +123,16 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			codeVerifier: options.codeVerifier,
 			client_id: options.clientId || this._options.clientId
 		});
+		console.log("logging into google drive with tokens")
 		this._auth.setCredentials(tokens);
 		try {
+			console.log("preparing folders");
 			await this._prepareFolders();
 			const baseFolderId = this._baseFolderId;
 			if(!baseFolderId) {
 				throw new Error("could not find base folder id");
 			}
+			console.log("getting current user");
 			const about = await this._drive.about.get();
 			if(!about.user) {
 				throw new Error("unable to fetch current user data");
