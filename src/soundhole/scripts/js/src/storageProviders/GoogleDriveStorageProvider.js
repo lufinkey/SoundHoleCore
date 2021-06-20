@@ -3,13 +3,7 @@ const { google } = require('googleapis');
 const { v1: uuidv1 } = require('uuid');
 const StorageProvider = require('./StorageProvider');
 
-const SOUNDHOLE_FOLDER_NAME = "My SoundHole";
 const PLAYLISTS_FOLDER_NAME = "Playlists";
-const SOUNDHOLE_BASE_KEY = 'SOUNDHOLE_BASE';
-const PLAYLIST_KEY = 'SOUNDHOLE_PLAYLIST';
-const PLAYLIST_IMAGE_DATA_KEY = 'SOUNDHOLEPLAYLIST_IMG_DATA';
-const PLAYLIST_IMAGE_MIMETYPE_KEY = 'SOUNDHOLEPLAYLIST_IMG_MIMETYPE';
-const PLAYLIST_ROW_ITEM_ID_METADATA_KEY = 'soundholePlaylistItemId';
 const MIN_PLAYLIST_COLUMNS = [
 	'uri',
 	'provider',
@@ -49,6 +43,9 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		super();
 		if(!options || typeof options !== 'object') {
 			throw new Error("missing options");
+		}
+		if(!options.appKey || typeof options.appKey !== 'string') {
+			throw new Error("missing options.appKey");
 		}
 		if(!options.baseFolderName || typeof options.baseFolderName !== 'string') {
 			throw new Error("missing options.baseFolderName");
@@ -187,6 +184,24 @@ class GoogleDriveStorageProvider extends StorageProvider {
 
 
 
+	get _baseFolderPropKey() {
+		return `${this._options.appKey}_base_folder`;
+	}
+	get _playlistPropKey() {
+		return `${this._options.appKey}_playlist`;
+	}
+	get _imageDataPropKey() {
+		return `${this._options.appKey}_img_data`;
+	}
+	get _imageMimeTypePropKey() {
+		return `${this._options.appKey}_img_mimetype`;
+	}
+	get _playlistItemIdKey() {
+		return `${this._options.appKey}_playlist_item_id`;
+	}
+
+
+
 	get canStorePlaylists() {
 		return true;
 	}
@@ -214,9 +229,10 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			throw new Error("missing options.baseFolderName");
 		}
 		// check for existing base folder
-		const folderName = this._options.baseFolderName || SOUNDHOLE_FOLDER_NAME;
+		const folderName = this._options.baseFolderName;
+		const baseFolderPropKey = this._baseFolderPropKey;
 		let baseFolder = (await this._drive.files.list({
-			q: `mimeType = 'application/vnd.google-apps.folder' and appProperties has {{ key='${SOUNDHOLE_BASE_KEY}' and value=true }} and trashed = false`,
+			q: `mimeType = 'application/vnd.google-apps.folder' and appProperties has {{ key='${baseFolderPropKey}' and value='true' }} and trashed = false`,
 			fields: "*",
 			spaces: 'drive',
 			pageSize: 1
@@ -234,7 +250,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 				mimeType: 'application/vnd.google-apps.folder'
 			},
 			appProperties: {
-				[SOUNDHOLE_BASE_KEY]: true
+				[baseFolderPropKey]: 'true'
 			}
 		})).data;
 		this._baseFolderId = baseFolder.id;
@@ -430,7 +446,8 @@ class GoogleDriveStorageProvider extends StorageProvider {
 
 	_createPlaylistObject(file, userPermissionId, userFolderId) {
 		// validate appProperties
-		if(!file.appProperties[PLAYLIST_KEY] && !file.properties[PLAYLIST_KEY]) {
+		const playlistPropKey = this._playlistPropKey;
+		if(file.appProperties[playlistPropKey] != 'true' && file.properties[playlistPropKey] != 'true') {
 			throw new Error("file is not a SoundHole playlist");
 		}
 		// parse owner and base folder ID
@@ -496,10 +513,10 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		}
 		// prepare appProperties
 		const appProperties = {};
-		appProperties[PLAYLIST_KEY] = true;
+		appProperties[this._playlistPropKey] = 'true';
 		if(options.image) {
-			appProperties[PLAYLIST_IMAGE_DATA_KEY] = options.image.data;
-			appProperties[PLAYLIST_IMAGE_MIMETYPE_KEY] = options.image.mimeType;
+			appProperties[this._imageDataPropKey] = options.image.data;
+			appProperties[this._imageMimeTypePropKey] = options.image.mimeType;
 		}
 		// create file
 		const file = (await this._drive.files.create({
@@ -948,6 +965,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		if(row.values.length < columns.length) {
 			throw new Error("Not enough columns in row");
 		}
+		const rowItemIdKey = this._playlistItemIdKey;
 		const item = {};
 		const track = {};
 		for(let i=0; i<columns.length; i++) {
@@ -960,10 +978,10 @@ class GoogleDriveStorageProvider extends StorageProvider {
 				track[columnName] = value;
 			}
 			const itemIdMetadata = rowMetadata.developerMetadata.find((metadata) => {
-				return metadata.metadataKey === PLAYLIST_ROW_ITEM_ID_METADATA_KEY
+				return metadata.metadataKey === rowItemIdKey
 			});
 			if(!itemIdMetadata) {
-				throw new Error(`Missing developer metadata '${PLAYLIST_ROW_ITEM_ID_METADATA_KEY}' for track at index ${index}`);
+				throw new Error(`Missing developer metadata '${rowItemIdKey}' for track at index ${index}`);
 			}
 			item.uniqueId = itemIdMetadata.metadataValue;
 		}
@@ -998,6 +1016,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 
 
 	async _insertPlaylistItems(playlistURI, index, tracks, sheetProps, driveInfo) {
+		const rowItemIdKey = this._playlistItemIdKey;
 		// parse uri
 		const uriParts = this._parsePlaylistURI(playlistURI);
 		// build items data
@@ -1056,7 +1075,8 @@ class GoogleDriveStorageProvider extends StorageProvider {
 					...items.map((item, i) => (
 						{createDeveloperMetadata: {
 							developerMetadata: {
-								metadataKey: PLAYLIST_ROW_ITEM_ID_METADATA_KEY,
+								// item ID
+								metadataKey: rowItemIdKey,
 								metadataValue: item.uniqueId,
 								location: {
 									dimensionRange: {
@@ -1121,6 +1141,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 	}
 
 	async deletePlaylistItems(playlistURI, itemIds) {
+		const rowItemIdKey = this._playlistItemIdKey;
 		// parse uri
 		const uriParts = this._parsePlaylistURI(playlistURI);
 		// find matching item ids
@@ -1129,7 +1150,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			requestBody: {
 				dataFilters: itemIds.map((itemId) => ({
 					developerMetadata: {
-						metadataKey: PLAYLIST_ROW_ITEM_ID_METADATA_KEY,
+						metadataKey: rowItemIdKey,
 						metadataValue: itemId
 					}
 				}))
@@ -1139,7 +1160,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		const rowIndexes = itemIds.map((itemId) => {
 			const metadata = matchedDeveloperMetadata.find((metadata) => {
 				const devMeta = metadata.developerMetadata;
-				return (devMeta.metadataKey === PLAYLIST_ROW_ITEM_ID_METADATA_KEY && devMeta.metadataValue == itemId);
+				return (devMeta.metadataKey === rowItemIdKey && devMeta.metadataValue == itemId);
 			});
 			if(!metadata) {
 				throw new Error(`Could not find playlist item with id ${itemId}`);

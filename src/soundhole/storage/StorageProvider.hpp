@@ -22,6 +22,7 @@ namespace sh {
 	public:
 		using UserPlaylistsGenerator = MediaProvider::UserPlaylistsGenerator;
 		static constexpr auto BASE_FOLDER_NAME = "My SoundHole";
+		static constexpr auto APP_KEY = "SoundHole";
 		
 		struct URI {
 			String storageProvider;
