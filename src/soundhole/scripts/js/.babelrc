@@ -1,6 +1,8 @@
 {
-	"plugins": [
-		"@babel/plugin-transform-spread",
-		"@babel/plugin-proposal-object-rest-spread"
+	"targets": {
+		"node": "12.19.0"
+	},
+	"presets": [
+		"@babel/preset-env"
 	]
 }

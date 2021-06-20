@@ -1303,6 +1303,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A513DB4D232DA1C0000DCAC7 /* Build configuration list for PBXNativeTarget "SoundHoleCore-macOS" */;
 			buildPhases = (
+				A555789E267FCE9E006C9B88 /* [Script] Build Dependencies */,
+				A555789F267FCEBF006C9B88 /* [Script] Build JS Dependencies */,
 				A513DB46232DA1C0000DCAC7 /* Headers */,
 				A513DB47232DA1C0000DCAC7 /* Sources */,
 				A513DB48232DA1C0000DCAC7 /* Frameworks */,
@@ -1461,6 +1463,42 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		A555789E267FCE9E006C9B88 /* [Script] Build Dependencies */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "[Script] Build Dependencies";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../../tools/fetch_header_dependencies.sh\n../../tools/fetch_shared_dependencies.sh json11 cxxurl\n";
+		};
+		A555789F267FCEBF006C9B88 /* [Script] Build JS Dependencies */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "[Script] Build JS Dependencies";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ \"${CONFIGURATION}\" = \"Release\" ]; then\n\t../../src/soundhole/scripts/build-release.sh\nelse\n\t../../src/soundhole/scripts/build.sh\nfi\n";
 		};
 		A571E1412332D80200603E14 /* [Script] Build Dependencies */ = {
 			isa = PBXShellScriptBuildPhase;
