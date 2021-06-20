@@ -47,10 +47,10 @@ CHECKOUT OPTIONS:
     :commit: 5d7c648e7bc74c71b392aa6248f84c212ea7766f
     :git: "git@github.com:lufinkey/io-cpp.git"
   NodeJSEmbed:
-    :commit: 9a978697ee97eba2f37af3a982bbd40443906a39
+    :commit: 2acfbfa7ee977be2ba6ce084e1d3355f7e0ec141
     :git: "git@github.com:lufinkey/nodejs-embed.git"
   NodeMobile:
-    :commit: c8ed4167f58fd3dc35b508fa7018497a908751b5
+    :commit: d4af0e6bdaf753d1f0d69db13627dcdffc90c436
     :git: https://github.com/janeasystems/nodejs-mobile.git
 
 SPEC CHECKSUMS:
