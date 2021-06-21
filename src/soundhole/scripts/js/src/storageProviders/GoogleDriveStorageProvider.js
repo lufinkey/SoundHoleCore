@@ -127,9 +127,9 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			if(!baseFolderId) {
 				throw new Error("could not find base folder id");
 			}
-			const about = await this._drive.about.get({
+			const about = (await this._drive.about.get({
 				fields: "*"
-			});
+			})).data;
 			if(!about.user) {
 				throw new Error("unable to fetch current user data");
 			}
@@ -251,7 +251,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			requestBody: {
 				name: folderName,
 				mimeType: 'application/vnd.google-apps.folder',
-				parents: ['root'],
+				parents: [ 'root' ],
 				appProperties: {
 					[baseFolderPropKey]: 'true'
 				}
@@ -286,7 +286,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			requestBody: {
 				name: folderName,
 				mimeType: 'application/vnd.google-apps.folder',
-				parents: [baseFolderId],
+				parents: [ baseFolderId ],
 			}
 		})).data;
 		this._playlistsFolderId = playlistsFolder.id;
