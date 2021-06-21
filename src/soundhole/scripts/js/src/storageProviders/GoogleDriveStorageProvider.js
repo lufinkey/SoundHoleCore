@@ -120,16 +120,13 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			codeVerifier: options.codeVerifier,
 			client_id: options.clientId || this._options.clientId
 		});
-		console.log("logging into google drive with tokens")
 		this._auth.setCredentials(tokens);
 		try {
-			console.log("preparing folders");
 			await this._prepareFolders();
 			const baseFolderId = this._baseFolderId;
 			if(!baseFolderId) {
 				throw new Error("could not find base folder id");
 			}
-			console.log("getting current user");
 			const about = await this._drive.about.get();
 			if(!about.user) {
 				throw new Error("unable to fetch current user data");
@@ -232,7 +229,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		const folderName = this._options.baseFolderName;
 		const baseFolderPropKey = this._baseFolderPropKey;
 		let baseFolder = (await this._drive.files.list({
-			q: `mimeType = 'application/vnd.google-apps.folder' and appProperties has {{ key='${baseFolderPropKey}' and value='true' }} and trashed = false`,
+			q: `mimeType = 'application/vnd.google-apps.folder' and appProperties has { key='${baseFolderPropKey}' and value='true' } and trashed = false`,
 			fields: "*",
 			spaces: 'drive',
 			pageSize: 1
