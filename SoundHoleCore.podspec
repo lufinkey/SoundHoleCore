@@ -29,7 +29,6 @@ Pod::Spec.new do |s|
 	s.header_mappings_dir = 'src/soundhole'
 	s.pod_target_xcconfig = {
 		'HEADER_SEARCH_PATHS' => [
-			"#{dirname}/src",
 			"$(PODS_ROOT)/SoundHoleCore/src",
 			"$(PODS_ROOT)/DataCpp/src",
 			"$(PODS_ROOT)/AsyncCpp/src",
