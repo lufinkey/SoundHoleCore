@@ -228,6 +228,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		// check for existing base folder
 		const folderName = this._options.baseFolderName;
 		const baseFolderPropKey = this._baseFolderPropKey;
+		console.log("looking for base folder");
 		let baseFolder = (await this._drive.files.list({
 			q: `mimeType = 'application/vnd.google-apps.folder' and appProperties has { key='${baseFolderPropKey}' and value='true' } and trashed = false`,
 			fields: '*',
@@ -237,9 +238,11 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		if(baseFolder != null) {
 			this._baseFolderId = baseFolder.id;
 			this._baseFolder = baseFolder;
+			console.log("successfully made base folder");
 			return;
 		}
 		// create base folder
+		console.log("creating base folder");
 		baseFolder = (await this._drive.files.create({
 			name: folderName,
 			parents: ['root'],
@@ -262,6 +265,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		// check for existing playlists folder
 		const baseFolderId = this._baseFolderId;
 		const folderName = PLAYLISTS_FOLDER_NAME;
+		console.log("looking for playlists folder");
 		let playlistsFolder = (await this._drive.files.list({
 			q: `mimeType = 'application/vnd.google-apps.folder' and name = '${folderName}' and '${baseFolderId}' in parents and trashed = false`,
 			fields: "nextPageToken, files(id, name)",
@@ -270,9 +274,11 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		})).data.files[0];
 		if(playlistsFolder != null) {
 			this._playlistsFolderId = playlistsFolder.id;
+			console.log("successfully found playlists folder");
 			return;
 		}
 		// create playlists folder
+		console.log("creating playlists folder");
 		playlistsFolder = (await this._drive.files.create({
 			name: folderName,
 			parents: [baseFolderId],
