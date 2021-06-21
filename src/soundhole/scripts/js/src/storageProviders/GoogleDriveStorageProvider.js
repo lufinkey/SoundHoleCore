@@ -216,7 +216,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			}
 			const baseFolder = (await this._drive.files.get({
 				fileId: this._baseFolderId,
-				fields: "*"
+				fields: '*'
 			})).data;
 			this._baseFolder = baseFolder;
 			return;
@@ -230,7 +230,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		const baseFolderPropKey = this._baseFolderPropKey;
 		let baseFolder = (await this._drive.files.list({
 			q: `mimeType = 'application/vnd.google-apps.folder' and appProperties has { key='${baseFolderPropKey}' and value='true' } and trashed = false`,
-			fields: "*",
+			fields: '*',
 			spaces: 'drive',
 			pageSize: 1
 		})).data.files[0];
@@ -246,7 +246,8 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			mimeType: 'application/vnd.google-apps.folder',
 			appProperties: {
 				[baseFolderPropKey]: 'true'
-			}
+			},
+			fields: '*'
 		})).data;
 		this._baseFolderId = baseFolder.id;
 		this._baseFolder = baseFolder;
@@ -275,7 +276,8 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		playlistsFolder = (await this._drive.files.create({
 			name: folderName,
 			parents: [baseFolderId],
-			mimeType: 'application/vnd.google-apps.folder'
+			mimeType: 'application/vnd.google-apps.folder',
+			fields: '*'
 		})).data;
 		this._playlistsFolderId = playlistsFolder.id;
 	}
@@ -517,7 +519,8 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			description: options.description,
 			parents: [playlistsFolderId],
 			mimeType: 'application/vnd.google-apps.spreadsheet',
-			appProperties: appProperties
+			appProperties: appProperties,
+			fields: '*'
 		})).data;
 		// update sheet
 		await this._preparePlaylistSheet(file.id);
