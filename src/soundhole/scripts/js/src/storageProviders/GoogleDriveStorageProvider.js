@@ -247,15 +247,17 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		}
 		// create base folder
 		baseFolder = (await this._drive.files.create({
-			name: folderName,
-			parents: ['root'],
+			fields: "*",
 			media: {
 				mimeType: 'application/vnd.google-apps.folder'
 			},
-			appProperties: {
-				[baseFolderPropKey]: 'true'
-			},
-			fields: "*"
+			requestBody: {
+				name: folderName,
+				parents: ['root'],
+				appProperties: {
+					[baseFolderPropKey]: 'true'
+				}
+			}
 		})).data;
 		this._baseFolderId = baseFolder.id;
 		this._baseFolder = baseFolder;
@@ -282,12 +284,14 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		}
 		// create playlists folder
 		playlistsFolder = (await this._drive.files.create({
-			name: folderName,
-			parents: [baseFolderId],
+			fields: "*",
 			media: {
 				mimeType: 'application/vnd.google-apps.folder'
 			},
-			fields: "*"
+			requestBody: {
+				name: folderName,
+				parents: [baseFolderId]
+			}
 		})).data;
 		this._playlistsFolderId = playlistsFolder.id;
 	}
@@ -525,14 +529,16 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		}
 		// create file
 		const file = (await this._drive.files.create({
-			name: name,
-			description: options.description,
-			parents: [playlistsFolderId],
+			fields: "*",
 			media: {
 				mimeType: 'application/vnd.google-apps.spreadsheet'
 			},
-			appProperties: appProperties,
-			fields: "*"
+			requestBody: {
+				name: name,
+				description: options.description,
+				parents: [playlistsFolderId],
+				appProperties: appProperties
+			}
 		})).data;
 		// update sheet
 		await this._preparePlaylistSheet(file.id);
@@ -541,16 +547,20 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			if(options.privacy === 'public') {
 				await this._drive.permissions.create({
 					fileId: file.id,
-					type: 'anyone',
-					role: 'reader',
-					allowFileDiscovery: true
+					requestBody: {
+						type: 'anyone',
+						role: 'reader',
+						allowFileDiscovery: true
+					}
 				});
 			} else if(options.privacy === 'unlisted') {
 				await this._drive.permissions.create({
 					fileId: file.id,
-					type: 'anyone',
-					role: 'reader',
-					allowFileDiscovery: false
+					requestBody: {
+						type: 'anyone',
+						role: 'reader',
+						allowFileDiscovery: false
+					}
 				});
 			} else if(options.privacy === 'private') {
 				// no need to add any extra permissions
@@ -621,7 +631,11 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			await this._drive.files.delete(uriParts.fileId);
 		} else {
 			// move file to trash
-			await this._drive.files.update(uriParts.fileId, {trashed:true});
+			await this._drive.files.update(uriParts.fileId, {
+				requestBody: {
+					trashed:true
+				}
+			});
 		}
 	}
 
