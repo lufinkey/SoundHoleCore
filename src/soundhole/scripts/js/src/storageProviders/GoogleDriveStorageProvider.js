@@ -243,9 +243,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		baseFolder = (await this._drive.files.create({
 			name: folderName,
 			parents: ['root'],
-			media: {
-				mimeType: 'application/vnd.google-apps.folder'
-			},
+			mimeType: 'application/vnd.google-apps.folder',
 			appProperties: {
 				[baseFolderPropKey]: 'true'
 			}
@@ -277,9 +275,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		playlistsFolder = (await this._drive.files.create({
 			name: folderName,
 			parents: [baseFolderId],
-			media: {
-				mimeType: 'application/vnd.google-apps.folder'
-			}
+			mimeType: 'application/vnd.google-apps.folder'
 		})).data;
 		this._playlistsFolderId = playlistsFolder.id;
 	}
@@ -520,9 +516,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			name: name,
 			description: options.description,
 			parents: [playlistsFolderId],
-			media: {
-				mimeType: 'application/vnd.google-apps.spreadsheet'
-			},
+			mimeType: 'application/vnd.google-apps.spreadsheet',
 			appProperties: appProperties
 		})).data;
 		// update sheet
