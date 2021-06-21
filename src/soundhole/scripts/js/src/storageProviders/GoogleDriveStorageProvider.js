@@ -127,7 +127,9 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			if(!baseFolderId) {
 				throw new Error("could not find base folder id");
 			}
-			const about = await this._drive.about.get();
+			const about = await this._drive.about.get({
+				fields: "*"
+			});
 			if(!about.user) {
 				throw new Error("unable to fetch current user data");
 			}
@@ -152,7 +154,9 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		if(this._currentDriveInfo != null) {
 			return this._currentDriveInfo;
 		}
-		const about = (await this._drive.about.get()).data;
+		const about = (await this._drive.about.get({
+			fields: "*"
+		})).data;
 		if(!about.user) {
 			throw new Error("Unable to fetch current user data");
 		}
@@ -167,7 +171,9 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		if(this.session == null) {
 			return null;
 		}
-		const about = (await this._drive.about.get()).data;
+		const about = (await this._drive.about.get({
+			fields: "*"
+		})).data;
 		if(!about.user) {
 			return null;
 		}
@@ -216,7 +222,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			}
 			const baseFolder = (await this._drive.files.get({
 				fileId: this._baseFolderId,
-				fields: '*'
+				fields: "*"
 			})).data;
 			this._baseFolder = baseFolder;
 			return;
@@ -228,29 +234,28 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		// check for existing base folder
 		const folderName = this._options.baseFolderName;
 		const baseFolderPropKey = this._baseFolderPropKey;
-		console.log("looking for base folder");
 		let baseFolder = (await this._drive.files.list({
 			q: `mimeType = 'application/vnd.google-apps.folder' and appProperties has { key='${baseFolderPropKey}' and value='true' } and trashed = false`,
-			fields: '*',
+			fields: "*",
 			spaces: 'drive',
 			pageSize: 1
 		})).data.files[0];
 		if(baseFolder != null) {
 			this._baseFolderId = baseFolder.id;
 			this._baseFolder = baseFolder;
-			console.log("successfully made base folder");
 			return;
 		}
 		// create base folder
-		console.log("creating base folder");
 		baseFolder = (await this._drive.files.create({
 			name: folderName,
 			parents: ['root'],
-			mimeType: 'application/vnd.google-apps.folder',
+			media: {
+				mimeType: 'application/vnd.google-apps.folder'
+			},
 			appProperties: {
 				[baseFolderPropKey]: 'true'
 			},
-			fields: '*'
+			fields: "*"
 		})).data;
 		this._baseFolderId = baseFolder.id;
 		this._baseFolder = baseFolder;
@@ -265,7 +270,6 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		// check for existing playlists folder
 		const baseFolderId = this._baseFolderId;
 		const folderName = PLAYLISTS_FOLDER_NAME;
-		console.log("looking for playlists folder");
 		let playlistsFolder = (await this._drive.files.list({
 			q: `mimeType = 'application/vnd.google-apps.folder' and name = '${folderName}' and '${baseFolderId}' in parents and trashed = false`,
 			fields: "nextPageToken, files(id, name)",
@@ -274,16 +278,16 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		})).data.files[0];
 		if(playlistsFolder != null) {
 			this._playlistsFolderId = playlistsFolder.id;
-			console.log("successfully found playlists folder");
 			return;
 		}
 		// create playlists folder
-		console.log("creating playlists folder");
 		playlistsFolder = (await this._drive.files.create({
 			name: folderName,
 			parents: [baseFolderId],
-			mimeType: 'application/vnd.google-apps.folder',
-			fields: '*'
+			media: {
+				mimeType: 'application/vnd.google-apps.folder'
+			},
+			fields: "*"
 		})).data;
 		this._playlistsFolderId = playlistsFolder.id;
 	}
@@ -524,9 +528,11 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			name: name,
 			description: options.description,
 			parents: [playlistsFolderId],
-			mimeType: 'application/vnd.google-apps.spreadsheet',
+			media: {
+				mimeType: 'application/vnd.google-apps.spreadsheet'
+			},
 			appProperties: appProperties,
-			fields: '*'
+			fields: "*"
 		})).data;
 		// update sheet
 		await this._preparePlaylistSheet(file.id);
