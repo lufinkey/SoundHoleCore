@@ -12,7 +12,7 @@
 #include <embed/nodejs/NAPI_Macros.hpp>
 #include <napi.h>
 #include <nodejs/node_api.h>
-#include "soundhole_js_bundle.h"
+#include "js/build/soundhole_js_bundle.h"
 
 namespace sh::scripts {
 	bool scriptsLoaded = false;
