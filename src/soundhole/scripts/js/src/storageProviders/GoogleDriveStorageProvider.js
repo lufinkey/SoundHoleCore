@@ -67,8 +67,8 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		if(options.apiKey) {
 			this._auth.apiKey = options.apiKey;
 		}
-		if(options.credentials) {
-			this._auth.setCredentials(options.credentials);
+		if(options.session) {
+			this._auth.setCredentials(options.session);
 		}
 		
 		this._drive = google.drive({

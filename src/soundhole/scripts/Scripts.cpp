@@ -78,4 +78,20 @@ namespace sh::scripts {
 	napi_ref getJSExportsRef() {
 		return moduleExports;
 	}
+
+	Napi::Object getJSExports(napi_env env) {
+		auto exportsRef = scripts::getJSExportsRef();
+		if(exportsRef == nullptr) {
+			return Napi::Object();
+		}
+		auto exportsNapiRef = Napi::ObjectReference(env, exportsRef);
+		exportsNapiRef.SuppressDestruct();
+		return exportsNapiRef.Value().template As<Napi::Object>();
+	}
+
+	Napi::Value parseJsonToNapi(napi_env env, const std::string& json) {
+		auto exports = getJSExports(env);
+		auto json_decode = exports.Get("json_decode").As<Napi::Function>();
+		return json_decode.Call({ Napi::String::New(env, json) });
+	}
 }

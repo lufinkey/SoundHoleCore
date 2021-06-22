@@ -18,14 +18,7 @@ namespace sh::scripts {
 	
 	napi_ref getJSExportsRef();
 	#ifdef NODE_API_MODULE
-	inline Napi::Object getJSExports(napi_env env) {
-		auto exportsRef = scripts::getJSExportsRef();
-		if(exportsRef == nullptr) {
-			return Napi::Object();
-		}
-		auto exportsNapiRef = Napi::ObjectReference(env, exportsRef);
-		exportsNapiRef.SuppressDestruct();
-		return exportsNapiRef.Value().template As<Napi::Object>();
-	}
+	Napi::Object getJSExports(napi_env env);
+	Napi::Value parseJsonToNapi(napi_env env, const std::string& json);
 	#endif
 }

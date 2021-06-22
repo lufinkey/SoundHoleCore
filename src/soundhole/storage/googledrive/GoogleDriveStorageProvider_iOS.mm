@@ -13,8 +13,38 @@
 #import <soundhole/utils/HttpClient.hpp>
 #import <soundhole/utils/ios/SHWebAuthNavigationController_iOS.h>
 #import <soundhole/utils/ios/SHiOSUtils.h>
+#import <soundhole/utils/objc/SHKeychainUtils_objc.h>
 
 namespace sh {
+	void GoogleDriveStorageProvider::loadSession() {
+		NSData* data = [SHKeychainUtils genericPasswordDataForAccountKey:options.sessionPersistKey.toNSString()];
+		if(data == nil) {
+			return;
+		}
+		NSString* dataStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+		if(dataStr == nil) {
+			return;
+		}
+		
+		std::string error;
+		auto session = Json::parse(dataStr.UTF8String, error);
+		if(session.is_null() || !error.empty()) {
+			return;
+		}
+		this->session = session;
+	}
+
+	void GoogleDriveStorageProvider::saveSession() {
+		if(session.is_null()) {
+			[SHKeychainUtils deleteGenericPasswordDataForAccountKey:options.sessionPersistKey.toNSString()];
+		} else {
+			auto dataStr = session.dump();
+			NSData* data = [[NSData alloc] initWithBytes:dataStr.data() length:dataStr.length()];
+			[SHKeychainUtils setGenericPasswordData:data forAccountKey:options.sessionPersistKey.toNSString()];
+		}
+	}
+
+
 	Promise<bool> GoogleDriveStorageProvider::login() {
 		return Promise<bool>([=](auto resolve, auto reject) {
 			dispatch_async(dispatch_get_main_queue(), ^{

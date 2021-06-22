@@ -64,6 +64,8 @@ namespace sh {
 		Promise<void> handleOAuthRedirect(std::map<String,String> params, String codeVerifier);
 		Json sessionFromJS(napi_env env);
 		void updateSessionFromJS(napi_env env);
+		void loadSession();
+		void saveSession();
 		
 		#ifdef NODE_API_MODULE
 		template<typename Result>

@@ -17,7 +17,7 @@
 namespace sh {
 	GoogleDriveStorageProvider::GoogleDriveStorageProvider(MediaItemBuilder* mediaItemBuilder, MediaProviderStash* mediaProviderStash, Options options)
 	: jsRef(nullptr), mediaItemBuilder(mediaItemBuilder), mediaProviderStash(mediaProviderStash), options(options) {
-		//
+		loadSession();
 	}
 
 	GoogleDriveStorageProvider::~GoogleDriveStorageProvider() {
@@ -48,6 +48,9 @@ namespace sh {
 			}
 			gdOptions.Set("appKey", Napi::String::New(env, APP_KEY));
 			gdOptions.Set("baseFolderName", Napi::String::New(env, BASE_FOLDER_NAME));
+			if(!session.is_null()) {
+				gdOptions.Set("session", scripts::parseJsonToNapi(env, session.dump()));
+			}
 			
 			// create media item builder
 			if(mediaItemBuilder != nullptr) {
@@ -164,6 +167,7 @@ namespace sh {
 	void GoogleDriveStorageProvider::updateSessionFromJS(napi_env env) {
 		bool wasLoggedIn = isLoggedIn();
 		this->session = sessionFromJS(env);
+		this->saveSession();
 		bool loggedIn = isLoggedIn();
 		// update identity if login state has changed
 		if(loggedIn != wasLoggedIn) {
@@ -200,6 +204,7 @@ namespace sh {
 				throw std::runtime_error("Failed to login with authorization code");
 			}
 			this->session = session;
+			this->saveSession();
 			// re-fetch identity
 			this->storeIdentity(std::nullopt);
 			this->setIdentityNeedsRefresh();
@@ -219,7 +224,8 @@ namespace sh {
 			// logout
 			jsApi.Get("logout").As<Napi::Function>().Call(jsApi, {});
 		});
-		session = Json();
+		this->session = Json();
+		this->saveSession();
 		this->storeIdentity(std::nullopt);
 	}
 
