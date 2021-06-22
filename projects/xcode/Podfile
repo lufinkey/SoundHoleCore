@@ -1,4 +1,5 @@
-require 'fileutils'
+
+workspace 'SoundHoleCore'
 
 def shared_pods
 	pod 'DataCpp', :git => 'git@github.com:lufinkey/data-cpp.git'
@@ -8,15 +9,19 @@ def shared_pods
 	pod 'sqlite3'
 end
 
+def shared_mobile_pods
+	shared_pods
+	pod 'NodeMobile', :git => 'https://github.com/janeasystems/nodejs-mobile.git'
+end
+
 target 'SoundHoleCore-iOS' do
 	platform :ios, '13.0'
-	shared_pods
+	shared_mobile_pods
 end
 
 target 'SoundHoleCoreTest-iOS' do
 	platform :ios, '13.0'
-	shared_pods
-	pod 'NodeMobile', :git => 'https://github.com/janeasystems/nodejs-mobile.git'
+	shared_mobile_pods
 end
 
 target 'SoundHoleCore-macOS' do
