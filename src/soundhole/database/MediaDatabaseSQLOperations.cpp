@@ -54,8 +54,8 @@ String sqlOffsetAndLimitFromRange(Optional<sql::IndexRange> range, LinkedList<An
 		return String::join({" OFFSET ",sqlParam(params, range->startIndex)});
 	}
 	return String::join({
-		" OFFSET ",sqlParam(params, range->startIndex),
-		" LIMIT ",sqlParam(params, (range->endIndex - range->startIndex))
+		" LIMIT ",sqlParam(params, (range->endIndex - range->startIndex)),
+		" OFFSET ",sqlParam(params, range->startIndex)
 	});
 }
 
