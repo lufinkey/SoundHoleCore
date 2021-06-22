@@ -30,13 +30,15 @@ Pod::Spec.new do |s|
 	s.pod_target_xcconfig = {
 		'HEADER_SEARCH_PATHS' => [
 			"$(PODS_ROOT)/SoundHoleCore/src",
+			"$(SRCROOT)/external/SoundHoleCore/src",
 			"$(PODS_ROOT)/DataCpp/src",
 			"$(PODS_ROOT)/AsyncCpp/src",
 			"$(PODS_ROOT)/IOCpp/src",
 			"$(PODS_ROOT)/NodeJSEmbed/src",
 			"$(PODS_ROOT)/NodeJSEmbed/external/nodejs/build/addon-api",
 			"$(PODS_ROOT)/dtl",
-			"$(PODS_ROOT)/SoundHoleCore/external"
+			"$(PODS_ROOT)/SoundHoleCore/external",
+			"$(SRCROOT)/external/SoundHoleCore/external"
 		],
 		'CLANG_CXX_LANGUAGE_STANDARD' => 'gnu++17',
 		'GCC_OPTIMIZATION_LEVEL[config=Release]' => 's'
@@ -52,7 +54,9 @@ Pod::Spec.new do |s|
 	s.user_target_xcconfig = {
 		'HEADER_SEARCH_PATHS' => [
 			"$(PODS_ROOT)/SoundHoleCore/src",
-			"$(PODS_ROOT)/SoundHoleCore/external"
+			"$(SRCROOT)/external/SoundHoleCore/src",
+			"$(PODS_ROOT)/SoundHoleCore/external",
+			"$(SRCROOT)/external/SoundHoleCore/external"
 		]
 	}
 	s.ios.user_target_xcconfig = {
