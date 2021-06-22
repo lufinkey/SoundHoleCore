@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		806FE0F8B91D795108D7E457 /* libPods-SoundHoleCoreTest-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 92C87D0F488E86DFB8CAA6B3 /* libPods-SoundHoleCoreTest-iOS.a */; };
+		9F6E54C94F2BE7E674A394B1 /* libPods-SoundHoleCore-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 372339DD86DA7BC3DC0B9252 /* libPods-SoundHoleCore-macOS.a */; };
 		A50F74B6238B223F0061D9FD /* TrackCollection.impl.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A50F74B5238B223F0061D9FD /* TrackCollection.impl.hpp */; };
 		A513DB34232DA191000DCAC7 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = A513DB33232DA191000DCAC7 /* AppDelegate.mm */; };
 		A513DB37232DA191000DCAC7 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A513DB36232DA191000DCAC7 /* ViewController.mm */; };
@@ -284,6 +285,7 @@
 		A5F60C31255F3E4700A0D4E3 /* Base64.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5F60C2E255F3E4700A0D4E3 /* Base64.hpp */; };
 		A5F9F63F244AB6CE00E80C7A /* Player_objc.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5F9F63D244AB6CE00E80C7A /* Player_objc.mm */; };
 		A5F9F640244AB6CE00E80C7A /* Player_objc.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5F9F63D244AB6CE00E80C7A /* Player_objc.mm */; };
+		B6725843968AB91D57269017 /* libPods-SoundHoleCore-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B9A885B59D5662B5C89207F /* libPods-SoundHoleCore-iOS.a */; };
 		CD1A74B29839C57A94EAACD7 /* libPods-SoundHoleCoreTest-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */; };
 /* End PBXBuildFile section */
 
@@ -300,10 +302,15 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		18B5B16207C9014577FCE5B7 /* Pods-SoundHoleCore-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCore-iOS.release.xcconfig"; path = "Target Support Files/Pods-SoundHoleCore-iOS/Pods-SoundHoleCore-iOS.release.xcconfig"; sourceTree = "<group>"; };
 		2AA86EF008E87D76E221E6AA /* Pods-SoundHoleCoreTest-macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-macOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-macOS/Pods-SoundHoleCoreTest-macOS.debug.xcconfig"; sourceTree = "<group>"; };
+		372339DD86DA7BC3DC0B9252 /* libPods-SoundHoleCore-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SoundHoleCore-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SoundHoleCoreTest-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4B9A885B59D5662B5C89207F /* libPods-SoundHoleCore-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SoundHoleCore-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6085FAA28BF1722A765DF721 /* Pods-SoundHoleCore-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCore-iOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCore-iOS/Pods-SoundHoleCore-iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		92C87D0F488E86DFB8CAA6B3 /* libPods-SoundHoleCoreTest-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SoundHoleCoreTest-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		96CEDFDA87ECADACE17A7C82 /* Pods-SoundHoleCoreTest-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.release.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.release.xcconfig"; sourceTree = "<group>"; };
+		9EB0D982F4B0A13669D4FD62 /* Pods-SoundHoleCore-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCore-macOS.release.xcconfig"; path = "Target Support Files/Pods-SoundHoleCore-macOS/Pods-SoundHoleCore-macOS.release.xcconfig"; sourceTree = "<group>"; };
 		A372CA273104C573CAEC4617 /* Pods-SoundHoleCoreTest-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-macOS.release.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-macOS/Pods-SoundHoleCoreTest-macOS.release.xcconfig"; sourceTree = "<group>"; };
 		A50F74B5238B223F0061D9FD /* TrackCollection.impl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TrackCollection.impl.hpp; sourceTree = "<group>"; };
 		A513DB23232DA15C000DCAC7 /* libSoundHoleCore-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSoundHoleCore-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -546,6 +553,7 @@
 		A5F9F63D244AB6CE00E80C7A /* Player_objc.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Player_objc.mm; sourceTree = "<group>"; };
 		A5F9F641244AB8E200E80C7A /* Player_objc_private.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Player_objc_private.hpp; sourceTree = "<group>"; };
 		AFF721677F756E337195FAB1 /* Pods-SoundHoleCoreTest-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.debug.xcconfig"; sourceTree = "<group>"; };
+		EDC83DE24ACEA84DD1563F96 /* Pods-SoundHoleCore-macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCore-macOS.debug.xcconfig"; path = "Target Support Files/Pods-SoundHoleCore-macOS/Pods-SoundHoleCore-macOS.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -555,6 +563,7 @@
 			files = (
 				A5F081B72543F2B900C41A36 /* MediaPlayer.framework in Frameworks */,
 				A571E13D2332D11200603E14 /* SpotifyAudioPlayback.framework in Frameworks */,
+				B6725843968AB91D57269017 /* libPods-SoundHoleCore-iOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -577,6 +586,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9F6E54C94F2BE7E674A394B1 /* libPods-SoundHoleCore-macOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -600,6 +610,10 @@
 				96CEDFDA87ECADACE17A7C82 /* Pods-SoundHoleCoreTest-iOS.release.xcconfig */,
 				2AA86EF008E87D76E221E6AA /* Pods-SoundHoleCoreTest-macOS.debug.xcconfig */,
 				A372CA273104C573CAEC4617 /* Pods-SoundHoleCoreTest-macOS.release.xcconfig */,
+				6085FAA28BF1722A765DF721 /* Pods-SoundHoleCore-iOS.debug.xcconfig */,
+				18B5B16207C9014577FCE5B7 /* Pods-SoundHoleCore-iOS.release.xcconfig */,
+				EDC83DE24ACEA84DD1563F96 /* Pods-SoundHoleCore-macOS.debug.xcconfig */,
+				9EB0D982F4B0A13669D4FD62 /* Pods-SoundHoleCore-macOS.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -795,6 +809,8 @@
 				A513EDA7232DA30D000DCAC7 /* Cocoa.framework */,
 				92C87D0F488E86DFB8CAA6B3 /* libPods-SoundHoleCoreTest-iOS.a */,
 				3F212EEB0917F4E79FCCAE93 /* libPods-SoundHoleCoreTest-macOS.a */,
+				4B9A885B59D5662B5C89207F /* libPods-SoundHoleCore-iOS.a */,
+				372339DD86DA7BC3DC0B9252 /* libPods-SoundHoleCore-macOS.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1265,6 +1281,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A513DB29232DA15D000DCAC7 /* Build configuration list for PBXNativeTarget "SoundHoleCore-iOS" */;
 			buildPhases = (
+				79123B2F27A589F052C937B7 /* [CP] Check Pods Manifest.lock */,
 				A571E1412332D80200603E14 /* [Script] Build Dependencies */,
 				A5F07D832543847C00C41A36 /* [Script] Build JS Dependencies */,
 				A513DB1F232DA15C000DCAC7 /* Sources */,
@@ -1303,6 +1320,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A513DB4D232DA1C0000DCAC7 /* Build configuration list for PBXNativeTarget "SoundHoleCore-macOS" */;
 			buildPhases = (
+				643D147FC31277AD6C2D2C41 /* [CP] Check Pods Manifest.lock */,
 				A555789E267FCE9E006C9B88 /* [Script] Build Dependencies */,
 				A555789F267FCEBF006C9B88 /* [Script] Build JS Dependencies */,
 				A513DB46232DA1C0000DCAC7 /* Headers */,
@@ -1419,6 +1437,50 @@
 			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-SoundHoleCoreTest-iOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		643D147FC31277AD6C2D2C41 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-SoundHoleCore-macOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		79123B2F27A589F052C937B7 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-SoundHoleCore-iOS-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1915,6 +1977,7 @@
 		};
 		A513DB2A232DA15D000DCAC7 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6085FAA28BF1722A765DF721 /* Pods-SoundHoleCore-iOS.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -1940,6 +2003,7 @@
 		};
 		A513DB2B232DA15D000DCAC7 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 18B5B16207C9014577FCE5B7 /* Pods-SoundHoleCore-iOS.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -2018,6 +2082,7 @@
 		};
 		A513DB4B232DA1C0000DCAC7 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = EDC83DE24ACEA84DD1563F96 /* Pods-SoundHoleCore-macOS.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				EXECUTABLE_PREFIX = lib;
@@ -2035,6 +2100,7 @@
 		};
 		A513DB4C232DA1C0000DCAC7 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9EB0D982F4B0A13669D4FD62 /* Pods-SoundHoleCore-macOS.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				EXECUTABLE_PREFIX = lib;
