@@ -30,13 +30,13 @@ namespace sh {
 			throw std::invalid_argument("invalid json for MediaItem::Image::Size: "+json.string_value());
 		}
 		auto& str = json.string_value();
-		if(str == "TINY") {
+		if(str == "TINY" || str == "tiny") {
 			return Size::TINY;
-		} else if(str == "SMALL") {
+		} else if(str == "SMALL" || str == "small") {
 			return Size::SMALL;
-		} else if(str == "MEDIUM") {
+		} else if(str == "MEDIUM" || str == "medium") {
 			return Size::MEDIUM;
-		} else if(str == "LARGE") {
+		} else if(str == "LARGE" || str == "large") {
 			return Size::LARGE;
 		} else {
 			throw std::invalid_argument("invalid MediaItem::Image::Size " + str);
