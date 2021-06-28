@@ -142,7 +142,7 @@ namespace sh {
 		lock.unlock();
 		applyAuthToken(accessToken);
 		// TODO make this asyncAfter cancellable
-		getDefaultPromiseQueue()->asyncAfter(std::chrono::steady_clock::now() + std::chrono::milliseconds(500), [=]() {
+		defaultPromiseQueue()->asyncAfter(std::chrono::steady_clock::now() + std::chrono::milliseconds(500), [=]() {
 			std::unique_lock<std::mutex> lock(loginMutex);
 			renewingSession = false;
 			#ifdef TARGETPLATFORM_IOS

@@ -260,7 +260,7 @@ namespace sh {
 			// retry if needed, otherwise fail
 			if(shouldRetry) {
 				// wait 2 seconds before retrying
-				getDefaultPromiseQueue()->asyncAfter(std::chrono::steady_clock::now() + std::chrono::seconds(2), [=]() {
+				defaultPromiseQueue()->asyncAfter(std::chrono::steady_clock::now() + std::chrono::seconds(2), [=]() {
 					if(renewalInfo->deleted) {
 						// call callbacks
 						for(auto& callback : renewalInfo->callbacks) {

@@ -8,9 +8,9 @@ PODS:
   - NodeJSEmbed (0.1.0):
     - NodeMobile
   - NodeMobile (0.3.0)
-  - sqlite3 (3.35.5):
-    - sqlite3/common (= 3.35.5)
-  - sqlite3/common (3.35.5)
+  - sqlite3 (3.36.0):
+    - sqlite3/common (= 3.36.0)
+  - sqlite3/common (3.36.0)
 
 DEPENDENCIES:
   - "AsyncCpp (from `git@github.com:lufinkey/async-cpp.git`)"
@@ -38,10 +38,10 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   AsyncCpp:
-    :commit: 43d51be4197aa2192fb11b4d534fe8bd5487ce61
+    :commit: 5b5ab28e428fdc4ce29b80a5b123135781f9121c
     :git: "git@github.com:lufinkey/async-cpp.git"
   DataCpp:
-    :commit: e9a6752dd163c8218629fd0700a4b8242d661777
+    :commit: 8a3f5c6a0b3b10bdf3b2321517783cc4fc8a2849
     :git: "git@github.com:lufinkey/data-cpp.git"
   IOCpp:
     :commit: 774464237459961b60d3f23e2c4c2cd18294afcf
@@ -59,8 +59,8 @@ SPEC CHECKSUMS:
   IOCpp: 0a368d96b3b7acdd54febee533aa251afb0a60d3
   NodeJSEmbed: f0c7b278489e1c632581127d6837ab182c27ed92
   NodeMobile: d6a5a252d4774c89c360f627f166b727b07b9aee
-  sqlite3: 75da32fd4e3574f6c38566a9f0114cfe792c8db5
+  sqlite3: 797b1b1f92baf74716a3179f69d9652ce4a5df3f
 
-PODFILE CHECKSUM: e2d9d48cbb4d804cf8d0b254a7a297f308acfc27
+PODFILE CHECKSUM: 8681d1186736b894c8ae9510757890e6ed5bb398
 
 COCOAPODS: 1.10.0

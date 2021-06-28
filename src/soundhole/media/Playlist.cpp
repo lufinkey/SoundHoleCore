@@ -20,7 +20,7 @@ namespace sh {
 		if(!addedByJson.is_null()) {
 			auto userProviderName = addedByJson["provider"].string_value();
 			if(userProviderName.empty()) {
-				throw std::invalid_argument("user json is missing provider");
+				throw std::invalid_argument("addedBy User json is missing provider");
 			}
 			auto provider = stash->getMediaProvider(userProviderName);
 			if(provider == nullptr) {
@@ -140,7 +140,7 @@ namespace sh {
 		if(!ownerJson.is_null()) {
 			auto userProviderName = ownerJson["provider"].string_value();
 			if(userProviderName.empty()) {
-				throw std::invalid_argument("user json is missing provider");
+				throw std::invalid_argument("owner User json is missing provider");
 			}
 			auto provider = stash->getMediaProvider(userProviderName);
 			if(provider == nullptr) {

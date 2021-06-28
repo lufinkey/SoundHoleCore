@@ -26,16 +26,20 @@ const PLAYLIST_COLUMNS = [
 	'images',
 	'duration',
 	'addedAt',
-	'addedBy'
+	'addedBy',
+	'addedById'
 ];
 const PLAYLIST_ITEM_ONLY_COLUMNS = [
 	'addedAt',
-	'addedBy'
+	'addedBy',
+	'addedById'
 ];
 const PLAYLIST_VERSIONS = [ 'v1.0' ];
 const PLAYLIST_LATEST_VERSION = 'v1.0';
 const PLAYLIST_ITEMS_START_OFFSET = 2;
 const PLAYLIST_PRIVACIES = ['public','unlisted','private'];
+
+const PLAYLIST_EXTRA_COLUMN_COUNT = 10;
 
 
 class GoogleDriveStorageProvider extends StorageProvider {
@@ -141,7 +145,12 @@ class GoogleDriveStorageProvider extends StorageProvider {
 	}
 
 	logout() {
-		this._auth.revokeCredentials();
+		if(this._auth.credentials != null && this._auth.credentials.access_token != null) {
+			this._auth.revokeCredentials()
+				.catch((error) => {
+					console.error(error);
+				});
+		}
 		this._currentDriveInfo = null;
 	}
 
@@ -434,16 +443,19 @@ class GoogleDriveStorageProvider extends StorageProvider {
 
 
 	_createUserObject(owner, baseFolderId) {
+		const mediaItemBuilder = this._options.mediaItemBuilder;
 		return {
+			partial: false,
 			type: 'user',
+			provider: (mediaItemBuilder != null) ? mediaItemBuilder.name : this.name,
 			uri: this._createUserURIFromUser(owner, baseFolderId),
 			name: owner.displayName || owner.emailAddress || owner.permissionId,
-			images: [
+			images: (owner.photoLink != null) ? [
 				{
-					uri: owner.photoLink,
-					size: 'medium'
+					url: owner.photoLink,
+					size: 'MEDIUM'
 				}
-			]
+			] : []
 		};
 	}
 
@@ -467,6 +479,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		}
 		// TODO parse images
 		return {
+			partial: false,
 			type: 'playlist',
 			uri: this._createPlaylistURI(file.id, baseFolderId),
 			name: file.name,
@@ -526,12 +539,10 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		// create file
 		const file = (await this._drive.files.create({
 			fields: "*",
-			media: {
-				mimeType: 'application/vnd.google-apps.spreadsheet'
-			},
 			requestBody: {
 				name: name,
 				description: options.description,
+				mimeType: 'application/vnd.google-apps.spreadsheet',
 				parents: [playlistsFolderId],
 				appProperties: appProperties
 			}
@@ -607,7 +618,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		if(tracks && tracks.total != null) {
 			playlist.itemCount = tracks.total;
 		}
-		const playlistItems = [];
+		const playlistItems = {};
 		if(tracks && tracks.offset != null) {
 			let i = tracks.offset;
 			for(const item of tracks.items) {
@@ -629,7 +640,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			// move file to trash
 			await this._drive.files.update(uriParts.fileId, {
 				requestBody: {
-					trashed:true
+					trashed: true
 				}
 			});
 		}
@@ -763,7 +774,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		return this._a1Notation(x1,y1)+':'+this._a1Notation(x2,y2)
 	}
 	_playlistHeaderA1Range() {
-		return this._a1Range(0,0, PLAYLIST_COLUMNS.length+10,1);
+		return this._a1Range(0,0, (PLAYLIST_COLUMNS.length+PLAYLIST_EXTRA_COLUMN_COUNT), 1);
 	}
 	_playlistItemsA1Range(startIndex, itemCount) {
 		if(!Number.isInteger(startIndex) || startIndex < 0) {
@@ -771,7 +782,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		} else if(!Number.isInteger(itemCount) || itemCount <= 0) {
 			throw new Error("itemCount must be a positive non-zero integer");
 		}
-		return this._a1Range(0,(PLAYLIST_ITEMS_START_OFFSET+startIndex), (PLAYLIST_COLUMNS.length+10),(PLAYLIST_ITEMS_START_OFFSET+itemCount));
+		return this._a1Range(0,(PLAYLIST_ITEMS_START_OFFSET+startIndex), (PLAYLIST_COLUMNS.length+PLAYLIST_EXTRA_COLUMN_COUNT), (PLAYLIST_ITEMS_START_OFFSET+itemCount));
 	}
 	_playlistColumnsA1Range() {
 		return this._a1Range(0,1, PLAYLIST_COLUMNS.length,1);
@@ -805,11 +816,10 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		return dateString;
 	}
 
-	async _preparePlaylistSheet(playlistURI) {
-		const uriParts = this._parsePlaylistURI(playlistURI);
+	async _preparePlaylistSheet(fileId) {
 		// get spreadsheet header
 		let spreadsheet = (await this._sheets.spreadsheets.get({
-			spreadsheetId: uriParts.fileId,
+			spreadsheetId: fileId,
 			includeGridData: true,
 			ranges: [ this._playlistHeaderA1Range() ]
 		})).data;
@@ -826,8 +836,8 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			throw new Error(`Missing spreadsheet sheets`);
 		}
 		const sheet = spreadsheet.sheets[0];
-		if(!sheet.data || !sheet.data[rangeIndex] || !sheet.data[rangeIndex].rowData) {
-			throw new Error(`Missing spreadsheet data`);
+		if(!sheet.properties) {
+			throw new Error(`Missing spreadsheet properties`);
 		}
 		const gridProps = sheet.properties.gridProperties;
 		const maxColumnsCount = PLAYLIST_COLUMNS.length;
@@ -836,7 +846,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		const colDiff = maxRowsCount - gridProps.rowCount;
 		// perform batch update
 		await this._sheets.spreadsheets.batchUpdate({
-			spreadsheetId: uriParts.fileId,
+			spreadsheetId: fileId,
 			requestBody: {
 				requests: [
 					// resize columns
@@ -1038,11 +1048,13 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		// build items data
 		const addedAt = this._formatDate(new Date());
 		const addedBy = this._createUserObject(driveInfo.user, this._baseFolderId);
+		const addedById = `/${this._createUserIDFromUser(driveInfo.user, this._baseFolderId)}/`;
 		const items = tracks.map((track) => (
 			{
 				uniqueId: uuidv1(),
 				addedAt,
 				addedBy,
+				addedById,
 				track
 			}
 		));
@@ -1056,8 +1068,8 @@ class GoogleDriveStorageProvider extends StorageProvider {
 						inheritFromBefore: true,
 						range: {
 							dimension: 'ROWS',
-							startIndex: index,
-							endIndex: index + tracks.length
+							startIndex: PLAYLIST_ITEMS_START_OFFSET + index,
+							endIndex:  PLAYLIST_ITEMS_START_OFFSET + index + tracks.length
 						}
 					}},
 					// add content to new rows
@@ -1065,7 +1077,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 						fields: 'userEnteredValue',
 						start: {
 							sheetId: 0,
-							rowIndex: index,
+							rowIndex:  PLAYLIST_ITEMS_START_OFFSET + index,
 							columnIndex: 0
 						},
 						rows: items.map((item) => {
@@ -1098,8 +1110,8 @@ class GoogleDriveStorageProvider extends StorageProvider {
 									dimensionRange: {
 										dimension: 'ROWS',
 										sheetId: 0,
-										startIndex: i,
-										endIndex: (i+1)
+										startIndex: PLAYLIST_ITEMS_START_OFFSET + index + i,
+										endIndex: PLAYLIST_ITEMS_START_OFFSET + index + (i+1)
 									}
 								},
 								visibility: 'DOCUMENT'
@@ -1157,6 +1169,9 @@ class GoogleDriveStorageProvider extends StorageProvider {
 	}
 
 	async deletePlaylistItems(playlistURI, itemIds) {
+		if(itemIds.length === 0) {
+			return;
+		}
 		const rowItemIdKey = this._playlistItemIdKey;
 		// parse uri
 		const uriParts = this._parsePlaylistURI(playlistURI);
@@ -1173,7 +1188,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			}
 		})).data;
 		// get row indexes
-		const rowIndexes = itemIds.map((itemId) => {
+		const rows = itemIds.map((itemId) => {
 			const metadata = matchedDeveloperMetadata.find((metadata) => {
 				const devMeta = metadata.developerMetadata;
 				return (devMeta.metadataKey === rowItemIdKey && devMeta.metadataValue == itemId);
@@ -1181,49 +1196,87 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			if(!metadata) {
 				throw new Error(`Could not find playlist item with id ${itemId}`);
 			}
-			return metadata.developerMetadata.location.dimensionRange.startIndex;
+			return {
+				itemId,
+				rowIndex: metadata.developerMetadata.location.dimensionRange.startIndex
+			};
 		});
-		rowIndexes.sort();
+		rows.sort((a, b) => (a.index - b.index));
 		// group indexes for simpler removal
-		const rowIndexGroups = [];
-		let expectedNextIndex = null;
+		const rowGroups = [];
 		let groupStartIndex = null;
-		for(const rowIndex of rowIndexes) {
+		let expectedNextIndex = null;
+		for(const { rowIndex } of rows) {
 			if(groupStartIndex == null) {
+				// start a new group
 				groupStartIndex = rowIndex;
-				expectedNextIndex = rowIndex+1;
+				expectedNextIndex = rowIndex + 1;
 			} else if(rowIndex === expectedNextIndex) {
+				// found expected index, expand group
 				expectedNextIndex = rowIndex + 1;
 			} else {
-				rowIndexGroups.push({
+				// next index wasn't the expected index, so push the group
+				rowGroups.push({
 					startIndex: groupStartIndex,
 					endIndex: expectedNextIndex
 				});
+				// start a new group
 				groupStartIndex = rowIndex;
-				expectedNextIndex = rowindex+1;
+				expectedNextIndex = rowindex + 1;
 			}
 		}
+		// add the last group
 		if(groupStartIndex != null) {
-			rowIndexGroups.push({
+			rowGroups.push({
 				startIndex: groupStartIndex,
 				endIndex: expectedNextIndex
 			});
 		}
-		rowIndexGroups.reverse();
+		// delete from last to first so indexes are correct
+		rowGroups.reverse();
 		// delete row index groups
 		await this._sheets.spreadsheets.batchUpdate({
 			spreadsheetId: uriParts.fileId,
 			requestBody: {
-				requests: rowIndexGroups.map((group) => (
-					{deleteDimension: {
-						range: {
-							sheetId: 0,
-							startIndex: group.startIndex,
-							endIndex: group.endIndex,
-							dimension: 'ROWS'
-						}
-					}}
-				))
+				requests: [
+					// validate the item IDs at the indexes by setting them to the same values
+					...rows.map(({ itemId, rowIndex }) => (
+						{updateDeveloperMetadata: {
+							dataFilters: [
+								{developerMetadataLookup: {
+									locationType: 'ROW',
+									metadataLocation: {
+										locationType: 'ROW',
+										dimensionsRange: {
+											sheetId: 0,
+											startIndex: rowIndex,
+											endIndex: rowIndex + 1,
+											dimension: 'ROWS'
+										}
+									},
+									locationMatchingStrategy: 'EXACT',
+									metadataKey: rowItemIdKey,
+									metadataValue: itemId
+								}},
+							],
+							developerMetadata: {
+								metadataValue: itemId
+							},
+							fields: 'metadataValue'
+						}}
+					)),
+					// delete rows
+					...rowGroups.map((group) => (
+						{deleteDimension: {
+							range: {
+								sheetId: 0,
+								startIndex: group.startIndex,
+								endIndex: group.endIndex,
+								dimension: 'ROWS'
+							}
+						}}
+					))
+				]
 			}
 		});
 		// transform result

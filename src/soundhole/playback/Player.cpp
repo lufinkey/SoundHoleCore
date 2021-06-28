@@ -238,7 +238,7 @@ namespace sh {
 					[=]() {
 						// wait till end of frame before trying
 						return Promise<void>([=](auto resolve, auto reject) {
-							getDefaultPromiseQueue()->async([=]() {
+							defaultPromiseQueue()->async([=]() {
 								resolve();
 							});
 						});
@@ -547,7 +547,7 @@ namespace sh {
 	
 	void Player::startPlayerStateInterval() {
 		if(!providerPlayerStateTimer) {
-			providerPlayerStateTimer = Timer::withInterval(std::chrono::milliseconds(100), getDefaultPromiseQueue(), [=]() {
+			providerPlayerStateTimer = Timer::withInterval(std::chrono::milliseconds(100), defaultPromiseQueue(), [=]() {
 				onPlayerStateInterval();
 			});
 			onPlayerStateInterval();

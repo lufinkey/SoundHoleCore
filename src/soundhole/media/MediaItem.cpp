@@ -106,9 +106,17 @@ namespace sh {
 		auto name = json["name"];
 		auto uri = json["uri"];
 		auto images = json["images"];
-		if(!!type.is_string() || !name.is_string() || !uri.is_string()
-		   || (!images.is_null() && !images.is_array())) {
-			throw std::invalid_argument("invalid json for MediaItem");
+		if(!type.is_string()) {
+			throw std::invalid_argument("invalid json for MediaItem: 'type' is required");
+		}
+		if(!name.is_string()) {
+			throw std::invalid_argument("invalid json for MediaItem: 'name' is required");
+		}
+		if(!uri.is_string()) {
+			throw std::invalid_argument("invalid json for MediaItem: 'uri' is required");
+		}
+		if((!images.is_null() && !images.is_array())) {
+			throw std::invalid_argument("invalid json for MediaItem: 'images' must be null or an array");
 		}
 		return MediaItem::Data{
 			.partial = partial.is_bool() ? partial.bool_value() : true,
@@ -197,7 +205,7 @@ namespace sh {
 
 	Promise<void> MediaItem::fetchDataIfNeeded() {
 		w$<MediaItem> weakSelf = shared_from_this();
-		if(DispatchQueue::local() != getDefaultPromiseQueue()) {
+		if(DispatchQueue::local() != defaultPromiseQueue()) {
 			return Promise<void>::resolve().then([=]() -> Promise<void> {
 				auto self = weakSelf.lock();
 				if(!self) {

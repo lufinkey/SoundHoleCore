@@ -34,20 +34,11 @@ target 'SoundHoleCoreTest-macOS' do
 	shared_pods
 end
 
-post_install do |installer|
-	installer.pods_project.targets.each do |target|
-		if target.name == 'AsyncCpp-iOS' || target.name == 'AsyncCpp-macOS'
-			target.build_configurations.each do |config|
-				config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
-				config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'FGL_DISPATCH_USES_MAIN=1'
-			end
-		end
-	end
-end
-
 system("mkdir -p 'Pods'\n"\
 	"cd Pods\n"\
 	"if [ ! -e 'dtl/.git' ]; then\n"\
 		"\tgit clone 'https://github.com/cubicdaiya/dtl'\n"\
+	"else\n"\
+		"\tcd dtl\n"\
+		"\tgit pull\n"\
 	"fi\n")
-
