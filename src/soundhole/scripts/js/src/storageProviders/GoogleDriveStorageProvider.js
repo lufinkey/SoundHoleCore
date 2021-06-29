@@ -218,6 +218,10 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		return true;
 	}
 
+	async _prepareForRequest() {
+		await this._prepareFolders();
+	}
+
 	async _prepareFolders() {
 		await this._prepareBaseFolder();
 		await this._preparePlaylistsFolder();
@@ -338,7 +342,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 
 
 	_parsePlaylistID(playlistId) {
-		const index = playistId.indexOf('/');
+		const index = playlistId.indexOf('/');
 		if(index === -1) {
 			return {
 				fileId: playlistId
@@ -516,6 +520,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 
 
 	async createPlaylist(name, options={}) {
+		await this._prepareForRequest();
 		// validate input
 		this._validatePrivacy(options.privacy);
 		// prepare folder
@@ -583,55 +588,52 @@ class GoogleDriveStorageProvider extends StorageProvider {
 	}
 
 
-	async getPlaylist(playlistURI, options) {
+	async getPlaylist(playlistURI, options={}) {
+		await this._prepareForRequest();
 		// validate options
-		if(options.itemsStartIndex != null && (!Number.isInteger(options.itemsStartIndex) || options.itemsStartIndex < 0)) {
+		const itemsStartIndex = options.itemsStartIndex ?? 0;
+		const itemsLimit = options.itemsLimit ?? 100;
+		if(itemsStartIndex != null && (!Number.isInteger(itemsStartIndex) || itemsStartIndex < 0)) {
 			throw new Error("options.itemsStartIndex must be a positive integer");
 		}
-		if(options.itemsLimit != null && (!Number.isInteger(options.itemsLimit) || options.itemsLimit < 0)) {
+		if(itemsLimit != null && (!Number.isInteger(itemsLimit) || itemsLimit < 0)) {
 			throw new Error("options.itemsLimit must be a positive integer");
 		}
 		// parse uri
 		const uriParts = this._parsePlaylistURI(playlistURI);
-		// get file
-		const filePromise = (this._drive.files.get({
+		// start file promise
+		const filePromise = this._drive.files.get({
 			fileId: uriParts.fileId,
 			fields: "*"
-		})).data;
-		// get spreadsheet data if needed
-		const sheetPromise = (Number.isInteger(options.itemsStartIndex) || Number.isInteger(options.itemsLimit)) ?
-			this._sheets.spreadsheets.get({
-				spreadsheetId: uriParts.fileId,
-				includeGridData: true,
-				ranges: [
-					this._playlistHeaderA1Range(),
-					this._playlistItemsA1Range(options.itemsStartIndex || 0, options.itemsLimit || 100)
-				]
-			})
-			: Promise.resolve({data: null});
-		// await results
-		const [ {data: file}, {data: spreadsheet} ] = await Promise.all([ filePromise, sheetPromise ]);
+		});
+		// get playlist items
+		const itemsPage = await this.getPlaylistItems(playlistURI, { offset: itemsStartIndex, limit: itemsLimit });
+		// get file
+		const file = (await filePromise).data;
 		// transform result
 		const playlist = this._createPlaylistObject(file, uriParts.permissionId || uriParts.email, uriParts.baseFolderId);
-		const sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
-		const tracks = this._parsePlaylistSheetItems(spreadsheet, 1, sheetProps);
-		if(tracks && tracks.total != null) {
-			playlist.itemCount = tracks.total;
-		}
-		const playlistItems = {};
-		if(tracks && tracks.offset != null) {
-			let i = tracks.offset;
-			for(const item of tracks.items) {
-				playlistItems[i] = item;
-				i++;
+		if(itemsPage) {
+			if(itemsPage.total != null) {
+				playlist.itemCount = itemsPage.total;
+			}
+			if(itemsPage.offset == null || itemsPage.offset === 0) {
+				playlist.items = itemsPage.items;
+			} else {
+				const playlistItems = {};
+				let i = itemsPage.offset;
+				for(const item of itemsPage.items) {
+					playlistItems[i] = item;
+					i++;
+				}
+				playlist.items = playlistItems;
 			}
 		}
-		playlist.items = playlistItems;
 		return playlist;
 	}
 
 
 	async deletePlaylist(playlistURI, options={}) {
+		await this._prepareForRequest();
 		const uriParts = this._parsePlaylistURI(playlistURI);
 		if(options.permanent) {
 			// delete file
@@ -648,6 +650,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 
 
 	async getMyPlaylists(options={}) {
+		await this._prepareForRequest();
 		// prepare playlists folder
 		await this._preparePlaylistsFolder();
 		const baseFolder = this._baseFolder;
@@ -676,6 +679,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 
 
 	async getUserPlaylists(userURI, options={}) {
+		await this._prepareForRequest();
 		const uriParts = this._parseUserURI(userURI);
 		if(!uriParts.baseFolderId) {
 			throw new Error("user URI does not include SoundHole folder ID");
@@ -726,6 +730,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 
 
 	async isPlaylistEditable(playlistURI) {
+		await this._prepareForRequest();
 		const driveInfo = await this._getCurrentDriveInfo();
 		const uriParts = this._parsePlaylistURI(playlistURI);
 		let done = false;
@@ -784,6 +789,9 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		}
 		return this._a1Range(0,(PLAYLIST_ITEMS_START_OFFSET+startIndex), (PLAYLIST_COLUMNS.length+PLAYLIST_EXTRA_COLUMN_COUNT), (PLAYLIST_ITEMS_START_OFFSET+itemCount));
 	}
+	_playlistHeaderAndItemsA1Range(itemCount) {
+		return this._a1Range(0,0, (PLAYLIST_COLUMNS.length+PLAYLIST_EXTRA_COLUMN_COUNT), (1+itemCount));
+	}
 	_playlistColumnsA1Range() {
 		return this._a1Range(0,1, PLAYLIST_COLUMNS.length,1);
 	}
@@ -807,6 +815,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 	}
 
 	_formatDate(date) {
+		// TODO change this to just return ISO string in the future
 		const fixedDate = new Date(Math.floor(date.getTime() / 1000) * 1000);
 		let dateString = fixedDate.toISOString();
 		const suffix = ".000Z";
@@ -953,10 +962,15 @@ class GoogleDriveStorageProvider extends StorageProvider {
 				throw new Error(`Missing track column ${column}`);
 			}
 		}
-		return { columns, itemCount, itemsStartRowIndex: itemsStartOffset };
+		return {
+			version,
+			columns,
+			itemCount,
+			itemsStartRowIndex: itemsStartOffset
+		};
 	}
 
-	_parsePlaylistSheetItems(spreadsheet, rangeIndex, { columns, itemCount, itemsStartRowIndex }) {
+	_parsePlaylistSheetItems(spreadsheet, rangeIndex, startOffset, { columns, itemCount, itemsStartRowIndex }) {
 		// parse out sheet data
 		if(!spreadsheet || !spreadsheet.sheets || !spreadsheet.sheets[0]) {
 			throw new Error(`Missing spreadsheet sheets`);
@@ -967,10 +981,16 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		}
 		const data = sheet.data[rangeIndex];
 		// parse tracks
-		const startIndex = data.startRow - itemsStartRowIndex;
+		const startIndex = (data.startRow ?? 0) + startOffset - itemsStartRowIndex;
 		const items = [];
 		let i = 0;
+		let skippedRowCount = 0;
 		for(const row of data.rowData) {
+			if(skippedRowCount < startOffset) {
+				skippedRowCount++;
+				i++;
+				continue;
+			}
 			const rowMetadata = data.rowMetadata[i];
 			const index = startIndex + items.length;
 			if(index >= itemCount) {
@@ -1011,12 +1031,19 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			}
 			item.uniqueId = itemIdMetadata.metadataValue;
 		}
+		if(track.type == null) {
+			track.type = 'track';
+		}
 		item.track = track;
+		if(item.addedAt != null) {
+			item.addedAt = this._formatDate(new Date(item.addedAt));
+		}
 		return item;
 	}
 
 
 	async getPlaylistItems(playlistURI, { offset, limit }) {
+		await this._prepareForRequest();
 		if(!Number.isInteger(offset) || offset < 0) {
 			throw new Error("offset must be a positive integer");
 		} else if(!Number.isInteger(limit) || limit <= 0) {
@@ -1024,19 +1051,49 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		}
 		// parse uri
 		const uriParts = this._parsePlaylistURI(playlistURI);
-		// get spreadsheet data
-		const spreadsheet = (await this._sheets.spreadsheets.get({
-			spreadsheetId: uriParts.fileId,
-			includeGridData: true,
-			ranges: [
-				this._playlistHeaderA1Range(),
-				this._playlistItemsA1Range(options.offset, options.limit)
-			]
-		})).data;
-		// parse spreadsheet data
-		const sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
-		const itemsPage = this._parsePlaylistSheetItems(spreadsheet, 1, sheetProps);
-		return itemsPage;
+		if(offset === 0) {
+			// get spreadsheet properties and item rows together
+			const spreadsheet = (await this._sheets.spreadsheets.get({
+				spreadsheetId: uriParts.fileId,
+				includeGridData: true,
+				ranges: [
+					this._playlistHeaderAndItemsA1Range(limit)
+				]
+			})).data;
+			const sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
+			const itemsPage = this._parsePlaylistSheetItems(spreadsheet, 0, 2, sheetProps);
+			return itemsPage;
+		} else {
+			// get spreadsheet properties
+			let spreadsheet = (await this._sheets.spreadsheets.get({
+				spreadsheetId: uriParts.fileId,
+				includeGridData: true,
+				ranges: [
+					this._playlistHeaderA1Range()
+				]
+			})).data;
+			let sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
+			// if we're out of range, return an empty page
+			if(offset >= sheetProps.itemCount) {
+				return {
+					total: sheetProps.itemCount,
+					offset: sheetProps.itemCount,
+					items: []
+				}
+			}
+			// get items rows and spreadsheet properties
+			spreadsheet = (await this._sheets.spreadsheets.get({
+				spreadsheetId: uriParts.fileId,
+				includeGridData: true,
+				ranges: [
+					this._playlistHeaderA1Range(),
+					this._playlistItemsA1Range(offset, limit)
+				]
+			})).data;
+			sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
+			const itemsPage = this._parsePlaylistSheetItems(spreadsheet, 1, 0, sheetProps);
+			return itemsPage;
+		}
 	}
 
 
@@ -1046,7 +1103,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		// parse uri
 		const uriParts = this._parsePlaylistURI(playlistURI);
 		// build items data
-		const addedAt = this._formatDate(new Date());
+		const addedAt = (new Date()).getTime();
 		const addedBy = this._createUserObject(driveInfo.user, this._baseFolderId);
 		const addedById = `/${this._createUserIDFromUser(driveInfo.user, this._baseFolderId)}/`;
 		const items = tracks.map((track) => (
@@ -1085,7 +1142,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 							const rowValues = [];
 							for(const columnName of sheetProps.columns) {
 								let trackProp;
-								if(PLAYLIST_ITEM_ONLY_COLUMNS.indexOf(columnName) === -1) {
+								if(PLAYLIST_ITEM_ONLY_COLUMNS.indexOf(columnName) !== -1) {
 									trackProp = item[columnName];
 								} else {
 									trackProp = track[columnName];
@@ -1133,6 +1190,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		if(!Number.isInteger(index) || index < 0) {
 			throw new Error("index must be a positive integer");
 		}
+		await this._prepareForRequest();
 		// parse uri
 		const uriParts = this._parsePlaylistURI(playlistURI);
 		// get drive info
@@ -1146,11 +1204,16 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			]
 		})).data;
 		const sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
+		// ensure index is in range
+		if(index > sheetProps.itemCount) {
+			throw new Error(`index ${index} is out of bounds in playlist with URI ${playlistURI}`);
+		}
 		// insert new rows
 		return await this._insertPlaylistItems(playlistURI, index, tracks, sheetProps, driveInfo);
 	}
 
 	async appendPlaylistItems(playlistURI, tracks) {
+		await this._prepareForRequest();
 		// parse uri
 		const uriParts = this._parsePlaylistURI(playlistURI);
 		// get drive info
@@ -1172,6 +1235,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		if(itemIds.length === 0) {
 			return;
 		}
+		await this._prepareForRequest();
 		const rowItemIdKey = this._playlistItemIdKey;
 		// parse uri
 		const uriParts = this._parsePlaylistURI(playlistURI);
@@ -1295,6 +1359,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		if(!Number.isInteger(insertBefore) || insertBefore < 0) {
 			throw new Error("insertBefore must be a positive integer");
 		}
+		await this._prepareForRequest();
 		// parse uri
 		const uriParts = this._parsePlaylistURI(playlistURI);
 		// reorder items
