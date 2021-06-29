@@ -60,6 +60,7 @@ namespace sh {
 		auto list = mutator->getList();
 		
 		auto indexMarker = list->watchIndex(index);
+		
 		size_t lowerBound = indexMarker->index;
 		if(lowerBound > halfChunkSize) {
 			lowerBound -= halfChunkSize;
@@ -67,8 +68,14 @@ namespace sh {
 			lowerBound = 0;
 		}
 		
+		// load track data before adding
+		auto promises = tracks.map<Promise<void>>([=](auto& track) {
+			return track->fetchDataIfNeeded();
+		});
 		// load items around index to make sure we have latest version
-		return loadAPIItems(mutator, lowerBound, chunkSize)
+		promises.pushBack(loadAPIItems(mutator, lowerBound, chunkSize));
+		
+		return Promise<void>::all(ArrayList<Promise<void>>(promises))
 		.finally([=]() {
 			list->unwatchIndex(indexMarker);
 		})
@@ -102,7 +109,14 @@ namespace sh {
 			chunkStart = 0;
 		}
 		
-		return loadAPIItems(mutator, chunkStart, chunkSize)
+		// load track data before adding
+		auto promises = tracks.map<Promise<void>>([=](auto& track) {
+			return track->fetchDataIfNeeded();
+		});
+		// load items in chunk to make sure we have the latest version
+		promises.pushBack(loadAPIItems(mutator, chunkStart, chunkSize));
+		
+		return Promise<void>::all(ArrayList<Promise<void>>(promises))
 		.then([=]() {
 			size_t newListSize = list->size().valueOr(0);
 			if(newListSize != origListSize) {
