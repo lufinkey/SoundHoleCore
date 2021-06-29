@@ -187,6 +187,18 @@ namespace sh {
 		return _privacy;
 	}
 
+	Optional<bool> Playlist::editable() const {
+		return _editable;
+	}
+
+	Promise<bool> Playlist::isEditable() {
+		auto self = std::static_pointer_cast<Playlist>(shared_from_this());
+		return provider->isPlaylistEditable(self).map<bool>([=](bool editable) {
+			self->_editable = editable;
+			return editable;
+		});
+	}
+
 	Promise<void> Playlist::fetchData() {
 		auto self = std::static_pointer_cast<Playlist>(shared_from_this());
 		return provider->getPlaylistData(_uri).then([=](Data data) {

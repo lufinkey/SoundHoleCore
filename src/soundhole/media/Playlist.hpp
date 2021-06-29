@@ -72,6 +72,9 @@ namespace sh {
 		
 		Privacy privacy() const;
 		
+		Optional<bool> editable() const;
+		Promise<bool> isEditable();
+		
 		virtual Promise<void> fetchData() override;
 		void applyData(const Data& data);
 		
@@ -88,5 +91,6 @@ namespace sh {
 		
 		$<UserAccount> _owner;
 		Privacy _privacy;
+		Optional<bool> _editable;
 	};
 }

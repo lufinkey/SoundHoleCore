@@ -326,12 +326,17 @@ namespace sh {
 
 	Promise<bool> GoogleDriveStorageProvider::isPlaylistEditable($<Playlist> playlist) {
 		auto uri = playlist->uri();
-		return performAsyncJSAPIFunc<bool>("isPlaylistEditable", [=](napi_env env) {
-			return std::vector<napi_value>{
-				Napi::String::New(env, uri)
-			};
-		}, [=](napi_env env, Napi::Value value) {
-			return value.As<Napi::Boolean>().Value();
+		return getCurrentUserURIs().then([=](LinkedList<String> userURIs) -> Promise<bool> {
+			if(playlist->owner() && userURIs.contains(playlist->owner()->uri())) {
+				return Promise<bool>::resolve(true);
+			}
+			return performAsyncJSAPIFunc<bool>("isPlaylistEditable", [=](napi_env env) {
+				return std::vector<napi_value>{
+					Napi::String::New(env, uri)
+				};
+			}, [=](napi_env env, Napi::Value value) {
+				return value.As<Napi::Boolean>().Value();
+			});
 		});
 	}
 
