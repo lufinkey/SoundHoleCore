@@ -749,7 +749,9 @@ class GoogleDriveStorageProvider extends StorageProvider {
 				if(p.type === 'anyone') {
 					return true;
 				}
-				else if(p.type === 'user' && driveInfo.user && p.emailAddress === driveInfo.user.emailAddress) {
+				else if(p.type === 'user' && driveInfo.user
+					&& ((p.emailAddress != null && p.emailAddress === driveInfo.user.emailAddress)
+						|| (p.id != null && p.id === driveInfo.user.permissionId))) {
 					return true;
 				}
 			}
@@ -1374,7 +1376,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 							startIndex: PLAYLIST_ITEMS_START_OFFSET + index,
 							endIndex: PLAYLIST_ITEMS_START_OFFSET + index + count
 						},
-						destinationIndex: insertBefore
+						destinationIndex: PLAYLIST_ITEMS_START_OFFSET + insertBefore
 					}}
 				]
 			}
