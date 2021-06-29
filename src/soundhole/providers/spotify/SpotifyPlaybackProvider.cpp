@@ -169,7 +169,7 @@ namespace sh {
 			.trackNumber=std::nullopt,
 			.duration=track.duration,
 			.audioSources=std::nullopt,
-			.playable=true
+			.playable=std::nullopt
 		};
 	}
 

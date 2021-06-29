@@ -172,9 +172,9 @@ namespace sh {
 	Promise<BandcampMediaProvider::SearchResults> BandcampMediaProvider::search(String query, SearchOptions options) {
 		return bandcamp->search(query, options).map<SearchResults>([=](BandcampSearchResults searchResults) -> SearchResults {
 			return SearchResults{
-				.prevURL=searchResults.prevURL,
-				.nextURL=searchResults.nextURL,
-				.items=searchResults.items.where([&](auto& item) {
+				.prevURL = searchResults.prevURL,
+				.nextURL = searchResults.nextURL,
+				.items = searchResults.items.where([&](auto& item) {
 					return (item.type != BandcampSearchResults::Item::Type::UNKNOWN);
 				}).template map<$<MediaItem>>([&](auto& item) -> $<MediaItem> {
 					auto images = (!item.imageURL.empty()) ?
@@ -210,7 +210,7 @@ namespace sh {
 								.trackNumber = std::nullopt,
 								.duration = std::nullopt,
 								.audioSources = std::nullopt,
-								.playable = true
+								.playable = std::nullopt
 							});
 							
 						case BandcampSearchResults::Item::Type::ALBUM:
@@ -289,12 +289,12 @@ namespace sh {
 		if(!artist || (artistURL.empty() && !artistName.empty() && artist->name != artistName) || (!artistURL.empty() && artistURL != artist->url)) {
 			artists.pushBack(this->artist(Artist::Data{{
 				.partial = true,
-				.type="artist",
-				.name=artistName,
-				.uri=(artistURL.empty() ? String() : createURI("artist", artistURL)),
-				.images=std::nullopt
+				.type = "artist",
+				.name = artistName,
+				.uri = (artistURL.empty() ? String() : createURI("artist", artistURL)),
+				.images = std::nullopt
 				},
-				.description=std::nullopt
+				.description = std::nullopt
 			}));
 		}
 		if(artist) {
@@ -305,22 +305,22 @@ namespace sh {
 
 	Track::Data BandcampMediaProvider::createTrackData(BandcampTrack track, bool partial) {
 		return Track::Data{{
-			.partial=partial,
-			.type="track",
-			.name=track.name,
-			.uri=(track.url.empty() ? String() : createURI("track", track.url)),
-			.images=track.images.map<MediaItem::Image>([&](auto& image) {
+			.partial = partial,
+			.type = "track",
+			.name = track.name,
+			.uri = (track.url.empty() ? String() : createURI("track", track.url)),
+			.images = track.images.map<MediaItem::Image>([&](auto& image) {
 				return createImage(image);
 			})
 			},
-			.albumName=track.albumName,
-			.albumURI=(track.albumURL.empty() ? String() : createURI("album", track.albumURL)),
-			.artists=createArtists(track.artistURL, track.artistName, track.artist, partial),
-			.tags=track.tags,
-			.discNumber=std::nullopt,
-			.trackNumber=track.trackNumber,
-			.duration=track.duration,
-			.audioSources=(track.audioSources.has_value() ?
+			.albumName = track.albumName,
+			.albumURI = (track.albumURL.empty() ? String() : createURI("album", track.albumURL)),
+			.artists = createArtists(track.artistURL, track.artistName, track.artist, partial),
+			.tags = track.tags,
+			.discNumber = std::nullopt,
+			.trackNumber = track.trackNumber,
+			.duration = track.duration,
+			.audioSources = (track.audioSources.has_value() ?
 				maybe(track.audioSources->map<Track::AudioSource>([](auto& audioSource) {
 					String encoding = "mp3";
 					double bitrate = 128.0;
@@ -331,16 +331,18 @@ namespace sh {
 						bitrate = String(matches[2].str()).toArithmeticValue<double>();
 					}
 					return Track::AudioSource{
-						.url=audioSource.url,
-						.encoding=encoding,
-						.bitrate=bitrate
+						.url = audioSource.url,
+						.encoding = encoding,
+						.bitrate = bitrate
 					};
 				}))
 				: ((track.playable.has_value() && !track.playable.value()) ?
 				   maybe(ArrayList<Track::AudioSource>{})
 				   : std::nullopt)
 				),
-			.playable=track.playable.value_or(track.audioSources ? (track.audioSources->size() > 0) : true)
+			.playable =
+				track.playable.hasValue() ? track.playable
+				: track.audioSources ? maybe(track.audioSources->size() > 0) : std::nullopt
 		};
 	}
 
@@ -362,7 +364,7 @@ namespace sh {
 			.trackNumber=track.trackNumber,
 			.duration=track.duration,
 			.audioSources=std::nullopt,
-			.playable=true
+			.playable=std::nullopt
 		};
 	}
 

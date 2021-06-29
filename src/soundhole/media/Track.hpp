@@ -36,7 +36,7 @@ namespace sh {
 			Optional<size_t> trackNumber;
 			Optional<double> duration;
 			Optional<ArrayList<AudioSource>> audioSources;
-			bool playable;
+			Optional<bool> playable;
 			
 			static Data fromJson(const Json&, MediaProviderStash* stash);
 		};
@@ -65,6 +65,7 @@ namespace sh {
 		};
 		Optional<AudioSource> findAudioSource(const FindAudioSourceOptions& options = FindAudioSourceOptions{.bitrate=128.0,.allowFallback=true}) const;
 		bool isPlayable() const;
+		Optional<bool> playable() const;
 		
 		virtual Promise<void> fetchData() override;
 		void applyData(const Data& data);
@@ -81,6 +82,6 @@ namespace sh {
 		Optional<size_t> _trackNumber;
 		Optional<double> _duration;
 		Optional<ArrayList<AudioSource>> _audioSources;
-		bool _playable;
+		Optional<bool> _playable;
 	};
 }

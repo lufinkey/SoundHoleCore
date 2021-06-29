@@ -45,19 +45,40 @@ namespace sh {
 	Track::Data Track::Data::fromJson(const Json& json, MediaProviderStash* stash) {
 		auto mediaItemData = MediaItem::Data::fromJson(json, stash);
 		auto albumName = json["albumName"];
+		if(!albumName.is_string()) {
+			throw std::invalid_argument("invalid json for Track: 'albumName' is required");
+		}
 		auto albumURI = json["albumURI"];
+		if(!albumURI.is_string()) {
+			throw std::invalid_argument("invalid json for Track: 'albumURI' is required");
+		}
 		auto artists = json["artists"];
+		if(!artists.is_array()) {
+			throw std::invalid_argument("invalid json for Track: 'artists' is required");
+		}
 		auto tags = json["tags"];
+		if(!tags.is_null() && !tags.is_array()) {
+			throw std::invalid_argument("invalid json for Track: 'tags' must be an array or null");
+		}
 		auto discNumber = json["discNumber"];
+		if(!discNumber.is_null() && !discNumber.is_number()) {
+			throw std::invalid_argument("invalid json for Track: 'discNumber' must be a numnber or null");
+		}
 		auto trackNumber = json["trackNumber"];
+		if(!trackNumber.is_null() && !trackNumber.is_number()) {
+			throw std::invalid_argument("invalid json for Track: 'trackNumber' must be a number or null");
+		}
 		auto duration = json["duration"];
+		if(!duration.is_null() && !duration.is_number()) {
+			throw std::invalid_argument("invalid json for Track: 'duration' must be a number or null");
+		}
 		auto audioSources = json["audioSources"];
+		if(!audioSources.is_null() && !audioSources.is_array()) {
+			throw std::invalid_argument("invalid json for Track: 'audioSources' must be an array or null");
+		}
 		auto playable = json["playable"];
-		if(!albumName.is_string() || !albumURI.is_string() || !artists.is_array() || (!tags.is_null() && !tags.is_array())
-		   || (!discNumber.is_null() && !discNumber.is_number()) || (!trackNumber.is_null() && !trackNumber.is_number())
-		   || (!duration.is_null() && !duration.is_number()) || (!audioSources.is_null() && !audioSources.is_array())
-		   || (!playable.is_bool() && !playable.is_number())) {
-			throw std::invalid_argument("invalid json for Track");
+		if(!playable.is_null() && !playable.is_bool() && !playable.is_number()) {
+			throw std::invalid_argument("invalid json for Track: 'playable' must be a bool, a number, or null");
 		}
 		return Track::Data{
 			mediaItemData,
@@ -83,7 +104,7 @@ namespace sh {
 			.audioSources = ArrayList<Json>(audioSources.array_items()).map<AudioSource>([](auto& audioSourceJson) {
 				return AudioSource::fromJson(audioSourceJson);
 			}),
-			.playable = playable.is_number() ? (playable.number_value() != 0) : playable.bool_value()
+			.playable = playable.is_null() ? Optional<bool>() : playable.is_number() ? (playable.number_value() != 0) : playable.bool_value()
 		};
 	}
 
@@ -190,6 +211,10 @@ namespace sh {
 	}
 
 	bool Track::isPlayable() const {
+		return _playable.valueOr(true);
+	}
+
+	Optional<bool> Track::playable() const {
 		return _playable;
 	}
 
@@ -240,7 +265,9 @@ namespace sh {
 		if(data.audioSources) {
 			_audioSources = data.audioSources;
 		}
-		_playable = data.playable;
+		if(data.playable.hasValue()) {
+			_playable = data.playable;
+		}
 	}
 
 
@@ -263,21 +290,21 @@ namespace sh {
 	Json Track::toJson() const {
 		auto json = MediaItem::toJson().object_items();
 		json.merge(Json::object{
-			{"albumName",(std::string)_albumName},
-			{"albumURI",(std::string)_albumURI},
-			{"artists",Json(_artists.map<Json>([&](auto& artist) {
+			{"albumName", (std::string)_albumName},
+			{"albumURI", (std::string)_albumURI},
+			{"artists", Json(_artists.map<Json>([&](auto& artist) {
 				return artist->toJson();
 			}))},
-			{"tags",(_tags ? Json(_tags->map<Json>([&](auto& tag) {
+			{"tags", (_tags ? Json(_tags->map<Json>([&](auto& tag) {
 				return Json((std::string)tag);
 			})) : Json())},
-			{"discNumber",(_discNumber ? Json((double)_discNumber.value()) : Json())},
-			{"trackNumber",(_trackNumber ? Json((double)_trackNumber.value()) : Json())},
-			{"duration",(_duration ? Json(_duration.value()) : Json())},
-			{"audioSources",(_audioSources ? Json(_audioSources->map<Json>([&](auto& audioSource) {
+			{"discNumber", (_discNumber ? Json((double)_discNumber.value()) : Json())},
+			{"trackNumber", (_trackNumber ? Json((double)_trackNumber.value()) : Json())},
+			{"duration", (_duration ? Json(_duration.value()) : Json())},
+			{"audioSources" ,(_audioSources ? Json(_audioSources->map<Json>([&](auto& audioSource) {
 				return audioSource.toJson();
 			})) : Json())},
-			{"playable",_playable}
+			{"playable", _playable.hasValue() ? Json(_playable.value()) : Json()}
 		});
 		return json;
 	}

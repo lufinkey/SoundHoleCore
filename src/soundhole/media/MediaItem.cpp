@@ -116,7 +116,7 @@ namespace sh {
 			throw std::invalid_argument("invalid json for MediaItem: 'uri' is required");
 		}
 		if((!images.is_null() && !images.is_array())) {
-			throw std::invalid_argument("invalid json for MediaItem: 'images' must be null or an array");
+			throw std::invalid_argument("invalid json for MediaItem: 'images' must be an array or null");
 		}
 		return MediaItem::Data{
 			.partial = partial.is_bool() ? partial.bool_value() : true,

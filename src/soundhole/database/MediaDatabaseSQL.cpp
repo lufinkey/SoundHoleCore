@@ -248,7 +248,7 @@ String trackTuple(LinkedList<Any>& params, $<Track> track, const TupleOptions& o
 		// duration
 		MAYBE_COALESCE_FIELD(options.coalesce, params, "duration", "Track", track, track->duration().toAny()),",",
 		// playable
-		sqlParam(params, track->isPlayable()),",",
+		MAYBE_COALESCE_FIELD(options.coalesce, params, "playable", "Track", track, track->playable().toAny()),",",
 		// updateTime
 		"CURRENT_TIMESTAMP",
 	")" });

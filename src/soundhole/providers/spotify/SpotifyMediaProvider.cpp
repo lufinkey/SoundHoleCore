@@ -187,32 +187,34 @@ namespace sh {
 				: std::nullopt)
 			},
 			.albumName=(track.album ? track.album->name : ""),
-			.albumURI=(track.album ? track.album->uri : ""),
-			.artists=track.artists.map<$<Artist>>([&](SpotifyArtist& artist) {
+			.albumURI = (track.album ? track.album->uri : ""),
+			.artists = track.artists.map<$<Artist>>([&](SpotifyArtist& artist) {
 				return this->artist(createArtistData(std::move(artist), true));
 			}),
-			.tags=ArrayList<String>(),
-			.discNumber=track.discNumber,
-			.trackNumber=track.trackNumber,
-			.duration=(((double)track.durationMs)/1000.0),
-			.audioSources=std::nullopt,
-			.playable=track.isPlayable.value_or(!(track.availableMarkets && track.availableMarkets->size() == 0))
+			.tags = ArrayList<String>(),
+			.discNumber = track.discNumber,
+			.trackNumber = track.trackNumber,
+			.duration = (((double)track.durationMs)/1000.0),
+			.audioSources = std::nullopt,
+			.playable = track.isPlayable.hasValue() ? track.isPlayable
+				: track.availableMarkets.hasValue() ? maybe(track.availableMarkets->size() > 0)
+				: std::nullopt
 		};
 	}
 
 	Artist::Data SpotifyMediaProvider::createArtistData(SpotifyArtist artist, bool partial) {
 		return Artist::Data{{
-			.partial=partial,
-			.type=artist.type,
-			.name=artist.name,
-			.uri=artist.uri,
-			.images=(artist.images ?
+			.partial = partial,
+			.type = artist.type,
+			.name = artist.name,
+			.uri = artist.uri,
+			.images = (artist.images ?
 				maybe(artist.images->map<MediaItem::Image>([&](SpotifyImage& image) {
 					return createImage(std::move(image));
 				}))
 				: std::nullopt)
 			},
-			.description=""
+			.description = ""
 		};
 	}
 
