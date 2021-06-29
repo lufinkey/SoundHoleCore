@@ -1244,7 +1244,8 @@ class GoogleDriveStorageProvider extends StorageProvider {
 			spreadsheetId: uriParts.fileId,
 			requestBody: {
 				dataFilters: itemIds.map((itemId) => ({
-					developerMetadata: {
+					developerMetadataLookup: {
+						locationType: 'ROW',
 						metadataKey: rowItemIdKey,
 						metadataValue: itemId
 					}
@@ -1308,17 +1309,16 @@ class GoogleDriveStorageProvider extends StorageProvider {
 						{updateDeveloperMetadata: {
 							dataFilters: [
 								{developerMetadataLookup: {
-									locationType: 'ROW',
 									metadataLocation: {
 										locationType: 'ROW',
-										dimensionsRange: {
+										dimensionRange: {
 											sheetId: 0,
 											startIndex: rowIndex,
 											endIndex: rowIndex + 1,
 											dimension: 'ROWS'
 										}
 									},
-									locationMatchingStrategy: 'EXACT',
+									locationMatchingStrategy: 'EXACT_LOCATION',
 									metadataKey: rowItemIdKey,
 									metadataValue: itemId
 								}},
@@ -1345,7 +1345,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		});
 		// transform result
 		return {
-			indexes: rowIndexes.map((index) => (index - PLAYLIST_ITEMS_START_OFFSET))
+			indexes: rows.map((row) => (row.index - PLAYLIST_ITEMS_START_OFFSET))
 		};
 	}
 
