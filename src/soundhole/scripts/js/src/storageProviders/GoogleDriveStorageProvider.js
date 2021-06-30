@@ -666,7 +666,8 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		const { files, nextPageToken } = (await this._drive.files.list({
 			q: `mimeType = 'application/vnd.google-apps.spreadsheet' and '${playlistsFolderId}' in parents and trashed = false`,
 			fields: "*",
-			pageToken: options.pageToken
+			pageToken: options.pageToken,
+			pageSize: options.pageSize ?? 1000
 		})).data;
 		// transform result
 		return {
@@ -716,7 +717,8 @@ class GoogleDriveStorageProvider extends StorageProvider {
 		const { files, nextPageToken } = (await this._drive.files.list({
 			q: `mimeType = 'application/vnd.google-apps.spreadsheet' and '${playlistsFolderId}' in parents and trashed = false`,
 			fields: "*",
-			pageToken: pageToken
+			pageToken: pageToken,
+			pageSize: options.pageSize ?? 1000
 		})).data;
 		// transform result
 		return {

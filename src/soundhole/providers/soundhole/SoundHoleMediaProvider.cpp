@@ -244,13 +244,29 @@ namespace sh {
 	#pragma mark User Library
 
 	bool SoundHoleMediaProvider::hasLibrary() const {
-		return false;
+		return true;
 	}
 
 	SoundHoleMediaProvider::LibraryItemGenerator SoundHoleMediaProvider::generateLibrary(GenerateLibraryOptions options) {
-		using YieldResult = typename LibraryItemGenerator::YieldResult;
-		return LibraryItemGenerator([=]() {
-			return Promise<YieldResult>::reject(std::logic_error("SoundHoleMediaProvider::generateLibrary is unimplemented"));
+		auto primaryStorageProvider = this->primaryStorageProvider();
+		if(primaryStorageProvider == nullptr) {
+			using YieldResult = typename LibraryItemGenerator::YieldResult;
+			return LibraryItemGenerator([=]() {
+				return Promise<YieldResult>::resolve({});
+			});
+		}
+		return primaryStorageProvider->getMyPlaylists().map<GenerateLibraryResults>([=](LoadBatch<$<Playlist>> page) {
+			return GenerateLibraryResults{
+				.resumeData = Json(),
+				.items = page.items.map<LibraryItem>([=](auto& playlist) {
+					return LibraryItem{
+						.libraryProvider = this,
+						.mediaItem = playlist,
+						.addedAt = String()
+					};
+				}),
+				.progress = 0
+			};
 		});
 	}
 

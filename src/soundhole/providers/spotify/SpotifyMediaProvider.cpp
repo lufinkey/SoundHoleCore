@@ -176,17 +176,17 @@ namespace sh {
 
 	Track::Data SpotifyMediaProvider::createTrackData(SpotifyTrack track, bool partial) {
 		return Track::Data{{
-			.partial=partial,
-			.type=track.type,
-			.name=track.name,
-			.uri=track.uri,
-			.images=(track.album ?
+			.partial = partial,
+			.type = track.type,
+			.name = track.name,
+			.uri = track.uri,
+			.images = (track.album ?
 				maybe(track.album->images.map<MediaItem::Image>([&](SpotifyImage& image) {
 					return createImage(std::move(image));
 				}))
 				: std::nullopt)
 			},
-			.albumName=(track.album ? track.album->name : ""),
+			.albumName = (track.album ? track.album->name : ""),
 			.albumURI = (track.album ? track.album->uri : ""),
 			.artists = track.artists.map<$<Artist>>([&](SpotifyArtist& artist) {
 				return this->artist(createArtistData(std::move(artist), true));
@@ -226,15 +226,15 @@ namespace sh {
 			return createImage(std::move(image));
 		});
 		return Album::Data{{{
-			.partial=partial,
-			.type=album.type,
-			.name=album.name,
-			.uri=album.uri,
-			.images=albumImages
+			.partial = partial,
+			.type = album.type,
+			.name = album.name,
+			.uri = album.uri,
+			.images = albumImages
 			},
-			.versionId=album.releaseDate,
-			.itemCount=(album.tracks ? maybe(album.tracks->total) : std::nullopt),
-			.items=([&]() {
+			.versionId = album.releaseDate,
+			.itemCount = (album.tracks ? maybe(album.tracks->total) : std::nullopt),
+			.items = ([&]() {
 				auto items = std::map<size_t,AlbumItem::Data>();
 				if(!album.tracks) {
 					return items;
@@ -263,7 +263,7 @@ namespace sh {
 				return items;
 			})(),
 			},
-			.artists=artists
+			.artists = artists
 		};
 	}
 

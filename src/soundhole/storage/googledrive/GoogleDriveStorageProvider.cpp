@@ -364,7 +364,7 @@ namespace sh {
 				std::string jsonError;
 				auto json = Json::parse(jsonString, jsonError);
 				if(!jsonError.empty()) {
-					throw std::runtime_error("failed to decode json for createPlaylist result");
+					throw std::runtime_error("failed to decode json for getUserPlaylists result");
 				}
 				auto page = GoogleDriveFilesPage<Playlist::Data>::fromJson(json, this->mediaProviderStash);
 				auto loadBatch = MediaProvider::LoadBatch<$<Playlist>>{
@@ -382,6 +382,50 @@ namespace sh {
 			});
 		});
 	}
+
+
+
+	GoogleDriveStorageProvider::UserPlaylistsGenerator GoogleDriveStorageProvider::getMyPlaylists() {
+		struct SharedData {
+			String pageToken;
+		};
+		auto sharedData = fgl::new$<SharedData>();
+		using YieldResult = typename UserPlaylistsGenerator::YieldResult;
+		return UserPlaylistsGenerator([=]() {
+			return performAsyncJSAPIFunc<YieldResult>("getMyPlaylists", [=](napi_env env) {
+				auto optionsObj = Napi::Object::New(env);
+				if(!sharedData->pageToken.empty()) {
+					optionsObj.Set("pageToken", Napi::String::New(env, sharedData->pageToken));
+				}
+				return std::vector<napi_value>{
+					optionsObj
+				};
+			}, [=](napi_env env, Napi::Value value) {
+				auto jsExports = scripts::getJSExports(env);
+				auto json_encode = jsExports.Get("json_encode").As<Napi::Function>();
+				auto jsonString = json_encode.Call({ value }).As<Napi::String>().Utf8Value();
+				std::string jsonError;
+				auto json = Json::parse(jsonString, jsonError);
+				if(!jsonError.empty()) {
+					throw std::runtime_error("failed to decode json for getMyPlaylists result");
+				}
+				auto page = GoogleDriveFilesPage<Playlist::Data>::fromJson(json, this->mediaProviderStash);
+				auto loadBatch = MediaProvider::LoadBatch<$<Playlist>>{
+					.items = page.items.template map<$<Playlist>>([=](auto& playlistData) {
+						return this->mediaItemBuilder->playlist(playlistData);
+					}),
+					.total = std::nullopt
+				};
+				sharedData->pageToken = page.nextPageToken;
+				bool done = sharedData->pageToken.empty();
+				return YieldResult{
+					.value = loadBatch,
+					.done = done
+				};
+			});
+		});
+	}
+
 
 
 	Playlist::MutatorDelegate* GoogleDriveStorageProvider::createPlaylistMutatorDelegate($<Playlist> playlist) {

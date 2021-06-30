@@ -45,6 +45,7 @@ namespace sh {
 		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist) override;
 		
 		virtual UserPlaylistsGenerator getUserPlaylists(String userURI) override;
+		virtual UserPlaylistsGenerator getMyPlaylists() override;
 		
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) override;
 		
