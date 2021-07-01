@@ -50,4 +50,21 @@ namespace sh {
 			.items=items.template map<U>(mapper)
 		};
 	}
+
+
+
+	template<typename T>
+	SpotifyCursorPage<T> SpotifyCursorPage<T>::fromJson(const Json& json) {
+		auto nextString = json["next"].string_value();
+		return SpotifyCursorPage<T>{
+			.cursor = SpotifyCursor::fromJson(json["cursors"]),
+			.href = json["href"].string_value(),
+			.limit = (size_t)json["limit"].number_value(),
+			.total = (size_t)json["total"].number_value(),
+			.next = (nextString != "null") ? nextString : "",
+			.items = jsutils::arrayListFromJson<T>(json["items"], [](auto& item) -> T {
+				return T::fromJson(item);
+			})
+		};
+	}
 }

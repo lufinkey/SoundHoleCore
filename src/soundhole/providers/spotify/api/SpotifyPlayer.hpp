@@ -170,6 +170,8 @@ namespace sh {
 		std::mutex listenersMutex;
 		
 		#ifdef TARGETPLATFORM_IOS
+		// When performing session renewal, the iOS SpotifyPlayer loses stops playing and loses its state
+		//  This metadata is used to forcibly restore the state
 		struct SavedPlayerState {
 			String uri;
 			size_t index;
@@ -181,6 +183,7 @@ namespace sh {
 		void restoreSavedPlayerState(const SavedPlayerState& state);
 		SavedPlayerState getPlayerState();
 		Optional<SavedPlayerState> renewingPlayerState;
+		// iOS requires activating / deactivating audio sessions when audio starts and stops
 		void activateAudioSession();
 		void deactivateAudioSession();
 		#endif

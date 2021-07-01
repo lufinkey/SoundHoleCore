@@ -11,6 +11,13 @@
 #include <soundhole/utils/js/JSWrapClass.hpp>
 
 namespace sh {
+	SpotifyCursor SpotifyCursor::fromJson(const Json& json) {
+		return SpotifyCursor{
+			.after = json["after"].string_value()
+		};
+	}
+
+
 	SpotifySearchResults SpotifySearchResults::fromJson(const Json& json) {
 		return SpotifySearchResults{
 			.tracks = SpotifyPage<SpotifyTrack>::maybeFromJson(json["tracks"]),

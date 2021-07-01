@@ -33,10 +33,14 @@ namespace sh {
 		SpotifyPlayer* getPlayer();
 		const SpotifyPlayer* getPlayer() const;
 		
+		#pragma mark login
+		
 		using LoginOptions = SpotifyAuth::LoginOptions;
 		Promise<bool> login(LoginOptions options = LoginOptions());
 		Promise<void> logout();
 		bool isLoggedIn() const;
+		
+		#pragma mark player
 		
 		Promise<void> startPlayer();
 		void stopPlayer();
@@ -59,7 +63,11 @@ namespace sh {
 		SpotifyPlayer::State getPlaybackState() const;
 		SpotifyPlayer::Metadata getPlaybackMetadata() const;
 		
-		Promise<Json> sendRequest(utils::HttpMethod method, String endpoint, Json params = Json());
+		#pragma mark metadata
+		
+		Promise<Json> sendRequest(utils::HttpMethod method, String endpoint, std::map<String,String> queryParams = {}, Json bodyParams = Json());
+		
+		#pragma mark metadata: my library
 		
 		Promise<SpotifyUser> getMe();
 		struct GetMyTracksOptions {
@@ -80,6 +88,8 @@ namespace sh {
 		};
 		Promise<SpotifyPage<SpotifyPlaylist>> getMyPlaylists(GetMyPlaylistsOptions options = {});
 		
+		#pragma mark metadata: search
+		
 		struct SearchOptions {
 			ArrayList<String> types;
 			String market;
@@ -87,6 +97,8 @@ namespace sh {
 			Optional<size_t> offset;
 		};
 		Promise<SpotifySearchResults> search(String query, SearchOptions options = {});
+		
+		#pragma mark metadata: albums
 		
 		struct GetAlbumOptions {
 			String market;
@@ -103,6 +115,7 @@ namespace sh {
 		};
 		Promise<SpotifyPage<SpotifyTrack>> getAlbumTracks(String albumId, GetAlbumTracksOptions options = {});
 		
+		#pragma mark metadata: artists
 		
 		Promise<SpotifyArtist> getArtist(String artistId);
 		Promise<ArrayList<SpotifyArtist>> getArtists(ArrayList<String> artistIds);
@@ -116,6 +129,7 @@ namespace sh {
 		Promise<ArrayList<SpotifyTrack>> getArtistTopTracks(String artistId, String country);
 		Promise<ArrayList<SpotifyArtist>> getArtistRelatedArtists(String artistId);
 		
+		#pragma mark metadata: tracks
 		
 		struct GetTrackOptions {
 			String market;
@@ -129,6 +143,7 @@ namespace sh {
 		Promise<Json> getTrackAudioFeatures(String trackId);
 		Promise<Json> getTracksAudioFeatures(ArrayList<String> trackIds);
 		
+		#pragma mark metadata: playlists
 		
 		struct GetPlaylistOptions {
 			String market;
@@ -150,6 +165,7 @@ namespace sh {
 		};
 		Promise<void> updatePlaylist(String playlistId, UpdatePlaylistOptions options);
 		
+		#pragma mark metadata: playlist tracks
 		
 		struct GetPlaylistTracksOptions {
 			String market;
@@ -176,6 +192,7 @@ namespace sh {
 		};
 		Promise<SpotifyPlaylist::RemoveResult> removePlaylistTracks(String playlistId, ArrayList<PlaylistTrackMarker> tracks, RemovePlaylistTracksOptions options = {});
 		
+		#pragma mark metadata: users
 		
 		Promise<SpotifyUser> getUser(String userId);
 		struct GetUserPlaylistsOptions {
@@ -184,6 +201,26 @@ namespace sh {
 		};
 		Promise<SpotifyPage<SpotifyPlaylist>> getUserPlaylists(String userId, GetUserPlaylistsOptions options = {});
 		
+		#pragma mark metadata: following artists
+		
+		Promise<void> followArtists(ArrayList<String> artistIds);
+		Promise<void> unfollowArtists(ArrayList<String> artistIds);
+		Promise<ArrayList<bool>> checkFollowingArtists(ArrayList<String> artistIds);
+		struct GetFollowedArtistsOptions {
+			String after;
+			Optional<size_t> limit;
+		};
+		Promise<SpotifyCursorPage<SpotifyArtist>> getFollowedArtists(GetFollowedArtistsOptions options = GetFollowedArtistsOptions());
+		
+		#pragma mark metadata: following users
+		
+		Promise<void> followUsers(ArrayList<String> userIds);
+		Promise<void> unfollowUsers(ArrayList<String> userIds);
+		Promise<ArrayList<bool>> checkFollowingUsers(ArrayList<String> userIds);
+		struct GetFollowedUsersOptions {
+			String pageToken;
+		};
+		Promise<SpotifyPage<SpotifyUser>> getFollowedUsers(GetFollowedUsersOptions options = GetFollowedUsersOptions());
 		
 	private:
 		Promise<void> prepareForPlayer();

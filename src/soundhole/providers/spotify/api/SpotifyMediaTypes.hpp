@@ -43,6 +43,29 @@ namespace sh {
 	};
 
 
+	struct SpotifyCursor {
+		String after;
+		
+		static SpotifyCursor fromJson(const Json&);
+	};
+
+	template<typename T>
+	struct SpotifyCursorPage {
+		SpotifyCursor cursor;
+		String href;
+		size_t limit;
+		size_t total;
+		String next;
+		ArrayList<T> items;
+		
+		static SpotifyCursorPage<T> fromJson(const Json&);
+		static Optional<SpotifyCursorPage<T>> maybeFromJson(const Json&);
+		
+		template<typename U>
+		SpotifyCursorPage<U> map(Function<U(const T&)> mapper) const;
+	};
+
+
 	struct SpotifySearchResults {
 		Optional<SpotifyPage<SpotifyTrack>> tracks;
 		Optional<SpotifyPage<SpotifyAlbum>> albums;
