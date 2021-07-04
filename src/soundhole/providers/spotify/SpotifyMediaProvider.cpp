@@ -84,7 +84,7 @@ namespace sh {
 	#pragma mark Login
 
 	Promise<bool> SpotifyMediaProvider::login() {
-		return spotify->login().map<bool>([=](bool loggedIn) {
+		return spotify->login().map([=](bool loggedIn) -> bool {
 			if(loggedIn) {
 				storeIdentity(std::nullopt);
 				setIdentityNeedsRefresh();
@@ -108,7 +108,7 @@ namespace sh {
 	#pragma mark Current User
 
 	Promise<ArrayList<String>> SpotifyMediaProvider::getCurrentUserURIs() {
-		return getIdentity().map<ArrayList<String>>([=](Optional<SpotifyUser> user) -> ArrayList<String> {
+		return getIdentity().map([=](Optional<SpotifyUser> user) -> ArrayList<String> {
 			if(!user) {
 				return {};
 			}
@@ -128,7 +128,7 @@ namespace sh {
 		if(!isLoggedIn()) {
 			return Promise<Optional<SpotifyUser>>::resolve(std::nullopt);
 		}
-		return spotify->getMe().map<Optional<SpotifyUser>>([=](SpotifyUser user) {
+		return spotify->getMe().map([=](SpotifyUser user) -> Optional<SpotifyUser> {
 			return maybe(user);
 		});
 	}
@@ -144,25 +144,25 @@ namespace sh {
 			.limit=options.limit,
 			.offset=options.offset
 		};
-		return spotify->search(query,searchOptions).map<SpotifyMediaProvider::SearchResults>([=](auto searchResults) {
+		return spotify->search(query,searchOptions).map([=](auto searchResults) -> SpotifyMediaProvider::SearchResults {
 			return SearchResults{
 				.tracks = searchResults.tracks ?
-					maybe(searchResults.tracks->template map<$<Track>>([&](auto& track) {
+					maybe(searchResults.tracks->map([&](auto& track) -> $<Track> {
 						return this->track(createTrackData(track, false));
 					}))
 					: std::nullopt,
 				.albums = searchResults.albums ?
-					maybe(searchResults.albums->template map<$<Album>>([&](auto& album) {
+					maybe(searchResults.albums->map([&](auto& album) -> $<Album> {
 						return this->album(createAlbumData(album, true));
 					}))
 					: std::nullopt,
 				.artists = searchResults.artists ?
-					maybe(searchResults.artists->template map<$<Artist>>([&](auto& artist) {
+					maybe(searchResults.artists->map([&](auto& artist) -> $<Artist> {
 						return this->artist(createArtistData(artist, false));
 					}))
 					: std::nullopt,
 				.playlists = searchResults.playlists ?
-					maybe(searchResults.playlists->template map<$<Playlist>>([&](auto& playlist) {
+					maybe(searchResults.playlists->map([&](auto& playlist) -> $<Playlist> {
 						return this->playlist(createPlaylistData(playlist, true));
 					}))
 					: std::nullopt,
@@ -181,14 +181,14 @@ namespace sh {
 			.name = track.name,
 			.uri = track.uri,
 			.images = (track.album ?
-				maybe(track.album->images.map<MediaItem::Image>([&](SpotifyImage& image) {
+				maybe(track.album->images.map([&](SpotifyImage& image) -> MediaItem::Image {
 					return createImage(std::move(image));
 				}))
 				: std::nullopt)
 			},
 			.albumName = (track.album ? track.album->name : ""),
 			.albumURI = (track.album ? track.album->uri : ""),
-			.artists = track.artists.map<$<Artist>>([&](SpotifyArtist& artist) {
+			.artists = track.artists.map([&](SpotifyArtist& artist) -> $<Artist> {
 				return this->artist(createArtistData(std::move(artist), true));
 			}),
 			.tags = ArrayList<String>(),
@@ -209,7 +209,7 @@ namespace sh {
 			.name = artist.name,
 			.uri = artist.uri,
 			.images = (artist.images ?
-				maybe(artist.images->map<MediaItem::Image>([&](SpotifyImage& image) {
+				maybe(artist.images->map([&](SpotifyImage& image) -> MediaItem::Image {
 					return createImage(std::move(image));
 				}))
 				: std::nullopt)
@@ -219,10 +219,10 @@ namespace sh {
 	}
 
 	Album::Data SpotifyMediaProvider::createAlbumData(SpotifyAlbum album, bool partial) {
-		auto artists = album.artists.map<$<Artist>>([&](SpotifyArtist& artist) {
+		auto artists = album.artists.map([&](SpotifyArtist& artist) -> $<Artist> {
 			return this->artist(createArtistData(artist, true));
 		});
-		auto albumImages = album.images.map<MediaItem::Image>([&](SpotifyImage& image) {
+		auto albumImages = album.images.map([&](SpotifyImage& image) -> MediaItem::Image {
 			return createImage(std::move(image));
 		});
 		return Album::Data{{{
@@ -273,7 +273,7 @@ namespace sh {
 			.type = playlist.type,
 			.name = playlist.name,
 			.uri = playlist.uri,
-			.images = playlist.images.map<MediaItem::Image>([&](SpotifyImage& image) {
+			.images = playlist.images.map([&](SpotifyImage& image) -> MediaItem::Image {
 				return createImage(std::move(image));
 			})
 			},
@@ -316,7 +316,7 @@ namespace sh {
 			.type = user.type,
 			.name = user.displayName.value_or(user.id),
 			.uri = user.uri,
-			.images = (user.images ? maybe(user.images->map<MediaItem::Image>([&](SpotifyImage& image) {
+			.images = (user.images ? maybe(user.images->map([&](SpotifyImage& image) -> MediaItem::Image {
 				return createImage(std::move(image));
 			})) : std::nullopt)
 		};
@@ -337,35 +337,35 @@ namespace sh {
 
 	Promise<Track::Data> SpotifyMediaProvider::getTrackData(String uri) {
 		auto uriParts = parseURI(uri);
-		return spotify->getTrack(uriParts.id,{.market="from_token"}).map<Track::Data>([=](SpotifyTrack track) {
+		return spotify->getTrack(uriParts.id,{.market="from_token"}).map([=](SpotifyTrack track) -> Track::Data {
 			return createTrackData(track, false);
 		});
 	}
 
 	Promise<Artist::Data> SpotifyMediaProvider::getArtistData(String uri) {
 		auto uriParts = parseURI(uri);
-		return spotify->getArtist(uriParts.id).map<Artist::Data>([=](SpotifyArtist artist) {
+		return spotify->getArtist(uriParts.id).map([=](SpotifyArtist artist) -> Artist::Data {
 			return createArtistData(artist, false);
 		});
 	}
 
 	Promise<Album::Data> SpotifyMediaProvider::getAlbumData(String uri) {
 		auto uriParts = parseURI(uri);
-		return spotify->getAlbum(uriParts.id,{.market="from_token"}).map<Album::Data>([=](SpotifyAlbum album) {
+		return spotify->getAlbum(uriParts.id,{.market="from_token"}).map([=](SpotifyAlbum album) -> Album::Data {
 			return createAlbumData(album, false);
 		});
 	}
 
 	Promise<Playlist::Data> SpotifyMediaProvider::getPlaylistData(String uri) {
 		auto uriParts = parseURI(uri);
-		return spotify->getPlaylist(uriParts.id,{.market="from_token"}).map<Playlist::Data>([=](SpotifyPlaylist playlist) {
+		return spotify->getPlaylist(uriParts.id,{.market="from_token"}).map([=](SpotifyPlaylist playlist) -> Playlist::Data {
 			return createPlaylistData(playlist, false);
 		});
 	}
 
 	Promise<UserAccount::Data> SpotifyMediaProvider::getUserData(String uri) {
 		auto uriParts = parseURI(uri);
-		return spotify->getUser(uriParts.id).map<UserAccount::Data>([=](SpotifyUser user) {
+		return spotify->getUser(uriParts.id).map([=](SpotifyUser user) -> UserAccount::Data {
 			return createUserAccountData(user, false);
 		});
 	}
@@ -375,8 +375,8 @@ namespace sh {
 
 	Promise<ArrayList<$<Track>>> SpotifyMediaProvider::getArtistTopTracks(String artistURI) {
 		auto uriParts = parseURI(artistURI);
-		return spotify->getArtistTopTracks(uriParts.id,"from_token").map<ArrayList<$<Track>>>(nullptr, [=](ArrayList<SpotifyTrack> tracks) {
-			return tracks.map<$<Track>>([=](auto track) {
+		return spotify->getArtistTopTracks(uriParts.id,"from_token").map(nullptr, [=](ArrayList<SpotifyTrack> tracks) -> ArrayList<$<Track>> {
+			return tracks.map([=](auto track) -> $<Track> {
 				return this->track(createTrackData(track, false));
 			});
 		});
@@ -391,9 +391,9 @@ namespace sh {
 				.country="from_token",
 				.limit=20,
 				.offset=*offset
-			}).map<YieldResult>([=](auto page) {
+			}).map([=](auto page) -> YieldResult {
 				auto loadBatch = LoadBatch<$<Album>>{
-					.items=page.items.template map<$<Album>>([=](auto album) {
+					.items=page.items.template map([=](auto album) -> $<Album> {
 						return this->album(createAlbumData(album, true));
 					}),
 					.total=page.total
@@ -416,9 +416,9 @@ namespace sh {
 			return spotify->getUserPlaylists(uriParts.id, {
 				.limit=20,
 				.offset=*offset
-			}).map<YieldResult>([=](auto page) {
+			}).map([=](auto page) -> YieldResult {
 				auto loadBatch = LoadBatch<$<Playlist>>{
-					.items=page.items.template map<$<Playlist>>([=](auto playlist) {
+					.items=page.items.map([=](auto playlist) -> $<Playlist> {
 						return this->playlist(createPlaylistData(playlist, true));
 					}),
 					.total=page.total
@@ -599,7 +599,7 @@ namespace sh {
 				
 				size_t sectionCount = 3;
 				auto generateMediaItems = [=](Optional<time_t>* mostRecentSave, Function<Promise<SpotifyPage<LibraryItem>>()> fetcher) {
-					return fetcher().map<YieldResult>([=](SpotifyPage<LibraryItem> page) {
+					return fetcher().map([=](SpotifyPage<LibraryItem> page) -> YieldResult {
 						// check if sync is caught up
 						bool foundEndOfSync = false;
 						if(mostRecentSave != nullptr && *mostRecentSave) {
@@ -699,8 +699,8 @@ namespace sh {
 							return spotify->getMyPlaylists({
 								.limit=50,
 								.offset=sharedData->offset
-							}).map<SpotifyPage<LibraryItem>>([=](SpotifyPage<SpotifyPlaylist> page) {
-								return page.map<LibraryItem>([=](auto& item) {
+							}).map([=](SpotifyPage<SpotifyPlaylist> page) -> SpotifyPage<LibraryItem> {
+								return page.map([=](auto& item) -> LibraryItem {
 									return LibraryItem{
 										.libraryProvider = this,
 										.mediaItem = this->playlist(createPlaylistData(item, false)),
@@ -718,8 +718,8 @@ namespace sh {
 								.market="from_token",
 								.limit=50,
 								.offset=sharedData->offset
-							}).map<SpotifyPage<LibraryItem>>([=](SpotifyPage<SpotifySavedAlbum> page) {
-								return page.map<LibraryItem>([=](auto& item) {
+							}).map([=](SpotifyPage<SpotifySavedAlbum> page) -> SpotifyPage<LibraryItem> {
+								return page.map([=](auto& item) -> LibraryItem {
 									return LibraryItem{
 										.libraryProvider = this,
 										.mediaItem = this->album(createAlbumData(item.album, false)),
@@ -737,8 +737,8 @@ namespace sh {
 								.market="from_token",
 								.limit=50,
 								.offset=sharedData->offset
-							}).map<SpotifyPage<LibraryItem>>([=](SpotifyPage<SpotifySavedTrack> page) {
-								return page.map<LibraryItem>([=](auto& item) {
+							}).map([=](SpotifyPage<SpotifySavedTrack> page) -> SpotifyPage<LibraryItem> {
+								return page.map([=](auto& item) -> LibraryItem {
 									return LibraryItem{
 										.libraryProvider = this,
 										.mediaItem = this->track(createTrackData(item.track, false)),
@@ -781,7 +781,7 @@ namespace sh {
 		}
 		return spotify->createPlaylist(name, {
 			.isPublic = isPublic
-		}).map<$<Playlist>>([=](SpotifyPlaylist playlist) {
+		}).map([=](SpotifyPlaylist playlist) -> $<Playlist> {
 			return this->playlist(createPlaylistData(playlist, false));
 		});
 	}
@@ -792,7 +792,7 @@ namespace sh {
 		if(!isLoggedIn()) {
 			return Promise<bool>::resolve(false);
 		}
-		return getIdentity().map<bool>([=](Optional<SpotifyUser> user) -> bool {
+		return getIdentity().map([=](Optional<SpotifyUser> user) -> bool {
 			if(!user) {
 				return false;
 			}

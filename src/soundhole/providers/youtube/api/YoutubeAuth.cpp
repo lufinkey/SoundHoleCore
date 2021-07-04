@@ -81,7 +81,7 @@ namespace sh {
 
 
 	Promise<bool> YoutubeAuth::login() {
-		return authenticate(options.getAuthenticateOptions()).map<bool>([=](Optional<YoutubeSession> session) -> bool {
+		return authenticate(options.getAuthenticateOptions()).map([=](Optional<YoutubeSession> session) -> bool {
 			if(session) {
 				loginWithSession(session.value());
 			}
@@ -145,7 +145,7 @@ namespace sh {
 			}
 			else if(!code.empty()) {
 				// authentication code
-				return swapCodeForToken(code, codeVerifier, options).map<Optional<YoutubeSession>>([=](YoutubeSession session) {
+				return swapCodeForToken(code, codeVerifier, options).map([=](YoutubeSession session) -> Optional<YoutubeSession> {
 					if(session.getScopes().empty() && !options.scopes.empty()) {
 						return YoutubeSession(
 							session.getAccessToken(),

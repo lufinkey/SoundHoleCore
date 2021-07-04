@@ -25,10 +25,10 @@ namespace sh {
 	template<typename ItemType>
 	BandcampFan::Section<ItemType> BandcampFan::Section<ItemType>::fromNapiObject(Napi::Object obj) {
 		return Section<ItemType>{
-			.itemCount=(size_t)obj.Get("itemCount").As<Napi::Number>().Int64Value(),
-			.batchSize=jsutils::optSizeFromNapiValue(obj.Get("batchSize")),
-			.lastToken=jsutils::optStringFromNapiValue(obj.Get("lastToken")).valueOr(String()),
-			.items=jsutils::arrayListFromNapiValue<ItemType>(obj.Get("items"), [](Napi::Value value) {
+			.itemCount = (size_t)obj.Get("itemCount").As<Napi::Number>().Int64Value(),
+			.batchSize = jsutils::optSizeFromNapiValue(obj.Get("batchSize")),
+			.lastToken = jsutils::optStringFromNapiValue(obj.Get("lastToken")).valueOr(String()),
+			.items = jsutils::arrayListFromNapiValue(obj.Get("items"), [](Napi::Value value) -> ItemType {
 				return ItemType::fromNapiObject(value.As<Napi::Object>());
 			})
 		};
@@ -37,18 +37,18 @@ namespace sh {
 	template<typename ItemType>
 	BandcampFan::FollowItemNode<ItemType> BandcampFan::FollowItemNode<ItemType>::fromNapiObject(Napi::Object obj) {
 		return FollowItemNode<ItemType>{
-			.token=jsutils::nonNullStringPropFromNapiObject(obj,"token"),
-			.dateFollowed=jsutils::nonNullStringPropFromNapiObject(obj,"dateFollowed"),
-			.item=ItemType::fromNapiObject(obj.Get("item").As<Napi::Object>())
+			.token = jsutils::nonNullStringPropFromNapiObject(obj,"token"),
+			.dateFollowed = jsutils::nonNullStringPropFromNapiObject(obj,"dateFollowed"),
+			.item = ItemType::fromNapiObject(obj.Get("item").As<Napi::Object>())
 		};
 	}
 
 	template<typename ItemType>
 	BandcampFanSectionPage<ItemType> BandcampFanSectionPage<ItemType>::fromNapiObject(Napi::Object obj) {
 		return BandcampFanSectionPage<ItemType>{
-			.hasMore=obj.Get("hasMore").As<Napi::Boolean>().Value(),
-			.lastToken=jsutils::stringFromNapiValue(obj.Get("lastToken")),
-			.items=jsutils::arrayListFromNapiValue<ItemType>(obj.Get("items"), [](Napi::Value value) {
+			.hasMore = obj.Get("hasMore").As<Napi::Boolean>().Value(),
+			.lastToken = jsutils::stringFromNapiValue(obj.Get("lastToken")),
+			.items = jsutils::arrayListFromNapiValue(obj.Get("items"), [](Napi::Value value) -> ItemType {
 				return ItemType::fromNapiObject(value.As<Napi::Object>());
 			})
 		};

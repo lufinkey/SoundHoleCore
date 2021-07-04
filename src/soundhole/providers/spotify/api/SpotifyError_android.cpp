@@ -10,18 +10,21 @@
 
 #include <jni.h>
 #include "SpotifyError.hpp"
-#include <soundhole/utils/android/AndroidUtils.hpp>
+#include <soundhole/jnicpp/android/spotify/SpotifyError_jni.hpp>
 #include <tuple>
 #include <utility>
 
-#ifdef TARGETPLATFORM_ANDROID
-
 namespace sh {
+	namespace jni {
+		using namespace android::spotify;
+	}
+
 	SpotifyError::SpotifyError(JNIEnv* env, jobject error) {
-		if(env->IsInstanceOf(error, android::SpotifyError::javaClass)) {
-			int nativeCode = (int)android::SpotifyError::getNativeCode(env, error);
+		if(env->IsInstanceOf(error, jni::SpotifyError::javaClass(env))) {
+			auto errorObj = jni::SpotifyError(error);
+			auto nativeCode = errorObj.getNativeCode(env);
 			try {
-				auto entry = android::SpotifyError::enumMap[nativeCode];
+				auto entry = jni::SpotifyError::enumMap[nativeCode];
 				code = std::get<0>(entry);
 				message = std::get<1>(entry);
 			} catch(std::out_of_range&) {
@@ -32,5 +35,4 @@ namespace sh {
 	}
 }
 
-#endif
 #endif

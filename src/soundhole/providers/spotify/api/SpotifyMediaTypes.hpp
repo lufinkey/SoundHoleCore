@@ -38,8 +38,8 @@ namespace sh {
 		static SpotifyPage<T> fromJson(const Json&);
 		static Optional<SpotifyPage<T>> maybeFromJson(const Json&);
 		
-		template<typename U>
-		SpotifyPage<U> map(Function<U(const T&)> mapper) const;
+		template<typename Transform>
+		auto map(Transform transform) const;
 	};
 
 
@@ -61,8 +61,8 @@ namespace sh {
 		static SpotifyCursorPage<T> fromJson(const Json&);
 		static Optional<SpotifyCursorPage<T>> maybeFromJson(const Json&);
 		
-		template<typename U>
-		SpotifyCursorPage<U> map(Function<U(const T&)> mapper) const;
+		template<typename Transform>
+		auto map(Transform transform) const;
 	};
 
 

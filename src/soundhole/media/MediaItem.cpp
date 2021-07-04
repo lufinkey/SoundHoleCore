@@ -123,7 +123,7 @@ namespace sh {
 			.type = type.string_value(),
 			.name = name.string_value(),
 			.uri = uri.string_value(),
-			.images = (!images.is_null()) ? maybe(ArrayList<Json>(images.array_items()).map<Image>([](auto& imgJson) {
+			.images = (!images.is_null()) ? maybe(ArrayList<Json>(images.array_items()).map([](auto& imgJson) -> Image {
 				return Image::fromJson(imgJson);
 			})) : std::nullopt
 		};
@@ -266,7 +266,7 @@ namespace sh {
 			{"type",(std::string)_type},
 			{"name",(std::string)_name},
 			{"uri",(std::string)_uri},
-			{"images",(_images ? Json(_images->map<Json>([&](auto& image) {
+			{"images",(_images ? Json(_images->map([&](auto& image) -> Json {
 				return image.toJson();
 			})) : Json())}
 		};

@@ -207,7 +207,7 @@ namespace sh {
 			for(size_t i=0; i<uris.size(); i++) {
 				sql::selectTrack(tx, std::to_string(i), uris[i]);
 			}
-		}).map<LinkedList<Json>>(nullptr, [=](auto results) {
+		}).map(nullptr, [=](auto results) -> LinkedList<Json> {
 			LinkedList<Json> rows;
 			for(size_t i=0; i<results.size(); i++) {
 				auto resultRows = results[std::to_string(i)];
@@ -222,7 +222,7 @@ namespace sh {
 	}
 
 	Promise<Json> MediaDatabase::getTrackJson(String uri) {
-		return getTracksJson({ uri }).map<Json>(nullptr, [=](auto rows) {
+		return getTracksJson({ uri }).map(nullptr, [=](auto rows) -> Json {
 			if(rows.size() == 0 || rows.front().is_null()) {
 				throw std::runtime_error("Track not found in database for uri "+uri);
 			}
@@ -233,7 +233,7 @@ namespace sh {
 	Promise<size_t> MediaDatabase::getTrackCount() {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
 			sql::selectTrackCount(tx, "count");
-		}).map<size_t>(nullptr, [=](auto results) {
+		}).map(nullptr, [=](auto results) -> size_t {
 			auto items = results["count"];
 			if(items.size() == 0) {
 				return (size_t)0;
@@ -266,7 +266,7 @@ namespace sh {
 			for(size_t i=0; i<uris.size(); i++) {
 				sql::selectTrackCollection(tx, std::to_string(i), uris[i]);
 			}
-		}).map<LinkedList<Json>>(nullptr, [=](auto results) {
+		}).map(nullptr, [=](auto results) -> LinkedList<Json> {
 			LinkedList<Json> rows;
 			for(size_t i=0; i<results.size(); i++) {
 				auto resultRows = results[std::to_string(i)];
@@ -286,7 +286,7 @@ namespace sh {
 			if(itemsRange) {
 				sql::selectTrackCollectionItemsAndTracks(tx, "items", uri, itemsRange);
 			}
-		}).map<Json>(nullptr, [=](auto results) {
+		}).map(nullptr, [=](auto results) -> Json {
 			auto collectionRows = results["collection"];
 			if(collectionRows.size() == 0) {
 				throw std::runtime_error("TrackCollection not found in database for uri "+uri);
@@ -311,7 +311,7 @@ namespace sh {
 	Promise<std::map<size_t,Json>> MediaDatabase::getTrackCollectionItemsJson(String collectionURI, sql::IndexRange range) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
 			sql::selectTrackCollectionItemsAndTracks(tx, "items", collectionURI, range);
-		}).map<std::map<size_t,Json>>(nullptr, [=](auto results) {
+		}).map(nullptr, [=](auto results) -> std::map<size_t,Json> {
 			std::map<size_t,Json> items;
 			auto itemsJson = results["items"];
 			for(auto& json : itemsJson) {
@@ -343,7 +343,7 @@ namespace sh {
 			for(size_t i=0; i<uris.size(); i++) {
 				sql::selectArtist(tx, std::to_string(i), uris[i]);
 			}
-		}).map<LinkedList<Json>>(nullptr, [=](auto results) {
+		}).map(nullptr, [=](auto results) -> LinkedList<Json> {
 			LinkedList<Json> rows;
 			for(size_t i=0; i<results.size(); i++) {
 				auto resultRows = results[std::to_string(i)];
@@ -358,7 +358,7 @@ namespace sh {
 	}
 
 	Promise<Json> MediaDatabase::getArtistJson(String uri) {
-		return getArtistsJson({ uri }).map<Json>(nullptr, [=](auto rows) {
+		return getArtistsJson({ uri }).map(nullptr, [=](auto rows) -> Json {
 			if(rows.size() == 0 || rows.front().is_null()) {
 				throw std::runtime_error("Artist not found in database for uri "+uri);
 			}
@@ -383,7 +383,7 @@ namespace sh {
 	Promise<size_t> MediaDatabase::getSavedTracksCount(GetSavedTracksCountOptions options) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
 			sql::selectSavedTrackCount(tx, "count", options.libraryProvider);
-		}).map<size_t>(nullptr, [=](auto results) {
+		}).map(nullptr, [=](auto results) -> size_t {
 			auto items = results["count"];
 			if(items.size() == 0) {
 				return (size_t)0;
@@ -401,7 +401,7 @@ namespace sh {
 				.order=options.order,
 				.orderBy=options.orderBy
 			});
-		}).map<GetJsonItemsListResult>(nullptr, [=](auto results) {
+		}).map(nullptr, [=](auto results) -> GetJsonItemsListResult {
 			auto countItems = results["count"];
 			if(countItems.size() == 0) {
 				throw std::runtime_error("failed to get items count");
@@ -428,7 +428,7 @@ namespace sh {
 	Promise<size_t> MediaDatabase::getSavedAlbumsCount(GetSavedAlbumsCountOptions options) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
 			sql::selectSavedAlbumCount(tx, "count", options.libraryProvider);
-		}).map<size_t>(nullptr, [=](auto results) {
+		}).map(nullptr, [=](auto results) -> size_t {
 			auto items = results["count"];
 			if(items.size() == 0) {
 				return (size_t)0;
@@ -446,7 +446,7 @@ namespace sh {
 				.order=options.order,
 				.orderBy=options.orderBy
 			});
-		}).map<GetJsonItemsListResult>(nullptr, [=](auto results) {
+		}).map(nullptr, [=](auto results) -> GetJsonItemsListResult {
 			auto countItems = results["count"];
 			if(countItems.size() == 0) {
 				throw std::runtime_error("failed to get items count");
@@ -473,7 +473,7 @@ namespace sh {
 	Promise<size_t> MediaDatabase::getSavedPlaylistsCount(GetSavedPlaylistsCountOptions options) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
 			sql::selectSavedPlaylistCount(tx, "count", options.libraryProvider);
-		}).map<size_t>(nullptr, [=](auto results) {
+		}).map(nullptr, [=](auto results) -> size_t {
 			auto items = results["count"];
 			if(items.size() == 0) {
 				return (size_t)0;
@@ -491,7 +491,7 @@ namespace sh {
 				.order=options.order,
 				.orderBy=options.orderBy
 			});
-		}).map<GetJsonItemsListResult>(nullptr, [=](auto results) {
+		}).map(nullptr, [=](auto results) -> GetJsonItemsListResult {
 			auto countItems = results["count"];
 			if(countItems.size() == 0) {
 				throw std::runtime_error("failed to get items count");
@@ -526,7 +526,7 @@ namespace sh {
 			for(auto& key : keys) {
 				sql::selectDBState(tx, key, key);
 			}
-		}).map<std::map<String,String>>(nullptr, [=](auto results) {
+		}).map(nullptr, [=](auto results) -> std::map<String,String> {
 			std::map<String,String> state;
 			for(auto& key : keys) {
 				auto it = results.find(key);
@@ -543,7 +543,7 @@ namespace sh {
 	}
 
 	Promise<String> MediaDatabase::getStateValue(String key, String defaultValue) {
-		return getState({ key }).map<String>(nullptr, [=](auto state) {
+		return getState({ key }).map(nullptr, [=](auto state) -> String {
 			auto it = state.find(key);
 			if(it == state.end()) {
 				return defaultValue;

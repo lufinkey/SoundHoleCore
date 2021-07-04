@@ -72,7 +72,7 @@ namespace sh {
 				{ "params", params }
 			});
 		})
-		.map<Json>([](utils::SharedHttpResponse response) -> Json {
+		.map([](utils::SharedHttpResponse response) -> Json {
 			std::string parseError;
 			auto json = Json::parse(response->data, parseError);
 			auto error = json["error"];
@@ -106,7 +106,7 @@ namespace sh {
 
 	Promise<OAuthSession> OAuthSession::swapCodeForToken(String url, String code, std::map<String,String> params, std::map<String,String> headers) {
 		params.insert_or_assign("code", code);
-		return performTokenRequest(url, params, headers).map<OAuthSession>([](Json result) -> OAuthSession {
+		return performTokenRequest(url, params, headers).map([](Json result) -> OAuthSession {
 			auto resultShape = std::initializer_list<std::pair<std::string,Json::Type>>{
 				{ "access_token", Json::Type::STRING },
 				{ "expires_in", Json::Type::NUMBER },
@@ -146,7 +146,7 @@ namespace sh {
 		}
 		params.insert_or_assign("refresh_token", session.refreshToken);
 		params.insert_or_assign("grant_type", "refresh_token");
-		return performTokenRequest(url, params, headers).map<OAuthSession>([=](Json result) {
+		return performTokenRequest(url, params, headers).map([=](Json result) -> OAuthSession {
 			auto accessToken = result["access_token"];
 			auto expireSeconds = result["expires_in"];
 			if(!accessToken.is_string() || !expireSeconds.is_number()) {

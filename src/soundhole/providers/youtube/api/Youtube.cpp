@@ -128,7 +128,7 @@ namespace sh {
 		if(session) {
 			request.headers["Authorization"] = session->getTokenType()+" "+session->getAccessToken();
 		}
-		return utils::performHttpRequest(request).map<Json>([=](auto response) -> Json {
+		return utils::performHttpRequest(request).map([=](auto response) -> Json {
 			std::string parseError;
 			auto responseJson = (response->data.length() > 0) ? Json::parse(response->data, parseError) : Json();
 			if(response->statusCode >= 300) {
@@ -157,7 +157,7 @@ namespace sh {
 			query["q"] = searchQuery;
 		}
 		if(options.types.size() > 0) {
-			query["type"] = String::join(options.types.map<String>([](auto& type) -> String {
+			query["type"] = String::join(options.types.map([](auto& type) -> String {
 				return MediaType_toString(type);
 			}), ",");
 		}
@@ -174,7 +174,7 @@ namespace sh {
 			query["order"] = SearchOrder_toString(options.order.value());
 		}
 		return sendApiRequest(utils::HttpMethod::GET, "search", query, nullptr)
-		.map<YoutubePage<YoutubeSearchResult>>([](auto json) {
+		.map([](auto json) -> YoutubePage<YoutubeSearchResult> {
 			return YoutubePage<YoutubeSearchResult>::fromJson(json);
 		});
 	}
@@ -211,7 +211,7 @@ namespace sh {
 		return sendApiRequest(utils::HttpMethod::GET, "videos", {
 			{ "id", id },
 			{ "part", "id,snippet" }
-		}, nullptr).map<YoutubeVideo>([=](auto json) {
+		}, nullptr).map([=](auto json) -> YoutubeVideo {
 			auto page = YoutubePage<YoutubeVideo>::fromJson(json);
 			if(page.items.size() == 0) {
 				throw YoutubeError(YoutubeError::Code::NOT_FOUND, "Could not find video with id "+id);
@@ -245,7 +245,7 @@ namespace sh {
 		if(!options.pageToken.empty()) {
 			query["pageToken"] = options.pageToken;
 		}
-		return sendApiRequest(utils::HttpMethod::GET, "channels", query, nullptr).map<YoutubePage<YoutubeChannel>>([=](auto json) {
+		return sendApiRequest(utils::HttpMethod::GET, "channels", query, nullptr).map([=](auto json) -> YoutubePage<YoutubeChannel> {
 			return YoutubePage<YoutubeChannel>::fromJson(json);
 		});
 	}
@@ -253,7 +253,7 @@ namespace sh {
 	Promise<YoutubeChannel> Youtube::getChannel(String id) {
 		return getChannels({
 			.ids = { id }
-		}).map<YoutubeChannel>([=](auto page) {
+		}).map([=](auto page) -> YoutubeChannel {
 			if(page.items.size() == 0) {
 				throw YoutubeError(YoutubeError::Code::NOT_FOUND, "Could not find channel with id "+id);
 			}
@@ -295,7 +295,7 @@ namespace sh {
 		if(options.mine.hasValue()) {
 			query["mine"] = options.mine.value() ? "true" : "false";
 		}
-		return sendApiRequest(utils::HttpMethod::GET, "channelSections", query, nullptr).map<YoutubeItemList<YoutubeChannelSection>>([=](auto json) {
+		return sendApiRequest(utils::HttpMethod::GET, "channelSections", query, nullptr).map([=](auto json) -> YoutubeItemList<YoutubeChannelSection> {
 			return YoutubeItemList<YoutubeChannelSection>::fromJson(json);
 		});
 	}
@@ -325,12 +325,12 @@ namespace sh {
 		if(!options.playlists.empty() || !options.channels.empty() || options.type == "singlePlaylist" || options.type == "multiplePlaylists" || options.type == "singleChannel" || options.type == "multipleChannels") {
 			auto contentDetails = Json::object{};
 			if(!options.playlists.empty() || options.type == "singlePlaylist" || options.type == "multiplePlaylists") {
-				contentDetails["playlists"] = options.playlists.map<Json>([](auto playlistId) {
+				contentDetails["playlists"] = options.playlists.map([](auto playlistId) -> Json {
 					return Json(playlistId);
 				});
 			}
 			if(!options.channels.empty() || options.type == "singleChannel" || options.type == "multipleChannels") {
-				contentDetails["channels"] = options.channels.map<Json>([](auto channelId) {
+				contentDetails["channels"] = options.channels.map([](auto channelId) -> Json {
 					return Json(channelId);
 				});
 			}
@@ -345,19 +345,19 @@ namespace sh {
 		}
 		if(options.targeting) {
 			body["targeting"] = Json::object{
-				{ "languages", options.targeting->languages.map<Json>([](auto language) {
+				{ "languages", options.targeting->languages.map([](auto language) -> Json {
 					return Json(language);
 				}) },
-				{ "regions", options.targeting->regions.map<Json>([](auto region) {
+				{ "regions", options.targeting->regions.map([](auto region) -> Json {
 					return Json(region);
 				}) },
-				{ "countries", options.targeting->countries.map<Json>([](auto country) {
+				{ "countries", options.targeting->countries.map([](auto country) -> Json {
 					return Json(country);
 				}) }
 			};
 		}
 		return sendApiRequest(utils::HttpMethod::POST, "channelSections", query, body)
-		.map<YoutubeChannelSection>([=](auto json) {
+		.map([=](auto json) -> YoutubeChannelSection {
 			return YoutubeChannelSection::fromJson(json);
 		});
 	}
@@ -389,12 +389,12 @@ namespace sh {
 		if(options.playlists || options.channels) {
 			auto contentDetails = Json::object{};
 			if(options.playlists) {
-				contentDetails["playlists"] = options.playlists->map<Json>([](auto playlistId) {
+				contentDetails["playlists"] = options.playlists->map([](auto playlistId) -> Json {
 					return Json(playlistId);
 				});
 			}
 			if(options.channels) {
-				contentDetails["channels"] = options.channels->map<Json>([](auto channelId) {
+				contentDetails["channels"] = options.channels->map([](auto channelId) -> Json {
 					return Json(channelId);
 				});
 			}
@@ -402,13 +402,13 @@ namespace sh {
 		}
 		if(options.targeting) {
 			body["targeting"] = Json::object{
-				{ "languages", options.targeting->languages.map<Json>([](auto language) {
+				{ "languages", options.targeting->languages.map([](auto language) -> Json {
 					return Json(language);
 				}) },
-				{ "regions", options.targeting->regions.map<Json>([](auto region) {
+				{ "regions", options.targeting->regions.map([](auto region) -> Json {
 					return Json(region);
 				}) },
-				{ "countries", options.targeting->countries.map<Json>([](auto country) {
+				{ "countries", options.targeting->countries.map([](auto country) -> Json {
 					return Json(country);
 				}) }
 			};
@@ -416,7 +416,7 @@ namespace sh {
 		auto query = std::map<String,String>{
 			{ "part", String::join(parts,",") }
 		};
-		return sendApiRequest(utils::HttpMethod::PUT, "channelSections", query, body).map<YoutubeChannelSection>([](auto json) {
+		return sendApiRequest(utils::HttpMethod::PUT, "channelSections", query, body).map([](auto json) -> YoutubeChannelSection {
 			return YoutubeChannelSection::fromJson(json);
 		});
 	}
@@ -450,7 +450,7 @@ namespace sh {
 		if(!options.pageToken.empty()) {
 			query["pageToken"] = options.pageToken;
 		}
-		return sendApiRequest(utils::HttpMethod::GET, "playlists", query, nullptr).map<YoutubePage<YoutubePlaylist>>([](auto json) {
+		return sendApiRequest(utils::HttpMethod::GET, "playlists", query, nullptr).map([](auto json) -> YoutubePage<YoutubePlaylist> {
 			return YoutubePage<YoutubePlaylist>::fromJson(json);
 		});
 	}
@@ -458,7 +458,7 @@ namespace sh {
 	Promise<YoutubePlaylist> Youtube::getPlaylist(String id) {
 		return getPlaylists({
 			.ids = { id }
-		}).map<YoutubePlaylist>([=](auto page) {
+		}).map([=](auto page) -> YoutubePlaylist {
 			if(page.items.size() == 0) {
 				throw YoutubeError(YoutubeError::Code::NOT_FOUND, "Could not find playlist with id "+id);
 			}
@@ -482,7 +482,7 @@ namespace sh {
 		auto snippet = Json::object{
 			{ "title", (std::string)title },
 			{ "description", (std::string)options.description },
-			{ "tags", options.tags.map<Json>([](auto& tag) {
+			{ "tags", options.tags.map([](auto& tag) -> Json {
 				return Json((std::string)tag);
 			}) }
 		};
@@ -502,7 +502,7 @@ namespace sh {
 			body["localizations"] = localizations;
 		}
 		body["snippet"] = snippet;
-		return sendApiRequest(utils::HttpMethod::POST, "playlists", query, body).map<YoutubePlaylist>([](auto json) {
+		return sendApiRequest(utils::HttpMethod::POST, "playlists", query, body).map([](auto json) -> YoutubePlaylist {
 			return YoutubePlaylist::fromJson(json);
 		});
 	}
@@ -522,7 +522,7 @@ namespace sh {
 				snippet["description"] = (std::string)options.description.value();
 			}
 			if(options.tags) {
-				snippet["tags"] = options.tags->map<Json>([](auto& tag) {
+				snippet["tags"] = options.tags->map([](auto& tag) -> Json {
 					return Json((std::string)tag);
 				});
 			}
@@ -556,7 +556,7 @@ namespace sh {
 		auto query = std::map<String,String>{
 			{ "part", String::join(parts,",") }
 		};
-		return sendApiRequest(utils::HttpMethod::PUT, "playlists", query, body).map<YoutubePlaylist>([](auto json) {
+		return sendApiRequest(utils::HttpMethod::PUT, "playlists", query, body).map([](auto json) -> YoutubePlaylist {
 			return YoutubePlaylist::fromJson(json);
 		});
 	}
@@ -585,7 +585,7 @@ namespace sh {
 		if(!options.videoId.empty()) {
 			query["videoId"] = options.videoId;
 		}
-		return sendApiRequest(utils::HttpMethod::GET, "playlistItems", query, nullptr).map<YoutubePage<YoutubePlaylistItem>>([](auto json) {
+		return sendApiRequest(utils::HttpMethod::GET, "playlistItems", query, nullptr).map([](auto json) -> YoutubePage<YoutubePlaylistItem> {
 			return YoutubePage<YoutubePlaylistItem>::fromJson(json);
 		});
 	}
@@ -615,7 +615,7 @@ namespace sh {
 			{ "snippet", snippet },
 			{ "contentDetails", contentDetails }
 		};
-		return sendApiRequest(utils::HttpMethod::POST, "playlistItems", query, body).map<YoutubePlaylistItem>([](auto json) {
+		return sendApiRequest(utils::HttpMethod::POST, "playlistItems", query, body).map([](auto json) -> YoutubePlaylistItem {
 			return YoutubePlaylistItem::fromJson(json);
 		});
 	}
@@ -663,7 +663,7 @@ namespace sh {
 		auto query = std::map<String,String>{
 			{ "part", String::join(parts,",") }
 		};
-		return sendApiRequest(utils::HttpMethod::PUT, "playlistItems", query, body).map<YoutubePlaylistItem>([](auto json) {
+		return sendApiRequest(utils::HttpMethod::PUT, "playlistItems", query, body).map([](auto json) -> YoutubePlaylistItem {
 			return YoutubePlaylistItem::fromJson(json);
 		});
 	}

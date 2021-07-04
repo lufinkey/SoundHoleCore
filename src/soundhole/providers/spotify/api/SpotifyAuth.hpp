@@ -23,9 +23,8 @@ namespace sh {
 			String clientSecret;
 			String redirectURL;
 			ArrayList<String> scopes;
-			Optional<bool> showDialog;
-			
 			String tokenSwapURL;
+			Optional<bool> showDialog;
 			
 			struct Android {
 				String loginLoadingText;

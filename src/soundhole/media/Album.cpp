@@ -90,7 +90,7 @@ namespace sh {
 
 	void Album::applyData(const Data& data) {
 		SpecialTrackCollection<AlbumItem>::applyData(data);
-		_artists = data.artists.map<$<Artist>>([&](auto& artist) {
+		_artists = data.artists.map([&](auto& artist) -> $<Artist> {
 			auto cmpArtist = _artists.firstWhere([&](auto& cmpArtist) { return artist->uri() == cmpArtist->uri(); }, nullptr);
 			if(cmpArtist) {
 				return cmpArtist;
@@ -109,7 +109,7 @@ namespace sh {
 	Json Album::toJson(const ToJsonOptions& options) const {
 		auto json = SpecialTrackCollection<AlbumItem>::toJson(options).object_items();
 		json.merge(Json::object{
-			{ "artists", _artists.map<Json>([&](auto& artist) {
+			{ "artists", _artists.map([&](auto& artist) -> Json {
 				return artist->toJson();
 			}) }
 		});

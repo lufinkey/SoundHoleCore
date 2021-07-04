@@ -50,7 +50,7 @@ namespace sh {
 		static Optional<OAuthSession> fromKeychain(const String& key);
 		#endif
 		
-		#if defined(JNIEXPORT) && defined(TARGETPLATFORM_ANDROID)
+		#if defined(JNIEXPORT) && defined(__ANDROID__)
 		void writeToAndroidSharedPrefs(JNIEnv* env, const String& key, jobject context) const;
 		static void writeToAndroidSharedPrefs(JNIEnv* env, const Optional<OAuthSession>& session, const String& key, jobject context);
 

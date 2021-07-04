@@ -193,7 +193,7 @@ namespace sh {
 
 	Promise<bool> Playlist::isEditable() {
 		auto self = std::static_pointer_cast<Playlist>(shared_from_this());
-		return provider->isPlaylistEditable(self).map<bool>([=](bool editable) {
+		return provider->isPlaylistEditable(self).map([=](bool editable) -> bool {
 			self->_editable = editable;
 			return editable;
 		});

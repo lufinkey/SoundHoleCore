@@ -26,7 +26,7 @@ namespace sh {
 		auto playlist = this->playlist.lock();
 		return storageProvider->getPlaylistItems(playlist->uri(), index, count)
 		.then([=](GoogleDrivePlaylistItemsPage page) -> void {
-			auto items = page.items.map<$<PlaylistItem>>([&](auto& playlistItemData) {
+			auto items = page.items.map([&](auto& playlistItemData) -> $<PlaylistItem> {
 				return playlist->createCollectionItem(playlistItemData);
 			});
 			mutator->lock([&]() {
@@ -69,7 +69,7 @@ namespace sh {
 		}
 		
 		// load track data before adding
-		auto promises = tracks.map<Promise<void>>([=](auto& track) {
+		auto promises = tracks.map([=](auto& track) -> Promise<void> {
 			return track->fetchDataIfNeeded();
 		});
 		// load items around index to make sure we have latest version
@@ -85,7 +85,7 @@ namespace sh {
 		})
 		.then([=](GoogleDrivePlaylistItemsPage page) {
 			mutator->lock([&]() {
-				mutator->insert(indexMarker->index, page.items.map<$<PlaylistItem>>([&](auto& item) {
+				mutator->insert(indexMarker->index, page.items.map([&](auto& item) -> $<PlaylistItem> {
 					return playlist->createCollectionItem(item);
 				}));
 			});
@@ -110,7 +110,7 @@ namespace sh {
 		}
 		
 		// load track data before adding
-		auto promises = tracks.map<Promise<void>>([=](auto& track) {
+		auto promises = tracks.map([=](auto& track) -> Promise<void> {
 			return track->fetchDataIfNeeded();
 		});
 		// load items in chunk to make sure we have the latest version
@@ -138,7 +138,7 @@ namespace sh {
 		})
 		.then([=](GoogleDrivePlaylistItemsPage page) {
 			mutator->lock([&]() {
-				mutator->insert(page.offset, page.items.map<$<PlaylistItem>>([&](auto& item) {
+				mutator->insert(page.offset, page.items.map([&](auto& item) -> $<PlaylistItem> {
 					return playlist->createCollectionItem(item);
 				}));
 			});

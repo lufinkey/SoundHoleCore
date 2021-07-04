@@ -75,7 +75,7 @@ namespace sh {
 		if(auth == nullptr) {
 			return Promise<bool>::resolve(false);
 		}
-		return start().map<bool>([=]() { return true; });
+		return start().map([=]() { return true; });
 	}
 	
 	
@@ -88,7 +88,7 @@ namespace sh {
 		if(auth == nullptr || !auth->isLoggedIn()) {
 			return Promise<bool>::resolve(false);
 		}
-		return login().map<bool>([]() { return true; });
+		return login().map([]() { return true; });
 	}
 	
 	Promise<void> SpotifyPlayer::login() {

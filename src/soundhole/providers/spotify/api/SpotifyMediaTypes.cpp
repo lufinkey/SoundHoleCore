@@ -96,7 +96,7 @@ namespace sh {
 			json["display_name"] = (std::string)displayName.value();
 		}
 		if(images) {
-			json["images"] = images->map<Json>([=](auto& image) {
+			json["images"] = images->map([=](auto& image) -> Json {
 				return image.toJson();
 			});
 		}
@@ -119,10 +119,10 @@ namespace sh {
 				}
 				return displayName.string_value();
 			})(),
-			.images = jsutils::optArrayListFromJson<SpotifyImage>(json["images"], [&](auto& json) {
+			.images = jsutils::optArrayListFromJson(json["images"], [&](auto& json) -> SpotifyImage {
 				return SpotifyImage::fromJson(json);
 			}),
-			.externalURLs = jsutils::mapFromJson<String>(json["external_urls"], [=](const std::string& key, const Json& value) {
+			.externalURLs = jsutils::mapFromJson(json["external_urls"], [=](const std::string& key, const Json& value) -> String {
 				return value.string_value();
 			}),
 			.followers = SpotifyFollowers::maybeFromJson(json["followers"])
@@ -137,10 +137,10 @@ namespace sh {
 			.uri = json["uri"].string_value(),
 			.href = json["href"].string_value(),
 			.name = json["name"].string_value(),
-			.externalURLs = jsutils::mapFromJson<String>(json["external_urls"], [=](const std::string& key, const Json& value) {
+			.externalURLs = jsutils::mapFromJson(json["external_urls"], [=](const std::string& key, const Json& value) -> String {
 				return value.string_value();
 			}),
-			.images = jsutils::optArrayListFromJson<SpotifyImage>(json["images"], [&](auto& json) {
+			.images = jsutils::optArrayListFromJson(json["images"], [&](auto& json) -> SpotifyImage {
 				return SpotifyImage::fromJson(json);
 			}),
 			.genres = ([&]() -> Optional<ArrayList<String>> {
@@ -175,19 +175,19 @@ namespace sh {
 			.uri = json["uri"].string_value(),
 			.href = json["href"].string_value(),
 			.name = json["name"].string_value(),
-			.artists = jsutils::arrayListFromJson<SpotifyArtist>(json["artists"], [&](auto& json) {
+			.artists = jsutils::arrayListFromJson(json["artists"], [&](auto& json) -> SpotifyArtist {
 				return SpotifyArtist::fromJson(json);
 			}),
-			.images = jsutils::arrayListFromJson<SpotifyImage>(json["images"], [&](auto& json) {
+			.images = jsutils::arrayListFromJson(json["images"], [&](auto& json) -> SpotifyImage {
 				return SpotifyImage::fromJson(json);
 			}),
-			.externalURLs = jsutils::mapFromJson<String>(json["external_urls"], [=](const std::string& key, const Json& value) {
+			.externalURLs = jsutils::mapFromJson(json["external_urls"], [=](const std::string& key, const Json& value) -> String {
 				return value.string_value();
 			}),
-			.availableMarkets = jsutils::optArrayListFromJson<String>(json["available_markets"], [&](auto& json) -> String {
+			.availableMarkets = jsutils::optArrayListFromJson(json["available_markets"], [&](auto& json) -> String {
 				return json.string_value();
 			}),
-			.copyrights = jsutils::optArrayListFromJson<SpotifyCopyright>(json["copyrights"], [&](auto& json) {
+			.copyrights = jsutils::optArrayListFromJson(json["copyrights"], [&](auto& json) -> SpotifyCopyright {
 				return SpotifyCopyright::fromJson(json);
 			}),
 			.label = ([&]() -> Optional<String> {
@@ -218,16 +218,16 @@ namespace sh {
 				}
 				return SpotifyAlbum::fromJson(album);
 			})(),
-			.artists = jsutils::arrayListFromJson<SpotifyArtist>(json["artists"], [&](auto& json) {
+			.artists = jsutils::arrayListFromJson(json["artists"], [&](auto& json) -> SpotifyArtist {
 				return SpotifyArtist::fromJson(json);
 			}),
-			.availableMarkets = jsutils::optArrayListFromJson<String>(json["available_markets"], [&](auto& json) -> String {
+			.availableMarkets = jsutils::optArrayListFromJson(json["available_markets"], [&](auto& json) -> String {
 				return json.string_value();
 			}),
-			.externalIds = jsutils::mapFromJson<String>(json["external_ids"], [=](const std::string& key, const Json& value) {
+			.externalIds = jsutils::mapFromJson(json["external_ids"], [=](const std::string& key, const Json& value) -> String {
 				return value.string_value();
 			}),
-			.externalURLs = jsutils::mapFromJson<String>(json["external_urls"], [=](const std::string& key, const Json& value) {
+			.externalURLs = jsutils::mapFromJson(json["external_urls"], [=](const std::string& key, const Json& value) -> String {
 				return value.string_value();
 			}),
 			.previewURL = json["preview_url"].string_value(),
@@ -265,11 +265,11 @@ namespace sh {
 				return description.string_value();
 			})(),
 			.snapshotId = json["snapshot_id"].string_value(),
-			.images = jsutils::arrayListFromJson<SpotifyImage>(json["images"], [&](auto& json) {
+			.images = jsutils::arrayListFromJson(json["images"], [&](auto& json) -> SpotifyImage {
 				return SpotifyImage::fromJson(json);
 			}),
 			.tracks = SpotifyPage<SpotifyPlaylist::Item>::fromJson(json["tracks"]),
-			.externalURLs = jsutils::mapFromJson<String>(json["external_urls"], [=](const std::string& key, const Json& value) {
+			.externalURLs = jsutils::mapFromJson(json["external_urls"], [=](const std::string& key, const Json& value) -> String {
 				return value.string_value();
 			}),
 			.followers = SpotifyFollowers::maybeFromJson(json["followers"]),

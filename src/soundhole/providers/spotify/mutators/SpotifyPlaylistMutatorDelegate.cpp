@@ -29,7 +29,7 @@ namespace sh {
 			.offset=index,
 			.limit=count
 		}).then([=](SpotifyPage<SpotifyPlaylist::Item> page) -> void {
-			auto items = page.items.map<$<PlaylistItem>>([&](auto& item) {
+			auto items = page.items.map([&](auto& item) -> $<PlaylistItem> {
 				return playlist->createCollectionItem(provider->createPlaylistItemData(item));
 			});
 			mutator->lock([&]() {
@@ -77,7 +77,7 @@ namespace sh {
 			});
 			i += chunkSize;
 		}
-		return promise.map<SpotifyPage<SpotifyPlaylist::Item>>([=]() {
+		return promise.map([=]() -> SpotifyPage<SpotifyPlaylist::Item> {
 			return SpotifyPage<SpotifyPlaylist::Item>{
 				.href = std::move(*hrefStr),
 				.limit = fetchedItems->size(),
@@ -94,7 +94,7 @@ namespace sh {
 		auto playlist = this->playlist.lock();
 		auto provider = (SpotifyMediaProvider*)playlist->mediaProvider();
 		return fetchAPIItemsFromChunks(mutator, index, count).then([=](SpotifyPage<SpotifyPlaylist::Item> page) {
-			auto items = page.items.map<$<PlaylistItem>>([&](auto& item) {
+			auto items = page.items.map([&](auto& item) -> $<PlaylistItem> {
 				return playlist->createCollectionItem(provider->createPlaylistItemData(item));
 			});
 			mutator->lock([&]() {
@@ -142,7 +142,7 @@ namespace sh {
 		})
 		.then([=]() {
 			// add tracks to playlist
-			return provider->spotify->addPlaylistTracks(uriParts.id, tracks.map<String>([](auto& track) {
+			return provider->spotify->addPlaylistTracks(uriParts.id, tracks.map([](auto& track) -> String {
 				return track->uri();
 			}), {
 				.position = indexMarker->index
@@ -168,7 +168,7 @@ namespace sh {
 			size_t upperBound = indexMarker->index + tracks.size() + padding;
 			size_t fetchCount = upperBound - lowerBound;
 			return fetchAPIItemsFromChunks(mutator, lowerBound, fetchCount).then([=](SpotifyPage<SpotifyPlaylist::Item> page) {
-				auto items = page.items.map<$<PlaylistItem>>([&](auto& item) {
+				auto items = page.items.map([&](auto& item) -> $<PlaylistItem> {
 					return playlist->createCollectionItem(provider->createPlaylistItemData(item));
 				});
 				size_t startOffset = indexMarker->index - lowerBound;
@@ -261,7 +261,7 @@ namespace sh {
 		})
 		.then([=]() {
 			// add tracks to playlist
-			return provider->spotify->addPlaylistTracks(uriParts.id, tracks.map<String>([](auto& track) {
+			return provider->spotify->addPlaylistTracks(uriParts.id, tracks.map([](auto& track) -> String {
 				return track->uri();
 			})).then([=](SpotifyPlaylist::AddResult addResult) {
 				// TODO update versionId if we can figure out some way to ensure nothing has changed during the call

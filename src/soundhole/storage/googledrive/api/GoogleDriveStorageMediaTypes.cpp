@@ -58,7 +58,7 @@ namespace sh {
 		return GoogleDrivePlaylistItemsPage{
 			.offset = (size_t)json["offset"].number_value(),
 			.total = (size_t)json["total"].number_value(),
-			.items = jsutils::arrayListFromJson<PlaylistItem::Data>(json["items"], [=](const Json& itemJson) {
+			.items = jsutils::arrayListFromJson(json["items"], [=](const Json& itemJson) -> PlaylistItem::Data {
 				return PlaylistItem::Data::fromJson(itemJson, stash);
 			})
 		};

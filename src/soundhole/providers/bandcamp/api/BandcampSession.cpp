@@ -66,7 +66,7 @@ namespace sh {
 		return Json::object{
 			{ "clientId", (std::string)clientId },
 			{ "identity", (std::string)identity },
-			{ "cookies", cookies.map<Json>([=](const String& cookie) -> Json {
+			{ "cookies", cookies.map([=](const String& cookie) -> Json {
 				return Json((std::string)cookie);
 			}) }
 		};

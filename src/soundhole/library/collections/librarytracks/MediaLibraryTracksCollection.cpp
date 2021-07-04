@@ -215,7 +215,7 @@ namespace sh {
 			.orderBy = _filters.orderBy,
 			.order = _filters.order
 		}).then([=](MediaDatabase::GetJsonItemsListResult results) {
-			mutator->applyAndResize(index, results.total, results.items.map<$<MediaLibraryTracksCollectionItem>>([=](auto json) {
+			mutator->applyAndResize(index, results.total, results.items.map([=](auto json) -> $<MediaLibraryTracksCollectionItem> {
 				auto jsonObj = json.object_items();
 				auto trackJsonIt = jsonObj.find("mediaItem");
 				if(trackJsonIt != jsonObj.end()) {

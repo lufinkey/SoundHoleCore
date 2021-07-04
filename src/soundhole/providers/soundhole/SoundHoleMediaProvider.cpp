@@ -144,7 +144,7 @@ namespace sh {
 			auto providerName = storageProvider->name();
 			promises.pushBack(storageProvider->getCurrentUserURIs());
 		}
-		return Promise<ArrayList<String>>::all(promises).map<ArrayList<String>>([=](auto userURILists) {
+		return Promise<ArrayList<String>>::all(promises).map([=](auto userURILists) -> ArrayList<String> {
 			auto userURIs = ArrayList<String>();
 			size_t count = 0;
 			for(auto& list : userURILists) {
@@ -255,10 +255,10 @@ namespace sh {
 				return Promise<YieldResult>::resolve({});
 			});
 		}
-		return primaryStorageProvider->getMyPlaylists().map<GenerateLibraryResults>([=](LoadBatch<$<Playlist>> page) {
+		return primaryStorageProvider->getMyPlaylists().map([=](LoadBatch<$<Playlist>> page) -> GenerateLibraryResults {
 			return GenerateLibraryResults{
 				.resumeData = Json(),
-				.items = page.items.map<LibraryItem>([=](auto& playlist) {
+				.items = page.items.map([=](auto& playlist) -> LibraryItem {
 					return LibraryItem{
 						.libraryProvider = this,
 						.mediaItem = playlist,

@@ -10,20 +10,22 @@
 
 #include <jni.h>
 #include "StreamPlayer.hpp"
-#include <soundhole/utils/android/AndroidUtils.hpp>
+#include <soundhole/jnicpp/android/AudioManager_jni.hpp>
 #include <android/log.h>
 
-#ifdef TARGETPLATFORM_ANDROID
-
 namespace sh {
+	namespace jni {
+		using namespace android;
+	}
+
 	StreamPlayer::StreamPlayer()
-	: javaVm(getMainJavaVM()), player(nullptr), preparedPlayer(nullptr) {
+	: javaVm(getJavaVM()), player(nullptr), preparedPlayer(nullptr) {
 		//
 	}
 
 	StreamPlayer::~StreamPlayer() {
 		playQueue.cancelAllTasks();
-		DispatchQueue::jniScope((JavaVM*)javaVm, [&](JNIEnv* env) {
+		jniScope((JavaVM*)javaVm, [&](JNIEnv* env) {
 			destroyPlayer(env);
 			destroyPreparedPlayer(env);
 		});
@@ -31,14 +33,15 @@ namespace sh {
 
 
 
-	jobject StreamPlayer::createPlayer(JNIEnv* env, String audioURL) {
-		jobject player = android::MediaPlayer::newObject(env);
-		env->CallVoidMethod(player, android::MediaPlayer::_setAudioStreamType, (jint)android::AudioManager::STREAM_MUSIC(env));
-		env->CallVoidMethod(player, android::MediaPlayer::_setDataSource, audioURL.toJavaString(env));
-		return env->NewGlobalRef(player);
+	jni::android::MediaPlayer StreamPlayer::createPlayer(JNIEnv* env, String audioURL) {
+		auto player = jni::MediaPlayer::newObject(env);
+		player.setAudioStreamType(env, jni::android::AudioManager::STREAM_MUSIC(env));
+		player.setDataSource(env, audioURL.toJavaString(env));
+		player.value = env->NewGlobalRef(player.value);
+		return player;
 	}
 
-	void StreamPlayer::setPlayer(JNIEnv* env, jobject player, String audioURL) {
+	void StreamPlayer::setPlayer(JNIEnv* env, jni::android::MediaPlayer player, String audioURL) {
 		std::unique_lock<std::recursive_mutex> lock(playerMutex);
 		destroyPlayer(env);
 		this->player = player;
@@ -51,14 +54,14 @@ namespace sh {
 		if(player == nullptr) {
 			return;
 		}
-		jobject deadPlayer = (jobject)player;
-		player = nullptr;
+		auto deadPlayer = player;
+		player.value = nullptr;
 		playerAudioURL.clear();
 		// TODO unsubscribe from events
 		lock.unlock();
-		env->CallVoidMethod(deadPlayer, android::MediaPlayer::_stop);
-		env->CallVoidMethod(deadPlayer, android::MediaPlayer::_reset);
-		env->DeleteGlobalRef(deadPlayer);
+		deadPlayer.stop(env);
+		deadPlayer.reset(env);
+		env->DeleteGlobalRef(deadPlayer.value);
 	}
 
 	void StreamPlayer::destroyPreparedPlayer(JNIEnv* env) {
@@ -66,11 +69,11 @@ namespace sh {
 		if(preparedPlayer == nullptr) {
 			return;
 		}
-		jobject deadPlayer = (jobject)preparedPlayer;
-		preparedPlayer = nullptr;
+		auto deadPlayer = preparedPlayer;
+		preparedPlayer.value = nullptr;
 		preparedAudioURL.clear();
 		lock.unlock();
-		env->DeleteGlobalRef(deadPlayer);
+		env->DeleteGlobalRef(deadPlayer.value);
 	}
 
 
@@ -89,19 +92,19 @@ namespace sh {
 			.cancelMatchingTags = true
 		};
 		return playQueue.run(runOptions, [=](auto task) -> Promise<void> {
-			ScopedJNIEnv scopedEnv(getMainJavaVM());
-			JNIEnv* env = scopedEnv.getEnv();
-			std::unique_lock<std::recursive_mutex> lock(playerMutex);
-			if(preparedAudioURL == audioURL || playerAudioURL == audioURL) {
-				return Promise<void>::resolve();
-			}
-			destroyPreparedPlayer(env);
-			preparedPlayer = createPlayer(env, audioURL);
-			preparedAudioURL = audioURL;
-			lock.unlock();
-			return async<void>([=]() {
-				DispatchQueue::jniScope((JavaVM*)javaVm, [&](JNIEnv* env) {
-					env->CallVoidMethod((jobject)preparedPlayer, android::MediaPlayer::_prepare);
+			return jniScope(getJavaVM(), [=](JNIEnv* env) {
+				std::unique_lock<std::recursive_mutex> lock(playerMutex);
+				if(preparedAudioURL == audioURL || playerAudioURL == audioURL) {
+					return Promise<void>::resolve();
+				}
+				destroyPreparedPlayer(env);
+				preparedPlayer = createPlayer(env, audioURL);
+				preparedAudioURL = audioURL;
+				lock.unlock();
+				return async<void>([=]() {
+					jniScope((JavaVM*)javaVm, [=](JNIEnv* env) {
+						preparedPlayer.prepare(env);
+					});
 				});
 			});
 		}).promise;
@@ -116,56 +119,56 @@ namespace sh {
 			.cancelMatchingTags = true
 		};
 		return playQueue.run(runOptions, [=](auto task) -> Promise<void> {
-			ScopedJNIEnv scopedEnv(getMainJavaVM());
-			JNIEnv* env = scopedEnv.getEnv();
-			bool needsPrepare = false;
-			if(playerAudioURL == audioURL) {
-				FGL_ASSERT(player != nullptr, "player is null but playerAudioURL is not empty");
-				jint currentTime = env->CallIntMethod((jobject)player, android::MediaPlayer::_getCurrentPosition);
-				if(currentTime != 0) {
-					env->CallVoidMethod((jobject)player, android::MediaPlayer::_seekTo, (jint)0);
-					jboolean playing = env->CallBooleanMethod((jobject)player, android::MediaPlayer::_isPlaying);
-					if(!playing) {
-						env->CallVoidMethod((jobject)player, android::MediaPlayer::_start);
+			return jniScope(getJavaVM(), [=](JNIEnv* env) {
+				bool needsPrepare = false;
+				if(playerAudioURL == audioURL) {
+					FGL_ASSERT(player != nullptr, "player is null but playerAudioURL is not empty");
+					jint currentTime = player.getCurrentPosition(env);
+					if(currentTime != 0) {
+						player.seekTo(env, 0);
+						jboolean playing = player.isPlaying(env);
+						if(!playing) {
+							player.start(env);
+						}
 					}
+					return Promise<void>::resolve();
+				} else if(preparedAudioURL == audioURL) {
+					std::unique_lock<std::recursive_mutex> lock(playerMutex);
+					auto newPlayer = preparedPlayer;
+					preparedPlayer.value = nullptr;
+					preparedAudioURL.clear();
+					setPlayer(env, newPlayer, audioURL);
+					lock.unlock();
+				} else {
+					std::unique_lock<std::recursive_mutex> lock(playerMutex);
+					destroyPreparedPlayer(env);
+					setPlayer(env, createPlayer(env, audioURL), audioURL);
+					lock.unlock();
+					needsPrepare = true;
 				}
-				return Promise<void>::resolve();
-			} else if(preparedAudioURL == audioURL) {
-				std::unique_lock<std::recursive_mutex> lock(playerMutex);
-				jobject newPlayer = (jobject)preparedPlayer;
-				preparedPlayer = nullptr;
-				preparedAudioURL.clear();
-				setPlayer(env, newPlayer, audioURL);
-				lock.unlock();
-			} else {
-				std::unique_lock<std::recursive_mutex> lock(playerMutex);
-				destroyPreparedPlayer(env);
-				setPlayer(env, createPlayer(env, audioURL), audioURL);
-				lock.unlock();
-				needsPrepare = true;
-			}
-			if(options.beforePlay) {
-				options.beforePlay();
-			}
-			FGL_ASSERT(player != nullptr, "player is null after setting up for playback");
-			jint currentTime = env->CallIntMethod((jobject)player, android::MediaPlayer::_getCurrentPosition);
-			double playerCurrentPos = (double)currentTime / 1000.0;
-			if(needsPrepare) {
-				return async<void>([=]() {
-					DispatchQueue::jniScope((JavaVM*)javaVm, [&](JNIEnv* env) {
-						__android_log_print(ANDROID_LOG_DEBUG, "StreamPlayer", "preparing media player with url %s", audioURL.c_str());
-						env->CallVoidMethod((jobject)player, android::MediaPlayer::_prepare);
-						__android_log_print(ANDROID_LOG_DEBUG, "StreamPlayer", "starting media player");
-						env->CallVoidMethod((jobject)player, android::MediaPlayer::_start);
-						__android_log_print(ANDROID_LOG_DEBUG, "StreamPlayer", "done starting media player");
+				if(options.beforePlay) {
+					options.beforePlay();
+				}
+				FGL_ASSERT(player != nullptr, "player is null after setting up for playback");
+				jint currentTime = player.getCurrentPosition(env);
+				double playerCurrentPos = (double)currentTime / 1000.0;
+				if(needsPrepare) {
+					return async<void>([=]() {
+						jniScope((JavaVM*)javaVm, [&](JNIEnv* env) {
+							__android_log_print(ANDROID_LOG_DEBUG, "StreamPlayer", "preparing media player with url %s", audioURL.c_str());
+							player.prepare(env);
+							__android_log_print(ANDROID_LOG_DEBUG, "StreamPlayer", "starting media player");
+							player.start(env);
+							__android_log_print(ANDROID_LOG_DEBUG, "StreamPlayer", "done starting media player");
+						});
 					});
-				});
-			}
-			if(playerCurrentPos != options.position) {
-				env->CallVoidMethod((jobject)player, android::MediaPlayer::_seekTo, (jint)(options.position * 1000));
-			}
-			env->CallVoidMethod((jobject)player, android::MediaPlayer::_start);
-			return Promise<void>::resolve();
+				}
+				if(playerCurrentPos != options.position) {
+					player.seekTo(env, (jint)(options.position * 1000));
+				}
+				player.start(env);
+				return Promise<void>::resolve();
+			});
 		}).promise;
 	}
 
@@ -175,16 +178,16 @@ namespace sh {
 			.cancelMatchingTags = true
 		};
 		return playQueue.run(runOptions, [=](auto task) {
-			if(player == nullptr) {
+			if(player.value == nullptr) {
 				return;
 			}
-			ScopedJNIEnv scopedEnv(getMainJavaVM());
-			JNIEnv* env = scopedEnv.getEnv();
-			if(playing) {
-				env->CallVoidMethod((jobject)player, android::MediaPlayer::_start);
-			} else {
-				env->CallVoidMethod((jobject)player, android::MediaPlayer::_pause);
-			}
+			jniScope(getJavaVM(), [=](JNIEnv* env) {
+				if (playing) {
+					player.start(env);
+				} else {
+					player.pause(env);
+				}
+			});
 		}).promise;
 	}
 
@@ -194,12 +197,12 @@ namespace sh {
 			.cancelMatchingTags = true
 		};
 		return playQueue.run(runOptions, [=](auto task) {
-			if(player == nullptr) {
+			if(player.value == nullptr) {
 				return;
 			}
-			ScopedJNIEnv scopedEnv(getMainJavaVM());
-			JNIEnv* env = scopedEnv.getEnv();
-			env->CallVoidMethod((jobject)player, android::MediaPlayer::_seekTo, (jint)(position * 1000));
+			jniScope(getJavaVM(), [=](JNIEnv* env) {
+				player.seekTo(env, (jint)(position * 1000));
+			});
 		}).promise;
 	}
 
@@ -211,27 +214,31 @@ namespace sh {
 		playQueue.cancelAllTasks();
 		return playQueue.run(runOptions, [=](auto task) {
 			std::unique_lock<std::recursive_mutex> lock(playerMutex);
-			ScopedJNIEnv scopedEnv(getMainJavaVM());
-			JNIEnv* env = scopedEnv.getEnv();
-			destroyPlayer(env);
-			destroyPreparedPlayer(env);
+			jniScope(getJavaVM(), [=](JNIEnv* env) {
+				destroyPlayer(env);
+				destroyPreparedPlayer(env);
+			});
 		}).promise;
 	}
 
 	StreamPlayer::PlaybackState StreamPlayer::getState() const {
 		std::unique_lock<std::recursive_mutex> lock(playerMutex);
-		if(player == nullptr) {
+		if(this->player.value == nullptr) {
 			return {
 				.playing = false,
 				.position = 0.0,
 				.duration = 0.0
 			};
 		}
-		ScopedJNIEnv scopedEnv(getMainJavaVM());
-		JNIEnv* env = scopedEnv.getEnv();
-		jint currentTime = env->CallIntMethod((jobject)player, android::MediaPlayer::_getCurrentPosition);
-		jboolean playing = env->CallBooleanMethod((jobject)player, android::MediaPlayer::_isPlaying);
-		jint currentDuration = env->CallIntMethod((jobject)player, android::MediaPlayer::_getDuration);
+		jint currentTime = 0;
+		jboolean playing = false;
+		jint currentDuration = 0;
+		auto player = jni::MediaPlayer(this->player.value);
+		jniScope(getJavaVM(), [&](JNIEnv* env) {
+			currentTime = player.getCurrentPosition(env);
+			playing = player.isPlaying(env);
+			currentDuration = player.getDuration(env);
+		});
 		return {
 			.playing = (bool)playing,
 			.position = (double)currentTime / 1000.0,
@@ -240,5 +247,4 @@ namespace sh {
 	}
 }
 
-#endif
 #endif

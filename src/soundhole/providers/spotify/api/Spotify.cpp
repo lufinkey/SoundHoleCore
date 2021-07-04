@@ -271,7 +271,7 @@ namespace sh {
 				}
 				return Promise<utils::SharedHttpResponse>::resolve(response);
 			})
-			.map<Json>([=](utils::SharedHttpResponse response) -> Json {
+			.map([=](utils::SharedHttpResponse response) -> Json {
 				Json result;
 				auto contentTypeIt = response->headers.find("Content-Type");
 				String contentType = (contentTypeIt != response->headers.end()) ? contentTypeIt->second : "";
@@ -324,7 +324,7 @@ namespace sh {
 	#pragma mark metadata: my library
 
 	Promise<SpotifyUser> Spotify::getMe() {
-		return sendRequest(utils::HttpMethod::GET, "v1/me").map<SpotifyUser>([](auto json) {
+		return sendRequest(utils::HttpMethod::GET, "v1/me").map([](auto json) -> SpotifyUser {
 			return SpotifyUser::fromJson(json);
 		});
 	}
@@ -340,7 +340,7 @@ namespace sh {
 		if(options.offset.has_value()) {
 			params["offset"] = std::to_string(options.offset.value());
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/me/tracks", params).map<SpotifyPage<SpotifySavedTrack>>([](auto json) {
+		return sendRequest(utils::HttpMethod::GET, "v1/me/tracks", params).map([](auto json) -> SpotifyPage<SpotifySavedTrack> {
 			return SpotifyPage<SpotifySavedTrack>::fromJson(json);
 		});
 	}
@@ -356,7 +356,7 @@ namespace sh {
 		if(options.offset.has_value()) {
 			params["offset"] = std::to_string(options.offset.value());
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/me/albums", params).map<SpotifyPage<SpotifySavedAlbum>>([](auto json) {
+		return sendRequest(utils::HttpMethod::GET, "v1/me/albums", params).map([](auto json) -> SpotifyPage<SpotifySavedAlbum> {
 			return SpotifyPage<SpotifySavedAlbum>::fromJson(json);
 		});
 	}
@@ -369,7 +369,7 @@ namespace sh {
 		if(options.offset.has_value()) {
 			params["offset"] = std::to_string(options.offset.value());
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/me/playlists", params).map<SpotifyPage<SpotifyPlaylist>>([](auto json) {
+		return sendRequest(utils::HttpMethod::GET, "v1/me/playlists", params).map([](auto json) -> SpotifyPage<SpotifyPlaylist> {
 			return SpotifyPage<SpotifyPlaylist>::fromJson(json);
 		});
 	}
@@ -395,7 +395,7 @@ namespace sh {
 			params["offset"] = std::to_string(options.offset.value());
 		}
 		params["q"] = query;
-		return sendRequest(utils::HttpMethod::GET, "v1/search", params).map<SpotifySearchResults>([](auto json) {
+		return sendRequest(utils::HttpMethod::GET, "v1/search", params).map([](auto json) -> SpotifySearchResults {
 			return SpotifySearchResults::fromJson(json);
 		});
 	}
@@ -412,7 +412,7 @@ namespace sh {
 		if(!options.market.empty()) {
 			params["market"] = options.market;
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/albums/"+albumId, params).map<SpotifyAlbum>([](auto json) {
+		return sendRequest(utils::HttpMethod::GET, "v1/albums/"+albumId, params).map([](auto json) -> SpotifyAlbum {
 			return SpotifyAlbum::fromJson(json);
 		});
 	}
@@ -423,7 +423,7 @@ namespace sh {
 			params["market"] = options.market;
 		}
 		params["ids"] = String::join(albumIds, ",");
-		return sendRequest(utils::HttpMethod::GET, "v1/albums", params).map<ArrayList<SpotifyAlbum>>([](auto json) {
+		return sendRequest(utils::HttpMethod::GET, "v1/albums", params).map([](auto json) -> ArrayList<SpotifyAlbum> {
 			auto albumItems = json["albums"].array_items();
 			ArrayList<SpotifyAlbum> albums;
 			albums.reserve(albumItems.size());
@@ -450,7 +450,7 @@ namespace sh {
 		if(options.offset.has_value()) {
 			params["offset"] = std::to_string(options.offset.value());
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/albums/"+albumId+"/tracks", params).map<SpotifyPage<SpotifyTrack>>([](auto json) {
+		return sendRequest(utils::HttpMethod::GET, "v1/albums/"+albumId+"/tracks", params).map([](auto json) -> SpotifyPage<SpotifyTrack> {
 			return SpotifyPage<SpotifyTrack>::fromJson(json);
 		});
 	}
@@ -465,7 +465,7 @@ namespace sh {
 				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "artistId cannot be empty")
 			);
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/artists/"+artistId).map<SpotifyArtist>([](auto json) {
+		return sendRequest(utils::HttpMethod::GET, "v1/artists/"+artistId).map([](auto json) -> SpotifyArtist {
 			return SpotifyArtist::fromJson(json);
 		});
 	}
@@ -473,7 +473,7 @@ namespace sh {
 	Promise<ArrayList<SpotifyArtist>> Spotify::getArtists(ArrayList<String> artistIds) {
 		std::map<String,String> params;
 		params["ids"] = String::join(artistIds, ",");
-		return sendRequest(utils::HttpMethod::GET, "v1/artists", params).map<ArrayList<SpotifyArtist>>([](auto json) {
+		return sendRequest(utils::HttpMethod::GET, "v1/artists", params).map([](auto json) -> ArrayList<SpotifyArtist> {
 			auto artistItems = json["artists"].array_items();
 			ArrayList<SpotifyArtist> artists;
 			artists.reserve(artistItems.size());
@@ -503,7 +503,7 @@ namespace sh {
 		if(options.offset.has_value()) {
 			params["offset"] = std::to_string(options.offset.value());
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/artists/"+artistId+"/albums", params).map<SpotifyPage<SpotifyAlbum>>([](auto json) {
+		return sendRequest(utils::HttpMethod::GET, "v1/artists/"+artistId+"/albums", params).map([](auto json) -> SpotifyPage<SpotifyAlbum> {
 			return SpotifyPage<SpotifyAlbum>::fromJson(json);
 		});
 	}
@@ -521,7 +521,7 @@ namespace sh {
 		std::map<String,String> params = {
 			{"country", country}
 		};
-		return sendRequest(utils::HttpMethod::GET, "v1/artists/"+artistId+"/top-tracks", params).map<ArrayList<SpotifyTrack>>([](auto json) {
+		return sendRequest(utils::HttpMethod::GET, "v1/artists/"+artistId+"/top-tracks", params).map([](auto json) -> ArrayList<SpotifyTrack> {
 			auto trackItems = json["tracks"].array_items();
 			ArrayList<SpotifyTrack> tracks;
 			tracks.reserve(trackItems.size());
@@ -538,7 +538,7 @@ namespace sh {
 				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "artistId cannot be empty")
 			);
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/artists/"+artistId+"/related-artists").map<ArrayList<SpotifyArtist>>([](auto json) {
+		return sendRequest(utils::HttpMethod::GET, "v1/artists/"+artistId+"/related-artists").map([](auto json) -> ArrayList<SpotifyArtist> {
 			auto artistItems = json["artists"].array_items();
 			ArrayList<SpotifyArtist> artists;
 			artists.reserve(artistItems.size());
@@ -563,7 +563,7 @@ namespace sh {
 		if(!options.market.empty()) {
 			params["market"] = options.market;
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/tracks/"+trackId, params).map<SpotifyTrack>([](auto json) {
+		return sendRequest(utils::HttpMethod::GET, "v1/tracks/"+trackId, params).map([](auto json) -> SpotifyTrack {
 			return SpotifyTrack::fromJson(json);
 		});
 	}
@@ -574,7 +574,7 @@ namespace sh {
 			params["market"] = options.market;
 		}
 		params["ids"] = String::join(trackIds, ",");
-		return sendRequest(utils::HttpMethod::GET, "v1/tracks", params).map<ArrayList<SpotifyTrack>>([](auto json) {
+		return sendRequest(utils::HttpMethod::GET, "v1/tracks", params).map([](auto json) -> ArrayList<SpotifyTrack> {
 			auto trackItems = json["tracks"].array_items();
 			ArrayList<SpotifyTrack> tracks;
 			tracks.reserve(trackItems.size());
@@ -625,7 +625,7 @@ namespace sh {
 		if(!options.fields.empty()) {
 			params["fields"] = options.fields;
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/playlists/"+playlistId, params).map<SpotifyPlaylist>([](auto json) {
+		return sendRequest(utils::HttpMethod::GET, "v1/playlists/"+playlistId, params).map([](auto json) -> SpotifyPlaylist {
 			return SpotifyPlaylist::fromJson(json);
 		});
 	}
@@ -643,7 +643,7 @@ namespace sh {
 		if(options.isCollaborative) {
 			params["collaborative"] = options.isCollaborative.value();
 		}
-		return sendRequest(utils::HttpMethod::POST, "v1/me/playlists", {}, params).map<SpotifyPlaylist>([](auto json) {
+		return sendRequest(utils::HttpMethod::POST, "v1/me/playlists", {}, params).map([](auto json) -> SpotifyPlaylist {
 			return SpotifyPlaylist::fromJson(json);
 		});
 	}
@@ -661,7 +661,7 @@ namespace sh {
 		if(options.isCollaborative) {
 			params["collaborative"] = options.isCollaborative.value();
 		}
-		return sendRequest(utils::HttpMethod::POST, "v1/users/"+userId+"/playlists", {}, params).map<SpotifyPlaylist>([](auto json) {
+		return sendRequest(utils::HttpMethod::POST, "v1/users/"+userId+"/playlists", {}, params).map([](auto json) -> SpotifyPlaylist {
 			return SpotifyPlaylist::fromJson(json);
 		});
 	}
@@ -709,7 +709,7 @@ namespace sh {
 		if(options.offset.has_value()) {
 			params["offset"] = std::to_string(options.offset.value());
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/playlists/"+playlistId+"/tracks", params).map<SpotifyPage<SpotifyPlaylist::Item>>([](auto json) {
+		return sendRequest(utils::HttpMethod::GET, "v1/playlists/"+playlistId+"/tracks", params).map([](auto json) -> SpotifyPage<SpotifyPlaylist::Item> {
 			return SpotifyPage<SpotifyPlaylist::Item>::fromJson(json);
 		});
 	}
@@ -724,14 +724,14 @@ namespace sh {
 				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "trackURIs cannot be empty"));
 		}
 		auto params = Json::object{
-			{ "uris", trackURIs.map<Json>([](auto& uri) {
+			{ "uris", trackURIs.map([](auto& uri) -> Json {
 				return Json(uri);
 			}) }
 		};
 		if(options.position) {
 			params["position"] = Json((int)options.position.value());
 		}
-		return sendRequest(utils::HttpMethod::POST, "v1/playlists/"+playlistId+"/tracks", {}, params).map<SpotifyPlaylist::AddResult>([](auto json) {
+		return sendRequest(utils::HttpMethod::POST, "v1/playlists/"+playlistId+"/tracks", {}, params).map([](auto json) -> SpotifyPlaylist::AddResult {
 			return SpotifyPlaylist::AddResult::fromJson(json);
 		});
 	}
@@ -752,7 +752,7 @@ namespace sh {
 		if(!options.snapshotId.empty()) {
 			params["snapshot_id"] = (std::string)options.snapshotId;
 		}
-		return sendRequest(utils::HttpMethod::PUT, "v1/playlists/"+playlistId+"/tracks", {}, params).map<SpotifyPlaylist::MoveResult>([](auto json) {
+		return sendRequest(utils::HttpMethod::PUT, "v1/playlists/"+playlistId+"/tracks", {}, params).map([](auto json) -> SpotifyPlaylist::MoveResult {
 			return SpotifyPlaylist::MoveResult::fromJson(json);
 		});
 	}
@@ -764,12 +764,12 @@ namespace sh {
 			);
 		}
 		auto params = Json::object{
-			{ "tracks", tracks.map<Json>([](auto& track) {
+			{ "tracks", tracks.map([](auto& track) -> Json {
 				auto json = Json::object{
 					{ "uri", Json(track.uri) }
 				};
 				if(track.positions.size() > 0) {
-					json["positions"] = track.positions.template map<Json>([](size_t position) {
+					json["positions"] = track.positions.map([](size_t position) -> Json {
 						return Json((int)position);
 					});
 				}
@@ -779,7 +779,7 @@ namespace sh {
 		if(!options.snapshotId.empty()) {
 			params["snapshot_id"] = (std::string)options.snapshotId;
 		}
-		return sendRequest(utils::HttpMethod::DELETE, "v1/playlists/"+playlistId+"/tracks", {}, params).map<SpotifyPlaylist::RemoveResult>([](auto json) {
+		return sendRequest(utils::HttpMethod::DELETE, "v1/playlists/"+playlistId+"/tracks", {}, params).map([](auto json) -> SpotifyPlaylist::RemoveResult {
 			return SpotifyPlaylist::RemoveResult::fromJson(json);
 		});
 	}
@@ -794,7 +794,7 @@ namespace sh {
 				SpotifyError(SpotifyError::Code::BAD_PARAMETERS, "userId cannot be empty")
 			);
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/users/"+userId).map<SpotifyUser>([](auto json) {
+		return sendRequest(utils::HttpMethod::GET, "v1/users/"+userId).map([](auto json) -> SpotifyUser {
 			return SpotifyUser::fromJson(json);
 		});
 	}
@@ -816,7 +816,7 @@ namespace sh {
 		if(options.offset.has_value()) {
 			params["offset"] = std::to_string(options.offset.value());
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/users/"+userId+"/playlists", params).map<SpotifyPage<SpotifyPlaylist>>([](auto json) {
+		return sendRequest(utils::HttpMethod::GET, "v1/users/"+userId+"/playlists", params).map([](auto json) -> SpotifyPage<SpotifyPlaylist> {
 			return SpotifyPage<SpotifyPlaylist>::fromJson(json);
 		});
 	}
@@ -829,7 +829,7 @@ namespace sh {
 		return sendRequest(utils::HttpMethod::PUT, "v1/me/following", {
 			{ "type", "artist" }
 		}, Json::object{
-			{ "ids", artistIds.map<Json>([](auto& artistId) { return Json((std::string)artistId); }) }
+			{ "ids", artistIds.map([](auto& artistId) { return Json((std::string)artistId); }) }
 		}).toVoid();
 	}
 
@@ -837,7 +837,7 @@ namespace sh {
 		return sendRequest(utils::HttpMethod::DELETE, "v1/me/following", {
 			{ "type", "artist" }
 		}, Json::object{
-			{ "ids", artistIds.map<Json>([](auto& artistId) { return Json((std::string)artistId); }) }
+			{ "ids", artistIds.map([](auto& artistId) { return Json((std::string)artistId); }) }
 		}).toVoid();
 	}
 
@@ -845,8 +845,8 @@ namespace sh {
 		return sendRequest(utils::HttpMethod::GET, "v1/me/following/contains", {
 			{ "type", "artist" }
 		}, Json::object{
-			{ "ids", artistIds.map<Json>([](auto& artistId) { return Json((std::string)artistId); }) }
-		}).map<ArrayList<bool>>([](auto json) {
+			{ "ids", artistIds.map([](auto& artistId) { return Json((std::string)artistId); }) }
+		}).map([](auto json) -> ArrayList<bool> {
 			ArrayList<bool> results;
 			results.reserve(json.array_items().size());
 			for(auto& jsonItem : json.array_items()) {
@@ -866,8 +866,7 @@ namespace sh {
 		if(options.limit.hasValue()) {
 			params["limit"] = std::to_string(options.limit.value());
 		}
-		return sendRequest(utils::HttpMethod::GET, "v1/me/following", params)
-		.map<SpotifyCursorPage<SpotifyArtist>>([](auto json) {
+		return sendRequest(utils::HttpMethod::GET, "v1/me/following", params).map([](auto json) -> SpotifyCursorPage<SpotifyArtist> {
 			return SpotifyCursorPage<SpotifyArtist>::fromJson(json["artists"]);
 		});
 	}
@@ -880,7 +879,7 @@ namespace sh {
 		return sendRequest(utils::HttpMethod::PUT, "v1/me/following", {
 			{ "type", "user" }
 		}, Json::object{
-			{ "ids", userIds.map<Json>([](auto& userId) { return Json((std::string)userId); }) }
+			{ "ids", userIds.map([](auto& userId) { return Json((std::string)userId); }) }
 		}).toVoid();
 	}
 
@@ -888,7 +887,7 @@ namespace sh {
 		return sendRequest(utils::HttpMethod::DELETE, "v1/me/following", {
 			{ "type", "user" }
 		}, Json::object{
-			{ "ids", userIds.map<Json>([](auto& userId) { return Json((std::string)userId); }) }
+			{ "ids", userIds.map([](auto& userId) { return Json((std::string)userId); }) }
 		}).toVoid();
 	}
 
@@ -896,8 +895,8 @@ namespace sh {
 		return sendRequest(utils::HttpMethod::GET, "v1/me/following/contains", {
 			{ "type", "user" }
 		}, Json::object{
-			{ "ids", userIds.map<Json>([](auto& userId) { return Json((std::string)userId); }) }
-		}).map<ArrayList<bool>>([](auto json) {
+			{ "ids", userIds.map([](auto& userId) { return Json((std::string)userId); }) }
+		}).map([](auto json) -> ArrayList<bool> {
 			ArrayList<bool> results;
 			results.reserve(json.array_items().size());
 			for(auto& jsonItem : json.array_items()) {

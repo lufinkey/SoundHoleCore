@@ -116,7 +116,7 @@ namespace sh {
 	#pragma mark Login
 
 	Promise<bool> BandcampMediaProvider::login() {
-		return bandcamp->login().map<bool>([=](bool loggedIn) {
+		return bandcamp->login().map([=](bool loggedIn) -> bool {
 			if(loggedIn) {
 				storeIdentity(std::nullopt);
 				setIdentityNeedsRefresh();
@@ -140,7 +140,7 @@ namespace sh {
 	#pragma mark Current User
 
 	Promise<ArrayList<String>> BandcampMediaProvider::getCurrentUserURIs() {
-		return getIdentity().map<ArrayList<String>>([=](Optional<BandcampIdentities> identities) -> ArrayList<String> {
+		return getIdentity().map([=](Optional<BandcampIdentities> identities) -> ArrayList<String> {
 			if(!identities || !identities->fan) {
 				return {};
 			}
@@ -160,7 +160,7 @@ namespace sh {
 		if(!isLoggedIn()) {
 			return Promise<Optional<BandcampIdentities>>::resolve(std::nullopt);
 		}
-		return bandcamp->getMyIdentities().map<Optional<BandcampIdentities>>([=](BandcampIdentities identities) {
+		return bandcamp->getMyIdentities().map([=](BandcampIdentities identities) -> Optional<BandcampIdentities> {
 			return maybe(identities);
 		});
 	}
@@ -170,13 +170,13 @@ namespace sh {
 	#pragma mark Search
 
 	Promise<BandcampMediaProvider::SearchResults> BandcampMediaProvider::search(String query, SearchOptions options) {
-		return bandcamp->search(query, options).map<SearchResults>([=](BandcampSearchResults searchResults) -> SearchResults {
+		return bandcamp->search(query, options).map([=](BandcampSearchResults searchResults) -> SearchResults {
 			return SearchResults{
 				.prevURL = searchResults.prevURL,
 				.nextURL = searchResults.nextURL,
 				.items = searchResults.items.where([&](auto& item) {
 					return (item.type != BandcampSearchResults::Item::Type::UNKNOWN);
-				}).template map<$<MediaItem>>([&](auto& item) -> $<MediaItem> {
+				}).map([&](auto& item) -> $<MediaItem> {
 					auto images = (!item.imageURL.empty()) ?
 						maybe(ArrayList<MediaItem::Image>{{
 							.url=item.imageURL,
@@ -309,7 +309,7 @@ namespace sh {
 			.type = "track",
 			.name = track.name,
 			.uri = (track.url.empty() ? String() : createURI("track", track.url)),
-			.images = track.images.map<MediaItem::Image>([&](auto& image) {
+			.images = track.images.map([&](auto& image) -> MediaItem::Image {
 				return createImage(image);
 			})
 			},
@@ -321,7 +321,7 @@ namespace sh {
 			.trackNumber = track.trackNumber,
 			.duration = track.duration,
 			.audioSources = (track.audioSources.has_value() ?
-				maybe(track.audioSources->map<Track::AudioSource>([](auto& audioSource) {
+				maybe(track.audioSources->map([](auto& audioSource) -> Track::AudioSource {
 					String encoding = "mp3";
 					double bitrate = 128.0;
 					std::cmatch matches;
@@ -352,7 +352,7 @@ namespace sh {
 			.type="track",
 			.name=track.name,
 			.uri=(track.url.empty() ? String() : createURI("track", track.url)),
-			.images=(track.images ? maybe(track.images->map<MediaItem::Image>([&](auto& image) {
+			.images=(track.images ? maybe(track.images->map([&](auto& image) -> MediaItem::Image {
 				return createImage(image);
 			})) : std::nullopt)
 			},
@@ -374,7 +374,7 @@ namespace sh {
 			.type="artist",
 			.name=artist.name,
 			.uri=(artist.url.empty() ? String() : createURI("artist", artist.url)),
-			.images=artist.images.map<MediaItem::Image>([&](auto& image) {
+			.images=artist.images.map([&](auto& image) -> MediaItem::Image {
 				return createImage(image);
 			})
 			},
@@ -388,7 +388,7 @@ namespace sh {
 			.type="artist",
 			.name=artist.name,
 			.uri=(artist.url.empty() ? String() : createURI("artist", artist.url)),
-			.images=artist.images ? maybe(artist.images->map<MediaItem::Image>([&](auto& image) {
+			.images=artist.images ? maybe(artist.images->map([&](auto& image) -> MediaItem::Image {
 				return createImage(image);
 			})) : std::nullopt
 			},
@@ -404,7 +404,7 @@ namespace sh {
 			.type = "album",
 			.name = album.name,
 			.uri = albumURI,
-			.images = album.images.map<MediaItem::Image>([&](auto& image) {
+			.images = album.images.map([&](auto& image) -> MediaItem::Image {
 				return createImage(std::move(image));
 			})
 			},
@@ -446,7 +446,7 @@ namespace sh {
 			.type = "album",
 			.name = album.name,
 			.uri = (album.url.empty() ? String() : createURI("album", album.url)),
-			.images = album.images ? maybe(album.images->map<MediaItem::Image>([&](auto& image) {
+			.images = album.images ? maybe(album.images->map([&](auto& image) -> MediaItem::Image {
 				return createImage(image);
 			})) : std::nullopt
 			},
@@ -489,7 +489,7 @@ namespace sh {
 			.type = "user",
 			.name = (!fan.name.empty()) ? fan.name : fan.id,
 			.uri = (fan.url.empty() ? String() : createURI("fan", fan.url)),
-			.images = (fan.images ? maybe(fan.images->map<MediaItem::Image>([&](auto& image) {
+			.images = (fan.images ? maybe(fan.images->map([&](auto& image) -> MediaItem::Image {
 				return createImage(std::move(image));
 			})) : std::nullopt)
 		};
@@ -501,7 +501,7 @@ namespace sh {
 			.type = "user",
 			.name = (!fan.name.empty()) ? fan.name : fan.id,
 			.uri = (fan.url.empty() ? String() : createURI("fan", fan.url)),
-			.images = (fan.images ? maybe(fan.images->map<MediaItem::Image>([&](auto& image) {
+			.images = (fan.images ? maybe(fan.images->map([&](auto& image) -> MediaItem::Image {
 				return createImage(std::move(image));
 			})) : std::nullopt)
 		};
@@ -513,21 +513,21 @@ namespace sh {
 
 	Promise<Track::Data> BandcampMediaProvider::getTrackData(String uri) {
 		auto uriParts = parseURI(uri);
-		return bandcamp->getTrack(uriParts.url).map<Track::Data>([=](auto track) {
+		return bandcamp->getTrack(uriParts.url).map([=](auto track) -> Track::Data {
 			return createTrackData(track, false);
 		});
 	}
 
 	Promise<Artist::Data> BandcampMediaProvider::getArtistData(String uri) {
 		auto uriParts = parseURI(uri);
-		return bandcamp->getArtist(uriParts.url).map<Artist::Data>([=](auto artist) {
+		return bandcamp->getArtist(uriParts.url).map([=](auto artist) -> Artist::Data {
 			return createArtistData(artist, false);
 		});
 	}
 
 	Promise<Album::Data> BandcampMediaProvider::getAlbumData(String uri) {
 		auto uriParts = parseURI(uri);
-		return bandcamp->getAlbum(uriParts.url).map<Album::Data>([=](auto album) {
+		return bandcamp->getAlbum(uriParts.url).map([=](auto album) -> Album::Data {
 			return createAlbumData(album, false);
 		});
 	}
@@ -538,7 +538,7 @@ namespace sh {
 
 	Promise<UserAccount::Data> BandcampMediaProvider::getUserData(String uri) {
 		auto uriParts = parseURI(uri);
-		return bandcamp->getFan(uriParts.url).map<UserAccount::Data>([=](auto fan) {
+		return bandcamp->getFan(uriParts.url).map([=](auto fan) -> UserAccount::Data {
 			return createUserData(fan);
 		});
 	}
@@ -553,14 +553,14 @@ namespace sh {
 	Promise<std::tuple<$<Artist>,LinkedList<$<Album>>>> BandcampMediaProvider::getArtistAndAlbums(String artistURI) {
 		using ArtistAlbumsTuple = std::tuple<$<Artist>,LinkedList<$<Album>>>;
 		auto uriParts = parseURI(artistURI);
-		return bandcamp->getArtist(uriParts.url).map<ArtistAlbumsTuple>([=](auto bcArtist) {
+		return bandcamp->getArtist(uriParts.url).map([=](auto bcArtist) -> ArtistAlbumsTuple {
 			if(!bcArtist.albums) {
 				throw std::runtime_error("Failed to parse bandcamp artist's albums");
 			}
 			auto artist = this->artist(createArtistData(bcArtist, false));
 			return ArtistAlbumsTuple{
 				artist,
-				bcArtist.albums->template map<$<Album>>([=](auto bcAlbum) {
+				bcArtist.albums->map([=](auto bcAlbum) -> $<Album> {
 					auto data = createAlbumData(bcAlbum, true);
 					for(size_t i=0; i<data.artists.size(); i++) {
 						auto cmpArtist = data.artists[i];
@@ -579,7 +579,7 @@ namespace sh {
 		using YieldResult = ArtistAlbumsGenerator::YieldResult;
 		auto uriParts = parseURI(artistURI);
 		return ArtistAlbumsGenerator([=]() {
-			return getArtistAndAlbums(uriParts.url).map<YieldResult>([=](auto tuple) {
+			return getArtistAndAlbums(uriParts.url).map([=](auto tuple) -> YieldResult {
 				auto& albums = std::get<LinkedList<$<Album>>>(tuple);
 				size_t total = albums.size();
 				return YieldResult{
@@ -831,7 +831,7 @@ namespace sh {
 						}
 					}
 					bool dequeuedAll = (pendingItemCount >= sharedData->pendingItems.size());
-					return promise.map<YieldResult>([=]() {
+					return promise.map([=]() -> YieldResult {
 						// delete items from pendingItems
 						for(auto& it : dequeuedIts) {
 							sharedData->pendingItems.erase(it);

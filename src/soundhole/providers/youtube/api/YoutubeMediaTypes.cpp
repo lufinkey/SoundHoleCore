@@ -12,6 +12,14 @@
 #include <soundhole/utils/js/JSUtils.hpp>
 
 namespace sh {
+	YoutubePageInfo YoutubePageInfo::fromJson(const Json& json) {
+		return YoutubePageInfo{
+				.totalResults = (size_t)json["totalResults"].number_value(),
+				.resultsPerPage = (size_t)json["resultsPerPage"].number_value()
+		};
+	}
+
+
 	YoutubeImage::Size YoutubeImage::Size_fromString(const std::string& str) {
 		if(str == "default") {
 			return Size::DEFAULT;
@@ -148,7 +156,7 @@ namespace sh {
 			.description = json["description"].string_value(),
 			.publishedAt = json["publishedAt"].string_value(),
 			.thumbnails = YoutubeImage::arrayFromJson(json["thumbnails"]),
-			.tags = jsutils::arrayListFromJson<String>(json["tags"], [](auto& json) {
+			.tags = jsutils::arrayListFromJson(json["tags"], [](auto& json) -> String {
 				return json.string_value();
 			}),
 			.categoryId = json["categoryId"].string_value(),
@@ -322,10 +330,10 @@ namespace sh {
 
 	YoutubeChannel::TopicDetails YoutubeChannel::TopicDetails::fromJson(const Json& json) {
 		return TopicDetails{
-			.topicIds = jsutils::arrayListFromJson<String>(json["topicIds"], [](auto& json) {
+			.topicIds = jsutils::arrayListFromJson(json["topicIds"], [](auto& json) -> String {
 				return json.string_value();
 			}),
-			.topicCategories = jsutils::arrayListFromJson<String>(json["topicCategories"], [](auto& json) {
+			.topicCategories = jsutils::arrayListFromJson(json["topicCategories"], [](auto& json) -> String {
 				return json.string_value();
 			})
 		};
@@ -333,8 +341,8 @@ namespace sh {
 
 	Json YoutubeChannel::TopicDetails::toJson() const {
 		return Json::object{
-			{ "topicIds", topicIds.map<Json>([](auto& id) { return Json((std::string)id); }) },
-			{ "topicCategories", topicCategories.map<Json>([](auto& cat) { return Json((std::string)cat); }) }
+			{ "topicIds", topicIds.map([](auto& id) { return Json((std::string)id); }) },
+			{ "topicCategories", topicCategories.map([](auto& cat) { return Json((std::string)cat); }) }
 		};
 	}
 
@@ -377,10 +385,10 @@ namespace sh {
 
 	YoutubeChannelSection::ContentDetails YoutubeChannelSection::ContentDetails::fromJson(const Json& json) {
 		return ContentDetails{
-			.playlists = jsutils::arrayListFromJson<String>(json["playlists"], [](auto& json) {
+			.playlists = jsutils::arrayListFromJson(json["playlists"], [](auto& json) -> String {
 				return json.string_value();
 			}),
-			.channels = jsutils::arrayListFromJson<String>(json["channels"], [](auto& json) {
+			.channels = jsutils::arrayListFromJson(json["channels"], [](auto& json) -> String {
 				return json.string_value();
 			})
 		};
@@ -400,13 +408,13 @@ namespace sh {
 
 	YoutubeChannelSection::Targeting YoutubeChannelSection::Targeting::fromJson(const Json& json) {
 		return Targeting{
-			.languages = jsutils::arrayListFromJson<String>(json["languages"], [](auto& json) {
+			.languages = jsutils::arrayListFromJson(json["languages"], [](auto& json) -> String {
 				return json.string_value();
 			}),
-			.regions = jsutils::arrayListFromJson<String>(json["regions"], [](auto& json) {
+			.regions = jsutils::arrayListFromJson(json["regions"], [](auto& json) -> String {
 				return json.string_value();
 			}),
-			.countries = jsutils::arrayListFromJson<String>(json["countries"], [](auto& json) {
+			.countries = jsutils::arrayListFromJson(json["countries"], [](auto& json) -> String {
 				return json.string_value();
 			})
 		};
@@ -440,7 +448,7 @@ namespace sh {
 			.description = json["description"].string_value(),
 			.publishedAt = json["publishedAt"].string_value(),
 			.thumbnails = YoutubeImage::arrayFromJson(json["thumbnails"]),
-			.tags = jsutils::arrayListFromJson<String>(json["tags"], [](auto& json) {
+			.tags = jsutils::arrayListFromJson(json["tags"], [](auto& json) -> String {
 				return json.string_value();
 			}),
 			.defaultLanguage = json["defaultLanguage"].string_value(),
@@ -560,7 +568,7 @@ namespace sh {
 	YoutubeVideoInfo YoutubeVideoInfo::fromNapiObject(Napi::Object obj) {
 		return YoutubeVideoInfo{
 			.thumbnailURL = jsutils::stringFromNapiValue(obj.Get("thumbnail_url")),
-			.formats = jsutils::arrayListFromNapiValue<Format>(obj.Get("formats"), [](Napi::Value value) {
+			.formats = jsutils::arrayListFromNapiValue(obj.Get("formats"), [](Napi::Value value) -> Format {
 				return Format::fromNapiObject(value.As<Napi::Object>());
 			}),
 			.media = Media::maybeFromNapiObject(obj.Get("media").As<Napi::Object>()),
@@ -617,7 +625,7 @@ namespace sh {
 			.title = jsutils::stringFromNapiValue(obj.Get("title")),
 			.shortDescription = jsutils::stringFromNapiValue(obj.Get("shortDescription")),
 			.lengthSeconds = jsutils::stringFromNapiValue(obj.Get("lengthSeconds")),
-			.keywords = jsutils::arrayListFromNapiValue<String>(obj.Get("keywords"), [](Napi::Value obj) {
+			.keywords = jsutils::arrayListFromNapiValue(obj.Get("keywords"), [](Napi::Value obj) -> String {
 				return jsutils::stringFromNapiValue(obj);
 			}),
 			.channelId = jsutils::stringFromNapiValue(obj.Get("channelId")),
@@ -638,7 +646,7 @@ namespace sh {
 
 	YoutubeVideoInfo::VideoDetails::Thumbnail YoutubeVideoInfo::VideoDetails::Thumbnail::fromNapiObject(Napi::Object obj) {
 		return Thumbnail{
-			.thumbnails=jsutils::arrayListFromNapiValue<YoutubeVideoInfo::Image>(obj.Get("thumbnails"), [](Napi::Value obj) {
+			.thumbnails=jsutils::arrayListFromNapiValue(obj.Get("thumbnails"), [](Napi::Value obj) -> YoutubeVideoInfo::Image {
 				return YoutubeVideoInfo::Image::fromNapiObject(obj.As<Napi::Object>());
 			})
 		};

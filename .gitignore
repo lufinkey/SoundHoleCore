@@ -93,3 +93,4 @@ py_prefix
 /external/cxxurl
 /external/dtl
 /external/*.aar
+/external/sqlite

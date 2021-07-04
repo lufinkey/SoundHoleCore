@@ -15,7 +15,7 @@ namespace sh {
 	template<typename T>
 	GoogleDriveFilesPage<T> GoogleDriveFilesPage<T>::fromJson(const Json& json) {
 		return GoogleDriveFilesPage<T>{
-			.items = jsutils::arrayListFromJson<T>(json["items"], [](auto& item) -> T {
+			.items = jsutils::arrayListFromJson(json["items"], [](auto& item) -> T {
 				return T::fromJson(item);
 			}),
 			.nextPageToken = json["nextPageToken"].string_value()
@@ -25,7 +25,7 @@ namespace sh {
 	template<typename T>
 	GoogleDriveFilesPage<T> GoogleDriveFilesPage<T>::fromJson(const Json& json, MediaProviderStash* stash) {
 		return GoogleDriveFilesPage<T>{
-			.items = jsutils::arrayListFromJson<T>(json["items"], [&](auto& item) -> T {
+			.items = jsutils::arrayListFromJson(json["items"], [&](auto& item) -> T {
 				return T::fromJson(item, stash);
 			}),
 			.nextPageToken = json["nextPageToken"].string_value()

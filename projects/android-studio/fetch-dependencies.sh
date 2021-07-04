@@ -9,4 +9,3 @@ base_dir="$PWD"
 cd ../../ || exit $?
 ./tools/fetch_shared_dependencies.sh || exit $?
 ./tools/fetch_header_dependencies.sh || exit $?
-./tools/fetch_android_dependencies.sh || exit $?

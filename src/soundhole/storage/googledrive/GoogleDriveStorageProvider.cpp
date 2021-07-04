@@ -244,7 +244,7 @@ namespace sh {
 	#pragma mark Current User
 
 	Promise<ArrayList<String>> GoogleDriveStorageProvider::getCurrentUserURIs() {
-		return getIdentity().map<ArrayList<String>>([=](Optional<GoogleDriveStorageProviderUser> user) {
+		return getIdentity().map([=](Optional<GoogleDriveStorageProviderUser> user) -> ArrayList<String> {
 			if(!user) {
 				return ArrayList<String>{};
 			}
@@ -368,7 +368,7 @@ namespace sh {
 				}
 				auto page = GoogleDriveFilesPage<Playlist::Data>::fromJson(json, this->mediaProviderStash);
 				auto loadBatch = MediaProvider::LoadBatch<$<Playlist>>{
-					.items = page.items.template map<$<Playlist>>([=](auto& playlistData) {
+					.items = page.items.map([=](auto& playlistData) -> $<Playlist> {
 						return this->mediaItemBuilder->playlist(playlistData);
 					}),
 					.total = std::nullopt
@@ -411,7 +411,7 @@ namespace sh {
 				}
 				auto page = GoogleDriveFilesPage<Playlist::Data>::fromJson(json, this->mediaProviderStash);
 				auto loadBatch = MediaProvider::LoadBatch<$<Playlist>>{
-					.items = page.items.template map<$<Playlist>>([=](auto& playlistData) {
+					.items = page.items.map([=](auto& playlistData) -> $<Playlist> {
 						return this->mediaItemBuilder->playlist(playlistData);
 					}),
 					.total = std::nullopt
@@ -462,7 +462,7 @@ namespace sh {
 		return performAsyncJSAPIFunc<GoogleDrivePlaylistItemsPage>("insertPlaylistItems", [=](napi_env env) {
 			auto jsExports = scripts::getJSExports(env);
 			auto json_decode = jsExports.Get("json_decode").As<Napi::Function>();
-			auto tracksJson = Json(tracks.map<Json>([&](auto& track) {
+			auto tracksJson = Json(tracks.map([&](auto& track) -> Json {
 				return track->toJson();
 			})).dump();
 			auto tracksArray = json_decode.Call({ Napi::String::New(env, tracksJson) }).As<Napi::Object>();
@@ -488,7 +488,7 @@ namespace sh {
 		return performAsyncJSAPIFunc<GoogleDrivePlaylistItemsPage>("appendPlaylistItems", [=](napi_env env) {
 			auto jsExports = scripts::getJSExports(env);
 			auto json_decode = jsExports.Get("json_decode").As<Napi::Function>();
-			auto tracksJson = Json(tracks.map<Json>([&](auto& track) {
+			auto tracksJson = Json(tracks.map([&](auto& track) -> Json {
 				return track->toJson();
 			})).dump();
 			auto tracksArray = json_decode.Call({ Napi::String::New(env, tracksJson) }).As<Napi::Object>();

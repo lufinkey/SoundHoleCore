@@ -35,7 +35,7 @@ namespace sh {
 				.offset=index,
 				.limit=count
 			}).then([=](SpotifyPage<SpotifyTrack> page) -> void {
-				auto items = page.items.map<$<AlbumItem>>([&](auto& track) {
+				auto items = page.items.map([&](auto& track) -> $<AlbumItem> {
 					auto trackData = provider->createTrackData(track, true);
 					trackData.albumName = album->name();
 					trackData.albumURI = album->uri();

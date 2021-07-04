@@ -84,7 +84,7 @@ namespace sh {
 			mediaItemData,
 			.albumName = albumName.string_value(),
 			.albumURI = albumURI.string_value(),
-			.artists = ArrayList<Json>(artists.array_items()).map<$<Artist>>([=](auto& artistJson) {
+			.artists = ArrayList<Json>(artists.array_items()).map([=](auto& artistJson) -> $<Artist> {
 				auto providerName = artistJson["provider"];
 				if(!providerName.is_string()) {
 					throw std::invalid_argument("artist provider must be a string");
@@ -95,13 +95,13 @@ namespace sh {
 				}
 				return provider->artist(Artist::Data::fromJson(artistJson, stash));
 			}),
-			.tags = ArrayList<Json>(tags.array_items()).map<String>([](auto& tagJson) {
+			.tags = ArrayList<Json>(tags.array_items()).map([](auto& tagJson) -> String {
 				return tagJson.string_value();
 			}),
 			.discNumber = (!discNumber.is_null()) ? maybe((size_t)discNumber.number_value()) : std::nullopt,
 			.trackNumber = (!trackNumber.is_null()) ? maybe((size_t)trackNumber.number_value()) : std::nullopt,
 			.duration = (!duration.is_null()) ? maybe(duration.number_value()) : std::nullopt,
-			.audioSources = ArrayList<Json>(audioSources.array_items()).map<AudioSource>([](auto& audioSourceJson) {
+			.audioSources = ArrayList<Json>(audioSources.array_items()).map([](auto& audioSourceJson) -> AudioSource {
 				return AudioSource::fromJson(audioSourceJson);
 			}),
 			.playable = playable.is_null() ? Optional<bool>() : playable.is_number() ? (playable.number_value() != 0) : playable.bool_value()
@@ -292,16 +292,16 @@ namespace sh {
 		json.merge(Json::object{
 			{"albumName", (std::string)_albumName},
 			{"albumURI", (std::string)_albumURI},
-			{"artists", Json(_artists.map<Json>([&](auto& artist) {
+			{"artists", Json(_artists.map([&](auto& artist) -> Json {
 				return artist->toJson();
 			}))},
-			{"tags", (_tags ? Json(_tags->map<Json>([&](auto& tag) {
+			{"tags", (_tags ? Json(_tags->map([&](auto& tag) -> Json {
 				return Json((std::string)tag);
 			})) : Json())},
 			{"discNumber", (_discNumber ? Json((double)_discNumber.value()) : Json())},
 			{"trackNumber", (_trackNumber ? Json((double)_trackNumber.value()) : Json())},
 			{"duration", (_duration ? Json(_duration.value()) : Json())},
-			{"audioSources" ,(_audioSources ? Json(_audioSources->map<Json>([&](auto& audioSource) {
+			{"audioSources" ,(_audioSources ? Json(_audioSources->map([&](auto& audioSource) -> Json {
 				return audioSource.toJson();
 			})) : Json())},
 			{"playable", _playable.hasValue() ? Json(_playable.value()) : Json()}

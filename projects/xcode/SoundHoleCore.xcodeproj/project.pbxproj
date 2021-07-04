@@ -1988,7 +1988,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include",
-					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include/nodejs",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include/node",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/node/deps/openssl/openssl/include",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/addon-api",
 				);
@@ -2014,7 +2014,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include",
-					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include/nodejs",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/include/node",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/mobile/node/deps/openssl/openssl/include",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/addon-api",
 				);
@@ -2089,7 +2089,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/desktop/include",
-					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/desktop/include/nodejs",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/desktop/include/node",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/desktop/node/deps/openssl/openssl/include",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/addon-api",
 				);
@@ -2107,7 +2107,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/desktop/include",
-					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/desktop/include/nodejs",
+					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/desktop/include/node",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/desktop/node/deps/openssl/openssl/include",
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/addon-api",
 				);

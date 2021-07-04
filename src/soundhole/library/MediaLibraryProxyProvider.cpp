@@ -154,7 +154,7 @@ namespace sh {
 			.libraryProvider = (options.filters.libraryProvider != nullptr) ? options.filters.libraryProvider->name() : String(),
 			.orderBy = options.filters.orderBy,
 			.order = options.filters.order
-		}).map<$<MediaLibraryTracksCollection>>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
+		}).map(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) -> $<MediaLibraryTracksCollection> {
 			auto items = Map<size_t,MediaLibraryTracksCollectionItem::Data>();
 			size_t itemIndex = startIndex;
 			for(auto& jsonItem : results.items) {

@@ -38,16 +38,16 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   AsyncCpp:
-    :commit: 5b5ab28e428fdc4ce29b80a5b123135781f9121c
+    :commit: a78910382a9070b6283cfdad5899b50371acba66
     :git: "git@github.com:lufinkey/async-cpp.git"
   DataCpp:
-    :commit: 8a3f5c6a0b3b10bdf3b2321517783cc4fc8a2849
+    :commit: 4519364bab6b04015afb91b042eb271d09113352
     :git: "git@github.com:lufinkey/data-cpp.git"
   IOCpp:
-    :commit: 774464237459961b60d3f23e2c4c2cd18294afcf
+    :commit: 2d7c0684dbd077190829d476865aa61a0fafd0dd
     :git: "git@github.com:lufinkey/io-cpp.git"
   NodeJSEmbed:
-    :commit: 2acfbfa7ee977be2ba6ce084e1d3355f7e0ec141
+    :commit: 4ff9b09535962137931b655d467cab66b09dcab6
     :git: "git@github.com:lufinkey/nodejs-embed.git"
   NodeMobile:
     :commit: d4af0e6bdaf753d1f0d69db13627dcdffc90c436
@@ -57,7 +57,7 @@ SPEC CHECKSUMS:
   AsyncCpp: 35f9851e7fc9e82a2b90c98b4f917fe8745ce5e5
   DataCpp: 5664e08f413ed70bddd91b0ee9a1b930bbf248ca
   IOCpp: 0a368d96b3b7acdd54febee533aa251afb0a60d3
-  NodeJSEmbed: f0c7b278489e1c632581127d6837ab182c27ed92
+  NodeJSEmbed: 7b14f82d08f52863c3dc76b8fb5449118de2cf0e
   NodeMobile: d6a5a252d4774c89c360f627f166b727b07b9aee
   sqlite3: 797b1b1f92baf74716a3179f69d9652ce4a5df3f
 

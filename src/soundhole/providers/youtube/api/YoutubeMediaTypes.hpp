@@ -56,26 +56,26 @@ namespace sh {
 
 
 
+	struct YoutubePageInfo {
+		size_t totalResults;
+		size_t resultsPerPage;
+
+		static YoutubePageInfo fromJson(const Json&);
+	};
+
 	template<typename T>
 	struct YoutubePage {
-		struct PageInfo {
-			size_t totalResults;
-			size_t resultsPerPage;
-			
-			static PageInfo fromJson(const Json&);
-		};
-		
 		String kind;
 		String etag;
 		String prevPageToken;
 		String nextPageToken;
-		PageInfo pageInfo;
+		YoutubePageInfo pageInfo;
 		ArrayList<T> items;
 		
 		static YoutubePage<T> fromJson(const Json&);
 		
-		template<typename U>
-		YoutubePage<U> map(Function<U(const T&)> mapper) const;
+		template<typename Transform>
+		auto map(Transform transform) const;
 	};
 
 	template<typename T>
@@ -86,8 +86,8 @@ namespace sh {
 		
 		static YoutubeItemList<T> fromJson(const Json&);
 		
-		template<typename U>
-		YoutubeItemList<U> map(Function<U(const T&)> mapper) const;
+		template<typename Transform>
+		auto map(Transform transform) const;
 	};
 
 

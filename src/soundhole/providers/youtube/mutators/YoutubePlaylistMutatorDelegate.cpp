@@ -240,7 +240,7 @@ namespace sh {
 		
 		auto promise = Promise<void>::resolve();
 		size_t i = index;
-		auto trackIds = tracks.map<String>([=](auto& track) {
+		auto trackIds = tracks.map([=](auto& track) -> String {
 			return provider->parseURI(track->uri()).id;
 		});
 		for(auto trackId : trackIds) {
@@ -263,7 +263,7 @@ namespace sh {
 		auto provider = (YoutubeMediaProvider*)playlist->mediaProvider();
 		auto playlistId = provider->parseURI(playlist->uri()).id;
 		
-		auto trackIds = tracks.map<String>([=](auto& track) {
+		auto trackIds = tracks.map([=](auto& track) -> String {
 			return provider->parseURI(track->uri()).id;
 		});
 		auto promise = Promise<void>::resolve();
@@ -292,7 +292,7 @@ namespace sh {
 			.onlyValidItems = false
 		});
 		size_t itemIdOffset = 0;
-		auto itemMarkers = items.map<std::tuple<String,AsyncListIndexMarker>>([&](auto& item) {
+		auto itemMarkers = items.map([&](auto& item) -> std::tuple<String,AsyncListIndexMarker> {
 			auto itemId = item->uniqueId();
 			if(itemId.empty()) {
 				throw std::runtime_error("Missing uniqueId prop for item at index "+std::to_string(index+itemIdOffset));
@@ -311,7 +311,7 @@ namespace sh {
 					return provider->youtube->deletePlaylistItem(uniqueItemId).then([=]() {
 						auto indexMarkers = itemMarkers
 							.where([&](auto& tuple) { return std::get<0>(tuple) == uniqueItemId; })
-							.map<AsyncListIndexMarker>([&](auto& tuple) { return std::get<1>(tuple); });
+							.map([&](auto& tuple) { return std::get<1>(tuple); });
 						indexMarkers.sort([](auto& a, auto& b) {
 							return a->index >= b->index;
 						});
@@ -364,7 +364,7 @@ namespace sh {
 			return Promise<void>::reject(std::runtime_error("Cannot move youtube playlist items which are not loaded"));
 		}
 		size_t itemOffset = 0;
-		auto itemMarkers = items.map<std::tuple<$<PlaylistItem>,AsyncListIndexMarker>>([&](auto& item) {
+		auto itemMarkers = items.map([&](auto& item) -> std::tuple<$<PlaylistItem>,AsyncListIndexMarker> {
 			if(item->uniqueId().empty()) {
 				throw std::runtime_error("Missing youtubePlaylistItemId prop for item at index "+std::to_string(index+itemOffset));
 			}

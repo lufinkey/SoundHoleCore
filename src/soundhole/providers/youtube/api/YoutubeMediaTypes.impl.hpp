@@ -13,40 +13,33 @@
 
 namespace sh {
 	template<typename T>
-	typename YoutubePage<T>::PageInfo YoutubePage<T>::PageInfo::fromJson(const Json& json) {
-		return PageInfo{
-			.totalResults = (size_t)json["totalResults"].number_value(),
-			.resultsPerPage = (size_t)json["resultsPerPage"].number_value()
-		};
-	}
-	
-	template<typename T>
 	YoutubePage<T> YoutubePage<T>::fromJson(const Json& json) {
 		return YoutubePage<T>{
 			.kind = json["kind"].string_value(),
 			.etag = json["etag"].string_value(),
 			.prevPageToken = json["prevPageToken"].string_value(),
 			.nextPageToken = json["nextPageToken"].string_value(),
-			.pageInfo = PageInfo::fromJson(json["pageInfo"]),
-			.items = jsutils::arrayListFromJson<T>(json["items"], [](auto& json){
+			.pageInfo = YoutubePageInfo::fromJson(json["pageInfo"]),
+			.items = jsutils::arrayListFromJson(json["items"], [](auto& json) -> T {
 				return T::fromJson(json);
 			})
 		};
 	}
 
 	template<typename T>
-	template<typename U>
-	YoutubePage<U> YoutubePage<T>::map(Function<U(const T&)> mapper) const {
-		return YoutubePage<U>{
+	template<typename Transform>
+	auto YoutubePage<T>::map(Transform transform) const {
+		using ReturnType = decltype(transform(std::declval<const T>()));
+		return YoutubePage<ReturnType>{
 			.kind=kind,
 			.etag=etag,
 			.prevPageToken=prevPageToken,
 			.nextPageToken=nextPageToken,
-			.pageInfo=typename YoutubePage<U>::PageInfo{
+			.pageInfo=YoutubePageInfo{
 				.totalResults=pageInfo.totalResults,
 				.resultsPerPage=pageInfo.resultsPerPage
 			},
-			.items=items.template map<U>(mapper)
+			.items=items.map(transform)
 		};
 	}
 
@@ -57,19 +50,20 @@ namespace sh {
 		return YoutubeItemList<T>{
 			.kind = json["kind"].string_value(),
 			.etag = json["etag"].string_value(),
-			.items = jsutils::arrayListFromJson<T>(json["items"], [](auto& json){
+			.items = jsutils::arrayListFromJson(json["items"], [](auto& json) -> T {
 				return T::fromJson(json);
 			})
 		};
 	}
 
 	template<typename T>
-	template<typename U>
-	YoutubeItemList<U> YoutubeItemList<T>::map(Function<U(const T&)> mapper) const {
-		return YoutubeItemList<U>{
+	template<typename Transform>
+	auto YoutubeItemList<T>::map(Transform transform) const {
+		using ReturnType = decltype(transform(std::declval<T>()));
+		return YoutubeItemList<ReturnType>{
 			.kind=kind,
 			.etag=etag,
-			.items=items.template map<U>(mapper)
+			.items=items.map(transform)
 		};
 	}
 }

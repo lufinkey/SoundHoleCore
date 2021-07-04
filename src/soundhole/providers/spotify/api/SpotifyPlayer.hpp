@@ -21,6 +21,14 @@
 #include "SpotifyAuth.hpp"
 #include "SpotifyError.hpp"
 #include "SpotifyPlayerEventListener.hpp"
+#if defined(JNIEXPORT) && defined(__ANDROID__)
+#include <soundhole/jnicpp/android/spotify/SpotifyUtils_jni.hpp>
+#include <soundhole/jnicpp/android/spotify/SpotifyPlayer_jni.hpp>
+#include <soundhole/jnicpp/android/spotify/SpotifyPlayerEventHandler_jni.hpp>
+#include <soundhole/jnicpp/android/spotify/SpotifyTrack_jni.hpp>
+#include <soundhole/jnicpp/android/spotify/SpotifyPlaybackState_jni.hpp>
+#include <soundhole/jnicpp/android/spotify/SpotifyMetadata_jni.hpp>
+#endif
 
 namespace sh {
 	class SpotifyPlayer: protected SpotifyAuthEventListener {
@@ -105,10 +113,10 @@ namespace sh {
 		static Track trackFromSPTPlaybackTrack(SPTPlaybackTrack* track);
 		static Metadata metadataFromSPTPlaybackMetadata(SPTPlaybackMetadata* metadata);
 		#endif
-		#if defined(JNIEXPORT) && defined(TARGETPLATFORM_ANDROID)
-		static State stateFromAndroidState(JNIEnv* env, jobject state);
-		static Track trackFromAndroidTrack(JNIEnv* env, jobject track, jobject metadata);
-		static Metadata metadataFromAndroidMetadata(JNIEnv* env, jobject metadata);
+		#if defined(JNIEXPORT) && defined(__ANDROID__)
+		static State stateFromAndroidState(JNIEnv* env, jni::android::spotify::SpotifyPlaybackState state);
+		static Track trackFromAndroidTrack(JNIEnv* env, jni::android::spotify::SpotifyTrack track, jni::android::spotify::SpotifyMetadata metadata);
+		static Metadata metadataFromAndroidMetadata(JNIEnv* env, jni::android::spotify::SpotifyMetadata metadata);
 		#endif
 		
 	protected:
@@ -148,10 +156,10 @@ namespace sh {
 		OBJCPP_PTR(SPTAudioStreamingController) player;
 		OBJCPP_PTR(SpotifyPlayerEventHandler) playerEventHandler;
 		#endif
-		#ifdef TARGETPLATFORM_ANDROID
-		void* spotifyUtils;
-		void* player;
-		void* playerEventHandler;
+		#ifdef __ANDROID__
+		JNI_PTR(jni::android::spotify::SpotifyUtils) spotifyUtils;
+		JNI_PTR(jni::android::spotify::SpotifyPlayer) player;
+		JNI_PTR(jni::android::spotify::SpotifyPlayerEventHandler) playerEventHandler;
 		#endif
 		
 		bool starting;

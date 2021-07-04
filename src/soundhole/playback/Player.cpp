@@ -427,7 +427,7 @@ namespace sh {
 				nowPlaying.title = metadata.currentTrack->name();
 				auto artists = metadata.currentTrack->artists();
 				if(artists.size() > 0) {
-					nowPlaying.artist = String::join(metadata.currentTrack->artists().map<String>([](auto& a){ return a->name(); }), ", ");
+					nowPlaying.artist = String::join(metadata.currentTrack->artists().map([](auto& a){ return a->name(); }), ", ");
 				}
 				if(!metadata.currentTrack->albumURI().empty()) {
 					nowPlaying.albumTitle = metadata.currentTrack->albumName();

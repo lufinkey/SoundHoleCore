@@ -278,7 +278,7 @@ namespace sh {
 			.forceReload = options.forceReload,
 			.trackIndexChanges = options.trackIndexChanges,
 			.loadOptions = options.toDict()
-		}).template map<$<TrackCollectionItem>>(nullptr, [](auto item) {
+		}).map(nullptr, [](auto item) -> $<TrackCollectionItem> {
 			return std::static_pointer_cast<TrackCollectionItem>(item.value_or(nullptr));
 		});
 	}
@@ -304,8 +304,8 @@ namespace sh {
 			.forceReload = options.forceReload,
 			.trackIndexChanges = options.trackIndexChanges,
 			.loadOptions = options.toDict()
-		}).template map<LinkedList<$<TrackCollectionItem>>>(nullptr, [](auto items) {
-			return items.template map<$<TrackCollectionItem>>([](auto& item) {
+		}).map(nullptr, [](auto items) -> LinkedList<$<TrackCollectionItem>> {
+			return items.map([](auto& item) -> $<TrackCollectionItem> {
 				return std::static_pointer_cast<TrackCollectionItem>(item);
 			});
 		});
@@ -322,8 +322,8 @@ namespace sh {
 				.forceReload = options.forceReload,
 				.trackIndexChanges = options.trackIndexChanges,
 				.loadOptions = options.toDict()
-			}).template map<LinkedList<$<TrackCollectionItem>>>([](auto items) {
-				return items.template map<$<TrackCollectionItem>>([](auto& item) {
+			}).map([](auto items) -> LinkedList<$<TrackCollectionItem>> {
+				return items.map([](auto& item) -> $<TrackCollectionItem> {
 					return std::static_pointer_cast<TrackCollectionItem>(item);
 				});
 			});
@@ -807,7 +807,7 @@ namespace sh {
 		auto json = TrackCollection::toJson(options).object_items();
 		if(auto items = std::get_if<LinkedList<$<ItemType>>>(&_items)) {
 			json.merge(Json::object{
-				{ "items", items->template map<Json>([&](auto& item) {
+				{ "items", items->map([&](auto& item) -> Json {
 					return item->toJson();
 				}) }
 			});

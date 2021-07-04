@@ -75,7 +75,7 @@ namespace sh {
 	}
 
 	Promise<bool> Bandcamp::login() {
-		return auth->login().map<bool>([=](bool loggedIn) {
+		return auth->login().map([=](bool loggedIn) -> bool {
 			queueUpdateJSSession(auth->getSession());
 			return loggedIn;
 		});

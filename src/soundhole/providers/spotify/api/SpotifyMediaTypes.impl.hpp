@@ -23,7 +23,7 @@ namespace sh {
 			.total = (size_t)json["total"].number_value(),
 			.previous = (previousString != "null") ? nextString : "",
 			.next = (nextString != "null") ? nextString : "",
-			.items = jsutils::arrayListFromJson<T>(json["items"], [](auto& item) -> T {
+			.items = jsutils::arrayListFromJson(json["items"], [](auto& item) -> T {
 				return T::fromJson(item);
 			})
 		};
@@ -38,16 +38,17 @@ namespace sh {
 	}
 
 	template<typename T>
-	template<typename U>
-	SpotifyPage<U> SpotifyPage<T>::map(Function<U(const T&)> mapper) const {
-		return SpotifyPage<U>{
+	template<typename Transform>
+	auto SpotifyPage<T>::map(Transform transform) const {
+		using ReturnType = decltype(transform(std::declval<const T>()));
+		return SpotifyPage<ReturnType>{
 			.href=href,
 			.limit=limit,
 			.offset=offset,
 			.total=total,
 			.previous=previous,
 			.next=next,
-			.items=items.template map<U>(mapper)
+			.items=items.map(transform)
 		};
 	}
 
@@ -62,7 +63,7 @@ namespace sh {
 			.limit = (size_t)json["limit"].number_value(),
 			.total = (size_t)json["total"].number_value(),
 			.next = (nextString != "null") ? nextString : "",
-			.items = jsutils::arrayListFromJson<T>(json["items"], [](auto& item) -> T {
+			.items = jsutils::arrayListFromJson(json["items"], [](auto& item) -> T {
 				return T::fromJson(item);
 			})
 		};

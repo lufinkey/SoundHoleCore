@@ -297,7 +297,7 @@ namespace sh {
 			queuedProviders.sort([](auto& a, auto& b) {
 				return a.index <= b.index;
 			});
-			providers->insert(providers->begin(), queuedProviders.template map<MediaProvider*>([](auto& node) {
+			providers->insert(providers->begin(), queuedProviders.map([](auto& node) -> MediaProvider* {
 				return node.provider;
 			}));
 			
@@ -359,7 +359,7 @@ namespace sh {
 							std::this_thread::sleep_for(std::chrono::milliseconds(500));
 						}
 					});
-				}).template map<YieldResult>([=]() {
+				}).map([=]() -> YieldResult {
 					return YieldResult{
 						.done = false
 					};
@@ -386,8 +386,8 @@ namespace sh {
 			.libraryProvider = (filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : String(),
 			.orderBy=filters.orderBy,
 			.order=filters.order
-		}).map<LinkedList<$<Album>>>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
-			return results.items.map<$<Album>>([=](Json json) {
+		}).map(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) -> LinkedList<$<Album>> {
+			return results.items.map([=](Json json) -> $<Album> {
 				auto mediaItemJson = json["mediaItem"];
 				auto providerName = mediaItemJson["provider"];
 				if(!providerName.is_string()) {
@@ -419,8 +419,8 @@ namespace sh {
 				},
 				.orderBy = options.filters.orderBy,
 				.order = options.filters.order
-			}).map<YieldResult>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
-				auto albums = results.items.map<$<Album>>([=](Json json) {
+			}).map(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) -> YieldResult {
+				auto albums = results.items.map([=](Json json) -> $<Album> {
 					auto mediaItemJson = json["mediaItem"];
 					auto providerName = mediaItemJson["provider"];
 					if(!providerName.is_string()) {
@@ -456,8 +456,8 @@ namespace sh {
 			.libraryProvider = (filters.libraryProvider != nullptr) ? filters.libraryProvider->name() : String(),
 			.orderBy=filters.orderBy,
 			.order=filters.order
-		}).map<LinkedList<$<Playlist>>>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
-			return results.items.map<$<Playlist>>([=](Json json) {
+		}).map(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) -> LinkedList<$<Playlist>> {
+			return results.items.map([=](Json json) -> $<Playlist> {
 				auto mediaItemJson = json["mediaItem"];
 				auto providerName = mediaItemJson["provider"];
 				if(!providerName.is_string()) {
@@ -489,8 +489,8 @@ namespace sh {
 				},
 				.orderBy = options.filters.orderBy,
 				.order = options.filters.order
-			}).map<YieldResult>(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) {
-				auto playlists = results.items.map<$<Playlist>>([=](Json json) {
+			}).map(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) -> YieldResult {
+				auto playlists = results.items.map([=](Json json) -> $<Playlist> {
 					auto mediaItemJson = json["mediaItem"];
 					auto providerName = mediaItemJson["provider"];
 					if(!providerName.is_string()) {
@@ -527,7 +527,7 @@ namespace sh {
 					.mediaItem=playlist,
 					.addedAt=String() // TODO add a default date possibly
 				}
-			}).map<$<Playlist>>([=]() {
+			}).map([=]() -> $<Playlist> {
 				return playlist;
 			});
 		});

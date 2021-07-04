@@ -104,7 +104,7 @@ namespace sh {
 		return SpotifyAuth::authenticate(authOptions);
 	}
 	Promise<bool> SpotifyAuth::login(LoginOptions options) {
-		return this->authenticate(options).map<bool>([=](Optional<SpotifySession> session) -> bool {
+		return this->authenticate(options).map([=](Optional<SpotifySession> session) -> bool {
 			if(session) {
 				loginWithSession(session.value());
 			}
@@ -201,7 +201,7 @@ namespace sh {
 			}
 			else if(!code.empty()) {
 				// authentication code
-				return swapCodeForToken(code, options).map<Optional<SpotifySession>>([=](SpotifySession session) {
+				return swapCodeForToken(code, options).map([=](SpotifySession session) -> Optional<SpotifySession> {
 					if(session.getScopes().empty() && !options.scopes.empty()) {
 						return SpotifySession(
 							session.getAccessToken(),

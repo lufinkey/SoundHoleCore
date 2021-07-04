@@ -14,7 +14,10 @@
 #endif
 #if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
 #import <AVFoundation/AVFoundation.h>
-#include "StreamPlayerEventHandler_iOS.hpp"
+#include <soundhole/playback/StreamPlayerEventHandler_iOS.hpp>
+#endif
+#ifdef JNIEXPORT
+#include <soundhole/jnicpp/android/MediaPlayer_jni.hpp>
 #endif
 
 namespace sh {
@@ -60,9 +63,9 @@ namespace sh {
 		void setPlayer(AVPlayer* player, String audioURL);
 		void destroyPlayer();
 		void destroyPreparedPlayer();
-		#elif defined(JNIEXPORT) && defined(TARGETPLATFORM_ANDROID)
-		jobject createPlayer(JNIEnv* env, String audioURL);
-		void setPlayer(JNIEnv* env, jobject player, String audioURL);
+		#elif defined(JNIEXPORT) && defined(__ANDROID__)
+		jni::android::MediaPlayer createPlayer(JNIEnv* env, String audioURL);
+		void setPlayer(JNIEnv* env, jni::android::MediaPlayer player, String audioURL);
 		void destroyPlayer(JNIEnv* env);
 		void destroyPreparedPlayer(JNIEnv* env);
 		#endif
@@ -71,10 +74,10 @@ namespace sh {
 		OBJCPP_PTR(AVPlayer) player;
 		OBJCPP_PTR(AVPlayer) preparedPlayer;
 		OBJCPP_PTR(StreamPlayerEventHandler) playerEventHandler;
-		#elif defined(TARGETPLATFORM_ANDROID)
-		void* javaVm;
-		void* player;
-		void* preparedPlayer;
+		#elif defined(__ANDROID__)
+		JNI_PTR(JavaVM*) javaVm;
+		JNI_PTR(jni::android::MediaPlayer) player;
+		JNI_PTR(jni::android::MediaPlayer) preparedPlayer;
 		#endif
 		String playerAudioURL;
 		String preparedAudioURL;

@@ -28,31 +28,31 @@ namespace sh {
 	}
 
 	Promise<$<Track>> MediaProvider::getTrack(String uri) {
-		return getTrackData(uri).map<$<Track>>(nullptr, [=](auto data) {
+		return getTrackData(uri).map(nullptr, [=](auto data) -> $<Track> {
 			return track(data);
 		});
 	}
 
 	Promise<$<Artist>> MediaProvider::getArtist(String uri) {
-		return getArtistData(uri).map<$<Artist>>(nullptr, [=](auto data) {
+		return getArtistData(uri).map(nullptr, [=](auto data) -> $<Artist> {
 			return artist(data);
 		});
 	}
 
 	Promise<$<Album>> MediaProvider::getAlbum(String uri) {
-		return getAlbumData(uri).map<$<Album>>(nullptr, [=](auto data) {
+		return getAlbumData(uri).map(nullptr, [=](auto data) -> $<Album> {
 			return album(data);
 		});
 	}
 
 	Promise<$<Playlist>> MediaProvider::getPlaylist(String uri) {
-		return getPlaylistData(uri).map<$<Playlist>>(nullptr, [=](auto data) {
+		return getPlaylistData(uri).map(nullptr, [=](auto data) -> $<Playlist> {
 			return playlist(data);
 		});
 	}
 
 	Promise<$<UserAccount>> MediaProvider::getUser(String uri) {
-		return getUserData(uri).map<$<UserAccount>>(nullptr, [=](auto data) {
+		return getUserData(uri).map(nullptr, [=](auto data) -> $<UserAccount> {
 			return userAccount(data);
 		});
 	}

@@ -11,12 +11,13 @@
 #include <soundhole/common.hpp>
 
 namespace sh::jsutils {
-	template<typename T>
-	ArrayList<T> arrayListFromJson(const Json& json, const Function<T(const Json&)>& transform) {
+	template<typename Transform>
+	auto arrayListFromJson(const Json& json, Transform transform) {
+		using ReturnType = decltype(transform(std::declval<const Json>()));
+		auto list = ArrayList<ReturnType>();
 		if(!json.is_array()) {
-			return {};
+			return list;
 		}
-		ArrayList<T> list;
 		list.reserve(json.array_items().size());
 		for(auto& jsonItem : json.array_items()) {
 			list.pushBack(transform(jsonItem));
@@ -24,25 +25,27 @@ namespace sh::jsutils {
 		return list;
 	}
 	
-	template<typename T>
-	Optional<ArrayList<T>> optArrayListFromJson(const Json& json, const Function<T(const Json&)>& transform) {
+	template<typename Transform>
+	auto optArrayListFromJson(const Json& json, Transform transform) {
+		using ReturnType = decltype(transform(std::declval<const Json>()));
 		if(json.is_null()) {
-			return std::nullopt;
+			return Optional<ArrayList<ReturnType>>();
 		}
-		return arrayListFromJson(json, transform);
+		return maybe(arrayListFromJson(json, transform));
 	}
 
-	template<typename T>
-	std::map<String,T> mapFromJson(const Json& json, const Function<T(const std::string& key,const Json& value)>& transform) {
-		std::map<String,T> map;
+	template<typename Transform>
+	auto mapFromJson(const Json& json, Transform transform) {
+		using ReturnType = decltype(transform(std::declval<const std::string>(), std::declval<const Json>()));
+		std::map<String,ReturnType> map;
 		for(auto& pair : json.object_items()) {
 			map.insert_or_assign(pair.first, transform(pair.first,pair.second));
 		}
 		return map;
 	}
 
-	template<typename T>
-	Json jsonFromMap(const std::map<String,T>& map, const Function<Json(const String& key,const T&)>& transform) {
+	template<typename T, typename Transform>
+	Json jsonFromMap(const std::map<String,T>& map, Transform transform) {
 		Json::object json;
 		for(auto& pair : map) {
 			json[pair.first] = transform(pair.first,pair.second);
@@ -68,12 +71,13 @@ namespace sh::jsutils {
 	bool boolFromNapiValue(Napi::Value value);
 	Optional<bool> optBoolFromNapiValue(Napi::Value value);
 	
-	template<typename T>
-	ArrayList<T> arrayListFromNapiArray(Napi::Array array, Function<T(Napi::Value)> transform) {
+	template<typename Transform>
+	auto arrayListFromNapiArray(Napi::Array array, Transform transform) {
+		using ReturnType = decltype(transform(std::declval<Napi::Value>()));
+		auto newList = ArrayList<ReturnType>();
 		if(array.IsEmpty() || array.IsNull() || array.IsUndefined()) {
-			return {};
+			return newList;
 		}
-		ArrayList<T> newList;
 		uint32_t listLength = array.Length();
 		newList.reserve((size_t)listLength);
 		for(uint32_t i=0; i<listLength; i++) {
@@ -82,33 +86,36 @@ namespace sh::jsutils {
 		return newList;
 	}
 	
-	template<typename T>
-	ArrayList<T> arrayListFromNapiValue(Napi::Value array, Function<T(Napi::Value)> transform) {
+	template<typename Transform>
+	auto arrayListFromNapiValue(Napi::Value array, Transform transform) {
 		return arrayListFromNapiArray(array.As<Napi::Array>(), transform);
 	}
 	
-	template<typename T>
-	Optional<ArrayList<T>> optArrayListFromNapiArray(Napi::Array array, Function<T(Napi::Value)> transform) {
+	template<typename Transform>
+	auto optArrayListFromNapiArray(Napi::Array array, Transform transform) {
+		using ReturnType = decltype(transform(std::declval<Napi::Value>()));
 		if(array.IsEmpty() || array.IsNull() || array.IsUndefined()) {
-			return std::nullopt;
+			return Optional<ArrayList<ReturnType>>();
 		}
-		return arrayListFromNapiArray<T>(array, transform);
+		return maybe(arrayListFromNapiArray(array, transform));
 	}
 
-	template<typename T>
-	Optional<ArrayList<T>> optArrayListFromNapiValue(Napi::Value array, Function<T(Napi::Value)> transform) {
+	template<typename Transform>
+	auto optArrayListFromNapiValue(Napi::Value array, Transform transform) {
+		using ReturnType = decltype(transform(std::declval<Napi::Value>()));
 		if(array.IsEmpty() || array.IsNull() || array.IsUndefined()) {
-			return std::nullopt;
+			return Optional<ArrayList<ReturnType>>();
 		}
-		return arrayListFromNapiValue<T>(array, transform);
+		return maybe(arrayListFromNapiValue(array, transform));
 	}
 	
-	template<typename T>
-	LinkedList<T> linkedListFromNapiArray(Napi::Array array, Function<T(Napi::Value)> transform) {
+	template<typename Transform>
+	auto linkedListFromNapiArray(Napi::Array array, Transform transform) {
+		using ReturnType = decltype(transform(std::declval<Napi::Value>()));
+		auto newList = LinkedList<ReturnType>();
 		if(array.IsNull() || array.IsUndefined()) {
-			return {};
+			return newList;
 		}
-		LinkedList<T> newList;
 		uint32_t listLength = array.Length();
 		for(uint32_t i=0; i<listLength; i++) {
 			newList.pushBack(transform(array.Get(i)));
@@ -116,22 +123,24 @@ namespace sh::jsutils {
 		return newList;
 	}
 	
-	template<typename T>
-	LinkedList<T> linkedListFromNapiValue(Napi::Value array, Function<T(Napi::Value)> transform) {
+	template<typename Transform>
+	auto linkedListFromNapiValue(Napi::Value array, Transform transform) {
 		return linkedListFromNapiArray(array.As<Napi::Array>(), transform);
 	}
 	
-	template<typename T>
-	Optional<LinkedList<T>> optLinkedListFromNapiArray(Napi::Array array, Function<T(Napi::Value)> transform) {
+	template<typename Transform>
+	auto optLinkedListFromNapiArray(Napi::Array array, Transform transform) {
+		using ReturnType = decltype(transform(std::declval<Napi::Value>()));
 		if(array.IsEmpty() || array.IsNull() || array.IsUndefined()) {
-			return std::nullopt;
+			return Optional<LinkedList<ReturnType>>();
 		}
-		return linkedListFromNapiArray<T>(array, transform);
+		return linkedListFromNapiArray(array, transform);
 	}
 
-	template<typename T>
-	std::map<String,T> mapFromNapiObject(Napi::Object object, Function<T(String,Napi::Value)> mapper) {
-		std::map<String,T> map;
+	template<typename Transform>
+	auto mapFromNapiObject(Napi::Object object, Transform transform) {
+		using ReturnType = decltype(transform(std::declval<String>(), std::declval<Napi::Value>()));
+		std::map<String,ReturnType> map;
 		if(object.IsEmpty() || object.IsNull() || object.IsUndefined()) {
 			return map;
 		}
@@ -140,7 +149,7 @@ namespace sh::jsutils {
 			Napi::Value propNameValue = keys[i];
 			String propertyName = propNameValue.As<Napi::String>().Utf8Value();
 			auto value = object.Get(propertyName.c_str());
-			map[propertyName] = mapper(propertyName,value);
+			map[propertyName] = transform(propertyName,value);
 		}
 		return map;
 	}

@@ -173,7 +173,7 @@ namespace sh {
 	#pragma mark Login
 
 	Promise<bool> YoutubeMediaProvider::login() {
-		return youtube->login().map<bool>([=](bool loggedIn) {
+		return youtube->login().map([=](bool loggedIn) -> bool {
 			if(loggedIn) {
 				storeIdentity(std::nullopt);
 				setIdentityNeedsRefresh();
@@ -197,11 +197,11 @@ namespace sh {
 	#pragma mark Current User
 
 	Promise<ArrayList<String>> YoutubeMediaProvider::getCurrentUserURIs() {
-		return getIdentity().map<ArrayList<String>>([=](Optional<YoutubeMediaProviderIdentity> identity) {
+		return getIdentity().map([=](Optional<YoutubeMediaProviderIdentity> identity) -> ArrayList<String> {
 			if(!identity) {
 				return ArrayList<String>{};
 			}
-			return identity->channels.map<String>([&](auto& channel) {
+			return identity->channels.map([&](auto& channel) -> String {
 				return createURI("channel", channel.id);
 			});
 		});
@@ -219,7 +219,7 @@ namespace sh {
 		if(!isLoggedIn()) {
 			return Promise<Optional<YoutubeMediaProviderIdentity>>::resolve(std::nullopt);
 		}
-		return youtube->getMyChannels().map<Optional<YoutubeMediaProviderIdentity>>([=](YoutubePage<YoutubeChannel> channelPage) {
+		return youtube->getMyChannels().map([=](YoutubePage<YoutubeChannel> channelPage) -> Optional<YoutubeMediaProviderIdentity> {
 			return maybe(YoutubeMediaProviderIdentity{
 				.channels=channelPage.items
 			});
@@ -231,8 +231,8 @@ namespace sh {
 	#pragma mark Search
 
 	Promise<YoutubePage<$<MediaItem>>> YoutubeMediaProvider::search(String query, SearchOptions options) {
-		return youtube->search(query, options).map<YoutubePage<$<MediaItem>>>([=](YoutubePage<YoutubeSearchResult> searchResults) {
-			return searchResults.template map<$<MediaItem>>([&](auto& item) {
+		return youtube->search(query, options).map([=](YoutubePage<YoutubeSearchResult> searchResults) -> YoutubePage<$<MediaItem>> {
+			return searchResults.map([&](auto& item) -> $<MediaItem> {
 				return createMediaItem(item);
 			});
 		});
@@ -248,7 +248,7 @@ namespace sh {
 			.type="track",
 			.name=video.snippet.title,
 			.uri=createURI("video", video.id),
-			.images=video.snippet.thumbnails.map<MediaItem::Image>([&](auto image) {
+			.images=video.snippet.thumbnails.map([&](auto image) -> MediaItem::Image {
 				return createImage(image);
 			})
 			},
@@ -286,7 +286,7 @@ namespace sh {
 			.name=title,
 			.uri=createURI("video", videoId),
 			.images=([&]() -> Optional<ArrayList<MediaItem::Image>> {
-				auto images = video.playerResponse.videoDetails.thumbnail.thumbnails.map<MediaItem::Image>([&](auto image) {
+				auto images = video.playerResponse.videoDetails.thumbnail.thumbnails.map([&](auto image) -> MediaItem::Image {
 					auto dimensions = MediaItem::Image::Dimensions{
 						.width=image.width,
 						.height=image.height
@@ -378,7 +378,7 @@ namespace sh {
 			}),
 			.audioSources=video.formats.where([&](auto& format) {
 				return format.audioBitrate.has_value();
-			}).map<Track::AudioSource>([&](auto& format) {
+			}).map([&](auto& format) -> Track::AudioSource {
 				return Track::AudioSource{
 					.url=format.url,
 					.encoding=format.audioCodec,
@@ -402,7 +402,7 @@ namespace sh {
 			.type="artist",
 			.name=channel.snippet.title,
 			.uri=createURI("channel", channel.id),
-			.images=channel.snippet.thumbnails.map<MediaItem::Image>([&](auto image) {
+			.images=channel.snippet.thumbnails.map([&](auto image) -> MediaItem::Image {
 				return createImage(image);
 			})
 			},
@@ -416,7 +416,7 @@ namespace sh {
 			.type="playlist",
 			.name=playlist.snippet.title,
 			.uri=createURI("playlist", playlist.id),
-			.images=playlist.snippet.thumbnails.map<MediaItem::Image>([&](auto image) {
+			.images=playlist.snippet.thumbnails.map([&](auto image) -> MediaItem::Image {
 				return createImage(image);
 			})
 			},
@@ -448,7 +448,7 @@ namespace sh {
 				.type="track",
 				.name=playlistItem.snippet.title,
 				.uri=createURI("video", playlistItem.snippet.resourceId.videoId),
-				.images=playlistItem.snippet.thumbnails.map<MediaItem::Image>([&](auto image) {
+				.images=playlistItem.snippet.thumbnails.map([&](auto image) -> MediaItem::Image {
 					return createImage(image);
 				})
 				},
@@ -514,7 +514,7 @@ namespace sh {
 	}
 
 	$<MediaItem> YoutubeMediaProvider::createMediaItem(YoutubeSearchResult searchResult) {
-		auto images = searchResult.snippet.thumbnails.template map<MediaItem::Image>([&](auto& image) {
+		auto images = searchResult.snippet.thumbnails.map([&](auto& image) -> MediaItem::Image {
 			return createImage(image);
 		});
 		if(searchResult.id.kind == "youtube#video") {
@@ -589,7 +589,7 @@ namespace sh {
 		if(uriParts.type != "video") {
 			return Promise<Track::Data>::reject(std::invalid_argument(uri+" is not a video URI"));
 		}
-		return youtube->getVideoInfo(uriParts.id).map<Track::Data>([=](auto track) {
+		return youtube->getVideoInfo(uriParts.id).map([=](auto track) -> Track::Data {
 			return createTrackData(track);
 		});
 	}
@@ -604,7 +604,7 @@ namespace sh {
 		} else {
 			return Promise<Artist::Data>::reject(std::invalid_argument(uri+" is not a channel or user URI"));
 		}
-		return youtube->getChannels(options).map<Artist::Data>([=](auto page) {
+		return youtube->getChannels(options).map([=](auto page) -> Artist::Data {
 			if(page.items.size() == 0) {
 				throw YoutubeError(YoutubeError::Code::NOT_FOUND, "Could not find channel with for uri "+uri);
 			}
@@ -621,7 +621,7 @@ namespace sh {
 		if(uriParts.type != "playlist") {
 			throw std::invalid_argument(uri+" is not a playlist URI");
 		}
-		return youtube->getPlaylist(uriParts.id).map<Playlist::Data>([=](auto playlist) {
+		return youtube->getPlaylist(uriParts.id).map([=](auto playlist) -> Playlist::Data {
 			return createPlaylistData(playlist);
 		});
 	}
@@ -642,8 +642,8 @@ namespace sh {
 			.maxResults=10,
 			.channelId=uriParts.id,
 			.order=Youtube::SearchOrder::VIEW_COUNT
-		}).map<ArrayList<$<Track>>>([=](auto page) {
-			return page.items.template map<$<Track>>([&](auto searchResult) {
+		}).map([=](auto page) -> ArrayList<$<Track>> {
+			return page.items.map([&](auto searchResult) -> $<Track> {
 				if(searchResult.kind != "youtube#video") {
 					throw std::invalid_argument("Youtube::search returned unexpected item kind "+searchResult.kind);
 				}
@@ -676,9 +676,9 @@ namespace sh {
 			return youtube->getChannelPlaylists(channelId, {
 				.maxResults=20,
 				.pageToken=sharedData->pageToken
-			}).map<YieldResult>([=](auto page) {
+			}).map([=](auto page) -> YieldResult {
 				auto loadBatch = LoadBatch<$<Playlist>>{
-					.items=page.items.template map<$<Playlist>>([=](auto playlist) {
+					.items=page.items.map([=](auto playlist) -> $<Playlist> {
 						return this->playlist(createPlaylistData(playlist));
 					}),
 					.total=page.pageInfo.totalResults
@@ -750,7 +750,7 @@ namespace sh {
 		}
 		return youtube->createPlaylist(name, {
 			.privacyStatus = privacyStatus
-		}).map<$<Playlist>>([=](YoutubePlaylist playlist) {
+		}).map([=](YoutubePlaylist playlist) -> $<Playlist> {
 			return this->playlist(createPlaylistData(playlist));
 		});
 	}
@@ -793,7 +793,7 @@ namespace sh {
 
 	Json YoutubeMediaProviderIdentity::toJson() const {
 		return Json::object{
-			{ "channels", channels.map<Json>([](auto& channel) {
+			{ "channels", channels.map([](auto& channel) -> Json {
 				return channel.toJson();
 			}) }
 		};

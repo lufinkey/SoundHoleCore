@@ -74,7 +74,7 @@ namespace sh {
 
 
 	Promise<bool> BandcampAuth::login() {
-		return authenticate().map<bool>([=](auto session) -> bool {
+		return authenticate().map([=](auto session) -> bool {
 			if(!session) {
 				return false;
 			}

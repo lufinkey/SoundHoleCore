@@ -36,7 +36,7 @@ namespace sh {
 		if(_identity && !_identityNeedsRefresh) {
 			return IdentityPromise::resolve(_identity);
 		}
-		auto promise = fetchIdentity().template map<Optional<IdentityType>>([=](Optional<IdentityType> identity) -> Optional<IdentityType> {
+		auto promise = fetchIdentity().map([=](Optional<IdentityType> identity) -> Optional<IdentityType> {
 			this->_identityPromise = std::nullopt;
 			if(!this->isLoggedIn()) {
 				this->storeIdentity(std::nullopt);

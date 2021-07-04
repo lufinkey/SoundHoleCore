@@ -1,32 +1,32 @@
-# For more information about using CMake with Android Studio, read the
-# documentation: https://d.android.com/studio/projects/add-native-code.html
 
+project(TestApp)
 cmake_minimum_required(VERSION 3.4.1)
 set( CMAKE_CXX_STANDARD 17 )
-
-# add_definitions( -DDEBUG_PROMISE_NAMING )
-add_definitions( -DFGL_DISPATCH_USES_MAIN )
 
 set( SOUNDHOLECORE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../.." )
 
 add_subdirectory(
 		"${SOUNDHOLECORE_ROOT}/external/nodejs-embed/projects/android-studio/libnodejsembed/src/main/cpp"
-		"${CMAKE_CURRENT_SOURCE_DIR}/../../../build/libnodejsembed")
+		NodeJSEmbed_build )
 
 add_subdirectory(
 		"${SOUNDHOLECORE_ROOT}/external/data-cpp/projects/android-studio/libdatacpp/src/main/cpp"
-		"${CMAKE_CURRENT_SOURCE_DIR}/../../../build/libdatacpp")
+		DataCpp_build )
 
 add_subdirectory(
 		"${SOUNDHOLECORE_ROOT}/external/async-cpp/projects/android-studio/libasynccpp/src/main/cpp"
-		"${CMAKE_CURRENT_SOURCE_DIR}/../../../build/libasynccpp")
+		AsyncCpp_build )
 
 add_subdirectory(
-		"${CMAKE_CURRENT_SOURCE_DIR}/../../../../libsoundholecore/src/main/cpp"
-		"${CMAKE_CURRENT_SOURCE_DIR}/../../../build/libsoundholecore")
+		"${SOUNDHOLECORE_ROOT}/external/io-cpp/projects/android-studio/libiocpp/src/main/cpp"
+		IOCpp_build )
+
+add_subdirectory(
+		"${SOUNDHOLECORE_ROOT}/projects/android-studio/libsoundholecore/src/main/cpp"
+		SoundHoleCore_build )
 
 add_library(
-		native-lib
+		TestApp
 		SHARED
 		native-lib.cpp
 		"${SOUNDHOLECORE_ROOT}/external/cxxurl/url.cpp"
@@ -34,22 +34,10 @@ add_library(
 		"${SOUNDHOLECORE_ROOT}/src/test/SoundHoleCoreTest.cpp")
 
 target_include_directories(
-		native-lib
+		TestApp
 		PRIVATE
 		"${SOUNDHOLECORE_ROOT}/src"
 		"${SOUNDHOLECORE_ROOT}/external/data-cpp/src"
 		"${SOUNDHOLECORE_ROOT}/external/async-cpp/src"
+		"${SOUNDHOLECORE_ROOT}/external/io-cpp/src"
 		"${SOUNDHOLECORE_ROOT}/external")
-
-find_library(
-		log-lib
-		log)
-
-target_link_libraries( # Specifies the target library.
-		native-lib
-
-		NodeJSEmbed
-		DataCpp
-		AsyncCpp
-		SoundHoleCore
-		${log-lib})

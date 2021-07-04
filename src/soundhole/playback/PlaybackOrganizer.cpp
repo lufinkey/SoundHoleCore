@@ -64,7 +64,7 @@ namespace sh {
 			{ "currentItem", itemToJson(currentItem) },
 			{ "context", contextJson },
 			{ "contextIndex", sourceContextIndex ? Json((double)sourceContextIndex->index) : Json() },
-			{ "queue", queue.map<Json>([&](auto& queueItem) {
+			{ "queue", queue.map([&](auto& queueItem) -> Json {
 				return queueItem->toJson();
 			}) },
 			{ "shuffling", shuffling }
@@ -194,13 +194,13 @@ namespace sh {
 			if(!self) {
 				return Promise<ItemVariant>::resolve(NoItem());
 			}
-			return self->getValidPreviousItem().map<ItemVariant>([=](auto item) {
+			return self->getValidPreviousItem().map([=](auto item) -> ItemVariant {
 				if(item.index() != 0) {
 					*valid = true;
 				}
 				return item;
 			});
-		}).map<bool>([=]() -> bool {
+		}).map([=]() -> bool {
 			return *valid;
 		});
 	}
@@ -213,13 +213,13 @@ namespace sh {
 			if(!self) {
 				return Promise<ItemVariant>::resolve(NoItem());
 			}
-			return self->getValidNextItem().map<ItemVariant>([=](auto item) {
+			return self->getValidNextItem().map([=](auto item) -> ItemVariant {
 				if(item.index() != 0) {
 					*valid = true;
 				}
 				return item;
 			});
-		}).map<bool>([=]() -> bool {
+		}).map([=]() -> bool {
 			return *valid;
 		});
 	}
@@ -364,7 +364,7 @@ namespace sh {
 	}
 
 	Promise<PlaybackOrganizer::ItemVariant> PlaybackOrganizer::getPreviousItem() {
-		return getPreviousInContext().map<ItemVariant>(nullptr, []($<TrackCollectionItem> item) -> ItemVariant {
+		return getPreviousInContext().map(nullptr, []($<TrackCollectionItem> item) -> ItemVariant {
 			if(!item) {
 				return NoItem();
 			}
@@ -378,7 +378,7 @@ namespace sh {
 			return Promise<ItemVariant>::resolve(queueItem);
 		}
 		w$<PlaybackOrganizer> weakSelf = shared_from_this();
-		return getNextInContext().map<ItemVariant>([=]($<TrackCollectionItem> item) -> ItemVariant {
+		return getNextInContext().map([=]($<TrackCollectionItem> item) -> ItemVariant {
 			if(item) {
 				return item;
 			}
@@ -431,13 +431,13 @@ namespace sh {
 	}
 
 	Promise<$<Track>> PlaybackOrganizer::getPreviousTrack() {
-		return getPreviousItem().map<$<Track>>(nullptr, [](ItemVariant item) {
+		return getPreviousItem().map(nullptr, [](ItemVariant item) -> $<Track> {
 			return trackFromItem(item);
 		});
 	}
 
 	Promise<$<Track>> PlaybackOrganizer::getNextTrack() {
-		return getNextItem().map<$<Track>>(nullptr, [](ItemVariant item) {
+		return getNextItem().map(nullptr, [](ItemVariant item) -> $<Track> {
 			return trackFromItem(item);
 		});
 	}

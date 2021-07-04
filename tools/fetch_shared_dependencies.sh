@@ -12,6 +12,7 @@ async_cpp=false
 io_cpp=false
 json11=false
 cxxurl=false
+sqlite=false
 if [ $# -eq 0 ]; then
 	nodejs_embed=true
 	data_cpp=true
@@ -19,6 +20,7 @@ if [ $# -eq 0 ]; then
 	io_cpp=true
 	json11=true
 	cxxurl=true
+	sqlite=true
 else
 	for arg; do
 		if [ "$arg" == "nodejs_embed" ]; then
@@ -33,6 +35,8 @@ else
 			json11=true
 		elif [ "$arg" == "cxxurl" ]; then
 			cxxurl=true
+		elif [ "$arg" == "sqlite" ]; then
+			sqlite=true
 		else
 			>&2 echo "unknown dependency $arg"
 		fi
@@ -79,5 +83,18 @@ if $cxxurl; then
 	if [ ! -e "external/cxxurl/.git" ]; then
 		echo "fetching cxxurl"
 		git clone --recursive "https://github.com/chmike/CxxUrl.git" "external/cxxurl" || exit $?
+	fi
+fi
+# clone sqlite
+if $sqlite; then
+	if [ ! -e "external/sqlite/sqlite3.h" ]; then
+		echo "fetching sqlite3"
+		cd "external"
+		rm -rf "sqlite" "sqlite.zip" "sqlite-amalgamation-3360000"
+		curl "https://www.sqlite.org/2021/sqlite-amalgamation-3360000.zip" --output "sqlite.zip" || exit $?
+		unzip "sqlite.zip" || exit $?
+		mv "sqlite-amalgamation-3360000" "sqlite"
+		rm -rf "sqlite.zip"
+		cd "$base_dir"
 	fi
 fi
