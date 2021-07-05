@@ -141,7 +141,8 @@ namespace sh {
 			{ "client_id", options.clientId },
 			{ "redirect_uri", options.redirectURL },
 			{ "response_type", "code" },
-			{ "scope", "https://www.googleapis.com/auth/drive" }
+			{ "scope", "https://www.googleapis.com/auth/drive" },
+			{ "access_type", "offline" }
 		};
 		if(!codeChallenge.empty()) {
 			query.insert_or_assign("code_challenge", codeChallenge);

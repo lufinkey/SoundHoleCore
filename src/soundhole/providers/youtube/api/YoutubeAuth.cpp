@@ -27,7 +27,8 @@ namespace sh {
 			{ "client_id", clientId },
 			{ "redirect_uri", redirectURL },
 			{ "response_type", "code" },
-			{ "scope", String::join(scopes, " ") }
+			{ "scope", String::join(scopes, " ") },
+			{ "access_type", "offline" }
 		};
 		if(!codeChallenge.empty()) {
 			query.insert_or_assign("code_challenge", codeChallenge);

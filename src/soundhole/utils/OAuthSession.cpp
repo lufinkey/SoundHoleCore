@@ -72,7 +72,7 @@ namespace sh {
 				{ "params", params }
 			});
 		})
-		.map([](utils::SharedHttpResponse response) -> Json {
+		.map([=](utils::SharedHttpResponse response) -> Json {
 			std::string parseError;
 			auto json = Json::parse(response->data, parseError);
 			auto error = json["error"];
@@ -86,6 +86,8 @@ namespace sh {
 					throw OAuthError(errorCode, errorMessage, {
 						{ "statusCode", int(response->statusCode) },
 						{ "oauthError", String(error.string_value()) },
+						{ "url", url },
+						{ "httpRequest", request },
 						{ "httpResponse", response }
 					});
 				} else {
