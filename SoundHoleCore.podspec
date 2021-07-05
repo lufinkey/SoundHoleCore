@@ -46,7 +46,7 @@ Pod::Spec.new do |s|
 	s.ios.pod_target_xcconfig = {
 		'HEADER_SEARCH_PATHS' => [
 			"$(PODS_ROOT)/NodeJSEmbed/external/nodejs/build/mobile/include",
-			"$(PODS_ROOT)/NodeJSEmbed/external/nodejs/build/mobile/include/nodejs",
+			"$(PODS_ROOT)/NodeJSEmbed/external/nodejs/build/mobile/include/node",
 			"$(PODS_ROOT)/NodeJSEmbed/external/nodejs/build/mobile/node/deps/openssl/openssl/include"
 		],
 		'FRAMEWORK_SEARCH_PATHS' => [
