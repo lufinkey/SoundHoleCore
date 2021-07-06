@@ -47,7 +47,7 @@ CHECKOUT OPTIONS:
     :commit: 720a275fcdf5f86e3e7a2b528e4ba3c0733f2ed0
     :git: "git@github.com:lufinkey/io-cpp.git"
   NodeJSEmbed:
-    :commit: 4ff9b09535962137931b655d467cab66b09dcab6
+    :commit: 9276255f7517a1277f96fc01d01c2250a0c539da
     :git: "git@github.com:lufinkey/nodejs-embed.git"
   NodeMobile:
     :commit: d4af0e6bdaf753d1f0d69db13627dcdffc90c436
@@ -57,7 +57,7 @@ SPEC CHECKSUMS:
   AsyncCpp: 04d7cdf6aeaabd15d52f2f4a8e50a592b4c04040
   DataCpp: a826d3fe6b3234709b097f20090f24d96230c823
   IOCpp: 71b0ec502857afee2e0ad9f6015053b385c0814b
-  NodeJSEmbed: 7b14f82d08f52863c3dc76b8fb5449118de2cf0e
+  NodeJSEmbed: f59b85116d857e06f09c0c3f56b6ad638b963bd2
   NodeMobile: d6a5a252d4774c89c360f627f166b727b07b9aee
   sqlite3: 797b1b1f92baf74716a3179f69d9652ce4a5df3f
 

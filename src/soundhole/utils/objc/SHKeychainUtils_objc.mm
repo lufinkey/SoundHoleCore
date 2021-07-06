@@ -27,7 +27,9 @@
 		return nil;
 	}
 	NSDictionary* resultDict = (__bridge NSDictionary*)result;
-	return resultDict[(NSString*)kSecValueData];
+	NSData* resultData = resultDict[(NSString*)kSecValueData];
+	CFRelease(result);
+	return resultData;
 }
 
 +(BOOL)deleteGenericPasswordDataForAccountKey:(NSString*)accountKey {
