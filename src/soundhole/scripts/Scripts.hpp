@@ -20,5 +20,7 @@ namespace sh::scripts {
 	#ifdef NODE_API_MODULE
 	Napi::Object getJSExports(napi_env env);
 	Napi::Value parseJsonToNapi(napi_env env, const std::string& json);
+	String napiToJson(napi_env, napi_value);
+	String napiToPrettyJson(napi_env, napi_value);
 	#endif
 }

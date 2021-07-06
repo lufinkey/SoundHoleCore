@@ -722,8 +722,8 @@
 				A513DB6F232DA1F8000DCAC7 /* providers */,
 				A5C6CCE22597DADC00596878 /* storage */,
 				A54F2544239DA9B800C81E1C /* playback */,
-				A571E16223332CC600603E14 /* utils */,
 				A513DB76232DA1F8000DCAC7 /* scripts */,
+				A571E16223332CC600603E14 /* utils */,
 			);
 			path = soundhole;
 			sourceTree = "<group>";

@@ -94,4 +94,16 @@ namespace sh::scripts {
 		auto json_decode = exports.Get("json_decode").As<Napi::Function>();
 		return json_decode.Call({ Napi::String::New(env, json) });
 	}
+
+	String napiToJson(napi_env env, napi_value val) {
+		auto exports = getJSExports(env);
+		auto json_encode = exports.Get("json_encode").As<Napi::Function>();
+		return json_encode.Call({ val }).As<Napi::String>().Utf8Value();
+	}
+
+	String napiToPrettyJson(napi_env env, napi_value val) {
+		auto exports = getJSExports(env);
+		auto json_encode = exports.Get("json_encode").As<Napi::Function>();
+		return json_encode.Call({ val, Napi::Env(env).Null(), Napi::String::New(env, "\t") }).As<Napi::String>().Utf8Value();
+	}
 }
