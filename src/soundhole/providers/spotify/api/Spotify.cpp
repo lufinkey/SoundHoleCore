@@ -907,6 +907,7 @@ namespace sh {
 	}
 
 	Promise<Spotify::FollowedUsersPage> Spotify::getFollowedUsers(GetFollowedUsersOptions options) {
+		// spotify doesn't allow you to get your followed users so we need to get your followed playlists, get the unique owners, and filter by who you're following
 		size_t offset = options.pageToken.empty() ? 0 : (size_t)std::stol(options.pageToken);
 		return getMyPlaylists({
 			.offset=offset,
