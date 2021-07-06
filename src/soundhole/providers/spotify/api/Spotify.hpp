@@ -220,7 +220,12 @@ namespace sh {
 		struct GetFollowedUsersOptions {
 			String pageToken;
 		};
-		Promise<SpotifyPage<SpotifyUser>> getFollowedUsers(GetFollowedUsersOptions options = GetFollowedUsersOptions());
+		struct FollowedUsersPage {
+			LinkedList<SpotifyUser> items;
+			String nextPageToken;
+			double progress;
+		};
+		Promise<FollowedUsersPage> getFollowedUsers(GetFollowedUsersOptions options = GetFollowedUsersOptions());
 		
 	private:
 		Promise<void> prepareForPlayer();

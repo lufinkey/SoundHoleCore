@@ -906,7 +906,49 @@ namespace sh {
 		});
 	}
 
-	Promise<SpotifyPage<SpotifyUser>> Spotify::getFollowedUsers(GetFollowedUsersOptions options) {
-		return Promise<SpotifyPage<SpotifyUser>>::reject(std::runtime_error("not implemented"));
+	Promise<Spotify::FollowedUsersPage> Spotify::getFollowedUsers(GetFollowedUsersOptions options) {
+		size_t offset = options.pageToken.empty() ? 0 : (size_t)std::stol(options.pageToken);
+		return getMyPlaylists({
+			.offset=offset,
+			.limit=50
+		}).then([=](auto page) {
+			return async<FollowedUsersPage>([=]() {
+				// get unique users in background thread
+				LinkedList<SpotifyUser> users;
+				for(auto& playlist : page.items) {
+					if(!users.containsWhere([&](auto cmp) { return cmp.uri == playlist.owner.uri; })) {
+						users.pushBack(playlist.owner);
+					}
+				}
+				auto followingList = checkFollowingUsers(users.map([](auto user){ return user.id; })).get();
+				if(followingList.size() != users.size()) {
+					throw SpotifyError(SpotifyError::Code::BAD_DATA, "size mismatch between given user id list and returned boolean list");
+				}
+				auto usersIt = users.rbegin();
+				auto followingIt = followingList.rbegin();
+				while(usersIt != users.rend() && followingIt != followingList.rend()) {
+					bool isFollowing = *followingIt;
+					if(isFollowing) {
+						usersIt++;
+						followingIt++;
+					}
+					else {
+						auto removedUsersIt = std::prev(usersIt.base());
+						auto nextUsersIt = std::next(usersIt);
+						auto nextFollowingIt = std::next(followingIt);
+						users.remove(removedUsersIt);
+						usersIt = nextUsersIt;
+						followingIt = nextFollowingIt;
+					}
+				}
+				size_t endIndex = page.offset + page.limit;
+				bool done = endIndex >= page.total;
+				return FollowedUsersPage{
+					.items = users,
+					.nextPageToken = done ? String() : String(std::to_string(page.offset + page.limit)),
+					.progress = ((double)endIndex / (double)page.total)
+				};
+			});
+		});
 	}
 }
