@@ -24,6 +24,8 @@ Any sqlStringOrNull(String str);
 
 ArrayList<String> artistColumns();
 ArrayList<String> followedArtistColumns();
+ArrayList<String> userAccountColumns();
+ArrayList<String> followedUserAccountColumns();
 ArrayList<String> trackColumns();
 ArrayList<String> trackCollectionColumns();
 ArrayList<String> trackCollectionItemColumns();
@@ -81,6 +83,16 @@ struct FollowedArtist {
 };
 ArrayList<String> followedArtistTupleColumns();
 String followedArtistTuple(LinkedList<Any>& params, const FollowedArtist& followedArtist);
+
+ArrayList<String> userAccountTupleColumns();
+String userAccountTuple(LinkedList<Any>& params, $<UserAccount> userAccount, const TupleOptions& options);
+
+struct FollowedUserAccount {
+	String userURI;
+	String libraryProvider;
+};
+ArrayList<String> followedUserAccountTupleColumns();
+String followedUserAccountTuple(LinkedList<Any>& params, const FollowedUserAccount& followedUser);
 
 struct SavedTrack {
 	$<Track> track;

@@ -76,6 +76,7 @@ namespace sh {
 		Artist::Data createArtistData(YoutubeChannel channel);
 		Playlist::Data createPlaylistData(YoutubePlaylist playlist);
 		PlaylistItem::Data createPlaylistItemData(YoutubePlaylistItem playlistItem);
+		UserAccount::Data createUserData(YoutubeChannel channel);
 		$<MediaItem> createMediaItem(YoutubeSearchResult searchResult);
 		
 		struct URI {

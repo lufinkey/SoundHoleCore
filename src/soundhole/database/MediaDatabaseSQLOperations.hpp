@@ -28,11 +28,12 @@ struct InsertTrackCollectionItemsOptions {
 void insertOrReplaceItemsFromTrackCollection(SQLiteTransaction& tx, $<TrackCollection> collection, InsertTrackCollectionItemsOptions options = InsertTrackCollectionItemsOptions());
 void insertOrReplaceLibraryItems(SQLiteTransaction& tx, const ArrayList<MediaProvider::LibraryItem>& items);
 void insertOrReplaceDBStates(SQLiteTransaction& tx, const ArrayList<DBState>& states);
+void applyDBState(SQLiteTransaction& tx, std::map<String,String> state);
 
 void selectTrack(SQLiteTransaction& tx, String outKey, String uri);
 void selectTrackCount(SQLiteTransaction& tx, String outKey);
-void selectTrackCollection(SQLiteTransaction& tx, String outKey, String uri);
-void selectTrackCollectionItemsAndTracks(SQLiteTransaction& tx, String outKey, String collectionURI, Optional<IndexRange> range);
+void selectTrackCollectionWithOwner(SQLiteTransaction& tx, String outKey, String uri);
+void selectTrackCollectionItemsWithTracks(SQLiteTransaction& tx, String outKey, String collectionURI, Optional<IndexRange> range);
 void selectArtist(SQLiteTransaction& tx, String outKey, String uri);
 struct LibraryItemSelectOptions {
 	String libraryProvider;
@@ -40,11 +41,11 @@ struct LibraryItemSelectOptions {
 	Order order = Order::NONE;
 	LibraryItemOrderBy orderBy = LibraryItemOrderBy::ADDED_AT;
 };
-void selectSavedTracksAndTracks(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
+void selectSavedTracksWithTracks(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
 void selectSavedTrackCount(SQLiteTransaction& tx, String outKey, String libraryProvider = String());
-void selectSavedAlbumsAndAlbums(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
+void selectSavedAlbumsWithAlbums(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
 void selectSavedAlbumCount(SQLiteTransaction& tx, String outKey, String libraryProvider = String());
-void selectSavedPlaylistsAndPlaylists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
+void selectSavedPlaylistsWithPlaylistsAndOwners(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
 void selectSavedPlaylistCount(SQLiteTransaction& tx, String outKey, String libraryProvider = String());
 void selectLibraryArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions{.orderBy=LibraryItemOrderBy::NAME});
 void selectLibraryArtistCount(SQLiteTransaction& tx, String outKey, String libraryProvider = String());
@@ -56,5 +57,6 @@ void deleteNonLibraryCollectionItems(SQLiteTransaction& tx);
 void deleteNonLibraryTracks(SQLiteTransaction& tx);
 void deleteNonLibraryCollections(SQLiteTransaction& tx);
 void deleteNonLibraryArtists(SQLiteTransaction& tx);
+void deleteNonLibraryUserAccounts(SQLiteTransaction& tx);
 
 }

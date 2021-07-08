@@ -9,6 +9,7 @@
 #include "MediaDatabase.hpp"
 #include "MediaDatabaseSQL.hpp"
 #include "MediaDatabaseSQLOperations.hpp"
+#include "MediaDatabaseSQLTransformations.hpp"
 #include "SQLiteTransaction.hpp"
 #include <soundhole/utils/Utils.hpp>
 #include <sqlite3.h>
@@ -195,7 +196,7 @@ namespace sh {
 		}
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
 			sql::insertOrReplaceTracks(tx, tracks, true);
-			applyDBState(tx, options.dbState);
+			sql::applyDBState(tx, options.dbState);
 		}).toVoid();
 	}
 
@@ -212,7 +213,7 @@ namespace sh {
 			for(size_t i=0; i<results.size(); i++) {
 				auto resultRows = results[std::to_string(i)];
 				if(resultRows.size() > 0) {
-					rows.pushBack(transformDBTrack(resultRows.front()));
+					rows.pushBack(resultRows.front());
 				} else {
 					rows.pushBack(Json());
 				}
@@ -250,28 +251,28 @@ namespace sh {
 		}
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
 			sql::insertOrReplaceTrackCollections(tx, collections);
-			applyDBState(tx, options.dbState);
+			sql::applyDBState(tx, options.dbState);
 		}).toVoid();
 	}
 
 	Promise<void> MediaDatabase::updateTrackCollectionVersionId($<TrackCollection> collection, CacheOptions options) {
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
 			sql::updateTrackCollectionVersionId(tx, collection->uri(), collection->versionId());
-			applyDBState(tx, options.dbState);
+			sql::applyDBState(tx, options.dbState);
 		}).toVoid();
 	}
 
 	Promise<LinkedList<Json>> MediaDatabase::getTrackCollectionsJson(ArrayList<String> uris) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
 			for(size_t i=0; i<uris.size(); i++) {
-				sql::selectTrackCollection(tx, std::to_string(i), uris[i]);
+				sql::selectTrackCollectionWithOwner(tx, std::to_string(i), uris[i]);
 			}
 		}).map(nullptr, [=](auto results) -> LinkedList<Json> {
 			LinkedList<Json> rows;
 			for(size_t i=0; i<results.size(); i++) {
 				auto resultRows = results[std::to_string(i)];
 				if(resultRows.size() > 0) {
-					rows.pushBack(transformDBTrackCollection(resultRows.front()));
+					rows.pushBack(resultRows.front());
 				} else {
 					rows.pushBack(Json());
 				}
@@ -282,16 +283,16 @@ namespace sh {
 
 	Promise<Json> MediaDatabase::getTrackCollectionJson(String uri, Optional<sql::IndexRange> itemsRange) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
-			sql::selectTrackCollection(tx, "collection", uri);
+			sql::selectTrackCollectionWithOwner(tx, "collection", uri);
 			if(itemsRange) {
-				sql::selectTrackCollectionItemsAndTracks(tx, "items", uri, itemsRange);
+				sql::selectTrackCollectionItemsWithTracks(tx, "items", uri, itemsRange);
 			}
 		}).map(nullptr, [=](auto results) -> Json {
 			auto collectionRows = results["collection"];
 			if(collectionRows.size() == 0) {
 				throw std::runtime_error("TrackCollection not found in database for uri "+uri);
 			}
-			return transformDBTrackCollectionAndItemsAndTracks(collectionRows.front(), results["items"]);
+			return sql::combineDBTrackCollectionAndItems(collectionRows.front(), results["items"]);
 		});
 	}
 
@@ -304,18 +305,17 @@ namespace sh {
 				.range = itemsRange,
 				.includeTrackAlbums = includeTrackAlbums
 			});
-			applyDBState(tx, options.dbState);
+			sql::applyDBState(tx, options.dbState);
 		}).toVoid();
 	}
 
 	Promise<std::map<size_t,Json>> MediaDatabase::getTrackCollectionItemsJson(String collectionURI, sql::IndexRange range) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
-			sql::selectTrackCollectionItemsAndTracks(tx, "items", collectionURI, range);
+			sql::selectTrackCollectionItemsWithTracks(tx, "items", collectionURI, range);
 		}).map(nullptr, [=](auto results) -> std::map<size_t,Json> {
 			std::map<size_t,Json> items;
 			auto itemsJson = results["items"];
-			for(auto& json : itemsJson) {
-				auto itemJson = transformDBTrackCollectionItemAndTrack(json);
+			for(auto& itemJson : itemsJson) {
 				auto indexNum = itemJson["indexNum"];
 				if(!indexNum.is_number()) {
 					continue;
@@ -331,7 +331,7 @@ namespace sh {
 	Promise<void> MediaDatabase::cacheArtists(ArrayList<$<Artist>> artists, CacheOptions options) {
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
 			sql::insertOrReplaceArtists(tx, artists);
-			applyDBState(tx, options.dbState);
+			sql::applyDBState(tx, options.dbState);
 		}).toVoid();
 	}
 
@@ -348,7 +348,7 @@ namespace sh {
 			for(size_t i=0; i<results.size(); i++) {
 				auto resultRows = results[std::to_string(i)];
 				if(resultRows.size() > 0) {
-					rows.pushBack(transformDBArtist(resultRows.front()));
+					rows.pushBack(resultRows.front());
 				} else {
 					rows.pushBack(Json());
 				}
@@ -374,7 +374,7 @@ namespace sh {
 		}
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
 			sql::insertOrReplaceLibraryItems(tx, items);
-			applyDBState(tx, options.dbState);
+			sql::applyDBState(tx, options.dbState);
 		}).toVoid();
 	}
 
@@ -395,11 +395,11 @@ namespace sh {
 	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getSavedTracksJson(sql::IndexRange range, GetSavedTracksJsonOptions options) {
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
 			sql::selectSavedTrackCount(tx, "count");
-			sql::selectSavedTracksAndTracks(tx, "items", {
-				.libraryProvider=options.libraryProvider,
-				.range=range,
-				.order=options.order,
-				.orderBy=options.orderBy
+			sql::selectSavedTracksWithTracks(tx, "items", {
+				.libraryProvider = options.libraryProvider,
+				.range = range,
+				.order = options.order,
+				.orderBy = options.orderBy
 			});
 		}).map(nullptr, [=](auto results) -> GetJsonItemsListResult {
 			auto countItems = results["count"];
@@ -407,20 +407,10 @@ namespace sh {
 				throw std::runtime_error("failed to get items count");
 			}
 			size_t total = (size_t)countItems.front()["total"].number_value();
-			LinkedList<Json> rows;
-			auto itemsJson = results["items"];
-			for(auto& json : itemsJson) {
-				auto jsonArray = json.array_items();
-				if(jsonArray.size() < 2) {
-					continue;
-				}
-				auto savedTrackJson = jsonArray[0];
-				auto trackJson = jsonArray[1];
-				rows.pushBack(transformDBSavedTrack(savedTrackJson, trackJson));
-			}
+			auto rows = LinkedList<Json>(results["items"]);
 			return GetJsonItemsListResult{
-				.items=rows,
-				.total=total
+				.items = rows,
+				.total = total
 			};
 		});
 	}
@@ -440,11 +430,11 @@ namespace sh {
 	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getSavedAlbumsJson(GetSavedAlbumsJsonOptions options) {
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
 			sql::selectSavedAlbumCount(tx, "count");
-			sql::selectSavedAlbumsAndAlbums(tx, "items", {
-				.libraryProvider=options.libraryProvider,
-				.range=options.range,
-				.order=options.order,
-				.orderBy=options.orderBy
+			sql::selectSavedAlbumsWithAlbums(tx, "items", {
+				.libraryProvider = options.libraryProvider,
+				.range = options.range,
+				.order = options.order,
+				.orderBy = options.orderBy
 			});
 		}).map(nullptr, [=](auto results) -> GetJsonItemsListResult {
 			auto countItems = results["count"];
@@ -452,20 +442,10 @@ namespace sh {
 				throw std::runtime_error("failed to get items count");
 			}
 			size_t total = (size_t)countItems.front()["total"].number_value();
-			LinkedList<Json> rows;
-			auto itemsJson = results["items"];
-			for(auto& json : itemsJson) {
-				auto jsonArray = json.array_items();
-				if(jsonArray.size() < 2) {
-					continue;
-				}
-				auto savedAlbumJson = jsonArray[0];
-				auto albumJson = jsonArray[1];
-				rows.pushBack(transformDBSavedAlbum(savedAlbumJson, albumJson));
-			}
+			auto rows = LinkedList<Json>(results["items"]);
 			return GetJsonItemsListResult{
-				.items=rows,
-				.total=total
+				.items = rows,
+				.total = total
 			};
 		});
 	}
@@ -485,11 +465,11 @@ namespace sh {
 	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getSavedPlaylistsJson(GetSavedPlaylistsJsonOptions options) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
 			sql::selectSavedPlaylistCount(tx, "count");
-			sql::selectSavedPlaylistsAndPlaylists(tx, "items", {
-				.libraryProvider=options.libraryProvider,
-				.range=options.range,
-				.order=options.order,
-				.orderBy=options.orderBy
+			sql::selectSavedPlaylistsWithPlaylistsAndOwners(tx, "items", {
+				.libraryProvider = options.libraryProvider,
+				.range = options.range,
+				.order = options.order,
+				.orderBy = options.orderBy
 			});
 		}).map(nullptr, [=](auto results) -> GetJsonItemsListResult {
 			auto countItems = results["count"];
@@ -497,17 +477,7 @@ namespace sh {
 				throw std::runtime_error("failed to get items count");
 			}
 			size_t total = (size_t)countItems.front()["total"].number_value();
-			LinkedList<Json> rows;
-			auto itemsJson = results["items"];
-			for(auto& json : itemsJson) {
-				auto jsonArray = json.array_items();
-				if(jsonArray.size() < 2) {
-					continue;
-				}
-				auto savedPlaylistJson = jsonArray[0];
-				auto playlistJson = jsonArray[1];
-				rows.pushBack(transformDBSavedPlaylist(savedPlaylistJson, playlistJson));
-			}
+			auto rows = LinkedList<Json>(results["items"]);
 			return GetJsonItemsListResult{
 				.items=rows,
 				.total=total
@@ -517,7 +487,7 @@ namespace sh {
 
 	Promise<void> MediaDatabase::setState(std::map<String,String> state) {
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
-			applyDBState(tx, state);
+			sql::applyDBState(tx, state);
 		}).toVoid();
 	}
 
@@ -550,147 +520,6 @@ namespace sh {
 			}
 			return it->second;
 		});
-	}
-
-	void MediaDatabase::applyDBState(SQLiteTransaction& tx, std::map<String,String> state) {
-		if(state.size() == 0) {
-			return;
-		}
-		ArrayList<sql::DBState> states;
-		states.reserve(state.size());
-		for(auto& pair : state) {
-			states.pushBack({
-				.stateKey=pair.first,
-				.stateValue=pair.second
-			});
-		}
-		sql::insertOrReplaceDBStates(tx, states);
-	}
-
-
-
-
-	Json MediaDatabase::transformDBTrack(Json json) {
-		auto obj = json.object_items();
-		if(obj.find("type") == obj.end()) {
-			obj["type"] = "track";
-		}
-		auto artistsJson = obj["artists"];
-		if(artistsJson.is_string()) {
-			std::string error;
-			obj["artists"] = Json::parse(artistsJson.string_value(), error);
-			if(!error.empty()) {
-				throw std::invalid_argument("Failed to parse artists json: "+error);
-			}
-		}
-		auto imagesJson = obj["images"];
-		if(imagesJson.is_string()) {
-			std::string error;
-			obj["images"] = Json::parse(imagesJson.string_value(), error);
-			if(!error.empty()) {
-				throw std::invalid_argument("Failed to parse images json: "+error);
-			}
-		}
-		return obj;
-	}
-
-	Json MediaDatabase::transformDBTrackCollection(Json json) {
-		auto obj = json.object_items();
-		auto artistsJson = obj["artists"];
-		if(artistsJson.is_string()) {
-			std::string error;
-			obj["artists"] = Json::parse(artistsJson.string_value(), error);
-			if(!error.empty()) {
-				throw std::invalid_argument("Failed to parse artists json: "+error);
-			}
-		}
-		auto imagesJson = obj["images"];
-		if(imagesJson.is_string()) {
-			std::string error;
-			obj["images"] = Json::parse(imagesJson.string_value(), error);
-			if(!error.empty()) {
-				throw std::invalid_argument("Failed to parse images json: "+error);
-			}
-		}
-		auto ownerJson = obj["owner"];
-		if(ownerJson.is_string()) {
-			std::string error;
-			obj["owner"] = Json::parse(ownerJson.string_value(), error);
-			if(!error.empty()) {
-				throw std::invalid_argument("Failed to parse owner json: "+error);
-			}
-		}
-		return obj;
-	}
-
-	Json MediaDatabase::transformDBTrackCollectionAndItemsAndTracks(Json collectionJson, LinkedList<Json> itemsAndTracksJson) {
-		auto obj = transformDBTrackCollection(collectionJson).object_items();
-		Json::object itemsJson;
-		for(auto& itemAndTrackJson : itemsAndTracksJson) {
-			auto itemJson = transformDBTrackCollectionItemAndTrack(itemAndTrackJson);
-			auto indexNum = itemJson["indexNum"];
-			if(!indexNum.is_number()) {
-				continue;
-			}
-			itemsJson[std::to_string((size_t)indexNum.number_value())] = itemJson;
-		}
-		obj["items"] = itemsJson;
-		return obj;
-	}
-
-	Json MediaDatabase::transformDBTrackCollectionItem(Json collectionItemJson, Json trackJson) {
-		auto obj = collectionItemJson.object_items();
-		obj["track"] = transformDBTrack(trackJson);
-		auto addedByJson = obj["addedBy"];
-		if(addedByJson.is_string()) {
-			std::string error;
-			obj["addedBy"] = Json::parse(addedByJson.string_value(), error);
-			if(!error.empty()) {
-				throw std::invalid_argument("Failed to parse addedBy json: "+error);
-			}
-		}
-		return obj;
-	}
-
-	Json MediaDatabase::transformDBTrackCollectionItemAndTrack(Json itemAndTrackJson) {
-		auto jsonArray = itemAndTrackJson.array_items();
-		if(jsonArray.size() < 2) {
-			throw std::runtime_error("invalid TrackCollectionItem and Track json object");
-		}
-		auto collectionItemJson = jsonArray[0];
-		auto trackJson = jsonArray[1];
-		return transformDBTrackCollectionItem(collectionItemJson, trackJson);
-	}
-
-	Json MediaDatabase::transformDBArtist(Json json) {
-		auto obj = json.object_items();
-		auto imagesJson = obj["images"];
-		if(imagesJson.is_string()) {
-			std::string error;
-			obj["images"] = Json::parse(imagesJson.string_value(), error);
-			if(!error.empty()) {
-				throw std::invalid_argument("Failed to parse images json: "+error);
-			}
-		}
-		return obj;
-	}
-
-	Json MediaDatabase::transformDBSavedTrack(Json savedTrackJson, Json trackJson) {
-		auto obj = savedTrackJson.object_items();
-		obj["mediaItem"] = transformDBTrack(trackJson);
-		return obj;
-	}
-
-	Json MediaDatabase::transformDBSavedAlbum(Json savedAlbumJson, Json albumJson) {
-		auto obj = savedAlbumJson.object_items();
-		obj["mediaItem"] = transformDBTrackCollection(albumJson);
-		return obj;
-	}
-
-	Json MediaDatabase::transformDBSavedPlaylist(Json savedPlaylistJson, Json playlistJson) {
-		auto obj = savedPlaylistJson.object_items();
-		obj["mediaItem"] = transformDBTrackCollection(playlistJson);
-		return obj;
 	}
 
 

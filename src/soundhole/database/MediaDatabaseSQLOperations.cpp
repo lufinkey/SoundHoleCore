@@ -7,6 +7,7 @@
 //
 
 #include "MediaDatabaseSQLOperations.hpp"
+#include "MediaDatabaseSQLTransformations.hpp"
 
 namespace sh::sql {
 
@@ -217,6 +218,8 @@ void insertOrReplaceTracks(SQLiteTransaction& tx, const ArrayList<$<Track>>& tra
 struct TrackCollectionTuplesAndParams {
 	LinkedList<String> collectionTuples;
 	LinkedList<Any> collectionParams;
+	LinkedList<String> userAccountTuples;
+	LinkedList<Any> userAccountParams;
 	LinkedList<String> fullArtistTuples;
 	LinkedList<Any> fullArtistParams;
 	LinkedList<String> partialArtistTuples;
@@ -227,6 +230,12 @@ struct TrackCollectionTuplesAndParams {
 
 void addTrackCollectionTuples($<TrackCollection> collection, TrackCollectionTuplesAndParams& tuples) {
 	tuples.collectionTuples.pushBack(trackCollectionTuple(tuples.collectionParams, collection, {.coalesce=true}));
+	auto owner = trackCollectionOwner(collection);
+	if(owner) {
+		tuples.userAccountTuples.pushBack(userAccountTuple(tuples.userAccountParams, owner, {
+			.coalesce = owner->needsData()
+		}));
+	}
 	auto artists = trackCollectionArtists(collection);
 	for(auto& artist : artists.valueOr(ArrayList<$<Artist>>())) {
 		if(artist->uri().empty()) {
@@ -245,6 +254,14 @@ void addTrackCollectionTuples($<TrackCollection> collection, TrackCollectionTupl
 }
 
 void applyTrackCollectionTuples(SQLiteTransaction& tx, TrackCollectionTuplesAndParams& tuples) {
+	if(tuples.userAccountTuples.size() > 0) {
+		tx.addSQL(String::join({
+			"INSERT OR REPLACE INTO UserAccount (",
+			String::join(userAccountTupleColumns(), ", "),
+			") VALUES ",
+			String::join(tuples.userAccountTuples, ", ")
+		}), tuples.userAccountParams);
+	}
 	if(tuples.fullArtistTuples.size() > 0) {
 		tx.addSQL(String::join({
 			"INSERT OR REPLACE INTO Artist (",
@@ -401,19 +418,63 @@ void insertOrReplaceDBStates(SQLiteTransaction& tx, const ArrayList<DBState>& st
 	}
 }
 
+void applyDBState(SQLiteTransaction& tx, std::map<String,String> state) {
+	if(state.size() == 0) {
+		return;
+	}
+	ArrayList<sql::DBState> states;
+	states.reserve(state.size());
+	for(auto& pair : state) {
+		states.pushBack({
+			.stateKey=pair.first,
+			.stateValue=pair.second
+		});
+	}
+	insertOrReplaceDBStates(tx, states);
+}
+
 void selectTrack(SQLiteTransaction& tx, String outKey, String uri) {
-	tx.addSQL("SELECT * FROM Track WHERE uri = ?", { uri }, { .outKey=outKey });
+	tx.addSQL("SELECT * FROM Track WHERE uri = ?", { uri }, {
+		.outKey = outKey,
+		.mapper = [](auto json) {
+			return transformDBTrack(json);
+		}
+	});
 }
 
 void selectTrackCount(SQLiteTransaction& tx, String outKey) {
 	tx.addSQL("SELECT count(*) AS total FROM Track", {}, { .outKey=outKey });
 }
 
-void selectTrackCollection(SQLiteTransaction& tx, String outKey, String uri) {
-	tx.addSQL("SELECT * FROM TrackCollection WHERE uri = ?", { uri }, { .outKey=outKey });
+void selectTrackCollectionWithOwner(SQLiteTransaction& tx, String outKey, String uri) {
+	auto joinTables = ArrayList<JoinTable>{
+		{
+			.name = "TrackCollection",
+			.prefix = "r1_",
+			.columns = trackCollectionColumns()
+		}, {
+			.name = "UserAccount",
+			.prefix = "r2_",
+			.columns = userAccountColumns()
+		}
+	};
+	auto columns = joinedTableColumns(joinTables);
+	LinkedList<Any> params;
+	auto query = String::join({
+		"SELECT ",columns," FROM TrackCollection "
+			"LEFT OUTER JOIN UserAccount ON TrackCollection.ownerURI = UserAccount.uri "
+			"WHERE TrackCollection.uri = ",sqlParam(params, uri)
+	});
+	tx.addSQL(query, params, {
+		.outKey = outKey,
+		.mapper = [=](auto json) {
+			auto results = splitJoinedResults(joinTables, json);
+			return transformDBTrackCollection(results[0], results[1]);
+		}
+	});
 }
 
-void selectTrackCollectionItemsAndTracks(SQLiteTransaction& tx, String outKey, String collectionURI, Optional<IndexRange> range) {
+void selectTrackCollectionItemsWithTracks(SQLiteTransaction& tx, String outKey, String collectionURI, Optional<IndexRange> range) {
 	auto joinTables = ArrayList<JoinTable>{
 		{
 			.name = "TrackCollectionItem",
@@ -439,18 +500,24 @@ void selectTrackCollectionItemsAndTracks(SQLiteTransaction& tx, String outKey, S
 		" ORDER BY TrackCollectionItem.indexNum ASC"
 	});
 	tx.addSQL(query, params, {
-		.outKey=outKey,
-		.mapper=[=](auto row) {
-			return Json(splitJoinedResults(joinTables, row));
+		.outKey = outKey,
+		.mapper = [=](auto row) {
+			auto results = splitJoinedResults(joinTables, row);
+			return transformDBTrackCollectionItem(results[0], results[1]);
 		}
 	});
 }
 
 void selectArtist(SQLiteTransaction& tx, String outKey, String uri) {
-	tx.addSQL("SELECT * FROM Artist WHERE uri = ?", { uri }, { .outKey=outKey });
+	tx.addSQL("SELECT * FROM Artist WHERE uri = ?", { uri }, {
+		.outKey = outKey,
+		.mapper = [](auto json) {
+			return transformDBArtist(json);
+		}
+	});
 }
 
-void selectSavedTracksAndTracks(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options) {
+void selectSavedTracksWithTracks(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options) {
 	auto joinTables = ArrayList<JoinTable>{
 		{
 			.name = "SavedTrack",
@@ -495,7 +562,8 @@ void selectSavedTracksAndTracks(SQLiteTransaction& tx, String outKey, LibraryIte
 	tx.addSQL(query, params, {
 		.outKey=outKey,
 		.mapper=[=](auto row) {
-			return Json(splitJoinedResults(joinTables, row));
+			auto results = splitJoinedResults(joinTables, row);
+			return transformDBSavedTrack(results[0], results[1]);
 		}
 	});
 }
@@ -513,7 +581,7 @@ void selectSavedTrackCount(SQLiteTransaction& tx, String outKey, String libraryP
 	tx.addSQL(query, params, { .outKey=outKey });
 }
 
-void selectSavedAlbumsAndAlbums(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options) {
+void selectSavedAlbumsWithAlbums(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options) {
 	auto joinTables = ArrayList<JoinTable>{
 		{
 			.name = "SavedAlbum",
@@ -558,7 +626,8 @@ void selectSavedAlbumsAndAlbums(SQLiteTransaction& tx, String outKey, LibraryIte
 	tx.addSQL(query, params, {
 		.outKey=outKey,
 		.mapper=[=](auto row) {
-			return Json(splitJoinedResults(joinTables, row));
+			auto results = splitJoinedResults(joinTables, row);
+			return transformDBSavedAlbum(results[0], results[1]);
 		}
 	});
 }
@@ -576,7 +645,7 @@ void selectSavedAlbumCount(SQLiteTransaction& tx, String outKey, String libraryP
 	tx.addSQL(query, params, { .outKey=outKey });
 }
 
-void selectSavedPlaylistsAndPlaylists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options) {
+void selectSavedPlaylistsWithPlaylistsAndOwners(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options) {
 	auto joinTables = ArrayList<JoinTable>{
 		{
 			.name = "SavedPlaylist",
@@ -586,12 +655,18 @@ void selectSavedPlaylistsAndPlaylists(SQLiteTransaction& tx, String outKey, Libr
 			.name = "TrackCollection",
 			.prefix = "r2_",
 			.columns = trackCollectionColumns()
+		}, {
+			.name = "UserAccount",
+			.prefix = "r3_",
+			.columns = userAccountColumns()
 		}
 	};
 	auto columns = joinedTableColumns(joinTables);
 	LinkedList<Any> params;
 	auto query = String::join({
-		"SELECT ",columns," FROM SavedPlaylist, TrackCollection WHERE SavedPlaylist.playlistURI = TrackCollection.uri",
+		"SELECT ",columns," FROM SavedPlaylist, TrackCollection"
+		" LEFT OUTER JOIN UserAccount ON TrackCollection.ownerURI = UserAccount.uri"
+		" WHERE SavedPlaylist.playlistURI = TrackCollection.uri",
 		(options.libraryProvider.empty()) ?
 			String()
 			: String::join({
@@ -619,9 +694,10 @@ void selectSavedPlaylistsAndPlaylists(SQLiteTransaction& tx, String outKey, Libr
 		sqlOffsetAndLimitFromRange(options.range, params)
 	});
 	tx.addSQL(query, params, {
-		.outKey=outKey,
-		.mapper=[=](auto row) {
-			return Json(splitJoinedResults(joinTables, row));
+		.outKey = outKey,
+		.mapper = [=](auto row) {
+			auto results = splitJoinedResults(joinTables, row);
+			return transformDBSavedPlaylist(results[0], results[1], results[2]);
 		}
 	});
 }
@@ -651,18 +727,22 @@ void selectLibraryArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelec
 			}),
 		"("
 			"EXISTS("
+				// if artist is attached to a saved track
 				"SELECT TrackArtist.trackURI, TrackArtist.artistURI FROM TrackArtist, SavedTrack "
 					"WHERE TrackArtist.artistURI = a.uri AND TrackArtist.trackURI = SavedTrack.trackURI"
 			") "
 			"OR EXISTS("
+				// if artist is attached to a saved album
 				"SELECT TrackCollectionArtist.trackURI, TrackCollectionArtist.artistURI FROM TrackCollectionArtist, SavedAlbum "
 					"WHERE TrackCollectionArtist.artistURI = a.uri AND TrackCollectionArtist.collectionURI = SavedAlbum.albumURI"
 			") "
 			"OR EXISTS("
+				// if artist is attached to a saved playlist
 				"SELECT TrackCollectionArtist.trackURI, TrackCollectionArtist.artistURI FROM TrackCollectionArtist, SavedPlaylist "
 					"WHERE TrackCollectionArtist.artistURI = a.uri AND TrackCollectionArtist.collectionURI = SavedPlaylist.playlistURI"
 			") "
 			"OR EXISTS("
+				// if artist is followed
 				"SELECT FollowedArtist.artistURI FROM FollowedArtist "
 					"WHERE FollowedArtist.artistURI = a.uri"
 			") "
@@ -688,7 +768,12 @@ void selectLibraryArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelec
 		})(),
 		sqlOffsetAndLimitFromRange(options.range, params)
 	});
-	tx.addSQL(query, params, { .outKey=outKey });
+	tx.addSQL(query, params, {
+		.outKey = outKey,
+		.mapper = [](auto json) {
+			return transformDBArtist(json);
+		}
+	});
 }
 
 void selectLibraryArtistCount(SQLiteTransaction& tx, String outKey, String libraryProvider) {
@@ -738,77 +823,92 @@ void deleteNonLibraryCollectionItems(SQLiteTransaction& tx) {
 	tx.addSQL(
 		"DELETE FROM TrackCollectionItem AS tci "
 		"WHERE NOT EXISTS("
-			"SELECT TrackCollectionItem.collectionURI, TrackCollectionItem.indexNum, TrackCollectionItem.trackURI "
-				"FROM TrackCollectionItem, SavedAlbum "
-				"WHERE TrackCollectionItem.trackURI = tci.trackURI AND TrackCollectionItem.collectionURI = SavedAlbum.albumURI"
+			// check if collection is a saved album
+			"SELECT albumURI FROM SavedAlbum WHERE SavedAlbum.albumURI = tci.collectionURI"
 		") "
 		"AND NOT EXISTS("
-			"SELECT TrackCollectionItem.collectionURI, TrackCollectionItem.indexNum, TrackCollectionItem.trackURI "
-				"FROM TrackCollectionItem, SavedPlaylist "
-				"WHERE TrackCollectionItem.trackURI = tci.trackURI AND TrackCollectionItem.collectionURI = SavedPlaylist.playlistURI"
+			// check if collection is a saved playlist
+			"SELECT playlistURI FROM SavedPlaylist WHERE SavedPlaylist.playlistURI = tci.collectionURI"
 		")", {});
 }
 
 void deleteNonLibraryTracks(SQLiteTransaction& tx) {
+	// delete from track artists
 	tx.addSQL(
 		"DELETE FROM TrackArtist AS ta "
 		"WHERE NOT EXISTS("
+			// check if track is a saved track
 			"SELECT trackURI, libraryProvider FROM SavedTrack WHERE SavedTrack.trackURI = ta.trackURI"
 		") "
 		"AND NOT EXISTS("
+			// check if a collection item from a saved album references this track
 			"SELECT TrackCollectionItem.collectionURI, TrackCollectionItem.indexNum, TrackCollectionItem.trackURI "
 				"FROM TrackCollectionItem, SavedAlbum "
 				"WHERE TrackCollectionItem.trackURI = ta.trackURI AND TrackCollectionItem.collectionURI = SavedAlbum.albumURI"
 		") "
 		"AND NOT EXISTS("
+			// check if a collection item from a saved playlist references this track
 			"SELECT TrackCollectionItem.collectionURI, TrackCollectionItem.indexNum, TrackCollectionItem.trackURI "
 				"FROM TrackCollectionItem, SavedPlaylist "
 				"WHERE TrackCollectionItem.trackURI = ta.trackURI AND TrackCollectionItem.collectionURI = SavedPlaylist.playlistURI"
 		") "
 		"AND NOT EXISTS("
+			// check if track is from a saved album
 			"SELECT Track.uri FROM Track, SavedAlbum WHERE Track.uri = ta.trackURI AND Track.albumURI = SavedAlbum.albumURI"
 		")", {});
+	// delete from tracks
 	tx.addSQL(
 		"DELETE FROM Track AS t "
 		"WHERE NOT EXISTS("
+			// check if track is a saved track
 			"SELECT trackURI, libraryProvider FROM SavedTrack WHERE SavedTrack.trackURI = t.uri"
 		") "
 		"AND NOT EXISTS("
+			// check if a collection item from a saved album references this track
 			"SELECT TrackCollectionItem.collectionURI, TrackCollectionItem.indexNum, TrackCollectionItem.trackURI "
 				"FROM TrackCollectionItem, SavedAlbum "
 				"WHERE TrackCollectionItem.trackURI = t.uri AND TrackCollectionItem.collectionURI = SavedAlbum.albumURI"
 		") "
 		"AND NOT EXISTS("
+			// check if a collection item from a saved playlist references this track
 			"SELECT TrackCollectionItem.collectionURI, TrackCollectionItem.indexNum, TrackCollectionItem.trackURI "
 				"FROM TrackCollectionItem, SavedPlaylist "
 				"WHERE TrackCollectionItem.trackURI = t.uri AND TrackCollectionItem.collectionURI = SavedPlaylist.playlistURI"
 		") "
 		"AND NOT EXISTS("
+			// check if track is from a saved album
 			"SELECT SavedAlbum.uri FROM SavedAlbum WHERE t.albumURI = SavedAlbum.albumURI"
 		")", {});
 }
 
 void deleteNonLibraryCollections(SQLiteTransaction& tx) {
+	// delete from collection artists
 	tx.addSQL(
 		"DELETE FROM TrackCollectionArtist AS tca "
 		"WHERE NOT EXISTS("
+			// check if collection is a saved album
 			"SELECT albumURI, libraryProvider FROM SavedAlbum WHERE SavedAlbum.albumURI = tca.collectionURI"
 		") "
 		"WHERE NOT EXISTS("
+			// check if collection is a saved playlist
 			"SELECT playlistURI, libraryProvider FROM SavedPlaylist WHERE SavedPlaylist.playlistURI = tca.collectionURI"
 		") "
 		"AND NOT EXISTS("
+			// check if collection is the album of a saved track
 			"SELECT Track.albumURI FROM Track WHERE Track.albumURI = tca.collectionURI"
 		")", {});
 	tx.addSQL(
 		"DELETE FROM TrackCollection AS tc "
 		"WHERE NOT EXISTS("
+			// check if collection is a saved album
 			"SELECT albumURI, libraryProvider FROM SavedAlbum WHERE SavedAlbum.albumURI = tc.uri"
 		") "
 		"WHERE NOT EXISTS("
+			// check if collection is a saved playlist
 			"SELECT playlistURI, libraryProvider FROM SavedPlaylist WHERE SavedPlaylist.playlistURI = tc.uri"
 		") "
 		"AND NOT EXISTS("
+			// check if collection is the album of a saved track
 			"SELECT Track.albumURI FROM Track WHERE Track.albumURI = tc.uri"
 		")", {});
 }
@@ -817,13 +917,29 @@ void deleteNonLibraryArtists(SQLiteTransaction& tx) {
 	tx.addSQL(
 		"DELETE FROM Artist AS a "
 		"WHERE NOT EXISTS("
+			// check if artist is referenced by a track artist
 			"SELECT artistURI FROM TrackArtist WHERE TrackArtist.artistURI = a.uri"
 		") "
 		"AND NOT EXISTS("
+			// check if artist is referenced by a collection artist
 			"SELECT artistURI FROM TrackCollectionArtist WHERE TrackCollectionArtist.artistURI = a.uri"
 		") "
 		"AND NOT EXISTS("
+			// check if artist is a followed artist
 			"SELECT artistURI FROM FollowedArtist WHERE FollowedArtist.artistURI = a.uri"
+		") ", {});
+}
+
+void deleteNonLibraryUserAccounts(SQLiteTransaction& tx) {
+	tx.addSQL(
+		"DELETE FROM UserAccount AS u "
+		"WHERE NOT EXISTS("
+			  // check if user is referenced by a track collection
+			  "SELECT ownerURI FROM TrackCollection WHERE TrackCollection.ownerURI = u.uri"
+		") "
+		"AND NOT EXISTS("
+			  // check if user is a followed user
+			  "SELECT userURI FROM FollowedUserAccount WHERE FollowedUserAccount.userURI = u.uri"
 		") ", {});
 }
 

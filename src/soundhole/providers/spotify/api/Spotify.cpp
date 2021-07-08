@@ -295,7 +295,7 @@ namespace sh {
 						else if(errorObj.is_object()) {
 							String errorMessage = errorObj["message"].string_value();
 							if(errorMessage.empty()) {
-								errorMessage = "Request failed";
+								errorMessage = (String)"Request failed with code " + response->statusCode;
 							}
 							std::map<String,Any> details = {
 								{ "statusCode", response->statusCode }

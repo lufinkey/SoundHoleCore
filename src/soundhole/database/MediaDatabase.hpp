@@ -126,16 +126,6 @@ namespace sh {
 	private:
 		static void applyDBState(SQLiteTransaction& tx, std::map<String,String> state);
 		
-		static Json transformDBTrack(Json json);
-		static Json transformDBTrackCollection(Json json);
-		static Json transformDBTrackCollectionAndItemsAndTracks(Json collectionJson, LinkedList<Json> itemsAndTracksJson);
-		static Json transformDBTrackCollectionItem(Json collectionItemJson, Json trackJson);
-		static Json transformDBTrackCollectionItemAndTrack(Json itemAndTrackJson);
-		static Json transformDBArtist(Json json);
-		static Json transformDBSavedTrack(Json savedTrackJson, Json trackJson);
-		static Json transformDBSavedAlbum(Json savedAlbumJson, Json albumJson);
-		static Json transformDBSavedPlaylist(Json savedPlaylistJson, Json playlistJson);
-		
 		Options options;
 		std::recursive_mutex dbMutex;
 		sqlite3* db;

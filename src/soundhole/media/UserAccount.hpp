@@ -24,9 +24,5 @@ namespace sh {
 		
 		Data toData() const;
 		virtual Json toJson() const override;
-		
-	protected:
-		String _id;
-		Optional<String> _displayName;
 	};
 }

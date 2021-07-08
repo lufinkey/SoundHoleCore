@@ -444,43 +444,55 @@ namespace sh {
 	PlaylistItem::Data YoutubeMediaProvider::createPlaylistItemData(YoutubePlaylistItem playlistItem) {
 		return PlaylistItem::Data{{
 			.track=this->track(Track::Data{{
-				.partial=true,
-				.type="track",
-				.name=playlistItem.snippet.title,
-				.uri=createURI("video", playlistItem.snippet.resourceId.videoId),
-				.images=playlistItem.snippet.thumbnails.map([&](auto image) -> MediaItem::Image {
+				.partial = true,
+				.type = "track",
+				.name = playlistItem.snippet.title,
+				.uri = createURI("video", playlistItem.snippet.resourceId.videoId),
+				.images = playlistItem.snippet.thumbnails.map([&](auto image) -> MediaItem::Image {
 					return createImage(image);
 				})
 				},
-				.albumName="",
-				.albumURI="",
+				.albumName = "",
+				.albumURI = "",
 				.artists=ArrayList<$<Artist>>{
 					this->artist(Artist::Data{{
-						.partial=true,
-						.type="artist",
-						.name=playlistItem.snippet.channelTitle,
-						.uri=createURI("channel", playlistItem.snippet.channelId),
-						.images=std::nullopt
+						.partial = true,
+						.type = "artist",
+						.name = playlistItem.snippet.channelTitle,
+						.uri = createURI("channel", playlistItem.snippet.channelId),
+						.images = std::nullopt
 						},
-						.description=std::nullopt
+						.description = std::nullopt
 					})
 				},
-				.tags=std::nullopt,
-				.discNumber=std::nullopt,
-				.trackNumber=std::nullopt,
-				.duration=std::nullopt,
-				.audioSources=std::nullopt,
-				.playable=true
+				.tags = std::nullopt,
+				.discNumber = std::nullopt,
+				.trackNumber = std::nullopt,
+				.duration = std::nullopt,
+				.audioSources = std::nullopt,
+				.playable = true
 			}),
 			},
-			.uniqueId=playlistItem.id,
-			.addedAt=playlistItem.snippet.publishedAt,
-			.addedBy=this->userAccount(UserAccount::Data{
+			.uniqueId = playlistItem.id,
+			.addedAt = playlistItem.snippet.publishedAt,
+			.addedBy = this->userAccount(UserAccount::Data{
 				.partial = true,
 				.type = "user",
 				.name = playlistItem.snippet.channelTitle,
 				.uri = createURI("channel", playlistItem.snippet.channelId),
 				.images = std::nullopt
+			})
+		};
+	}
+
+	UserAccount::Data YoutubeMediaProvider::createUserData(YoutubeChannel channel) {
+		return UserAccount::Data{
+			.partial = false,
+			.type = "channel",
+			.name = channel.snippet.title,
+			.uri = createURI("channel", channel.id),
+			.images = channel.snippet.thumbnails.map([&](auto image) -> MediaItem::Image {
+				return createImage(image);
 			})
 		};
 	}
@@ -627,7 +639,21 @@ namespace sh {
 	}
 
 	Promise<UserAccount::Data> YoutubeMediaProvider::getUserData(String uri) {
-		return Promise<UserAccount::Data>::reject(std::logic_error("This method is not implemented yet"));
+		auto uriParts = parseURI(uri);
+		Youtube::GetChannelsOptions options;
+		if(uriParts.type == "channel") {
+			options.ids = { uriParts.id };
+		} else if(uriParts.type == "user") {
+			options.forUsername = uriParts.id;
+		} else {
+			return Promise<UserAccount::Data>::reject(std::invalid_argument(uri+" is not a channel or user URI"));
+		}
+		return youtube->getChannels(options).map([=](auto page) -> UserAccount::Data {
+			if(page.items.size() == 0) {
+				throw YoutubeError(YoutubeError::Code::NOT_FOUND, "Could not find channel with for uri "+uri);
+			}
+			return createUserData(page.items.front());
+		});
 	}
 
 

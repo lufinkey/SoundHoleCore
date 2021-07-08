@@ -49,11 +49,17 @@ ArrayList<String> artistColumns() {
 ArrayList<String> followedArtistColumns() {
 	return { "artistURI", "libraryProvider", "updateTime" };
 }
+ArrayList<String> userAccountColumns() {
+	return { "uri", "provider", "type", "name", "images", "updateTime" };
+}
+ArrayList<String> followedUserAccountColumns() {
+	return { "userURI", "libraryProvider", "updateTime" };
+}
 ArrayList<String> trackColumns() {
 	return { "uri", "provider", "name", "albumName", "albumURI", "artists", "images", "duration", "playable", "updateTime" };
 }
 ArrayList<String> trackCollectionColumns() {
-	return { "uri", "provider", "type", "name", "versionId", "itemCount", "owner", "privacy", "artists", "images", "updateTime" };
+	return { "uri", "provider", "type", "name", "versionId", "itemCount", "ownerURI", "privacy", "artists", "images", "updateTime" };
 }
 ArrayList<String> trackCollectionItemColumns() {
 	return { "collectionURI", "indexNum", "trackURI", "uniqueId", "addedAt", "addedBy", "updateTime" };
@@ -85,7 +91,24 @@ CREATE TABLE IF NOT EXISTS FollowedArtist (
 	artistURI TEXT NOT NULL UNIQUE,
 	libraryProvider TEXT NOT NULL UNIQUE,
 	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY(artistURI, libraryProvider)
+	PRIMARY KEY(artistURI, libraryProvider),
+	FOREIGN KEY(artistURI) REFERENCES Artist(uri)
+);
+CREATE TABLE IF NOT EXISTS UserAccount (
+	uri TEXT NOT NULL UNIQUE,
+	provider TEXT NOT NULL,
+	type TEXT NOT NULL,
+	name TEXT NOT NULL,
+	images TEXT,
+	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY(uri)
+);
+CREATE TABLE IF NOT EXISTS FollowedUserAccount (
+	userURI TEXT NOT NULL UNIQUE,
+	libraryProvider TEXT NOT NULL UNIQUE,
+	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY(userURI, libraryProvider),
+	FOREIGN KEY(userURI) REFERENCES UserAccount(uri)
 );
 CREATE TABLE IF NOT EXISTS TrackCollection (
 	uri TEXT NOT NULL UNIQUE,
@@ -94,12 +117,13 @@ CREATE TABLE IF NOT EXISTS TrackCollection (
 	name TEXT NOT NULL,
 	versionId TEXT,
 	itemCount INT,
-	owner TEXT,
+	ownerURI TEXT,
 	privacy TEXT,
 	artists TEXT,
 	images TEXT,
 	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY(uri)
+	PRIMARY KEY(uri),
+	FOREIGN KEY(ownerURI) REFERENCES UserAccount(uri)
 );
 CREATE TABLE IF NOT EXISTS TrackCollectionArtist (
 	collectionURI TEXT NOT NULL,
@@ -186,6 +210,8 @@ DROP TABLE IF EXISTS TrackCollectionArtist;
 DROP TABLE IF EXISTS TrackCollectionItem;
 DROP TABLE IF EXISTS Track;
 DROP TABLE IF EXISTS TrackCollection;
+DROP TABLE IF EXISTS FollowedUserAccount;
+DROP TABLE IF EXISTS UserAccount;
 DROP TABLE IF EXISTS FollowedArtist;
 DROP TABLE IF EXISTS Artist;
 DROP TABLE IF EXISTS DBState;
@@ -253,6 +279,8 @@ String trackTuple(LinkedList<Any>& params, $<Track> track, const TupleOptions& o
 		"CURRENT_TIMESTAMP",
 	")" });
 }
+
+
 
 ArrayList<String> albumTupleFromTrackColumns() {
 	return { "uri", "provider", "type", "name", "versionId", "itemCount", "artists", "images", "updateTime" };
@@ -326,7 +354,7 @@ Optional<Playlist::Privacy> trackCollectionPrivacy($<TrackCollection> collection
 
 
 ArrayList<String> trackCollectionTupleColumns() {
-	return { "uri", "provider", "type", "name", "versionId", "itemCount", "owner", "privacy", "artists", "images", "updateTime" };
+	return { "uri", "provider", "type", "name", "versionId", "itemCount", "ownerURI", "privacy", "artists", "images", "updateTime" };
 }
 String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collection, const TrackCollectionTupleOptions& options) {
 	auto artists = trackCollectionArtists(collection);
@@ -349,8 +377,8 @@ String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collecti
 		),",",
 		// itemCount
 		MAYBE_COALESCE_FIELD(options.coalesce, params, "itemCount", "TrackCollection", collection, collection->itemCount().toAny()),",",
-		// owner
-		MAYBE_COALESCE_FIELD(options.coalesce, params, "owner", "TrackCollection", collection, owner ? String(owner->toJson().dump()) : Any()),",",
+		// ownerURI
+		sqlParam(params, owner ? Any(owner->uri()) : Any()),",",
 		// privacy
 		(privacy ?
 			(privacy == Playlist::Privacy::UNKNOWN) ?
@@ -478,6 +506,44 @@ String followedArtistTuple(LinkedList<Any>& params, const FollowedArtist& follow
 		"CURRENT_TIMESTAMP",
 	")" });
 }
+
+
+
+ArrayList<String> userAccountTupleColumns() {
+	return { "uri", "provider", "type", "name", "images", "updateTime" };
+}
+String userAccountTuple(LinkedList<Any>& params, $<UserAccount> userAccount, const TupleOptions& options) {
+	return String::join({ "(",
+		// uri
+		sqlParam(params, userAccount->uri()),",",
+		// provider
+		sqlParam(params, userAccount->mediaProvider()->name()),",",
+		// type
+		sqlParam(params, userAccount->type()),",",
+		// name
+		sqlParam(params, userAccount->name()),",",
+		// images
+		MAYBE_COALESCE_FIELD(options.coalesce, params, "images", "UserAccount", userAccount, imagesJson(userAccount->images())),",",
+		// updateTime
+		"CURRENT_TIMESTAMP",
+	")" });
+}
+
+ArrayList<String> followedUserAccountTupleColumns() {
+	return { "userURI", "libraryProvider", "updateTime" };
+}
+String followedUserAccountTuple(LinkedList<Any>& params, const FollowedUserAccount& followedUser) {
+	return String::join({ "(",
+		// artistURI
+		sqlParam(params, followedUser.userURI),",",
+		// libraryProvider
+		sqlParam(params, followedUser.libraryProvider),",",
+		// updateTime
+		"CURRENT_TIMESTAMP",
+	")" });
+}
+
+
 
 ArrayList<String> savedTrackTupleColumns() {
 	return { "trackURI", "libraryProvider", "addedAt", "updateTime" };

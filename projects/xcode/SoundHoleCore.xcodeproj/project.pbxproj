@@ -115,6 +115,9 @@
 		A578785A23E37A7B00B6B0A5 /* QueueItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A578785823E37A7B00B6B0A5 /* QueueItem.cpp */; };
 		A578785B23E37A7B00B6B0A5 /* QueueItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A578785823E37A7B00B6B0A5 /* QueueItem.cpp */; };
 		A578785C23E37A7B00B6B0A5 /* QueueItem.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A578785923E37A7B00B6B0A5 /* QueueItem.hpp */; };
+		A58189A326961A5A007BFD82 /* MediaDatabaseSQLTransformations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58189A126961A5A007BFD82 /* MediaDatabaseSQLTransformations.cpp */; };
+		A58189A426961A5A007BFD82 /* MediaDatabaseSQLTransformations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58189A126961A5A007BFD82 /* MediaDatabaseSQLTransformations.cpp */; };
+		A58189A526961A5A007BFD82 /* MediaDatabaseSQLTransformations.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A58189A226961A5A007BFD82 /* MediaDatabaseSQLTransformations.hpp */; };
 		A5A970E023CBDCD0009887CA /* StreamPlayerEventHandler_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5A970DF23CBDCD0009887CA /* StreamPlayerEventHandler_iOS.mm */; };
 		A5AB5BC62368B1630028851A /* YoutubeMediaTypes.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5AB5BC32368B1630028851A /* YoutubeMediaTypes.hpp */; };
 		A5AE3F04247B890000FB9AFF /* MediaDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AE3F02247B890000FB9AFF /* MediaDatabase.cpp */; };
@@ -415,6 +418,8 @@
 		A578785423DE547F00B6B0A5 /* PlaybackOrganizer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PlaybackOrganizer.hpp; sourceTree = "<group>"; };
 		A578785823E37A7B00B6B0A5 /* QueueItem.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = QueueItem.cpp; sourceTree = "<group>"; };
 		A578785923E37A7B00B6B0A5 /* QueueItem.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = QueueItem.hpp; sourceTree = "<group>"; };
+		A58189A126961A5A007BFD82 /* MediaDatabaseSQLTransformations.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MediaDatabaseSQLTransformations.cpp; sourceTree = "<group>"; };
+		A58189A226961A5A007BFD82 /* MediaDatabaseSQLTransformations.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaDatabaseSQLTransformations.hpp; sourceTree = "<group>"; };
 		A5A970DE23CBDCD0009887CA /* StreamPlayerEventHandler_iOS.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = StreamPlayerEventHandler_iOS.hpp; sourceTree = "<group>"; };
 		A5A970DF23CBDCD0009887CA /* StreamPlayerEventHandler_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StreamPlayerEventHandler_iOS.mm; sourceTree = "<group>"; };
 		A5AB5BC22368B1630028851A /* YoutubeMediaTypes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = YoutubeMediaTypes.cpp; sourceTree = "<group>"; };
@@ -993,6 +998,8 @@
 				A5AE3F02247B890000FB9AFF /* MediaDatabase.cpp */,
 				A5AE3F08247BA5B700FB9AFF /* MediaDatabaseSQL.hpp */,
 				A5AE3F07247BA5B700FB9AFF /* MediaDatabaseSQL.cpp */,
+				A58189A226961A5A007BFD82 /* MediaDatabaseSQLTransformations.hpp */,
+				A58189A126961A5A007BFD82 /* MediaDatabaseSQLTransformations.cpp */,
 				A5AE3F22247C937400FB9AFF /* MediaDatabaseSQLOperations.hpp */,
 				A5AE3F21247C937400FB9AFF /* MediaDatabaseSQLOperations.cpp */,
 				A5AE3F2D247DCF3600FB9AFF /* SQLIndexRange.hpp */,
@@ -1198,6 +1205,7 @@
 				A5D9F568255E0BC100E4762A /* YoutubeAuthEventListener.hpp in Headers */,
 				A5D9F54B255E0B4700E4762A /* YoutubeAuth.hpp in Headers */,
 				A5C6DB4A25BE03E600596878 /* GoogleDriveStorageMediaTypes.impl.hpp in Headers */,
+				A58189A526961A5A007BFD82 /* MediaDatabaseSQLTransformations.hpp in Headers */,
 				A57378A423D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.hpp in Headers */,
 				A5B9736723822C0100FB3F1C /* TrackCollection.hpp in Headers */,
 				A5E851BE235A4AE90001F74D /* JSUtils.hpp in Headers */,
@@ -1632,6 +1640,7 @@
 				A578785023DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp in Sources */,
 				A5E7852323CE70BC00BD1C67 /* YoutubePlaybackProvider.cpp in Sources */,
 				A5C6D17525AD697900596878 /* MediaProviderStash.cpp in Sources */,
+				A58189A326961A5A007BFD82 /* MediaDatabaseSQLTransformations.cpp in Sources */,
 				A5E851BF235A4AE90001F74D /* JSUtils.cpp in Sources */,
 				A571E1A6233440A800603E14 /* HttpClient.cpp in Sources */,
 				A5485A2823942EB800CB7749 /* MediaPlaybackProvider.cpp in Sources */,
@@ -1729,6 +1738,7 @@
 				A563A60B24B633CF0036A842 /* soundhole.cpp in Sources */,
 				A57378A323D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp in Sources */,
 				A578785123DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp in Sources */,
+				A58189A426961A5A007BFD82 /* MediaDatabaseSQLTransformations.cpp in Sources */,
 				A5F9F640244AB6CE00E80C7A /* Player_objc.mm in Sources */,
 				A5B9736623822C0100FB3F1C /* TrackCollection.cpp in Sources */,
 				A5C6CCF12598013D00596878 /* GoogleDriveStorageProvider.cpp in Sources */,

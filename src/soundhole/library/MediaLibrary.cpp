@@ -140,7 +140,7 @@ namespace sh {
 					try {
 						yieldResult = await(libraryGenerator.next());
 					} catch(Error& error) {
-						task->setStatusText("Error: "+error.getMessage());
+						task->setStatusText("Error: "+error.toString());
 						yield();
 						auto retryAfter = error.getDetail("retryAfter").maybeAs<double>().value_or(0);
 						if(retryAfter > 0) {
@@ -193,7 +193,7 @@ namespace sh {
 									try {
 										itemsYieldResult = await(collectionItemGenerator.next());
 									} catch(Error& error) {
-										task->setStatusText("Error: "+error.getMessage());
+										task->setStatusText("Error: "+error.toString());
 										yield();
 										auto retryAfter = error.getDetail("retryAfter").maybeAs<double>().value_or(0);
 										if(retryAfter > 0) {
