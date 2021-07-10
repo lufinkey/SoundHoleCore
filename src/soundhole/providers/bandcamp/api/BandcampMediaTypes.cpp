@@ -304,7 +304,6 @@ namespace sh {
 		return Json::object{
 			{ "id", (std::string)id },
 			{ "url", (std::string)url },
-			{ "username", (std::string)username },
 			{ "name", (std::string)name },
 			{ "images", images ? images->map([](const BandcampImage& image) -> Json {
 				return image.toJson();
@@ -323,7 +322,6 @@ namespace sh {
 		return Fan{
 			.id=json["id"].string_value(),
 			.url=json["url"].string_value(),
-			.username=json["username"].string_value(),
 			.name=json["name"].string_value(),
 			.images=jsutils::optArrayListFromJson(json["images"], [](const Json& json) -> BandcampImage {
 				return BandcampImage::fromJson(json);
@@ -342,7 +340,6 @@ namespace sh {
 		return Fan{
 			.id=jsutils::nonNullStringPropFromNapiObject(obj,"id"),
 			.url=jsutils::nonNullStringPropFromNapiObject(obj,"url"),
-			.username=jsutils::nonNullStringPropFromNapiObject(obj,"username"),
 			.name=jsutils::nonNullStringPropFromNapiObject(obj,"name"),
 			.images=jsutils::optArrayListFromNapiValue(obj.Get("images"), [](Napi::Value value) -> BandcampImage {
 				return BandcampImage::fromNapiObject(value.template As<Napi::Object>());
@@ -356,7 +353,6 @@ namespace sh {
 		return BandcampFan{
 			.id=jsutils::nonNullStringPropFromNapiObject(obj,"id"),
 			.url=jsutils::nonNullStringPropFromNapiObject(obj,"url"),
-			.username=jsutils::nonNullStringPropFromNapiObject(obj,"username"),
 			.name=jsutils::nonNullStringPropFromNapiObject(obj,"name"),
 			.description=jsutils::stringFromNapiValue(obj.Get("description")),
 			.images=jsutils::optArrayListFromNapiValue(obj.Get("images"), [](Napi::Value value) -> BandcampImage {

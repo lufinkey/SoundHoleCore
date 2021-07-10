@@ -273,50 +273,60 @@ namespace sh {
 			})
 			.map([=](utils::SharedHttpResponse response) -> Json {
 				Json result;
+				// parse result data
+				std::string parseError;
+				auto resultObj = Json::parse((std::string)response->data, parseError);
+				// parse any possible response errors
+				parseResponseError(response, resultObj);
+				// throw body parse error if needed
 				auto contentTypeIt = response->headers.find("Content-Type");
 				String contentType = (contentTypeIt != response->headers.end()) ? contentTypeIt->second : "";
 				if(!contentType.empty()) {
 					contentType = contentType.split(';').front().trim().toLowerCase();
 				}
 				if(!contentType.empty() && contentType == "application/json" && response->statusCode != 204) {
-					std::string parseError;
-					result = Json::parse((std::string)response->data, parseError);
 					if(!parseError.empty()) {
 						throw SpotifyError(SpotifyError::Code::BAD_DATA, "Failed to parse response json: "+parseError);
 					}
-					auto errorObj = result["error"];
-					if(!errorObj.is_null()) {
-						auto errorDescObj = result["error_description"];
-						if(!errorDescObj.is_null()) {
-							throw SpotifyError(SpotifyError::Code::REQUEST_FAILED, errorDescObj.string_value(), {
-								{ "spotifyCode", String(errorObj.string_value()) }
-							});
-						}
-						else if(errorObj.is_object()) {
-							String errorMessage = errorObj["message"].string_value();
-							if(errorMessage.empty()) {
-								errorMessage = (String)"Request failed with code " + response->statusCode;
-							}
-							std::map<String,Any> details = {
-								{ "statusCode", response->statusCode }
-							};
-							if(response->statusCode == 429) {
-								auto retryAfterIt = response->headers.find("Retry-After");
-								String retryAfter = (retryAfterIt != response->headers.end()) ? retryAfterIt->second : "";
-								if(!retryAfter.empty()) {
-									errorMessage += ". Retry after "+retryAfter+" seconds";
-								}
-								details["retryAfter"] = retryAfter.toArithmeticValue<double>();
-							}
-							throw SpotifyError(SpotifyError::Code::REQUEST_FAILED, errorMessage, details);
-						} else {
-							throw SpotifyError(SpotifyError::Code::BAD_DATA, "Unknown error response format");
-						}
-					}
 				}
-				return result;
+				return resultObj;
 			});
 		});
+	}
+
+	void Spotify::parseResponseError(utils::SharedHttpResponse response, Json responseBody) {
+		// parse result data
+		auto errorObj = responseBody["error"];
+		auto errorDescriptionStr = responseBody["error_description"].string_value();
+		auto errorMessageStr = errorObj["message"].string_value();
+		// if no error, just return
+		if(response->statusCode < 300 && errorDescriptionStr.empty() && errorMessageStr.empty()) {
+			return;
+		}
+		// build error message
+		String errorMessage =
+			!errorDescriptionStr.empty() ? (String)errorDescriptionStr
+			: !errorMessageStr.empty() ? (String)errorMessageStr
+			: ((String)"Request failed with code " + response->statusCode);
+		// build error details object
+		std::map<String,Any> details = {
+			{ "statusCode", response->statusCode }
+		};
+		// if "error" is a string and "error_description" is a string, include "error" as an error code detail
+		if(!errorObj.string_value().empty() && !errorDescriptionStr.empty()) {
+			details["spotifyCode"] = String(errorObj.string_value());
+		}
+		// if Retry-After is set, include in error
+		if(response->statusCode == 429) {
+			auto retryAfterIt = response->headers.find("Retry-After");
+			String retryAfter = (retryAfterIt != response->headers.end()) ? retryAfterIt->second : "";
+			if(!retryAfter.empty()) {
+				errorMessage += ". Retry after "+retryAfter+" seconds";
+			}
+			details["retryAfter"] = retryAfter.toArithmeticValue<double>();
+		}
+		// throw error
+		throw SpotifyError(SpotifyError::Code::REQUEST_FAILED, errorMessage, details);
 	}
 
 

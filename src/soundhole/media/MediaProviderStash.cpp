@@ -28,9 +28,9 @@ namespace sh {
 		}
 		if(type == "track") {
 			return provider->track(Track::Data::fromJson(json,this));
-		} else if(type == "artist") {
+		} else if(type == "artist" || type == "label") {
 			return provider->artist(Artist::Data::fromJson(json,this));
-		} else if(type == "album" || type == "label") {
+		} else if(type == "album") {
 			return provider->album(Album::Data::fromJson(json,this));
 		} else if(type == "playlist") {
 			return provider->playlist(Playlist::Data::fromJson(json,this));

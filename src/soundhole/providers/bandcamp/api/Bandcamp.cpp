@@ -276,19 +276,23 @@ namespace sh {
 
 
 
+	Napi::Object Bandcamp::GetFanSectionItemsOptions::toNapiObject(napi_env env) const {
+		auto optionsObj = Napi::Object::New(env);
+		if(!olderThanToken.empty()) {
+			optionsObj["olderThanToken"] = olderThanToken.toNodeJSValue(env);
+		}
+		if(!count.hasValue()) {
+			optionsObj["count"] = Napi::Number::New(env, (double)count.value());
+		}
+		return optionsObj;
+	}
+
 	Promise<BandcampFanSectionPage<BandcampFan::CollectionItemNode>> Bandcamp::getFanCollectionItems(String fanURL, String fanId, GetFanSectionItemsOptions options) {
 		return performAsyncBandcampJSFunc<BandcampFanSectionPage<BandcampFan::CollectionItemNode>>("getFanCollectionItems", [=](napi_env env) {
-			auto optionsObj = Napi::Object::New(env);
-			if(!options.olderThanToken.empty()) {
-				optionsObj["olderThanToken"] = options.olderThanToken.toNodeJSValue(env);
-			}
-			if(!options.count.hasValue()) {
-				optionsObj["count"] = Napi::Number::New(env, (double)options.count.value());
-			}
 			return std::vector<napi_value>{
 				fanURL.toNodeJSValue(env),
 				fanId.toNodeJSValue(env),
-				optionsObj
+				options.toNapiObject(env)
 			};
 		}, [](napi_env env, Napi::Value value) {
 			Napi::Object obj = value.As<Napi::Object>();
@@ -299,17 +303,10 @@ namespace sh {
 
 	Promise<BandcampFanSectionPage<BandcampFan::CollectionItemNode>> Bandcamp::getFanWishlistItems(String fanURL, String fanId, GetFanSectionItemsOptions options) {
 		return performAsyncBandcampJSFunc<BandcampFanSectionPage<BandcampFan::CollectionItemNode>>("getFanWishlistItems", [=](napi_env env) {
-			auto optionsObj = Napi::Object::New(env);
-			if(!options.olderThanToken.empty()) {
-				optionsObj["olderThanToken"] = options.olderThanToken.toNodeJSValue(env);
-			}
-			if(!options.count.hasValue()) {
-				optionsObj["count"] = Napi::Number::New(env, (double)options.count.value());
-			}
 			return std::vector<napi_value>{
 				fanURL.toNodeJSValue(env),
 				fanId.toNodeJSValue(env),
-				optionsObj
+				options.toNapiObject(env)
 			};
 		}, [](napi_env env, Napi::Value value) {
 			Napi::Object obj = value.As<Napi::Object>();
@@ -320,21 +317,94 @@ namespace sh {
 
 	Promise<BandcampFanSectionPage<BandcampFan::CollectionItemNode>> Bandcamp::getFanHiddenItems(String fanURL, String fanId, GetFanSectionItemsOptions options) {
 		return performAsyncBandcampJSFunc<BandcampFanSectionPage<BandcampFan::CollectionItemNode>>("getFanHiddenItems", [=](napi_env env) {
-			auto optionsObj = Napi::Object::New(env);
-			if(!options.olderThanToken.empty()) {
-				optionsObj["olderThanToken"] = options.olderThanToken.toNodeJSValue(env);
-			}
-			if(!options.count.hasValue()) {
-				optionsObj["count"] = Napi::Number::New(env, (double)options.count.value());
-			}
 			return std::vector<napi_value>{
 				fanURL.toNodeJSValue(env),
 				fanId.toNodeJSValue(env),
-				optionsObj
+				options.toNapiObject(env)
 			};
 		}, [](napi_env env, Napi::Value value) {
 			Napi::Object obj = value.As<Napi::Object>();
 			return BandcampFanSectionPage<BandcampFan::CollectionItemNode>::fromNapiObject(obj);
+		});
+	}
+
+
+	Promise<BandcampFanSectionPage<BandcampFan::FollowArtistNode>> Bandcamp::getFanFollowingArtists(String fanURL, String fanId, GetFanSectionItemsOptions options) {
+		return performAsyncBandcampJSFunc<BandcampFanSectionPage<BandcampFan::FollowArtistNode>>("getFanFollowingArtists", [=](napi_env env) {
+			return std::vector<napi_value>{
+				fanURL.toNodeJSValue(env),
+				fanId.toNodeJSValue(env),
+				options.toNapiObject(env)
+			};
+		}, [](napi_env env, Napi::Value value) {
+			Napi::Object obj = value.As<Napi::Object>();
+			return BandcampFanSectionPage<BandcampFan::FollowArtistNode>::fromNapiObject(obj);
+		});
+	}
+
+	Promise<BandcampFanSectionPage<BandcampFan::FollowFanNode>> Bandcamp::getFanFollowingFans(String fanURL, String fanId, GetFanSectionItemsOptions options) {
+		return performAsyncBandcampJSFunc<BandcampFanSectionPage<BandcampFan::FollowFanNode>>("getFanFollowingFans", [=](napi_env env) {
+			return std::vector<napi_value>{
+				fanURL.toNodeJSValue(env),
+				fanId.toNodeJSValue(env),
+				options.toNapiObject(env)
+			};
+		}, [](napi_env env, Napi::Value value) {
+			Napi::Object obj = value.As<Napi::Object>();
+			return BandcampFanSectionPage<BandcampFan::FollowFanNode>::fromNapiObject(obj);
+		});
+	}
+
+	Promise<BandcampFanSectionPage<BandcampFan::FollowFanNode>> Bandcamp::getFanFollowers(String fanURL, String fanId, GetFanSectionItemsOptions options) {
+		return performAsyncBandcampJSFunc<BandcampFanSectionPage<BandcampFan::FollowFanNode>>("getFanFollowers", [=](napi_env env) {
+			return std::vector<napi_value>{
+				fanURL.toNodeJSValue(env),
+				fanId.toNodeJSValue(env),
+				options.toNapiObject(env)
+			};
+		}, [](napi_env env, Napi::Value value) {
+			Napi::Object obj = value.As<Napi::Object>();
+			return BandcampFanSectionPage<BandcampFan::FollowFanNode>::fromNapiObject(obj);
+		});
+	}
+
+	Promise<void> Bandcamp::followFan(String fanURL) {
+		return performAsyncBandcampJSFunc<void>("followFan", [=](napi_env env) {
+			return std::vector<napi_value>{
+				fanURL.toNodeJSValue(env)
+			};
+		}, [](napi_env env, Napi::Value value) {
+			// do nothing
+		});
+	}
+
+	Promise<void> Bandcamp::unfollowFan(String fanURL) {
+		return performAsyncBandcampJSFunc<void>("unfollowFan", [=](napi_env env) {
+			return std::vector<napi_value>{
+				fanURL.toNodeJSValue(env)
+			};
+		}, [](napi_env env, Napi::Value value) {
+			// do nothing
+		});
+	}
+
+	Promise<void> Bandcamp::followArtist(String artistURL) {
+		return performAsyncBandcampJSFunc<void>("followArtist", [=](napi_env env) {
+			return std::vector<napi_value>{
+				artistURL.toNodeJSValue(env)
+			};
+		}, [](napi_env env, Napi::Value value) {
+			// do nothing
+		});
+	}
+
+	Promise<void> Bandcamp::unfollowArtist(String artistURL) {
+		return performAsyncBandcampJSFunc<void>("unfollowArtist", [=](napi_env env) {
+			return std::vector<napi_value>{
+				artistURL.toNodeJSValue(env)
+			};
+		}, [](napi_env env, Napi::Value value) {
+			// do nothing
 		});
 	}
 }

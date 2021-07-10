@@ -231,6 +231,8 @@ namespace sh {
 		Promise<void> prepareForPlayer();
 		Promise<void> prepareForRequest();
 		
+		static void parseResponseError(utils::SharedHttpResponse response, Json responseBody);
+		
 		SpotifyPlayer::Options playerOptions;
 		SpotifyAuth* auth;
 		SpotifyPlayer* player;

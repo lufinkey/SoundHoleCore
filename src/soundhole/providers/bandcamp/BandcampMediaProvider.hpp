@@ -80,6 +80,12 @@ namespace sh {
 		};
 		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options = GenerateLibraryOptions()) override;
 		
+		virtual Promise<void> followArtist(String artistURI) override;
+		virtual Promise<void> unfollowArtist(String artistURI) override;
+		
+		virtual Promise<void> followUser(String userURI) override;
+		virtual Promise<void> unfollowUser(String userURI) override;
+		
 		virtual BandcampPlaybackProvider* player() override;
 		virtual const BandcampPlaybackProvider* player() const override;
 		

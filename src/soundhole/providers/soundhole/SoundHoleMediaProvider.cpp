@@ -270,6 +270,22 @@ namespace sh {
 		});
 	}
 
+	Promise<void> SoundHoleMediaProvider::followArtist(String artistURI) {
+		return Promise<void>::reject(std::runtime_error("not implemented"));
+	}
+
+	Promise<void> SoundHoleMediaProvider::unfollowArtist(String artistURI) {
+		return Promise<void>::reject(std::runtime_error("not implemented"));
+	}
+
+	Promise<void> SoundHoleMediaProvider::followUser(String userURI) {
+		return Promise<void>::reject(std::runtime_error("not implemented"));
+	}
+
+	Promise<void> SoundHoleMediaProvider::unfollowUser(String userURI) {
+		return Promise<void>::reject(std::runtime_error("not implemented"));
+	}
+
 
 
 	#pragma mark Playlists

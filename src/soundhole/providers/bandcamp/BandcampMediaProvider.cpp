@@ -1118,6 +1118,28 @@ namespace sh {
 
 
 
+	Promise<void> BandcampMediaProvider::followArtist(String artistURI) {
+		auto uriParts = parseURI(artistURI);
+		return bandcamp->followArtist(uriParts.url);
+	}
+
+	Promise<void> BandcampMediaProvider::unfollowArtist(String artistURI) {
+		auto uriParts = parseURI(artistURI);
+		return bandcamp->unfollowArtist(uriParts.url);
+	}
+
+	Promise<void> BandcampMediaProvider::followUser(String userURI) {
+		auto uriParts = parseURI(userURI);
+		return bandcamp->followFan(uriParts.url);
+	}
+
+	Promise<void> BandcampMediaProvider::unfollowUser(String userURI) {
+		auto uriParts = parseURI(userURI);
+		return bandcamp->unfollowFan(uriParts.url);
+	}
+
+
+
 	#pragma mark Player
 
 	BandcampPlaybackProvider* BandcampMediaProvider::player() {

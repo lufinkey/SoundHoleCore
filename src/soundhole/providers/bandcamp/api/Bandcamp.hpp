@@ -48,10 +48,23 @@ namespace sh {
 		struct GetFanSectionItemsOptions {
 			String olderThanToken;
 			Optional<size_t> count;
+			
+			#ifdef NAPI_MODULE
+			Napi::Object toNapiObject(napi_env) const;
+			#endif
 		};
 		Promise<BandcampFanSectionPage<BandcampFan::CollectionItemNode>> getFanCollectionItems(String fanURL, String fanId, GetFanSectionItemsOptions options);
 		Promise<BandcampFanSectionPage<BandcampFan::CollectionItemNode>> getFanWishlistItems(String fanURL, String fanId, GetFanSectionItemsOptions options);
 		Promise<BandcampFanSectionPage<BandcampFan::CollectionItemNode>> getFanHiddenItems(String fanURL, String fanId, GetFanSectionItemsOptions options);
+		Promise<BandcampFanSectionPage<BandcampFan::FollowArtistNode>> getFanFollowingArtists(String fanURL, String fanId, GetFanSectionItemsOptions options);
+		Promise<BandcampFanSectionPage<BandcampFan::FollowFanNode>> getFanFollowingFans(String fanURL, String fanId, GetFanSectionItemsOptions options);
+		Promise<BandcampFanSectionPage<BandcampFan::FollowFanNode>> getFanFollowers(String fanURL, String fanId, GetFanSectionItemsOptions options);
+		
+		Promise<void> followFan(String fanURL);
+		Promise<void> unfollowFan(String fanURL);
+		
+		Promise<void> followArtist(String artistURL);
+		Promise<void> unfollowArtist(String artistURL);
 		
 	private:
 		virtual void initializeJS(napi_env env) override;

@@ -76,6 +76,12 @@ namespace sh {
 		virtual bool hasLibrary() const override;
 		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options = GenerateLibraryOptions()) override;
 		
+		virtual Promise<void> followArtist(String artistURI) override;
+		virtual Promise<void> unfollowArtist(String artistURI) override;
+		
+		virtual Promise<void> followUser(String userURI) override;
+		virtual Promise<void> unfollowUser(String userURI) override;
+		
 		virtual bool canCreatePlaylists() const override;
 		virtual ArrayList<Playlist::Privacy> supportedPlaylistPrivacies() const override;
 		virtual Promise<$<Playlist>> createPlaylist(String name, CreatePlaylistOptions options) override;

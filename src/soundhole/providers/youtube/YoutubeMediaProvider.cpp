@@ -747,6 +747,22 @@ namespace sh {
 		});
 	}
 
+	Promise<void> YoutubeMediaProvider::followArtist(String artistURI) {
+		return Promise<void>::reject(std::runtime_error("not implemented"));
+	}
+
+	Promise<void> YoutubeMediaProvider::unfollowArtist(String artistURI) {
+		return Promise<void>::reject(std::runtime_error("not implemented"));
+	}
+
+	Promise<void> YoutubeMediaProvider::followUser(String userURI) {
+		return Promise<void>::reject(std::runtime_error("not implemented"));
+	}
+
+	Promise<void> YoutubeMediaProvider::unfollowUser(String userURI) {
+		return Promise<void>::reject(std::runtime_error("not implemented"));
+	}
+
 
 
 	#pragma mark Playlists

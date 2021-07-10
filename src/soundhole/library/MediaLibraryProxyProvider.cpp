@@ -119,6 +119,22 @@ namespace sh {
 		throw std::runtime_error("MediaLibraryProxyProvider cannot generate library");
 	}
 
+	Promise<void> MediaLibraryProxyProvider::followArtist(String artistURI) {
+		return Promise<void>::reject(std::runtime_error("MediaLibraryProxyProvider cannot follow artists"));
+	}
+
+	Promise<void> MediaLibraryProxyProvider::unfollowArtist(String artistURI) {
+		return Promise<void>::reject(std::runtime_error("MediaLibraryProxyProvider cannot unfollow artists"));
+	}
+
+	Promise<void> MediaLibraryProxyProvider::followUser(String userURI) {
+		return Promise<void>::reject(std::runtime_error("MediaLibraryProxyProvider cannot follow users"));
+	}
+
+	Promise<void> MediaLibraryProxyProvider::unfollowUser(String userURI) {
+		return Promise<void>::reject(std::runtime_error("MediaLibraryProxyProvider cannot unfollow users"));
+	}
+
 
 
 	#pragma mark Player

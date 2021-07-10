@@ -74,11 +74,19 @@ namespace sh {
 		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album) = 0;
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) = 0;
 		
+		
 		virtual bool hasLibrary() const = 0;
 		struct GenerateLibraryOptions {
 			Json resumeData;
 		};
 		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options = GenerateLibraryOptions()) = 0;
+		
+		virtual Promise<void> followArtist(String artistURI) = 0;
+		virtual Promise<void> unfollowArtist(String artistURI) = 0;
+		
+		virtual Promise<void> followUser(String userURI) = 0;
+		virtual Promise<void> unfollowUser(String userURI) = 0;
+		
 		
 		virtual bool canCreatePlaylists() const;
 		virtual ArrayList<Playlist::Privacy> supportedPlaylistPrivacies() const;
@@ -93,6 +101,7 @@ namespace sh {
 		};
 		virtual Promise<$<Playlist>> createPlaylist(String name, CreatePlaylistOptions options);
 		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist);
+		
 		
 		virtual MediaPlaybackProvider* player() = 0;
 		virtual const MediaPlaybackProvider* player() const = 0;

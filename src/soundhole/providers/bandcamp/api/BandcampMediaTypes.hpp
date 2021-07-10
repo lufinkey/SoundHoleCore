@@ -181,7 +181,6 @@ namespace sh {
 		struct Fan {
 			String id;
 			String url;
-			String username;
 			String name;
 			Optional<ArrayList<BandcampImage>> images;
 			
@@ -300,10 +299,12 @@ namespace sh {
 			#endif
 		};
 		
+		using FollowArtistNode = FollowItemNode<CollectionArtist>;
+		using FollowFanNode = FollowItemNode<CollectionFan>;
+		
 		
 		String id;
 		String url;
-		String username;
 		String name;
 		String description;
 		Optional<ArrayList<BandcampImage>> images;
@@ -311,9 +312,9 @@ namespace sh {
 		Optional<Section<CollectionItemNode>> collection;
 		Optional<Section<CollectionItemNode>> wishlist;
 		Optional<Section<CollectionItemNode>> hiddenCollection;
-		Optional<Section<FollowItemNode<CollectionArtist>>> followingArtists;
-		Optional<Section<FollowItemNode<CollectionFan>>> followingFans;
-		Optional<Section<FollowItemNode<CollectionFan>>> followers;
+		Optional<Section<FollowArtistNode>> followingArtists;
+		Optional<Section<FollowFanNode>> followingFans;
+		Optional<Section<FollowFanNode>> followers;
 		
 		#ifdef NODE_API_MODULE
 		static BandcampFan fromNapiObject(Napi::Object);

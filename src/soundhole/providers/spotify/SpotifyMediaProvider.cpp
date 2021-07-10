@@ -756,6 +756,30 @@ namespace sh {
 
 
 
+	#pragma mark User Library - Following / Unfollowing
+
+	Promise<void> SpotifyMediaProvider::followArtist(String artistURI) {
+		auto uriParts = parseURI(artistURI);
+		return spotify->followArtists({ uriParts.id }).toVoid();
+	}
+
+	Promise<void> SpotifyMediaProvider::unfollowArtist(String artistURI) {
+		auto uriParts = parseURI(artistURI);
+		return spotify->unfollowArtists({ uriParts.id }).toVoid();
+	}
+
+	Promise<void> SpotifyMediaProvider::followUser(String userURI) {
+		auto uriParts = parseURI(userURI);
+		return spotify->followUsers({ uriParts.id }).toVoid();
+	}
+
+	Promise<void> SpotifyMediaProvider::unfollowUser(String userURI) {
+		auto uriParts = parseURI(userURI);
+		return spotify->unfollowUsers({ uriParts.id }).toVoid();
+	}
+
+
+
 	#pragma mark Playlists
 
 	bool SpotifyMediaProvider::canCreatePlaylists() const {
