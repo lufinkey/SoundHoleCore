@@ -77,6 +77,8 @@ namespace sh {
 		Promise<YoutubeVideoInfo> getVideoInfo(String videoId);
 		Promise<YoutubeVideo> getVideo(String videoId);
 		
+		Promise<void> rateVideo(String videoId, YoutubeVideo::Rating rating);
+		
 		
 		
 		struct GetChannelsOptions {

@@ -148,6 +148,18 @@ namespace sh {
 		};
 	}
 
+	String YoutubeVideo::Rating_toString(Rating rating) {
+		switch(rating) {
+			case Rating::NONE:
+				return "none";
+			case Rating::LIKE:
+				return "like";
+			case Rating::DISLIKE:
+				return "dislike";
+		}
+		throw std::invalid_argument("invalid rating value "+std::to_string((long)rating));
+	}
+
 	YoutubeVideo::Snippet YoutubeVideo::Snippet::fromJson(const Json& json) {
 		return YoutubeVideo::Snippet{
 			.channelId = json["channelId"].string_value(),

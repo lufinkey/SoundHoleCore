@@ -126,6 +126,13 @@ namespace sh {
 
 
 	struct YoutubeVideo {
+		enum class Rating {
+			NONE,
+			LIKE,
+			DISLIKE
+		};
+		static String Rating_toString(Rating);
+		
 		struct Snippet {
 			struct Localized {
 				String title;

@@ -220,6 +220,13 @@ namespace sh {
 		});
 	}
 
+	Promise<void> Youtube::rateVideo(String videoId, YoutubeVideo::Rating rating) {
+		return sendApiRequest(utils::HttpMethod::POST, "videos/rate", {
+			{ "id", videoId },
+			{ "rating", YoutubeVideo::Rating_toString(rating) }
+		}, nullptr).toVoid();
+	}
+
 
 
 
