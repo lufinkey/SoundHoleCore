@@ -66,6 +66,9 @@ namespace sh {
 		Promise<void> followArtist(String artistURL);
 		Promise<void> unfollowArtist(String artistURL);
 		
+		Promise<void> saveItem(String itemURL);
+		Promise<void> unsaveItem(String itemURL);
+		
 	private:
 		virtual void initializeJS(napi_env env) override;
 		

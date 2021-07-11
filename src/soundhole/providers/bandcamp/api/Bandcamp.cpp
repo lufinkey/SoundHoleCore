@@ -407,4 +407,24 @@ namespace sh {
 			// do nothing
 		});
 	}
+
+	Promise<void> Bandcamp::saveItem(String itemURL) {
+		return performAsyncBandcampJSFunc<void>("saveItem", [=](napi_env env) {
+			return std::vector<napi_value>{
+				itemURL.toNodeJSValue(env)
+			};
+		}, [](napi_env env, Napi::Value value) {
+			// do nothing
+		});
+	}
+
+	Promise<void> Bandcamp::unsaveItem(String itemURL) {
+		return performAsyncBandcampJSFunc<void>("unsaveItem", [=](napi_env env) {
+			return std::vector<napi_value>{
+				itemURL.toNodeJSValue(env)
+			};
+		}, [](napi_env env, Napi::Value value) {
+			// do nothing
+		});
+	}
 }
