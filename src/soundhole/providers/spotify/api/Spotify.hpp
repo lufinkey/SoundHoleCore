@@ -227,6 +227,18 @@ namespace sh {
 		};
 		Promise<FollowedUsersPage> getFollowedUsers(GetFollowedUsersOptions options = GetFollowedUsersOptions());
 		
+		#pragma mark metadata: saving tracks
+		
+		Promise<void> saveTracks(ArrayList<String> trackIds);
+		Promise<void> unsaveTracks(ArrayList<String> trackIds);
+		Promise<ArrayList<bool>> checkSavedTracks(ArrayList<String> trackIds);
+		
+		#pragma mark metadata: saving albums
+		
+		Promise<void> saveAlbums(ArrayList<String> albumIds);
+		Promise<void> unsaveAlbums(ArrayList<String> albumIds);
+		Promise<ArrayList<bool>> checkSavedAlbums(ArrayList<String> albumIds);
+		
 	private:
 		Promise<void> prepareForPlayer();
 		Promise<void> prepareForRequest();

@@ -962,4 +962,62 @@ namespace sh {
 			});
 		});
 	}
+
+
+
+	#pragma mark metadata: saving tracks
+
+	Promise<void> Spotify::saveTracks(ArrayList<String> trackIds) {
+		return sendRequest(utils::HttpMethod::PUT, "v1/me/tracks", {}, Json::object{
+			{ "ids", trackIds.map([](auto& trackId) { return Json((std::string)trackId); }) }
+		}).toVoid();
+	}
+
+	Promise<void> Spotify::unsaveTracks(ArrayList<String> trackIds) {
+		return sendRequest(utils::HttpMethod::DELETE, "v1/me/tracks", {}, Json::object{
+			{ "ids", trackIds.map([](auto& trackId) { return Json((std::string)trackId); }) }
+		}).toVoid();
+	}
+
+	Promise<ArrayList<bool>> Spotify::checkSavedTracks(ArrayList<String> trackIds) {
+		return sendRequest(utils::HttpMethod::GET, "v1/me/tracks/contains", {
+			{ "ids", String::join(trackIds, ",") }
+		}, nullptr).map([](auto json) -> ArrayList<bool> {
+			ArrayList<bool> results;
+			results.reserve(json.array_items().size());
+			for(auto& jsonItem : json.array_items()) {
+				results.pushBack(jsonItem.bool_value());
+			}
+			return results;
+		});
+	}
+
+
+
+	#pragma mark metadata: saving albums
+
+	Promise<void> Spotify::saveAlbums(ArrayList<String> albumIds) {
+		return sendRequest(utils::HttpMethod::PUT, "v1/me/albums", {}, Json::object{
+			{ "ids", albumIds.map([](auto& albumId) { return Json((std::string)albumId); }) }
+		}).toVoid();
+	}
+
+	Promise<void> Spotify::unsaveAlbums(ArrayList<String> albumIds) {
+		return sendRequest(utils::HttpMethod::DELETE, "v1/me/albums", {}, Json::object{
+			{ "ids", albumIds.map([](auto& albumId) { return Json((std::string)albumId); }) }
+		}).toVoid();
+	}
+
+	Promise<ArrayList<bool>> Spotify::checkSavedAlbums(ArrayList<String> albumIds) {
+		return sendRequest(utils::HttpMethod::GET, "v1/me/albums/contains", {
+			{ "ids", String::join(albumIds, ",") }
+		}, nullptr).map([](auto json) -> ArrayList<bool> {
+			ArrayList<bool> results;
+			results.reserve(json.array_items().size());
+			for(auto& jsonItem : json.array_items()) {
+				results.pushBack(jsonItem.bool_value());
+			}
+			return results;
+		});
+	}
 }
