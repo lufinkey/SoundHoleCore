@@ -831,7 +831,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 
 	async _preparePlaylistSheet(fileId) {
 		// get spreadsheet header
-		let spreadsheet = (await this._sheets.spreadsheets.get({
+		const spreadsheet = (await this._sheets.spreadsheets.get({
 			spreadsheetId: fileId,
 			includeGridData: true,
 			ranges: [ this._playlistHeaderA1Range() ]
@@ -1270,7 +1270,7 @@ class GoogleDriveStorageProvider extends StorageProvider {
 				rowIndex: metadata.developerMetadata.location.dimensionRange.startIndex
 			};
 		});
-		rows.sort((a, b) => (a.index - b.index));
+		rows.sort((a, b) => (a.rowIndex - b.rowIndex));
 		// group indexes for simpler removal
 		const rowGroups = [];
 		let groupStartIndex = null;
