@@ -1,5 +1,5 @@
 
-function testJSFunction(args) {
+export function testJSFunction(args: any): any {
 	console.log("I got this for you");
 	console.log(JSON.stringify(args));
 	return {
@@ -7,11 +7,7 @@ function testJSFunction(args) {
 	};
 }
 
-async function testJSAsyncFunction() {
+export async function testJSAsyncFunction() {
 	await Promise.resolve(true);
 }
 
-module.exports = {
-	testJSFunction,
-	testJSAsyncFunction
-}
