@@ -180,7 +180,7 @@ namespace sh {
 		}
 		
 		return storageProvider->deletePlaylistItems(playlist->uri(), itemIds)
-		.then([=](ArrayList<size_t> indexes) {
+		.then([=]() {
 			auto indexMarkers = indexMarkersList;
 			mutator->lock([&]() {
 				indexMarkers.sort([&](auto& a, auto& b) -> bool {

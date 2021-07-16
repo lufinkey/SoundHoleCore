@@ -118,9 +118,15 @@ namespace sh {
 	
 	Track::Track(MediaProvider* provider, const Data& data)
 	: MediaItem(provider, data),
-	_albumName(data.albumName), _albumURI(data.albumURI), _artists(data.artists),
-	_tags(data.tags), _discNumber(data.discNumber), _trackNumber(data.trackNumber),
-	_duration(data.duration), _audioSources(data.audioSources), _playable(data.playable) {
+	_albumName(data.albumName),
+	_albumURI(data.albumURI),
+	_artists(data.artists),
+	_tags(data.tags),
+	_discNumber(data.discNumber),
+	_trackNumber(data.trackNumber),
+	_duration(data.duration),
+	_audioSources(data.audioSources),
+	_playable(data.playable) {
 		//
 	}
 	

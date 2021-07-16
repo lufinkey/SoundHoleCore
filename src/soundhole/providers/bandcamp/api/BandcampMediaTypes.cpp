@@ -143,8 +143,8 @@ namespace sh {
 		return BandcampArtist{
 			.url = artist.Get("url").As<Napi::String>().Utf8Value(),
 			.name = artist.Get("name").As<Napi::String>().Utf8Value(),
-			.location = artist.Get("location").As<Napi::String>().Utf8Value(),
-			.description = artist.Get("description").As<Napi::String>().Utf8Value(),
+			.location = jsutils::stringFromNapiValue(artist.Get("location")),
+			.description = jsutils::stringFromNapiValue(artist.Get("description")),
 			.isLabel = artist.Get("isLabel").As<Napi::Boolean>().Value(),
 			.images = jsutils::arrayListFromNapiArray(artist.Get("images").As<Napi::Array>(), [](auto image) -> BandcampImage {
 				return BandcampImage::fromNapiObject(image.template As<Napi::Object>());
