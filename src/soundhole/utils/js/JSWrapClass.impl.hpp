@@ -9,7 +9,8 @@
 #pragma once
 
 #include <soundhole/common.hpp>
-#include "JSUtils.hpp"
+#include <soundhole/utils/js/JSError.hpp>
+#include <soundhole/utils/js/JSUtils.hpp>
 
 namespace sh {
 	#ifdef NODE_API_MODULE
@@ -70,8 +71,8 @@ namespace sh {
 							options.afterFuncFinish(env);
 						}
 						// handle error
-						auto errorMessage = info[0].As<Napi::Object>().Get("message").ToString().Utf8Value();
-						reject(std::runtime_error(errorMessage));
+						auto errorObj = info[0];
+						reject(JSError(env, errorObj));
 					})
 				});
 			});

@@ -16,15 +16,15 @@ namespace sh::utils {
 				.fullDescription="",
 				.message=""
 			};
-		} catch(Error& error) {
+		} catch(Error& e) {
 			return {
-				.fullDescription = error.toString(),
-				.message = error.getMessage()
+				.fullDescription = e.toString(),
+				.message = e.getMessage()
 			};
-		} catch(std::exception& error) {
+		} catch(std::exception& e) {
 			return {
-				.fullDescription=error.what(),
-				.message=error.what()
+				.fullDescription=e.what(),
+				.message=e.what()
 			};
 		}
 	}

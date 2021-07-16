@@ -118,6 +118,9 @@
 		A58189A326961A5A007BFD82 /* MediaDatabaseSQLTransformations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58189A126961A5A007BFD82 /* MediaDatabaseSQLTransformations.cpp */; };
 		A58189A426961A5A007BFD82 /* MediaDatabaseSQLTransformations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58189A126961A5A007BFD82 /* MediaDatabaseSQLTransformations.cpp */; };
 		A58189A526961A5A007BFD82 /* MediaDatabaseSQLTransformations.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A58189A226961A5A007BFD82 /* MediaDatabaseSQLTransformations.hpp */; };
+		A58189A826A1DD18007BFD82 /* JSError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58189A626A1DD18007BFD82 /* JSError.cpp */; };
+		A58189A926A1DD18007BFD82 /* JSError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A58189A626A1DD18007BFD82 /* JSError.cpp */; };
+		A58189AA26A1DD18007BFD82 /* JSError.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A58189A726A1DD18007BFD82 /* JSError.hpp */; };
 		A5A970E023CBDCD0009887CA /* StreamPlayerEventHandler_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5A970DF23CBDCD0009887CA /* StreamPlayerEventHandler_iOS.mm */; };
 		A5AB5BC62368B1630028851A /* YoutubeMediaTypes.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5AB5BC32368B1630028851A /* YoutubeMediaTypes.hpp */; };
 		A5AE3F04247B890000FB9AFF /* MediaDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5AE3F02247B890000FB9AFF /* MediaDatabase.cpp */; };
@@ -420,6 +423,8 @@
 		A578785923E37A7B00B6B0A5 /* QueueItem.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = QueueItem.hpp; sourceTree = "<group>"; };
 		A58189A126961A5A007BFD82 /* MediaDatabaseSQLTransformations.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MediaDatabaseSQLTransformations.cpp; sourceTree = "<group>"; };
 		A58189A226961A5A007BFD82 /* MediaDatabaseSQLTransformations.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaDatabaseSQLTransformations.hpp; sourceTree = "<group>"; };
+		A58189A626A1DD18007BFD82 /* JSError.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = JSError.cpp; sourceTree = "<group>"; };
+		A58189A726A1DD18007BFD82 /* JSError.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = JSError.hpp; sourceTree = "<group>"; };
 		A5A970DE23CBDCD0009887CA /* StreamPlayerEventHandler_iOS.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = StreamPlayerEventHandler_iOS.hpp; sourceTree = "<group>"; };
 		A5A970DF23CBDCD0009887CA /* StreamPlayerEventHandler_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StreamPlayerEventHandler_iOS.mm; sourceTree = "<group>"; };
 		A5AB5BC22368B1630028851A /* YoutubeMediaTypes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = YoutubeMediaTypes.cpp; sourceTree = "<group>"; };
@@ -1169,6 +1174,8 @@
 				A5B973502381F16A00FB3F1C /* JSWrapClass.hpp */,
 				A5C6CD682598582200596878 /* JSWrapClass.impl.hpp */,
 				A5B9734F2381F16A00FB3F1C /* JSWrapClass.cpp */,
+				A58189A726A1DD18007BFD82 /* JSError.hpp */,
+				A58189A626A1DD18007BFD82 /* JSError.cpp */,
 			);
 			path = js;
 			sourceTree = "<group>";
@@ -1202,6 +1209,7 @@
 				A513ED93232DA20B000DCAC7 /* MediaProvider.hpp in Headers */,
 				A5AE3F0B247BA5B700FB9AFF /* MediaDatabaseSQL.hpp in Headers */,
 				A5E851D0235DFEBC0001F74D /* BandcampMediaTypes.hpp in Headers */,
+				A58189AA26A1DD18007BFD82 /* JSError.hpp in Headers */,
 				A5D9F568255E0BC100E4762A /* YoutubeAuthEventListener.hpp in Headers */,
 				A5D9F54B255E0B4700E4762A /* YoutubeAuth.hpp in Headers */,
 				A5C6DB4A25BE03E600596878 /* GoogleDriveStorageMediaTypes.impl.hpp in Headers */,
@@ -1631,6 +1639,7 @@
 				A5C6DAF925BCD9B100596878 /* GoogleDrivePlaylistMutatorDelegate.cpp in Sources */,
 				A5B2BBF82360E84C00ED010C /* SpotifyMediaTypes.cpp in Sources */,
 				A571E15D23331C6600603E14 /* SpotifyAuth.cpp in Sources */,
+				A58189A826A1DD18007BFD82 /* JSError.cpp in Sources */,
 				A5AE3F42248728F600FB9AFF /* MediaLibrary.cpp in Sources */,
 				A52C4712250EE85800131918 /* OAuthSession.cpp in Sources */,
 				A5B7A78E2335C91800301FC0 /* SoundHoleError.cpp in Sources */,
@@ -1752,6 +1761,7 @@
 				A5B2BBF92360E84C00ED010C /* SpotifyMediaTypes.cpp in Sources */,
 				A5F60C30255F3E4700A0D4E3 /* Base64.cpp in Sources */,
 				A52826E323F09B6200360508 /* Player.cpp in Sources */,
+				A58189A926A1DD18007BFD82 /* JSError.cpp in Sources */,
 				A5C6D17625AD697900596878 /* MediaProviderStash.cpp in Sources */,
 				A5AE3F43248728F600FB9AFF /* MediaLibrary.cpp in Sources */,
 				A5D9E10F2550BAB500E4762A /* BandcampAuth.cpp in Sources */,
