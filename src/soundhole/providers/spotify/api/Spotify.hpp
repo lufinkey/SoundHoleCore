@@ -239,6 +239,15 @@ namespace sh {
 		Promise<void> unsaveAlbums(ArrayList<String> albumIds);
 		Promise<ArrayList<bool>> checkSavedAlbums(ArrayList<String> albumIds);
 		
+		#pragma mark metadata: saving playlists
+		
+		struct FollowPlaylistOptions {
+			Optional<bool> publicly;
+		};
+		Promise<void> followPlaylist(String playlistId, FollowPlaylistOptions options = FollowPlaylistOptions());
+		Promise<void> unfollowPlaylist(String playlistId);
+		Promise<ArrayList<bool>> checkUsersFollowingPlaylist(String playlistId, ArrayList<String> userIds);
+		
 	private:
 		Promise<void> prepareForPlayer();
 		Promise<void> prepareForRequest();

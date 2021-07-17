@@ -1020,4 +1020,33 @@ namespace sh {
 			return results;
 		});
 	}
+
+
+
+	#pragma mark metadata: following playlists
+
+	Promise<void> Spotify::followPlaylist(String playlistId, FollowPlaylistOptions options) {
+		auto body = Json::object{};
+		if(options.publicly.hasValue()) {
+			body["public"] = options.publicly.value();
+		}
+		return sendRequest(utils::HttpMethod::PUT, "v1/playlists/"+playlistId+"/followers", {}, body).toVoid();
+	}
+
+	Promise<void> Spotify::unfollowPlaylist(String playlistId) {
+		return sendRequest(utils::HttpMethod::DELETE, "v1/playlists/"+playlistId+"/followers", {}, nullptr).toVoid();
+	}
+
+	Promise<ArrayList<bool>> Spotify::checkUsersFollowingPlaylist(String playlistId, ArrayList<String> userIds) {
+		return sendRequest(utils::HttpMethod::GET, "v1/playlists/"+playlistId+"/followers/contains", {}, nullptr)
+		.map([](auto json) {
+			ArrayList<bool> results;
+			auto& array = json.array_items();
+			results.reserve(array.size());
+			for(auto& itemJson : array) {
+				results.pushBack(itemJson.bool_value());
+			}
+			return results;
+		});
+	}
 }
