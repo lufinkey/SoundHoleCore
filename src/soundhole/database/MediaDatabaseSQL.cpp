@@ -551,7 +551,7 @@ ArrayList<String> savedTrackTupleColumns() {
 String savedTrackTuple(LinkedList<Any>& params, const SavedTrack& track) {
 	return String::join({ "(",
 		// trackURI
-		sqlParam(params, track.track->uri()),",",
+		sqlParam(params, track.trackURI),",",
 		// libraryProvider
 		sqlParam(params, track.libraryProvider->name()),",",
 		// addedAt
@@ -567,7 +567,7 @@ ArrayList<String> savedAlbumTupleColumns() {
 String savedAlbumTuple(LinkedList<Any>& params, const SavedAlbum& album) {
 	return String::join({ "(",
 		// albumURI
-		sqlParam(params, album.album->uri()),",",
+		sqlParam(params, album.albumURI),",",
 		// libraryProvider
 		sqlParam(params, album.libraryProvider->name()),",",
 		// addedAt
@@ -583,7 +583,7 @@ ArrayList<String> savedPlaylistTupleColumns() {
 String savedPlaylistTuple(LinkedList<Any>& params, const SavedPlaylist& playlist) {
 	return String::join({ "(",
 		// playlistURI
-		sqlParam(params, playlist.playlist->uri()),",",
+		sqlParam(params, playlist.playlistURI),",",
 		// libraryProvider
 		sqlParam(params, playlist.libraryProvider->name()),",",
 		// addedAt

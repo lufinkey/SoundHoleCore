@@ -95,7 +95,7 @@ ArrayList<String> followedUserAccountTupleColumns();
 String followedUserAccountTuple(LinkedList<Any>& params, const FollowedUserAccount& followedUser);
 
 struct SavedTrack {
-	$<Track> track;
+	String trackURI;
 	MediaProvider* libraryProvider;
 	String addedAt;
 };
@@ -103,7 +103,7 @@ ArrayList<String> savedTrackTupleColumns();
 String savedTrackTuple(LinkedList<Any>& params, const SavedTrack& track);
 
 struct SavedAlbum {
-	$<Album> album;
+	String albumURI;
 	MediaProvider* libraryProvider;
 	String addedAt;
 };
@@ -111,7 +111,7 @@ ArrayList<String> savedAlbumTupleColumns();
 String savedAlbumTuple(LinkedList<Any>& params, const SavedAlbum& album);
 
 struct SavedPlaylist {
-	$<Playlist> playlist;
+	String playlistURI;
 	MediaProvider* libraryProvider;
 	String addedAt;
 };

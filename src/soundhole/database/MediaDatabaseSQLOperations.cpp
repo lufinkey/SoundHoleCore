@@ -348,25 +348,25 @@ void insertOrReplaceLibraryItems(SQLiteTransaction& tx, const ArrayList<MediaPro
 	for(auto& item : items) {
 		if(auto track = std::dynamic_pointer_cast<Track>(item.mediaItem)) {
 			savedTrackTuples.pushBack(savedTrackTuple(savedTrackParams, {
-				.track=track,
-				.libraryProvider=item.libraryProvider,
-				.addedAt=item.addedAt
+				.trackURI = track->uri(),
+				.libraryProvider = item.libraryProvider,
+				.addedAt = item.addedAt
 			}));
 			addTrackTuples(track, trackTuples, true);
 		}
 		else if(auto album = std::dynamic_pointer_cast<Album>(item.mediaItem)) {
 			savedAlbumTuples.pushBack(savedAlbumTuple(savedAlbumParams, {
-				.album=album,
-				.libraryProvider=item.libraryProvider,
-				.addedAt=item.addedAt
+				.albumURI = album->uri(),
+				.libraryProvider = item.libraryProvider,
+				.addedAt = item.addedAt
 			}));
 			addTrackCollectionTuples(album, collectionTuples);
 		}
 		else if(auto playlist = std::dynamic_pointer_cast<Playlist>(item.mediaItem)) {
 			savedPlaylistTuples.pushBack(savedPlaylistTuple(savedPlaylistParams, {
-				.playlist=playlist,
-				.libraryProvider=item.libraryProvider,
-				.addedAt=item.addedAt
+				.playlistURI = playlist->uri(),
+				.libraryProvider = item.libraryProvider,
+				.addedAt = item.addedAt
 			}));
 			addTrackCollectionTuples(playlist, collectionTuples);
 		}
@@ -391,6 +391,54 @@ void insertOrReplaceLibraryItems(SQLiteTransaction& tx, const ArrayList<MediaPro
 			") VALUES ",
 			String::join(savedAlbumTuples, ", ")
 		}), savedAlbumParams);
+	}
+	if(savedPlaylistTuples.size() > 0) {
+		tx.addSQL(String::join({
+			"INSERT OR REPLACE INTO SavedPlaylist (",
+			String::join(savedPlaylistTupleColumns(), ", "),
+			") VALUES ",
+			String::join(savedPlaylistTuples, ", ")
+		}), savedPlaylistParams);
+	}
+}
+
+void insertOrReplaceSavedTracks(SQLiteTransaction& tx, const ArrayList<SavedTrack>& savedTracks) {
+	LinkedList<String> savedTrackTuples;
+	LinkedList<Any> savedTrackParams;
+	for(auto& savedTrack : savedTracks) {
+		savedTrackTuples.pushBack(savedTrackTuple(savedTrackParams, savedTrack));
+	}
+	if(savedTrackTuples.size() > 0) {
+		tx.addSQL(String::join({
+			"INSERT OR REPLACE INTO SavedTrack (",
+			String::join(savedTrackTupleColumns(), ", "),
+			") VALUES ",
+			String::join(savedTrackTuples, ", ")
+		}), savedTrackParams);
+	}
+}
+
+void insertOrReplaceSavedAlbums(SQLiteTransaction& tx, const ArrayList<SavedAlbum>& savedAlbums) {
+	LinkedList<String> savedAlbumTuples;
+	LinkedList<Any> savedAlbumParams;
+	for(auto& savedAlbum : savedAlbums) {
+		savedAlbumTuples.pushBack(savedAlbumTuple(savedAlbumParams, savedAlbum));
+	}
+	if(savedAlbumTuples.size() > 0) {
+		tx.addSQL(String::join({
+			"INSERT OR REPLACE INTO SavedAlbum (",
+			String::join(savedAlbumTupleColumns(), ", "),
+			") VALUES ",
+			String::join(savedAlbumTuples, ", ")
+		}), savedAlbumParams);
+	}
+}
+
+void insertOrReplaceSavedPlaylist(SQLiteTransaction& tx, const ArrayList<SavedPlaylist>& savedPlaylists) {
+	LinkedList<String> savedPlaylistTuples;
+	LinkedList<Any> savedPlaylistParams;
+	for(auto& savedPlaylist : savedPlaylists) {
+		savedPlaylistTuples.pushBack(savedPlaylistTuple(savedPlaylistParams, savedPlaylist));
 	}
 	if(savedPlaylistTuples.size() > 0) {
 		tx.addSQL(String::join({
@@ -517,6 +565,8 @@ void selectArtist(SQLiteTransaction& tx, String outKey, String uri) {
 	});
 }
 
+
+
 void selectSavedTracksWithTracks(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options) {
 	auto joinTables = ArrayList<JoinTable>{
 		{
@@ -581,6 +631,20 @@ void selectSavedTrackCount(SQLiteTransaction& tx, String outKey, String libraryP
 	tx.addSQL(query, params, { .outKey=outKey });
 }
 
+void selectSavedTrack(SQLiteTransaction& tx, String outKey, String uri, String libraryProvider) {
+	LinkedList<Any> params;
+	auto query = String::join({
+		"SELECT * FROM SavedTrack WHERE SavedTrack.trackURI = ",sqlParam(params, uri),
+		libraryProvider.empty() ? String() : String::join({
+			" AND SavedTrack.libraryProvider = ",sqlParam(params, libraryProvider),
+			" LIMIT 1"
+		})
+	});
+	tx.addSQL(query, params, { .outKey=outKey });
+}
+
+
+
 void selectSavedAlbumsWithAlbums(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options) {
 	auto joinTables = ArrayList<JoinTable>{
 		{
@@ -644,6 +708,20 @@ void selectSavedAlbumCount(SQLiteTransaction& tx, String outKey, String libraryP
 	});
 	tx.addSQL(query, params, { .outKey=outKey });
 }
+
+void selectSavedAlbum(SQLiteTransaction& tx, String outKey, String uri, String libraryProvider) {
+	LinkedList<Any> params;
+	auto query = String::join({
+		"SELECT * FROM SavedAlbum WHERE SavedAlbum.albumURI = ",sqlParam(params, uri),
+		libraryProvider.empty() ? String() : String::join({
+			" AND SavedAlbum.libraryProvider = ",sqlParam(params, libraryProvider),
+			" LIMIT 1"
+		})
+	});
+	tx.addSQL(query, params, { .outKey=outKey });
+}
+
+
 
 void selectSavedPlaylistsWithPlaylistsAndOwners(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options) {
 	auto joinTables = ArrayList<JoinTable>{
@@ -714,6 +792,20 @@ void selectSavedPlaylistCount(SQLiteTransaction& tx, String outKey, String libra
 	});
 	tx.addSQL(query, params, { .outKey=outKey });
 }
+
+void selectSavedPlaylist(SQLiteTransaction& tx, String outKey, String uri, String libraryProvider) {
+	LinkedList<Any> params;
+	auto query = String::join({
+		"SELECT * FROM SavedPlaylist WHERE SavedPlaylist.playlistURI = ",sqlParam(params, uri),
+		libraryProvider.empty() ? String() : String::join({
+			" AND SavedPlaylist.libraryProvider = ",sqlParam(params, libraryProvider),
+			" LIMIT 1"
+		})
+	});
+	tx.addSQL(query, params, { .outKey=outKey });
+}
+
+
 
 void selectLibraryArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options) {
 	LinkedList<Any> params;
@@ -818,6 +910,26 @@ void updateTrackCollectionVersionId(SQLiteTransaction& tx, String collectionURI,
 
 
 
+void deleteSavedTrack(SQLiteTransaction& tx, String trackURI, String libraryProvider) {
+	tx.addSQL("DELETE FROM SavedTrack AS tr WHERE SavedTrack.trackURI = ? AND SavedTrack.libraryProvider = ?", {
+		trackURI,
+		libraryProvider
+	});
+}
+
+void deleteSavedAlbum(SQLiteTransaction& tx, String albumURI, String libraryProvider) {
+	tx.addSQL("DELETE FROM SavedTrack AS tr WHERE SavedAlbum.albumURI = ? AND SavedAlbum.libraryProvider = ?", {
+		albumURI,
+		libraryProvider
+	});
+}
+
+void deleteSavedPlaylist(SQLiteTransaction& tx, String playlistURI, String libraryProvider) {
+	tx.addSQL("DELETE FROM SavedTrack AS tr WHERE SavedPlaylist.playlistURI = ? AND SavedPlaylist.libraryProvider = ?", {
+		playlistURI,
+		libraryProvider
+	});
+}
 
 void deleteNonLibraryCollectionItems(SQLiteTransaction& tx) {
 	tx.addSQL(

@@ -122,6 +122,14 @@ namespace sh {
 		Promise<$<Playlist>> createPlaylist(String name, MediaProvider* provider, CreatePlaylistOptions options);
 		
 		
+		Promise<void> saveTrack($<Track> track);
+		Promise<void> unsaveTrack($<Track> track);
+		Promise<void> saveAlbum($<Album> album);
+		Promise<void> unsaveAlbum($<Album> album);
+		Promise<ArrayList<bool>> hasSavedTracks(ArrayList<$<Track>> tracks);
+		Promise<ArrayList<bool>> hasSavedAlbums(ArrayList<$<Album>> albums);
+		
+		
 	private:
 		MediaDatabase* db;
 		MediaProviderStash* mediaProviderStash;

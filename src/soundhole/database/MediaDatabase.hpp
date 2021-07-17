@@ -91,6 +91,8 @@ namespace sh {
 			sql::Order order = sql::Order::DESC;
 		};
 		Promise<GetJsonItemsListResult> getSavedTracksJson(sql::IndexRange range, GetSavedTracksJsonOptions options = GetSavedTracksJsonOptions{.orderBy=sql::LibraryItemOrderBy::ADDED_AT, .order=sql::Order::DESC});
+		Promise<Json> getSavedTrackJson(String uri, String libraryProvider);
+		Promise<ArrayList<bool>> hasSavedTracks(ArrayList<String> uris);
 		
 		struct GetSavedAlbumsCountOptions {
 			String libraryProvider;
@@ -103,6 +105,8 @@ namespace sh {
 			sql::Order order = sql::Order::ASC;
 		};
 		Promise<GetJsonItemsListResult> getSavedAlbumsJson(GetSavedAlbumsJsonOptions options = GetSavedAlbumsJsonOptions{.orderBy=sql::LibraryItemOrderBy::NAME, .order=sql::Order::DESC});
+		Promise<Json> getSavedAlbumJson(String uri, String libraryProvider);
+		Promise<ArrayList<bool>> hasSavedAlbums(ArrayList<String> uris);
 		
 		struct GetSavedPlaylistsCountOptions {
 			String libraryProvider;
@@ -115,6 +119,8 @@ namespace sh {
 			sql::Order order = sql::Order::ASC;
 		};
 		Promise<GetJsonItemsListResult> getSavedPlaylistsJson(GetSavedPlaylistsJsonOptions options = GetSavedPlaylistsJsonOptions{.orderBy=sql::LibraryItemOrderBy::NAME, .order=sql::Order::ASC});
+		Promise<Json> getSavedPlaylistJson(String uri, String libraryProvider);
+		Promise<ArrayList<bool>> hasSavedPlaylists(ArrayList<String> uris);
 		
 		Promise<void> setState(std::map<String,String> state);
 		Promise<std::map<String,String>> getState(ArrayList<String> keys);
@@ -122,6 +128,11 @@ namespace sh {
 		
 		Promise<void> loadAlbumItems($<Album> album, Album::MutatorDelegate::Mutator* mutator, size_t index, size_t count);
 		Promise<void> loadPlaylistItems($<Playlist> playlist, Playlist::MutatorDelegate::Mutator* mutator, size_t index, size_t count);
+		
+		
+		Promise<void> deleteSavedTrack(String uri, String libraryProvider);
+		Promise<void> deleteSavedAlbum(String uri, String libraryProvider);
+		Promise<void> deleteSavedPlaylist(String uri, String libraryProvider);
 		
 	private:
 		static void applyDBState(SQLiteTransaction& tx, std::map<String,String> state);

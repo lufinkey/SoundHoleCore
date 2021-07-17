@@ -415,6 +415,39 @@ namespace sh {
 		});
 	}
 
+	Promise<Json> MediaDatabase::getSavedTrackJson(String uri, String libraryProvider) {
+		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
+			sql::selectSavedTrack(tx, "items", uri, libraryProvider);
+		}).map(nullptr, [=](auto results) -> Json {
+			auto rows = results["items"];
+			if(rows.size() == 0) {
+				return nullptr;
+			}
+			return rows.front();
+		});
+	}
+
+	Promise<ArrayList<bool>> MediaDatabase::hasSavedTracks(ArrayList<String> uris) {
+		size_t uriCount = uris.size();
+		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
+			size_t i = 0;
+			for(auto& uri : uris) {
+				sql::selectSavedTrack(tx, std::to_string(i), uri);
+				i++;
+			}
+		}).map(nullptr, [=](auto results) {
+			ArrayList<bool> boolResults;
+			boolResults.reserve(uriCount);
+			for(size_t i=0; i<uriCount; i++) {
+				auto& list = results[std::to_string(i)];
+				boolResults.pushBack(list.size() > 0);
+			}
+			return boolResults;
+		});
+	}
+
+
+
 	Promise<size_t> MediaDatabase::getSavedAlbumsCount(GetSavedAlbumsCountOptions options) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
 			sql::selectSavedAlbumCount(tx, "count", options.libraryProvider);
@@ -450,6 +483,39 @@ namespace sh {
 		});
 	}
 
+	Promise<Json> MediaDatabase::getSavedAlbumJson(String uri, String libraryProvider) {
+		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
+			sql::selectSavedAlbum(tx, "items", uri, libraryProvider);
+		}).map(nullptr, [=](auto results) -> Json {
+			auto rows = results["items"];
+			if(rows.size() == 0) {
+				return nullptr;
+			}
+			return rows.front();
+		});
+	}
+
+	Promise<ArrayList<bool>> MediaDatabase::hasSavedAlbums(ArrayList<String> uris) {
+		size_t uriCount = uris.size();
+		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
+			size_t i = 0;
+			for(auto& uri : uris) {
+				sql::selectSavedAlbum(tx, std::to_string(i), uri);
+				i++;
+			}
+		}).map(nullptr, [=](auto results) {
+			ArrayList<bool> boolResults;
+			boolResults.reserve(uriCount);
+			for(size_t i=0; i<uriCount; i++) {
+				auto& list = results[std::to_string(i)];
+				boolResults.pushBack(list.size() > 0);
+			}
+			return boolResults;
+		});
+	}
+
+
+
 	Promise<size_t> MediaDatabase::getSavedPlaylistsCount(GetSavedPlaylistsCountOptions options) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
 			sql::selectSavedPlaylistCount(tx, "count", options.libraryProvider);
@@ -484,6 +550,39 @@ namespace sh {
 			};
 		});
 	}
+
+	Promise<Json> MediaDatabase::getSavedPlaylistJson(String uri, String libraryProvider) {
+		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
+			sql::selectSavedPlaylist(tx, "items", uri, libraryProvider);
+		}).map(nullptr, [=](auto results) -> Json {
+			auto rows = results["items"];
+			if(rows.size() == 0) {
+				return nullptr;
+			}
+			return rows.front();
+		});
+	}
+
+	Promise<ArrayList<bool>> MediaDatabase::hasSavedPlaylists(ArrayList<String> uris) {
+		size_t uriCount = uris.size();
+		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
+			size_t i = 0;
+			for(auto& uri : uris) {
+				sql::selectSavedPlaylist(tx, std::to_string(i), uri);
+				i++;
+			}
+		}).map(nullptr, [=](auto results) {
+			ArrayList<bool> boolResults;
+			boolResults.reserve(uriCount);
+			for(size_t i=0; i<uriCount; i++) {
+				auto& list = results[std::to_string(i)];
+				boolResults.pushBack(list.size() > 0);
+			}
+			return boolResults;
+		});
+	}
+
+
 
 	Promise<void> MediaDatabase::setState(std::map<String,String> state) {
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
@@ -576,5 +675,26 @@ namespace sh {
 				}
 			});
 		});
+	}
+
+
+
+
+	Promise<void> MediaDatabase::deleteSavedTrack(String uri, String libraryProvider) {
+		return transaction({}, [=](auto& tx) {
+			sql::deleteSavedTrack(tx, uri, libraryProvider);
+		}).toVoid();
+	}
+
+	Promise<void> MediaDatabase::deleteSavedAlbum(String uri, String libraryProvider) {
+		return transaction({}, [=](auto& tx) {
+			sql::deleteSavedAlbum(tx, uri, libraryProvider);
+		}).toVoid();
+	}
+
+	Promise<void> MediaDatabase::deleteSavedPlaylist(String uri, String libraryProvider) {
+		return transaction({}, [=](auto& tx) {
+			sql::deleteSavedPlaylist(tx, uri, libraryProvider);
+		}).toVoid();
 	}
 }

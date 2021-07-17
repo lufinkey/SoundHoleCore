@@ -532,4 +532,71 @@ namespace sh {
 			});
 		});
 	}
+
+
+
+	Promise<void> MediaLibrary::saveTrack($<Track> track) {
+		auto mediaProvider = track->mediaProvider();
+		auto dbPromise = db->getSavedTrackJson(track->uri(), mediaProvider->name());
+		return mediaProvider->saveTrack(track->uri())
+		.then([=]() {
+			auto date = DateTime();
+			auto _dbPromise = dbPromise;
+			return _dbPromise.then([=](auto json) {
+				return db->cacheLibraryItems({
+					MediaProvider::LibraryItem{
+						.libraryProvider = mediaProvider,
+						.mediaItem = track,
+						.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
+					}
+				});
+			});
+		});
+	}
+
+	Promise<void> MediaLibrary::unsaveTrack($<Track> track) {
+		auto mediaProvider = track->mediaProvider();
+		return mediaProvider->unsaveTrack(track->uri())
+		.then([=]() {
+			return db->deleteSavedTrack(track->uri(), mediaProvider->name());
+		});
+	}
+
+
+
+	Promise<void> MediaLibrary::saveAlbum($<Album> album) {
+		auto mediaProvider = album->mediaProvider();
+		auto dbPromise = db->getSavedAlbumJson(album->uri(), mediaProvider->name());
+		return mediaProvider->saveAlbum(album->uri())
+		.then([=]() {
+			auto date = DateTime();
+			auto _dbPromise = dbPromise;
+			return _dbPromise.then([=](auto json) {
+				return db->cacheLibraryItems({
+					MediaProvider::LibraryItem{
+						.libraryProvider = mediaProvider,
+						.mediaItem = album,
+						.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
+					}
+				});
+			});
+		});
+	}
+
+	Promise<void> MediaLibrary::unsaveAlbum($<Album> album) {
+		auto mediaProvider = album->mediaProvider();
+		return mediaProvider->unsaveAlbum(album->uri())
+		.then([=]() {
+			return db->deleteSavedAlbum(album->uri(), mediaProvider->name());
+		});
+	}
+
+
+	Promise<ArrayList<bool>> MediaLibrary::hasSavedTracks(ArrayList<$<Track>> tracks) {
+		return db->hasSavedTracks(tracks.map([](auto track){return track->uri();}));
+	}
+
+	Promise<ArrayList<bool>> MediaLibrary::hasSavedAlbums(ArrayList<$<Album>> albums) {
+		return db->hasSavedAlbums(albums.map([](auto album){return album->uri();}));
+	}
 }
