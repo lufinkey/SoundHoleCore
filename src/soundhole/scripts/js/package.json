@@ -9,8 +9,8 @@
 		"build-release": "npm install && npm run build-ts && npm run make-header-release",
 		"build-ts": "npx tsc",
 		"clean": "rm -rf node_modules build package-lock.json",
-		"bundle": "mkdir -p build &> /dev/null && browserify --node --standalone _ --external process --ignore-missing dist/index.js -o build/output1.js && babel build/output1.js --out-file build/soundhole_js_bundle.js",
-		"bundle-release": "mkdir -p build &> /dev/null && browserify --node --standalone _ --external process --ignore-missing dist/index.js -o build/output1.js && ./tools/minify_if_changed.sh build/output1.js build/soundhole_js_bundle_release.js",
+		"bundle": "mkdir -p build &> /dev/null && browserify --node --standalone _ --external process --ignore-missing dist/lib/index.js -o build/output1.js && babel build/output1.js --out-file build/soundhole_js_bundle.js",
+		"bundle-release": "mkdir -p build &> /dev/null && browserify --node --standalone _ --external process --ignore-missing dist/lib/index.js -o build/output1.js && ./tools/minify_if_changed.sh build/output1.js build/soundhole_js_bundle_release.js",
 		"make-header": "npm run bundle && cd build && xxd -i soundhole_js_bundle.js > soundhole_js_bundle.h",
 		"make-header-release": "npm run bundle-release && cd build && xxd -i soundhole_js_bundle_release.js > soundhole_js_bundle.h",
 		"test": "echo \"Error: no test specified\" && exit 1"

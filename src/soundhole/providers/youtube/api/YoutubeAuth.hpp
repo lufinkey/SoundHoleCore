@@ -29,6 +29,7 @@ namespace sh {
 		};
 		
 		struct Options {
+			String apiKey;
 			String clientId;
 			String clientSecret;
 			String redirectURL;

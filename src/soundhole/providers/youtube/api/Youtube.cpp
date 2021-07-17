@@ -60,7 +60,7 @@ namespace sh {
 
 
 	Youtube::Youtube(Options options)
-	: jsRef(nullptr), apiKey(options.apiKey), auth(new YoutubeAuth(options.auth)) {
+	: jsRef(nullptr), auth(new YoutubeAuth(options.auth)) {
 		auth->load();
 	}
 
@@ -114,6 +114,7 @@ namespace sh {
 
 	Promise<Json> Youtube::sendApiRequest(utils::HttpMethod method, String endpoint, std::map<String,String> query, Json body) {
 		auto session = auth->getSession();
+		auto& apiKey = auth->getOptions().apiKey;
 		if(!session && !apiKey.empty()) {
 			query["key"] = apiKey;
 		}
@@ -578,9 +579,9 @@ namespace sh {
 
 
 
-	Promise<YoutubePage<YoutubePlaylistItem>> Youtube::getPlaylistItems(String id, GetPlaylistItemsOptions options) {
+	Promise<YoutubePage<YoutubePlaylistItem>> Youtube::getPlaylistItems(String playlistId, GetPlaylistItemsOptions options) {
 		auto query = std::map<String,String>{
-			{ "playlistId", id },
+			{ "playlistId", playlistId },
 			{ "part", "id,snippet,contentDetails,status" }
 		};
 		if(options.maxResults.has_value()) {

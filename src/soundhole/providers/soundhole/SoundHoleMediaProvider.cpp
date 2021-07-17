@@ -286,6 +286,22 @@ namespace sh {
 		return Promise<void>::reject(std::runtime_error("not implemented"));
 	}
 
+	Promise<void> SoundHoleMediaProvider::saveTrack(String trackURI) {
+		return Promise<void>::reject(std::runtime_error("not implemented"));
+	}
+
+	Promise<void> SoundHoleMediaProvider::unsaveTrack(String trackURI) {
+		return Promise<void>::reject(std::runtime_error("not implemented"));
+	}
+
+	Promise<void> SoundHoleMediaProvider::saveAlbum(String albumURI) {
+		return Promise<void>::reject(std::runtime_error("not implemented"));
+	}
+
+	Promise<void> SoundHoleMediaProvider::unsaveAlbum(String albumURI) {
+		return Promise<void>::reject(std::runtime_error("not implemented"));
+	}
+
 
 
 	#pragma mark Playlists

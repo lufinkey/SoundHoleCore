@@ -57,6 +57,11 @@ namespace sh {
 		virtual Promise<void> followUser(String userURI) override;
 		virtual Promise<void> unfollowUser(String userURI) override;
 		
+		virtual Promise<void> saveTrack(String trackURI) override;
+		virtual Promise<void> unsaveTrack(String trackURI) override;
+		virtual Promise<void> saveAlbum(String albumURI) override;
+		virtual Promise<void> unsaveAlbum(String albumURI) override;
+		
 		virtual MediaPlaybackProvider* player() override;
 		virtual const MediaPlaybackProvider* player() const override;
 		

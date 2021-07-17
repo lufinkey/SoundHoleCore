@@ -778,6 +778,26 @@ namespace sh {
 		return spotify->unfollowUsers({ uriParts.id }).toVoid();
 	}
 
+	Promise<void> SpotifyMediaProvider::saveTrack(String trackURI) {
+		auto uriParts = parseURI(trackURI);
+		return spotify->saveTracks({ uriParts.id });
+	}
+
+	Promise<void> SpotifyMediaProvider::unsaveTrack(String trackURI) {
+		auto uriParts = parseURI(trackURI);
+		return spotify->unsaveTracks({ uriParts.id });
+	}
+
+	Promise<void> SpotifyMediaProvider::saveAlbum(String albumURI) {
+		auto uriParts = parseURI(albumURI);
+		return spotify->saveAlbums({ uriParts.id });
+	}
+
+	Promise<void> SpotifyMediaProvider::unsaveAlbum(String albumURI) {
+		auto uriParts = parseURI(albumURI);
+		return spotify->unsaveAlbums({ uriParts.id });
+	}
+
 
 
 	#pragma mark Playlists

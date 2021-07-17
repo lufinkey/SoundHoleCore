@@ -1138,6 +1138,26 @@ namespace sh {
 		return bandcamp->unfollowFan(uriParts.url);
 	}
 
+	Promise<void> BandcampMediaProvider::saveTrack(String trackURI) {
+		auto uriParts = parseURI(trackURI);
+		return bandcamp->saveItem(uriParts.url);
+	}
+
+	Promise<void> BandcampMediaProvider::unsaveTrack(String trackURI) {
+		auto uriParts = parseURI(trackURI);
+		return bandcamp->unsaveItem(uriParts.url);
+	}
+
+	Promise<void> BandcampMediaProvider::saveAlbum(String albumURI) {
+		auto uriParts = parseURI(albumURI);
+		return bandcamp->saveItem(uriParts.url);
+	}
+
+	Promise<void> BandcampMediaProvider::unsaveAlbum(String albumURI) {
+		auto uriParts = parseURI(albumURI);
+		return bandcamp->unsaveItem(uriParts.url);
+	}
+
 
 
 	#pragma mark Player

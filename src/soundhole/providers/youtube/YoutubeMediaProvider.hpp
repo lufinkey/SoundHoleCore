@@ -17,6 +17,7 @@
 namespace sh {
 	struct YoutubeMediaProviderIdentity {
 		ArrayList<YoutubeChannel> channels;
+		String libraryPlaylistId;
 		
 		Json toJson() const;
 		static YoutubeMediaProviderIdentity fromJson(const Json&);
@@ -27,7 +28,12 @@ namespace sh {
 		friend class YoutubePlaylistMutatorDelegate;
 	public:
 		static constexpr auto NAME = "youtube";
-		using Options = Youtube::Options;
+		
+		struct Options {
+			YoutubeAuth::Options auth;
+			String libraryPlaylistName;
+			String libraryPlaylistDescription;
+		};
 		
 		YoutubeMediaProvider(Options options, StreamPlayer* streamPlayer);
 		virtual ~YoutubeMediaProvider();
@@ -69,6 +75,11 @@ namespace sh {
 		virtual Promise<void> followUser(String userURI) override;
 		virtual Promise<void> unfollowUser(String userURI) override;
 		
+		virtual Promise<void> saveTrack(String trackURI) override;
+		virtual Promise<void> unsaveTrack(String trackURI) override;
+		virtual Promise<void> saveAlbum(String albumURI) override;
+		virtual Promise<void> unsaveAlbum(String albumURI) override;
+		
 		virtual bool canCreatePlaylists() const override;
 		virtual ArrayList<Playlist::Privacy> supportedPlaylistPrivacies() const override;
 		virtual Promise<$<Playlist>> createPlaylist(String name, CreatePlaylistOptions options) override;
@@ -96,6 +107,9 @@ namespace sh {
 		virtual Promise<Optional<YoutubeMediaProviderIdentity>> fetchIdentity() override;
 		virtual String getIdentityFilePath() const override;
 		
+		Promise<String> getLibraryPlaylistID();
+		Promise<String> fetchLibraryPlaylistID(String pageToken = String());
+		
 	private:
 		String createURI(String type, String id) const;
 		URI parseURL(String url) const;
@@ -104,5 +118,7 @@ namespace sh {
 		
 		Youtube* youtube;
 		YoutubePlaybackProvider* _player;
+		String libraryPlaylistName;
+		String libraryPlaylistDescription;
 	};
 }

@@ -42,7 +42,6 @@ namespace sh {
 		static String SearchOrder_toString(SearchOrder);
 		
 		struct Options {
-			String apiKey;
 			YoutubeAuth::Options auth;
 		};
 		
@@ -179,7 +178,7 @@ namespace sh {
 			String pageToken;
 			String videoId;
 		};
-		Promise<YoutubePage<YoutubePlaylistItem>> getPlaylistItems(String id, GetPlaylistItemsOptions options);
+		Promise<YoutubePage<YoutubePlaylistItem>> getPlaylistItems(String playlistId, GetPlaylistItemsOptions options);
 		struct InsertPlaylistItemOptions {
 			Optional<size_t> position;
 			String note;

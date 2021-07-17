@@ -87,6 +87,11 @@ namespace sh {
 		virtual Promise<void> followUser(String userURI) = 0;
 		virtual Promise<void> unfollowUser(String userURI) = 0;
 		
+		virtual Promise<void> saveTrack(String trackURI) = 0;
+		virtual Promise<void> unsaveTrack(String trackURI) = 0;
+		virtual Promise<void> saveAlbum(String albumURI) = 0;
+		virtual Promise<void> unsaveAlbum(String albumURI) = 0;
+		
 		
 		virtual bool canCreatePlaylists() const;
 		virtual ArrayList<Playlist::Privacy> supportedPlaylistPrivacies() const;

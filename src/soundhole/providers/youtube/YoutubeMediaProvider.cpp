@@ -14,8 +14,12 @@
 
 namespace sh {
 	YoutubeMediaProvider::YoutubeMediaProvider(Options options, StreamPlayer* streamPlayer)
-	: youtube(new Youtube(options)),
-	_player(new YoutubePlaybackProvider(this, streamPlayer)) {
+	: youtube(new Youtube({
+		.auth = options.auth
+	})),
+	_player(new YoutubePlaybackProvider(this, streamPlayer)),
+	libraryPlaylistName(options.libraryPlaylistName),
+	libraryPlaylistDescription(options.libraryPlaylistDescription) {
 		//
 	}
 
@@ -222,6 +226,64 @@ namespace sh {
 		return youtube->getMyChannels().map([=](YoutubePage<YoutubeChannel> channelPage) -> Optional<YoutubeMediaProviderIdentity> {
 			return maybe(YoutubeMediaProviderIdentity{
 				.channels=channelPage.items
+			});
+		});
+	}
+
+	Promise<String> YoutubeMediaProvider::getLibraryPlaylistID() {
+		return getIdentity().then([=](auto identity) {
+			if(!identity) {
+				return Promise<String>::resolve(String());
+			}
+			if(!identity->libraryPlaylistId.empty()) {
+				return Promise<String>::resolve(identity->libraryPlaylistId);
+			}
+			return fetchLibraryPlaylistID().then([=](auto playlistId) {
+				if(playlistId.empty()) {
+					return Promise<String>::resolve(playlistId);
+				}
+				return getIdentity().then([=](auto identity) {
+					if(!identity) {
+						return String();
+					}
+					identity->libraryPlaylistId = playlistId;
+					this->storeIdentity(identity.value());
+					return playlistId;
+				});
+			});
+		});
+	}
+
+	Promise<String> YoutubeMediaProvider::fetchLibraryPlaylistID(String pageToken) {
+		return youtube->getMyPlaylists({
+			.maxResults=50,
+			.pageToken=pageToken
+		}).except([=](Error& error) {
+			auto retryAfter = error.getDetail("retryAfter").maybeAs<double>();
+			if(!retryAfter.hasValue()) {
+				std::rethrow_exception(std::current_exception());
+			}
+			auto delayTime = std::chrono::milliseconds((long long)(retryAfter.value() * 1000));
+			return Promise<YoutubePage<YoutubePlaylist>>::delayed(delayTime, [=]() {
+				return youtube->getMyPlaylists({
+					.maxResults=50,
+					.pageToken=pageToken
+				});
+			});
+		}).then([=](auto page) {
+			auto playlist = page.items.firstWhere([=](auto p) {return (p.snippet.title == this->libraryPlaylistName);});
+			if(playlist.hasValue()) {
+				return Promise<String>::resolve(playlist->id);
+			}
+			if(!page.nextPageToken.empty()) {
+				return fetchLibraryPlaylistID(page.nextPageToken);
+			}
+			// create playlist
+			return youtube->createPlaylist(this->libraryPlaylistName, {
+				.privacyStatus = YoutubePrivacyStatus::PRIVATE,
+				.description = this->libraryPlaylistDescription
+			}).map([=](auto playlist) {
+				return playlist.id;
 			});
 		});
 	}
@@ -763,6 +825,56 @@ namespace sh {
 		return Promise<void>::reject(std::runtime_error("not implemented"));
 	}
 
+	Promise<void> YoutubeMediaProvider::saveTrack(String trackURI) {
+		auto uriParts = parseURI(trackURI);
+		return getLibraryPlaylistID().then([=](auto libraryPlaylistId) {
+			if(libraryPlaylistId.empty()) {
+				throw std::runtime_error("No library playlist available");
+			}
+			// check if item is already saved
+			return youtube->getPlaylistItems(libraryPlaylistId, {
+				.maxResults = 1,
+				.videoId = uriParts.id
+			}).then([=](auto page) {
+				if(page.items.size() > 0) {
+					return Promise<void>::resolve();
+				}
+				// save item
+				return youtube->insertPlaylistItem(libraryPlaylistId, uriParts.id).toVoid();
+			});
+		});
+	}
+
+	Promise<void> YoutubeMediaProvider::unsaveTrack(String trackURI) {
+		auto uriParts = parseURI(trackURI);
+		return getLibraryPlaylistID().then([=](auto libraryPlaylistId) {
+			if(libraryPlaylistId.empty()) {
+				throw std::runtime_error("No library playlist available");
+			}
+			// check if item is already saved
+			return youtube->getPlaylistItems(libraryPlaylistId, {
+				.maxResults = 50,
+				.videoId = uriParts.id
+			}).then([=](auto page) {
+				if(page.items.size() == 0) {
+					return Promise<void>::resolve();
+				}
+				// delete all items
+				return Promise<void>::all(page.items.map([=](auto& pageItem) {
+					return youtube->deletePlaylistItem(pageItem.id);
+				}));
+			});
+		});
+	}
+
+	Promise<void> YoutubeMediaProvider::saveAlbum(String albumURI) {
+		return Promise<void>::reject(std::runtime_error("Youtube does not have albums"));
+	}
+
+	Promise<void> YoutubeMediaProvider::unsaveAlbum(String albumURI) {
+		return Promise<void>::reject(std::runtime_error("Youtube does not have albums"));
+	}
+
 
 
 	#pragma mark Playlists
@@ -829,7 +941,8 @@ namespace sh {
 			channels.pushBack(YoutubeChannel::fromJson(channelJson));
 		}
 		return YoutubeMediaProviderIdentity{
-			.channels=channels
+			.channels = channels,
+			.libraryPlaylistId = json["libraryPlaylistId"].string_value()
 		};
 	}
 
@@ -837,7 +950,8 @@ namespace sh {
 		return Json::object{
 			{ "channels", channels.map([](auto& channel) -> Json {
 				return channel.toJson();
-			}) }
+			}) },
+			{ "libraryPlaylistId", (std::string)libraryPlaylistId }
 		};
 	}
 }
