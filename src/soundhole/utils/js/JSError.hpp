@@ -14,6 +14,8 @@ namespace sh {
 	class JSError: public BasicError<> {
 	public:
 		JSError(napi_env, napi_value);
+		JSError(JSError&&);
+		JSError(const JSError&);
 		~JSError();
 		
 		napi_ref getJSRef() const;

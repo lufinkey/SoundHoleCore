@@ -620,12 +620,6 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 		if(file.modifiedTime == null) {
 			throw new Error("Missing modifiedTime in playlist file object");
 		}
-		if(file.appProperties == null) {
-			throw new Error("Missing appProperties in playlist file object");
-		}
-		if(file.properties == null) {
-			throw new Error("Missing properties in playlist file object");
-		}
 		if(file.owners == null) {
 			throw new Error("Missing owners in playlist file object");
 		}
@@ -636,7 +630,7 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 		if(owner == null) {
 			throw new Error("Missing owner in playlist file object");
 		}
-		if(file.appProperties[playlistPropKey] != 'true' && file.properties[playlistPropKey] != 'true') {
+		if((file.appProperties ?? {})[playlistPropKey] != 'true' && (file.properties ?? {})[playlistPropKey] != 'true') {
 			throw new Error("file is not a SoundHole playlist");
 		}
 		// parse/validate owner and base folder ID

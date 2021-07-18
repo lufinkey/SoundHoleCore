@@ -20,17 +20,41 @@ namespace sh {
 		stack = obj.Get("stack").ToString().Utf8Value();
 		message = obj.Get("message").ToString().Utf8Value();
 		// store js reference
-		auto ref = Napi::ObjectReference::New(Napi::Object(env, val), 1);
+		auto ref = Napi::Persistent(Napi::Object(env, val));
 		ref.SuppressDestruct();
 		jsRef = ref;
 	}
 
-	JSError::~JSError() {
-		// destroy js reference
-		auto jsRef = this->jsRef;
-		if(jsRef != nullptr && embed::nodejs::isRunning()) {
+	JSError::JSError(JSError&& err)
+	: jsRef(err.jsRef),
+	code(err.code),
+	stack(err.stack),
+	message(err.message) {
+		err.jsRef = nullptr;
+	}
+
+	JSError::JSError(const JSError& err)
+	: jsRef(err.jsRef),
+	code(err.code),
+	stack(err.stack),
+	message(err.message) {
+		// queue call to "ref"
+		auto ref = this->jsRef;
+		if(ref != nullptr && embed::nodejs::isRunning()) {
 			embed::nodejs::queueMain([=](napi_env env) {
-				auto napiRef = Napi::ObjectReference(env, jsRef);
+				auto napiRef = Napi::ObjectReference(env, ref);
+				napiRef.Ref();
+				napiRef.SuppressDestruct();
+			});
+		}
+	}
+
+	JSError::~JSError() {
+		// queue call to destroy js reference
+		auto ref = this->jsRef;
+		if(ref != nullptr && embed::nodejs::isRunning()) {
+			embed::nodejs::queueMain([=](napi_env env) {
+				auto napiRef = Napi::ObjectReference(env, ref);
 				if(napiRef.Unref() == 0) {
 					napiRef.Reset();
 				} else {
