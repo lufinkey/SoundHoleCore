@@ -291,6 +291,10 @@ namespace sh {
 			.limit = count,
 			.onlyValidItems = false
 		});
+		if(items.size() != count) {
+			return Promise<void>::reject(
+				std::invalid_argument("Missing item at index "+std::to_string(index+items.size())));
+		}
 		size_t itemIdOffset = 0;
 		auto itemMarkers = items.map([&](auto& item) -> std::tuple<String,AsyncListIndexMarker> {
 			auto itemId = item->uniqueId();

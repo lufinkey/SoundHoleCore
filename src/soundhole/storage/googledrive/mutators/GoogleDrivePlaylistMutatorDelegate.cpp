@@ -175,7 +175,7 @@ namespace sh {
 					std::runtime_error("Missing uniqueId prop for item at index "+std::to_string(index+itemIds.size())));
 			}
 			itemIds.pushBack(itemId);
-			auto indexMarker = list->watchIndex(index+itemIds.size());
+			auto indexMarker = list->watchIndex(index);
 			indexMarkersList.pushBack(indexMarker);
 		}
 		
@@ -200,14 +200,24 @@ namespace sh {
 						continue;
 					}
 					if(!startIndex) {
+						// start removal group
 						startIndex = indexMarker->index;
 						endIndex = startIndex.value() + 1;
 					}
 					else if(indexMarker->index != (startIndex.value() - 1)) {
+						// next index doesn't match expected index, so remove and start new group
+						size_t newStartIndex = indexMarker->index;
 						mutator->remove(startIndex.value(), (endIndex.value() - startIndex.value()));
+						startIndex = newStartIndex;
+						endIndex = startIndex.value() + 1;
 					} else {
+						// expand removal group
 						startIndex = indexMarker->index;
 					}
+				}
+				if(startIndex) {
+					// delete group
+					mutator->remove(startIndex.value(), (endIndex.value() - startIndex.value()));
 				}
 			});
 		})
