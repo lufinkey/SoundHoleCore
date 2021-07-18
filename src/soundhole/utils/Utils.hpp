@@ -29,4 +29,8 @@ namespace sh::utils {
 		}
 		return it->second;
 	}
+
+
+	void setPreferenceValue(String key, Json json);
+	Json getPreferenceValue(String key);
 }

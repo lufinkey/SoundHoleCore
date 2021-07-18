@@ -6,6 +6,7 @@
 //  Copyright © 2020 Luis Finke. All rights reserved.
 //
 
+#include <soundhole/common.hpp>
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -23,5 +24,10 @@ NS_ASSUME_NONNULL_BEGIN
 +(void)runOnMain:(void(^)(void))executor;
 
 @end
+
+namespace sh::utils {
+	Json jsonFromNSObject(NSObject*);
+	NSObject* nsObjectFromJson(Json);
+}
 
 NS_ASSUME_NONNULL_END

@@ -7,6 +7,7 @@
 //
 
 #include "Utils.hpp"
+#import "objc/SHObjcUtils.h"
 
 #if defined(__OBJC__) && (defined(TARGETPLATFORM_IOS) || defined(TARGETPLATFORM_MAC))
 #import <Foundation/Foundation.h>
@@ -22,6 +23,23 @@ namespace sh::utils {
 			return getTmpDirectoryPath();
 		}
 		return String(paths.firstObject);
+	}
+
+
+
+	void setPreferenceValue(String key, Json json) {
+		NSUserDefaults* userDefaults = NSUserDefaults.standardUserDefaults;
+		NSObject* obj = nsObjectFromJson(json);
+		if(obj == nil) {
+			[userDefaults removeObjectForKey:key.toNSString()];
+		} else {
+			[userDefaults setObject:obj forKey:key.toNSString()];
+		}
+	}
+
+	Json getPreferenceValue(String key) {
+		NSObject* obj = [NSUserDefaults.standardUserDefaults objectForKey:key.toNSString()];
+		return jsonFromNSObject(obj);
 	}
 }
 

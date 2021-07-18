@@ -122,4 +122,99 @@
 	}
 }
 
+
+sh::Json sh::utils::jsonFromNSObject(NSObject* object) {
+	if(object == nil || [object isKindOfClass:NSNull.class]) {
+		return nullptr;
+	}
+	else if([object isKindOfClass:NSString.class]) {
+		NSString* string = (NSString*)object;
+		return string.UTF8String;
+	}
+	else if([object isKindOfClass:NSNumber.class]) {
+		NSNumber* num = (NSNumber*)object;
+		if(strcmp(num.objCType, @encode(bool)) || strcmp(num.objCType, @encode(BOOL))) {
+			return num.boolValue;
+		}
+		else {
+			return num.doubleValue;
+		}
+	}
+	else if([object isKindOfClass:NSData.class]) {
+		NSData* data = (NSData*)object;
+		return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding].UTF8String;
+	}
+	else if([object isKindOfClass:NSDate.class]) {
+		NSDate* date = (NSDate*)object;
+		NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+		dateFormatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+		dateFormatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ssZZZZZ";
+		dateFormatter.calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
+		return [dateFormatter stringFromDate:date].UTF8String;
+	}
+	else if([object isKindOfClass:NSURL.class]) {
+		NSURL* url = (NSURL*)object;
+		return url.absoluteString.UTF8String;
+	}
+	else if([object isKindOfClass:NSDictionary.class]) {
+		auto jsonObj = sh::Json::object{};
+		NSDictionary* dict = (NSDictionary*)object;
+		for(NSString* key in dict) {
+			jsonObj[key.UTF8String] = jsonFromNSObject(dict[key]);
+		}
+		return jsonObj;
+	}
+	else if([object isKindOfClass:NSArray.class]) {
+		auto jsonArray = sh::Json::array{};
+		NSArray* arr = (NSArray*)object;
+		jsonArray.reserve((size_t)arr.count);
+		for(NSObject* obj in arr) {
+			jsonArray.push_back(jsonFromNSObject(obj));
+		}
+		return jsonArray;
+	}
+	else {
+		throw std::invalid_argument((std::string)"Invalid class type "+NSStringFromClass(object.class).UTF8String);
+	}
+}
+
+
+NSObject* sh::utils::nsObjectFromJson(Json json) {
+	if(json.is_null()) {
+		return nil;
+	}
+	else if(json.is_bool()) {
+		return [NSNumber numberWithBool:json.bool_value()];
+	}
+	else if(json.is_number()) {
+		return [NSNumber numberWithDouble:json.number_value()];
+	}
+	else if(json.is_object()) {
+		NSMutableDictionary* dict = [NSMutableDictionary dictionary];
+		for(auto& pair : json.object_items()) {
+			NSString* key = [NSString stringWithUTF8String:pair.first.c_str()];
+			NSObject* obj = nsObjectFromJson(pair.second);
+			if(obj == nil) {
+				obj = [NSNull null];
+			}
+			dict[key] = obj;
+		}
+		return dict;
+	}
+	else if(json.is_array()) {
+		NSMutableArray* arr = [NSMutableArray array];
+		for(auto& item : json.array_items()) {
+			NSObject* obj = nsObjectFromJson(item);
+			if(obj == nil) {
+				obj = [NSNull null];
+			}
+			[arr addObject:obj];
+		}
+		return arr;
+	}
+	else {
+		throw std::invalid_argument((std::string)"Invalid json type "+std::to_string(json.type()));
+	}
+}
+
 @end
