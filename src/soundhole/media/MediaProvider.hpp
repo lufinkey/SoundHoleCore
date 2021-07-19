@@ -106,6 +106,7 @@ namespace sh {
 		};
 		virtual Promise<$<Playlist>> createPlaylist(String name, CreatePlaylistOptions options);
 		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist);
+		virtual Promise<void> deletePlaylist(String playlistURI);
 		
 		
 		virtual MediaPlaybackProvider* player() = 0;

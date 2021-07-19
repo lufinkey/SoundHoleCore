@@ -97,6 +97,10 @@ namespace sh {
 		return Promise<bool>::resolve(false);
 	}
 
+	Promise<void> MediaProvider::deletePlaylist(String playlistURI) {
+		return Promise<void>::reject(std::logic_error("deletePlaylist is not implemented"));
+	}
+
 
 
 	Json MediaProvider::CreatePlaylistOptions::toJson() const {

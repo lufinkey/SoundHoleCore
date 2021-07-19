@@ -84,6 +84,7 @@ namespace sh {
 		virtual ArrayList<Playlist::Privacy> supportedPlaylistPrivacies() const override;
 		virtual Promise<$<Playlist>> createPlaylist(String name, CreatePlaylistOptions options) override;
 		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist) override;
+		virtual Promise<void> deletePlaylist(String playlistURI) override;
 		
 		virtual YoutubePlaybackProvider* player() override;
 		virtual const YoutubePlaybackProvider* player() const override;

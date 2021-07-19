@@ -914,6 +914,11 @@ namespace sh {
 		return Promise<bool>::resolve(false);
 	}
 
+	Promise<void> YoutubeMediaProvider::deletePlaylist(String playlistURI) {
+		auto uriParts = parseURI(playlistURI);
+		return youtube->deletePlaylist(uriParts.id);
+	}
+
 
 
 	#pragma mark Player

@@ -110,6 +110,7 @@ namespace sh {
 		virtual ArrayList<Playlist::Privacy> supportedPlaylistPrivacies() const override;
 		virtual Promise<$<Playlist>> createPlaylist(String name, CreatePlaylistOptions options) override;
 		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist) override;
+		virtual Promise<void> deletePlaylist(String playlistURI) override;
 		
 		
 		virtual SpotifyPlaybackProvider* player() override;

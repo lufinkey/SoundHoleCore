@@ -335,6 +335,15 @@ namespace sh {
 		return storageProvider->isPlaylistEditable(playlist);
 	}
 
+	Promise<void> SoundHoleMediaProvider::deletePlaylist(String playlistURI) {
+		auto uriParts = parseURI(playlistURI);
+		auto storageProvider = getStorageProvider(uriParts.storageProvider);
+		if(storageProvider == nullptr) {
+			return Promise<void>::reject(std::invalid_argument("could not find storage provider with name "+uriParts.storageProvider));
+		}
+		return storageProvider->deletePlaylist(playlistURI);
+	}
+
 
 
 	#pragma mark Player

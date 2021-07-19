@@ -830,8 +830,6 @@ namespace sh {
 		});
 	}
 
-
-
 	Promise<bool> SpotifyMediaProvider::isPlaylistEditable($<Playlist> playlist) {
 		if(!isLoggedIn()) {
 			return Promise<bool>::resolve(false);
@@ -843,6 +841,11 @@ namespace sh {
 			auto owner = playlist->owner();
 			return (owner != nullptr && owner->uri() == user->uri);
 		});
+	}
+
+	Promise<void> SpotifyMediaProvider::deletePlaylist(String playlistURI) {
+		auto uriParts = parseURI(playlistURI);
+		return spotify->unfollowPlaylist(uriParts.id);
 	}
 
 
