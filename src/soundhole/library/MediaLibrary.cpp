@@ -562,6 +562,10 @@ namespace sh {
 		});
 	}
 
+	Promise<ArrayList<bool>> MediaLibrary::hasSavedTracks(ArrayList<$<Track>> tracks) {
+		return db->hasSavedTracks(tracks.map([](auto track){return track->uri();}));
+	}
+
 
 
 	Promise<void> MediaLibrary::saveAlbum($<Album> album) {
@@ -589,11 +593,6 @@ namespace sh {
 		.then([=]() {
 			return db->deleteSavedAlbum(album->uri(), mediaProvider->name());
 		});
-	}
-
-
-	Promise<ArrayList<bool>> MediaLibrary::hasSavedTracks(ArrayList<$<Track>> tracks) {
-		return db->hasSavedTracks(tracks.map([](auto track){return track->uri();}));
 	}
 
 	Promise<ArrayList<bool>> MediaLibrary::hasSavedAlbums(ArrayList<$<Album>> albums) {

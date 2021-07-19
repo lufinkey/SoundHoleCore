@@ -39,7 +39,7 @@ export type Track = {
 	duration: number
 }
 
-export type PlaylistPrivacyId = 'public' | 'private' | 'unlisted'
+export type PlaylistPrivacyId = 'private' | 'unlisted' | 'public'
 
 export type PlaylistItem = {
 	uniqueId: string
@@ -108,6 +108,6 @@ export default interface StorageProvider {
 	getPlaylistItems(playlistURI: string, options: GetPlaylistItemsOptions): Promise<PlaylistItemPage>
 	insertPlaylistItems(playlistURI: string, index: number, tracks: Track[]): Promise<PlaylistItemPage>
 	appendPlaylistItems(playlistURI: string, tracks: Track[]): Promise<PlaylistItemPage>
-	deletePlaylistItems(playlistURI: string, itemIds: string[]): Promise<void>
-	reorderPlaylistItems(playlistURI: string, index: number, count: number, insertBefore: number): Promise<void>
+	deletePlaylistItems(playlistURI: string, itemIds: string[]): Promise<{indexes: number[]}>
+	movePlaylistItems(playlistURI: string, index: number, count: number, insertBefore: number): Promise<void>
 }

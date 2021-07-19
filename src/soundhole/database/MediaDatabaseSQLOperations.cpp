@@ -911,21 +911,21 @@ void updateTrackCollectionVersionId(SQLiteTransaction& tx, String collectionURI,
 
 
 void deleteSavedTrack(SQLiteTransaction& tx, String trackURI, String libraryProvider) {
-	tx.addSQL("DELETE FROM SavedTrack AS tr WHERE SavedTrack.trackURI = ? AND SavedTrack.libraryProvider = ?", {
+	tx.addSQL("DELETE FROM SavedTrack AS tr WHERE trackURI = ? AND libraryProvider = ?", {
 		trackURI,
 		libraryProvider
 	});
 }
 
 void deleteSavedAlbum(SQLiteTransaction& tx, String albumURI, String libraryProvider) {
-	tx.addSQL("DELETE FROM SavedTrack AS tr WHERE SavedAlbum.albumURI = ? AND SavedAlbum.libraryProvider = ?", {
+	tx.addSQL("DELETE FROM SavedAlbum AS tr WHERE albumURI = ? AND libraryProvider = ?", {
 		albumURI,
 		libraryProvider
 	});
 }
 
 void deleteSavedPlaylist(SQLiteTransaction& tx, String playlistURI, String libraryProvider) {
-	tx.addSQL("DELETE FROM SavedTrack AS tr WHERE SavedPlaylist.playlistURI = ? AND SavedPlaylist.libraryProvider = ?", {
+	tx.addSQL("DELETE FROM SavedPlaylist AS tr WHERE playlistURI = ? AND libraryProvider = ?", {
 		playlistURI,
 		libraryProvider
 	});

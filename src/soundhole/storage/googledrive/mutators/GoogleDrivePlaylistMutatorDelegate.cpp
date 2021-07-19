@@ -180,7 +180,7 @@ namespace sh {
 		}
 		
 		return storageProvider->deletePlaylistItems(playlist->uri(), itemIds)
-		.then([=]() {
+		.then([=](auto indexes) {
 			auto indexMarkers = indexMarkersList;
 			mutator->lock([&]() {
 				indexMarkers.sort([&](auto& a, auto& b) -> bool {
@@ -277,7 +277,15 @@ namespace sh {
 				}
 			}
 			auto firstIndexMarker = moveIndexes->front();
-			return storageProvider->reorderPlaylistItems(playlist->uri(), firstIndexMarker->index, count, destIndexMarker->index);
+			size_t newIndex = destIndexMarker->index;
+			if(destIndexMarker->index > firstIndexMarker->index) {
+				if((destIndexMarker->index - firstIndexMarker->index) < count) {
+					newIndex = firstIndexMarker->index;
+				} else {
+					newIndex = destIndexMarker->index - count;
+				}
+			}
+			return storageProvider->movePlaylistItems(playlist->uri(), firstIndexMarker->index, count, newIndex);
 		})
 		.then([=]() {
 			mutator->lock([&]() {

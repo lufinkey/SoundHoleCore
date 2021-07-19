@@ -56,8 +56,8 @@ namespace sh {
 		Promise<GoogleDrivePlaylistItemsPage> getPlaylistItems(String uri, size_t offset, size_t limit);
 		Promise<GoogleDrivePlaylistItemsPage> insertPlaylistItems(String uri, size_t index, ArrayList<$<Track>> tracks);
 		Promise<GoogleDrivePlaylistItemsPage> appendPlaylistItems(String uri, ArrayList<$<Track>> tracks);
-		Promise<void> deletePlaylistItems(String uri, ArrayList<String> itemIds);
-		Promise<void> reorderPlaylistItems(String uri, size_t index, size_t count, size_t insertBefore);
+		Promise<ArrayList<size_t>> deletePlaylistItems(String uri, ArrayList<String> itemIds);
+		Promise<void> movePlaylistItems(String uri, size_t index, size_t count, size_t insertBefore);
 		
 	private:
 		virtual void initializeJS(napi_env env) override;

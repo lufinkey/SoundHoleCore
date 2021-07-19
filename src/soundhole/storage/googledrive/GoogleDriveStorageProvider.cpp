@@ -342,6 +342,7 @@ namespace sh {
 	}
 
 
+
 	GoogleDriveStorageProvider::UserPlaylistsGenerator GoogleDriveStorageProvider::getUserPlaylists(String userURI) {
 		struct SharedData {
 			String pageToken;
@@ -510,8 +511,8 @@ namespace sh {
 		});
 	}
 
-	Promise<void> GoogleDriveStorageProvider::deletePlaylistItems(String uri, ArrayList<String> itemIds) {
-		return performAsyncJSAPIFunc<void>("deletePlaylistItems", [=](napi_env env) {
+	Promise<ArrayList<size_t>> GoogleDriveStorageProvider::deletePlaylistItems(String uri, ArrayList<String> itemIds) {
+		return performAsyncJSAPIFunc<ArrayList<size_t>>("deletePlaylistItems", [=](napi_env env) {
 			auto itemIdsList = Napi::Array::New(env, itemIds.size());
 			uint32_t i = 0;
 			for(auto& itemId : itemIds) {
@@ -523,19 +524,19 @@ namespace sh {
 				itemIdsList
 			};
 		}, [=](napi_env env, Napi::Value value) {
-			/*ArrayList<size_t> indexes;
+			ArrayList<size_t> indexes;
 			auto indexesArray = value.As<Napi::Object>().Get("indexes").As<Napi::Array>();
 			indexes.reserve(indexesArray.Length());
 			for(uint32_t i=0; i<indexesArray.Length(); i++) {
 				auto index = indexesArray.Get(i).As<Napi::Number>();
 				indexes.pushBack((size_t)index.DoubleValue());
 			}
-			return indexes;*/
+			return indexes;
 		});
 	}
 
-	Promise<void> GoogleDriveStorageProvider::reorderPlaylistItems(String uri, size_t index, size_t count, size_t insertBefore) {
-		return performAsyncJSAPIFunc<void>("reorderPlaylistItems", [=](napi_env env) {
+	Promise<void> GoogleDriveStorageProvider::movePlaylistItems(String uri, size_t index, size_t count, size_t insertBefore) {
+		return performAsyncJSAPIFunc<void>("movePlaylistItems", [=](napi_env env) {
 			return std::vector<napi_value>{
 				Napi::String::New(env, uri),
 				Napi::Number::New(env, (double)index),

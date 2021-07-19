@@ -5,6 +5,15 @@ import {
 	sheets_v4,
 	Auth } from 'googleapis';
 import { v1 as uuidv1 } from 'uuid';
+import {
+	GoogleSheetsDB,
+	GoogleSheetsDB$InstantiateResult,
+	GSDBCellValue,
+	GSDBColumnInfo,
+	GSDBInfo,
+	GSDBRow,
+	GSDBTableData,
+	GSDBTableSheetInfo } from 'google-sheets-db';
 import StorageProvider, {
 	CreatePlaylistOptions,
 	GetPlaylistItemsOptions,
@@ -20,42 +29,15 @@ import StorageProvider, {
 	User } from './StorageProvider';
 
 const PLAYLISTS_FOLDER_NAME = "Playlists";
-const MIN_PLAYLIST_COLUMNS = [
-	'uri',
-	'provider',
-	'name',
-	'albumName',
-	'albumURI',
-	'artists',
-	'images',
-	'duration',
-	'addedAt',
-	'addedBy'
-];
-const PLAYLIST_COLUMNS = [
-	'uri',
-	'provider',
-	'name',
-	'albumName',
-	'albumURI',
-	'artists',
-	'images',
-	'duration',
-	'addedAt',
-	'addedBy',
-	'addedById'
-];
+const PLAYLIST_VERSIONS = [ '1.0' ];
+const PLAYLIST_LATEST_VERSION = '1.0';
+const PLAYLIST_PRIVACIES = ['public','unlisted','private'];
+
 const PLAYLIST_ITEM_ONLY_COLUMNS = [
 	'addedAt',
 	'addedBy',
 	'addedById'
 ];
-const PLAYLIST_VERSIONS = [ 'v1.0' ];
-const PLAYLIST_LATEST_VERSION = 'v1.0';
-const PLAYLIST_ITEMS_START_OFFSET = 2;
-const PLAYLIST_PRIVACIES = ['public','unlisted','private'];
-
-const PLAYLIST_EXTRA_COLUMN_COUNT = 10;
 
 
 type GoogleDriveStorageProviderOptions = {
@@ -311,9 +293,6 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 	}
 	get _imageMimeTypePropKey(): string {
 		return `${this._options.appKey}_img_mimetype`;
-	}
-	get _playlistItemIdKey(): string {
-		return `${this._options.appKey}_playlist_item_id`;
 	}
 
 
@@ -678,11 +657,88 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 
 
 
+	get _playlistVersionKey(): string {
+		return `${this._options.appKey}_playlist_version`;
+	}
+
+	get _playlistItemIdKey(): string {
+		return `${this._options.appKey}_playlist_item_id`;
+	}
+
+	get _playlistItemsTableName(): string {
+		return 'items';
+	}
+
+	_playlistDBInfo(): GSDBInfo {
+		return {
+			tables: [
+				{ // items table
+					name: this._playlistItemsTableName,
+					columnInfo: [
+						{
+							name: 'uri',
+							type: 'rawstring',
+							nonnull: true
+						}, {
+							name: 'provider',
+							type: 'rawstring',
+							nonnull: true
+						}, {
+							name: 'name',
+							type: 'rawstring',
+							nonnull: true
+						}, {
+							name: 'albumName',
+							type: 'string'
+						}, {
+							name: 'albumURI',
+							type: 'string'
+						}, {
+							name: 'artists',
+							type: 'any'
+						}, {
+							name: 'images',
+							type: 'any'
+						}, {
+							name: 'duration',
+							type: 'float'
+						}, {
+							name: 'addedAt',
+							type: 'timestamp',
+							nonnull: true
+						}, {
+							name: 'addedById',
+							type: 'rawstring',
+							nonnull: true
+						}, {
+							name: 'addedBy',
+							type: 'any',
+							nonnull: true
+						}
+					],
+					rowMetadataInfo: [
+						{
+							name: this._playlistItemIdKey,
+							type: 'rawstring'
+						}
+					],
+					metadata: {}
+				},
+			],
+			metadata: {
+				[this._playlistVersionKey]: PLAYLIST_LATEST_VERSION
+			}
+		};
+	}
+
+
+
 	async createPlaylist(name: string, options: CreatePlaylistOptions = {}): Promise<Playlist> {
 		await this._prepareForRequest();
 		// validate input
-		const privacy = options.privacy ?? 'private';
-		this._validatePrivacy(privacy);
+		if(options.privacy != null) {
+			this._validatePrivacy(options.privacy);
+		}
 		// prepare folder
 		await this._preparePlaylistsFolder();
 		const baseFolderId = this._baseFolderId;
@@ -710,50 +766,40 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 			appProperties[this._imageDataPropKey] = options.image.data;
 			appProperties[this._imageMimeTypePropKey] = options.image.mimeType;
 		}
-		// create file
-		const file = (await this._drive.files.create({
-			fields: "*",
-			requestBody: {
+		// create playlist db
+		const db = new GoogleSheetsDB({
+			drive: this._drive,
+			sheets: this._sheets
+		});
+		// instantiate db
+		let instResult: GoogleSheetsDB$InstantiateResult;
+		try {
+			instResult = await db.instantiate({
 				name: name,
-				description: options.description,
-				mimeType: 'application/vnd.google-apps.spreadsheet',
-				parents: [playlistsFolderId],
-				appProperties: appProperties
+				file: {
+					description: options.description,
+					parents: [playlistsFolderId],
+					appProperties: appProperties
+				},
+				privacy: options.privacy ?? 'private',
+				db: this._playlistDBInfo()
+			});
+		} catch(error) {
+			if(db.fileId != null) {
+				// try to destroy the db if we can
+				db.destroy().catch((error) => {
+					console.error(error);
+				});
 			}
-		})).data;
+			throw error;
+		}
+		const { file, privacy } = instResult;
 		if(file.id == null) {
 			throw new Error("Missing \"id\" property of newly created playlist file");
 		}
-		// update sheet
-		await this._preparePlaylistSheet(file.id);
-		// add privacy if necessary
-		if(options.privacy) {
-			if(options.privacy === 'public') {
-				await this._drive.permissions.create({
-					fileId: file.id,
-					requestBody: {
-						type: 'anyone',
-						role: 'reader',
-						allowFileDiscovery: true
-					}
-				});
-			} else if(options.privacy === 'unlisted') {
-				await this._drive.permissions.create({
-					fileId: file.id,
-					requestBody: {
-						type: 'anyone',
-						role: 'reader',
-						allowFileDiscovery: false
-					}
-				});
-			} else if(options.privacy === 'private') {
-				// no need to add any extra permissions
-			} else {
-				throw new Error(`unsupported privacy value "${options.privacy}"`);
-			}
-		}
 		// transform result
 		const playlist = this._createPlaylistObject(file, driveUserIdentifier, baseFolderId);
+		playlist.privacy = privacy;
 		playlist.itemCount = 0;
 		playlist.items = [];
 		return playlist;
@@ -977,57 +1023,6 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 
 
 
-	_indexToColumn(index: number): string {
-		let letter = '', temp;
-		while(index >= 0) {
-			temp = index % 26;
-			letter = String.fromCharCode(temp + 65) + letter;
-			index = (index - temp - 1) / 26;
-		}
-		return letter;
-	}
-	_a1Notation(x: number, y: number): string {
-		return ''+this._indexToColumn(x)+(y+1);
-	}
-	_a1Range(x1: number, y1: number, x2: number, y2: number): string {
-		return this._a1Notation(x1,y1)+':'+this._a1Notation(x2,y2)
-	}
-	_playlistHeaderA1Range(): string {
-		return this._a1Range(0,0, (PLAYLIST_COLUMNS.length+PLAYLIST_EXTRA_COLUMN_COUNT), 1);
-	}
-	_playlistItemsA1Range(startIndex: number, itemCount: number): string {
-		if(!Number.isInteger(startIndex) || startIndex < 0) {
-			throw new Error("startIndex must be a positive integer");
-		} else if(!Number.isInteger(itemCount) || itemCount <= 0) {
-			throw new Error("itemCount must be a positive non-zero integer");
-		}
-		return this._a1Range(0,(PLAYLIST_ITEMS_START_OFFSET+startIndex), (PLAYLIST_COLUMNS.length+PLAYLIST_EXTRA_COLUMN_COUNT), (PLAYLIST_ITEMS_START_OFFSET+itemCount));
-	}
-	_playlistHeaderAndItemsA1Range(itemCount: number): string {
-		return this._a1Range(0,0, (PLAYLIST_COLUMNS.length+PLAYLIST_EXTRA_COLUMN_COUNT), (1+itemCount));
-	}
-	_playlistColumnsA1Range(): string {
-		return this._a1Range(0,1, PLAYLIST_COLUMNS.length,1);
-	}
-
-	_parseUserEnteredValue(val: sheets_v4.Schema$ExtendedValue): any {
-		if(!val) {
-			return undefined;
-		} else if(val.stringValue != null) {
-			return val.stringValue;
-		} else if(val.numberValue != null) {
-			return ''+val.numberValue;
-		} else if(val.boolValue != null) {
-			return ''+val.boolValue;
-		} else if(val.formulaValue != null) {
-			return ''+val.formulaValue;
-		} else if(val.errorValue != null) {
-			return `Error(type=${JSON.stringify(val.errorValue.type)}, message=${JSON.stringify(val.errorValue.message)})`;
-		} else {
-			return undefined;
-		}
-	}
-
 	_formatDate(date: Date): string {
 		// TODO change this to just return ISO string in the future
 		const fixedDate = new Date(Math.floor(date.getTime() / 1000) * 1000);
@@ -1039,245 +1034,29 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 		return dateString;
 	}
 
-	async _preparePlaylistSheet(fileId: string) {
-		// get spreadsheet header
-		const spreadsheet = (await this._sheets.spreadsheets.get({
-			spreadsheetId: fileId,
-			includeGridData: true,
-			ranges: [ this._playlistHeaderA1Range() ]
-		})).data;
-		// validate properties
-		try {
-			this._parsePlaylistSheetProperties(spreadsheet, 0);
-			// properties are valid, we don't need to continue with preparing the playlist
-			return;
-		} catch(error) {
-			// continue on preparing the sheet
-		}
-		// get sheet
-		if(!spreadsheet || !spreadsheet.sheets || !spreadsheet.sheets[0]) {
-			throw new Error(`Missing spreadsheet sheets`);
-		}
-		const sheet = spreadsheet.sheets[0];
-		if(!sheet.properties) {
-			throw new Error(`Missing spreadsheet properties`);
-		}
-		const gridProps = sheet.properties.gridProperties;
-		if(gridProps == null || gridProps.columnCount == null || gridProps.rowCount == null) {
-			throw new Error("Missing spreadsheet gridProperties");
-		}
-		const maxColumnsCount = PLAYLIST_COLUMNS.length;
-		const maxRowsCount = PLAYLIST_ITEMS_START_OFFSET;
-		const rowDiff = maxColumnsCount - gridProps.columnCount;
-		const colDiff = maxRowsCount - gridProps.rowCount;
-		// perform batch update
-		await this._sheets.spreadsheets.batchUpdate({
-			spreadsheetId: fileId,
-			requestBody: {
-				requests: [
-					// resize columns
-					...((colDiff > 0) ? [
-						{appendDimension: {
-							sheetId: 0,
-							dimension: 'COLUMNS',
-							length: colDiff
-						}}
-					] : (colDiff < 0) ? [
-						{deleteDimension: {
-							range: {
-								sheetId: 0,
-								dimension: 'COLUMNS',
-								startIndex: maxColumnsCount,
-								endIndex: gridProps.columnCount
-							}
-						}}
-					] : []),
-					// resize rows
-					...((rowDiff > 0) ? [
-						{appendDimension: {
-							sheetId: 0,
-							dimension: 'ROWS',
-							length: rowDiff
-						}}
-					] : (rowDiff < 0) ? [
-						{deleteDimension: {
-							range: {
-								sheetId: 0,
-								dimension: 'ROWS',
-								startIndex: maxRowsCount,
-								endIndex: gridProps.rowCount
-							}
-						}}
-					] : []),
-					// update version, add columns
-					{updateCells: {
-						fields: 'userEnteredValue',
-						start: {
-							sheetId: 0,
-							rowIndex: 0,
-							columnIndex: 0
-						},
-						rows: [
-							{values: [
-								{userEnteredValue: {stringValue: PLAYLIST_LATEST_VERSION}}
-							]},
-							{values: PLAYLIST_COLUMNS.map((column) => (
-								{userEnteredValue: {stringValue: column}}
-							))}
-						]
-					}}
-				]
-			}
-		});
-	}
-
-	_parsePlaylistSheetProperties(spreadsheet: sheets_v4.Schema$Spreadsheet, rangeIndex: number): PlaylistSheetProps {
-		// get sheet data
-		if(!spreadsheet || !spreadsheet.sheets || !spreadsheet.sheets[0]) {
-			throw new Error(`Missing spreadsheet sheets`);
-		}
-		const sheet = spreadsheet.sheets[0];
-		if(!sheet.data || !sheet.data[rangeIndex] || !sheet.data[rangeIndex].rowData) {
-			throw new Error(`Missing spreadsheet data`);
-		}
-		const gridProps = sheet.properties?.gridProperties;
-		if(gridProps == null || gridProps.rowCount == null || gridProps.columnCount == null) {
-			throw new Error("Missing gridProps in playlist sheet");
-		}
-		// calculate item count
-		const itemsStartOffset = PLAYLIST_ITEMS_START_OFFSET;
-		const itemCount = gridProps.rowCount - itemsStartOffset;
-		// parse top row properties
-		const data = sheet.data[rangeIndex];
-		if(!data) {
-			throw new Error(`Missing range data at index ${rangeIndex}`);
-		}
-		if(data.rowData == null) {
-			throw new Error(`Missing row data for range index ${rangeIndex}`);
-		}
-		if(!data.rowData[0]) {
-			throw new Error("Missing top row of playlist sheet");
-		}
-		const topRowDataValues = data.rowData[0].values;
-		if(!topRowDataValues || !topRowDataValues[0]) {
-			throw new Error("Missing version cell for playlist sheet");
-		}
-		if(!topRowDataValues[0].userEnteredValue) {
-			throw new Error("Missing userEnteredValue for version cell in playlist sheet");
-		}
-		const version = this._parseUserEnteredValue(topRowDataValues[0].userEnteredValue);
-		// parse columns
-		if(!data.rowData[1] || !data.rowData[1].values) {
-			throw new Error("Missing columns row values in playlist sheet");
-		}
-		let columns = [];
-		for(const cell of data.rowData[1].values) {
-			if(!cell.userEnteredValue) {
-				throw new Error(`Missing userEnteredValue for column cell ${columns.length} in playlist sheet`);
-			}
-			const cellValue = this._parseUserEnteredValue(cell.userEnteredValue);
-			if(cellValue != null && cellValue !== '') {
-				columns.push(`${cellValue}`);
-			} else {
-				break;
-			}
-		}
-		// validate version
-		if(PLAYLIST_VERSIONS.indexOf(version) === -1) {
-			throw new Error(`Invalid playlist version '${version}'`);
-		}
-		// ensure we have columns
-		if(columns.length === 0) {
-			throw new Error(`Missing track columns`);
-		}
-		// check for minimum necessary columns
-		for(const column of MIN_PLAYLIST_COLUMNS) {
-			if(columns.indexOf(column) === -1) {
-				throw new Error(`Missing track column ${column}`);
-			}
-		}
-		return {
-			version,
-			columns,
-			itemCount,
-			itemsStartRowIndex: itemsStartOffset
-		};
-	}
-
-	_parsePlaylistSheetItems(spreadsheet: sheets_v4.Schema$Spreadsheet, rangeIndex: number, startOffset: number, { columns, itemCount, itemsStartRowIndex }: { columns: string[], itemCount: number, itemsStartRowIndex: number }): PlaylistItemPage {
-		// parse out sheet data
-		if(!spreadsheet || !spreadsheet.sheets || !spreadsheet.sheets[0]) {
-			throw new Error(`Missing spreadsheet sheets`);
-		}
-		const sheet = spreadsheet.sheets[0];
-		if(!sheet.data || !sheet.data[rangeIndex] || !sheet.data[rangeIndex].rowData) {
-			throw new Error(`Missing spreadsheet data`);
-		}
-		const data = sheet.data[rangeIndex];
-		// ensure row data
-		if(!data.rowData) {
-			throw new Error("Missing row data for playlist sheet");
-		}
-		if(!data.rowMetadata) {
-			throw new Error("Missing row metadata for playlist sheet");
-		}
-		// parse tracks
-		const startIndex = (data.startRow ?? 0) + startOffset - itemsStartRowIndex;
-		const items = [];
-		let i = 0;
-		let skippedRowCount = 0;
-		for(const row of data.rowData) {
-			if(skippedRowCount < startOffset) {
-				skippedRowCount++;
-				i++;
-				continue;
-			}
-			const rowMetadata = data.rowMetadata[i];
-			const index = startIndex + items.length;
-			if(index >= itemCount) {
-				break;
-			}
-			const item = this._parsePlaylistSheetItemRow(row, rowMetadata, columns, index);
-			items.push(item);
-			i++;
-		}
-		return {
-			offset: startIndex,
-			total: itemCount,
-			items
-		};
-	}
-
-	_parsePlaylistSheetItemRow(row: sheets_v4.Schema$RowData, rowMetadata: sheets_v4.Schema$DimensionProperties, columns: string[], index: number): PlaylistItem {
+	_parsePlaylistItemTableRow(row: GSDBRow, columns: GSDBColumnInfo[], index: number): PlaylistItem {
 		if(row.values == null) {
 			throw new Error("Missing values property for playlist row");
 		}
 		if(row.values.length < columns.length) {
 			throw new Error("Not enough columns in row");
 		}
-		const rowItemIdKey = this._playlistItemIdKey;
 		const item: any = {};
 		const track: any = {};
 		for(let i=0; i<columns.length; i++) {
-			const columnName = columns[i];
-			const cell = row.values[i];
-			if(!cell.userEnteredValue) {
-				throw new Error(`Missing userEnteredValue for ${columnName} cell`);
-			}
-			const value = JSON.parse(this._parseUserEnteredValue(cell.userEnteredValue));
-			if(PLAYLIST_ITEM_ONLY_COLUMNS.indexOf(columnName) !== -1) {
-				item[columnName] = value;
+			const column = columns[i];
+			const value = row.values[i];
+			if(PLAYLIST_ITEM_ONLY_COLUMNS.indexOf(column.name) !== -1) {
+				item[column.name] = value;
 			} else {
-				track[columnName] = value;
+				track[column.name] = value;
 			}
-			const itemIdMetadata = rowMetadata.developerMetadata?.find((metadata) => {
-				return metadata.metadataKey === rowItemIdKey
-			});
-			if(!itemIdMetadata) {
-				throw new Error(`Missing developer metadata '${rowItemIdKey}' for track at index ${index}`);
-			}
-			item.uniqueId = itemIdMetadata.metadataValue;
 		}
+		const itemId = row.metadata[this._playlistItemIdKey];
+		if(itemId == null) {
+			throw new Error(`Missing metadata property ${this._playlistItemIdKey} in row ${index}`);
+		}
+		item.uniqueId = itemId;
 		if(track.type == null) {
 			track.type = 'track';
 		}
@@ -1287,6 +1066,19 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 			item.addedAt = this._formatDate(new Date(item.addedAt));
 		}
 		return item;
+	}
+
+	_parsePlaylistItemsTableData(tableData: GSDBTableSheetInfo & GSDBTableData): PlaylistItemPage {
+		const items: PlaylistItem[] = [];
+		for(const row of tableData.rows) {
+			const index = tableData.rowsOffset + items.length;
+			items.push(this._parsePlaylistItemTableRow(row, tableData.columnInfo, index));
+		}
+		return {
+			offset: tableData.rowsOffset,
+			total: tableData.rowCount,
+			items
+		};
 	}
 
 
@@ -1299,140 +1091,80 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 		}
 		// parse uri
 		const uriParts = this._parsePlaylistURI(playlistURI);
+		// get db data
+		const db = new GoogleSheetsDB({
+			fileId: uriParts.fileId,
+			drive: this._drive,
+			sheets: this._sheets
+		});
 		if(offset === 0) {
-			// get spreadsheet properties and item rows together
-			const spreadsheet = (await this._sheets.spreadsheets.get({
-				spreadsheetId: uriParts.fileId,
-				includeGridData: true,
-				ranges: [
-					this._playlistHeaderAndItemsA1Range(limit)
-				]
-			})).data;
-			const sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
-			const itemsPage = this._parsePlaylistSheetItems(spreadsheet, 0, 2, sheetProps);
-			return itemsPage;
+			// get table info and item rows together
+			const tableData = await db.getTableData(this._playlistItemsTableName, {
+				offset,
+				limit
+			});
+			return this._parsePlaylistItemsTableData(tableData);
 		} else {
-			// get spreadsheet properties
-			let spreadsheet = (await this._sheets.spreadsheets.get({
-				spreadsheetId: uriParts.fileId,
-				includeGridData: true,
-				ranges: [
-					this._playlistHeaderA1Range()
-				]
-			})).data;
-			let sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
+			// get table info
+			const tableInfo = await db.getTableInfo(this._playlistItemsTableName);
 			// if we're out of range, return an empty page
-			if(offset >= sheetProps.itemCount) {
+			if(offset >= tableInfo.rowCount) {
 				return {
-					total: sheetProps.itemCount,
-					offset: sheetProps.itemCount,
+					total: tableInfo.rowCount,
+					offset: tableInfo.rowCount,
 					items: []
-				}
+				};
 			}
 			// get items rows and spreadsheet properties
-			spreadsheet = (await this._sheets.spreadsheets.get({
-				spreadsheetId: uriParts.fileId,
-				includeGridData: true,
-				ranges: [
-					this._playlistHeaderA1Range(),
-					this._playlistItemsA1Range(offset, limit)
-				]
-			})).data;
-			sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
-			const itemsPage = this._parsePlaylistSheetItems(spreadsheet, 1, 0, sheetProps);
-			return itemsPage;
+			const tableData = await db.getTableData(this._playlistItemsTableName, {
+				offset,
+				limit
+			});
+			return this._parsePlaylistItemsTableData(tableData);
 		}
 	}
 
 
 
-	async _insertPlaylistItems(playlistURI: string, index: number, tracks: Track[], sheetProps: PlaylistSheetProps, driveInfo: drive_v3.Schema$About): Promise<PlaylistItemPage> {
+	async _insertPlaylistItems(db: GoogleSheetsDB, index: number, tracks: Track[], tableInfo: GSDBTableSheetInfo, driveInfo: drive_v3.Schema$About): Promise<PlaylistItemPage> {
 		const rowItemIdKey = this._playlistItemIdKey;
 		if(!driveInfo.user) {
 			throw new Error("Missing user in drive info");
 		}
-		// parse uri
-		const uriParts = this._parsePlaylistURI(playlistURI);
 		// build items data
 		const addedAt = (new Date()).getTime();
 		const addedBy = this._createUserObject(driveInfo.user, this._baseFolderId);
-		const addedById = `/${this._createUserIDFromUser(driveInfo.user, this._baseFolderId)}/`;
-		const items: PlaylistItem[] = tracks.map((track) => (
-			{
-				uniqueId: uuidv1(),
-				addedAt,
-				addedBy,
-				addedById,
-				track
-			}
-		));
+		const addedById = this._createUserIDFromUser(driveInfo.user, this._baseFolderId);
+		const items: PlaylistItem[] = tracks.map((track): PlaylistItem & {addedById: string} => ({
+			uniqueId: uuidv1(),
+			addedAt,
+			addedBy,
+			addedById,
+			track
+		}));
 		// insert tracks into playlist
-		await this._sheets.spreadsheets.batchUpdate({
-			spreadsheetId: uriParts.fileId,
-			requestBody: {
-				requests: [
-					// insert empty rows
-					{insertDimension: {
-						inheritFromBefore: true,
-						range: {
-							dimension: 'ROWS',
-							startIndex: PLAYLIST_ITEMS_START_OFFSET + index,
-							endIndex:  PLAYLIST_ITEMS_START_OFFSET + index + tracks.length
-						}
-					}},
-					// add content to new rows
-					{updateCells: {
-						fields: 'userEnteredValue',
-						start: {
-							sheetId: 0,
-							rowIndex:  PLAYLIST_ITEMS_START_OFFSET + index,
-							columnIndex: 0
-						},
-						rows: items.map((item) => {
-							const track = item.track;
-							const rowValues = [];
-							for(const columnName of sheetProps.columns) {
-								let trackProp;
-								if(PLAYLIST_ITEM_ONLY_COLUMNS.indexOf(columnName) !== -1) {
-									trackProp = (item as any)[columnName];
-								} else {
-									trackProp = (track as any)[columnName];
-								}
-								rowValues.push({
-									userEnteredValue: {
-										stringValue: JSON.stringify(trackProp)
-									}
-								});
-							}
-							return { values: rowValues };
-						})
-					}},
-					// add developer metadata for tracks
-					...items.map((item, i) => (
-						{createDeveloperMetadata: {
-							developerMetadata: {
-								// item ID
-								metadataKey: rowItemIdKey,
-								metadataValue: item.uniqueId,
-								location: {
-									dimensionRange: {
-										dimension: 'ROWS',
-										sheetId: 0,
-										startIndex: PLAYLIST_ITEMS_START_OFFSET + index + i,
-										endIndex: PLAYLIST_ITEMS_START_OFFSET + index + (i+1)
-									}
-								},
-								visibility: 'DOCUMENT'
-							}
-						}}
-					))
-				]
+		await db.insertTableRows(tableInfo, index, items.map((item): GSDBRow => {
+			const values: GSDBCellValue[] = [];
+			for(const columnInfo of tableInfo.columnInfo) {
+				let value: GSDBCellValue;
+				if(PLAYLIST_ITEM_ONLY_COLUMNS.includes(columnInfo.name)) {
+					value = (item as any)[columnInfo.name];
+				} else {
+					value = (item.track as any)[columnInfo.name];
+				}
+				values.push(value);
 			}
-		});
-		// return resulting tracks
+			const metadata: {[key: string]: GSDBCellValue} = {
+				[rowItemIdKey]: item.uniqueId
+			};
+			return {
+				values,
+				metadata
+			};
+		}));
 		return {
 			offset: index,
-			total: (sheetProps.itemCount + items.length),
+			total: tableInfo.rowCount,
 			items
 		};
 	}
@@ -1447,20 +1179,18 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 		// get drive info
 		const driveInfo = await this._getCurrentDriveInfo();
 		// get spreadsheet info
-		const spreadsheet = (await this._sheets.spreadsheets.get({
-			spreadsheetId: uriParts.fileId,
-			includeGridData: true,
-			ranges: [
-				this._playlistHeaderA1Range()
-			]
-		})).data;
-		const sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
+		const db = new GoogleSheetsDB({
+			fileId: uriParts.fileId,
+			drive: this._drive,
+			sheets: this._sheets
+		});
+		const tableInfo = await db.getTableInfo(this._playlistItemsTableName);
 		// ensure index is in range
-		if(index > sheetProps.itemCount) {
+		if(index > tableInfo.rowCount) {
 			throw new Error(`index ${index} is out of bounds in playlist with URI ${playlistURI}`);
 		}
 		// insert new rows
-		return await this._insertPlaylistItems(playlistURI, index, tracks, sheetProps, driveInfo);
+		return await this._insertPlaylistItems(db, index, tracks, tableInfo, driveInfo);
 	}
 
 	async appendPlaylistItems(playlistURI: string, tracks: Track[]): Promise<PlaylistItemPage> {
@@ -1470,169 +1200,60 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 		// get drive info
 		const driveInfo = await this._getCurrentDriveInfo();
 		// get spreadsheet info
-		const spreadsheet = (await this._sheets.spreadsheets.get({
-			spreadsheetId: uriParts.fileId,
-			includeGridData: true,
-			ranges: [
-				this._playlistHeaderA1Range()
-			]
-		})).data;
-		const sheetProps = this._parsePlaylistSheetProperties(spreadsheet, 0);
+		const db = new GoogleSheetsDB({
+			fileId: uriParts.fileId,
+			drive: this._drive,
+			sheets: this._sheets
+		});
+		const tableInfo = await db.getTableInfo(this._playlistItemsTableName);
 		// append new rows
-		return await this._insertPlaylistItems(playlistURI, sheetProps.itemCount, tracks, sheetProps, driveInfo);
+		return await this._insertPlaylistItems(db, tableInfo.rowCount, tracks, tableInfo, driveInfo);
 	}
 
-	async deletePlaylistItems(playlistURI: string, itemIds: string[]): Promise<void> {
+	async deletePlaylistItems(playlistURI: string, itemIds: string[]): Promise<{indexes: number[]}> {
 		if(itemIds.length === 0) {
-			return;
+			return {
+				indexes: []
+			};
 		}
 		await this._prepareForRequest();
 		const rowItemIdKey = this._playlistItemIdKey;
 		// parse uri
 		const uriParts = this._parsePlaylistURI(playlistURI);
-		// find matching item ids
-		const { matchedDeveloperMetadata } = (await this._sheets.spreadsheets.developerMetadata.search({
-			spreadsheetId: uriParts.fileId,
-			requestBody: {
-				dataFilters: itemIds.map((itemId) => ({
-					developerMetadataLookup: {
-						locationType: 'ROW',
-						metadataKey: rowItemIdKey,
-						metadataValue: itemId
-					}
-				}))
-			}
-		})).data;
-		// get row indexes
-		const rows = itemIds.map((itemId) => {
-			const metadata = (matchedDeveloperMetadata ?? []).find((metadata) => {
-				const devMeta = metadata.developerMetadata;
-				return (devMeta?.metadataKey === rowItemIdKey && devMeta.metadataValue == itemId);
-			});
-			if(!metadata) {
-				throw new Error(`Could not find playlist item with id ${itemId}`);
-			}
-			const rowIndex = metadata.developerMetadata?.location?.dimensionRange?.startIndex;
-			if(rowIndex == null) {
-				throw new Error(`Missing rowIndex property of developer metadata`);
-			}
+		// delete rows
+		const db = new GoogleSheetsDB({
+			fileId: uriParts.fileId,
+			drive: this._drive,
+			sheets: this._sheets
+		});
+		return await db.deleteTableRowsWithMetadata(this._playlistItemsTableName, itemIds.map((itemId) => {
 			return {
-				itemId,
-				rowIndex
+				key: rowItemIdKey,
+				value: itemId,
+				match: 'any'
 			};
-		});
-		rows.sort((a, b) => (a.rowIndex - b.rowIndex));
-		// group indexes for simpler removal
-		const rowGroups = [];
-		let groupStartIndex = null;
-		let expectedNextIndex = null;
-		for(const { rowIndex } of rows) {
-			if(groupStartIndex == null) {
-				// start a new group
-				groupStartIndex = rowIndex;
-				expectedNextIndex = rowIndex + 1;
-			} else if(rowIndex === expectedNextIndex) {
-				// found expected index, expand group
-				expectedNextIndex = rowIndex + 1;
-			} else {
-				// next index wasn't the expected index, so push the group
-				rowGroups.push({
-					startIndex: groupStartIndex,
-					endIndex: expectedNextIndex
-				});
-				// start a new group
-				groupStartIndex = rowIndex;
-				expectedNextIndex = rowIndex + 1;
-			}
-		}
-		// add the last group
-		if(groupStartIndex != null) {
-			rowGroups.push({
-				startIndex: groupStartIndex,
-				endIndex: expectedNextIndex
-			});
-		}
-		// delete from last to first so indexes are correct
-		rowGroups.reverse();
-		// delete row index groups
-		await this._sheets.spreadsheets.batchUpdate({
-			spreadsheetId: uriParts.fileId,
-			requestBody: {
-				requests: [
-					// validate the item IDs at the indexes by setting them to the same values
-					...rows.map(({ itemId, rowIndex }) => (
-						{updateDeveloperMetadata: {
-							dataFilters: [
-								{developerMetadataLookup: {
-									metadataLocation: {
-										locationType: 'ROW',
-										dimensionRange: {
-											sheetId: 0,
-											startIndex: rowIndex,
-											endIndex: rowIndex + 1,
-											dimension: 'ROWS'
-										}
-									},
-									locationMatchingStrategy: 'EXACT_LOCATION',
-									metadataKey: rowItemIdKey,
-									metadataValue: itemId
-								}},
-							],
-							developerMetadata: {
-								metadataValue: itemId
-							},
-							fields: 'metadataValue'
-						}}
-					)),
-					// delete rows
-					...rowGroups.map((group) => (
-						{deleteDimension: {
-							range: {
-								sheetId: 0,
-								startIndex: group.startIndex,
-								endIndex: group.endIndex,
-								dimension: 'ROWS'
-							}
-						}}
-					))
-				]
-			}
-		});
-		// transform result
-		/*return {
-			indexes: rows.map((row) => (row.index - PLAYLIST_ITEMS_START_OFFSET))
-		};*/
+		}));
 	}
 
-	async reorderPlaylistItems(playlistURI: string, index: number, count: number, insertBefore: number) {
+	async movePlaylistItems(playlistURI: string, index: number, count: number, newIndex: number) {
 		if(!Number.isInteger(index) || index < 0) {
 			throw new Error("index must be a positive integer");
 		}
 		if(!Number.isInteger(count) || count <= 0) {
 			throw new Error("count must be a positive non-zero integer");
 		}
-		if(!Number.isInteger(insertBefore) || insertBefore < 0) {
+		if(!Number.isInteger(newIndex) || newIndex < 0) {
 			throw new Error("insertBefore must be a positive integer");
 		}
 		await this._prepareForRequest();
 		// parse uri
 		const uriParts = this._parsePlaylistURI(playlistURI);
 		// reorder items
-		await this._sheets.spreadsheets.batchUpdate({
-			spreadsheetId: uriParts.fileId,
-			requestBody: {
-				requests: [
-					{moveDimension: {
-						source: {
-							sheetId: 0,
-							dimension: 'ROWS',
-							startIndex: PLAYLIST_ITEMS_START_OFFSET + index,
-							endIndex: PLAYLIST_ITEMS_START_OFFSET + index + count
-						},
-						destinationIndex: PLAYLIST_ITEMS_START_OFFSET + insertBefore
-					}}
-				]
-			}
+		const db = new GoogleSheetsDB({
+			fileId: uriParts.fileId,
+			drive: this._drive,
+			sheets: this._sheets
 		});
+		await db.moveTableRows(this._playlistItemsTableName, index, count, newIndex);
 	}
 }

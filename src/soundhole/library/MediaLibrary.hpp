@@ -124,11 +124,11 @@ namespace sh {
 		
 		Promise<void> saveTrack($<Track> track);
 		Promise<void> unsaveTrack($<Track> track);
+		Promise<ArrayList<bool>> hasSavedTracks(ArrayList<$<Track>> tracks);
+		
 		Promise<void> saveAlbum($<Album> album);
 		Promise<void> unsaveAlbum($<Album> album);
-		Promise<ArrayList<bool>> hasSavedTracks(ArrayList<$<Track>> tracks);
 		Promise<ArrayList<bool>> hasSavedAlbums(ArrayList<$<Album>> albums);
-		
 		
 	private:
 		MediaDatabase* db;
