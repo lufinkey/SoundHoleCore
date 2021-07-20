@@ -1,4 +1,8 @@
 
+export type KeyingOptions = {
+	appKey: string
+}
+
 export type Image = {
 	url: string
 	size: 'SMALL' | 'MEDIUM' | 'LARGE'
@@ -40,6 +44,14 @@ export type Track = {
 }
 
 export type PlaylistPrivacyId = 'private' | 'unlisted' | 'public'
+export const PlaylistPrivacyValues: string[] = [ 'public', 'unlisted', 'private' ];
+export const validatePlaylistPrivacy = (privacy: string): PlaylistPrivacyId => {
+	if(!privacy || PlaylistPrivacyValues.indexOf(privacy) === -1) {
+		throw new Error(`invalid privacy value "${privacy}" for google drive storage provider`);
+	}
+	return (privacy as PlaylistPrivacyId);
+};
+
 
 export type PlaylistItem = {
 	uniqueId: string
@@ -93,8 +105,52 @@ export type GetUserPlaylistsOptions = {
 	pageSize?: number
 }
 
+
+
+export type URIParts = {
+	storageProvider: string
+	type: string
+	id: string
+}
+
+export type MediaItemBuilder = {
+	parseStorageProviderURI: (uri: string) => URIParts
+	createStorageProviderURI: (storageProvider: string, type: string, id: string) => string
+	readonly name: string
+}
+
+export const parseStorageProviderURI = (uri: string, mediaItemBuilder: MediaItemBuilder | null): URIParts => {
+	if(!mediaItemBuilder || !mediaItemBuilder.parseStorageProviderURI) {
+		const colonIndex1 = uri.indexOf(':');
+		if(colonIndex1 === -1) {
+			throw new Error("invalid URI "+uri);
+		}
+		const provider = uri.substring(0, colonIndex1);
+		const colonIndex2 = uri.indexOf(':', colonIndex1 + 1);
+		if(colonIndex2 !== -1) {
+			throw new Error("Invalid URI "+uri);
+		}
+		const type = uri.substring(colonIndex1 + 1, colonIndex2);
+		const id = uri.substring(colonIndex2+1);
+		return {
+			storageProvider: provider,
+			type,
+			id
+		};
+	}
+	return mediaItemBuilder.parseStorageProviderURI(uri);
+};
+
+export const createStorageProviderURI = (uriParts: URIParts, mediaItemBuilder: MediaItemBuilder | null): string => {
+	if(!mediaItemBuilder || !mediaItemBuilder.createStorageProviderURI) {
+		return `${uriParts.storageProvider}:${uriParts.type}:${uriParts.id}`;
+	}
+	return mediaItemBuilder.createStorageProviderURI(uriParts.storageProvider, uriParts.type, uriParts.id);
+}
+
+
+
 export default interface StorageProvider {
-	get canStorePlaylists(): boolean
 	get name(): string
 	get displayName(): string
 
