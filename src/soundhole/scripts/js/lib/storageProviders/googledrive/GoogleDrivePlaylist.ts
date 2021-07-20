@@ -1,4 +1,5 @@
 
+import GoogleSheetsDBWrapper from './GoogleSheetsDBWrapper';
 import {
 	ImageData,
 	KeyingOptions,
@@ -10,25 +11,16 @@ import {
 	GoogleSheetsDB,
 	GoogleSheetsDB$InstantiateResult,
 	GSDBCellValue,
-	GSDBColumnInfo,
 	GSDBFullInfo,
 	GSDBInfo,
 	GSDBRow,
 	GSDBTableData,
+	GSDBTableInfo,
 	GSDBTableSheetInfo } from 'google-sheets-db';
 import {
 	drive_v3,
 	sheets_v4 } from 'googleapis';
 import { v1 as uuidv1 } from 'uuid';
-import { determinePermissionsPrivacy } from './types';
-
-type ConstructOptions = {
-	appKey: string
-	db: GoogleSheetsDB
-	dbInfo?: GSDBFullInfo
-	file?: drive_v3.Schema$File
-	privacy?: PlaylistPrivacyId
-}
 
 type RequiredGoogleAPIs = {
 	drive: drive_v3.Drive
@@ -50,17 +42,16 @@ type CreateOptions = KeyingOptions & RequiredGoogleAPIs & {
 	image?: ImageData
 }
 
-export default class GoogleDrivePlaylist {
-	appKey: string
-	db: GoogleSheetsDB;
-	dbInfo: GSDBFullInfo | null;
-	file: drive_v3.Schema$File | null;
-	privacy: PlaylistPrivacyId | null;
+export type InsertingPlaylistItem = PlaylistItem & {
+	addedById: string
+}
 
+export default class GoogleDrivePlaylist extends GoogleSheetsDBWrapper {
 	static VERSIONS = [ '1.0' ];
 	static LATEST_VERSION = '1.0';
 
 	static ITEM_ONLY_COLUMNS = [
+		'uniqueId',
 		'addedAt',
 		'addedBy',
 		'addedById'
@@ -78,17 +69,14 @@ export default class GoogleDrivePlaylist {
 	static key_devMetadata_playlistVersion({ appKey }: KeyingOptions): string {
 		return `${appKey}_playlist_version`;
 	}
-	static key_devMetdata_playlistItemId(): string {
-		return `uniqueID`;
-	}
-	static db_tableName_items(): string {
+	static get TABLENAME_ITEMS(): string {
 		return 'items';
 	}
 	static dbInfo({ appKey }: KeyingOptions): GSDBInfo {
 		return {
 			tables: [
 				{ // items table
-					name: this.db_tableName_items(),
+					name: this.TABLENAME_ITEMS,
 					columnInfo: [
 						{
 							name: 'uri',
@@ -122,10 +110,6 @@ export default class GoogleDrivePlaylist {
 							type: 'timestamp',
 							nonnull: true
 						}, {
-							name: 'addedById',
-							type: 'rawstring',
-							nonnull: true
-						}, {
 							name: 'addedBy',
 							type: 'any',
 							nonnull: true
@@ -133,7 +117,11 @@ export default class GoogleDrivePlaylist {
 					],
 					rowMetadataInfo: [
 						{
-							name: this.key_devMetdata_playlistItemId(),
+							name: 'addedById',
+							type: 'rawstring'
+						},
+						{
+							name: 'uniqueId',
 							type: 'rawstring'
 						}
 					],
@@ -144,23 +132,6 @@ export default class GoogleDrivePlaylist {
 				[this.key_devMetadata_playlistVersion({ appKey })]: this.LATEST_VERSION
 			}
 		};
-	}
-
-
-
-	constructor(options: ConstructOptions) {
-		if(!options.db.fileId) {
-			throw new Error("db is missing required fileId");
-		}
-		this.appKey = options.appKey;
-		this.db = options.db;
-		this.dbInfo = options.dbInfo ?? null;
-		this.file = options.file ?? null;
-		this.privacy = options.privacy ?? (options.file?.permissions ? determinePermissionsPrivacy(options.file.permissions) : null);
-	}
-
-	get fileId(): string {
-		return this.db.fileId as string;
 	}
 
 
@@ -178,8 +149,6 @@ export default class GoogleDrivePlaylist {
 			privacy: options.privacy
 		});
 	}
-
-
 
 	static async create(options: CreateOptions): Promise<GoogleDrivePlaylist> {
 		const { appKey } = options;
@@ -219,7 +188,7 @@ export default class GoogleDrivePlaylist {
 		} catch(error) {
 			if(db.fileId != null) {
 				// try to destroy the db if we can
-				db.delete().catch((error) => {
+				db.delete({permanent:true}).catch((error) => {
 					console.error(error);
 				});
 			}
@@ -242,93 +211,13 @@ export default class GoogleDrivePlaylist {
 
 
 	async delete(options: {permanent?: boolean}): Promise<void> {
-		if(options.permanent) {
-			// delete file
-			await this.db.delete();
-		} else {
-			// move file to trash
-			await this.db.moveToTrash();
-			if(this.file) {
-				this.file.trashed = true;
-			}
+		await this.db.delete(options);
+		if(!options.permanent && this.file) {
+			this.file.trashed = true;
 		}
 	}
 
-	async userCanEdit(user: drive_v3.Schema$User): Promise<boolean> {
-		let done = false;
-		let pageToken: string | null | undefined = null;
-		const editRoles = ['writer','fileOrganizer','organizer','owner'];
-		while(!done) {
-			const { permissions, nextPageToken } = (await this.db.drive.permissions.list({
-				fileId: this.fileId,
-				pageSize: 100,
-				pageToken: pageToken ?? undefined
-			})).data as drive_v3.Schema$PermissionList;
-			if(permissions == null) {
-				throw new Error("Missing \"permissions\" property on playlist permissions list");
-			}
-			for(const p of permissions) {
-				if(p.role == null) {
-					continue;
-				}
-				if(editRoles.indexOf(p.role) === -1) {
-					continue;
-				}
-				if(p.type === 'anyone') {
-					return true;
-				}
-				else if(p.type === 'user'
-					&& ((p.emailAddress != null && p.emailAddress === user.emailAddress)
-						|| (p.id != null && p.id === user.permissionId))) {
-					return true;
-				}
-			}
-			pageToken = nextPageToken;
-			if(!pageToken) {
-				done = true;
-			}
-		}
-		return false;
-	}
 
-	async getFile(): Promise<drive_v3.Schema$File> {
-		if(this.file != null) {
-			return this.file;
-		}
-		return await this.fetchFile();
-	}
-
-	async fetchFile(): Promise<drive_v3.Schema$File> {
-		const file = (await this.db.drive.files.get({
-			fileId: this.fileId,
-			fields: "*"
-		})).data;
-		this.file = file;
-		if(file.permissions) {
-			this.privacy = determinePermissionsPrivacy(file.permissions);
-		}
-		return file;
-	}
-
-	async fetchDBInfo(): Promise<GSDBFullInfo> {
-		const dbInfo = await this.db.getDBInfo();
-		this.dbInfo = dbInfo;
-		return dbInfo;
-	}
-
-	async fetchTableInfo(tableName: string): Promise<GSDBTableSheetInfo> {
-		const tableInfo = await this.db.getTableInfo(tableName);
-		this.updateTableInfo(tableInfo);
-		return tableInfo;
-	}
-
-	async getTableInfo(tableName: string): Promise<GSDBTableSheetInfo> {
-		const tableInfo = this.dbInfo?.tables.find((t) => (t.name === tableName));
-		if(tableInfo) {
-			return tableInfo;
-		}
-		return await this.fetchTableInfo(tableName);
-	}
 
 	async fetchItems({ offset, limit }: { offset: number, limit: number }): Promise<PlaylistItemPage> {
 		if(!Number.isInteger(offset) || offset < 0) {
@@ -336,7 +225,7 @@ export default class GoogleDrivePlaylist {
 		} else if(!Number.isInteger(limit) || limit <= 0) {
 			throw new Error("limit must be a positive non-zero integer");
 		}
-		const itemsTableName = GoogleDrivePlaylist.db_tableName_items();
+		const itemsTableName = GoogleDrivePlaylist.TABLENAME_ITEMS;
 		if(offset === 0) {
 			// get table info and item rows together
 			const tableData = await this.db.getTableData(itemsTableName, {
@@ -368,12 +257,12 @@ export default class GoogleDrivePlaylist {
 	}
 
 
-	async insertItems(index: number, items: PlaylistItem[]): Promise<PlaylistItemPage> {
+	async insertItems(index: number, items: InsertingPlaylistItem[]): Promise<PlaylistItemPage> {
 		if(!Number.isInteger(index) || index < 0) {
 			throw new Error("index must be a positive integer");
 		}
 		// get table info
-		const tableInfo = await this.getTableInfo(GoogleDrivePlaylist.db_tableName_items());
+		const tableInfo = await this.getTableInfo(GoogleDrivePlaylist.TABLENAME_ITEMS);
 		// ensure index is in range
 		if(index > tableInfo.rowCount) {
 			throw new Error(`item index ${index} is out of bounds`);
@@ -390,9 +279,9 @@ export default class GoogleDrivePlaylist {
 		};
 	}
 
-	async appendItems(items: PlaylistItem[]): Promise<PlaylistItemPage> {
+	async appendItems(items: InsertingPlaylistItem[]): Promise<PlaylistItemPage> {
 		// get table info
-		const tableInfo = await this.getTableInfo(GoogleDrivePlaylist.db_tableName_items());
+		const tableInfo = await this.getTableInfo(GoogleDrivePlaylist.TABLENAME_ITEMS);
 		// insert rows at end
 		const index = tableInfo.rowCount;
 		await this.db.insertTableRows(tableInfo, index, items.map((item: PlaylistItem): GSDBRow => {
@@ -412,12 +301,11 @@ export default class GoogleDrivePlaylist {
 				indexes: []
 			};
 		}
-		const itemsTableName = GoogleDrivePlaylist.db_tableName_items();
-		const rowItemIdKey = GoogleDrivePlaylist.key_devMetdata_playlistItemId();
+		const itemsTableName = GoogleDrivePlaylist.TABLENAME_ITEMS;
 		// delete rows
 		const result = await this.db.deleteTableRowsWithMetadata(itemsTableName, itemIds.map((itemId) => {
 			return {
-				key: rowItemIdKey,
+				key: 'uniqueId',
 				value: itemId,
 				match: 'any'
 			};
@@ -444,36 +332,11 @@ export default class GoogleDrivePlaylist {
 		if(!Number.isInteger(newIndex) || newIndex < 0) {
 			throw new Error("insertBefore must be a positive integer");
 		}
-		const itemsTableName = GoogleDrivePlaylist.db_tableName_items();
+		const itemsTableName = GoogleDrivePlaylist.TABLENAME_ITEMS;
 		await this.db.moveTableRows(itemsTableName, index, count, newIndex);
 	}
 
 
-
-	updateTableInfo(table: GSDBTableSheetInfo) {
-		const tableInfo: GSDBTableSheetInfo = {
-			sheetId: table.sheetId,
-			name: table.name,
-			columnInfo: table.columnInfo,
-			rowMetadataInfo: table.rowMetadataInfo,
-			metadata: table.metadata,
-			rowCount: table.rowCount
-		};
-		if(this.dbInfo == null) {
-			this.dbInfo = {
-				spreadsheetId: this.db.fileId as string,
-				metadata: {},
-				tables: [ tableInfo ]
-			};
-			return;
-		}
-		const tableIndex = this.dbInfo.tables.findIndex((table) => (table.name === tableInfo.name));
-		if(tableIndex === -1) {
-			this.dbInfo.tables.push(tableInfo);
-		} else {
-			this.dbInfo.tables[tableIndex] = tableInfo;
-		}
-	}
 
 	formatDate(date: Date): string {
 		// TODO change this to just return ISO string in the future
@@ -486,18 +349,17 @@ export default class GoogleDrivePlaylist {
 		return dateString;
 	}
 
-	_parsePlaylistItemTableRow(row: GSDBRow, columns: GSDBColumnInfo[], index: number): PlaylistItem {
+	_parsePlaylistItemTableRow(row: GSDBRow, tableInfo: GSDBTableInfo, index: number): PlaylistItem {
 		if(row.values == null) {
 			throw new Error("Missing values property for playlist row");
 		}
-		if(row.values.length < columns.length) {
+		if(row.values.length < tableInfo.columnInfo.length) {
 			throw new Error("Not enough columns in row");
 		}
-		const playlistItemIdKey = GoogleDrivePlaylist.key_devMetdata_playlistItemId();
-		const item: any = {};
-		const track: any = {};
-		for(let i=0; i<columns.length; i++) {
-			const column = columns[i];
+		let item: any = {};
+		let track: any = {};
+		for(let i=0; i<tableInfo.columnInfo.length; i++) {
+			const column = tableInfo.columnInfo[i];
 			const value = row.values[i];
 			if(GoogleDrivePlaylist.ITEM_ONLY_COLUMNS.indexOf(column.name) !== -1) {
 				item[column.name] = value;
@@ -505,18 +367,25 @@ export default class GoogleDrivePlaylist {
 				track[column.name] = value;
 			}
 		}
-		const itemId = row.metadata[playlistItemIdKey];
-		if(itemId == null) {
-			throw new Error(`Missing metadata property ${playlistItemIdKey} in row ${index}`);
-		}
-		item.uniqueId = itemId;
-		if(track.type == null) {
-			track.type = 'track';
+		for(const metadataInfo of tableInfo.rowMetadataInfo) {
+			const value = row.metadata[metadataInfo.name];
+			if(GoogleDrivePlaylist.ITEM_ONLY_COLUMNS.indexOf(metadataInfo.name) !== -1) {
+				item[metadataInfo.name] = value;
+			} else {
+				track[metadataInfo.name] = value;
+			}
 		}
 		item.track = track;
-		if(item.addedAt != null) {
+		const playlistItem: PlaylistItem = item;
+		if(playlistItem.uniqueId == null) {
+			throw new Error(`Missing metadata property 'uniqueId' in row ${index}`);
+		}
+		if(playlistItem.track.type == null) {
+			playlistItem.track.type = 'track';
+		}
+		if(playlistItem.addedAt != null) {
 			// format timestamp as date string
-			item.addedAt = this.formatDate(new Date(item.addedAt));
+			playlistItem.addedAt = this.formatDate(new Date(item.addedAt));
 		}
 		return item;
 	}
@@ -525,7 +394,7 @@ export default class GoogleDrivePlaylist {
 		const items: PlaylistItem[] = [];
 		for(const row of tableData.rows) {
 			const index = tableData.rowsOffset + items.length;
-			items.push(this._parsePlaylistItemTableRow(row, tableData.columnInfo, index));
+			items.push(this._parsePlaylistItemTableRow(row, tableData, index));
 		}
 		return {
 			offset: tableData.rowsOffset,
@@ -535,20 +404,29 @@ export default class GoogleDrivePlaylist {
 	}
 
 	_rowFromPlaylistItem(tableInfo: GSDBTableSheetInfo, item: PlaylistItem): GSDBRow {
-		const rowItemIdKey = GoogleDrivePlaylist.key_devMetdata_playlistItemId();
+		const cls = GoogleDrivePlaylist;
+		// build row values
 		const values: GSDBCellValue[] = [];
 		for(const columnInfo of tableInfo.columnInfo) {
 			let value: GSDBCellValue;
-			if(GoogleDrivePlaylist.ITEM_ONLY_COLUMNS.includes(columnInfo.name)) {
+			if(cls.ITEM_ONLY_COLUMNS.includes(columnInfo.name)) {
 				value = (item as any)[columnInfo.name];
 			} else {
 				value = (item.track as any)[columnInfo.name];
 			}
 			values.push(value);
 		}
-		const metadata: {[key: string]: GSDBCellValue} = {
-			[rowItemIdKey]: item.uniqueId
-		};
+		// build row metadata
+		const metadata: {[key: string]: GSDBCellValue} = {};
+		for(const metadataInfo of tableInfo.rowMetadataInfo) {
+			let value: GSDBCellValue;
+			if(cls.ITEM_ONLY_COLUMNS.includes(metadataInfo.name)) {
+				value = (item as any)[metadataInfo.name];
+			} else {
+				value = (item.track as any)[metadataInfo.name];
+			}
+			metadata[metadataInfo.name] = value;
+		}
 		return {
 			values,
 			metadata

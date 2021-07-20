@@ -1,10 +1,12 @@
 
 import {
-	google,
 	drive_v3,
 	sheets_v4,
 	Auth } from 'googleapis';
-import { createStorageProviderURI, MediaItemBuilder, parseStorageProviderURI, PlaylistPrivacyId } from '../StorageProvider';
+import {
+	MediaItemBuilder,
+	createStorageProviderURI,
+	parseStorageProviderURI } from '../StorageProvider';
 
 export const LIBRARY_DB_NAME = 'library';
 export const LIBRARY_DB_VERSIONS = [ '1.0' ];
@@ -179,20 +181,3 @@ export const createUserURIFromUser = ({storageProvider, user, baseFolderId}: {st
 		id: createUserIDFromUser(user, baseFolderId)
 	}, mediaItemBuilder);
 };
-
-
-
-export const determinePermissionsPrivacy = (permissions: drive_v3.Schema$Permission[]): PlaylistPrivacyId => {
-	let privacy: PlaylistPrivacyId = 'private';
-	for(const p of permissions) {
-		if(p.type === 'anyone') {
-			if(p.allowFileDiscovery) {
-				privacy = 'public';
-				break;
-			} else {
-				privacy = 'unlisted';
-			}
-		}
-	}
-	return privacy;
-}

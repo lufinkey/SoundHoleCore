@@ -4,8 +4,8 @@ import {
 	drive_v3,
 	sheets_v4,
 	Auth } from 'googleapis';
+import { determinePermissionsPrivacy } from 'google-sheets-db';
 import { v1 as uuidv1 } from 'uuid';
-import { GSDBInfo } from 'google-sheets-db';
 import StorageProvider, {
 	CreatePlaylistOptions,
 	createStorageProviderURI,
@@ -28,15 +28,13 @@ import {
 	PlaylistURIParts,
 	UserURIParts,
 	PLAYLISTS_FOLDER_NAME,
-	LIBRARY_DB_LATEST_VERSION,
 	parsePlaylistURI,
 	createPlaylistURI,
 	parseUserURI,
 	createUserURI,
 	createUserURIFromUser,
-	createUserIDFromUser,
-	determinePermissionsPrivacy} from './types';
-import GoogleDrivePlaylist from './GoogleDrivePlaylist';
+	createUserIDFromUser } from './types';
+import GoogleDrivePlaylist, { InsertingPlaylistItem } from './GoogleDrivePlaylist';
 import GoogleDriveLibraryDB from './GoogleDriveLibraryDB';
 
 
@@ -467,7 +465,6 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 	}
 
 
-
 	_createUserObject(owner: drive_v3.Schema$User, baseFolderId: string | null): User {
 		const mediaItemBuilder = this._options.mediaItemBuilder;
 		const displayName = owner.displayName ?? owner.emailAddress ?? owner.permissionId;
@@ -790,11 +787,11 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 
 
 
-	_playlistItemsFromTracks(tracks: Track[], user: drive_v3.Schema$User, baseFolderId: string): PlaylistItem[] {
+	_playlistItemsFromTracks(tracks: Track[], user: drive_v3.Schema$User, baseFolderId: string): InsertingPlaylistItem[] {
 		const addedAt = (new Date()).getTime();
 		const addedBy = this._createUserObject(user, baseFolderId);
 		const addedById = createUserIDFromUser(user, baseFolderId);
-		return tracks.map((track): PlaylistItem & {addedById: string} => ({
+		return tracks.map((track): InsertingPlaylistItem => ({
 			uniqueId: uuidv1(),
 			addedAt,
 			addedBy,
