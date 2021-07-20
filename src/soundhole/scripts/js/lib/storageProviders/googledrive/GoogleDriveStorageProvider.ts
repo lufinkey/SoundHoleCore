@@ -9,10 +9,12 @@ import { v1 as uuidv1 } from 'uuid';
 import StorageProvider, {
 	CreatePlaylistOptions,
 	createStorageProviderURI,
+	FollowedPlaylist,
 	GetPlaylistItemsOptions,
 	GetPlaylistOptions,
 	GetUserPlaylistsOptions,
 	MediaItemBuilder,
+	NewFollowedPlaylist,
 	parseStorageProviderURI,
 	Playlist,
 	PlaylistItem,
@@ -886,5 +888,37 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 			sheets: this._sheets
 		});
 		return await gdbPlaylist.moveItems(index, count, newIndex);
+	}
+
+
+
+	async followPlaylists(playlists: NewFollowedPlaylist[]): Promise<FollowedPlaylist[]> {
+		await this._prepareForRequest();
+		if(!this._libraryDB) {
+			throw new Error("No library DB available");
+		}
+		return await this._libraryDB.addFollowedPlaylists(playlists.map((playlist): FollowedPlaylist => {
+			return {
+				uri: playlist.uri,
+				provider: playlist.provider,
+				addedAt: (new Date()).getTime()
+			};
+		}));
+	}
+
+	async unfollowPlaylists(playlistURIs: string[]): Promise<void> {
+		await this._prepareForRequest();
+		if(!this._libraryDB) {
+			throw new Error("No library DB available");
+		}
+		await this._libraryDB.removeFollowedPlaylists(playlistURIs);
+	}
+
+	async checkFollowedPlaylists(uris: string[]): Promise<boolean[]> {
+		await this._prepareForRequest();
+		if(!this._libraryDB) {
+			throw new Error("No library DB available");
+		}
+		return this._libraryDB.checkFollowedPlaylists(uris);
 	}
 }

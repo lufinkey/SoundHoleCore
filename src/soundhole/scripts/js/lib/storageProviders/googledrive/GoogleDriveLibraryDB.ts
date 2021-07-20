@@ -9,7 +9,7 @@ import {
 import {
 	drive_v3,
 	sheets_v4 } from 'googleapis';
-import { KeyingOptions } from '../StorageProvider';
+import { FollowedPlaylist, KeyingOptions } from '../StorageProvider';
 
 type RequiredGoogleAPIs = {
 	drive: drive_v3.Drive
@@ -18,12 +18,6 @@ type RequiredGoogleAPIs = {
 
 type PrepareOptions = KeyingOptions & RequiredGoogleAPIs & {
 	folderId: string
-}
-
-type FollowedPlaylist = {
-	uri: string
-	provider: string
-	addedAt: number
 }
 
 type FollowedPlaylistRow = FollowedPlaylist & {
@@ -170,7 +164,9 @@ export default class GoogleDriveLibraryDB extends GoogleSheetsDBWrapper {
 		}
 	}
 
-	async getFollowedPlaylists({offset,limit}: {offset: number, limit: number}): Promise<Page<FollowedPlaylistRow>> {
+
+
+	async getFollowedPlaylistsInRange({offset,limit}: {offset: number, limit: number}): Promise<Page<FollowedPlaylistRow>> {
 		const cls = GoogleDriveLibraryDB;
 		await this.instantiateIfNeeded();
 		const tableData = await this.db.getTableData(cls.TABLENAME_FOLLOWED_PLAYLISTS, {
@@ -192,12 +188,40 @@ export default class GoogleDriveLibraryDB extends GoogleSheetsDBWrapper {
 			})
 		};
 	}
-
-	async findFollowedPlaylists(uris: string[]): Promise<FollowedPlaylistRow[]> {
+	
+	async checkFollowedPlaylists(uris: string[]): Promise<boolean[]> {
 		const cls = GoogleDriveLibraryDB;
 		await this.instantiateIfNeeded();
+		// get table info
 		const tableInfo = await this.getTableInfo(cls.TABLENAME_FOLLOWED_PLAYLISTS);
-		const { matches } = await this.db.getRowsWithMetadata(tableInfo, uris.map((uri) => {
+		// find matches
+		const { matches } = await this.db.findTableRowsWithMetadata(tableInfo, uris.map((uri) => {
+			return {
+				key: 'uri',
+				value: uri,
+				matching: 'any'
+			}
+		}));
+		// get results
+		const results: boolean[] = [];
+		for(const uri of uris) {
+			const matchIndex = matches.findIndex((m) => (m.metadata.uri === uri));
+			const followed: boolean = (matchIndex !== -1);
+			results.push(followed);
+			if(followed) {
+				matches.splice(matchIndex, 1);
+			}
+		}
+		return results;
+	}
+
+	async getFollowedPlaylistsWithURIs(uris: string[]): Promise<FollowedPlaylistRow[]> {
+		const cls = GoogleDriveLibraryDB;
+		await this.instantiateIfNeeded();
+		// get table info
+		const tableInfo = await this.getTableInfo(cls.TABLENAME_FOLLOWED_PLAYLISTS);
+		// find matches
+		const { matches } = await this.db.getTableRowsWithMetadata(tableInfo, uris.map((uri) => {
 			return {
 				key: 'uri',
 				value: uri,
@@ -230,7 +254,7 @@ export default class GoogleDriveLibraryDB extends GoogleSheetsDBWrapper {
 		// get table info
 		const tableInfo = await this.getTableInfo(cls.TABLENAME_FOLLOWED_PLAYLISTS);
 		// check if any of the playlists are already followed
-		const alreadyFollowedPlaylists = await this.findFollowedPlaylists(playlists.map((p) => (p.uri)));
+		const alreadyFollowedPlaylists = await this.getFollowedPlaylistsWithURIs(playlists.map((p) => (p.uri)));
 		// determine which playlists are already added and which ones need to be added
 		const newPlaylists: FollowedPlaylist[] = [];
 		const existingPlaylists: FollowedPlaylistRow[] = [];
@@ -263,6 +287,7 @@ export default class GoogleDriveLibraryDB extends GoogleSheetsDBWrapper {
 				metadata
 			};
 		}));
+		tableInfo.rowCount += newPlaylists.length;
 		// return followed playlist rows
 		return [
 			...newPlaylists.map((playlist, index): FollowedPlaylistRow => {
@@ -282,5 +307,24 @@ export default class GoogleDriveLibraryDB extends GoogleSheetsDBWrapper {
 				};
 			})
 		];
+	}
+
+	async removeFollowedPlaylists(playlistURIs: string[]): Promise<void> {
+		const cls = GoogleDriveLibraryDB;
+		await this.instantiateIfNeeded();
+		// get table info
+		const tableInfo = await this.getTableInfo(cls.TABLENAME_FOLLOWED_PLAYLISTS);
+		// delete rows
+		const { indexes } = await this.db.deleteTableRowsWithMetadata(tableInfo, playlistURIs.map((uri) => {
+			return {
+				key: 'uri',
+				value: uri,
+				matching: 'any'
+			}
+		}));
+		tableInfo.rowCount -= indexes.length;
+		if(tableInfo.rowCount < 0) {
+			tableInfo.rowCount = 0;
+		}
 	}
 }
