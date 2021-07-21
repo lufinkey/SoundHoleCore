@@ -93,6 +93,8 @@ namespace sh {
 
 
 
+	#pragma mark Soundhole implementation
+
 	template<typename MediaProviderType>
 	MediaProviderType* SoundHole::getMediaProvider() {
 		for(auto& provider : _mediaProviders) {

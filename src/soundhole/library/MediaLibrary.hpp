@@ -130,6 +130,9 @@ namespace sh {
 		Promise<void> unsaveAlbum($<Album> album);
 		Promise<ArrayList<bool>> hasSavedAlbums(ArrayList<$<Album>> albums);
 		
+		Promise<void> savePlaylist($<Playlist> playlist);
+		Promise<void> unsavePlaylist($<Playlist> playlist);
+		Promise<ArrayList<bool>> hasSavedPlaylists(ArrayList<$<Playlist>> playlist);
 		
 		
 	private:
