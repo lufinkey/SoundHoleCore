@@ -182,5 +182,4 @@ export default interface StorageProvider {
 
 	followPlaylists(playlists: NewFollowedPlaylist[]): Promise<FollowedPlaylist[]>
 	unfollowPlaylists(playlistURIs: string[]): Promise<void>
-	checkFollowedPlaylists(uris: string[]): Promise<boolean[]>
 }

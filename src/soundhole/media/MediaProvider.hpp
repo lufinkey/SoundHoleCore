@@ -92,6 +92,9 @@ namespace sh {
 		virtual Promise<void> saveAlbum(String albumURI) = 0;
 		virtual Promise<void> unsaveAlbum(String albumURI) = 0;
 		
+		virtual bool canSavePlaylists() const;
+		virtual Promise<void> savePlaylist(String playlistURI);
+		virtual Promise<void> unsavePlaylist(String playlistURI);
 		
 		virtual bool canCreatePlaylists() const;
 		virtual ArrayList<Playlist::Privacy> supportedPlaylistPrivacies() const;

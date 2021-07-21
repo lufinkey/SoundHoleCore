@@ -52,14 +52,25 @@ namespace sh {
 			virtual $<UserAccount> userAccount(const UserAccount::Data& data) = 0;
 		};
 		
+		struct NewFollowedPlaylist {
+			String uri;
+			String provider;
+			
+			#ifdef NODE_API_MODULE
+			Napi::Object toNapiObject(napi_env env) const;
+			#endif
+		};
+		
 		virtual ~StorageProvider() {}
 		
-		virtual bool canStorePlaylists() const = 0;
 		using CreatePlaylistOptions = MediaProvider::CreatePlaylistOptions;
 		virtual Promise<$<Playlist>> createPlaylist(String name, CreatePlaylistOptions options = CreatePlaylistOptions()) = 0;
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) = 0;
 		virtual Promise<void> deletePlaylist(String uri) = 0;
 		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist) = 0;
+		
+		virtual Promise<void> followPlaylists(ArrayList<NewFollowedPlaylist> playlists) = 0;
+		virtual Promise<void> unfollowPlaylists(ArrayList<String> playlistURIs) = 0;
 		
 		virtual UserPlaylistsGenerator getUserPlaylists(String userURI) = 0;
 		virtual UserPlaylistsGenerator getMyPlaylists() = 0;

@@ -105,6 +105,10 @@ namespace sh {
 		virtual Promise<void> saveAlbum(String albumURI) override;
 		virtual Promise<void> unsaveAlbum(String albumURI) override;
 		
+		virtual bool canSavePlaylists() const override;
+		virtual Promise<void> savePlaylist(String playlistURI) override;
+		virtual Promise<void> unsavePlaylist(String playlistURI) override;
+		
 		
 		virtual bool canCreatePlaylists() const override;
 		virtual ArrayList<Playlist::Privacy> supportedPlaylistPrivacies() const override;

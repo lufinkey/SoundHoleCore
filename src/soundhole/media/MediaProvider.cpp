@@ -103,6 +103,20 @@ namespace sh {
 
 
 
+	bool MediaProvider::canSavePlaylists() const {
+		return false;
+	}
+
+	Promise<void> MediaProvider::savePlaylist(String playlistURI) {
+		return Promise<void>::reject(std::runtime_error("not implemented"));
+	}
+
+	Promise<void> MediaProvider::unsavePlaylist(String playlistURI) {
+		return Promise<void>::reject(std::runtime_error("not implemented"));
+	}
+
+
+
 	Json MediaProvider::CreatePlaylistOptions::toJson() const {
 		return Json::object{
 			{ "privacy", (std::string)Playlist::Privacy_toString(privacy) }

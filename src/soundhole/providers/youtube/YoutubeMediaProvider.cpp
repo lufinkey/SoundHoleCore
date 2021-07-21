@@ -875,6 +875,18 @@ namespace sh {
 		return Promise<void>::reject(std::runtime_error("Youtube does not have albums"));
 	}
 
+	bool YoutubeMediaProvider::canSavePlaylists() const {
+		return false;
+	}
+
+	Promise<void> YoutubeMediaProvider::savePlaylist(String playlistURI) {
+		return Promise<void>::reject(std::runtime_error("Playlist saving is not implemented for youtube"));
+	}
+
+	Promise<void> YoutubeMediaProvider::unsavePlaylist(String playlistURI) {
+		return Promise<void>::reject(std::runtime_error("Playlist saving is not implemented for youtube"));
+	}
+
 
 
 	#pragma mark Playlists

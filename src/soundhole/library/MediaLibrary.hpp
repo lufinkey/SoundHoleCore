@@ -130,6 +130,8 @@ namespace sh {
 		Promise<void> unsaveAlbum($<Album> album);
 		Promise<ArrayList<bool>> hasSavedAlbums(ArrayList<$<Album>> albums);
 		
+		
+		
 	private:
 		MediaDatabase* db;
 		MediaProviderStash* mediaProviderStash;

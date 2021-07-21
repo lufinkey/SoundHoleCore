@@ -38,11 +38,13 @@ namespace sh {
 		virtual bool isLoggedIn() const override;
 		virtual Promise<ArrayList<String>> getCurrentUserURIs() override;
 		
-		virtual bool canStorePlaylists() const override;
 		virtual Promise<$<Playlist>> createPlaylist(String name, CreatePlaylistOptions options = CreatePlaylistOptions()) override;
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) override;
 		virtual Promise<void> deletePlaylist(String uri) override;
 		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist) override;
+		
+		virtual Promise<void> followPlaylists(ArrayList<NewFollowedPlaylist> playlists) override;
+		virtual Promise<void> unfollowPlaylists(ArrayList<String> playlistURIs) override;
 		
 		virtual UserPlaylistsGenerator getUserPlaylists(String userURI) override;
 		virtual UserPlaylistsGenerator getMyPlaylists() override;

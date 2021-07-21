@@ -798,6 +798,20 @@ namespace sh {
 		return spotify->unsaveAlbums({ uriParts.id });
 	}
 
+	bool SpotifyMediaProvider::canSavePlaylists() const {
+		return true;
+	}
+
+	Promise<void> SpotifyMediaProvider::savePlaylist(String playlistURI) {
+		auto uriParts = parseURI(playlistURI);
+		return spotify->followPlaylist(uriParts.id);
+	}
+
+	Promise<void> SpotifyMediaProvider::unsavePlaylist(String playlistURI) {
+		auto uriParts = parseURI(playlistURI);
+		return spotify->unfollowPlaylist(uriParts.id);
+	}
+
 
 
 	#pragma mark Playlists

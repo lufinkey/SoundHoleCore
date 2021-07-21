@@ -275,10 +275,6 @@ namespace sh {
 
 	#pragma mark Playlists
 
-	bool GoogleDriveStorageProvider::canStorePlaylists() const {
-		return true;
-	}
-
 	Promise<$<Playlist>> GoogleDriveStorageProvider::createPlaylist(String name, CreatePlaylistOptions options) {
 		return performAsyncJSAPIFunc<$<Playlist>>("createPlaylist", [=](napi_env env) {
 			return std::vector<napi_value>{
@@ -342,6 +338,32 @@ namespace sh {
 	}
 
 
+
+	#pragma mark Playlist Following / Unfollowing
+
+	Promise<void> GoogleDriveStorageProvider::followPlaylists(ArrayList<NewFollowedPlaylist> playlists) {
+		return performAsyncJSAPIFunc<void>("followPlaylists", [=](napi_env env) {
+			auto objs = Napi::Array::New(env);
+			for(auto& playlist : playlists) {
+				objs.Get("push").As<Napi::Function>().Call(objs, { playlist.toNapiObject(env) });
+			}
+			return std::vector<napi_value>{ objs };
+		}, nullptr);
+	}
+
+	Promise<void> GoogleDriveStorageProvider::unfollowPlaylists(ArrayList<String> playlistURIs) {
+		return performAsyncJSAPIFunc<void>("unfollowPlaylists", [=](napi_env env) {
+			auto objs = Napi::Array::New(env);
+			for(auto uri : playlistURIs) {
+				objs.Get("push").As<Napi::Function>().Call(objs, { uri.toNodeJSValue(env) });
+			}
+			return std::vector<napi_value>{ objs };
+		}, nullptr);
+	}
+
+
+
+	#pragma mark Playlist Library
 
 	GoogleDriveStorageProvider::UserPlaylistsGenerator GoogleDriveStorageProvider::getUserPlaylists(String userURI) {
 		struct SharedData {

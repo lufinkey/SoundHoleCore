@@ -302,6 +302,52 @@ namespace sh {
 		return Promise<void>::reject(std::runtime_error("not implemented"));
 	}
 
+	bool SoundHoleMediaProvider::canSavePlaylists() const {
+		return true;
+	}
+
+	Promise<void> SoundHoleMediaProvider::savePlaylist(String playlistURI) {
+		auto uriParts = parseURI(playlistURI);
+		if(uriParts.provider != this->name()) {
+			return Promise<void>::reject(std::invalid_argument("invalid playlistURI "+playlistURI+" is not for provider "+this->name()));
+		}
+		auto primaryStorageProvider = this->primaryStorageProvider();
+		if(primaryStorageProvider == nullptr) {
+			return Promise<void>::reject(std::runtime_error("No primary storage provider has been set"));
+		}
+		return primaryStorageProvider->followPlaylists({
+			StorageProvider::NewFollowedPlaylist{
+				.uri = playlistURI,
+				.provider = this->name()
+			}
+		});
+	}
+
+	Promise<void> SoundHoleMediaProvider::savePlaylist(String playlistURI, MediaProvider* provider) {
+		auto primaryStorageProvider = this->primaryStorageProvider();
+		if(primaryStorageProvider == nullptr) {
+			return Promise<void>::reject(std::runtime_error("No primary storage provider has been set"));
+		}
+		return primaryStorageProvider->followPlaylists({
+			StorageProvider::NewFollowedPlaylist{
+				.uri = playlistURI,
+				.provider = provider->name()
+			}
+		});
+	}
+
+	Promise<void> SoundHoleMediaProvider::unsavePlaylist(String playlistURI) {
+		auto uriParts = parseURI(playlistURI);
+		if(uriParts.provider != this->name()) {
+			return Promise<void>::reject(std::invalid_argument("invalid playlistURI "+playlistURI+" is not for provider "+this->name()));
+		}
+		auto primaryStorageProvider = this->primaryStorageProvider();
+		if(primaryStorageProvider == nullptr) {
+			return Promise<void>::reject(std::runtime_error("No primary storage provider has been set"));
+		}
+		return primaryStorageProvider->unfollowPlaylists({ playlistURI });
+	}
+
 
 
 	#pragma mark Playlists
@@ -311,7 +357,7 @@ namespace sh {
 		if(storageProvider == nullptr) {
 			return false;
 		}
-		return storageProvider->canStorePlaylists();
+		return true;
 	}
 
 	ArrayList<Playlist::Privacy> SoundHoleMediaProvider::supportedPlaylistPrivacies() const {
