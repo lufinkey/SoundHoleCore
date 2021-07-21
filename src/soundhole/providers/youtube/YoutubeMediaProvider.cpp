@@ -840,7 +840,9 @@ namespace sh {
 					return Promise<void>::resolve();
 				}
 				// save item
-				return youtube->insertPlaylistItem(libraryPlaylistId, uriParts.id).toVoid();
+				return youtube->insertPlaylistItem(libraryPlaylistId, uriParts.id, {
+					.position = 0
+				}).toVoid();
 			});
 		});
 	}
