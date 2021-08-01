@@ -123,13 +123,12 @@ namespace sh::utils {
 	}
 
 	String decodeURLComponent(String urlComponent) {
-		auto& text = urlComponent.storage;
 		std::ostringstream escaped;
 		escaped.fill('0');
 		auto from_hex = [](char ch) -> char {
 			return isdigit(ch) ? ch - '0' : tolower(ch) - 'a' + 10;
 		};
-		for (auto it=text.begin(), end=text.end(); it != end; it++) {
+		for (auto it=urlComponent.begin(), end=urlComponent.end(); it != end; it++) {
 			char c = (*it);
 			if (c == '+') {
 				escaped << ' ';

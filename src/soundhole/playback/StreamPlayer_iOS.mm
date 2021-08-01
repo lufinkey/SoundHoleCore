@@ -133,57 +133,58 @@ namespace sh {
 			.tag = "play",
 			.cancelMatchingTags = true
 		};
-		return playQueue.run(runOptions, [=](auto task) {
-			return generate<void>([=](auto yield) {
-				if(playerAudioURL == audioURL) {
-					FGL_ASSERT(player != nil, "player is nil but playerAudioURL is not empty");
-					await(Promise<void>([=](auto resolve, auto reject) {
-						if(player.currentTime.value != 0) {
-							[player seekToTime:CMTimeMake(0, 1000) completionHandler:^(BOOL finished) {
-								if(!finished) {
-									reject(std::runtime_error("Failed to reset playback"));
-									return;
-								}
-								if(player.timeControlStatus != AVPlayerTimeControlStatusPlaying && player.timeControlStatus != AVPlayerTimeControlStatusWaitingToPlayAtSpecifiedRate) {
-									[player play];
-								}
-								resolve();
-							}];
-						}
-					}));
-					return;
-				} else if(preparedAudioURL == audioURL) {
-					std::unique_lock<std::recursive_mutex> lock(playerMutex);
-					auto newPlayer = preparedPlayer;
-					preparedPlayer = nil;
-					preparedAudioURL.clear();
-					setPlayer(newPlayer, audioURL);
-					lock.unlock();
-				} else {
-					std::unique_lock<std::recursive_mutex> lock(playerMutex);
-					destroyPreparedPlayer();
-					setPlayer(createPlayer(audioURL), audioURL);
-					lock.unlock();
-				}
-				yield();
-				if(options.beforePlay) {
-					options.beforePlay();
-				}
-				FGL_ASSERT(player != nil, "player is nil after setting up for playback");
-				double playerCurrentPos = ((double)player.currentTime.value / (double)player.currentTime.timescale);
-				if(playerCurrentPos != options.position) {
-					await(Promise<void>([=](auto resolve, auto reject) {
+		return playQueue.run(runOptions, [this,a1=audioURL,a2=options](auto task) -> Generator<void> {
+			auto audioURL = a1;
+			auto options = a2;
+			co_yield setGenResumeQueue(DispatchQueue::main());
+			co_yield initialGenNext();
+			if(playerAudioURL == audioURL) {
+				FGL_ASSERT(player != nil, "player is nil but playerAudioURL is not empty");
+				if(player.currentTime.value != 0) {
+					bool finished = co_await Promise<bool>([=](auto resolve, auto reject) {
 						[player seekToTime:CMTimeMake(0, 1000) completionHandler:^(BOOL finished) {
-							if(!finished) {
-								reject(std::runtime_error("Failed to reset playback"));
-								return;
-							}
-							resolve();
+							resolve(finished);
 						}];
-					}));
+					});
+					if(!finished) {
+						throw std::runtime_error("Failed to reset playback");
+					}
+					if(player.timeControlStatus != AVPlayerTimeControlStatusPlaying && player.timeControlStatus != AVPlayerTimeControlStatusWaitingToPlayAtSpecifiedRate) {
+						[player play];
+					}
 				}
-				[player play];
-			});
+				co_return;
+			} else if(preparedAudioURL == audioURL) {
+				std::unique_lock<std::recursive_mutex> lock(playerMutex);
+				auto newPlayer = preparedPlayer;
+				preparedPlayer = nil;
+				preparedAudioURL.clear();
+				setPlayer(newPlayer, audioURL);
+				lock.unlock();
+			} else {
+				std::unique_lock<std::recursive_mutex> lock(playerMutex);
+				destroyPreparedPlayer();
+				setPlayer(createPlayer(audioURL), audioURL);
+				lock.unlock();
+			}
+			co_yield {};
+			if(options.beforePlay) {
+				options.beforePlay();
+			}
+			FGL_ASSERT(player != nil, "player is nil after setting up for playback");
+			double playerCurrentPos = ((double)player.currentTime.value / (double)player.currentTime.timescale);
+			if(playerCurrentPos != options.position) {
+				co_await Promise<void>([=](auto resolve, auto reject) {
+					[player seekToTime:CMTimeMake(0, 1000) completionHandler:^(BOOL finished) {
+						if(!finished) {
+							reject(std::runtime_error("Failed to reset playback"));
+							return;
+						}
+						resolve();
+					}];
+				});
+			}
+			[player play];
 		}).promise;
 	}
 

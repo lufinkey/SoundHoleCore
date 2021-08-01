@@ -923,7 +923,7 @@ namespace sh {
 			.offset=offset,
 			.limit=50
 		}).then([=](auto page) {
-			return async<FollowedUsersPage>([=]() {
+			return promiseThread([=]() {
 				// get unique users in background thread
 				LinkedList<SpotifyUser> users;
 				for(auto& playlist : page.items) {
@@ -947,7 +947,7 @@ namespace sh {
 						auto removedUsersIt = std::prev(usersIt.base());
 						auto nextUsersIt = std::next(usersIt);
 						auto nextFollowingIt = std::next(followingIt);
-						users.remove(removedUsersIt);
+						users.erase(removedUsersIt);
 						usersIt = nextUsersIt;
 						followingIt = nextFollowingIt;
 					}

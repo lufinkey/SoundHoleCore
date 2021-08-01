@@ -59,7 +59,7 @@ namespace sh {
 			.tag="load"
 		};
 		return saveQueue.run(runOptions, [=](auto task) {
-			return async<Optional<ProgressData>>([=]() -> Optional<ProgressData> {
+			return promiseThread([=]() -> Optional<ProgressData> {
 				// load progress data
 				auto progressPath = getProgressFilePath();
 				if(fs::exists(progressPath)) {
@@ -122,12 +122,12 @@ namespace sh {
 					.providerName = currentTrack->mediaProvider()->name(),
 					.position = playbackState->position
 				};
-				return async<void>([=]() {
+				return promiseThread([=]() {
 					auto json = progressData.toJson().dump();
 					fs::writeFile(progressPath, json);
 				});
 			} else {
-				return async<void>([=]() {
+				return promiseThread([=]() {
 					if(fs::exists(progressPath)) {
 						fs::removeAll(progressPath);
 					}
@@ -233,28 +233,22 @@ namespace sh {
 		// if queue was empty and we're not playing anything, attempt to play queued item
 		if(queueWasEmpty && !this->playingTrack && !playQueue.getTaskWithTag("play")) {
 			w$<Player> weakSelf = shared_from_this();
-			playQueue.run({.tag="play"}, [=](auto task) {
-				return generate_items<void>({
-					[=]() {
-						// wait till end of frame before trying
-						return Promise<void>([=](auto resolve, auto reject) {
-							defaultPromiseQueue()->async([=]() {
-								resolve();
-							});
-						});
-					},
-					[=]() {
-						auto self = weakSelf.lock();
-						if(!self) {
-							return Promise<void>::resolve();
-						}
-						if(self->playingTrack || self->organizer->getQueueLength() == 0) {
-							return Promise<void>::resolve();
-						}
-						auto queueItem = self->organizer->getQueueItem(0);
-						return self->organizer->play(queueItem);
-					}
-				});
+			playQueue.run({.tag="play"}, [a1=weakSelf](auto task) -> Generator<void> {
+				auto weakSelf = a1;
+				co_yield setGenResumeQueue(DispatchQueue::main());
+				co_yield initialGenNext();
+				// wait till end of frame before trying
+				co_await resumeOnQueue(DispatchQueue::main(), true);
+				co_yield {};
+				auto self = weakSelf.lock();
+				if(!self) {
+					co_return;
+				}
+				if(self->playingTrack || self->organizer->getQueueLength() == 0) {
+					co_return;
+				}
+				auto queueItem = self->organizer->getQueueItem(0);
+				co_await self->organizer->play(queueItem);
 			}).promise.except([=](std::exception_ptr error) {
 				// error
 				console::error("Error while player was auto-starting from queue: ", utils::getExceptionDetails(error).fullDescription);

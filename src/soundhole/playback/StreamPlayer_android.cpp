@@ -101,7 +101,7 @@ namespace sh {
 				preparedPlayer = createPlayer(env, audioURL);
 				preparedAudioURL = audioURL;
 				lock.unlock();
-				return async<void>([=]() {
+				return promiseThread([=]() {
 					jniScope((JavaVM*)javaVm, [=](JNIEnv* env) {
 						preparedPlayer.prepare(env);
 					});
@@ -153,7 +153,7 @@ namespace sh {
 				jint currentTime = player.getCurrentPosition(env);
 				double playerCurrentPos = (double)currentTime / 1000.0;
 				if(needsPrepare) {
-					return async<void>([=]() {
+					return promiseThread([=]() {
 						jniScope((JavaVM*)javaVm, [&](JNIEnv* env) {
 							__android_log_print(ANDROID_LOG_DEBUG, "StreamPlayer", "preparing media player with url %s", audioURL.c_str());
 							player.prepare(env);

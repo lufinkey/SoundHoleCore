@@ -36,21 +36,18 @@ namespace sh {
 	Promise<void> SpotifyPlaybackProvider::play($<Track> track, double position) {
 		playQueue.cancelAllTasks();
 		setPlayingQueue.cancelAllTasks();
-		return playQueue.run([=](auto task) {
-			return generate_items<void>({
-				[=]() {
-					return track->fetchDataIfNeeded();
-				},
-				[=]() {
-					return provider->spotify->playURI(track->uri(), {
-						.position=position
-					});
-				},
-				[=]() {
-					setPlayingUntilSuccess();
-					return Promise<void>::resolve();
-				}
+		return playQueue.run([this,a1=track,a2=position](auto task) -> Generator<void> {
+			auto track = a1;
+			auto position = a2;
+			co_yield setGenResumeQueue(DispatchQueue::main());
+			co_yield initialGenNext();
+			co_await track->fetchDataIfNeeded();
+			co_yield {};
+			co_await provider->spotify->playURI(track->uri(), {
+				.position=position
 			});
+			co_yield {};
+			setPlayingUntilSuccess();
 		}).promise;
 	}
 
@@ -102,36 +99,34 @@ namespace sh {
 
 
 	Promise<void> SpotifyPlaybackProvider::setPlayingUntilSuccess() {
-		return setPlayingQueue.run([=](auto task) {
-			return generate<void>([=](auto yield) {
-				while(true) {
-					try {
-						await(provider->spotify->setPlaying(true));
-						yield();
-						if(!provider->spotify->getPlaybackState().playing) {
-							// wait for player to start playing
-							for(size_t i=0; i<10; i++) {
-								await(Promise<void>::resolve().delay(std::chrono::milliseconds(200)));
-								if(provider->spotify->getPlaybackState().playing) {
-									// hooray, it started playing!
-									break;
-								}
-								yield();
+		return setPlayingQueue.run([this](auto task) -> Generator<void> {
+			co_yield setGenResumeQueue(DispatchQueue::main());
+			co_yield initialGenNext();
+			while(true) {
+				try {
+					co_await provider->spotify->setPlaying(true);
+					co_yield {};
+					if(!provider->spotify->getPlaybackState().playing) {
+						// wait for player to start playing
+						for(size_t i=0; i<10; i++) {
+							co_await resumeAfter(std::chrono::milliseconds(200));
+							if(provider->spotify->getPlaybackState().playing) {
+								// hooray, it started playing!
+								break;
 							}
-							if(!provider->spotify->getPlaybackState().playing) {
-								throw std::runtime_error("timed out waiting for player to play");
-							}
+							co_yield {};
 						}
-						return;
-					} catch(GenerateDestroyedNotifier&) {
-						std::rethrow_exception(std::current_exception());
-					} catch(...) {
-						console::error("Error attempting to play Spotify player: ", utils::getExceptionDetails(std::current_exception()).fullDescription);
-						// continue trying...
+						if(!provider->spotify->getPlaybackState().playing) {
+							throw std::runtime_error("timed out waiting for player to play");
+						}
 					}
-					yield();
+					co_return;
+				} catch(...) {
+					console::error("Error attempting to play Spotify player: ", utils::getExceptionDetails(std::current_exception()).fullDescription);
+					// continue trying...
 				}
-			});
+				co_yield {};
+			}
 		}).promise;
 	}
 

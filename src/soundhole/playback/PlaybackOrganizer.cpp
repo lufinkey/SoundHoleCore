@@ -69,13 +69,13 @@ namespace sh {
 			}) },
 			{ "shuffling", shuffling }
 		});
-		return async<void>([=]() {
+		return promiseThread([=]() {
 			fs::writeFile(path, json.dump());
 		});
 	}
 
 	Promise<bool> PlaybackOrganizer::load(String path, MediaProviderStash* stash) {
-		return async<Json>([=]() {
+		return promiseThread([=]() {
 			try {
 				if(!fs::exists(path)) {
 					return Json();
@@ -233,48 +233,28 @@ namespace sh {
 			.cancelMatchingTags = true
 		};
 		w$<PlaybackOrganizer> weakSelf = shared_from_this();
-		return continuousPlayQueue.run(runOptions, [=](auto task) {
+		return continuousPlayQueue.run(runOptions, [weakSelf](auto task) -> Generator<void> {
 			auto self = weakSelf.lock();
 			if(!self) {
-				return generate_items<void>({});
+				co_return;
 			}
 			if(self->preparedNext) {
-				return generate_items<void>({});
+				co_return;
 			}
-			struct SharedData {
-				ItemVariant nextItem = NoItem();
-			};
-			auto sharedData = fgl::new$<SharedData>();
-			return generate_items<void>({
-				[=]() {
-					auto self = weakSelf.lock();
-					if(!self) {
-						return Promise<void>::resolve();
-					}
-					return self->getNextItem().then([=](ItemVariant nextItem) {
-						sharedData->nextItem = nextItem;
-					});
-				},
-				[=]() {
-					auto self = weakSelf.lock();
-					if(!self) {
-						return Promise<void>::resolve();
-					}
-					auto nextItem = sharedData->nextItem;
-					auto nextTrack = trackFromItem(nextItem);
-					if(!nextTrack) {
-						return Promise<void>::resolve();
-					}
-					if(self->options.delegate == nullptr) {
-						self->preparedNext = true;
-						return Promise<void>::resolve();
-					} else {
-						return self->options.delegate->onPlaybackOrganizerPrepareTrack(self, nextTrack).then([=]() {
-							self->preparedNext = true;
-						});
-					}
-				}
-			});
+			co_yield setGenResumeQueue(DispatchQueue::main());
+			co_yield initialGenNext();
+			ItemVariant nextItem = co_await self->getNextItem();
+			co_yield {};
+			auto nextTrack = trackFromItem(nextItem);
+			if(!nextTrack) {
+				co_return;
+			}
+			if(self->options.delegate == nullptr) {
+				self->preparedNext = true;
+			} else {
+				co_await self->options.delegate->onPlaybackOrganizerPrepareTrack(self, nextTrack);
+				self->preparedNext = true;
+			}
 		}).promise;
 	}
 	
@@ -647,87 +627,86 @@ namespace sh {
 			.cancelTags = { "prepare", "play" }
 		};
 		w$<PlaybackOrganizer> weakSelf = shared_from_this();
-		return continuousPlayQueue.run(runOptions, [=](auto task) {
-			return generate<void>([=](auto yield) {
-				auto self = weakSelf.lock();
-				if(!self) {
-					return;
-				}
-				size_t sleepCount = 1;
-				auto track = trackFromItem(item);
-				while(true) {
-					try {
-						if(track->needsData()) {
-							await(track->fetchDataIfNeeded());
+		return continuousPlayQueue.run(runOptions, [weakSelf,a1=item](auto task) -> Generator<void> {
+			auto item = a1;
+			auto self = weakSelf.lock();
+			if(!self) {
+				co_return;
+			}
+			co_yield setGenResumeQueue(DispatchQueue::main());
+			co_yield initialGenNext();
+			size_t sleepCount = 1;
+			auto track = trackFromItem(item);
+			while(true) {
+				try {
+					if(track->needsData()) {
+						co_await track->fetchDataIfNeeded();
+					}
+					if(track->isPlayable()) {
+						// play track
+						if(self->options.delegate != nullptr) {
+							co_await self->options.delegate->onPlaybackOrganizerPlayTrack(self, track);
 						}
-						if(track->isPlayable()) {
-							// play track
-							if(self->options.delegate != nullptr) {
-								await(self->options.delegate->onPlaybackOrganizerPlayTrack(self, track));
-							}
-							await(Promise<void>::resolve().then([&]() {
-								self->playingItem = item;
-								self->applyingItem = NoItem();
-								self->preparedNext = false;
-							}));
-							yield();
-							// load surrounding context until success
-							while(true) {
-								try {
-									await(Promise<void>::resolve().then([&]() -> Promise<void> {
-										auto context = self->context;
-										auto contextIndex = self->getContextIndex();
-										if(!context || !contextIndex) {
-											return Promise<void>::resolve();
-										}
-										return self->prepareCollectionTracks(context, contextIndex.value());
-									}));
+						co_await Promise<void>::resolve().then([&]() {
+							self->playingItem = item;
+							self->applyingItem = NoItem();
+							self->preparedNext = false;
+						});
+						co_yield {};
+						// load surrounding context until success
+						while(true) {
+							try {
+								auto context = self->context;
+								auto contextIndex = self->getContextIndex();
+								if(!context || !contextIndex) {
 									break;
 								}
-								catch(...) {
-									console::error("Failed to load next tracks in context: ", utils::getExceptionDetails(std::current_exception()).fullDescription);
-									// ignore error and try again
-									yield();
-									for(size_t i=0; i<10; i++) {
-										std::this_thread::sleep_for(std::chrono::milliseconds(100));
-										yield();
-									}
-								}
+								co_await self->prepareCollectionTracks(context, contextIndex.value());
+								break;
+							}
+							catch(...) {
+								console::error("Failed to load next tracks in context: ", utils::getExceptionDetails(std::current_exception()).fullDescription);
+								// ignore error and try again
+							}
+							co_yield {};
+							for(size_t i=0; i<10; i++) {
+								std::this_thread::sleep_for(std::chrono::milliseconds(100));
+								co_yield {};
 							}
 						}
-						else {
-							// load next track until success
-							while(true) {
-								try {
-									await(self->next());
-									break;
-								}
-								catch(...) {
-									console::error("Failed to skip to next track after ",
-										   track->name().c_str(), ": ", utils::getExceptionDetails(std::current_exception()).fullDescription);
-									// ignore error and try again
-									yield();
-									for(size_t i=0; i<4; i++) {
-										std::this_thread::sleep_for(std::chrono::milliseconds(100));
-										yield();
-									}
-								}
+					}
+					else {
+						// load next track until success
+						while(true) {
+							try {
+								co_await self->next();
+								break;
+							}
+							catch(...) {
+								console::error("Failed to skip to next track after ",
+									   track->name().c_str(), ": ", utils::getExceptionDetails(std::current_exception()).fullDescription);
+								// ignore error and try again
+							}
+							co_yield {};
+							for(size_t i=0; i<4; i++) {
+								std::this_thread::sleep_for(std::chrono::milliseconds(100));
+								co_yield {};
 							}
 						}
-						return;
 					}
-					catch(...) {
-						console::error("Failed to play track ",
-							   track->name().c_str(), ": ", utils::getExceptionDetails(std::current_exception()).fullDescription);
-						// ignore error and try again
-						yield();
-						for(size_t i=0; i<sleepCount; i++) {
-							std::this_thread::sleep_for(std::chrono::milliseconds(100));
-							yield();
-						}
-					}
+					co_return;
 				}
-			});
+				catch(...) {
+					console::error("Failed to play track ",
+						   track->name().c_str(), ": ", utils::getExceptionDetails(std::current_exception()).fullDescription);
+					// ignore error and try again
+				}
+				co_yield {};
+				for(size_t i=0; i<sleepCount; i++) {
+					std::this_thread::sleep_for(std::chrono::milliseconds(100));
+					co_yield {};
+				}
+			}
 		}).promise;
 	}
 

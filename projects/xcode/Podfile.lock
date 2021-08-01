@@ -38,13 +38,13 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   AsyncCpp:
-    :commit: 1371821c04563a710ad1a2881de69f27de8849b6
+    :commit: 4237b54743db9fa6f7d8734cbad1e5575a2c4404
     :git: "git@github.com:lufinkey/async-cpp.git"
   DataCpp:
-    :commit: ada17b3b6cbbd0c9a347a1d53f9188e627cc1ddd
+    :commit: fc76922dd35589b955c80e842d531dc24e850ee3
     :git: "git@github.com:lufinkey/data-cpp.git"
   IOCpp:
-    :commit: 720a275fcdf5f86e3e7a2b528e4ba3c0733f2ed0
+    :commit: bd72bcbba3c8c46292f5a848e0adf80a2a6fda24
     :git: "git@github.com:lufinkey/io-cpp.git"
   NodeJSEmbed:
     :commit: 9276255f7517a1277f96fc01d01c2250a0c539da
@@ -54,9 +54,9 @@ CHECKOUT OPTIONS:
     :git: https://github.com/janeasystems/nodejs-mobile.git
 
 SPEC CHECKSUMS:
-  AsyncCpp: 04d7cdf6aeaabd15d52f2f4a8e50a592b4c04040
-  DataCpp: a826d3fe6b3234709b097f20090f24d96230c823
-  IOCpp: 71b0ec502857afee2e0ad9f6015053b385c0814b
+  AsyncCpp: 341837bd6e5288df38a6fb73187ca73425b05c33
+  DataCpp: a73679536c0e957835c5a3bd6be3141e4d441e7a
+  IOCpp: a95fd129f975109513d16e4c7a347f7d91651f83
   NodeJSEmbed: f59b85116d857e06f09c0c3f56b6ad638b963bd2
   NodeMobile: d6a5a252d4774c89c360f627f166b727b07b9aee
   sqlite3: 797b1b1f92baf74716a3179f69d9652ce4a5df3f

@@ -32,60 +32,46 @@ namespace sh {
 			return Promise<void>::resolve();
 		}
 		lock.unlock();
-		return prepareQueue.run({.cancelAll=true}, [=](auto task) {
-			return generate_items<void>({
-				[=]() {
-					return Promise<void>::resolve().then([=]() {
-						if(track->audioSources().has_value()) {
-							return Promise<void>::resolve();
-						}
-						return track->fetchDataIfNeeded();
-					});
-				},
-				[=]() {
-					return Promise<void>::resolve().then([=]() {
-						if(!track->audioSources().has_value() || track->audioSources()->size() == 0) {
-							return Promise<void>::reject(
-								SoundHoleError(SoundHoleError::Code::STREAM_UNAVAILABLE, "No audio streams available for track with uri "+track->uri()+" ("+track->name()+")"));
-						}
-						auto audioSource = track->findAudioSource();
-						if(!audioSource) {
-							return Promise<void>::reject(
-								SoundHoleError(SoundHoleError(SoundHoleError::Code::STREAM_UNAVAILABLE, "Unable to find audio stream for track with uri "+track->uri()+" ("+track->name()+")")));
-						}
-						return player->prepare(audioSource->url);
-					});
-				}
-			});
+		return prepareQueue.run({.cancelAll=true}, [this,a1=track](auto task) -> Generator<void> {
+			auto track = a1;
+			co_yield setGenResumeQueue(DispatchQueue::main());
+			co_yield initialGenNext();
+			co_await track->fetchDataIfNeeded();
+			co_yield {};
+			if(!track->audioSources().has_value() || track->audioSources()->size() == 0) {
+				throw SoundHoleError(SoundHoleError::Code::STREAM_UNAVAILABLE, "No audio streams available for track with uri "+track->uri()+" ("+track->name()+")");
+			}
+			auto audioSource = track->findAudioSource();
+			if(!audioSource) {
+				throw SoundHoleError(SoundHoleError::Code::STREAM_UNAVAILABLE, "Unable to find audio stream for track with uri "+track->uri()+" ("+track->name()+")");
+			}
+			co_await player->prepare(audioSource->url);
 		}).promise;
 	}
 
 	Promise<void> StreamPlaybackProvider::play($<Track> track, double position) {
-		return playQueue.run({.cancelAll=true}, [=](auto task) {
-			return generate_items<void>({
-				[=]() {
-					return track->fetchDataIfNeeded();
-				},
-				[=]() {
-					if(!track->audioSources().has_value() || track->audioSources()->size() == 0) {
-						return Promise<void>::reject(
-							SoundHoleError(SoundHoleError::Code::STREAM_UNAVAILABLE, "No audio streams available for track with uri "+track->uri()+" ("+track->name()+")"));
-					}
-					auto audioSource = track->findAudioSource();
-					if(!audioSource) {
-						return Promise<void>::reject(
-							SoundHoleError(SoundHoleError(SoundHoleError::Code::STREAM_UNAVAILABLE, "Unable to find audio stream for track with uri "+track->uri()+" ("+track->name()+")")));
-					}
-					return player->play(audioSource->url, {
-						.position=position,
-						.beforePlay=[=]() {
-							std::unique_lock<std::mutex> lock(currentTrackMutex);
-							this->currentTrack = track;
-							this->currentTrackAudioURL = audioSource->url;
-							lock.unlock();
-							callListenerEvent(&EventListener::onMediaPlaybackProviderMetadataChange, this);
-						}
-					});
+		return playQueue.run({.cancelAll=true}, [this,a1=track,a2=position](auto task) -> Generator<void> {
+			auto track = a1;
+			auto position = a2;
+			co_yield setGenResumeQueue(DispatchQueue::main());
+			co_yield initialGenNext();
+			co_await track->fetchDataIfNeeded();
+			co_yield {};
+			if(!track->audioSources().has_value() || track->audioSources()->size() == 0) {
+				throw SoundHoleError(SoundHoleError::Code::STREAM_UNAVAILABLE, "No audio streams available for track with uri "+track->uri()+" ("+track->name()+")");
+			}
+			auto audioSource = track->findAudioSource();
+			if(!audioSource) {
+				throw SoundHoleError(SoundHoleError::Code::STREAM_UNAVAILABLE, "Unable to find audio stream for track with uri "+track->uri()+" ("+track->name()+")");
+			}
+			co_await player->play(audioSource->url, {
+				.position=position,
+				.beforePlay=[=]() {
+					std::unique_lock<std::mutex> lock(currentTrackMutex);
+					this->currentTrack = track;
+					this->currentTrackAudioURL = audioSource->url;
+					lock.unlock();
+					callListenerEvent(&EventListener::onMediaPlaybackProviderMetadataChange, this);
 				}
 			});
 		}).promise;
