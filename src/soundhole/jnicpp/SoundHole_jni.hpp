@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <soundhole/jnicpp/common.hpp>
+#include <soundhole/jnicpp/jnicpp_common.hpp>
 
 #ifdef SOUNDHOLE_JNI_ENABLED
 
