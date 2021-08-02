@@ -160,7 +160,6 @@ export default class GoogleDriveLibraryDB extends GoogleSheetsDBWrapper {
 		if(files == null) {
 			throw new Error(`Unable to find files property in response when searching for "${this.FILE_NAME}" file`);
 		}
-		console.log("found files ", files);
 		const file = files[0];
 		const existingFileId = file?.id;
 		// create db object

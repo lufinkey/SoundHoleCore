@@ -430,6 +430,9 @@ namespace sh {
 
 	Promise<ArrayList<bool>> MediaDatabase::hasSavedTracks(ArrayList<String> uris) {
 		size_t uriCount = uris.size();
+		if(uriCount == 0) {
+			return Promise<ArrayList<bool>>::resolve({});
+		}
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
 			size_t i = 0;
 			for(auto& uri : uris) {
@@ -498,6 +501,9 @@ namespace sh {
 
 	Promise<ArrayList<bool>> MediaDatabase::hasSavedAlbums(ArrayList<String> uris) {
 		size_t uriCount = uris.size();
+		if(uriCount == 0) {
+			return Promise<ArrayList<bool>>::resolve({});
+		}
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
 			size_t i = 0;
 			for(auto& uri : uris) {
@@ -566,6 +572,9 @@ namespace sh {
 
 	Promise<ArrayList<bool>> MediaDatabase::hasSavedPlaylists(ArrayList<String> uris) {
 		size_t uriCount = uris.size();
+		if(uriCount == 0) {
+			return Promise<ArrayList<bool>>::resolve({});
+		}
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
 			size_t i = 0;
 			for(auto& uri : uris) {
@@ -634,6 +643,9 @@ namespace sh {
 
 	Promise<ArrayList<bool>> MediaDatabase::hasFollowedArtists(ArrayList<String> uris) {
 		size_t uriCount = uris.size();
+		if(uriCount == 0) {
+			return Promise<ArrayList<bool>>::resolve({});
+		}
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
 			size_t i = 0;
 			for(auto& uri : uris) {
@@ -702,6 +714,9 @@ namespace sh {
 
 	Promise<ArrayList<bool>> MediaDatabase::hasFollowedUserAccounts(ArrayList<String> uris) {
 		size_t uriCount = uris.size();
+		if(uriCount == 0) {
+			return Promise<ArrayList<bool>>::resolve({});
+		}
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
 			size_t i = 0;
 			for(auto& uri : uris) {

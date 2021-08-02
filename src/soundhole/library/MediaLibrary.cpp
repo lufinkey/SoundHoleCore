@@ -760,6 +760,17 @@ namespace sh {
 
 	Promise<void> MediaLibrary::followUserAccount($<UserAccount> userAccount) {
 		auto mediaProvider = userAccount->mediaProvider();
+		if(mediaProvider->handlesUsersAsArtists()) {
+			return this->followArtist(mediaProvider->artist(Artist::Data{{
+				.partial = true,
+				.type = "user",
+				.name = userAccount->name(),
+				.uri = userAccount->uri(),
+				.images = userAccount->images()
+				},
+				.description = std::nullopt
+			}));
+		}
 		auto date = DateTime();
 		if(mediaProvider->canFollowUsers()) {
 			// follow user through provider
@@ -807,6 +818,17 @@ namespace sh {
 
 	Promise<void> MediaLibrary::unfollowUserAccount($<UserAccount> userAccount) {
 		auto mediaProvider = userAccount->mediaProvider();
+		if(mediaProvider->handlesUsersAsArtists()) {
+			return this->unfollowArtist(mediaProvider->artist(Artist::Data{{
+				.partial = true,
+				.type = "user",
+				.name = userAccount->name(),
+				.uri = userAccount->uri(),
+				.images = userAccount->images()
+				},
+				.description = std::nullopt
+			}));
+		}
 		if(mediaProvider->canFollowUsers()) {
 			// unfollow user through provider
 			return mediaProvider->unfollowUser(userAccount->uri())
@@ -828,6 +850,44 @@ namespace sh {
 	}
 
 	Promise<ArrayList<bool>> MediaLibrary::hasFollowedUserAccounts(ArrayList<$<UserAccount>> userAccounts) {
-		return db->hasFollowedUserAccounts(userAccounts.map([](auto user){return user->uri();}));
+		auto uris = userAccounts.map([](auto user){return user->uri();});
+		LinkedList<String> userURIs;
+		LinkedList<String> artistURIs;
+		for(auto& userAccount : userAccounts) {
+			auto mediaProvider = userAccount->mediaProvider();
+			if(mediaProvider->handlesUsersAsArtists()) {
+				artistURIs.pushBack(userAccount->uri());
+			} else {
+				userURIs.pushBack(userAccount->uri());
+			}
+		}
+		return tuplePromiseOf(
+			db->hasFollowedUserAccounts(userURIs),
+			db->hasFollowedArtists(artistURIs)
+		).map([=](auto tuple) -> ArrayList<bool> {
+			auto& [ userResults, artistResults ] = tuple;
+			ArrayList<bool> followed;
+			followed.reserve(uris.size());
+			auto userResultsIt = userResults.begin();
+			auto userURIsIt = userURIs.begin();
+			auto artistResultsIt = artistResults.begin();
+			auto artistURIsIt = artistURIs.begin();
+			for(auto& uri : uris) {
+				if(userURIsIt != userURIs.end() && *userURIsIt == uri) {
+					followed.pushBack(*userResultsIt);
+					userResultsIt++;
+					userURIsIt++;
+				}
+				else if(artistURIsIt != artistURIs.end() && *artistURIsIt == uri) {
+					followed.pushBack(*artistResultsIt);
+					artistResultsIt++;
+					artistURIsIt++;
+				}
+				else {
+					throw std::logic_error("could not find matching URI for "+uri);
+				}
+			}
+			return followed;
+		});
 	}
 }

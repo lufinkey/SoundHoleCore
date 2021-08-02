@@ -63,7 +63,7 @@ namespace sh {
 		const String& name() const;
 		const String& uri() const;
 		
-		virtual const Optional<ArrayList<Image>>& images() const;
+		const Optional<ArrayList<Image>>& images() const;
 		Optional<Image> image(Image::Size size, bool allowFallback=true) const;
 		
 		MediaProvider* mediaProvider() const;
