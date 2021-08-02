@@ -294,10 +294,10 @@ namespace sh {
 				return items;
 			})(),
 			},
-			.owner=this->userAccount(createUserAccountData(playlist.owner, true)),
-			.privacy=(playlist.isPublic ?
-				(playlist.isPublic.value() ? Playlist::Privacy::PUBLIC : Playlist::Privacy::PRIVATE)
-				: Playlist::Privacy::UNKNOWN)
+			.owner = this->userAccount(createUserAccountData(playlist.owner, true)),
+			.privacy = (playlist.isPublic ?
+				maybe(playlist.isPublic.value() ? Playlist::Privacy::PUBLIC : Playlist::Privacy::PRIVATE)
+				: std::nullopt)
 		};
 	}
 
@@ -841,8 +841,6 @@ namespace sh {
 				break;
 			case Playlist::Privacy::PUBLIC:
 				isPublic = true;
-				break;
-			case Playlist::Privacy::UNKNOWN:
 				break;
 		}
 		return spotify->createPlaylist(name, {

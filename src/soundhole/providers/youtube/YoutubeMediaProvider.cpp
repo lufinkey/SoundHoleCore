@@ -474,32 +474,32 @@ namespace sh {
 
 	Playlist::Data YoutubeMediaProvider::createPlaylistData(YoutubePlaylist playlist) {
 		return Playlist::Data{{{
-			.partial=false,
-			.type="playlist",
-			.name=playlist.snippet.title,
-			.uri=createURI("playlist", playlist.id),
-			.images=playlist.snippet.thumbnails.map([&](auto image) -> MediaItem::Image {
+			.partial = false,
+			.type = "playlist",
+			.name = playlist.snippet.title,
+			.uri = createURI("playlist", playlist.id),
+			.images = playlist.snippet.thumbnails.map([&](auto image) -> MediaItem::Image {
 				return createImage(image);
 			})
 			},
-			.versionId=playlist.etag,
-			.itemCount=std::nullopt,
-			.items={}
+			.versionId = playlist.etag,
+			.itemCount = std::nullopt,
+			.items = {}
 			},
-			.owner=this->userAccount(UserAccount::Data{
+			.owner = this->userAccount(UserAccount::Data{
 				.partial = true,
 				.type = "user",
 				.name = playlist.snippet.channelTitle,
 				.uri = createURI("channel", playlist.snippet.channelId)
 			}),
-			.privacy=(
+			.privacy = (
 				(playlist.status.privacyStatus == YoutubePrivacyStatus::PRIVATE) ?
-					  Playlist::Privacy::PRIVATE
+					  maybe(Playlist::Privacy::PRIVATE)
 				: (playlist.status.privacyStatus == YoutubePrivacyStatus::PUBLIC) ?
-					  Playlist::Privacy::PUBLIC
+					  maybe(Playlist::Privacy::PUBLIC)
 				: (playlist.status.privacyStatus == YoutubePrivacyStatus::UNLISTED) ?
-					  Playlist::Privacy::UNLISTED
-				: Playlist::Privacy::UNKNOWN)
+					  maybe(Playlist::Privacy::UNLISTED)
+				: std::nullopt)
 		};
 	}
 
@@ -648,7 +648,7 @@ namespace sh {
 					.uri = createURI("channel", searchResult.snippet.channelId),
 					.images = std::nullopt
 				}),
-				.privacy=Playlist::Privacy::UNKNOWN
+				.privacy=std::nullopt
 			});
 		}
 		throw std::logic_error("Invalid youtube item kind "+searchResult.id.kind);
@@ -929,8 +929,6 @@ namespace sh {
 			case Playlist::Privacy::PUBLIC:
 				privacyStatus = YoutubePrivacyStatus::PUBLIC;
 				break;
-			case Playlist::Privacy::UNKNOWN:
-				return Promise<$<Playlist>>::reject(std::logic_error("invalid playlist privacy value"));
 		}
 		return youtube->createPlaylist(name, {
 			.privacyStatus = privacyStatus

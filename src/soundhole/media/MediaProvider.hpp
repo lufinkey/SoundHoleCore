@@ -104,7 +104,7 @@ namespace sh {
 		virtual ArrayList<Playlist::Privacy> supportedPlaylistPrivacies() const;
 		
 		struct CreatePlaylistOptions {
-			Playlist::Privacy privacy = Playlist::Privacy::UNKNOWN;
+			Playlist::Privacy privacy = Playlist::Privacy::PRIVATE;
 			
 			Json toJson() const;
 			#ifdef NODE_API_MODULE

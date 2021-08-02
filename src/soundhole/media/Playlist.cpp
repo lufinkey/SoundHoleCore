@@ -111,13 +111,11 @@ namespace sh {
 				return "public";
 			case Privacy::UNLISTED:
 				return "unlisted";
-			case Privacy::UNKNOWN:
-				return "unknown";
 		}
 		throw std::runtime_error("unknown privacy type");
 	}
 
-	Playlist::Privacy Playlist::Privacy_fromString(const String& privacyString) {
+	Optional<Playlist::Privacy> Playlist::Privacy_fromString(const String& privacyString) {
 		if(privacyString == "private") {
 			return Privacy::PRIVATE;
 		} else if(privacyString == "public") {
@@ -125,7 +123,7 @@ namespace sh {
 		} else if(privacyString == "unlisted") {
 			return Privacy::UNLISTED;
 		} else {
-			return Privacy::UNKNOWN;
+			return std::nullopt;
 		}
 	}
 
@@ -155,7 +153,7 @@ namespace sh {
 		return Playlist::Data{
 			collectionData,
 			.owner = owner,
-			.privacy = Privacy_fromString(privacyJson.string_value())
+			.privacy = privacyJson.is_null() ? std::nullopt : Privacy_fromString(privacyJson.string_value())
 		};
 	}
 
@@ -183,7 +181,7 @@ namespace sh {
 		return std::static_pointer_cast<const UserAccount>(_owner);
 	}
 
-	Playlist::Privacy Playlist::privacy() const {
+	const Optional<Playlist::Privacy>& Playlist::privacy() const {
 		return _privacy;
 	}
 
@@ -226,7 +224,7 @@ namespace sh {
 		auto json = SpecialTrackCollection<PlaylistItem>::toJson(options).object_items();
 		json.merge(Json::object{
 			{ "owner", _owner ? _owner->toJson() : Json() },
-			{ "privacy", (std::string)Privacy_toString(_privacy) }
+			{ "privacy", _privacy ? (std::string)Privacy_toString(_privacy.value()) : Json() }
 		});
 		return json;
 	}
