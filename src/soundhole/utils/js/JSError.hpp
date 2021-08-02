@@ -25,7 +25,7 @@ namespace sh {
 		virtual String toString() const override;
 		virtual Any getDetail(const String& key) const override;
 		
-		String getJSStack() const;
+		const String& getJSStack() const;
 		
 	private:
 		napi_ref jsRef;

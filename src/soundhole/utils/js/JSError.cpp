@@ -92,7 +92,7 @@ namespace sh {
 		return BasicError<>::getDetail(key);
 	}
 
-	String JSError::getJSStack() const {
+	const String& JSError::getJSStack() const {
 		return stack;
 	}
 }
