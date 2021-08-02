@@ -43,13 +43,19 @@ namespace sh {
 		virtual Promise<void> deletePlaylist(String uri) override;
 		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist) override;
 		
-		virtual Promise<void> followPlaylists(ArrayList<NewFollowedPlaylist> playlists) override;
-		virtual Promise<void> unfollowPlaylists(ArrayList<String> playlistURIs) override;
-		
 		virtual UserPlaylistsGenerator getUserPlaylists(String userURI) override;
 		virtual UserPlaylistsGenerator getMyPlaylists() override;
 		
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) override;
+		
+		virtual Promise<void> followPlaylists(ArrayList<NewFollowedItem> playlists) override;
+		virtual Promise<void> unfollowPlaylists(ArrayList<String> playlistURIs) override;
+		
+		virtual Promise<void> followArtists(ArrayList<NewFollowedItem> artists) override;
+		virtual Promise<void> unfollowArtists(ArrayList<String> artistURIs) override;
+		
+		virtual Promise<void> followUsers(ArrayList<NewFollowedItem> users) override;
+		virtual Promise<void> unfollowUsers(ArrayList<String> userURIs) override;
 		
 	protected:
 		virtual Promise<Optional<GoogleDriveStorageProviderUser>> fetchIdentity() override;

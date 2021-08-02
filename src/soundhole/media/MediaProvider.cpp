@@ -81,6 +81,10 @@ namespace sh {
 
 
 
+	bool MediaProvider::handlesUsersAsArtists() const {
+		return false;
+	}
+
 	bool MediaProvider::canCreatePlaylists() const {
 		return false;
 	}
@@ -99,20 +103,6 @@ namespace sh {
 
 	Promise<void> MediaProvider::deletePlaylist(String playlistURI) {
 		return Promise<void>::reject(std::logic_error("deletePlaylist is not implemented"));
-	}
-
-
-
-	bool MediaProvider::canSavePlaylists() const {
-		return false;
-	}
-
-	Promise<void> MediaProvider::savePlaylist(String playlistURI) {
-		return Promise<void>::reject(std::runtime_error("not implemented"));
-	}
-
-	Promise<void> MediaProvider::unsavePlaylist(String playlistURI) {
-		return Promise<void>::reject(std::runtime_error("not implemented"));
 	}
 
 

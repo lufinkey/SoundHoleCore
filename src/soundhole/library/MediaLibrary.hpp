@@ -134,6 +134,13 @@ namespace sh {
 		Promise<void> unsavePlaylist($<Playlist> playlist);
 		Promise<ArrayList<bool>> hasSavedPlaylists(ArrayList<$<Playlist>> playlist);
 		
+		Promise<void> followArtist($<Artist> artist);
+		Promise<void> unfollowArtist($<Artist> artist);
+		Promise<ArrayList<bool>> hasFollowedArtists(ArrayList<$<Artist>> artists);
+		
+		Promise<void> followUserAccount($<UserAccount> user);
+		Promise<void> unfollowUserAccount($<UserAccount> user);
+		Promise<ArrayList<bool>> hasFollowedUserAccounts(ArrayList<$<UserAccount>> users);
 		
 	private:
 		MediaDatabase* db;

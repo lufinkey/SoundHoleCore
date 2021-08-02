@@ -27,9 +27,6 @@ struct InsertTrackCollectionItemsOptions {
 };
 void insertOrReplaceItemsFromTrackCollection(SQLiteTransaction& tx, $<TrackCollection> collection, InsertTrackCollectionItemsOptions options = InsertTrackCollectionItemsOptions());
 void insertOrReplaceLibraryItems(SQLiteTransaction& tx, const ArrayList<MediaProvider::LibraryItem>& items);
-void insertOrReplaceSavedTracks(SQLiteTransaction& tx, const ArrayList<SavedTrack>& savedTracks);
-void insertOrReplaceSavedAlbums(SQLiteTransaction& tx, const ArrayList<SavedAlbum>& savedAlbums);
-void insertOrReplaceSavedPlaylist(SQLiteTransaction& tx, const ArrayList<SavedAlbum>& savedPlaylists);
 void insertOrReplaceDBStates(SQLiteTransaction& tx, const ArrayList<DBState>& states);
 void applyDBState(SQLiteTransaction& tx, std::map<String,String> state);
 
@@ -48,15 +45,28 @@ struct LibraryItemSelectOptions {
 };
 void selectSavedTracksWithTracks(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
 void selectSavedTrackCount(SQLiteTransaction& tx, String outKey, String libraryProvider = String());
-void selectSavedTrack(SQLiteTransaction& tx, String outKey, String uri, String libraryProvider = String());
+void selectSavedTrack(SQLiteTransaction& tx, String outKey, String uri);
+void selectSavedTrackWithTrack(SQLiteTransaction& tx, String outKey, String uri);
 
 void selectSavedAlbumsWithAlbums(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
 void selectSavedAlbumCount(SQLiteTransaction& tx, String outKey, String libraryProvider = String());
-void selectSavedAlbum(SQLiteTransaction& tx, String outKey, String uri, String libraryProvider = String());
+void selectSavedAlbum(SQLiteTransaction& tx, String outKey, String uri);
+void selectSavedAlbumWithAlbum(SQLiteTransaction& tx, String outKey, String uri);
 
 void selectSavedPlaylistsWithPlaylistsAndOwners(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
 void selectSavedPlaylistCount(SQLiteTransaction& tx, String outKey, String libraryProvider = String());
-void selectSavedPlaylist(SQLiteTransaction& tx, String outKey, String uri, String libraryProvider = String());
+void selectSavedPlaylist(SQLiteTransaction& tx, String outKey, String uri);
+void selectSavedPlaylistWithPlaylistAndOwner(SQLiteTransaction& tx, String outKey, String uri);
+
+void selectFollowedArtistsWithArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
+void selectFollowedArtistCount(SQLiteTransaction& tx, String outKey, String libraryProvider = String());
+void selectFollowedArtist(SQLiteTransaction& tx, String outKey, String uri);
+void selectFollowedArtistWithArtist(SQLiteTransaction& tx, String outKey, String uri);
+
+void selectFollowedUserAccountsWithUserAccounts(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
+void selectFollowedUserAccountCount(SQLiteTransaction& tx, String outKey, String libraryProvider = String());
+void selectFollowedUserAccount(SQLiteTransaction& tx, String outKey, String uri);
+void selectFollowedUserAccountWithUserAccount(SQLiteTransaction& tx, String outKey, String uri);
 
 void selectLibraryArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions{.orderBy=LibraryItemOrderBy::NAME});
 void selectLibraryArtistCount(SQLiteTransaction& tx, String outKey, String libraryProvider = String());
@@ -67,9 +77,11 @@ void selectDBState(SQLiteTransaction& tx, String outKey, String stateKey);
 void updateTrackCollectionVersionId(SQLiteTransaction& tx, String collectionURI, String versionId);
 
 
-void deleteSavedTrack(SQLiteTransaction& tx, String trackURI, String libraryProvider);
-void deleteSavedAlbum(SQLiteTransaction& tx, String albumURI, String libraryProvider);
-void deleteSavedPlaylist(SQLiteTransaction& tx, String playlistURI, String libraryProvider);
+void deleteSavedTrack(SQLiteTransaction& tx, String trackURI);
+void deleteSavedAlbum(SQLiteTransaction& tx, String albumURI);
+void deleteSavedPlaylist(SQLiteTransaction& tx, String playlistURI);
+void deleteFollowedArtist(SQLiteTransaction& tx, String artistURI);
+void deleteFollowedUserAccount(SQLiteTransaction& tx, String userURI);
 
 void deleteNonLibraryCollectionItems(SQLiteTransaction& tx);
 void deleteNonLibraryTracks(SQLiteTransaction& tx);

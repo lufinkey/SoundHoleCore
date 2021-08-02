@@ -270,21 +270,95 @@ namespace sh {
 		});
 	}
 
+
+
+	bool SoundHoleMediaProvider::canFollowArtists() const {
+		return true;
+	}
+
 	Promise<void> SoundHoleMediaProvider::followArtist(String artistURI) {
-		return Promise<void>::reject(std::runtime_error("not implemented"));
+		auto uriParts = parseURI(artistURI);
+		if(uriParts.provider != this->name()) {
+			return Promise<void>::reject(std::invalid_argument("invalid artistURI "+artistURI+" is not for provider "+this->name()));
+		}
+		auto primaryStorageProvider = this->primaryStorageProvider();
+		if(primaryStorageProvider == nullptr) {
+			return Promise<void>::reject(std::runtime_error("No primary storage provider has been set"));
+		}
+		return primaryStorageProvider->followArtists({
+			StorageProvider::NewFollowedItem{
+				.uri = artistURI,
+				.provider = this->name()
+			}
+		});
+	}
+
+	Promise<void> SoundHoleMediaProvider::followArtist(String artistURI, MediaProvider* provider) {
+		auto primaryStorageProvider = this->primaryStorageProvider();
+		if(primaryStorageProvider == nullptr) {
+			return Promise<void>::reject(std::runtime_error("No primary storage provider has been set"));
+		}
+		return primaryStorageProvider->followArtists({
+			StorageProvider::NewFollowedItem{
+				.uri = artistURI,
+				.provider = provider->name()
+			}
+		});
 	}
 
 	Promise<void> SoundHoleMediaProvider::unfollowArtist(String artistURI) {
-		return Promise<void>::reject(std::runtime_error("not implemented"));
+		auto primaryStorageProvider = this->primaryStorageProvider();
+		if(primaryStorageProvider == nullptr) {
+			return Promise<void>::reject(std::runtime_error("No primary storage provider has been set"));
+		}
+		return primaryStorageProvider->unfollowArtists({ artistURI });
+	}
+
+
+
+	bool SoundHoleMediaProvider::canFollowUsers() const {
+		return true;
 	}
 
 	Promise<void> SoundHoleMediaProvider::followUser(String userURI) {
-		return Promise<void>::reject(std::runtime_error("not implemented"));
+		auto uriParts = parseURI(userURI);
+		if(uriParts.provider != this->name()) {
+			return Promise<void>::reject(std::invalid_argument("invalid userURI "+userURI+" is not for provider "+this->name()));
+		}
+		auto primaryStorageProvider = this->primaryStorageProvider();
+		if(primaryStorageProvider == nullptr) {
+			return Promise<void>::reject(std::runtime_error("No primary storage provider has been set"));
+		}
+		return primaryStorageProvider->followUsers({
+			StorageProvider::NewFollowedItem{
+				.uri = userURI,
+				.provider = this->name()
+			}
+		});
+	}
+
+	Promise<void> SoundHoleMediaProvider::followUser(String userURI, MediaProvider* provider) {
+		auto primaryStorageProvider = this->primaryStorageProvider();
+		if(primaryStorageProvider == nullptr) {
+			return Promise<void>::reject(std::runtime_error("No primary storage provider has been set"));
+		}
+		return primaryStorageProvider->followUsers({
+			StorageProvider::NewFollowedItem{
+				.uri = userURI,
+				.provider = provider->name()
+			}
+		});
 	}
 
 	Promise<void> SoundHoleMediaProvider::unfollowUser(String userURI) {
-		return Promise<void>::reject(std::runtime_error("not implemented"));
+		auto primaryStorageProvider = this->primaryStorageProvider();
+		if(primaryStorageProvider == nullptr) {
+			return Promise<void>::reject(std::runtime_error("No primary storage provider has been set"));
+		}
+		return primaryStorageProvider->unfollowUsers({ userURI });
 	}
+
+
 
 	Promise<void> SoundHoleMediaProvider::saveTrack(String trackURI) {
 		return Promise<void>::reject(std::runtime_error("not implemented"));
@@ -302,6 +376,8 @@ namespace sh {
 		return Promise<void>::reject(std::runtime_error("not implemented"));
 	}
 
+
+
 	bool SoundHoleMediaProvider::canSavePlaylists() const {
 		return true;
 	}
@@ -316,7 +392,7 @@ namespace sh {
 			return Promise<void>::reject(std::runtime_error("No primary storage provider has been set"));
 		}
 		return primaryStorageProvider->followPlaylists({
-			StorageProvider::NewFollowedPlaylist{
+			StorageProvider::NewFollowedItem{
 				.uri = playlistURI,
 				.provider = this->name()
 			}
@@ -329,7 +405,7 @@ namespace sh {
 			return Promise<void>::reject(std::runtime_error("No primary storage provider has been set"));
 		}
 		return primaryStorageProvider->followPlaylists({
-			StorageProvider::NewFollowedPlaylist{
+			StorageProvider::NewFollowedItem{
 				.uri = playlistURI,
 				.provider = provider->name()
 			}
@@ -337,10 +413,6 @@ namespace sh {
 	}
 
 	Promise<void> SoundHoleMediaProvider::unsavePlaylist(String playlistURI) {
-		auto uriParts = parseURI(playlistURI);
-		if(uriParts.provider != this->name()) {
-			return Promise<void>::reject(std::invalid_argument("invalid playlistURI "+playlistURI+" is not for provider "+this->name()));
-		}
 		auto primaryStorageProvider = this->primaryStorageProvider();
 		if(primaryStorageProvider == nullptr) {
 			return Promise<void>::reject(std::runtime_error("No primary storage provider has been set"));

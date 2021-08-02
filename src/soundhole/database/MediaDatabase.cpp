@@ -91,6 +91,7 @@ namespace sh {
 				if(this->db == nullptr) {
 					lock.unlock();
 					reject(std::runtime_error("database was unexpectedly closed"));
+					return;
 				}
 				auto exTx = std::move(tx);
 				exTx.setDB(this->db);
@@ -380,7 +381,7 @@ namespace sh {
 
 
 	
-	Promise<size_t> MediaDatabase::getSavedTracksCount(GetSavedTracksCountOptions options) {
+	Promise<size_t> MediaDatabase::getSavedTracksCount(GetSavedItemsCountOptions options) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
 			sql::selectSavedTrackCount(tx, "count", options.libraryProvider);
 		}).map(nullptr, [=](auto results) -> size_t {
@@ -417,7 +418,7 @@ namespace sh {
 
 	Promise<Json> MediaDatabase::getSavedTrackJson(String uri, String libraryProvider) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
-			sql::selectSavedTrack(tx, "items", uri, libraryProvider);
+			sql::selectSavedTrackWithTrack(tx, "items", uri);
 		}).map(nullptr, [=](auto results) -> Json {
 			auto rows = results["items"];
 			if(rows.size() == 0) {
@@ -448,7 +449,7 @@ namespace sh {
 
 
 
-	Promise<size_t> MediaDatabase::getSavedAlbumsCount(GetSavedAlbumsCountOptions options) {
+	Promise<size_t> MediaDatabase::getSavedAlbumsCount(GetSavedItemsCountOptions options) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
 			sql::selectSavedAlbumCount(tx, "count", options.libraryProvider);
 		}).map(nullptr, [=](auto results) -> size_t {
@@ -483,9 +484,9 @@ namespace sh {
 		});
 	}
 
-	Promise<Json> MediaDatabase::getSavedAlbumJson(String uri, String libraryProvider) {
+	Promise<Json> MediaDatabase::getSavedAlbumJson(String uri) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
-			sql::selectSavedAlbum(tx, "items", uri, libraryProvider);
+			sql::selectSavedAlbumWithAlbum(tx, "items", uri);
 		}).map(nullptr, [=](auto results) -> Json {
 			auto rows = results["items"];
 			if(rows.size() == 0) {
@@ -516,7 +517,7 @@ namespace sh {
 
 
 
-	Promise<size_t> MediaDatabase::getSavedPlaylistsCount(GetSavedPlaylistsCountOptions options) {
+	Promise<size_t> MediaDatabase::getSavedPlaylistsCount(GetSavedItemsCountOptions options) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
 			sql::selectSavedPlaylistCount(tx, "count", options.libraryProvider);
 		}).map(nullptr, [=](auto results) -> size_t {
@@ -551,9 +552,9 @@ namespace sh {
 		});
 	}
 
-	Promise<Json> MediaDatabase::getSavedPlaylistJson(String uri, String libraryProvider) {
+	Promise<Json> MediaDatabase::getSavedPlaylistJson(String uri) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
-			sql::selectSavedPlaylist(tx, "items", uri, libraryProvider);
+			sql::selectSavedPlaylistWithPlaylistAndOwner(tx, "items", uri);
 		}).map(nullptr, [=](auto results) -> Json {
 			auto rows = results["items"];
 			if(rows.size() == 0) {
@@ -569,6 +570,142 @@ namespace sh {
 			size_t i = 0;
 			for(auto& uri : uris) {
 				sql::selectSavedPlaylist(tx, std::to_string(i), uri);
+				i++;
+			}
+		}).map(nullptr, [=](auto results) {
+			ArrayList<bool> boolResults;
+			boolResults.reserve(uriCount);
+			for(size_t i=0; i<uriCount; i++) {
+				auto& list = results[std::to_string(i)];
+				boolResults.pushBack(list.size() > 0);
+			}
+			return boolResults;
+		});
+	}
+
+
+
+	Promise<size_t> MediaDatabase::getFollowedArtistsCount(GetSavedItemsCountOptions options) {
+		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
+			sql::selectFollowedArtistCount(tx, "count", options.libraryProvider);
+		}).map(nullptr, [=](auto results) -> size_t {
+			auto items = results["count"];
+			if(items.size() == 0) {
+				return (size_t)0;
+			}
+			return (size_t)items.front()["total"].number_value();
+		});
+	}
+
+	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getFollowedArtistsJson(GetFollowedArtistsJsonOptions options) {
+		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
+			sql::selectFollowedArtistCount(tx, "count");
+			sql::selectFollowedArtistsWithArtists(tx, "items", {
+				.libraryProvider = options.libraryProvider,
+				.range = options.range,
+				.order = options.order,
+				.orderBy = options.orderBy
+			});
+		}).map(nullptr, [=](auto results) -> GetJsonItemsListResult {
+			auto countItems = results["count"];
+			if(countItems.size() == 0) {
+				throw std::runtime_error("failed to get items count");
+			}
+			size_t total = (size_t)countItems.front()["total"].number_value();
+			auto rows = LinkedList<Json>(results["items"]);
+			return GetJsonItemsListResult{
+				.items=rows,
+				.total=total
+			};
+		});
+	}
+
+	Promise<Json> MediaDatabase::getFollowedArtistJson(String uri) {
+		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
+			sql::selectFollowedArtistWithArtist(tx, "items", uri);
+		}).map(nullptr, [=](auto results) -> Json {
+			auto rows = results["items"];
+			if(rows.size() == 0) {
+				return nullptr;
+			}
+			return rows.front();
+		});
+	}
+
+	Promise<ArrayList<bool>> MediaDatabase::hasFollowedArtists(ArrayList<String> uris) {
+		size_t uriCount = uris.size();
+		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
+			size_t i = 0;
+			for(auto& uri : uris) {
+				sql::selectFollowedArtist(tx, std::to_string(i), uri);
+				i++;
+			}
+		}).map(nullptr, [=](auto results) {
+			ArrayList<bool> boolResults;
+			boolResults.reserve(uriCount);
+			for(size_t i=0; i<uriCount; i++) {
+				auto& list = results[std::to_string(i)];
+				boolResults.pushBack(list.size() > 0);
+			}
+			return boolResults;
+		});
+	}
+
+
+
+	Promise<size_t> MediaDatabase::getFollowedUserAccountsCount(GetSavedItemsCountOptions options) {
+		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
+			sql::selectFollowedUserAccountCount(tx, "count", options.libraryProvider);
+		}).map(nullptr, [=](auto results) -> size_t {
+			auto items = results["count"];
+			if(items.size() == 0) {
+				return (size_t)0;
+			}
+			return (size_t)items.front()["total"].number_value();
+		});
+	}
+
+	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getFollowedUserAccountsJson(GetFollowedUserAccountsJsonOptions options) {
+		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
+			sql::selectFollowedUserAccountCount(tx, "count");
+			sql::selectFollowedUserAccountsWithUserAccounts(tx, "items", {
+				.libraryProvider = options.libraryProvider,
+				.range = options.range,
+				.order = options.order,
+				.orderBy = options.orderBy
+			});
+		}).map(nullptr, [=](auto results) -> GetJsonItemsListResult {
+			auto countItems = results["count"];
+			if(countItems.size() == 0) {
+				throw std::runtime_error("failed to get items count");
+			}
+			size_t total = (size_t)countItems.front()["total"].number_value();
+			auto rows = LinkedList<Json>(results["items"]);
+			return GetJsonItemsListResult{
+				.items=rows,
+				.total=total
+			};
+		});
+	}
+
+	Promise<Json> MediaDatabase::getFollowedUserAccountJson(String uri) {
+		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
+			sql::selectFollowedUserAccountWithUserAccount(tx, "items", uri);
+		}).map(nullptr, [=](auto results) -> Json {
+			auto rows = results["items"];
+			if(rows.size() == 0) {
+				return nullptr;
+			}
+			return rows.front();
+		});
+	}
+
+	Promise<ArrayList<bool>> MediaDatabase::hasFollowedUserAccounts(ArrayList<String> uris) {
+		size_t uriCount = uris.size();
+		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
+			size_t i = 0;
+			for(auto& uri : uris) {
+				sql::selectFollowedUserAccount(tx, std::to_string(i), uri);
 				i++;
 			}
 		}).map(nullptr, [=](auto results) {
@@ -680,21 +817,33 @@ namespace sh {
 
 
 
-	Promise<void> MediaDatabase::deleteSavedTrack(String uri, String libraryProvider) {
+	Promise<void> MediaDatabase::deleteSavedTrack(String uri) {
 		return transaction({}, [=](auto& tx) {
-			sql::deleteSavedTrack(tx, uri, libraryProvider);
+			sql::deleteSavedTrack(tx, uri);
 		}).toVoid();
 	}
 
-	Promise<void> MediaDatabase::deleteSavedAlbum(String uri, String libraryProvider) {
+	Promise<void> MediaDatabase::deleteSavedAlbum(String uri) {
 		return transaction({}, [=](auto& tx) {
-			sql::deleteSavedAlbum(tx, uri, libraryProvider);
+			sql::deleteSavedAlbum(tx, uri);
 		}).toVoid();
 	}
 
-	Promise<void> MediaDatabase::deleteSavedPlaylist(String uri, String libraryProvider) {
+	Promise<void> MediaDatabase::deleteSavedPlaylist(String uri) {
 		return transaction({}, [=](auto& tx) {
-			sql::deleteSavedPlaylist(tx, uri, libraryProvider);
+			sql::deleteSavedPlaylist(tx, uri);
+		}).toVoid();
+	}
+
+	Promise<void> MediaDatabase::deleteFollowedArtist(String uri) {
+		return transaction({}, [=](auto& tx) {
+			sql::deleteFollowedArtist(tx, uri);
+		}).toVoid();
+	}
+
+	Promise<void> MediaDatabase::deleteFollowedUserAccount(String uri) {
+		return transaction({}, [=](auto& tx) {
+			sql::deleteFollowedUserAccount(tx, uri);
 		}).toVoid();
 	}
 }

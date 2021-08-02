@@ -799,6 +799,10 @@ namespace sh {
 		return false;
 	}
 
+	bool YoutubeMediaProvider::handlesUsersAsArtists() const {
+		return true;
+	}
+
 	YoutubeMediaProvider::LibraryItemGenerator YoutubeMediaProvider::generateLibrary(GenerateLibraryOptions options) {
 		using YieldResult = typename LibraryItemGenerator::YieldResult;
 		return LibraryItemGenerator([=]() {
@@ -809,12 +813,24 @@ namespace sh {
 		});
 	}
 
+
+
+	#pragma mark Following / Unfollowing
+
+	bool YoutubeMediaProvider::canFollowArtists() const {
+		return false;
+	}
+
 	Promise<void> YoutubeMediaProvider::followArtist(String artistURI) {
 		return Promise<void>::reject(std::runtime_error("not implemented"));
 	}
 
 	Promise<void> YoutubeMediaProvider::unfollowArtist(String artistURI) {
 		return Promise<void>::reject(std::runtime_error("not implemented"));
+	}
+
+	bool YoutubeMediaProvider::canFollowUsers() const {
+		return false;
 	}
 
 	Promise<void> YoutubeMediaProvider::followUser(String userURI) {

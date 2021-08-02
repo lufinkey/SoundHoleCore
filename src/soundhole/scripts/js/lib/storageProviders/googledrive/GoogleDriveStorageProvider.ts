@@ -9,12 +9,13 @@ import { v1 as uuidv1 } from 'uuid';
 import StorageProvider, {
 	CreatePlaylistOptions,
 	createStorageProviderURI,
-	FollowedPlaylist,
+	FollowedItem,
+	FollowedItemRow,
 	GetPlaylistItemsOptions,
 	GetPlaylistOptions,
 	GetUserPlaylistsOptions,
 	MediaItemBuilder,
-	NewFollowedPlaylist,
+	NewFollowedItem,
 	parseStorageProviderURI,
 	Playlist,
 	PlaylistItem,
@@ -395,9 +396,7 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 				sheets: this._sheets
 			});
 		} else {
-			await this._libraryDB.instantiateIfNeeded({
-				folderId: baseFolderId
-			});
+			await this._libraryDB.instantiateIfNeeded();
 		}
 	}
 
@@ -892,12 +891,12 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 
 
 
-	async followPlaylists(playlists: NewFollowedPlaylist[]): Promise<FollowedPlaylist[]> {
+	async followPlaylists(playlists: NewFollowedItem[]): Promise<FollowedItem[]> {
 		await this._prepareForRequest();
 		if(!this._libraryDB) {
 			throw new Error("No library DB available");
 		}
-		return await this._libraryDB.addFollowedPlaylists(playlists.map((playlist): FollowedPlaylist => {
+		return await this._libraryDB.addFollowedPlaylists(playlists.map((playlist): FollowedItem => {
 			return {
 				uri: playlist.uri,
 				provider: playlist.provider,
@@ -920,5 +919,69 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 			throw new Error("No library DB available");
 		}
 		return this._libraryDB.checkFollowedPlaylists(uris);
+	}
+
+
+
+	async followUsers(users: NewFollowedItem[]): Promise<FollowedItemRow[]> {
+		await this._prepareForRequest();
+		if(!this._libraryDB) {
+			throw new Error("No library DB available");
+		}
+		return await this._libraryDB.addFollowedUsers(users.map((user): FollowedItem => {
+			return {
+				uri: user.uri,
+				provider: user.provider,
+				addedAt: (new Date()).getTime()
+			};
+		}));
+	}
+
+	async unfollowUsers(userURIs: string[]): Promise<void> {
+		await this._prepareForRequest();
+		if(!this._libraryDB) {
+			throw new Error("No library DB available");
+		}
+		await this._libraryDB.removeFollowedUsers(userURIs);
+	}
+
+	async checkFollowedUsers(uris: string[]): Promise<boolean[]> {
+		await this._prepareForRequest();
+		if(!this._libraryDB) {
+			throw new Error("No library DB available");
+		}
+		return this._libraryDB.checkFollowedUsers(uris);
+	}
+
+
+
+	async followArtists(artists: NewFollowedItem[]): Promise<FollowedItemRow[]> {
+		await this._prepareForRequest();
+		if(!this._libraryDB) {
+			throw new Error("No library DB available");
+		}
+		return await this._libraryDB.addFollowedArtists(artists.map((artist): FollowedItem => {
+			return {
+				uri: artist.uri,
+				provider: artist.provider,
+				addedAt: (new Date()).getTime()
+			};
+		}));
+	}
+
+	async unfollowArtists(artistURIs: string[]): Promise<void> {
+		await this._prepareForRequest();
+		if(!this._libraryDB) {
+			throw new Error("No library DB available");
+		}
+		await this._libraryDB.removeFollowedArtists(artistURIs);
+	}
+
+	async checkFollowedArtists(uris: string[]): Promise<boolean[]> {
+		await this._prepareForRequest();
+		if(!this._libraryDB) {
+			throw new Error("No library DB available");
+		}
+		return this._libraryDB.checkFollowedArtists(uris);
 	}
 }

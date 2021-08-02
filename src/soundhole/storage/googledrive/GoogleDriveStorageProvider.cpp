@@ -339,30 +339,6 @@ namespace sh {
 
 
 
-	#pragma mark Playlist Following / Unfollowing
-
-	Promise<void> GoogleDriveStorageProvider::followPlaylists(ArrayList<NewFollowedPlaylist> playlists) {
-		return performAsyncJSAPIFunc<void>("followPlaylists", [=](napi_env env) {
-			auto objs = Napi::Array::New(env);
-			for(auto& playlist : playlists) {
-				objs.Get("push").As<Napi::Function>().Call(objs, { playlist.toNapiObject(env) });
-			}
-			return std::vector<napi_value>{ objs };
-		}, nullptr);
-	}
-
-	Promise<void> GoogleDriveStorageProvider::unfollowPlaylists(ArrayList<String> playlistURIs) {
-		return performAsyncJSAPIFunc<void>("unfollowPlaylists", [=](napi_env env) {
-			auto objs = Napi::Array::New(env);
-			for(auto uri : playlistURIs) {
-				objs.Get("push").As<Napi::Function>().Call(objs, { uri.toNodeJSValue(env) });
-			}
-			return std::vector<napi_value>{ objs };
-		}, nullptr);
-	}
-
-
-
 	#pragma mark Playlist Library
 
 	GoogleDriveStorageProvider::UserPlaylistsGenerator GoogleDriveStorageProvider::getUserPlaylists(String userURI) {
@@ -565,6 +541,78 @@ namespace sh {
 				Napi::Number::New(env, (double)count),
 				Napi::Number::New(env, (double)insertBefore)
 			};
+		}, nullptr);
+	}
+
+
+
+	#pragma mark Playlist Following / Unfollowing
+
+	Promise<void> GoogleDriveStorageProvider::followPlaylists(ArrayList<NewFollowedItem> playlists) {
+		return performAsyncJSAPIFunc<void>("followPlaylists", [=](napi_env env) {
+			auto objs = Napi::Array::New(env);
+			for(auto& playlist : playlists) {
+				objs.Get("push").As<Napi::Function>().Call(objs, { playlist.toNapiObject(env) });
+			}
+			return std::vector<napi_value>{ objs };
+		}, nullptr);
+	}
+
+	Promise<void> GoogleDriveStorageProvider::unfollowPlaylists(ArrayList<String> playlistURIs) {
+		return performAsyncJSAPIFunc<void>("unfollowPlaylists", [=](napi_env env) {
+			auto objs = Napi::Array::New(env);
+			for(auto uri : playlistURIs) {
+				objs.Get("push").As<Napi::Function>().Call(objs, { uri.toNodeJSValue(env) });
+			}
+			return std::vector<napi_value>{ objs };
+		}, nullptr);
+	}
+
+
+
+	#pragma mark Artist Following / Unfollowing
+
+	Promise<void> GoogleDriveStorageProvider::followArtists(ArrayList<NewFollowedItem> artists) {
+		return performAsyncJSAPIFunc<void>("followArtists", [=](napi_env env) {
+			auto objs = Napi::Array::New(env);
+			for(auto& artist : artists) {
+				objs.Get("push").As<Napi::Function>().Call(objs, { artist.toNapiObject(env) });
+			}
+			return std::vector<napi_value>{ objs };
+		}, nullptr);
+	}
+
+	Promise<void> GoogleDriveStorageProvider::unfollowArtists(ArrayList<String> artistURIs) {
+		return performAsyncJSAPIFunc<void>("unfollowArtists", [=](napi_env env) {
+			auto objs = Napi::Array::New(env);
+			for(auto uri : artistURIs) {
+				objs.Get("push").As<Napi::Function>().Call(objs, { uri.toNodeJSValue(env) });
+			}
+			return std::vector<napi_value>{ objs };
+		}, nullptr);
+	}
+
+
+
+	#pragma mark User Following / Unfollowing
+
+	Promise<void> GoogleDriveStorageProvider::followUsers(ArrayList<NewFollowedItem> users) {
+		return performAsyncJSAPIFunc<void>("followUsers", [=](napi_env env) {
+			auto objs = Napi::Array::New(env);
+			for(auto& user : users) {
+				objs.Get("push").As<Napi::Function>().Call(objs, { user.toNapiObject(env) });
+			}
+			return std::vector<napi_value>{ objs };
+		}, nullptr);
+	}
+
+	Promise<void> GoogleDriveStorageProvider::unfollowUsers(ArrayList<String> userURIs) {
+		return performAsyncJSAPIFunc<void>("unfollowUsers", [=](napi_env env) {
+			auto objs = Napi::Array::New(env);
+			for(auto uri : userURIs) {
+				objs.Get("push").As<Napi::Function>().Call(objs, { uri.toNodeJSValue(env) });
+			}
+			return std::vector<napi_value>{ objs };
 		}, nullptr);
 	}
 }

@@ -130,4 +130,16 @@ Json transformDBSavedPlaylist(Json savedPlaylistJson, Json playlistJson, Json ow
 	return obj;
 }
 
+Json transformDBFollowedArtist(Json followedArtistJson, Json artistJson) {
+	auto obj = followedArtistJson.object_items();
+	obj["mediaItem"] = transformDBArtist(artistJson);
+	return obj;
+}
+
+Json transformDBFollowedUserAccount(Json followedUserAccountJson, Json userAccountJson) {
+	auto obj = followedUserAccountJson.object_items();
+	obj["mediaItem"] = transformDBUserAccount(userAccountJson);
+	return obj;
+}
+
 }

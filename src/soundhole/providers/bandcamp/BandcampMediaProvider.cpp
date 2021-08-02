@@ -1118,6 +1118,10 @@ namespace sh {
 
 
 
+	bool BandcampMediaProvider::canFollowArtists() const {
+		return true;
+	}
+
 	Promise<void> BandcampMediaProvider::followArtist(String artistURI) {
 		auto uriParts = parseURI(artistURI);
 		return bandcamp->followArtist(uriParts.url);
@@ -1126,6 +1130,10 @@ namespace sh {
 	Promise<void> BandcampMediaProvider::unfollowArtist(String artistURI) {
 		auto uriParts = parseURI(artistURI);
 		return bandcamp->unfollowArtist(uriParts.url);
+	}
+
+	bool BandcampMediaProvider::canFollowUsers() const {
+		return true;
 	}
 
 	Promise<void> BandcampMediaProvider::followUser(String userURI) {
@@ -1156,6 +1164,18 @@ namespace sh {
 	Promise<void> BandcampMediaProvider::unsaveAlbum(String albumURI) {
 		auto uriParts = parseURI(albumURI);
 		return bandcamp->unsaveItem(uriParts.url);
+	}
+
+	bool BandcampMediaProvider::canSavePlaylists() const {
+		return true;
+	}
+
+	Promise<void> BandcampMediaProvider::savePlaylist(String playlistURI) {
+		return Promise<void>::reject(std::logic_error("bandcamp does not have playlists"));
+	}
+
+	Promise<void> BandcampMediaProvider::unsavePlaylist(String playlistURI) {
+		return Promise<void>::reject(std::logic_error("bandcamp does not have playlists"));
 	}
 
 

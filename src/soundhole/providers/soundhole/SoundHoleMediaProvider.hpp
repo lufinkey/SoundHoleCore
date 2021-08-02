@@ -76,10 +76,14 @@ namespace sh {
 		virtual bool hasLibrary() const override;
 		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options = GenerateLibraryOptions()) override;
 		
+		virtual bool canFollowArtists() const override;
 		virtual Promise<void> followArtist(String artistURI) override;
+		virtual Promise<void> followArtist(String artistURI, MediaProvider* provider);
 		virtual Promise<void> unfollowArtist(String artistURI) override;
 		
+		virtual bool canFollowUsers() const override;
 		virtual Promise<void> followUser(String userURI) override;
+		virtual Promise<void> followUser(String userURI, MediaProvider* provider);
 		virtual Promise<void> unfollowUser(String userURI) override;
 		
 		virtual Promise<void> saveTrack(String trackURI) override;

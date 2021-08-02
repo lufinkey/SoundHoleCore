@@ -80,6 +80,7 @@ String artistTuple(LinkedList<Any>& params, $<Artist> artist, const TupleOptions
 struct FollowedArtist {
 	String artistURI;
 	String libraryProvider;
+	String addedAt;
 };
 ArrayList<String> followedArtistTupleColumns();
 String followedArtistTuple(LinkedList<Any>& params, const FollowedArtist& followedArtist);
@@ -90,13 +91,14 @@ String userAccountTuple(LinkedList<Any>& params, $<UserAccount> userAccount, con
 struct FollowedUserAccount {
 	String userURI;
 	String libraryProvider;
+	String addedAt;
 };
 ArrayList<String> followedUserAccountTupleColumns();
 String followedUserAccountTuple(LinkedList<Any>& params, const FollowedUserAccount& followedUser);
 
 struct SavedTrack {
 	String trackURI;
-	MediaProvider* libraryProvider;
+	String libraryProvider;
 	String addedAt;
 };
 ArrayList<String> savedTrackTupleColumns();
@@ -104,7 +106,7 @@ String savedTrackTuple(LinkedList<Any>& params, const SavedTrack& track);
 
 struct SavedAlbum {
 	String albumURI;
-	MediaProvider* libraryProvider;
+	String libraryProvider;
 	String addedAt;
 };
 ArrayList<String> savedAlbumTupleColumns();
@@ -112,7 +114,7 @@ String savedAlbumTuple(LinkedList<Any>& params, const SavedAlbum& album);
 
 struct SavedPlaylist {
 	String playlistURI;
-	MediaProvider* libraryProvider;
+	String libraryProvider;
 	String addedAt;
 };
 ArrayList<String> savedPlaylistTupleColumns();

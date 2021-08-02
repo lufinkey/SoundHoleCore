@@ -51,9 +51,11 @@ namespace sh {
 		virtual bool hasLibrary() const override;
 		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options = GenerateLibraryOptions()) override;
 		
+		virtual bool canFollowArtists() const override;
 		virtual Promise<void> followArtist(String artistURI) override;
 		virtual Promise<void> unfollowArtist(String artistURI) override;
 		
+		virtual bool canFollowUsers() const override;
 		virtual Promise<void> followUser(String userURI) override;
 		virtual Promise<void> unfollowUser(String userURI) override;
 		
@@ -61,6 +63,10 @@ namespace sh {
 		virtual Promise<void> unsaveTrack(String trackURI) override;
 		virtual Promise<void> saveAlbum(String albumURI) override;
 		virtual Promise<void> unsaveAlbum(String albumURI) override;
+		
+		virtual bool canSavePlaylists() const override;
+		Promise<void> savePlaylist(String playlistURI) override;
+		Promise<void> unsavePlaylist(String playlistURI) override;
 		
 		virtual MediaPlaybackProvider* player() override;
 		virtual const MediaPlaybackProvider* player() const override;

@@ -80,9 +80,11 @@ namespace sh {
 		};
 		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options = GenerateLibraryOptions()) override;
 		
+		virtual bool canFollowArtists() const override;
 		virtual Promise<void> followArtist(String artistURI) override;
 		virtual Promise<void> unfollowArtist(String artistURI) override;
 		
+		virtual bool canFollowUsers() const override;
 		virtual Promise<void> followUser(String userURI) override;
 		virtual Promise<void> unfollowUser(String userURI) override;
 		
@@ -90,6 +92,10 @@ namespace sh {
 		virtual Promise<void> unsaveTrack(String trackURI) override;
 		virtual Promise<void> saveAlbum(String albumURI) override;
 		virtual Promise<void> unsaveAlbum(String albumURI) override;
+		
+		virtual bool canSavePlaylists() const override;
+		virtual Promise<void> savePlaylist(String playlistURI) override;
+		virtual Promise<void> unsavePlaylist(String playlistURI) override;
 		
 		virtual BandcampPlaybackProvider* player() override;
 		virtual const BandcampPlaybackProvider* player() const override;

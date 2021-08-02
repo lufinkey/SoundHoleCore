@@ -10,6 +10,7 @@
 #include "MediaLibraryProxyProvider.hpp"
 #include <soundhole/providers/soundhole/SoundHoleMediaProvider.hpp>
 #include <soundhole/utils/Utils.hpp>
+#include <soundhole/utils/js/JSError.hpp>
 
 namespace sh {
 	MediaLibrary::MediaLibrary(Options options)
@@ -134,7 +135,6 @@ namespace sh {
 				}
 			}
 			co_yield {};
-			console::log("resuming after co_yield");
 			// sync provider library
 			auto libraryGenerator = libraryProvider->generateLibrary({.resumeData=syncResumeData});
 			while(true) {
@@ -183,8 +183,8 @@ namespace sh {
 						libraryItemIndex += 1;
 						// fetch tracks if item is a collection
 						if(auto collection = std::dynamic_pointer_cast<TrackCollection>(libraryItem.mediaItem)) {
-							auto existingCollection = co_await db->getTrackCollectionJson(collection->uri()).exceptReturn(Json());
-							auto existingVersionId = existingCollection["versionId"];
+							// check if version ID has changed
+							auto existingVersionId = (co_await db->getTrackCollectionJson(collection->uri()).exceptReturn(Json()))["versionId"];
 							if(existingVersionId.is_string() && collection->versionId() == existingVersionId.string_value()) {
 								continue;
 							}
@@ -540,19 +540,21 @@ namespace sh {
 
 	Promise<void> MediaLibrary::saveTrack($<Track> track) {
 		auto mediaProvider = track->mediaProvider();
-		auto dbPromise = db->getSavedTrackJson(track->uri(), mediaProvider->name());
 		auto date = DateTime();
+		auto dbPromise = db->getSavedTrackJson(track->uri(), mediaProvider->name());
+		auto dataPromise = track->fetchDataIfNeeded();
 		return mediaProvider->saveTrack(track->uri())
 		.then([=]() {
-			auto _dbPromise = dbPromise;
-			return _dbPromise.then([=](auto json) {
-				return db->cacheLibraryItems({
-					MediaProvider::LibraryItem{
-						.libraryProvider = mediaProvider,
-						.mediaItem = track,
-						.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
-					}
-				});
+			return dataPromise;
+		}).then([=]() {
+			return dbPromise;
+		}).then([=](auto json) {
+			return db->cacheLibraryItems({
+				MediaProvider::LibraryItem{
+					.libraryProvider = mediaProvider,
+					.mediaItem = track,
+					.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
+				}
 			});
 		});
 	}
@@ -561,7 +563,7 @@ namespace sh {
 		auto mediaProvider = track->mediaProvider();
 		return mediaProvider->unsaveTrack(track->uri())
 		.then([=]() {
-			return db->deleteSavedTrack(track->uri(), mediaProvider->name());
+			return db->deleteSavedTrack(track->uri());
 		});
 	}
 
@@ -573,19 +575,21 @@ namespace sh {
 
 	Promise<void> MediaLibrary::saveAlbum($<Album> album) {
 		auto mediaProvider = album->mediaProvider();
-		auto dbPromise = db->getSavedAlbumJson(album->uri(), mediaProvider->name());
 		auto date = DateTime();
+		auto dbPromise = db->getSavedAlbumJson(album->uri());
+		auto dataPromise = album->fetchDataIfNeeded();
 		return mediaProvider->saveAlbum(album->uri())
 		.then([=]() {
-			auto _dbPromise = dbPromise;
-			return _dbPromise.then([=](auto json) {
-				return db->cacheLibraryItems({
-					MediaProvider::LibraryItem{
-						.libraryProvider = mediaProvider,
-						.mediaItem = album,
-						.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
-					}
-				});
+			return dataPromise;
+		}).then([=]() {
+			return dbPromise;
+		}).then([=](auto json) {
+			return db->cacheLibraryItems({
+				MediaProvider::LibraryItem{
+					.libraryProvider = mediaProvider,
+					.mediaItem = album,
+					.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
+				}
 			});
 		});
 	}
@@ -594,7 +598,7 @@ namespace sh {
 		auto mediaProvider = album->mediaProvider();
 		return mediaProvider->unsaveAlbum(album->uri())
 		.then([=]() {
-			return db->deleteSavedAlbum(album->uri(), mediaProvider->name());
+			return db->deleteSavedAlbum(album->uri());
 		});
 	}
 
@@ -609,18 +613,20 @@ namespace sh {
 		auto date = DateTime();
 		if(mediaProvider->canSavePlaylists()) {
 			// save playlist through provider
-			auto dbPromise = db->getSavedPlaylistJson(playlist->uri(), mediaProvider->name());
+			auto dbPromise = db->getSavedPlaylistJson(playlist->uri());
+			auto dataPromise = playlist->fetchDataIfNeeded();
 			return mediaProvider->savePlaylist(playlist->uri())
 			.then([=]() {
-				auto _dbPromise = dbPromise;
-				return _dbPromise.then([=](auto json) {
-					return db->cacheLibraryItems({
-						MediaProvider::LibraryItem{
-							.libraryProvider = mediaProvider,
-							.mediaItem = playlist,
-							.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
-						}
-					});
+				return dataPromise;
+			}).then([=]() {
+				return dbPromise;
+			}).then([=](auto json) {
+				return db->cacheLibraryItems({
+					MediaProvider::LibraryItem{
+						.libraryProvider = mediaProvider,
+						.mediaItem = playlist,
+						.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
+					}
 				});
 			});
 		}
@@ -630,18 +636,20 @@ namespace sh {
 			if(soundholeProvider == nullptr || !soundholeProvider->isLoggedIn()) {
 				return Promise<void>::reject(std::invalid_argument(mediaProvider->name()+" provider cannot save playlists"));
 			}
-			auto dbPromise = db->getSavedPlaylistJson(playlist->uri(), mediaProvider->name());
+			auto dbPromise = db->getSavedPlaylistJson(playlist->uri());
+			auto dataPromise = playlist->fetchDataIfNeeded();
 			return soundholeProvider->savePlaylist(playlist->uri(), mediaProvider)
 			.then([=]() {
-				auto _dbPromise = dbPromise;
-				return _dbPromise.then([=](auto json) {
-					return db->cacheLibraryItems({
-						MediaProvider::LibraryItem{
-							.libraryProvider = mediaProvider,
-							.mediaItem = playlist,
-							.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
-						}
-					});
+				return dataPromise;
+			}).then([=]() {
+				return dbPromise;
+			}).then([=](auto json) {
+				return db->cacheLibraryItems({
+					MediaProvider::LibraryItem{
+						.libraryProvider = mediaProvider,
+						.mediaItem = playlist,
+						.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
+					}
 				});
 			});
 		}
@@ -649,13 +657,177 @@ namespace sh {
 
 	Promise<void> MediaLibrary::unsavePlaylist($<Playlist> playlist) {
 		auto mediaProvider = playlist->mediaProvider();
-		return mediaProvider->unsavePlaylist(playlist->uri())
-		.then([=]() {
-			return db->deleteSavedPlaylist(playlist->uri(), mediaProvider->name());
-		});
+		if(mediaProvider->canSavePlaylists()) {
+			// unsave playlist through provider
+			return mediaProvider->unsavePlaylist(playlist->uri())
+			.then([=]() {
+				return db->deleteSavedPlaylist(playlist->uri());
+			});
+		}
+		else {
+			// unsave playlist through soundhole
+			auto soundholeProvider = dynamic_cast<SoundHoleMediaProvider*>(mediaProviderStash->getMediaProvider(SoundHoleMediaProvider::NAME));
+			if(soundholeProvider == nullptr || !soundholeProvider->isLoggedIn()) {
+				return Promise<void>::reject(std::invalid_argument(mediaProvider->name()+" provider cannot save playlists"));
+			}
+			return soundholeProvider->unsavePlaylist(playlist->uri())
+			.then([=]() {
+				return db->deleteSavedPlaylist(playlist->uri());
+			});
+		}
 	}
 
 	Promise<ArrayList<bool>> MediaLibrary::hasSavedPlaylists(ArrayList<$<Playlist>> playlists) {
 		return db->hasSavedPlaylists(playlists.map([](auto playlist){return playlist->uri();}));
+	}
+
+
+
+	Promise<void> MediaLibrary::followArtist($<Artist> artist) {
+		auto mediaProvider = artist->mediaProvider();
+		auto date = DateTime();
+		if(mediaProvider->canFollowArtists()) {
+			// follow artist through provider
+			auto dbPromise = db->getFollowedArtistJson(artist->uri());
+			auto dataPromise = artist->fetchDataIfNeeded();
+			return mediaProvider->followArtist(artist->uri())
+			.then([=]() {
+				return dataPromise;
+			}).then([=]() {
+				return dbPromise;
+			}).then([=](auto json) {
+				return db->cacheLibraryItems({
+					MediaProvider::LibraryItem{
+						.libraryProvider = mediaProvider,
+						.mediaItem = artist,
+						.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
+					}
+				});
+			});
+		}
+		else {
+			// follow artist through soundhole
+			auto soundholeProvider = dynamic_cast<SoundHoleMediaProvider*>(mediaProviderStash->getMediaProvider(SoundHoleMediaProvider::NAME));
+			if(soundholeProvider == nullptr || !soundholeProvider->isLoggedIn()) {
+				return Promise<void>::reject(std::invalid_argument(mediaProvider->name()+" provider cannot follow artists"));
+			}
+			auto dbPromise = db->getFollowedArtistJson(artist->uri());
+			auto dataPromise = artist->fetchDataIfNeeded();
+			return soundholeProvider->followArtist(artist->uri())
+			.then([=]() {
+				return dataPromise;
+			}).then([=]() {
+				return dbPromise;
+			}).then([=](auto json) {
+				return db->cacheLibraryItems({
+					MediaProvider::LibraryItem{
+						.libraryProvider = mediaProvider,
+						.mediaItem = artist,
+						.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
+					}
+				});
+			});
+		}
+	}
+
+	Promise<void> MediaLibrary::unfollowArtist($<Artist> artist) {
+		auto mediaProvider = artist->mediaProvider();
+		if(mediaProvider->canSavePlaylists()) {
+			// unfollow artist through provider
+			return mediaProvider->unfollowArtist(artist->uri())
+			.then([=]() {
+				return db->deleteFollowedArtist(artist->uri());
+			});
+		}
+		else {
+			// unfollow artist through soundhole
+			auto soundholeProvider = dynamic_cast<SoundHoleMediaProvider*>(mediaProviderStash->getMediaProvider(SoundHoleMediaProvider::NAME));
+			if(soundholeProvider == nullptr || !soundholeProvider->isLoggedIn()) {
+				return Promise<void>::reject(std::invalid_argument(mediaProvider->name()+" provider cannot save playlists"));
+			}
+			return soundholeProvider->unfollowArtist(artist->uri())
+			.then([=]() {
+				return db->deleteFollowedArtist(artist->uri());
+			});
+		}
+	}
+
+	Promise<ArrayList<bool>> MediaLibrary::hasFollowedArtists(ArrayList<$<Artist>> artists) {
+		return db->hasFollowedArtists(artists.map([](auto artist){return artist->uri();}));
+	}
+
+
+
+	Promise<void> MediaLibrary::followUserAccount($<UserAccount> userAccount) {
+		auto mediaProvider = userAccount->mediaProvider();
+		auto date = DateTime();
+		if(mediaProvider->canFollowUsers()) {
+			// follow user through provider
+			auto dbPromise = db->getFollowedUserAccountJson(userAccount->uri());
+			auto dataPromise = userAccount->fetchDataIfNeeded();
+			return mediaProvider->followUser(userAccount->uri())
+			.then([=]() {
+				return dataPromise;
+			}).then([=]() {
+				return dbPromise;
+			}).then([=](auto json) {
+				return db->cacheLibraryItems({
+					MediaProvider::LibraryItem{
+						.libraryProvider = mediaProvider,
+						.mediaItem = userAccount,
+						.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
+					}
+				});
+			});
+		}
+		else {
+			// follow user through soundhole
+			auto soundholeProvider = dynamic_cast<SoundHoleMediaProvider*>(mediaProviderStash->getMediaProvider(SoundHoleMediaProvider::NAME));
+			if(soundholeProvider == nullptr || !soundholeProvider->isLoggedIn()) {
+				return Promise<void>::reject(std::invalid_argument(mediaProvider->name()+" provider cannot follow artists"));
+			}
+			auto dbPromise = db->getFollowedUserAccountJson(userAccount->uri());
+			auto dataPromise = userAccount->fetchDataIfNeeded();
+			return soundholeProvider->followUser(userAccount->uri())
+			.then([=]() {
+				return dataPromise;
+			}).then([=]() {
+				return dbPromise;
+			}).then([=](auto json) {
+				return db->cacheLibraryItems({
+					MediaProvider::LibraryItem{
+						.libraryProvider = mediaProvider,
+						.mediaItem = userAccount,
+						.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
+					}
+				});
+			});
+		}
+	}
+
+	Promise<void> MediaLibrary::unfollowUserAccount($<UserAccount> userAccount) {
+		auto mediaProvider = userAccount->mediaProvider();
+		if(mediaProvider->canFollowUsers()) {
+			// unfollow user through provider
+			return mediaProvider->unfollowUser(userAccount->uri())
+			.then([=]() {
+				return db->deleteFollowedUserAccount(userAccount->uri());
+			});
+		}
+		else {
+			// unfollow user through soundhole
+			auto soundholeProvider = dynamic_cast<SoundHoleMediaProvider*>(mediaProviderStash->getMediaProvider(SoundHoleMediaProvider::NAME));
+			if(soundholeProvider == nullptr || !soundholeProvider->isLoggedIn()) {
+				return Promise<void>::reject(std::invalid_argument(mediaProvider->name()+" provider cannot save playlists"));
+			}
+			return soundholeProvider->unfollowUser(userAccount->uri())
+			.then([=]() {
+				return db->deleteFollowedUserAccount(userAccount->uri());
+			});
+		}
+	}
+
+	Promise<ArrayList<bool>> MediaLibrary::hasFollowedUserAccounts(ArrayList<$<UserAccount>> userAccounts) {
+		return db->hasFollowedUserAccounts(userAccounts.map([](auto user){return user->uri();}));
 	}
 }

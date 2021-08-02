@@ -45,7 +45,7 @@ namespace sh {
 		};
 	}
 
-	Napi::Object StorageProvider::NewFollowedPlaylist::toNapiObject(napi_env env) const {
+	Napi::Object StorageProvider::NewFollowedItem::toNapiObject(napi_env env) const {
 		auto obj = Napi::Object::New(env);
 		obj.Set("uri", uri.toNodeJSValue(env));
 		obj.Set("provider", provider.toNodeJSValue(env));

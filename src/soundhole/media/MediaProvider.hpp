@@ -81,9 +81,13 @@ namespace sh {
 		};
 		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options = GenerateLibraryOptions()) = 0;
 		
+		virtual bool handlesUsersAsArtists() const;
+		
+		virtual bool canFollowArtists() const = 0;
 		virtual Promise<void> followArtist(String artistURI) = 0;
 		virtual Promise<void> unfollowArtist(String artistURI) = 0;
 		
+		virtual bool canFollowUsers() const = 0;
 		virtual Promise<void> followUser(String userURI) = 0;
 		virtual Promise<void> unfollowUser(String userURI) = 0;
 		
@@ -92,9 +96,9 @@ namespace sh {
 		virtual Promise<void> saveAlbum(String albumURI) = 0;
 		virtual Promise<void> unsaveAlbum(String albumURI) = 0;
 		
-		virtual bool canSavePlaylists() const;
-		virtual Promise<void> savePlaylist(String playlistURI);
-		virtual Promise<void> unsavePlaylist(String playlistURI);
+		virtual bool canSavePlaylists() const = 0;
+		virtual Promise<void> savePlaylist(String playlistURI) = 0;
+		virtual Promise<void> unsavePlaylist(String playlistURI) = 0;
 		
 		virtual bool canCreatePlaylists() const;
 		virtual ArrayList<Playlist::Privacy> supportedPlaylistPrivacies() const;

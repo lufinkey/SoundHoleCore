@@ -758,6 +758,10 @@ namespace sh {
 
 	#pragma mark User Library - Following / Unfollowing
 
+	bool SpotifyMediaProvider::canFollowArtists() const {
+		return true;
+	}
+
 	Promise<void> SpotifyMediaProvider::followArtist(String artistURI) {
 		auto uriParts = parseURI(artistURI);
 		return spotify->followArtists({ uriParts.id }).toVoid();
@@ -766,6 +770,10 @@ namespace sh {
 	Promise<void> SpotifyMediaProvider::unfollowArtist(String artistURI) {
 		auto uriParts = parseURI(artistURI);
 		return spotify->unfollowArtists({ uriParts.id }).toVoid();
+	}
+
+	bool SpotifyMediaProvider::canFollowUsers() const {
+		return true;
 	}
 
 	Promise<void> SpotifyMediaProvider::followUser(String userURI) {

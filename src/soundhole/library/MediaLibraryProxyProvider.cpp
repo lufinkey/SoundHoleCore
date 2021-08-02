@@ -119,12 +119,20 @@ namespace sh {
 		throw std::runtime_error("MediaLibraryProxyProvider cannot generate library");
 	}
 
+	bool MediaLibraryProxyProvider::canFollowArtists() const {
+		return true;
+	}
+
 	Promise<void> MediaLibraryProxyProvider::followArtist(String artistURI) {
 		return Promise<void>::reject(std::runtime_error("MediaLibraryProxyProvider cannot follow artists"));
 	}
 
 	Promise<void> MediaLibraryProxyProvider::unfollowArtist(String artistURI) {
 		return Promise<void>::reject(std::runtime_error("MediaLibraryProxyProvider cannot unfollow artists"));
+	}
+
+	bool MediaLibraryProxyProvider::canFollowUsers() const {
+		return true;
 	}
 
 	Promise<void> MediaLibraryProxyProvider::followUser(String userURI) {
@@ -149,6 +157,18 @@ namespace sh {
 
 	Promise<void> MediaLibraryProxyProvider::unsaveAlbum(String albumURI) {
 		return Promise<void>::reject(std::runtime_error("MediaLibraryProxyProvider cannot unsave tracks"));
+	}
+
+	bool MediaLibraryProxyProvider::canSavePlaylists() const {
+		return true;
+	}
+
+	Promise<void> MediaLibraryProxyProvider::savePlaylist(String playlistURI) {
+		return Promise<void>::reject(std::runtime_error("MediaLibraryProxyProvider cannot save playlists"));
+	}
+
+	Promise<void> MediaLibraryProxyProvider::unsavePlaylist(String playlistURI) {
+		return Promise<void>::reject(std::runtime_error("MediaLibraryProxyProvider cannot unsave playlists"));
 	}
 
 

@@ -150,15 +150,19 @@ export const createStorageProviderURI = (uriParts: URIParts, mediaItemBuilder: M
 
 
 
-export type NewFollowedPlaylist = {
+export type NewFollowedItem = {
 	uri: string
 	provider: string
 }
 
-export type FollowedPlaylist = {
+export type FollowedItem = {
 	uri: string
 	provider: string
 	addedAt: number
+}
+
+export type FollowedItemRow = FollowedItem & {
+	index: number
 }
 
 
@@ -180,6 +184,12 @@ export default interface StorageProvider {
 	deletePlaylistItems(playlistURI: string, itemIds: string[]): Promise<{indexes: number[]}>
 	movePlaylistItems(playlistURI: string, index: number, count: number, insertBefore: number): Promise<void>
 
-	followPlaylists(playlists: NewFollowedPlaylist[]): Promise<FollowedPlaylist[]>
+	followPlaylists(playlists: NewFollowedItem[]): Promise<FollowedItem[]>
 	unfollowPlaylists(playlistURIs: string[]): Promise<void>
+
+	followUsers(users: NewFollowedItem[]): Promise<FollowedItem[]>
+	unfollowUsers(userURIs: string[]): Promise<void>
+
+	followArtists(artists: NewFollowedItem[]): Promise<FollowedItem[]>
+	unfollowArtists(artistURIs: string[]): Promise<void>
 }

@@ -87,13 +87,6 @@ CREATE TABLE IF NOT EXISTS Artist (
 	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(uri)
 );
-CREATE TABLE IF NOT EXISTS FollowedArtist (
-	artistURI TEXT NOT NULL UNIQUE,
-	libraryProvider TEXT NOT NULL UNIQUE,
-	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY(artistURI, libraryProvider),
-	FOREIGN KEY(artistURI) REFERENCES Artist(uri)
-);
 CREATE TABLE IF NOT EXISTS UserAccount (
 	uri TEXT NOT NULL UNIQUE,
 	provider TEXT NOT NULL,
@@ -102,13 +95,6 @@ CREATE TABLE IF NOT EXISTS UserAccount (
 	images TEXT,
 	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(uri)
-);
-CREATE TABLE IF NOT EXISTS FollowedUserAccount (
-	userURI TEXT NOT NULL UNIQUE,
-	libraryProvider TEXT NOT NULL UNIQUE,
-	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY(userURI, libraryProvider),
-	FOREIGN KEY(userURI) REFERENCES UserAccount(uri)
 );
 CREATE TABLE IF NOT EXISTS TrackCollection (
 	uri TEXT NOT NULL UNIQUE,
@@ -191,6 +177,20 @@ CREATE TABLE IF NOT EXISTS SavedPlaylist (
 	PRIMARY KEY(playlistURI, libraryProvider),
 	FOREIGN KEY(playlistURI) REFERENCES TrackCollection(uri)
 );
+CREATE TABLE IF NOT EXISTS FollowedArtist (
+	artistURI TEXT NOT NULL UNIQUE,
+	libraryProvider TEXT NOT NULL UNIQUE,
+	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY(artistURI, libraryProvider),
+	FOREIGN KEY(artistURI) REFERENCES Artist(uri)
+);
+CREATE TABLE IF NOT EXISTS FollowedUserAccount (
+	userURI TEXT NOT NULL UNIQUE,
+	libraryProvider TEXT NOT NULL UNIQUE,
+	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY(userURI, libraryProvider),
+	FOREIGN KEY(userURI) REFERENCES UserAccount(uri)
+);
 CREATE TABLE IF NOT EXISTS DBState (
 	stateKey TEXT NOT NULL,
 	stateValue TEXT NOT NULL,
@@ -202,6 +202,8 @@ CREATE TABLE IF NOT EXISTS DBState (
 
 String purgeDB() {
 	return R"SQL(
+DROP TABLE IF EXISTS FollowedUserAccount;
+DROP TABLE IF EXISTS FollowedArtist;
 DROP TABLE IF EXISTS SavedPlaylist;
 DROP TABLE IF EXISTS SavedAlbum;
 DROP TABLE IF EXISTS SavedTrack;
@@ -210,9 +212,7 @@ DROP TABLE IF EXISTS TrackCollectionArtist;
 DROP TABLE IF EXISTS TrackCollectionItem;
 DROP TABLE IF EXISTS Track;
 DROP TABLE IF EXISTS TrackCollection;
-DROP TABLE IF EXISTS FollowedUserAccount;
 DROP TABLE IF EXISTS UserAccount;
-DROP TABLE IF EXISTS FollowedArtist;
 DROP TABLE IF EXISTS Artist;
 DROP TABLE IF EXISTS DBState;
 )SQL";
@@ -502,6 +502,8 @@ String followedArtistTuple(LinkedList<Any>& params, const FollowedArtist& follow
 		sqlParam(params, followedArtist.artistURI),",",
 		// libraryProvider
 		sqlParam(params, followedArtist.libraryProvider),",",
+		// addedAt
+		sqlParam(params, sqlStringOrNull(followedArtist.addedAt)),",",
 		// updateTime
 		"CURRENT_TIMESTAMP",
 	")" });
@@ -538,6 +540,8 @@ String followedUserAccountTuple(LinkedList<Any>& params, const FollowedUserAccou
 		sqlParam(params, followedUser.userURI),",",
 		// libraryProvider
 		sqlParam(params, followedUser.libraryProvider),",",
+		// addedAt
+		sqlParam(params, sqlStringOrNull(followedUser.addedAt)),",",
 		// updateTime
 		"CURRENT_TIMESTAMP",
 	")" });
@@ -553,7 +557,7 @@ String savedTrackTuple(LinkedList<Any>& params, const SavedTrack& track) {
 		// trackURI
 		sqlParam(params, track.trackURI),",",
 		// libraryProvider
-		sqlParam(params, track.libraryProvider->name()),",",
+		sqlParam(params, track.libraryProvider),",",
 		// addedAt
 		sqlParam(params, sqlStringOrNull(track.addedAt)),",",
 		// updateTime
@@ -569,7 +573,7 @@ String savedAlbumTuple(LinkedList<Any>& params, const SavedAlbum& album) {
 		// albumURI
 		sqlParam(params, album.albumURI),",",
 		// libraryProvider
-		sqlParam(params, album.libraryProvider->name()),",",
+		sqlParam(params, album.libraryProvider),",",
 		// addedAt
 		sqlParam(params, sqlStringOrNull(album.addedAt)),",",
 		// updateTime
@@ -585,7 +589,7 @@ String savedPlaylistTuple(LinkedList<Any>& params, const SavedPlaylist& playlist
 		// playlistURI
 		sqlParam(params, playlist.playlistURI),",",
 		// libraryProvider
-		sqlParam(params, playlist.libraryProvider->name()),",",
+		sqlParam(params, playlist.libraryProvider),",",
 		// addedAt
 		sqlParam(params, sqlStringOrNull(playlist.addedAt)),",",
 		// updateTime

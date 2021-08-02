@@ -188,9 +188,7 @@ export default class GoogleDrivePlaylist extends GoogleSheetsDBWrapper {
 		} catch(error) {
 			if(db.fileId != null) {
 				// try to destroy the db if we can
-				db.delete({permanent:true}).catch((error) => {
-					console.error(error);
-				});
+				this._deleteDBUntilSuccess(db);
 			}
 			throw error;
 		}
@@ -206,6 +204,23 @@ export default class GoogleDrivePlaylist extends GoogleSheetsDBWrapper {
 			file,
 			privacy
 		});
+	}
+
+
+
+	private static async _deleteDBUntilSuccess(db: GoogleSheetsDB) {
+		while(true) {
+			try {
+				await db.delete({permanent:true});
+				return;
+			} catch(error) {
+				console.error(error);
+			}
+			// try again after 5 seconds
+			await new Promise((resolve,reject) => {
+				setTimeout(resolve, 5);
+			});
+		}
 	}
 
 

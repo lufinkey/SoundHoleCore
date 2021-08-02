@@ -52,7 +52,7 @@ namespace sh {
 			virtual $<UserAccount> userAccount(const UserAccount::Data& data) = 0;
 		};
 		
-		struct NewFollowedPlaylist {
+		struct NewFollowedItem {
 			String uri;
 			String provider;
 			
@@ -69,12 +69,18 @@ namespace sh {
 		virtual Promise<void> deletePlaylist(String uri) = 0;
 		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist) = 0;
 		
-		virtual Promise<void> followPlaylists(ArrayList<NewFollowedPlaylist> playlists) = 0;
-		virtual Promise<void> unfollowPlaylists(ArrayList<String> playlistURIs) = 0;
-		
 		virtual UserPlaylistsGenerator getUserPlaylists(String userURI) = 0;
 		virtual UserPlaylistsGenerator getMyPlaylists() = 0;
 		
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) = 0;
+		
+		virtual Promise<void> followPlaylists(ArrayList<NewFollowedItem> playlists) = 0;
+		virtual Promise<void> unfollowPlaylists(ArrayList<String> playlistURIs) = 0;
+		
+		virtual Promise<void> followArtists(ArrayList<NewFollowedItem> artists) = 0;
+		virtual Promise<void> unfollowArtists(ArrayList<String> artistURIs) = 0;
+		
+		virtual Promise<void> followUsers(ArrayList<NewFollowedItem> users) = 0;
+		virtual Promise<void> unfollowUsers(ArrayList<String> userURIs) = 0;
 	};
 }
