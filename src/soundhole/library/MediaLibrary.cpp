@@ -110,8 +110,7 @@ namespace sh {
 				.text = "Waiting to sync "+libraryProvider->displayName()+" library"
 			}
 		};
-		return synchronizeQueue.runSingle(runOptions, [this,a1=libraryProvider](auto task) -> Generator<void> {
-			auto libraryProvider = a1;
+		return synchronizeQueue.runSingle(runOptions, coLambda([=](auto task) -> Generator<void> {
 			co_yield setGenResumeQueue(DispatchQueue::main());
 			if(!libraryProvider->isLoggedIn()) {
 				throw std::runtime_error(libraryProvider->displayName()+" provider is not logged in");
@@ -267,7 +266,7 @@ namespace sh {
 				.progress = 1.0,
 				.text = "Finished synchronizing "+libraryProvider->displayName()+" library"
 			});
-		});
+		}));
 	}
 
 	AsyncQueue::TaskNode MediaLibrary::synchronizeAllLibraries() {

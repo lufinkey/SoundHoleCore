@@ -233,7 +233,7 @@ namespace sh {
 			.cancelMatchingTags = true
 		};
 		w$<PlaybackOrganizer> weakSelf = shared_from_this();
-		return continuousPlayQueue.run(runOptions, [weakSelf](auto task) -> Generator<void> {
+		return continuousPlayQueue.run(runOptions, coLambda([=](auto task) -> Generator<void> {
 			auto self = weakSelf.lock();
 			if(!self) {
 				co_return;
@@ -255,7 +255,7 @@ namespace sh {
 				co_await self->options.delegate->onPlaybackOrganizerPrepareTrack(self, nextTrack);
 				self->preparedNext = true;
 			}
-		}).promise;
+		})).promise;
 	}
 	
 	Promise<void> PlaybackOrganizer::play($<QueueItem> item) {
@@ -627,8 +627,7 @@ namespace sh {
 			.cancelTags = { "prepare", "play" }
 		};
 		w$<PlaybackOrganizer> weakSelf = shared_from_this();
-		return continuousPlayQueue.run(runOptions, [weakSelf,a1=item](auto task) -> Generator<void> {
-			auto item = a1;
+		return continuousPlayQueue.run(runOptions, coLambda([=](auto task) -> Generator<void> {
 			auto self = weakSelf.lock();
 			if(!self) {
 				co_return;
@@ -707,7 +706,7 @@ namespace sh {
 					co_yield {};
 				}
 			}
-		}).promise;
+		})).promise;
 	}
 
 	void PlaybackOrganizer::updateMainContext($<TrackCollection> context, $<TrackCollectionItem> contextItem, bool shuffling) {

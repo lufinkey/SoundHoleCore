@@ -233,8 +233,7 @@ namespace sh {
 		// if queue was empty and we're not playing anything, attempt to play queued item
 		if(queueWasEmpty && !this->playingTrack && !playQueue.getTaskWithTag("play")) {
 			w$<Player> weakSelf = shared_from_this();
-			playQueue.run({.tag="play"}, [a1=weakSelf](auto task) -> Generator<void> {
-				auto weakSelf = a1;
+			playQueue.run({.tag="play"}, coLambda([=](auto task) -> Generator<void> {
 				co_yield setGenResumeQueue(DispatchQueue::main());
 				co_yield initialGenNext();
 				// wait till end of frame before trying
@@ -249,7 +248,7 @@ namespace sh {
 				}
 				auto queueItem = self->organizer->getQueueItem(0);
 				co_await self->organizer->play(queueItem);
-			}).promise.except([=](std::exception_ptr error) {
+			})).promise.except([=](std::exception_ptr error) {
 				// error
 				console::error("Error while player was auto-starting from queue: ", utils::getExceptionDetails(error).fullDescription);
 			});

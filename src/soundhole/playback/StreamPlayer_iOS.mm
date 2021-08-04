@@ -133,9 +133,7 @@ namespace sh {
 			.tag = "play",
 			.cancelMatchingTags = true
 		};
-		return playQueue.run(runOptions, [this,a1=audioURL,a2=options](auto task) -> Generator<void> {
-			auto audioURL = a1;
-			auto options = a2;
+		return playQueue.run(runOptions, coLambda([=](auto task) -> Generator<void> {
 			co_yield setGenResumeQueue(DispatchQueue::main());
 			co_yield initialGenNext();
 			if(playerAudioURL == audioURL) {
@@ -185,7 +183,7 @@ namespace sh {
 				});
 			}
 			[player play];
-		}).promise;
+		})).promise;
 	}
 
 	Promise<void> StreamPlayer::setPlaying(bool playing) {

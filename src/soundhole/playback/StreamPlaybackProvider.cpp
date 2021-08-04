@@ -32,8 +32,7 @@ namespace sh {
 			return Promise<void>::resolve();
 		}
 		lock.unlock();
-		return prepareQueue.run({.cancelAll=true}, [this,a1=track](auto task) -> Generator<void> {
-			auto track = a1;
+		return prepareQueue.run({.cancelAll=true}, coLambda([=](auto task) -> Generator<void> {
 			co_yield setGenResumeQueue(DispatchQueue::main());
 			co_yield initialGenNext();
 			co_await track->fetchDataIfNeeded();
@@ -46,13 +45,11 @@ namespace sh {
 				throw SoundHoleError(SoundHoleError::Code::STREAM_UNAVAILABLE, "Unable to find audio stream for track with uri "+track->uri()+" ("+track->name()+")");
 			}
 			co_await player->prepare(audioSource->url);
-		}).promise;
+		})).promise;
 	}
 
 	Promise<void> StreamPlaybackProvider::play($<Track> track, double position) {
-		return playQueue.run({.cancelAll=true}, [this,a1=track,a2=position](auto task) -> Generator<void> {
-			auto track = a1;
-			auto position = a2;
+		return playQueue.run({.cancelAll=true}, coLambda([=](auto task) -> Generator<void> {
 			co_yield setGenResumeQueue(DispatchQueue::main());
 			co_yield initialGenNext();
 			co_await track->fetchDataIfNeeded();
@@ -74,7 +71,7 @@ namespace sh {
 					callListenerEvent(&EventListener::onMediaPlaybackProviderMetadataChange, this);
 				}
 			});
-		}).promise;
+		})).promise;
 	}
 
 	Promise<void> StreamPlaybackProvider::setPlaying(bool playing) {

@@ -36,9 +36,7 @@ namespace sh {
 	Promise<void> SpotifyPlaybackProvider::play($<Track> track, double position) {
 		playQueue.cancelAllTasks();
 		setPlayingQueue.cancelAllTasks();
-		return playQueue.run([this,a1=track,a2=position](auto task) -> Generator<void> {
-			auto track = a1;
-			auto position = a2;
+		return playQueue.run(coLambda([=](auto task) -> Generator<void> {
 			co_yield setGenResumeQueue(DispatchQueue::main());
 			co_yield initialGenNext();
 			co_await track->fetchDataIfNeeded();
@@ -48,7 +46,7 @@ namespace sh {
 			});
 			co_yield {};
 			setPlayingUntilSuccess();
-		}).promise;
+		})).promise;
 	}
 
 	Promise<void> SpotifyPlaybackProvider::setPlaying(bool playing) {
@@ -99,7 +97,7 @@ namespace sh {
 
 
 	Promise<void> SpotifyPlaybackProvider::setPlayingUntilSuccess() {
-		return setPlayingQueue.run([this](auto task) -> Generator<void> {
+		return setPlayingQueue.run(coLambda([=](auto task) -> Generator<void> {
 			co_yield setGenResumeQueue(DispatchQueue::main());
 			co_yield initialGenNext();
 			while(true) {
@@ -127,7 +125,7 @@ namespace sh {
 				}
 				co_yield {};
 			}
-		}).promise;
+		})).promise;
 	}
 
 
