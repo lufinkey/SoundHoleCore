@@ -539,7 +539,7 @@ namespace sh {
 
 	Promise<void> MediaLibrary::saveTrack($<Track> track) {
 		auto mediaProvider = track->mediaProvider();
-		auto date = DateTime();
+		auto date = Date();
 		auto dbPromise = db->getSavedTrackJson(track->uri(), mediaProvider->name());
 		auto dataPromise = track->fetchDataIfNeeded();
 		return mediaProvider->saveTrack(track->uri())
@@ -574,7 +574,7 @@ namespace sh {
 
 	Promise<void> MediaLibrary::saveAlbum($<Album> album) {
 		auto mediaProvider = album->mediaProvider();
-		auto date = DateTime();
+		auto date = Date();
 		auto dbPromise = db->getSavedAlbumJson(album->uri());
 		auto dataPromise = album->fetchDataIfNeeded();
 		return mediaProvider->saveAlbum(album->uri())
@@ -609,7 +609,7 @@ namespace sh {
 
 	Promise<void> MediaLibrary::savePlaylist($<Playlist> playlist) {
 		auto mediaProvider = playlist->mediaProvider();
-		auto date = DateTime();
+		auto date = Date();
 		if(mediaProvider->canSavePlaylists()) {
 			// save playlist through provider
 			auto dbPromise = db->getSavedPlaylistJson(playlist->uri());
@@ -684,7 +684,7 @@ namespace sh {
 
 	Promise<void> MediaLibrary::followArtist($<Artist> artist) {
 		auto mediaProvider = artist->mediaProvider();
-		auto date = DateTime();
+		auto date = Date();
 		if(mediaProvider->canFollowArtists()) {
 			// follow artist through provider
 			auto dbPromise = db->getFollowedArtistJson(artist->uri());
@@ -770,7 +770,7 @@ namespace sh {
 				.description = std::nullopt
 			}));
 		}
-		auto date = DateTime();
+		auto date = Date();
 		if(mediaProvider->canFollowUsers()) {
 			// follow user through provider
 			auto dbPromise = db->getFollowedUserAccountJson(userAccount->uri());

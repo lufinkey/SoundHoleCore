@@ -47,7 +47,7 @@ namespace sh {
 
 
 	time_t SpotifyMediaProvider::timeFromString(String time) {
-		if(auto date = DateTime::fromGmtString(time, "%Y-%m-%dT%H:%M:%SZ")) {
+		if(auto date = Date::fromGmtString(time, "%Y-%m-%dT%H:%M:%SZ")) {
 			return date->toTimeType();
 		}
 		throw std::invalid_argument("Invalid date format");
@@ -572,7 +572,7 @@ namespace sh {
 			.offset = resumeData.syncLastItemOffset.value_or(0),
 			.resuming = (resumeData.syncLastItem.has_value() && resumeData.syncLastItemOffset.value_or(0) > 0)
 		});
-		auto createResumeData = Function<GenerateLibraryResumeData($<SharedData>)>([]($<SharedData> data) {
+		auto createResumeData = []($<SharedData> data) {
 			return GenerateLibraryResumeData{
 				.userId = data->userId,
 				.mostRecentTrackSave = data->mostRecentTrackSave,
@@ -582,25 +582,26 @@ namespace sh {
 				.syncLastItemOffset = data->syncLastItemOffset,
 				.syncLastItem = data->syncLastItem
 			};
-		});
+		};
 		
 		using YieldResult = typename LibraryItemGenerator::YieldResult;
-		return LibraryItemGenerator([=]() {
+		return LibraryItemGenerator([=]() -> Promise<YieldResult> {
 			return getIdentity().then([=](Optional<SpotifyUser> user) {
 				// verify spotify is logged in
 				if(!user) {
-					return Promise<YieldResult>::reject(SpotifyError(SpotifyError::Code::NOT_LOGGED_IN, "Spotify is not logged in"));
+					throw SpotifyError(SpotifyError::Code::NOT_LOGGED_IN, "Spotify is not logged in");
 				}
 				// if current user has changed, completely reset the sync data
 				if(sharedData->userId.empty() || sharedData->userId != user->id) {
 					*sharedData = SharedData();
 					sharedData->userId = user->id;
 				}
-				
 				size_t sectionCount = 3;
-				auto generateMediaItems = [=](Optional<time_t>* mostRecentSave, Function<Promise<SpotifyPage<LibraryItem>>()> fetcher) {
+				
+				// fetches the next set of media items from the api
+				auto generateMediaItems = [=](Optional<time_t>* mostRecentSave, Function<Promise<SpotifyPage<LibraryItem>>()> fetcher) -> Promise<YieldResult> {
 					return fetcher().map([=](SpotifyPage<LibraryItem> page) -> YieldResult {
-						// check if sync is caught up
+						// check if sync is caught up to the last sync point and is able to move on to the next type
 						bool foundEndOfSync = false;
 						if(mostRecentSave != nullptr && *mostRecentSave) {
 							for(auto& item : page.items) {
@@ -611,7 +612,7 @@ namespace sh {
 								}
 							}
 						}
-						
+						// attempt to restore a previous sync state if we're able, by checking if the first item of this page matches the expected value
 						if(sharedData->resuming) {
 							sharedData->resuming = false;
 							if(!sharedData->attemptRestoreSync(page.items.first())) {
@@ -640,7 +641,7 @@ namespace sh {
 								};
 							}
 						}
-						
+						// if we're able and we're at the first item, save the most recent save time to the mostRecentSave pointer
 						if(mostRecentSave != nullptr) {
 							if(sharedData->offset == 0 && page.items.size() > 0) {
 								auto latestAddedAt = page.items.front().addedAt;
@@ -649,7 +650,7 @@ namespace sh {
 						} else {
 							sharedData->syncMostRecentSave = std::nullopt;
 						}
-						
+						// increment offset, save the last item of the page
 						sharedData->offset += page.items.size();
 						if(page.items.size() > 0) {
 							auto& lastItem = page.items.back();
@@ -749,7 +750,7 @@ namespace sh {
 						});
 					}
 				}
-				return Promise<YieldResult>::reject(std::runtime_error("invalid spotify sync section"));
+				throw std::runtime_error("invalid spotify sync section");
 			});
 		});
 	}

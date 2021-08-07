@@ -47,8 +47,8 @@ namespace sh {
 
 
 	time_t BandcampMediaProvider::timeFromString(String time) {
-		if(auto date = DateTime::fromGmtString(time, "%Y-%m-%dT%H:%M:%SZ")) {
-			return date->toTimeType();
+		if(auto date = Date::fromGmtString(time, "%Y-%m-%dT%H:%M:%S%.f%z")) {
+			return date->toTimeVal();
 		}
 		throw std::invalid_argument("Invalid date format");
 	}
@@ -714,7 +714,7 @@ namespace sh {
 			.type = GenerateLibraryResumeData::syncIndexFromType(resumeData.syncCurrentType).value_or(0),
 			.offset = resumeData.syncOffset
 		});
-		auto createResumeData = Function<GenerateLibraryResumeData($<SharedData>)>([]($<SharedData> data) {
+		auto createResumeData = []($<SharedData> data) {
 			return GenerateLibraryResumeData{
 				.fanId = data->fanId,
 				.mostRecentHiddenSave = data->mostRecentHiddenSave,
@@ -725,394 +725,353 @@ namespace sh {
 				.syncLastToken = data->lastToken,
 				.syncOffset = data->offset
 			};
-		});
+		};
 		
 		using YieldResult = typename LibraryItemGenerator::YieldResult;
-		return LibraryItemGenerator([=]() {
-			return bandcamp->getMyIdentities().then([=](Optional<BandcampIdentities> identities) {
-				// verify that bandcamp is logged in
-				if(!identities) {
-					if(!bandcamp->isLoggedIn()) {
-						return Promise<YieldResult>::reject(std::runtime_error("Bandcamp is not logged in"));
-					} else {
-						return Promise<YieldResult>::reject(std::runtime_error("Bandcamp is logged in, but does not have any identities"));
-					}
-				} else if(!identities->fan) {
-					return Promise<YieldResult>::reject(std::runtime_error("Bandcamp is logged in, but does not have a fan identity"));
-				}
-				// if current user has changed, completely reset the sync data
-				if(sharedData->fanId.empty() || sharedData->fanId != identities->fan->id) {
-					*sharedData = SharedData();
-					sharedData->fanId = identities->fan->id;
-					sharedData->fan = std::nullopt;
-				}
-				// fetch fan page data if needed
-				auto promise = Promise<void>::resolve();
-				if(!sharedData->fan) {
-					promise = promise.then([=]() {
-						return bandcamp->getFan(identities->fan->url).then([=](BandcampFan fan) {
-							sharedData->fan = fan;
-						});
-					});
-				}
-				
-				// dequeue pending library items function
-				auto dequeuePendingItems = Function<Promise<YieldResult>(bool)>([=](bool saveAlbumTracks) {
-					if(sharedData->pendingItems.size() == 0) {
-						return Promise<YieldResult>::resolve(YieldResult{
-							.value = GenerateLibraryResults{
-								.resumeData = createResumeData(sharedData).toJson(),
-								.items = {},
-								.progress = sharedData->pendingItemsProgress
-							},
-							.done = sharedData->pendingItemsFinishes
-						});
-					}
-					size_t maxItemsCount = 6;
-					size_t pendingItemCount = 0;
-					auto dequeuedItems = fgl::new$<LinkedList<LibraryItem>>();
-					auto dequeuedIts = LinkedList<LinkedList<LibraryItem>::iterator>();
-					auto promise = Promise<void>::resolve();
-					double progress = sharedData->pendingItemsProgress;
-					for(auto it=sharedData->pendingItems.begin(); it!=sharedData->pendingItems.end(); it++) {
-						auto libraryItem = *it;
-						dequeuedIts.pushBack(it);
-						dequeuedItems->pushBack(libraryItem);
-						pendingItemCount++;
-						// fetch missing item data if needed
-						if(libraryItem.mediaItem->needsData()) {
-							promise = promise.then([=]() {
-								// append album tracks if needed
-								if(auto collection = std::dynamic_pointer_cast<TrackCollection>(libraryItem.mediaItem); saveAlbumTracks) {
-									return libraryItem.mediaItem->fetchDataIfNeeded().then([=]() {
-										if(!collection->itemCount().hasValue()) {
-											throw std::runtime_error("bandcamp collection has no item count after fetching data");
-										}
-										for(size_t i=0; i<collection->itemCount().value(); i++) {
-											auto item = collection->itemAt(i);
-											if(!item) {
-												throw std::runtime_error("missing track "+std::to_string(i+1)+" for "+collection->type()+" "+collection->name()+" after fetching data");
-											}
-											dequeuedItems->pushBack(LibraryItem{
-												.libraryProvider = collection->mediaProvider(),
-												.mediaItem = item->track(),
-												.addedAt = libraryItem.addedAt
-											});
-										}
-									});
-								} else {
-									return libraryItem.mediaItem->fetchDataIfNeeded();
-								}
-							});
-						} else {
-							// append album tracks if needed
-							if(auto collection = std::dynamic_pointer_cast<TrackCollection>(libraryItem.mediaItem); saveAlbumTracks) {
-								if(!collection->itemCount().hasValue()) {
-									throw std::runtime_error("bandcamp collection has no item count");
-								}
-								for(size_t i=0; i<collection->itemCount().value(); i++) {
-									auto item = collection->itemAt(i);
-									if(!item) {
-										throw std::runtime_error("missing track "+std::to_string(i+1)+" for "+collection->type()+" "+collection->name());
-									}
-									dequeuedItems->pushBack(LibraryItem{
-										.libraryProvider = collection->mediaProvider(),
-										.mediaItem = item->track(),
-										.addedAt = libraryItem.addedAt
-									});
-								}
-							}
-						}
-						// increment progress
-						progress += sharedData->pendingItemProgressDiff;
-						// stop if we have enough items
-						if(pendingItemCount >= maxItemsCount || (saveAlbumTracks && std::dynamic_pointer_cast<TrackCollection>(libraryItem.mediaItem) != nullptr)) {
-							break;
-						}
-					}
-					bool dequeuedAll = (pendingItemCount >= sharedData->pendingItems.size());
-					return promise.map([=]() -> YieldResult {
-						// delete items from pendingItems
-						for(auto& it : dequeuedIts) {
-							sharedData->pendingItems.erase(it);
-						}
-						
-						// finish
-						if(dequeuedAll) {
-							bool done = sharedData->pendingItemsFinishes;
-							sharedData->pendingItemsType = 0;
-							sharedData->pendingItemsProgress = 0.0;
-							sharedData->pendingItemProgressDiff = 0.0;
-							sharedData->pendingItemsResumeData = Json();
-							sharedData->pendingItemsFinishes = false;
-							sharedData->pendingItems = {};
-							return YieldResult{
-								.value=GenerateLibraryResults{
-									.resumeData=createResumeData(sharedData).toJson(),
-									.items=*dequeuedItems,
-									.progress=progress
-								},
-								.done=done
-							};
-						} else {
-							sharedData->pendingItemsProgress = progress;
-							return YieldResult{
-								.value=GenerateLibraryResults{
-									.resumeData=sharedData->pendingItemsResumeData,
-									.items=*dequeuedItems,
-									.progress=progress
-								},
-								.done=false
-							};
-						}
-					});
-				});
-				
-				// generate library items
-				return promise.then([=]() {
-					// generate media items function
-					size_t sectionCount = 3;
-					auto generateSectionMediaItems = [=](const Optional<BandcampFan::Section<BandcampFan::CollectionItemNode>>& collection, Optional<time_t>* mostRecentSave, bool saveAlbumTracks, Function<Promise<BandcampFanSectionPage<BandcampFan::CollectionItemNode>>()> fetcher) -> Promise<YieldResult> {
-						// if we have pending items, dequeue them
-						if(sharedData->pendingItems.size() > 0) {
-							return dequeuePendingItems(saveAlbumTracks);
-						}
-						
-						// helper functions
-						auto checkIndexSectionCaughtUp = [](const LinkedList<LibraryItem>& items, Optional<time_t> mostRecentSave) -> Optional<size_t> {
-							if(!mostRecentSave) {
-								return std::nullopt;
-							}
-							size_t index = 0;
-							for(auto& item : items) {
-								time_t addedAt = item.addedAt.empty() ? 0 : timeFromString(item.addedAt);
-								if(addedAt < mostRecentSave.value()) {
-									return index;
-								}
-								index++;
-							}
-							return std::nullopt;
-						};
-						auto mapLibraryItems = [](BandcampMediaProvider* provider, const ArrayList<BandcampFan::CollectionItemNode>& items) -> LinkedList<LibraryItem> {
-							LinkedList<LibraryItem> libraryItems;
-							for(auto& item : items) {
-								if(auto track = item.trackItem()) {
-									libraryItems.pushBack(LibraryItem{
-										.libraryProvider = provider,
-										.mediaItem = provider->track(provider->createTrackData(track.value())),
-										.addedAt = item.dateAdded
-									});
-								} else if(auto album = item.albumItem()) {
-									libraryItems.pushBack(LibraryItem{
-										.libraryProvider = provider,
-										.mediaItem = provider->album(provider->createAlbumData(album.value())),
-										.addedAt = item.dateAdded
-									});
-								}
-							}
-							return libraryItems;
-						};
-						
-						if(!collection) {
-							// collection is empty, so move to next section
-							bool done = false;
-							*mostRecentSave = std::nullopt;
-							sharedData->type += 1;
-							sharedData->offset = 0;
-							double progress = (double)sharedData->type / (double)sectionCount;
-							if(sharedData->type >= sectionCount) {
-								sharedData->type = 0;
-								progress = 1.0;
-								done = true;
-							}
-							sharedData->lastToken = String();
-							sharedData->syncMostRecentSave = std::nullopt;
-							return Promise<YieldResult>::resolve(YieldResult{
-								.value=GenerateLibraryResults{
-									.resumeData = createResumeData(sharedData).toJson(),
-									.items = {},
-									.progress = progress
-								},
-								.done=done
-							});
-						}
-						// if we don't have a last token, get the items from the fan page and set the last token
-						if(sharedData->lastToken.empty()) {
-							// save old resume data and progress
-							auto oldResumeData = createResumeData(sharedData).toJson();
-							double oldSectionProgress = (double)sharedData->offset / (double)collection->itemCount;
-							if(oldSectionProgress > 1.0) {
-								oldSectionProgress = 1.0;
-							}
-							double oldProgress = ((double)sharedData->type + oldSectionProgress) / (double)sectionCount;
-							size_t oldType = sharedData->type;
-							// map items
-							auto items = mapLibraryItems(this, collection->items);
-							// update last token, offset, and initial item save
-							if(collection->items.size() > 0) {
-								sharedData->syncMostRecentSave = timeFromString(collection->items.front().dateAdded);
-							} else {
-								sharedData->syncMostRecentSave = std::nullopt;
-							}
-							sharedData->lastToken = collection->lastToken;
-							sharedData->offset += collection->items.size();
-							double sectionProgress = (double)sharedData->offset / (double)collection->itemCount;
-							if(sectionProgress > 1.0) {
-								sectionProgress = 1.0;
-							}
-							double progress = ((double)sharedData->type + sectionProgress) / (double)sectionCount;
-							// check if syncing is caught up or finished
-							bool done = false;
-							auto caughtUpIndex = checkIndexSectionCaughtUp(items, *mostRecentSave);
-							if(caughtUpIndex
-							   || collection->itemCount <= collection->items.size()) {
-								// trim items
-								if(caughtUpIndex) {
-									items = LinkedList<LibraryItem>(items.begin(), std::next(items.begin(),caughtUpIndex.value()));
-								}
-								// move to next section
-								*mostRecentSave = sharedData->syncMostRecentSave;
-								sharedData->type += 1;
-								progress = ((double)sharedData->type / (double)sectionCount);
-								if(sharedData->type >= sectionCount) {
-									sharedData->type = 0;
-									progress = 1.0;
-									done = true;
-								}
-								sharedData->offset = 0;
-								sharedData->lastToken = String();
-								sharedData->syncMostRecentSave = std::nullopt;
-							}
-							// if we don't have any items, return what we have
-							if(items.size() == 0) {
-								// return fan page items
-								return Promise<YieldResult>::resolve(YieldResult{
-									.value=GenerateLibraryResults{
-										.resumeData = createResumeData(sharedData).toJson(),
-										.items = items,
-										.progress = progress
-									},
-									.done=done
-								});
-							}
-							// set pending items
-							sharedData->pendingItems = items;
-							sharedData->pendingItemsType = oldType;
-							sharedData->pendingItemsProgress = oldProgress;
-							sharedData->pendingItemProgressDiff = (progress - oldProgress) / items.size();
-							sharedData->pendingItemsResumeData = oldResumeData;
-							sharedData->pendingItemsFinishes = done;
-							// dequeue pending items
-							return dequeuePendingItems(saveAlbumTracks);
-						}
-						// fetch items
-						return fetcher().then([=](BandcampFanSectionPage<BandcampFan::CollectionItemNode> page) {
-							// ensure we have a token for the next page
-							if(page.hasMore && page.lastToken.empty()) {
-								return Promise<YieldResult>::reject(std::runtime_error("missing lastToken for bandcamp library page"));
-							}
-							// save old resume data and progress
-							auto oldResumeData = createResumeData(sharedData).toJson();
-							double oldSectionProgress = (double)sharedData->offset / (double)collection->itemCount;
-							if(oldSectionProgress > 1.0) {
-								oldSectionProgress = 1.0;
-							}
-							double oldProgress = ((double)sharedData->type + oldSectionProgress) / (double)sectionCount;
-							size_t oldType = sharedData->type;
-							// map items and increment offset
-							auto items = mapLibraryItems(this, page.items);
-							sharedData->offset += items.size();
-							// check if sync is finished
-							bool done = false;
-							double sectionProgress = (double)sharedData->offset / (double)collection->itemCount;
-							if(sectionProgress > 1.0) {
-								sectionProgress = 1.0;
-							}
-							double progress = ((double)sharedData->type + sectionProgress) / (double)sectionCount;
-							auto caughtUpIndex = checkIndexSectionCaughtUp(items, *mostRecentSave);
-							if(caughtUpIndex || !page.hasMore || page.lastToken.empty()) {
-								// trim items
-								if(caughtUpIndex) {
-									items = LinkedList<LibraryItem>(items.begin(), std::next(items.begin(),caughtUpIndex.value()));
-								}
-								// move to next section
-								*mostRecentSave = sharedData->syncMostRecentSave;
-								sharedData->type += 1;
-								if(sharedData->type >= sectionCount) {
-									sharedData->type = 0;
-									progress = 1.0;
-									done = true;
-								} else {
-									progress = ((double)sharedData->type / sectionCount);
-								}
-								sharedData->offset = 0;
-								sharedData->lastToken = String();
-								sharedData->syncMostRecentSave = std::nullopt;
-							} else {
-								sharedData->lastToken = page.lastToken;
-							}
-							// if we don't have any items, return what we have
-							if(items.size() == 0) {
-								return Promise<YieldResult>::resolve(YieldResult{
-									.value=GenerateLibraryResults{
-										.resumeData = createResumeData(sharedData).toJson(),
-										.items = items,
-										.progress = progress
-									},
-									done = done
-								});
-							}
-							// set pending items
-							sharedData->pendingItems = items;
-							sharedData->pendingItemsType = oldType;
-							sharedData->pendingItemsProgress = oldProgress;
-							sharedData->pendingItemProgressDiff = (progress - oldProgress) / items.size();
-							sharedData->pendingItemsResumeData = oldResumeData;
-							sharedData->pendingItemsFinishes = done;
-							// dequeue pending items
-							return dequeuePendingItems(saveAlbumTracks);
-						});
+		return LibraryItemGenerator([=]() -> Promise<YieldResult> {
+			auto identities = co_await bandcamp->getMyIdentities();
+			// verify that bandcamp is logged in
+			if(!identities.fan) {
+				throw std::runtime_error("No fan identity available");
+			}
+			// if current user has changed, completely reset the sync data
+			if(sharedData->fanId.empty() || sharedData->fanId != identities.fan->id) {
+				*sharedData = SharedData();
+				sharedData->fanId = identities.fan->id;
+				sharedData->fan = std::nullopt;
+			}
+			// fetch fan page data if needed
+			if(!sharedData->fan) {
+				sharedData->fan = co_await bandcamp->getFan(identities.fan->url);
+			}
+			
+			// function that dequeues items from the api chunk, fetching data for each if needed
+			auto dequeuePendingItems = [=](bool saveAlbumTracks) -> Promise<YieldResult> {
+				if(sharedData->pendingItems.size() == 0) {
+					co_return YieldResult{
+						.value = GenerateLibraryResults{
+							.resumeData = createResumeData(sharedData).toJson(),
+							.items = {},
+							.progress = sharedData->pendingItemsProgress
+						},
+						.done = sharedData->pendingItemsFinishes
 					};
-					
-					// check section
-					size_t type = sharedData->type;
-					if(sharedData->pendingItems.size() > 0) {
-						type = sharedData->pendingItemsType;
+				}
+				size_t maxItemsCount = 6;
+				size_t pendingItemCount = 0;
+				auto dequeuedItems = LinkedList<LibraryItem>();
+				auto dequeuedIts = LinkedList<LinkedList<LibraryItem>::iterator>();
+				double progress = sharedData->pendingItemsProgress;
+				for(auto it=sharedData->pendingItems.begin(); it!=sharedData->pendingItems.end(); it++) {
+					auto& libraryItem = *it;
+					dequeuedIts.pushBack(it);
+					dequeuedItems.pushBack(libraryItem);
+					pendingItemCount++;
+					// fetch missing item data if needed
+					if(libraryItem.mediaItem->needsData()) {
+						co_await libraryItem.mediaItem->fetchDataIfNeeded();
 					}
-					switch(type) {
-						// hidden items
-						case 0: {
-							return generateSectionMediaItems(sharedData->fan->hiddenCollection, &sharedData->mostRecentHiddenSave, true, [=]() {
-								return bandcamp->getFanHiddenItems(sharedData->fan->url, sharedData->fanId, {
-									.olderThanToken = sharedData->lastToken,
-									.count = sharedData->fan->hiddenCollection->batchSize.valueOr(20)
-								});
-							});
+					// append album tracks if needed
+					if(auto collection = std::dynamic_pointer_cast<TrackCollection>(libraryItem.mediaItem); saveAlbumTracks) {
+						if(!collection->itemCount().hasValue()) {
+							throw std::runtime_error("bandcamp collection has no item count");
 						}
-						
-						// collection items
-						case 1: {
-							return generateSectionMediaItems(sharedData->fan->collection, &sharedData->mostRecentCollectionSave, true, [=]() {
-								return bandcamp->getFanCollectionItems(sharedData->fan->url, sharedData->fanId, {
-									.olderThanToken = sharedData->lastToken,
-									.count = sharedData->fan->collection->batchSize.valueOr(20)
-								});
-							});
-						}
-						
-						// wishlist items
-						case 2: {
-							return generateSectionMediaItems(sharedData->fan->wishlist, &sharedData->mostRecentWishlistSave, false, [=]() {
-								return bandcamp->getFanWishlistItems(sharedData->fan->url, sharedData->fanId, {
-									.olderThanToken = sharedData->lastToken,
-									.count = sharedData->fan->wishlist->batchSize.valueOr(20)
-								});
+						for(size_t i=0; i<collection->itemCount().value(); i++) {
+							auto item = collection->itemAt(i);
+							if(!item) {
+								throw std::runtime_error("missing track "+std::to_string(i+1)+" for "+collection->type()+" "+collection->name());
+							}
+							dequeuedItems.pushBack(LibraryItem{
+								.libraryProvider = collection->mediaProvider(),
+								.mediaItem = item->track(),
+								.addedAt = libraryItem.addedAt
 							});
 						}
 					}
-					return Promise<YieldResult>::reject(std::runtime_error("invalid bandcamp sync section"));
-				});
-			});
+					// increment progress
+					progress += sharedData->pendingItemProgressDiff;
+					// stop if we have enough items
+					if(pendingItemCount >= maxItemsCount || (saveAlbumTracks && std::dynamic_pointer_cast<TrackCollection>(libraryItem.mediaItem) != nullptr)) {
+						break;
+					}
+				}
+				bool dequeuedAll = (pendingItemCount >= sharedData->pendingItems.size());
+				// delete items from pendingItems
+				for(auto& it : dequeuedIts) {
+					sharedData->pendingItems.erase(it);
+				}
+				
+				// finish
+				if(dequeuedAll) {
+					bool done = sharedData->pendingItemsFinishes;
+					sharedData->pendingItemsType = 0;
+					sharedData->pendingItemsProgress = 0.0;
+					sharedData->pendingItemProgressDiff = 0.0;
+					sharedData->pendingItemsResumeData = Json();
+					sharedData->pendingItemsFinishes = false;
+					sharedData->pendingItems = {};
+					co_return YieldResult{
+						.value=GenerateLibraryResults{
+							.resumeData=createResumeData(sharedData).toJson(),
+							.items=dequeuedItems,
+							.progress=progress
+						},
+						.done=done
+					};
+				} else {
+					sharedData->pendingItemsProgress = progress;
+					co_return YieldResult{
+						.value=GenerateLibraryResults{
+							.resumeData=sharedData->pendingItemsResumeData,
+							.items=dequeuedItems,
+							.progress=progress
+						},
+						.done=false
+					};
+				}
+			};
+			// end dequeuePendingItems function
+			
+			// generate library items
+			size_t sectionCount = 3;
+			// function that generates a page of media items if needed and then dequeues them with dequeuePendingItems
+			auto generateSectionMediaItems = [=](const Optional<BandcampFan::Section<BandcampFan::CollectionItemNode>>& collection, Optional<time_t>* mostRecentSave, bool saveAlbumTracks, Function<Promise<BandcampFanSectionPage<BandcampFan::CollectionItemNode>>()> fetcher) -> Promise<YieldResult> {
+				// if we have pending items, dequeue them
+				if(sharedData->pendingItems.size() > 0) {
+					co_return co_await dequeuePendingItems(saveAlbumTracks);
+				}
+				
+				// function to check if the page catches this section up with the last sync time
+				auto checkIndexSectionCaughtUp = [](const LinkedList<LibraryItem>& items, Optional<time_t> mostRecentSave) -> Optional<size_t> {
+					if(!mostRecentSave) {
+						return std::nullopt;
+					}
+					size_t index = 0;
+					for(auto& item : items) {
+						time_t addedAt = item.addedAt.empty() ? 0 : timeFromString(item.addedAt);
+						if(addedAt < mostRecentSave.value()) {
+							return index;
+						}
+						index++;
+					}
+					return std::nullopt;
+				};
+				// function to map collection item nodes to library items
+				auto mapLibraryItems = [](BandcampMediaProvider* provider, const ArrayList<BandcampFan::CollectionItemNode>& items) -> LinkedList<LibraryItem> {
+					LinkedList<LibraryItem> libraryItems;
+					for(auto& item : items) {
+						if(auto track = item.trackItem()) {
+							libraryItems.pushBack(LibraryItem{
+								.libraryProvider = provider,
+								.mediaItem = provider->track(provider->createTrackData(track.value())),
+								.addedAt = item.dateAdded
+							});
+						} else if(auto album = item.albumItem()) {
+							libraryItems.pushBack(LibraryItem{
+								.libraryProvider = provider,
+								.mediaItem = provider->album(provider->createAlbumData(album.value())),
+								.addedAt = item.dateAdded
+							});
+						}
+					}
+					return libraryItems;
+				};
+				
+				if(!collection) {
+					// collection is empty, so move to next section
+					bool done = false;
+					*mostRecentSave = std::nullopt;
+					sharedData->type += 1;
+					sharedData->offset = 0;
+					double progress = (double)sharedData->type / (double)sectionCount;
+					if(sharedData->type >= sectionCount) {
+						sharedData->type = 0;
+						progress = 1.0;
+						done = true;
+					}
+					sharedData->lastToken = String();
+					sharedData->syncMostRecentSave = std::nullopt;
+					co_return YieldResult{
+						.value=GenerateLibraryResults{
+							.resumeData = createResumeData(sharedData).toJson(),
+							.items = {},
+							.progress = progress
+						},
+						.done=done
+					};
+				}
+				// if we don't have a last token, get the items from the fan page and set the last token
+				if(sharedData->lastToken.empty()) {
+					// save old resume data and progress
+					auto oldResumeData = createResumeData(sharedData).toJson();
+					double oldSectionProgress = (double)sharedData->offset / (double)collection->itemCount;
+					if(oldSectionProgress > 1.0) {
+						oldSectionProgress = 1.0;
+					}
+					double oldProgress = ((double)sharedData->type + oldSectionProgress) / (double)sectionCount;
+					size_t oldType = sharedData->type;
+					// map items
+					auto items = mapLibraryItems(this, collection->items);
+					// update last token, offset, and initial item save
+					if(collection->items.size() > 0) {
+						sharedData->syncMostRecentSave = timeFromString(collection->items.front().dateAdded);
+					} else {
+						sharedData->syncMostRecentSave = std::nullopt;
+					}
+					sharedData->lastToken = collection->lastToken;
+					sharedData->offset += collection->items.size();
+					double sectionProgress = (double)sharedData->offset / (double)collection->itemCount;
+					if(sectionProgress > 1.0) {
+						sectionProgress = 1.0;
+					}
+					double progress = ((double)sharedData->type + sectionProgress) / (double)sectionCount;
+					// check if syncing is caught up or finished
+					bool done = false;
+					auto caughtUpIndex = checkIndexSectionCaughtUp(items, *mostRecentSave);
+					if(caughtUpIndex
+					   || collection->itemCount <= collection->items.size()) {
+						// trim items
+						if(caughtUpIndex) {
+							items = LinkedList<LibraryItem>(items.begin(), std::next(items.begin(),caughtUpIndex.value()));
+						}
+						// move to next section
+						*mostRecentSave = sharedData->syncMostRecentSave;
+						sharedData->type += 1;
+						progress = ((double)sharedData->type / (double)sectionCount);
+						if(sharedData->type >= sectionCount) {
+							sharedData->type = 0;
+							progress = 1.0;
+							done = true;
+						}
+						sharedData->offset = 0;
+						sharedData->lastToken = String();
+						sharedData->syncMostRecentSave = std::nullopt;
+					}
+					// if we don't have any items, return what we have
+					if(items.size() == 0) {
+						// return fan page items
+						co_return YieldResult{
+							.value=GenerateLibraryResults{
+								.resumeData = createResumeData(sharedData).toJson(),
+								.items = items,
+								.progress = progress
+							},
+							.done=done
+						};
+					}
+					// set pending items
+					sharedData->pendingItems = items;
+					sharedData->pendingItemsType = oldType;
+					sharedData->pendingItemsProgress = oldProgress;
+					sharedData->pendingItemProgressDiff = (progress - oldProgress) / items.size();
+					sharedData->pendingItemsResumeData = oldResumeData;
+					sharedData->pendingItemsFinishes = done;
+					// dequeue pending items
+					co_return co_await dequeuePendingItems(saveAlbumTracks);
+				}
+				// fetch items
+				auto page = co_await fetcher();
+				// ensure we have a token for the next page
+				if(page.hasMore && page.lastToken.empty()) {
+					throw std::runtime_error("missing lastToken for bandcamp library page");
+				}
+				// save old resume data and progress
+				auto oldResumeData = createResumeData(sharedData).toJson();
+				double oldSectionProgress = (double)sharedData->offset / (double)collection->itemCount;
+				if(oldSectionProgress > 1.0) {
+					oldSectionProgress = 1.0;
+				}
+				double oldProgress = ((double)sharedData->type + oldSectionProgress) / (double)sectionCount;
+				size_t oldType = sharedData->type;
+				// map items and increment offset
+				auto items = mapLibraryItems(this, page.items);
+				sharedData->offset += items.size();
+				// check if sync is finished
+				bool done = false;
+				double sectionProgress = (double)sharedData->offset / (double)collection->itemCount;
+				if(sectionProgress > 1.0) {
+					sectionProgress = 1.0;
+				}
+				double progress = ((double)sharedData->type + sectionProgress) / (double)sectionCount;
+				auto caughtUpIndex = checkIndexSectionCaughtUp(items, *mostRecentSave);
+				if(caughtUpIndex || !page.hasMore || page.lastToken.empty()) {
+					// trim items
+					if(caughtUpIndex) {
+						items = LinkedList<LibraryItem>(items.begin(), std::next(items.begin(),caughtUpIndex.value()));
+					}
+					// move to next section
+					*mostRecentSave = sharedData->syncMostRecentSave;
+					sharedData->type += 1;
+					if(sharedData->type >= sectionCount) {
+						sharedData->type = 0;
+						progress = 1.0;
+						done = true;
+					} else {
+						progress = ((double)sharedData->type / sectionCount);
+					}
+					sharedData->offset = 0;
+					sharedData->lastToken = String();
+					sharedData->syncMostRecentSave = std::nullopt;
+				} else {
+					sharedData->lastToken = page.lastToken;
+				}
+				// if we don't have any items, return what we have
+				if(items.size() == 0) {
+					co_return YieldResult{
+						.value=GenerateLibraryResults{
+							.resumeData = createResumeData(sharedData).toJson(),
+							.items = items,
+							.progress = progress
+						},
+						done = done
+					};
+				}
+				// set pending items
+				sharedData->pendingItems = items;
+				sharedData->pendingItemsType = oldType;
+				sharedData->pendingItemsProgress = oldProgress;
+				sharedData->pendingItemProgressDiff = (progress - oldProgress) / items.size();
+				sharedData->pendingItemsResumeData = oldResumeData;
+				sharedData->pendingItemsFinishes = done;
+				// dequeue pending items
+				co_return co_await dequeuePendingItems(saveAlbumTracks);
+			};
+			// end generateSectionMediaItems function
+			
+			// check section
+			size_t type = sharedData->type;
+			if(sharedData->pendingItems.size() > 0) {
+				type = sharedData->pendingItemsType;
+			}
+			switch(type) {
+				// hidden items
+				case 0:
+					co_return co_await generateSectionMediaItems(sharedData->fan->hiddenCollection, &sharedData->mostRecentHiddenSave, true, [=]() {
+						return bandcamp->getFanHiddenItems(sharedData->fan->url, sharedData->fanId, {
+							.olderThanToken = sharedData->lastToken,
+							.count = sharedData->fan->hiddenCollection->batchSize.valueOr(20)
+						});
+					});
+				
+				// collection items
+				case 1:
+					co_return co_await generateSectionMediaItems(sharedData->fan->collection, &sharedData->mostRecentCollectionSave, true, [=]() {
+						return bandcamp->getFanCollectionItems(sharedData->fan->url, sharedData->fanId, {
+							.olderThanToken = sharedData->lastToken,
+							.count = sharedData->fan->collection->batchSize.valueOr(20)
+						});
+					});
+				
+				// wishlist items
+				case 2:
+					co_return co_await generateSectionMediaItems(sharedData->fan->wishlist, &sharedData->mostRecentWishlistSave, false, [=]() {
+						return bandcamp->getFanWishlistItems(sharedData->fan->url, sharedData->fanId, {
+							.olderThanToken = sharedData->lastToken,
+							.count = sharedData->fan->wishlist->batchSize.valueOr(20)
+						});
+					});
+			}
+			throw std::runtime_error("invalid bandcamp sync section");
 		});
 	}
 
