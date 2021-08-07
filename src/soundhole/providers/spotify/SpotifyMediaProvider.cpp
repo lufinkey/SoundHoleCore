@@ -48,7 +48,7 @@ namespace sh {
 
 	time_t SpotifyMediaProvider::timeFromString(String time) {
 		if(auto date = Date::fromGmtString(time, "%Y-%m-%dT%H:%M:%SZ")) {
-			return date->toTimeType();
+			return date->toTimeVal();
 		}
 		throw std::invalid_argument("Invalid date format");
 	}
