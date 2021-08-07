@@ -22,7 +22,7 @@
 		"google-sheets-db": "git+ssh://git@github.com:lufinkey/google-sheets-db.git",
 		"googleapis": "^77.0.0",
 		"uuid": "^8.3.2",
-		"ytdl-core": "^4.9.0"
+		"ytdl-core": "^4.9.1"
 	},
 	"devDependencies": {
 		"@babel/cli": "^7.14.5",
