@@ -354,14 +354,7 @@ export default class GoogleDrivePlaylist extends GoogleSheetsDBWrapper {
 
 
 	formatDate(date: Date): string {
-		// TODO change this to just return ISO string in the future
-		const fixedDate = new Date(Math.floor(date.getTime() / 1000) * 1000);
-		let dateString = fixedDate.toISOString();
-		const suffix = ".000Z";
-		if(dateString.endsWith(suffix)) {
-			dateString = dateString.substring(0,dateString.length-suffix.length)+'Z';
-		}
-		return dateString;
+		return date.toISOString();
 	}
 
 	_parsePlaylistItemTableRow(row: GSDBRow, tableInfo: GSDBTableInfo, index: number): PlaylistItem {
