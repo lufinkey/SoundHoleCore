@@ -49,6 +49,15 @@ namespace sh {
 
 
 
+	Date YoutubeMediaProvider::dateFromString(String time) {
+		return Date::fromGmtString(time, "%Y-%m-%dT%H:%M:%S%z")
+			.valueElse([]() -> Date {
+				throw std::runtime_error("invalid date format");
+			});
+	}
+
+
+
 	#pragma mark URI/URL parsing
 
 	YoutubeMediaProvider::URI YoutubeMediaProvider::parseURI(String uri) const {
@@ -57,9 +66,9 @@ namespace sh {
 			throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid youtube uri "+uri);
 		}
 		return URI{
-			.provider=name(),
-			.type=uriParts[1],
-			.id=uriParts[2]
+			.provider = name(),
+			.type = uriParts[1],
+			.id = uriParts[2]
 		};
 	}
 
@@ -83,9 +92,9 @@ namespace sh {
 				throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid youtube channel URL "+url);
 			}
 			return URI{
-				.provider=name(),
-				.type="channel",
-				.id=channelId
+				.provider = name(),
+				.type = "channel",
+				.id = channelId
 			};
 		}
 		String userStarter = "/user/";
@@ -102,9 +111,9 @@ namespace sh {
 				throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid youtube user URL "+url);
 			}
 			return URI{
-				.provider=name(),
-				.type="user",
-				.id=userId
+				.provider = name(),
+				.type = "user",
+				.id = userId
 			};
 		}
 		String videoStarter = "/v/";
@@ -121,9 +130,9 @@ namespace sh {
 				throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid youtube video URL "+url);
 			}
 			return URI{
-				.provider=name(),
-				.type="video",
-				.id=videoId
+				.provider = name(),
+				.type = "video",
+				.id = videoId
 			};
 		}
 		if(path.empty() || path == "/" || path == "/watch" || path == "/watch/") {
@@ -138,9 +147,9 @@ namespace sh {
 				throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid youtube video URL "+url);
 			}
 			return URI{
-				.provider=name(),
-				.type="video",
-				.id=videoId
+				.provider = name(),
+				.type = "video",
+				.id = videoId
 			};
 		}
 		if(path == "/playlist" || path=="/playlist") {
@@ -155,9 +164,9 @@ namespace sh {
 				throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid youtube playlist URL "+url);
 			}
 			return URI{
-				.provider=name(),
-				.type="playlist",
-				.id=playlistId
+				.provider = name(),
+				.type = "playlist",
+				.id = playlistId
 			};
 		}
 		throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid youtube media URL "+url);
@@ -223,41 +232,38 @@ namespace sh {
 		if(!isLoggedIn()) {
 			return Promise<Optional<YoutubeMediaProviderIdentity>>::resolve(std::nullopt);
 		}
-		return youtube->getMyChannels().map([=](YoutubePage<YoutubeChannel> channelPage) -> Optional<YoutubeMediaProviderIdentity> {
+		return youtube->getMyChannels().map([=](YoutubePage<YoutubeChannel> channelPage) {
 			return maybe(YoutubeMediaProviderIdentity{
 				.channels=channelPage.items
 			});
 		});
 	}
 
-	Promise<String> YoutubeMediaProvider::getLibraryPlaylistID() {
-		return getIdentity().then([=](auto identity) {
-			if(!identity) {
-				return Promise<String>::resolve(String());
-			}
-			if(!identity->libraryPlaylistId.empty()) {
-				return Promise<String>::resolve(identity->libraryPlaylistId);
-			}
-			return fetchLibraryPlaylistID().then([=](auto playlistId) {
-				if(playlistId.empty()) {
-					return Promise<String>::resolve(playlistId);
-				}
-				return getIdentity().then([=](auto identity) {
-					if(!identity) {
-						return String();
-					}
-					identity->libraryPlaylistId = playlistId;
-					this->storeIdentity(identity.value());
-					return playlistId;
-				});
-			});
-		});
+	Promise<String> YoutubeMediaProvider::getLibraryTracksPlaylistID() {
+		auto identity = co_await getIdentity();
+		if(!identity) {
+			co_return String();
+		}
+		if(!identity->libraryTracksPlaylistId.empty()) {
+			co_return identity->libraryTracksPlaylistId;
+		}
+		auto playlistId = co_await fetchLibraryTracksPlaylistID();
+		if(playlistId.empty()) {
+			co_return playlistId;
+		}
+		identity = co_await getIdentity();
+		if(!identity) {
+			co_return String();
+		}
+		identity->libraryTracksPlaylistId = playlistId;
+		this->storeIdentity(identity.value());
+		co_return playlistId;
 	}
 
-	Promise<String> YoutubeMediaProvider::fetchLibraryPlaylistID(String pageToken) {
+	Promise<String> YoutubeMediaProvider::fetchLibraryTracksPlaylistID(String pageToken) {
 		return youtube->getMyPlaylists({
-			.maxResults=50,
-			.pageToken=pageToken
+			.maxResults = 50,
+			.pageToken = pageToken
 		}).except([=](Error& error) {
 			auto retryAfter = error.getDetail("retryAfter").maybeAs<double>();
 			if(!retryAfter.hasValue()) {
@@ -266,8 +272,8 @@ namespace sh {
 			auto delayTime = std::chrono::milliseconds((long long)(retryAfter.value() * 1000));
 			return Promise<YoutubePage<YoutubePlaylist>>::delayed(delayTime, [=]() {
 				return youtube->getMyPlaylists({
-					.maxResults=50,
-					.pageToken=pageToken
+					.maxResults = 50,
+					.pageToken = pageToken
 				});
 			});
 		}).then([=](auto page) {
@@ -276,7 +282,7 @@ namespace sh {
 				return Promise<String>::resolve(playlist->id);
 			}
 			if(!page.nextPageToken.empty()) {
-				return fetchLibraryPlaylistID(page.nextPageToken);
+				return fetchLibraryTracksPlaylistID(page.nextPageToken);
 			}
 			// create playlist
 			return youtube->createPlaylist(this->libraryPlaylistName, {
@@ -306,33 +312,33 @@ namespace sh {
 
 	Track::Data YoutubeMediaProvider::createTrackData(YoutubeVideo video) {
 		return Track::Data{{
-			.partial=true,
-			.type="track",
-			.name=video.snippet.title,
-			.uri=createURI("video", video.id),
-			.images=video.snippet.thumbnails.map([&](auto image) -> MediaItem::Image {
+			.partial = true,
+			.type = "track",
+			.name = video.snippet.title,
+			.uri = createURI("video", video.id),
+			.images = video.snippet.thumbnails.map([&](auto image) -> MediaItem::Image {
 				return createImage(image);
 			})
 			},
-			.albumName="",
-			.albumURI="",
-			.artists=ArrayList<$<Artist>>{
+			.albumName = "",
+			.albumURI = "",
+			.artists = ArrayList<$<Artist>>{
 				this->artist(Artist::Data{{
-					.partial=true,
-					.type="artist",
-					.name=video.snippet.channelTitle,
-					.uri=createURI("channel", video.snippet.channelId),
-					.images=std::nullopt
+					.partial = true,
+					.type = "artist",
+					.name = video.snippet.channelTitle,
+					.uri = createURI("channel", video.snippet.channelId),
+					.images = std::nullopt
 					},
-					.description=std::nullopt
+					.description = std::nullopt
 				})
 			},
-			.tags=video.snippet.tags,
-			.discNumber=std::nullopt,
-			.trackNumber=std::nullopt,
-			.duration=std::nullopt,
-			.audioSources=std::nullopt,
-			.playable=true
+			.tags = video.snippet.tags,
+			.discNumber = std::nullopt,
+			.trackNumber = std::nullopt,
+			.duration = std::nullopt,
+			.audioSources = std::nullopt,
+			.playable = true
 		};
 	}
 
@@ -343,11 +349,11 @@ namespace sh {
 			throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "ytdl response is missing crucial video information");
 		}
 		return Track::Data{{
-			.partial=false,
-			.type="track",
-			.name=title,
-			.uri=createURI("video", videoId),
-			.images=([&]() -> Optional<ArrayList<MediaItem::Image>> {
+			.partial = false,
+			.type = "track",
+			.name = title,
+			.uri = createURI("video", videoId),
+			.images = ([&]() -> Optional<ArrayList<MediaItem::Image>> {
 				auto images = video.playerResponse.videoDetails.thumbnail.thumbnails.map([&](auto image) -> MediaItem::Image {
 					auto dimensions = MediaItem::Image::Dimensions{
 						.width=image.width,
@@ -369,17 +375,17 @@ namespace sh {
 				return images;
 			})(),
 			},
-			.albumName="",
-			.albumURI="",
-			.artists=([&]() {
+			.albumName = "",
+			.albumURI = "",
+			.artists = ([&]() {
 				ArrayList<$<Artist>> artists;
 				if(video.author && !video.author->id.empty()) {
 					artists.pushBack(this->artist(Artist::Data{{
-						.partial=true,
-						.type="artist",
-						.name=video.author->name,
-						.uri=createURI("channel", video.playerResponse.videoDetails.channelId),
-						.images=([&]() -> Optional<ArrayList<MediaItem::Image>> {
+						.partial = true,
+						.type = "artist",
+						.name = video.author->name,
+						.uri = createURI("channel", video.playerResponse.videoDetails.channelId),
+						.images = ([&]() -> Optional<ArrayList<MediaItem::Image>> {
 							if(video.author->avatar.empty()) {
 								return std::nullopt;
 							}
@@ -396,13 +402,13 @@ namespace sh {
 					}));
 				} else if(!video.playerResponse.videoDetails.channelId.empty()) {
 					artists.pushBack(this->artist(Artist::Data{{
-						.partial=true,
-						.type="artist",
-						.name=video.playerResponse.videoDetails.author,
-						.uri=createURI("channel", video.playerResponse.videoDetails.channelId),
-						.images=std::nullopt
+						.partial = true,
+						.type = "artist",
+						.name = video.playerResponse.videoDetails.author,
+						.uri = createURI("channel", video.playerResponse.videoDetails.channelId),
+						.images = std::nullopt
 						},
-						.description=std::nullopt
+						.description = std::nullopt
 					}));
 				}
 				if(video.media) {
@@ -420,25 +426,25 @@ namespace sh {
 					}
 					if(artistURI.empty() || !artists.containsWhere([&](auto& cmpArtist) { return (artistURI == cmpArtist->uri()); })) {
 						artists.pushBack(this->artist(Artist::Data{{
-							.partial=true,
-							.type="artist",
-							.name=video.playerResponse.videoDetails.author,
-							.uri=createURI("channel", video.playerResponse.videoDetails.channelId),
-							.images=std::nullopt
+							.partial = true,
+							.type = "artist",
+							.name = video.playerResponse.videoDetails.author,
+							.uri = createURI("channel", video.playerResponse.videoDetails.channelId),
+							.images = std::nullopt
 							},
-							.description=std::nullopt
+							.description = std::nullopt
 						}));
 					}
 				}
 				return artists;
 			})(),
-			.tags=video.playerResponse.videoDetails.keywords,
-			.discNumber=std::nullopt,
-			.trackNumber=std::nullopt,
-			.duration=maybeTry([&]() {
+			.tags = video.playerResponse.videoDetails.keywords,
+			.discNumber = std::nullopt,
+			.trackNumber = std::nullopt,
+			.duration = maybeTry([&]() {
 				return video.playerResponse.videoDetails.lengthSeconds.toArithmeticValue<double>();
 			}),
-			.audioSources=video.formats.where([&](auto& format) {
+			.audioSources = video.formats.where([&](auto& format) {
 				return format.audioBitrate.has_value();
 			}).map([&](auto& format) -> Track::AudioSource {
 				return Track::AudioSource{
@@ -460,15 +466,15 @@ namespace sh {
 
 	Artist::Data YoutubeMediaProvider::createArtistData(YoutubeChannel channel) {
 		return Artist::Data{{
-			.partial=false,
-			.type="artist",
-			.name=channel.snippet.title,
-			.uri=createURI("channel", channel.id),
-			.images=channel.snippet.thumbnails.map([&](auto image) -> MediaItem::Image {
+			.partial = false,
+			.type = "artist",
+			.name = channel.snippet.title,
+			.uri = createURI("channel", channel.id),
+			.images = channel.snippet.thumbnails.map([&](auto image) -> MediaItem::Image {
 				return createImage(image);
 			})
 			},
-			.description=channel.snippet.description
+			.description = channel.snippet.description
 		};
 	}
 
@@ -505,7 +511,7 @@ namespace sh {
 
 	PlaylistItem::Data YoutubeMediaProvider::createPlaylistItemData(YoutubePlaylistItem playlistItem) {
 		return PlaylistItem::Data{{
-			.track=this->track(Track::Data{{
+			.track = this->track(Track::Data{{
 				.partial = true,
 				.type = "track",
 				.name = playlistItem.snippet.title,
@@ -516,7 +522,7 @@ namespace sh {
 				},
 				.albumName = "",
 				.albumURI = "",
-				.artists=ArrayList<$<Artist>>{
+				.artists = ArrayList<$<Artist>>{
 					this->artist(Artist::Data{{
 						.partial = true,
 						.type = "artist",
@@ -561,8 +567,8 @@ namespace sh {
 
 	MediaItem::Image YoutubeMediaProvider::createImage(YoutubeImage image) {
 		return MediaItem::Image{
-			.url=image.url,
-			.size=([&]() {
+			.url = image.url,
+			.size = ([&]() {
 				switch (image.size) {
 					case YoutubeImage::Size::DEFAULT:
 						return MediaItem::Image::Size::TINY;
@@ -575,7 +581,7 @@ namespace sh {
 						return MediaItem::Image::Size::LARGE;
 				}
 			})(),
-			.dimensions=([&]() -> Optional<MediaItem::Image::Dimensions> {
+			.dimensions = ([&]() -> Optional<MediaItem::Image::Dimensions> {
 				if(!image.dimensions) {
 					return std::nullopt;
 				}
@@ -593,15 +599,15 @@ namespace sh {
 		});
 		if(searchResult.id.kind == "youtube#video") {
 			return this->track(Track::Data{{
-				.partial=true,
-				.type="track",
-				.name=searchResult.snippet.title,
-				.uri=createURI("video", searchResult.id.videoId.value()),
-				.images=images
+				.partial = true,
+				.type = "track",
+				.name = searchResult.snippet.title,
+				.uri = createURI("video", searchResult.id.videoId.value()),
+				.images = images
 				},
-				.albumName="",
-				.albumURI="",
-				.artists=ArrayList<$<Artist>>{
+				.albumName = "",
+				.albumURI = "",
+				.artists = ArrayList<$<Artist>>{
 					this->artist(Artist::Data{{
 						.partial=true,
 						.type="artist",
@@ -612,43 +618,43 @@ namespace sh {
 						.description=std::nullopt
 					})
 				},
-				.tags=std::nullopt,
-				.discNumber=std::nullopt,
-				.trackNumber=std::nullopt,
-				.duration=std::nullopt,
-				.audioSources=std::nullopt,
-				.playable=true
+				.tags = std::nullopt,
+				.discNumber = std::nullopt,
+				.trackNumber = std::nullopt,
+				.duration = std::nullopt,
+				.audioSources = std::nullopt,
+				.playable = true
 			});
 		} else if(searchResult.id.kind == "youtube#channel") {
 			return this->artist(Artist::Data{{
-				.partial=true,
-				.type="artist",
-				.name=searchResult.snippet.title,
-				.uri=createURI("channel", searchResult.id.channelId.value()),
-				.images=images
+				.partial = true,
+				.type = "artist",
+				.name = searchResult.snippet.title,
+				.uri = createURI("channel", searchResult.id.channelId.value()),
+				.images = images
 				},
-				.description=searchResult.snippet.description
+				.description = searchResult.snippet.description
 			});
 		} else if(searchResult.id.kind == "youtube#playlist") {
 			return this->playlist(Playlist::Data{{{
-				.partial=true,
-				.type="playlist",
-				.name=searchResult.snippet.title,
-				.uri=createURI("playlist", searchResult.id.playlistId.value()),
-				.images=images
+				.partial = true,
+				.type = "playlist",
+				.name = searchResult.snippet.title,
+				.uri = createURI("playlist", searchResult.id.playlistId.value()),
+				.images = images
 				},
-				.versionId=searchResult.etag,
-				.itemCount=std::nullopt,
-				.items={}
+				.versionId = searchResult.etag,
+				.itemCount = std::nullopt,
+				.items = {}
 				},
-				.owner=this->userAccount(UserAccount::Data{
+				.owner = this->userAccount(UserAccount::Data{
 					.partial = true,
 					.type = "user",
 					.name = searchResult.snippet.channelTitle,
 					.uri = createURI("channel", searchResult.snippet.channelId),
 					.images = std::nullopt
 				}),
-				.privacy=std::nullopt
+				.privacy = std::nullopt
 			});
 		}
 		throw std::logic_error("Invalid youtube item kind "+searchResult.id.kind);
@@ -803,13 +809,150 @@ namespace sh {
 		return true;
 	}
 
+	YoutubeMediaProvider::GenerateLibraryResumeData YoutubeMediaProvider::GenerateLibraryResumeData::fromJson(const Json& json) {
+		auto mostRecentTrackSave = json["mostRecentTrackSave"];
+		auto syncMostRecentSave = json["syncMostRecentSave"];
+		auto resumeData = GenerateLibraryResumeData{
+			.tracksPlaylistId = json["tracksPlaylistId"].string_value(),
+			.mostRecentTrackSave = mostRecentTrackSave.is_number() ? maybe((size_t)mostRecentTrackSave.number_value()) : std::nullopt,
+			.syncCurrentType = json["syncCurrentType"].string_value(),
+			.syncMostRecentSave = syncMostRecentSave.is_number() ? maybe((size_t)syncMostRecentSave.number_value()) : std::nullopt,
+			.syncPageToken = json["syncPageToken"].string_value(),
+			.syncOffset = (size_t)json["syncOffset"].number_value()
+		};
+		bool syncTypeValid = ArrayList<String>{"tracks"}.contains(resumeData.syncCurrentType);
+		if(!resumeData.syncMostRecentSave.has_value() || resumeData.syncPageToken.empty() || !syncTypeValid) {
+			if(!syncTypeValid) {
+				resumeData.syncCurrentType = "tracks";
+			}
+			resumeData.syncMostRecentSave = std::nullopt;
+			resumeData.syncPageToken = String();
+			resumeData.syncOffset = 0;
+		}
+		return resumeData;
+	}
+
+	Json YoutubeMediaProvider::GenerateLibraryResumeData::toJson() const {
+		return Json::object{
+			{ "tracksPlaylistId", tracksPlaylistId },
+			{ "mostRecentTrackSave", mostRecentTrackSave ? Json((double)mostRecentTrackSave.value()) : Json() },
+			{ "syncCurrentType", syncCurrentType },
+			{ "syncMostRecentSave", syncMostRecentSave ? Json((double)syncMostRecentSave.value()) : Json() },
+			{ "syncPageToken", syncPageToken },
+			{ "syncOffset", (double)syncOffset }
+		};
+	}
+
 	YoutubeMediaProvider::LibraryItemGenerator YoutubeMediaProvider::generateLibrary(GenerateLibraryOptions options) {
+		struct SharedData {
+			GenerateLibraryResumeData resumeData;
+			bool resuming;
+		};
+		auto sharedData = fgl::new$<SharedData>(SharedData{
+			.resumeData = GenerateLibraryResumeData::fromJson(options.resumeData),
+			.resuming = true
+		});
+		auto types = ArrayList<String>{ "tracks" };
+		if(sharedData->resumeData.syncCurrentType.empty() || !types.contains(sharedData->resumeData.syncCurrentType)) {
+			sharedData->resumeData.syncCurrentType = "tracks";
+			sharedData->resumeData.syncPageToken = String();
+			sharedData->resumeData.syncOffset = 0;
+			sharedData->resumeData.syncMostRecentSave = std::nullopt;
+		}
 		using YieldResult = typename LibraryItemGenerator::YieldResult;
-		return LibraryItemGenerator([=]() {
-			// TODO implement YoutubeMediaProvider::generateLibrary
-			return Promise<YieldResult>::resolve(YieldResult{
-				.done=true
-			});
+		return LibraryItemGenerator([=]() -> Promise<YieldResult> {
+			if(!isLoggedIn()) {
+				throw std::runtime_error("not logged in");
+			}
+			// attempt to resume sync if needed
+			bool resuming = sharedData->resuming;
+			if(resuming) {
+				// ensure we have the correct tracks playlist, otherwise clear state and start over sync
+				auto tracksPlaylistId = co_await getLibraryTracksPlaylistID();
+				if(tracksPlaylistId != sharedData->resumeData.tracksPlaylistId) {
+					sharedData->resumeData.mostRecentTrackSave = std::nullopt;
+					if(sharedData->resumeData.syncCurrentType == "tracks") {
+						sharedData->resumeData.syncPageToken = String();
+						sharedData->resumeData.syncOffset = 0;
+						sharedData->resumeData.syncMostRecentSave = std::nullopt;
+					}
+					sharedData->resumeData.tracksPlaylistId = tracksPlaylistId;
+				}
+				sharedData->resuming = false;
+			}
+			// sync each type
+			if(sharedData->resumeData.syncCurrentType == "tracks") {
+				// get library tracks
+				auto mapLibraryItems = [=](const ArrayList<YoutubePlaylistItem>& items) {
+					return items.map([&](auto& item) {
+						auto playlistItem = createPlaylistItemData(item);
+						return LibraryItem{
+							.libraryProvider = this,
+							.mediaItem = playlistItem.track,
+							.addedAt = playlistItem.addedAt
+						};
+					});
+				};
+				// get next page
+				auto pageToken = sharedData->resumeData.syncPageToken;
+				YoutubePage<YoutubePlaylistItem> page;
+				// get current page
+				if(resuming) {
+					// use try-catch in case page token is no longer valid
+					try {
+						page = co_await youtube->getPlaylistItems(sharedData->resumeData.tracksPlaylistId, {
+							.maxResults = 50,
+							.pageToken = pageToken
+						});
+					}
+					catch(...) {
+						// reset current sync
+						sharedData->resumeData.syncPageToken = String();
+						sharedData->resumeData.syncMostRecentSave = std::nullopt;
+						co_return YieldResult{
+							.value = GenerateLibraryResults{
+								.resumeData = sharedData->resumeData.toJson(),
+								.items = {},
+								.progress = 0
+							},
+							.done = false
+						};
+					}
+				} else {
+					// get api page
+					page = co_await youtube->getPlaylistItems(sharedData->resumeData.tracksPlaylistId, {
+						.maxResults = 50,
+						.pageToken = pageToken
+					});
+				}
+				// map items
+				auto items = mapLibraryItems(page.items);
+				sharedData->resumeData.syncOffset += items.size();
+				size_t syncOffset = sharedData->resumeData.syncOffset;
+				// update resume data
+				bool done = page.nextPageToken.empty();
+				if(done) {
+					sharedData->resumeData.syncPageToken = page.nextPageToken;
+					sharedData->resumeData.syncOffset = 0;
+					if(sharedData->resumeData.syncMostRecentSave) {
+						sharedData->resumeData.mostRecentTrackSave = sharedData->resumeData.syncMostRecentSave;
+					}
+				} else {
+					sharedData->resumeData.syncPageToken = page.nextPageToken;
+					if(pageToken.empty()) {
+						sharedData->resumeData.syncMostRecentSave = dateFromString(page.items.front().snippet.publishedAt).toTimeVal();
+					}
+				}
+				co_return YieldResult{
+					.value = GenerateLibraryResults{
+						.resumeData = sharedData->resumeData.toJson(),
+						.items = items,
+						.progress = done ? (1.0) : (size_t)std::min(1.0, (double)syncOffset / (double)page.pageInfo.totalResults)
+					},
+					.done = done
+				};
+			}
+			throw std::runtime_error("invalid sync type "+sharedData->resumeData.syncCurrentType);
 		});
 	}
 
@@ -843,7 +986,7 @@ namespace sh {
 
 	Promise<void> YoutubeMediaProvider::saveTrack(String trackURI) {
 		auto uriParts = parseURI(trackURI);
-		return getLibraryPlaylistID().then([=](auto libraryPlaylistId) {
+		return getLibraryTracksPlaylistID().then([=](auto libraryPlaylistId) {
 			if(libraryPlaylistId.empty()) {
 				throw std::runtime_error("No library playlist available");
 			}
@@ -865,7 +1008,7 @@ namespace sh {
 
 	Promise<void> YoutubeMediaProvider::unsaveTrack(String trackURI) {
 		auto uriParts = parseURI(trackURI);
-		return getLibraryPlaylistID().then([=](auto libraryPlaylistId) {
+		return getLibraryTracksPlaylistID().then([=](auto libraryPlaylistId) {
 			if(libraryPlaylistId.empty()) {
 				throw std::runtime_error("No library playlist available");
 			}
@@ -975,7 +1118,7 @@ namespace sh {
 		}
 		return YoutubeMediaProviderIdentity{
 			.channels = channels,
-			.libraryPlaylistId = json["libraryPlaylistId"].string_value()
+			.libraryTracksPlaylistId = json["libraryTracksPlaylistId"].string_value()
 		};
 	}
 
@@ -984,7 +1127,7 @@ namespace sh {
 			{ "channels", channels.map([](auto& channel) -> Json {
 				return channel.toJson();
 			}) },
-			{ "libraryPlaylistId", (std::string)libraryPlaylistId }
+			{ "libraryTracksPlaylistId", (std::string)libraryTracksPlaylistId }
 		};
 	}
 }

@@ -17,7 +17,7 @@
 namespace sh {
 	struct YoutubeMediaProviderIdentity {
 		ArrayList<YoutubeChannel> channels;
-		String libraryPlaylistId;
+		String libraryTracksPlaylistId;
 		
 		Json toJson() const;
 		static YoutubeMediaProviderIdentity fromJson(const Json&);
@@ -68,6 +68,19 @@ namespace sh {
 		
 		virtual bool hasLibrary() const override;
 		virtual bool handlesUsersAsArtists() const override;
+		struct GenerateLibraryResumeData {
+			String tracksPlaylistId;
+			Optional<time_t> mostRecentTrackSave;
+			
+			String syncCurrentType;
+			Optional<time_t> syncMostRecentSave;
+			String syncPageToken;
+			size_t syncOffset;
+			
+			Json toJson() const;
+			
+			static GenerateLibraryResumeData fromJson(const Json&);
+		};
 		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options = GenerateLibraryOptions()) override;
 		
 		virtual bool canFollowArtists() const override;
@@ -115,10 +128,12 @@ namespace sh {
 		virtual Promise<Optional<YoutubeMediaProviderIdentity>> fetchIdentity() override;
 		virtual String getIdentityFilePath() const override;
 		
-		Promise<String> getLibraryPlaylistID();
-		Promise<String> fetchLibraryPlaylistID(String pageToken = String());
+		Promise<String> getLibraryTracksPlaylistID();
+		Promise<String> fetchLibraryTracksPlaylistID(String pageToken = String());
 		
 	private:
+		static Date dateFromString(String time);
+		
 		String createURI(String type, String id) const;
 		URI parseURL(String url) const;
 		
