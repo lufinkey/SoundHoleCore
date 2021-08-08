@@ -552,7 +552,7 @@ namespace sh {
 				MediaProvider::LibraryItem{
 					.libraryProvider = mediaProvider,
 					.mediaItem = track,
-					.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
+					.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
 				}
 			});
 		});
@@ -587,7 +587,7 @@ namespace sh {
 				MediaProvider::LibraryItem{
 					.libraryProvider = mediaProvider,
 					.mediaItem = album,
-					.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
+					.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
 				}
 			});
 		});
@@ -624,7 +624,7 @@ namespace sh {
 					MediaProvider::LibraryItem{
 						.libraryProvider = mediaProvider,
 						.mediaItem = playlist,
-						.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
+						.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
 					}
 				});
 			});
@@ -647,7 +647,7 @@ namespace sh {
 					MediaProvider::LibraryItem{
 						.libraryProvider = mediaProvider,
 						.mediaItem = playlist,
-						.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
+						.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
 					}
 				});
 			});
@@ -699,7 +699,7 @@ namespace sh {
 					MediaProvider::LibraryItem{
 						.libraryProvider = mediaProvider,
 						.mediaItem = artist,
-						.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
+						.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
 					}
 				});
 			});
@@ -722,7 +722,7 @@ namespace sh {
 					MediaProvider::LibraryItem{
 						.libraryProvider = mediaProvider,
 						.mediaItem = artist,
-						.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
+						.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
 					}
 				});
 			});
@@ -785,7 +785,7 @@ namespace sh {
 					MediaProvider::LibraryItem{
 						.libraryProvider = mediaProvider,
 						.mediaItem = userAccount,
-						.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
+						.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
 					}
 				});
 			});
@@ -808,7 +808,7 @@ namespace sh {
 					MediaProvider::LibraryItem{
 						.libraryProvider = mediaProvider,
 						.mediaItem = userAccount,
-						.addedAt = json.is_null() ? date.toISO8601String() : String(json["addedAt"].string_value())
+						.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
 					}
 				});
 			});
