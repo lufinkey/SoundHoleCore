@@ -887,7 +887,6 @@ namespace sh {
 					return items.map([&](auto& item) {
 						auto playlistItem = createPlaylistItemData(item);
 						return LibraryItem{
-							.libraryProvider = this,
 							.mediaItem = playlistItem.track,
 							.addedAt = playlistItem.addedAt
 						};

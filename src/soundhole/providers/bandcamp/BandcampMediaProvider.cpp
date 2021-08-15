@@ -782,7 +782,6 @@ namespace sh {
 								throw std::runtime_error("missing track "+std::to_string(i+1)+" for "+collection->type()+" "+collection->name());
 							}
 							dequeuedItems.pushBack(LibraryItem{
-								.libraryProvider = collection->mediaProvider(),
 								.mediaItem = item->track(),
 								.addedAt = libraryItem.addedAt
 							});
@@ -862,13 +861,11 @@ namespace sh {
 					for(auto& item : items) {
 						if(auto track = item.trackItem()) {
 							libraryItems.pushBack(LibraryItem{
-								.libraryProvider = provider,
 								.mediaItem = provider->track(provider->createTrackData(track.value())),
 								.addedAt = item.dateAdded
 							});
 						} else if(auto album = item.albumItem()) {
 							libraryItems.pushBack(LibraryItem{
-								.libraryProvider = provider,
 								.mediaItem = provider->album(provider->createAlbumData(album.value())),
 								.addedAt = item.dateAdded
 							});

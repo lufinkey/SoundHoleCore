@@ -255,12 +255,11 @@ namespace sh {
 				return Promise<YieldResult>::resolve({});
 			});
 		}
-		return primaryStorageProvider->getMyPlaylists().map([=](LoadBatch<$<Playlist>> page) -> GenerateLibraryResults {
+		return primaryStorageProvider->getMyPlaylists().map([=](LoadBatch<$<Playlist>> page) {
 			return GenerateLibraryResults{
 				.resumeData = Json(),
-				.items = page.items.map([=](auto& playlist) -> LibraryItem {
+				.items = page.items.map([=](auto& playlist) {
 					return LibraryItem{
-						.libraryProvider = this,
 						.mediaItem = playlist,
 						.addedAt = String()
 					};

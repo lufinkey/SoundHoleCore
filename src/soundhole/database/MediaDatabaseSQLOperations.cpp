@@ -365,7 +365,7 @@ void insertOrReplaceLibraryItems(SQLiteTransaction& tx, const ArrayList<MediaPro
 		if(auto track = std::dynamic_pointer_cast<Track>(item.mediaItem)) {
 			savedTrackTuples.pushBack(savedTrackTuple(savedTrackParams, {
 				.trackURI = track->uri(),
-				.libraryProvider = item.libraryProvider->name(),
+				.libraryProvider = track->mediaProvider()->name(),
 				.addedAt = item.addedAt
 			}));
 			addTrackTuples(track, trackTuples, true);
@@ -373,7 +373,7 @@ void insertOrReplaceLibraryItems(SQLiteTransaction& tx, const ArrayList<MediaPro
 		else if(auto album = std::dynamic_pointer_cast<Album>(item.mediaItem)) {
 			savedAlbumTuples.pushBack(savedAlbumTuple(savedAlbumParams, {
 				.albumURI = album->uri(),
-				.libraryProvider = item.libraryProvider->name(),
+				.libraryProvider = album->mediaProvider()->name(),
 				.addedAt = item.addedAt
 			}));
 			addTrackCollectionTuples(album, collectionTuples);
@@ -381,7 +381,7 @@ void insertOrReplaceLibraryItems(SQLiteTransaction& tx, const ArrayList<MediaPro
 		else if(auto playlist = std::dynamic_pointer_cast<Playlist>(item.mediaItem)) {
 			savedPlaylistTuples.pushBack(savedPlaylistTuple(savedPlaylistParams, {
 				.playlistURI = playlist->uri(),
-				.libraryProvider = item.libraryProvider->name(),
+				.libraryProvider = playlist->mediaProvider()->name(),
 				.addedAt = item.addedAt
 			}));
 			addTrackCollectionTuples(playlist, collectionTuples);
@@ -389,7 +389,7 @@ void insertOrReplaceLibraryItems(SQLiteTransaction& tx, const ArrayList<MediaPro
 		else if(auto artist = std::dynamic_pointer_cast<Artist>(item.mediaItem)) {
 			followedArtistTuples.pushBack(followedArtistTuple(followedArtistParams, {
 				.artistURI = artist->uri(),
-				.libraryProvider = item.libraryProvider->name(),
+				.libraryProvider = artist->mediaProvider()->name(),
 				.addedAt = item.addedAt
 			}));
 			if(artist->needsData()) {
@@ -401,7 +401,7 @@ void insertOrReplaceLibraryItems(SQLiteTransaction& tx, const ArrayList<MediaPro
 		else if(auto userAccount = std::dynamic_pointer_cast<UserAccount>(item.mediaItem)) {
 			followedUserAccountTuples.pushBack(followedUserAccountTuple(followedUserAccountParams, {
 				.userURI = userAccount->uri(),
-				.libraryProvider = item.libraryProvider->name(),
+				.libraryProvider = userAccount->mediaProvider()->name(),
 				.addedAt = item.addedAt
 			}));
 			if(artist->needsData()) {

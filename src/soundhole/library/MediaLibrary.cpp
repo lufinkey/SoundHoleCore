@@ -525,7 +525,6 @@ namespace sh {
 		return provider->createPlaylist(name, options).then([=]($<Playlist> playlist) {
 			return db->cacheLibraryItems({
 				MediaProvider::LibraryItem{
-					.libraryProvider=provider,
 					.mediaItem=playlist,
 					.addedAt=String() // TODO add a default date possibly
 				}
@@ -550,7 +549,6 @@ namespace sh {
 		}).then([=](auto json) {
 			return db->cacheLibraryItems({
 				MediaProvider::LibraryItem{
-					.libraryProvider = mediaProvider,
 					.mediaItem = track,
 					.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
 				}
@@ -585,7 +583,6 @@ namespace sh {
 		}).then([=](auto json) {
 			return db->cacheLibraryItems({
 				MediaProvider::LibraryItem{
-					.libraryProvider = mediaProvider,
 					.mediaItem = album,
 					.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
 				}
@@ -622,7 +619,6 @@ namespace sh {
 			}).then([=](auto json) {
 				return db->cacheLibraryItems({
 					MediaProvider::LibraryItem{
-						.libraryProvider = mediaProvider,
 						.mediaItem = playlist,
 						.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
 					}
@@ -645,7 +641,6 @@ namespace sh {
 			}).then([=](auto json) {
 				return db->cacheLibraryItems({
 					MediaProvider::LibraryItem{
-						.libraryProvider = mediaProvider,
 						.mediaItem = playlist,
 						.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
 					}
@@ -697,7 +692,6 @@ namespace sh {
 			}).then([=](auto json) {
 				return db->cacheLibraryItems({
 					MediaProvider::LibraryItem{
-						.libraryProvider = mediaProvider,
 						.mediaItem = artist,
 						.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
 					}
@@ -720,7 +714,6 @@ namespace sh {
 			}).then([=](auto json) {
 				return db->cacheLibraryItems({
 					MediaProvider::LibraryItem{
-						.libraryProvider = mediaProvider,
 						.mediaItem = artist,
 						.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
 					}
@@ -783,7 +776,6 @@ namespace sh {
 			}).then([=](auto json) {
 				return db->cacheLibraryItems({
 					MediaProvider::LibraryItem{
-						.libraryProvider = mediaProvider,
 						.mediaItem = userAccount,
 						.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
 					}
@@ -806,7 +798,6 @@ namespace sh {
 			}).then([=](auto json) {
 				return db->cacheLibraryItems({
 					MediaProvider::LibraryItem{
-						.libraryProvider = mediaProvider,
 						.mediaItem = userAccount,
 						.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
 					}

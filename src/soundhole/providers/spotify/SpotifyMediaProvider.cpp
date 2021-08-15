@@ -701,9 +701,8 @@ namespace sh {
 								.limit=50,
 								.offset=sharedData->offset
 							}).map([=](SpotifyPage<SpotifyPlaylist> page) -> SpotifyPage<LibraryItem> {
-								return page.map([=](auto& item) -> LibraryItem {
+								return page.map([=](auto& item) -> LibraryItem{
 									return LibraryItem{
-										.libraryProvider = this,
 										.mediaItem = this->playlist(createPlaylistData(item, false)),
 										.addedAt = String()
 									};
@@ -720,9 +719,8 @@ namespace sh {
 								.limit=50,
 								.offset=sharedData->offset
 							}).map([=](SpotifyPage<SpotifySavedAlbum> page) -> SpotifyPage<LibraryItem> {
-								return page.map([=](auto& item) -> LibraryItem {
+								return page.map([=](auto& item) -> LibraryItem{
 									return LibraryItem{
-										.libraryProvider = this,
 										.mediaItem = this->album(createAlbumData(item.album, false)),
 										.addedAt = item.addedAt
 									};
@@ -739,9 +737,8 @@ namespace sh {
 								.limit=50,
 								.offset=sharedData->offset
 							}).map([=](SpotifyPage<SpotifySavedTrack> page) -> SpotifyPage<LibraryItem> {
-								return page.map([=](auto& item) -> LibraryItem {
+								return page.map([=](auto& item) {
 									return LibraryItem{
-										.libraryProvider = this,
 										.mediaItem = this->track(createTrackData(item.track, false)),
 										.addedAt = item.addedAt
 									};

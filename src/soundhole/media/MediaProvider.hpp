@@ -25,7 +25,6 @@ namespace sh {
 	class MediaProvider: public NamedProvider, public AuthedProvider {
 	public:
 		struct LibraryItem {
-			MediaProvider* libraryProvider;
 			$<MediaItem> mediaItem;
 			String addedAt;
 			
