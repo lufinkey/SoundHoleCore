@@ -211,13 +211,22 @@ namespace sh {
 	Promise<YoutubeVideo> Youtube::getVideo(String id) {
 		return sendApiRequest(utils::HttpMethod::GET, "videos", {
 			{ "id", id },
-			{ "part", "id,snippet" }
+			{ "part", "id,snippet,contentDetails" }
 		}, nullptr).map([=](auto json) -> YoutubeVideo {
 			auto page = YoutubePage<YoutubeVideo>::fromJson(json);
 			if(page.items.size() == 0) {
 				throw YoutubeError(YoutubeError::Code::NOT_FOUND, "Could not find video with id "+id);
 			}
 			return page.items.front();
+		});
+	}
+
+	Promise<ArrayList<YoutubeVideo>> Youtube::getVideos(ArrayList<String> ids) {
+		return sendApiRequest(utils::HttpMethod::GET, "videos", {
+			{ "id", String::join(ids, ",") },
+			{ "part", "id,snippet,contentDetails" }
+		}, nullptr).map([=](auto json) -> ArrayList<YoutubeVideo> {
+			return YoutubePage<YoutubeVideo>::fromJson(json).items;
 		});
 	}
 

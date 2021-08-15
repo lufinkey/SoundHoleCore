@@ -158,10 +158,30 @@ namespace sh {
 			static Snippet fromJson(const Json&);
 		};
 		
+		struct ContentDetails {
+			struct RegionRestriction {
+				Optional<ArrayList<String>> allowed;
+				Optional<ArrayList<String>> blocked;
+				
+				static RegionRestriction fromJson(const Json&);
+				static Optional<RegionRestriction> maybeFromJson(const Json&);
+			};
+			
+			String duration;
+			String dimension;
+			String definition;
+			String caption;
+			Optional<RegionRestriction> regionRestriction;
+			String projection;
+			
+			static ContentDetails fromJson(const Json&);
+		};
+		
 		String kind;
 		String etag;
 		String id;
 		Snippet snippet;
+		ContentDetails contentDetails;
 		
 		static YoutubeVideo fromJson(const Json&);
 	};

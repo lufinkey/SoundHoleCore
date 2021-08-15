@@ -336,7 +336,9 @@ namespace sh {
 			.tags = video.snippet.tags,
 			.discNumber = std::nullopt,
 			.trackNumber = std::nullopt,
-			.duration = std::nullopt,
+			.duration = video.contentDetails.duration.empty() ?
+				std::nullopt
+				: maybe((double)std::chrono::duration_cast<std::chrono::milliseconds>(parseISO8601Duration(video.contentDetails.duration)).count() / 1000.0),
 			.audioSources = std::nullopt,
 			.playable = true
 		};
@@ -721,6 +723,51 @@ namespace sh {
 				throw YoutubeError(YoutubeError::Code::NOT_FOUND, "Could not find channel with for uri "+uri);
 			}
 			return createUserData(page.items.front());
+		});
+	}
+
+
+
+	Promise<ArrayList<Track::Data>> YoutubeMediaProvider::getTracksData(ArrayList<String> uris) {
+		auto ids = uris.map([&](auto& uri) { return parseURI(uri).id; });
+		return youtube->getVideos(ids).map([=](auto videos) {
+			return videos.map([=](auto& video) {
+				return createTrackData(video);
+			});
+		});
+	}
+
+	Promise<ArrayList<Artist::Data>> YoutubeMediaProvider::getArtistsData(ArrayList<String> uris) {
+		return youtube->getChannels({
+			.ids = uris.map([&](auto& uri) { return parseURI(uri).id; }),
+		}).map([=](auto page) -> ArrayList<Artist::Data> {
+			return page.items.map([=](auto& channel) {
+				return createArtistData(channel);
+			});
+		});
+	}
+
+	Promise<ArrayList<Album::Data>> YoutubeMediaProvider::getAlbumsData(ArrayList<String> uris) {
+		return Promise<ArrayList<Album::Data>>::reject(std::logic_error("Youtube does not support albums"));
+	}
+
+	Promise<ArrayList<Playlist::Data>> YoutubeMediaProvider::getPlaylistsData(ArrayList<String> uris) {
+		return youtube->getPlaylists({
+			.ids = uris.map([&](auto& uri) { return parseURI(uri).id; }),
+		}).map([=](auto page) -> ArrayList<Playlist::Data> {
+			return page.items.map([=](auto& playlist) {
+				return createPlaylistData(playlist);
+			});
+		});
+	}
+
+	Promise<ArrayList<UserAccount::Data>> YoutubeMediaProvider::getUsersData(ArrayList<String> uris) {
+		return youtube->getChannels({
+			.ids = uris.map([&](auto& uri) { return parseURI(uri).id; }),
+		}).map([=](auto page) -> ArrayList<UserAccount::Data> {
+			return page.items.map([=](auto& channel) {
+				return createUserData(channel);
+			});
 		});
 	}
 

@@ -577,7 +577,7 @@ namespace sh {
 			return SpotifyTrack::fromJson(json);
 		});
 	}
-	
+
 	Promise<ArrayList<SpotifyTrack>> Spotify::getTracks(ArrayList<String> trackIds, GetTracksOptions options) {
 		std::map<String,String> params;
 		if(!options.market.empty()) {

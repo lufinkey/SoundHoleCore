@@ -66,6 +66,7 @@ namespace sh {
 		using CreatePlaylistOptions = MediaProvider::CreatePlaylistOptions;
 		virtual Promise<$<Playlist>> createPlaylist(String name, CreatePlaylistOptions options = CreatePlaylistOptions()) = 0;
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) = 0;
+		virtual Promise<ArrayList<Playlist::Data>> getPlaylistsData(ArrayList<String> uris);
 		virtual Promise<void> deletePlaylist(String uri) = 0;
 		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist) = 0;
 		

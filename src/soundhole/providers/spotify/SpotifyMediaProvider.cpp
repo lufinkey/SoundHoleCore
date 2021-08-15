@@ -337,7 +337,9 @@ namespace sh {
 
 	Promise<Track::Data> SpotifyMediaProvider::getTrackData(String uri) {
 		auto uriParts = parseURI(uri);
-		return spotify->getTrack(uriParts.id,{.market="from_token"}).map([=](SpotifyTrack track) -> Track::Data {
+		return spotify->getTrack(uriParts.id, {
+			.market="from_token"
+		}).map([=](SpotifyTrack track) -> Track::Data {
 			return createTrackData(track, false);
 		});
 	}
@@ -351,14 +353,18 @@ namespace sh {
 
 	Promise<Album::Data> SpotifyMediaProvider::getAlbumData(String uri) {
 		auto uriParts = parseURI(uri);
-		return spotify->getAlbum(uriParts.id,{.market="from_token"}).map([=](SpotifyAlbum album) -> Album::Data {
+		return spotify->getAlbum(uriParts.id, {
+			.market="from_token"
+		}).map([=](SpotifyAlbum album) -> Album::Data {
 			return createAlbumData(album, false);
 		});
 	}
 
 	Promise<Playlist::Data> SpotifyMediaProvider::getPlaylistData(String uri) {
 		auto uriParts = parseURI(uri);
-		return spotify->getPlaylist(uriParts.id,{.market="from_token"}).map([=](SpotifyPlaylist playlist) -> Playlist::Data {
+		return spotify->getPlaylist(uriParts.id, {
+			.market="from_token"
+		}).map([=](SpotifyPlaylist playlist) -> Playlist::Data {
 			return createPlaylistData(playlist, false);
 		});
 	}
@@ -367,6 +373,40 @@ namespace sh {
 		auto uriParts = parseURI(uri);
 		return spotify->getUser(uriParts.id).map([=](SpotifyUser user) -> UserAccount::Data {
 			return createUserAccountData(user, false);
+		});
+	}
+
+
+
+
+	Promise<ArrayList<Track::Data>> SpotifyMediaProvider::getTracksData(ArrayList<String> uris) {
+		auto ids = uris.map([&](auto& uri) { return parseURI(uri).id; });
+		return spotify->getTracks(ids, {
+			.market="from_token"
+		}).map([=](auto tracks) {
+			return tracks.map([=](auto& track) {
+				return createTrackData(track, false);
+			});
+		});
+	}
+
+	Promise<ArrayList<Artist::Data>> SpotifyMediaProvider::getArtistsData(ArrayList<String> uris) {
+		auto ids = uris.map([&](auto& uri) { return parseURI(uri).id; });
+		return spotify->getArtists(ids).map([=](auto artists) {
+			return artists.map([=](auto& artist) {
+				return createArtistData(artist, false);
+			});
+		});
+	}
+
+	Promise<ArrayList<Album::Data>> SpotifyMediaProvider::getAlbumsData(ArrayList<String> uris) {
+		auto ids = uris.map([&](auto& uri) { return parseURI(uri).id; });
+		return spotify->getAlbums(ids, {
+			.market="from_token"
+		}).map([=](auto albums) {
+			return albums.map([=](auto& album) {
+				return createAlbumData(album, false);
+			});
 		});
 	}
 

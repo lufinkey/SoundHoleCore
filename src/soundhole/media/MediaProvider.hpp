@@ -59,11 +59,23 @@ namespace sh {
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) = 0;
 		virtual Promise<UserAccount::Data> getUserData(String uri) = 0;
 		
-		virtual Promise<$<Track>> getTrack(String uri);
-		virtual Promise<$<Artist>> getArtist(String uri);
-		virtual Promise<$<Album>> getAlbum(String uri);
-		virtual Promise<$<Playlist>> getPlaylist(String uri);
-		virtual Promise<$<UserAccount>> getUser(String uri);
+		virtual Promise<ArrayList<Track::Data>> getTracksData(ArrayList<String> uris);
+		virtual Promise<ArrayList<Artist::Data>> getArtistsData(ArrayList<String> uris);
+		virtual Promise<ArrayList<Album::Data>> getAlbumsData(ArrayList<String> uris);
+		virtual Promise<ArrayList<Playlist::Data>> getPlaylistsData(ArrayList<String> uris);
+		virtual Promise<ArrayList<UserAccount::Data>> getUsersData(ArrayList<String> uris);
+		
+		Promise<$<Track>> getTrack(String uri);
+		Promise<$<Artist>> getArtist(String uri);
+		Promise<$<Album>> getAlbum(String uri);
+		Promise<$<Playlist>> getPlaylist(String uri);
+		Promise<$<UserAccount>> getUser(String uri);
+		
+		Promise<ArrayList<$<Track>>> getTracks(ArrayList<String> uris);
+		Promise<ArrayList<$<Artist>>> getArtists(ArrayList<String> uris);
+		Promise<ArrayList<$<Album>>> getAlbums(ArrayList<String> uris);
+		Promise<ArrayList<$<Playlist>>> getPlaylists(ArrayList<String> uris);
+		Promise<ArrayList<$<UserAccount>>> getUsers(ArrayList<String> uris);
 		
 		virtual Promise<ArrayList<$<Track>>> getArtistTopTracks(String artistURI) = 0;
 		virtual ArtistAlbumsGenerator getArtistAlbums(String artistURI) = 0;

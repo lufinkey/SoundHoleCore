@@ -22,33 +22,102 @@ namespace sh {
 		};
 	}
 
+
+
+	Promise<ArrayList<Track::Data>> MediaProvider::getTracksData(ArrayList<String> uris) {
+		// TODO handle 429 responses and try again
+		return Promise<Track::Data>::all(uris.map([&](auto& uri) {
+			return this->getTrackData(uri);
+		}));
+	}
+	Promise<ArrayList<Artist::Data>> MediaProvider::getArtistsData(ArrayList<String> uris) {
+		// TODO handle 429 responses and try again
+		return Promise<Artist::Data>::all(uris.map([&](auto& uri) {
+			return this->getArtistData(uri);
+		}));
+	}
+	Promise<ArrayList<Album::Data>> MediaProvider::getAlbumsData(ArrayList<String> uris) {
+		// TODO handle 429 responses and try again
+		return Promise<Album::Data>::all(uris.map([&](auto& uri) {
+			return this->getAlbumData(uri);
+		}));
+	}
+	Promise<ArrayList<Playlist::Data>> MediaProvider::getPlaylistsData(ArrayList<String> uris) {
+		// TODO handle 429 responses and try again
+		return Promise<Playlist::Data>::all(uris.map([&](auto& uri) {
+			return this->getPlaylistData(uri);
+		}));
+	}
+	Promise<ArrayList<UserAccount::Data>> MediaProvider::getUsersData(ArrayList<String> uris) {
+		// TODO handle 429 responses and try again
+		return Promise<UserAccount::Data>::all(uris.map([&](auto& uri) {
+			return this->getUserData(uri);
+		}));
+	}
+
+
+
 	Promise<$<Track>> MediaProvider::getTrack(String uri) {
 		return getTrackData(uri).map(nullptr, [=](auto data) -> $<Track> {
-			return track(data);
+			return this->track(data);
 		});
 	}
-
 	Promise<$<Artist>> MediaProvider::getArtist(String uri) {
 		return getArtistData(uri).map(nullptr, [=](auto data) -> $<Artist> {
-			return artist(data);
+			return this->artist(data);
 		});
 	}
-
 	Promise<$<Album>> MediaProvider::getAlbum(String uri) {
 		return getAlbumData(uri).map(nullptr, [=](auto data) -> $<Album> {
-			return album(data);
+			return this->album(data);
 		});
 	}
-
 	Promise<$<Playlist>> MediaProvider::getPlaylist(String uri) {
 		return getPlaylistData(uri).map(nullptr, [=](auto data) -> $<Playlist> {
-			return playlist(data);
+			return this->playlist(data);
+		});
+	}
+	Promise<$<UserAccount>> MediaProvider::getUser(String uri) {
+		return getUserData(uri).map(nullptr, [=](auto data) -> $<UserAccount> {
+			return this->userAccount(data);
 		});
 	}
 
-	Promise<$<UserAccount>> MediaProvider::getUser(String uri) {
-		return getUserData(uri).map(nullptr, [=](auto data) -> $<UserAccount> {
-			return userAccount(data);
+
+
+	Promise<ArrayList<$<Track>>> MediaProvider::getTracks(ArrayList<String> uris) {
+		return getTracksData(uris).map(nullptr, [=](auto datas) {
+			return datas.map([=](auto& data) {
+				return this->track(data);
+			});
+		});
+	}
+	Promise<ArrayList<$<Artist>>> MediaProvider::getArtists(ArrayList<String> uris) {
+		return getArtistsData(uris).map(nullptr, [=](auto datas) {
+			return datas.map([=](auto& data) {
+				return this->artist(data);
+			});
+		});
+	}
+	Promise<ArrayList<$<Album>>> MediaProvider::getAlbums(ArrayList<String> uris) {
+		return getAlbumsData(uris).map(nullptr, [=](auto datas) {
+			return datas.map([=](auto& data) {
+				return this->album(data);
+			});
+		});
+	}
+	Promise<ArrayList<$<Playlist>>> MediaProvider::getPlaylists(ArrayList<String> uris) {
+		return getPlaylistsData(uris).map(nullptr, [=](auto datas) {
+			return datas.map([=](auto& data) {
+				return this->playlist(data);
+			});
+		});
+	}
+	Promise<ArrayList<$<UserAccount>>> MediaProvider::getUsers(ArrayList<String> uris) {
+		return getUsersData(uris).map(nullptr, [=](auto datas) {
+			return datas.map([=](auto& data) {
+				return this->userAccount(data);
+			});
 		});
 	}
 

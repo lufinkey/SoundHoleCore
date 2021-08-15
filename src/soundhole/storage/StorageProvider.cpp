@@ -27,6 +27,13 @@ namespace sh {
 		};
 	}
 
+	Promise<ArrayList<Playlist::Data>> StorageProvider::getPlaylistsData(ArrayList<String> uris) {
+		// TODO handle 429 responses and try again
+		return Promise<Playlist::Data>::all(uris.map([&](auto& uri) {
+			return this->getPlaylistData(uri);
+		}));
+	}
+
 	#ifdef NODE_API_MODULE
 
 	Napi::Object StorageProvider::URI::toNapiObject(napi_env env) const {

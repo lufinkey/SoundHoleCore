@@ -58,6 +58,12 @@ namespace sh {
 		virtual Promise<Playlist::Data> getPlaylistData(String uri) override;
 		virtual Promise<UserAccount::Data> getUserData(String uri) override;
 		
+		virtual Promise<ArrayList<Track::Data>> getTracksData(ArrayList<String> uris) override;
+		virtual Promise<ArrayList<Artist::Data>> getArtistsData(ArrayList<String> uris) override;
+		virtual Promise<ArrayList<Album::Data>> getAlbumsData(ArrayList<String> uris) override;
+		virtual Promise<ArrayList<Playlist::Data>> getPlaylistsData(ArrayList<String> uris) override;
+		virtual Promise<ArrayList<UserAccount::Data>> getUsersData(ArrayList<String> uris) override;
+		
 		virtual Promise<ArrayList<$<Track>>> getArtistTopTracks(String artistURI) override;
 		virtual ArtistAlbumsGenerator getArtistAlbums(String artistURI) override;
 		

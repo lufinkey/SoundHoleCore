@@ -144,7 +144,8 @@ namespace sh {
 			.kind = json["kind"].string_value(),
 			.etag = json["etag"].string_value(),
 			.id = json["id"].string_value(),
-			.snippet = Snippet::fromJson(json["snippet"])
+			.snippet = Snippet::fromJson(json["snippet"]),
+			.contentDetails = ContentDetails::fromJson(json["contentDetails"])
 		};
 	}
 
@@ -193,6 +194,47 @@ namespace sh {
 			}
 		}
 		return std::nullopt;
+	}
+
+	YoutubeVideo::ContentDetails YoutubeVideo::ContentDetails::fromJson(const Json& json) {
+		return ContentDetails{
+			.duration = json["duration"].string_value(),
+			.dimension = json["dimension"].string_value(),
+			.definition = json["definition"].string_value(),
+			.caption = json["caption"].string_value(),
+			.regionRestriction = RegionRestriction::maybeFromJson(json["regionRestriction"]),
+			.projection = json["projection"].string_value()
+		};
+	}
+
+	YoutubeVideo::ContentDetails::RegionRestriction YoutubeVideo::ContentDetails::RegionRestriction::fromJson(const Json& json) {
+		RegionRestriction r;
+		auto allowedJson = json["allowed"];
+		if(allowedJson.is_array()) {
+			ArrayList<String> allowed;
+			allowed.reserve(allowedJson.array_items().size());
+			for(auto& itemJson : allowedJson.array_items()) {
+				allowed.pushBack(itemJson.string_value());
+			}
+			r.allowed = allowed;
+		}
+		auto blockedJson = json["blocked"];
+		if(blockedJson.is_array()) {
+			ArrayList<String> blocked;
+			blocked.reserve(blockedJson.array_items().size());
+			for(auto& itemJson : blockedJson.array_items()) {
+				blocked.pushBack(itemJson.string_value());
+			}
+			r.blocked = blocked;
+		}
+		return r;
+	}
+
+	Optional<YoutubeVideo::ContentDetails::RegionRestriction> YoutubeVideo::ContentDetails::RegionRestriction::maybeFromJson(const Json& json) {
+		if(json.is_null()) {
+			return std::nullopt;
+		}
+		return fromJson(json);
 	}
 
 
