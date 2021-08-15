@@ -849,7 +849,7 @@ namespace sh {
 	#pragma mark User Library
 
 	bool YoutubeMediaProvider::hasLibrary() const {
-		return false;
+		return true;
 	}
 
 	bool YoutubeMediaProvider::handlesUsersAsArtists() const {
@@ -907,7 +907,7 @@ namespace sh {
 			sharedData->resumeData.syncMostRecentSave = std::nullopt;
 		}
 		using YieldResult = typename LibraryItemGenerator::YieldResult;
-		return LibraryItemGenerator([=]() -> Promise<YieldResult> {
+		return LibraryItemGenerator(coLambda([=]() -> Promise<YieldResult> {
 			if(!isLoggedIn()) {
 				throw std::runtime_error("not logged in");
 			}
@@ -999,7 +999,7 @@ namespace sh {
 				};
 			}
 			throw std::runtime_error("invalid sync type "+sharedData->resumeData.syncCurrentType);
-		});
+		}));
 	}
 
 

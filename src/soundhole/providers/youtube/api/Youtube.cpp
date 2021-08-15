@@ -493,7 +493,7 @@ namespace sh {
 
 	Promise<YoutubePlaylist> Youtube::createPlaylist(String title, CreatePlaylistOptions options) {
 		auto query = std::map<String,String>{
-			{ "part", "id,snippet,status,contentDetails,player,localizations" }
+			{ "part", "id,snippet,status,contentDetails,player" }
 		};
 		auto body = Json::object{};
 		auto snippet = Json::object{

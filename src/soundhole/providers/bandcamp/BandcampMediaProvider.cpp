@@ -728,7 +728,7 @@ namespace sh {
 		};
 		
 		using YieldResult = typename LibraryItemGenerator::YieldResult;
-		return LibraryItemGenerator([=]() -> Promise<YieldResult> {
+		return LibraryItemGenerator(coLambda([=]() -> Promise<YieldResult> {
 			auto identities = co_await bandcamp->getMyIdentities();
 			// verify that bandcamp is logged in
 			if(!identities.fan) {
@@ -1069,7 +1069,7 @@ namespace sh {
 					});
 			}
 			throw std::runtime_error("invalid bandcamp sync section");
-		});
+		}));
 	}
 
 
