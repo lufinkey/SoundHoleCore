@@ -26,33 +26,48 @@ namespace sh {
 
 	Promise<ArrayList<Track::Data>> MediaProvider::getTracksData(ArrayList<String> uris) {
 		// TODO handle 429 responses and try again
-		return Promise<Track::Data>::all(uris.map([&](auto& uri) {
-			return this->getTrackData(uri);
-		}));
+		ArrayList<Track::Data> items;
+		items.reserve(uris.size());
+		for(auto uri : uris) {
+			items.pushBack(co_await this->getTrackData(uri));
+		}
+		co_return items;
 	}
 	Promise<ArrayList<Artist::Data>> MediaProvider::getArtistsData(ArrayList<String> uris) {
 		// TODO handle 429 responses and try again
-		return Promise<Artist::Data>::all(uris.map([&](auto& uri) {
-			return this->getArtistData(uri);
-		}));
+		ArrayList<Artist::Data> items;
+		items.reserve(uris.size());
+		for(auto uri : uris) {
+			items.pushBack(co_await this->getArtistData(uri));
+		}
+		co_return items;
 	}
 	Promise<ArrayList<Album::Data>> MediaProvider::getAlbumsData(ArrayList<String> uris) {
 		// TODO handle 429 responses and try again
-		return Promise<Album::Data>::all(uris.map([&](auto& uri) {
-			return this->getAlbumData(uri);
-		}));
+		ArrayList<Album::Data> items;
+		items.reserve(uris.size());
+		for(auto uri : uris) {
+			items.pushBack(co_await this->getAlbumData(uri));
+		}
+		co_return items;
 	}
 	Promise<ArrayList<Playlist::Data>> MediaProvider::getPlaylistsData(ArrayList<String> uris) {
 		// TODO handle 429 responses and try again
-		return Promise<Playlist::Data>::all(uris.map([&](auto& uri) {
-			return this->getPlaylistData(uri);
-		}));
+		ArrayList<Playlist::Data> items;
+		items.reserve(uris.size());
+		for(auto uri : uris) {
+			items.pushBack(co_await this->getPlaylistData(uri));
+		}
+		co_return items;
 	}
 	Promise<ArrayList<UserAccount::Data>> MediaProvider::getUsersData(ArrayList<String> uris) {
 		// TODO handle 429 responses and try again
-		return Promise<UserAccount::Data>::all(uris.map([&](auto& uri) {
-			return this->getUserData(uri);
-		}));
+		ArrayList<UserAccount::Data> items;
+		items.reserve(uris.size());
+		for(auto uri : uris) {
+			items.pushBack(co_await this->getUserData(uri));
+		}
+		co_return items;
 	}
 
 

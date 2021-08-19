@@ -6,7 +6,7 @@ import {
 	GSDBInfo,
 	GSDBRow,
 	GSDBCellValue, 
-	GoogleSheetsDB$InstantiateResult} from 'google-sheets-db';
+	GoogleSheetsDB$InstantiateResult } from 'google-sheets-db';
 import {
 	drive_v3,
 	sheets_v4 } from 'googleapis';
@@ -14,6 +14,7 @@ import {
 	FollowedItem,
 	FollowedItemRow,
 	KeyingOptions } from '../StorageProvider';
+import { GoogleSheetPage } from './types';
 
 type RequiredGoogleAPIs = {
 	drive: drive_v3.Drive
@@ -22,12 +23,6 @@ type RequiredGoogleAPIs = {
 
 type PrepareOptions = KeyingOptions & RequiredGoogleAPIs & {
 	folderId: string
-}
-
-type Page<T> = {
-	total: number
-	offset: number
-	items: T[]
 }
 
 export default class GoogleDriveLibraryDB extends GoogleSheetsDBWrapper {
@@ -240,7 +235,7 @@ export default class GoogleDriveLibraryDB extends GoogleSheetsDBWrapper {
 
 	// Followed Items
 
-	private async _getFollowedItemsInRange(tableName: string, {offset, limit}: {offset: number, limit: number}): Promise<Page<FollowedItemRow>> {
+	private async _getFollowedItemsInRange(tableName: string, {offset, limit}: {offset: number, limit: number}): Promise<GoogleSheetPage<FollowedItemRow>> {
 		await this.instantiateIfNeeded();
 		const tableData = await this.db.getTableData(tableName, {
 			offset,
@@ -401,7 +396,7 @@ export default class GoogleDriveLibraryDB extends GoogleSheetsDBWrapper {
 
 	// Followed Playlists
 
-	async getFollowedPlaylistsInRange(options: {offset: number, limit: number}): Promise<Page<FollowedItemRow>> {
+	async getFollowedPlaylistsInRange(options: {offset: number, limit: number}): Promise<GoogleSheetPage<FollowedItemRow>> {
 		const cls = GoogleDriveLibraryDB;
 		return await this._getFollowedItemsInRange(cls.TABLENAME_FOLLOWED_PLAYLISTS, options);
 	}
@@ -430,7 +425,7 @@ export default class GoogleDriveLibraryDB extends GoogleSheetsDBWrapper {
 
 	// Followed Users
 
-	async getFollowedUsersInRange(options: {offset: number, limit: number}): Promise<Page<FollowedItemRow>> {
+	async getFollowedUsersInRange(options: {offset: number, limit: number}): Promise<GoogleSheetPage<FollowedItemRow>> {
 		const cls = GoogleDriveLibraryDB;
 		return await this._getFollowedItemsInRange(cls.TABLENAME_FOLLOWED_USERS, options);
 	}
@@ -459,7 +454,7 @@ export default class GoogleDriveLibraryDB extends GoogleSheetsDBWrapper {
 
 	// Followed Artists
 
-	async getFollowedArtistsInRange(options: {offset: number, limit: number}): Promise<Page<FollowedItemRow>> {
+	async getFollowedArtistsInRange(options: {offset: number, limit: number}): Promise<GoogleSheetPage<FollowedItemRow>> {
 		const cls = GoogleDriveLibraryDB;
 		return await this._getFollowedItemsInRange(cls.TABLENAME_FOLLOWED_ARTISTS, options);
 	}

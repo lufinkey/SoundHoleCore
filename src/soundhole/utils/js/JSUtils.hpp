@@ -64,6 +64,7 @@ namespace sh::jsutils {
 	String nonNullStringPropFromNapiObject(Napi::Object obj, const char* propName);
 	String stringFromNapiValue(Napi::Value value);
 	Optional<String> optStringFromNapiValue(Napi::Value value);
+	size_t nonNullSizePropFromNapiObject(Napi::Object obj, const char* propName);
 	size_t sizeFromNapiValue(Napi::Value value);
 	Optional<size_t> optSizeFromNapiValue(Napi::Value value);
 	double doubleFromNapiValue(Napi::Value value);

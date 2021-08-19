@@ -82,6 +82,20 @@ namespace sh::jsutils {
 		return (size_t)value.As<Napi::Number>().Int64Value();
 	}
 
+	size_t nonNullSizePropFromNapiObject(Napi::Object obj, const char* propName) {
+		Napi::Number value = obj.Get(propName).As<Napi::Number>();
+		if(value.IsEmpty()) {
+			throw std::runtime_error((std::string)"property "+propName+" is empty");
+		} else if(value.IsUndefined()) {
+			throw std::runtime_error((std::string)"property "+propName+" is undefined");
+		} else if(value.IsNull()) {
+			throw std::runtime_error((std::string)"property "+propName+" is null");
+		} else if(!value.IsNumber()) {
+			throw std::runtime_error((std::string)"property "+propName+" is not a number");
+		}
+		return (size_t)value.DoubleValue();
+	}
+
 	Optional<size_t> optSizeFromNapiValue(Napi::Value value) {
 		if(value.IsEmpty() || value.IsNull() || value.IsUndefined()) {
 			return std::nullopt;

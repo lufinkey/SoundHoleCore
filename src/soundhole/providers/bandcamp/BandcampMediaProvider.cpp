@@ -729,6 +729,7 @@ namespace sh {
 		
 		using YieldResult = typename LibraryItemGenerator::YieldResult;
 		return LibraryItemGenerator(coLambda([=]() -> Promise<YieldResult> {
+			co_await resumeOnQueue(DispatchQueue::main());
 			auto identities = co_await bandcamp->getMyIdentities();
 			// verify that bandcamp is logged in
 			if(!identities.fan) {
@@ -848,7 +849,7 @@ namespace sh {
 					size_t index = 0;
 					for(auto& item : items) {
 						time_t addedAt = item.addedAt.empty() ? 0 : timeFromString(item.addedAt);
-						if(addedAt < mostRecentSave.value()) {
+						if(addedAt <= mostRecentSave.value()) {
 							return index;
 						}
 						index++;

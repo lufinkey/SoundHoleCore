@@ -59,5 +59,13 @@ namespace sh {
 		return obj;
 	}
 
+	StorageProvider::FollowedItem StorageProvider::FollowedItem::fromNapiObject(Napi::Object obj) {
+		return FollowedItem{
+			.uri = jsutils::nonNullStringPropFromNapiObject(obj, "uri"),
+			.provider = jsutils::nonNullStringPropFromNapiObject(obj, "provider"),
+			.addedAt = jsutils::nonNullStringPropFromNapiObject(obj, "addedAt")
+		};
+	}
+
 	#endif
 }

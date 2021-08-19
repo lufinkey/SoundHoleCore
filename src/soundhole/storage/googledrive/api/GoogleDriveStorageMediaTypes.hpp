@@ -49,6 +49,18 @@ namespace sh {
 		static GoogleDriveFilesPage<T> fromJson(const Json& json);
 		static GoogleDriveFilesPage<T> fromJson(const Json& json, MediaProviderStash* stash);
 	};
+
+
+	template<typename T>
+	struct GoogleSheetDBPage {
+		size_t offset;
+		size_t total;
+		ArrayList<T> items;
+		
+		#ifdef NODE_API_MODULE
+		static GoogleSheetDBPage<T> fromNapiObject(Napi::Object);
+		#endif
+	};
 }
 
 #include "GoogleDriveStorageMediaTypes.impl.hpp"

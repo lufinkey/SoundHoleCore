@@ -21,6 +21,9 @@ namespace sh {
 	class StorageProvider: public NamedProvider, public AuthedProvider {
 	public:
 		using UserPlaylistsGenerator = MediaProvider::UserPlaylistsGenerator;
+		using LibraryItemGenerator = MediaProvider::LibraryItemGenerator;
+		using LibraryItem = MediaProvider::LibraryItem;
+		using GenerateLibraryResults = MediaProvider::GenerateLibraryResults;
 		static constexpr auto BASE_FOLDER_NAME = "My SoundHole";
 		static constexpr auto APP_KEY = "SoundHole";
 		
@@ -61,6 +64,16 @@ namespace sh {
 			#endif
 		};
 		
+		struct FollowedItem {
+			String uri;
+			String provider;
+			String addedAt;
+			
+			#ifdef NODE_API_MODULE
+			static FollowedItem fromNapiObject(Napi::Object);
+			#endif
+		};
+		
 		virtual ~StorageProvider() {}
 		
 		using CreatePlaylistOptions = MediaProvider::CreatePlaylistOptions;
@@ -71,7 +84,9 @@ namespace sh {
 		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist) = 0;
 		
 		virtual UserPlaylistsGenerator getUserPlaylists(String userURI) = 0;
-		virtual UserPlaylistsGenerator getMyPlaylists() = 0;
+		
+		using GenerateLibraryOptions = MediaProvider::GenerateLibraryOptions;
+		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options) = 0;
 		
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) = 0;
 		

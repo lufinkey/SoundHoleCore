@@ -112,6 +112,7 @@ namespace sh {
 		};
 		return synchronizeQueue.runSingle(runOptions, coLambda([=](auto task) -> Generator<void> {
 			co_yield setGenResumeQueue(DispatchQueue::main());
+			co_yield initialGenNext();
 			if(!libraryProvider->isLoggedIn()) {
 				throw std::runtime_error(libraryProvider->displayName()+" provider is not logged in");
 			}
@@ -122,7 +123,6 @@ namespace sh {
 				.progress = 0,
 				.text = "Checking "+libraryProvider->displayName()+" library sync state"
 			});
-			co_yield initialGenNext();
 			// begin generator
 			auto syncResumeStr = co_await db->getStateValue("syncResumeData_"+libraryProvider->name(), "");
 			Json syncResumeData;

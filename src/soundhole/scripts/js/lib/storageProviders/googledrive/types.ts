@@ -27,6 +27,14 @@ export type GoogleDriveIdentity = drive_v3.Schema$About & {
 
 
 
+export type GoogleSheetPage<T> = {
+	total: number
+	offset: number
+	items: T[]
+}
+
+
+
 export type PlaylistIDParts = {
 	fileId: string
 	baseFolderId?: string | null

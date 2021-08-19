@@ -31,4 +31,17 @@ namespace sh {
 			.nextPageToken = json["nextPageToken"].string_value()
 		};
 	}
+
+	#ifdef NODE_API_MODULE
+	template<typename T>
+	GoogleSheetDBPage<T> GoogleSheetDBPage<T>::fromNapiObject(Napi::Object obj) {
+		return GoogleSheetDBPage<T>{
+			.offset = jsutils::nonNullSizePropFromNapiObject(obj, "offset"),
+			.total = jsutils::nonNullSizePropFromNapiObject(obj, "total"),
+			.items = jsutils::arrayListFromNapiValue(obj.Get("items"), [](Napi::Value item) {
+				return T::fromNapiObject(item.As<Napi::Object>());
+			})
+		};
+	}
+	#endif
 }

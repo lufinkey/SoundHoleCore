@@ -13,6 +13,7 @@
 #include <soundhole/media/AuthedProviderIdentityStore.hpp>
 #include <soundhole/media/MediaProviderStash.hpp>
 #include <soundhole/utils/js/JSWrapClass.hpp>
+#include <soundhole/utils/js/JSUtils.hpp>
 #include "api/GoogleDriveStorageMediaTypes.hpp"
 
 namespace sh {
@@ -44,7 +45,31 @@ namespace sh {
 		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist) override;
 		
 		virtual UserPlaylistsGenerator getUserPlaylists(String userURI) override;
-		virtual UserPlaylistsGenerator getMyPlaylists() override;
+		
+		struct GenerateLibraryResumeData {
+			struct Item {
+				String uri;
+				String addedAt;
+				
+				Json toJson() const;
+				static Optional<Item> maybeFromJson(const Json&);
+			};
+			
+			Optional<time_t> mostRecentPlaylistModification;
+			Optional<time_t> mostRecentPlaylistFollow;
+			Optional<time_t> mostRecentArtistFollow;
+			Optional<time_t> mostRecentUserFollow;
+			
+			String syncCurrentType;
+			String syncPageToken;
+			Optional<time_t> syncMostRecentSave;
+			Optional<size_t> syncLastItemOffset;
+			Optional<Item> syncLastItem;
+			
+			Json toJson() const;
+			static GenerateLibraryResumeData fromJson(const Json&);
+		};
+		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options) override;
 		
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) override;
 		
@@ -70,11 +95,28 @@ namespace sh {
 	private:
 		virtual void initializeJS(napi_env env) override;
 		
+		struct PlaylistVersionID {
+			Date modifiedAt;
+		};
+		PlaylistVersionID parsePlaylistVersionID(String versionIdString);
+		
+		struct GetMyPlaylistsOptions {
+			String pageToken;
+			Optional<size_t> pageSize;
+			String orderBy;
+		};
+		Promise<GoogleDriveFilesPage<Playlist::Data>> getMyPlaylists(GetMyPlaylistsOptions options);
+		Promise<GoogleSheetDBPage<FollowedItem>> getFollowedPlaylists(size_t offset, size_t limit);
+		Promise<GoogleSheetDBPage<FollowedItem>> getFollowedArtists(size_t offset, size_t limit);
+		Promise<GoogleSheetDBPage<FollowedItem>> getFollowedUsers(size_t offset, size_t limit);
+		
 		Promise<void> handleOAuthRedirect(std::map<String,String> params, String codeVerifier);
 		Json sessionFromJS(napi_env env);
 		void updateSessionFromJS(napi_env env);
 		void loadSession();
 		void saveSession();
+		
+		static time_t timeFromString(String dateString);
 		
 		#ifdef NODE_API_MODULE
 		template<typename Result>

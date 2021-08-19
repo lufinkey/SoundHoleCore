@@ -13,6 +13,7 @@
 #include <soundhole/utils/HttpClient.hpp>
 #include <soundhole/utils/Utils.hpp>
 #include "mutators/GoogleDrivePlaylistMutatorDelegate.hpp"
+#include <cmath>
 
 namespace sh {
 	GoogleDriveStorageProvider::GoogleDriveStorageProvider(MediaItemBuilder* mediaItemBuilder, MediaProviderStash* mediaProviderStash, Options options)
@@ -130,6 +131,27 @@ namespace sh {
 
 	String GoogleDriveStorageProvider::displayName() const {
 		return "Google Drive";
+	}
+
+
+
+	#pragma mark Parsing
+
+	GoogleDriveStorageProvider::PlaylistVersionID GoogleDriveStorageProvider::parsePlaylistVersionID(String versionIdString) {
+		if(auto date = Date::fromGmtString(versionIdString, "%Y-%m-%dT%H:%M:%S%.f%z")) {
+			return PlaylistVersionID{
+				.modifiedAt = date.value()
+			};
+		}
+		throw std::invalid_argument("Invalid playlist version ID format");
+	}
+
+	time_t GoogleDriveStorageProvider::timeFromString(String dateString) {
+		auto date = Date::fromGmtString(dateString, "%Y-%m-%dT%H:%M:%S%.f%z");
+		if(!date) {
+			throw std::runtime_error("invalid date string "+dateString);
+		}
+		return date->toTimeVal();
 	}
 
 
@@ -385,45 +407,450 @@ namespace sh {
 
 
 
-	GoogleDriveStorageProvider::UserPlaylistsGenerator GoogleDriveStorageProvider::getMyPlaylists() {
-		struct SharedData {
-			String pageToken;
-		};
-		auto sharedData = fgl::new$<SharedData>();
-		using YieldResult = typename UserPlaylistsGenerator::YieldResult;
-		return UserPlaylistsGenerator([=]() {
-			return performAsyncJSAPIFunc<YieldResult>("getMyPlaylists", [=](napi_env env) {
-				auto optionsObj = Napi::Object::New(env);
-				if(!sharedData->pageToken.empty()) {
-					optionsObj.Set("pageToken", Napi::String::New(env, sharedData->pageToken));
-				}
-				return std::vector<napi_value>{
-					optionsObj
-				};
-			}, [=](napi_env env, Napi::Value value) {
-				auto jsExports = scripts::getJSExports(env);
-				auto json_encode = jsExports.Get("json_encode").As<Napi::Function>();
-				auto jsonString = json_encode.Call({ value }).As<Napi::String>().Utf8Value();
-				std::string jsonError;
-				auto json = Json::parse(jsonString, jsonError);
-				if(!jsonError.empty()) {
-					throw std::runtime_error("failed to decode json for getMyPlaylists result");
-				}
-				auto page = GoogleDriveFilesPage<Playlist::Data>::fromJson(json, this->mediaProviderStash);
-				auto loadBatch = MediaProvider::LoadBatch<$<Playlist>>{
-					.items = page.items.map([=](auto& playlistData) -> $<Playlist> {
-						return this->mediaItemBuilder->playlist(playlistData);
-					}),
-					.total = std::nullopt
-				};
-				sharedData->pageToken = page.nextPageToken;
-				bool done = sharedData->pageToken.empty();
-				return YieldResult{
-					.value = loadBatch,
-					.done = done
-				};
-			});
+	Promise<GoogleDriveFilesPage<Playlist::Data>> GoogleDriveStorageProvider::getMyPlaylists(GetMyPlaylistsOptions options) {
+		return performAsyncJSAPIFunc<GoogleDriveFilesPage<Playlist::Data>>("getMyPlaylists", [=](napi_env env) {
+			auto optionsObj = Napi::Object::New(env);
+			if(!options.orderBy.empty()) {
+				optionsObj.Set("orderBy", Napi::String::New(env, options.orderBy));
+			}
+			if(!options.pageToken.empty()) {
+				optionsObj.Set("pageToken", Napi::String::New(env, options.pageToken));
+			}
+			if(options.pageSize.hasValue()) {
+				optionsObj.Set("pageSize", Napi::Number::New(env, options.pageSize.value()));
+			}
+			return std::vector<napi_value>{
+				optionsObj
+			};
+		}, [=](napi_env env, Napi::Value value) {
+			auto jsExports = scripts::getJSExports(env);
+			auto json_encode = jsExports.Get("json_encode").As<Napi::Function>();
+			auto jsonString = json_encode.Call({ value }).As<Napi::String>().Utf8Value();
+			std::string jsonError;
+			auto json = Json::parse(jsonString, jsonError);
+			if(!jsonError.empty()) {
+				throw std::runtime_error("failed to decode json for getMyPlaylists result");
+			}
+			return GoogleDriveFilesPage<Playlist::Data>::fromJson(json, this->mediaProviderStash);
 		});
+	}
+
+	Promise<GoogleSheetDBPage<StorageProvider::FollowedItem>> GoogleDriveStorageProvider::getFollowedPlaylists(size_t offset, size_t limit) {
+		return performAsyncJSAPIFunc<GoogleSheetDBPage<FollowedItem>>("getFollowedPlaylists", [=](napi_env env) {
+			auto optionsObj = Napi::Object::New(env);
+			optionsObj.Set("offset", Napi::Number::New(env, offset));
+			optionsObj.Set("limit", Napi::Number::New(env, offset));
+			return std::vector<napi_value>{
+				optionsObj
+			};
+		}, [=](napi_env env, Napi::Value value) {
+			return GoogleSheetDBPage<FollowedItem>::fromNapiObject(value.As<Napi::Object>());
+		});
+	}
+
+	Promise<GoogleSheetDBPage<StorageProvider::FollowedItem>> GoogleDriveStorageProvider::getFollowedUsers(size_t offset, size_t limit) {
+		return performAsyncJSAPIFunc<GoogleSheetDBPage<FollowedItem>>("getFollowedUsers", [=](napi_env env) {
+			auto optionsObj = Napi::Object::New(env);
+			optionsObj.Set("offset", Napi::Number::New(env, offset));
+			optionsObj.Set("limit", Napi::Number::New(env, offset));
+			return std::vector<napi_value>{
+				optionsObj
+			};
+		}, [=](napi_env env, Napi::Value value) {
+			return GoogleSheetDBPage<FollowedItem>::fromNapiObject(value.As<Napi::Object>());
+		});
+	}
+
+	Promise<GoogleSheetDBPage<StorageProvider::FollowedItem>> GoogleDriveStorageProvider::getFollowedArtists(size_t offset, size_t limit) {
+		return performAsyncJSAPIFunc<GoogleSheetDBPage<FollowedItem>>("getFollowedArtists", [=](napi_env env) {
+			auto optionsObj = Napi::Object::New(env);
+			optionsObj.Set("offset", Napi::Number::New(env, offset));
+			optionsObj.Set("limit", Napi::Number::New(env, offset));
+			return std::vector<napi_value>{
+				optionsObj
+			};
+		}, [=](napi_env env, Napi::Value value) {
+			return GoogleSheetDBPage<FollowedItem>::fromNapiObject(value.As<Napi::Object>());
+		});
+	}
+
+
+
+	const auto GoogleDriveStorageProvider_syncTypes = ArrayList<String>{ "my-playlists", "followed-playlists", "followed-artists", "followed_users" };
+
+	Json GoogleDriveStorageProvider::GenerateLibraryResumeData::toJson() const {
+		return Json::object{
+			{ "mostRecentPlaylistModification", mostRecentPlaylistModification ? Json((double)mostRecentPlaylistModification.value()) : Json() },
+			{ "mostRecentPlaylistFollow", mostRecentPlaylistFollow ? Json((double)mostRecentPlaylistFollow.value()) : Json() },
+			{ "mostRecentArtistFollow", mostRecentArtistFollow ? Json((double)mostRecentArtistFollow.value()) : Json() },
+			{ "mostRecentUserFollow", mostRecentUserFollow ? Json((double)mostRecentUserFollow.value()) : Json() },
+			{ "syncCurrentType", syncCurrentType },
+			{ "syncPageToken", syncPageToken },
+			{ "syncMostRecentSave", syncMostRecentSave ? Json((double)syncMostRecentSave.value()) : Json() },
+			{ "syncLastItemOffset", syncLastItemOffset ? Json((double)syncLastItemOffset.value()) : Json() },
+			{ "syncLastItem", syncLastItem ? syncLastItem->toJson() : Json() }
+		};
+	}
+
+	GoogleDriveStorageProvider::GenerateLibraryResumeData GoogleDriveStorageProvider::GenerateLibraryResumeData::fromJson(const Json& json) {
+		auto mostRecentPlaylistModification = json["mostRecentPlaylistModification"];
+		auto mostRecentPlaylistFollow = json["mostRecentPlaylistFollow"];
+		auto mostRecentArtistFollow = json["mostRecentArtistFollow"];
+		auto mostRecentUserFollow = json["mostRecentUserFollow"];
+		auto syncMostRecentSave = json["syncMostRecentSave"];
+		auto syncLastItemOffset = json["syncLastItemOffset"];
+		auto resumeData = GenerateLibraryResumeData{
+			.mostRecentPlaylistModification = mostRecentPlaylistModification.is_number() ? maybe((time_t)mostRecentPlaylistModification.number_value()) : std::nullopt,
+			.mostRecentPlaylistFollow = mostRecentPlaylistFollow.is_number() ? maybe((time_t)mostRecentPlaylistFollow.number_value()) : std::nullopt,
+			.mostRecentArtistFollow = mostRecentArtistFollow.is_number() ? maybe((time_t)mostRecentArtistFollow.number_value()) : std::nullopt,
+			.mostRecentUserFollow = mostRecentUserFollow.is_number() ? maybe((time_t)mostRecentUserFollow.number_value()) : std::nullopt,
+			.syncCurrentType = json["syncCurrentType"].string_value(),
+			.syncPageToken = json["syncPageToken"].string_value(),
+			.syncMostRecentSave = syncMostRecentSave.is_number() ? maybe((time_t)syncMostRecentSave.number_value()) : std::nullopt,
+			.syncLastItemOffset = syncLastItemOffset.is_number() ? maybe((size_t)syncLastItemOffset.number_value()) : std::nullopt,
+			.syncLastItem = Item::maybeFromJson(json["syncLastItem"])
+		};
+		bool syncTypeValid = GoogleDriveStorageProvider_syncTypes.contains(resumeData.syncCurrentType);
+		if(!(resumeData.syncMostRecentSave.has_value() && resumeData.syncLastItemOffset.has_value()
+			 && resumeData.syncLastItem.has_value() && syncTypeValid)) {
+			resumeData.syncCurrentType = GoogleDriveStorageProvider_syncTypes[0];
+			resumeData.syncPageToken = String();
+			resumeData.syncMostRecentSave = std::nullopt;
+			resumeData.syncLastItemOffset = std::nullopt;
+			resumeData.syncLastItem = std::nullopt;
+		}
+		return resumeData;
+	}
+
+	Optional<GoogleDriveStorageProvider::GenerateLibraryResumeData::Item> GoogleDriveStorageProvider::GenerateLibraryResumeData::Item::maybeFromJson(const Json& json) {
+		if(!json.is_object()) {
+			return std::nullopt;
+		}
+		auto uri = json["uri"].string_value();
+		if(uri.empty()) {
+			return std::nullopt;
+		}
+		return Item{
+			.uri = uri,
+			.addedAt = json["addedAt"].string_value()
+		};
+	}
+
+	Json GoogleDriveStorageProvider::GenerateLibraryResumeData::Item::toJson() const {
+		return Json::object{
+			{ "uri", Json(uri) },
+			{ "addedAt", Json(addedAt) }
+		};
+	}
+
+
+
+	GoogleDriveStorageProvider::LibraryItemGenerator GoogleDriveStorageProvider::generateLibrary(GenerateLibraryOptions options) {
+		struct SharedData {
+			GenerateLibraryResumeData resumeData;
+			Optional<GoogleSheetDBPage<FollowedItem>> pendingPage;
+			bool resuming;
+			
+			bool attemptRestoreSync(Optional<FollowedItem> firstItem) {
+				if(firstItem && resumeData.syncLastItem && firstItem->uri == resumeData.syncLastItem->uri && firstItem->addedAt == resumeData.syncLastItem->addedAt) {
+					return true;
+				}
+				resumeData.syncCurrentType = GoogleDriveStorageProvider_syncTypes[0];
+				resumeData.syncLastItem = std::nullopt;
+				resumeData.syncLastItemOffset = std::nullopt;
+				resumeData.syncMostRecentSave = std::nullopt;
+				resumeData.syncPageToken = String();
+				pendingPage = std::nullopt;
+				return false;
+			}
+		};
+		auto sharedData = fgl::new$<SharedData>(SharedData{
+			.resumeData = GenerateLibraryResumeData::fromJson(options.resumeData),
+			.resuming = true
+		});
+		using YieldResult = LibraryItemGenerator::YieldResult;
+		return LibraryItemGenerator(coLambda([=]() -> Promise<YieldResult> {
+			co_await resumeOnQueue(DispatchQueue::main());
+			auto& resumeData = sharedData->resumeData;
+			if(resumeData.syncCurrentType == "my-playlists") {
+				// sync playlists created by the current user
+				GoogleDriveFilesPage<Playlist::Data> page;
+				auto pageToken = resumeData.syncPageToken;
+				if(sharedData->resuming && !pageToken.empty()) {
+					sharedData->resuming = false;
+					// ensure page token didn't get invalidated
+					try {
+						page = co_await this->getMyPlaylists({
+							.pageToken = pageToken,
+							.pageSize = 1000,
+							.orderBy = "modifiedTime desc"
+						});
+					} catch(...) {
+						// page token was invalid, so start over
+						resumeData.syncPageToken = String();
+						resumeData.syncLastItem = std::nullopt;
+						resumeData.syncLastItemOffset = std::nullopt;
+						resumeData.syncMostRecentSave = std::nullopt;
+						co_return YieldResult{
+							.value = GenerateLibraryResults{
+								.resumeData = resumeData.toJson(),
+								.progress = 0,
+								.items = {}
+							},
+							.done = false
+						};
+					}
+				} else {
+					sharedData->resuming = false;
+					page = co_await this->getMyPlaylists({
+						.pageToken = pageToken,
+						.pageSize = 1000,
+						.orderBy = "modifiedTime desc"
+					});
+				}
+				auto libraryItems = page.items.map([=](auto& playlist) {
+					return LibraryItem{
+						.mediaItem = this->mediaItemBuilder->playlist(playlist),
+						.addedAt = String()
+					};
+				});
+				size_t offset = resumeData.syncLastItemOffset.valueOr(0) + page.items.size();
+				bool sectionDone = page.nextPageToken.empty();
+				// check if sync is caught up with the previous sync's most recent modification date
+				if(!sectionDone && resumeData.mostRecentPlaylistModification && !page.items.empty()) {
+					auto& lastItem = page.items.back();
+					auto versionId = this->parsePlaylistVersionID(lastItem.versionId);
+					time_t lastTime = versionId.modifiedAt.toTimeVal();
+					// check if last item was modified earlier than the most recent modification date
+					if(lastTime < resumeData.mostRecentPlaylistModification.value()) {
+						sectionDone = true;
+					}
+				}
+				// apply syncMostRecentSave if we're at the first chunk
+				if(pageToken.empty() && !page.items.empty()) {
+					auto versionId = this->parsePlaylistVersionID(page.items.front().versionId);
+					resumeData.syncMostRecentSave = versionId.modifiedAt.toTimeVal();
+				}
+				// update resume data based on state
+				if(sectionDone) {
+					resumeData.syncCurrentType = GoogleDriveStorageProvider_syncTypes[1];
+					if(resumeData.syncMostRecentSave) {
+						resumeData.mostRecentPlaylistModification = resumeData.syncMostRecentSave;
+					}
+					resumeData.syncMostRecentSave = std::nullopt;
+					resumeData.syncLastItem = std::nullopt;
+					resumeData.syncLastItemOffset = std::nullopt;
+					resumeData.syncPageToken = String();
+				} else {
+					resumeData.syncLastItemOffset = offset;
+					resumeData.syncLastItem = std::nullopt;
+					resumeData.syncPageToken = page.nextPageToken;
+				}
+				co_return YieldResult{
+					.value = GenerateLibraryResults{
+						.resumeData = resumeData.toJson(),
+						.progress = (sectionDone ? 1.0 : std::min(1.0, (double)offset / 10000.0)) / (double)GoogleDriveStorageProvider_syncTypes.size(),
+						.items = libraryItems
+					},
+					.done = sectionDone
+				};
+			}
+			else {
+				// sync items followed by the current user
+				auto generateFollowedItems = [=](
+						Optional<time_t>* mostRecentSave,
+						auto itemsGetter,
+						auto mediaItemsGetter,
+						auto mediaItemGetter) -> Promise<YieldResult> {
+					bool resuming = sharedData->resuming;
+					auto& resumeData = sharedData->resumeData;
+					size_t sectionIndex = GoogleDriveStorageProvider_syncTypes.indexOf(resumeData.syncCurrentType);
+					// get page of followed items
+					size_t offset;
+					if(!sharedData->pendingPage || sharedData->pendingPage->items.size() == 0) {
+						// load items from API and set pending page
+						offset = resumeData.syncLastItemOffset.valueOr(0);
+						size_t limit = 10000;
+						sharedData->pendingPage = co_await itemsGetter(offset, limit);
+						if(resuming && offset > 0) {
+							auto lastItem = (sharedData->pendingPage->items.size() > 0) ? maybe(sharedData->pendingPage->items.at(0)) : std::nullopt;
+							if(!sharedData->attemptRestoreSync(lastItem)) {
+								sharedData->resuming = false;
+								co_return YieldResult{
+									.value = GenerateLibraryResults{
+										.resumeData = resumeData.toJson(),
+										.items = {},
+										.progress = (double)sectionIndex / (double)GoogleDriveStorageProvider_syncTypes.size()
+									},
+									.done = false
+								};
+							}
+						}
+					} else {
+						// just dequeue items from pending page
+						offset = sharedData->pendingPage->offset;
+					}
+					sharedData->resuming = false;
+					// construct smaller page and dequeue items
+					GoogleSheetDBPage<FollowedItem> page;
+					size_t chunkSize = 50;
+					page.offset = sharedData->pendingPage->offset;
+					page.total = sharedData->pendingPage->total;
+					page.items = sharedData->pendingPage->items.slice(0, chunkSize);
+					// organize lists of items for each provider in background thread
+					co_await resumeOnNewThread();
+					struct ItemList {
+						MediaProvider* provider;
+						LinkedList<std::pair<size_t,FollowedItem>> items;
+					};
+					auto listsToFetch = LinkedList<ItemList>();
+					size_t i=0;
+					for(auto& item : page.items) {
+						auto provider = mediaProviderStash->getMediaProvider(item.provider);
+						auto listIt = listsToFetch.findWhere([&](auto& list) {
+							return list.provider == provider;
+						});
+						if(listIt == listsToFetch.end()) {
+							// list doesn't exist, so it needs to be added
+							listsToFetch.pushBack(ItemList{
+								.provider = provider,
+								.items = { std::make_pair(i, item) }
+							});
+						} else {
+							// list exists, so add to it
+							listIt->items.pushBack(std::make_pair(i, item));
+						}
+						i++;
+					}
+					co_await resumeOnQueue(DispatchQueue::main());
+					// fetch items for each provider
+					using FetchedItemList = ArrayList<std::pair<size_t,LibraryItem>>;
+					auto fetchedItemLists = co_await Promise<FetchedItemList>::all(ArrayList<Promise<FetchedItemList>>(listsToFetch.map([=](ItemList list) -> Promise<FetchedItemList> {
+						if(list.items.size() == 1) {
+							auto& pair = list.items.front();
+							return mediaItemGetter(list.provider, pair.second.uri).map([=](auto mediaItem) -> FetchedItemList {
+								return FetchedItemList{ std::make_pair(pair.first, LibraryItem{
+									.mediaItem = mediaItem,
+									.addedAt = pair.second.addedAt
+								}) };
+							});
+						} else {
+							auto uris = list.items.map([](auto& pair) {
+								return pair.second.uri;
+							});
+							return mediaItemsGetter(list.provider, uris).map([=](auto mediaItems) -> FetchedItemList {
+								FetchedItemList mappedLibraryItems;
+								mappedLibraryItems.reserve(mediaItems.size());
+								auto itemIt = list.items.begin();
+								for(auto& mediaItem : mediaItems) {
+									mappedLibraryItems.pushBack(std::make_pair(itemIt->first, LibraryItem{
+										.mediaItem = mediaItem,
+										.addedAt = itemIt->second.addedAt
+									}));
+									itemIt++;
+								}
+								return mappedLibraryItems;
+							});
+						}
+					})));
+					// map items back into single list
+					ArrayList<LibraryItem> items;
+					items.resize(page.items.size());
+					for(auto& itemList : fetchedItemLists) {
+						for(auto& pair : itemList) {
+							items[pair.first] = pair.second;
+						}
+					}
+					// apply syncMostRecentSave if we're at 0
+					if(offset == 0 && page.items.size() > 0) {
+						resumeData.syncMostRecentSave = timeFromString(page.items.front().addedAt);
+					}
+					// check if we're caught up
+					bool caughtUp = false;
+					if(*mostRecentSave) {
+						for(auto& item : page.items) {
+							time_t cmpTime = timeFromString(item.addedAt);
+							if(cmpTime <= *mostRecentSave) {
+								caughtUp = true;
+								break;
+							}
+						}
+					}
+					// determine progress
+					bool lastSection = (sectionIndex == (GoogleDriveStorageProvider_syncTypes.size() - 1));
+					bool sectionDone = (page.offset + page.items.size()) >= page.total;
+					bool done = false;
+					if(sectionDone || caughtUp) {
+						if(lastSection) {
+							done = true;
+							resumeData.syncCurrentType = GoogleDriveStorageProvider_syncTypes.at(0);
+						}
+						if(resumeData.syncMostRecentSave) {
+							*mostRecentSave = resumeData.syncMostRecentSave;
+						}
+						resumeData.syncLastItem = std::nullopt;
+						resumeData.syncLastItemOffset = std::nullopt;
+						resumeData.syncPageToken = String();
+						resumeData.syncMostRecentSave = std::nullopt;
+						sharedData->pendingPage = std::nullopt;
+					} else {
+						sharedData->pendingPage->items = sharedData->pendingPage->items.slice(items.size());
+						sharedData->pendingPage->offset += items.size();
+						if(sharedData->pendingPage->items.empty()) {
+							sharedData->pendingPage = std::nullopt;
+						}
+						resumeData.syncPageToken = String();
+						if(items.size() > 0) {
+							auto& lastItem = items.back();
+							resumeData.syncLastItem = GenerateLibraryResumeData::Item{
+								.uri = lastItem.mediaItem->uri(),
+								.addedAt = lastItem.addedAt
+							};
+							resumeData.syncLastItemOffset = offset + (items.size() - 1);
+						}
+					}
+					co_return YieldResult{
+						.value = GenerateLibraryResults{
+							.resumeData = resumeData.toJson(),
+							.items = items,
+							.progress = ((double)sectionIndex + ((double)(offset + items.size()) / (double)page.total)) / (double)GoogleDriveStorageProvider_syncTypes.size()
+						},
+						.done = done
+					};
+				};
+				
+				if(resumeData.syncCurrentType == "followed-playlists") {
+					co_return co_await generateFollowedItems(&resumeData.mostRecentPlaylistFollow, [=](size_t offset, size_t limit) {
+						return getFollowedPlaylists(offset, limit);
+					}, [](MediaProvider* provider, ArrayList<String> uris) {
+						return provider->getPlaylists(uris);
+					}, [](MediaProvider* provider, String uri) {
+						return provider->getPlaylist(uri);
+					});
+				}
+				else if(resumeData.syncCurrentType == "followed-users") {
+					co_return co_await generateFollowedItems(&resumeData.mostRecentUserFollow, [=](size_t offset, size_t limit) {
+						return getFollowedUsers(offset, limit);
+					}, [](MediaProvider* provider, ArrayList<String> uris) {
+						return provider->getUsers(uris);
+					}, [](MediaProvider* provider, String uri) {
+						return provider->getUser(uri);
+					});
+				}
+				else if(resumeData.syncCurrentType == "followed-artists") {
+					co_return co_await generateFollowedItems(&resumeData.mostRecentArtistFollow, [=](size_t offset, size_t limit) {
+						return getFollowedArtists(offset, limit);
+					}, [](MediaProvider* provider, ArrayList<String> uris) {
+						return provider->getArtists(uris);
+					}, [](MediaProvider* provider, String uri) {
+						return provider->getArtist(uri);
+					});
+				}
+				else {
+					throw std::runtime_error("invalid sync type "+resumeData.syncCurrentType);
+				}
+			}
+		}));
 	}
 
 

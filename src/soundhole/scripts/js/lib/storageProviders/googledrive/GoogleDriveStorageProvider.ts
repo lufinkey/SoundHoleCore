@@ -23,8 +23,8 @@ import StorageProvider, {
 	PlaylistPage,
 	Track,
 	URIParts,
-	User, 
-	validatePlaylistPrivacy} from '../StorageProvider';
+	User,
+	validatePlaylistPrivacy } from '../StorageProvider';
 import {
 	GoogleDriveIdentity,
 	GoogleDriveSession,
@@ -36,7 +36,8 @@ import {
 	parseUserURI,
 	createUserURI,
 	createUserURIFromUser,
-	createUserIDFromUser } from './types';
+	createUserIDFromUser,
+	GoogleSheetPage } from './types';
 import GoogleDrivePlaylist, { InsertingPlaylistItem } from './GoogleDrivePlaylist';
 import GoogleDriveLibraryDB from './GoogleDriveLibraryDB';
 
@@ -61,6 +62,11 @@ type LoginWithRedirectParamsOptions = {
 	clientId?: string
 	codeVerifier: string
 }
+
+type PlaylistVersionID = {
+	modifiedAt: Date
+}
+
 
 export default class GoogleDriveStorageProvider implements StorageProvider {
 	private _options: GoogleDriveStorageProviderOptions
@@ -466,6 +472,22 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 	}
 
 
+	_parsePlaylistVersionId(versionId: string): PlaylistVersionID {
+		return {
+			modifiedAt: new Date(versionId)
+		};
+	}
+
+	_encodePlaylistVersionId(versionId: PlaylistVersionID): string {
+		return versionId.modifiedAt.toISOString();
+	}
+
+	_formatDate(date: Date): string {
+		return date.toISOString();
+	}
+
+
+
 	_createUserObject(owner: drive_v3.Schema$User, baseFolderId: string | null): User {
 		const mediaItemBuilder = this._options.mediaItemBuilder;
 		const displayName = owner.displayName ?? owner.emailAddress ?? owner.permissionId;
@@ -495,6 +517,9 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 		if(file.name == null) {
 			throw new Error("Missing name in playlist file object");
 		}
+		if(file.createdTime == null) {
+			throw new Error("Missing createdTime in playlist file object");
+		}
 		if(file.modifiedTime == null) {
 			throw new Error("Missing modifiedTime in playlist file object");
 		}
@@ -522,7 +547,9 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 			uri: this._createPlaylistURI(file.id, baseFolderId),
 			name: file.name,
 			description: file.description ?? "",
-			versionId: file.modifiedTime,
+			createdAt: this._formatDate(new Date(file.createdTime)),
+			modifiedAt: this._formatDate(new Date(file.modifiedTime)),
+			versionId: this._encodePlaylistVersionId({modifiedAt: new Date(file.modifiedTime)}),
 			privacy: determinePermissionsPrivacy(file.permissions),
 			owner: this._createUserObject(owner, baseFolderId)
 		};
@@ -677,7 +704,8 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 			q: `mimeType = 'application/vnd.google-apps.spreadsheet' and '${playlistsFolderId}' in parents and trashed = false`,
 			fields: "*",
 			pageToken: options.pageToken,
-			pageSize: options.pageSize ?? 1000
+			pageSize: options.pageSize ?? 1000,
+			orderBy: options.orderBy
 		})).data;
 		// transform result
 		return {
@@ -690,6 +718,10 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 
 
 	async getUserPlaylists(userURI: string, options: GetUserPlaylistsOptions = {}): Promise<PlaylistPage> {
+		type PageToken = {
+			playlistsFolderId: string
+			token: string
+		};
 		await this._prepareForRequest();
 		const uriParts = this._parseUserURI(userURI);
 		if(!uriParts.baseFolderId) {
@@ -704,12 +736,12 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 		let playlistsFolderId = null;
 		let pageToken = undefined;
 		if(options.pageToken) {
-			const index = options.pageToken.indexOf(':');
-			if(index === -1) {
+			const pageTokenObj: PageToken = JSON.parse(options.pageToken);
+			if(pageTokenObj.playlistsFolderId == null || pageTokenObj.token == null) {
 				throw new Error("invalid page token");
 			}
-			playlistsFolderId = options.pageToken.substring(0, index);
-			pageToken = options.pageToken.substring(index+1);
+			playlistsFolderId = pageTokenObj.playlistsFolderId;
+			pageToken = pageTokenObj.token;
 		}
 		// get playlists folder if needed
 		if(!playlistsFolderId) {
@@ -743,11 +775,15 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 			throw new Error("Missing \"files\" property in response");
 		}
 		// transform result
+		const nextPageTokenObj: PageToken | null = nextPageToken ? {
+			playlistsFolderId: playlistsFolderId as string,
+			token: nextPageToken as string
+		} : null;
 		return {
 			items: files.map((file) => (
 				this._createPlaylistObject(file, userIdentifier, userBaseFolderId)
 			)),
-			nextPageToken: (nextPageToken ? `${playlistsFolderId}:${nextPageToken}` : null)
+			nextPageToken: (nextPageTokenObj ? JSON.stringify(nextPageTokenObj) : null)
 		};
 	}
 
@@ -921,6 +957,14 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 		return this._libraryDB.checkFollowedPlaylists(uris);
 	}
 
+	async getFollowedPlaylists(options: {offset: number, limit: number}): Promise<GoogleSheetPage<FollowedItem>> {
+		await this._prepareForRequest();
+		if(!this._libraryDB) {
+			throw new Error("No library DB available");
+		}
+		return await this._libraryDB.getFollowedPlaylistsInRange(options);
+	}
+
 
 
 	async followUsers(users: NewFollowedItem[]): Promise<FollowedItemRow[]> {
@@ -953,6 +997,14 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 		return this._libraryDB.checkFollowedUsers(uris);
 	}
 
+	async getFollowedUsers(options: {offset: number, limit: number}): Promise<GoogleSheetPage<FollowedItem>> {
+		await this._prepareForRequest();
+		if(!this._libraryDB) {
+			throw new Error("No library DB available");
+		}
+		return await this._libraryDB.getFollowedUsersInRange(options);
+	}
+
 
 
 	async followArtists(artists: NewFollowedItem[]): Promise<FollowedItemRow[]> {
@@ -983,5 +1035,13 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 			throw new Error("No library DB available");
 		}
 		return this._libraryDB.checkFollowedArtists(uris);
+	}
+
+	async getFollowedArtists(options: {offset: number, limit: number}): Promise<GoogleSheetPage<FollowedItem>> {
+		await this._prepareForRequest();
+		if(!this._libraryDB) {
+			throw new Error("No library DB available");
+		}
+		return await this._libraryDB.getFollowedArtistsInRange(options);
 	}
 }

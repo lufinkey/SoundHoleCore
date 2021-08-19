@@ -66,6 +66,8 @@ export type Playlist = {
 	uri: string
 	name: string
 	description: string
+	createdAt: string,
+	modifiedAt: string,
 	versionId: string
 	privacy: PlaylistPrivacyId
 	owner: User
@@ -83,6 +85,8 @@ export type PlaylistItemPage = {
 	offset: number
 	total: number
 }
+
+
 
 export type CreatePlaylistOptions = {
 	privacy?: PlaylistPrivacyId,
@@ -103,6 +107,7 @@ export type GetPlaylistItemsOptions = {
 export type GetUserPlaylistsOptions = {
 	pageToken?: string
 	pageSize?: number
+	orderBy?: string
 }
 
 
@@ -174,7 +179,6 @@ export default interface StorageProvider {
 	createPlaylist(name: string, options: CreatePlaylistOptions): Promise<Playlist>
 	getPlaylist(playlistURI: string, options: GetPlaylistOptions): Promise<Playlist>
 	deletePlaylist(playlistURI: string): Promise<void>
-	getMyPlaylists(options: GetUserPlaylistsOptions): Promise<PlaylistPage>
 	getUserPlaylists(userURI: string, options: GetUserPlaylistsOptions): Promise<PlaylistPage>
 	isPlaylistEditable(playlistURI: string): Promise<boolean>
 
