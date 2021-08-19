@@ -234,6 +234,8 @@ namespace sh {
 		};
 		w$<PlaybackOrganizer> weakSelf = shared_from_this();
 		return continuousPlayQueue.run(runOptions, coLambda([=](auto task) -> Generator<void> {
+			co_yield setGenResumeQueue(DispatchQueue::main());
+			co_yield initialGenNext();
 			auto self = weakSelf.lock();
 			if(!self) {
 				co_return;
@@ -241,8 +243,6 @@ namespace sh {
 			if(self->preparedNext) {
 				co_return;
 			}
-			co_yield setGenResumeQueue(DispatchQueue::main());
-			co_yield initialGenNext();
 			ItemVariant nextItem = co_await self->getNextItem();
 			co_yield {};
 			auto nextTrack = trackFromItem(nextItem);
