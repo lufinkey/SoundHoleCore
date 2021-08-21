@@ -189,3 +189,11 @@ export const createUserURIFromUser = ({storageProvider, user, baseFolderId}: {st
 		id: createUserIDFromUser(user, baseFolderId)
 	}, mediaItemBuilder);
 };
+
+
+
+export type GoogleDriveProfileInfo = {
+	spotifyUserURI?: string
+	youtubeUserURI?: string
+	bandcampUserURI?: string
+}

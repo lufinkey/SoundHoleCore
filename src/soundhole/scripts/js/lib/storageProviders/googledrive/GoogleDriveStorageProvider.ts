@@ -40,6 +40,7 @@ import {
 	GoogleSheetPage } from './types';
 import GoogleDrivePlaylist, { InsertingPlaylistItem } from './GoogleDrivePlaylist';
 import GoogleDriveLibraryDB from './GoogleDriveLibraryDB';
+import GoogleDriveProfileDB from './GoogleDriveProfileDB';
 
 
 type GoogleDriveStorageProviderOptions = {
@@ -75,6 +76,7 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 	private _playlistsFolderId: string | null
 	private _currentDriveInfo: drive_v3.Schema$About | null
 	private _libraryDB: GoogleDriveLibraryDB | null
+	private _profileDB: GoogleDriveProfileDB | null
 	private _auth: Auth.OAuth2Client
 	private _drive: drive_v3.Drive
 	private _sheets: sheets_v4.Sheets
@@ -98,6 +100,7 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 		this._baseFolder = null;
 		this._playlistsFolderId = null;
 		this._libraryDB = null;
+		this._profileDB = null;
 		this._currentDriveInfo = null;
 		
 		this._auth = new google.auth.OAuth2({
@@ -259,6 +262,7 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 	async _prepareForRequest() {
 		await this._prepareFolders();
 		await this._prepareLibraryDB();
+		await this._prepareProfileDB();
 	}
 
 	async _prepareFolders() {
@@ -421,6 +425,31 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 			});
 		} else {
 			await this._libraryDB.instantiateIfNeeded();
+		}
+	}
+
+	async _prepareProfileDB() {
+		if(!this.isLoggedIn) {
+			return;
+		}
+		await this._prepareBaseFolder();
+		if(this._profileDB != null && this._profileDB.isInstantiated) {
+			return;
+		}
+		const baseFolderId = this._baseFolderId;
+		if(!baseFolderId) {
+			throw new Error("No base folder found to create DB inside of");
+		}
+		// instantiate DB if needed
+		if(this._profileDB == null) {
+			this._profileDB = await GoogleDriveProfileDB.prepare({
+				appKey: this._options.appKey,
+				folderId: baseFolderId,
+				drive: this._drive,
+				sheets: this._sheets
+			});
+		} else {
+			await this._profileDB.instantiateIfNeeded();
 		}
 	}
 
