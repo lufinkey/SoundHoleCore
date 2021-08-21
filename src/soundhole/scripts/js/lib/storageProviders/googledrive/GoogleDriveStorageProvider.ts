@@ -305,29 +305,47 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 			}
 			return files[0];
 		})();
-		if(baseFolder != null) {
+		// create base folder if needed
+		if(baseFolder == null) {
+			// create base folder
+			baseFolder = (await this._drive.files.create({
+				fields: "*",
+				requestBody: {
+					name: folderName,
+					mimeType: 'application/vnd.google-apps.folder',
+					parents: [ 'root' ],
+					appProperties: {
+						[baseFolderPropKey]: 'true'
+					}
+				}
+			})).data;
+			// ensure ID property
+			if(baseFolder.id == null) {
+				throw new Error("Could not get \"id\" property of newly created base folder");
+			}
+		} else {
+			// ensure ID property
 			if(baseFolder.id == null) {
 				throw new Error("Could not get \"id\" property of base folder");
 			}
-			this._baseFolderId = baseFolder.id;
-			this._baseFolder = baseFolder;
-			return;
 		}
-		// create base folder
-		baseFolder = (await this._drive.files.create({
-			fields: "*",
-			requestBody: {
-				name: folderName,
-				mimeType: 'application/vnd.google-apps.folder',
-				parents: [ 'root' ],
-				appProperties: {
-					[baseFolderPropKey]: 'true'
+		// ensure base folder is public
+		if(baseFolder.permissions?.find((p) => (p.type === 'anyone')) == null) {
+			// create public permission for base folder
+			const permission = (await this._drive.permissions.create({
+				fileId: baseFolder.id,
+				requestBody: {
+					role: 'reader',
+					type: 'anyone',
+					allowFileDiscovery: false
 				}
+			})).data;
+			if(!baseFolder.permissions) {
+				baseFolder.permissions = [];
 			}
-		})).data;
-		if(baseFolder.id == null) {
-			throw new Error("Could not get \"id\" property of newly created base folder");
+			baseFolder.permissions.push(permission);
 		}
+		// apply base folder
 		this._baseFolderId = baseFolder.id;
 		this._baseFolder = baseFolder;
 	}
