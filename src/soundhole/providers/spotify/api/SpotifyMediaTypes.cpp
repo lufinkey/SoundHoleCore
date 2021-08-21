@@ -75,13 +75,6 @@ namespace sh {
 	}
 
 
-	SpotifyVideoThumbnail SpotifyVideoThumbnail::fromJson(const Json& json) {
-		return SpotifyVideoThumbnail{
-			.url = json["url"].string_value()
-		};
-	}
-
-
 	Json SpotifyUser::toJson() const {
 		auto json = Json::object{
 			{ "type", (std::string)type },
@@ -283,7 +276,6 @@ namespace sh {
 		return Item{
 			.addedAt = json["added_at"].string_value(),
 			.addedBy = addedBy.is_object() ? maybe(SpotifyUser::fromJson(addedBy)) : std::nullopt,
-			.videoThumbnail = SpotifyVideoThumbnail::fromJson(json["video_thumbnail"]),
 			.track = SpotifyTrack::fromJson(json["track"])
 		};
 	}

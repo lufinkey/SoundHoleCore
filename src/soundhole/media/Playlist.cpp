@@ -31,7 +31,7 @@ namespace sh {
 		return PlaylistItem::Data{
 			collectionItemData,
 			.uniqueId = json["uniqueId"].string_value(),
-			.addedAt = json["addedAt"].string_value(),
+			.addedAt = Date::maybeFromISOString(json["addedAt"].string_value()).valueOr(Date::epoch()),
 			.addedBy = addedBy
 		};
 	}
@@ -54,7 +54,7 @@ namespace sh {
 		return _uniqueId;
 	}
 
-	const String& PlaylistItem::addedAt() const {
+	const Date& PlaylistItem::addedAt() const {
 		return _addedAt;
 	}
 
@@ -94,7 +94,7 @@ namespace sh {
 		json.merge(Json::object{
 			{ "uniqueId", (std::string)_uniqueId },
 			{ "addedBy", _addedBy ? _addedBy->toJson() : Json() },
-			{ "addedAt", (std::string)_addedAt }
+			{ "addedAt", (std::string)_addedAt.toISOString() }
 		});
 		return json;
 	}

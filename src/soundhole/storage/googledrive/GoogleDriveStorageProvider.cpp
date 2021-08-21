@@ -138,20 +138,12 @@ namespace sh {
 	#pragma mark Parsing
 
 	GoogleDriveStorageProvider::PlaylistVersionID GoogleDriveStorageProvider::parsePlaylistVersionID(String versionIdString) {
-		if(auto date = Date::fromGmtString(versionIdString, "%Y-%m-%dT%H:%M:%S%.f%z")) {
+		if(auto date = Date::maybeFromISOString(versionIdString)) {
 			return PlaylistVersionID{
 				.modifiedAt = date.value()
 			};
 		}
 		throw std::invalid_argument("Invalid playlist version ID format");
-	}
-
-	time_t GoogleDriveStorageProvider::timeFromString(String dateString) {
-		auto date = Date::fromGmtString(dateString, "%Y-%m-%dT%H:%M:%S%.f%z");
-		if(!date) {
-			throw std::runtime_error("invalid date string "+dateString);
-		}
-		return date->toTimeVal();
 	}
 
 
@@ -407,8 +399,8 @@ namespace sh {
 
 
 
-	Promise<GoogleDriveFilesPage<Playlist::Data>> GoogleDriveStorageProvider::getMyPlaylists(GetMyPlaylistsOptions options) {
-		return performAsyncJSAPIFunc<GoogleDriveFilesPage<Playlist::Data>>("getMyPlaylists", [=](napi_env env) {
+	Promise<GoogleDriveFilesPage<StorageProvider::LibraryItem>> GoogleDriveStorageProvider::getMyPlaylists(GetMyPlaylistsOptions options) {
+		return performAsyncJSAPIFunc<GoogleDriveFilesPage<LibraryItem>>("getMyPlaylists", [=](napi_env env) {
 			auto optionsObj = Napi::Object::New(env);
 			if(!options.orderBy.empty()) {
 				optionsObj.Set("orderBy", Napi::String::New(env, options.orderBy));
@@ -431,7 +423,16 @@ namespace sh {
 			if(!jsonError.empty()) {
 				throw std::runtime_error("failed to decode json for getMyPlaylists result");
 			}
-			return GoogleDriveFilesPage<Playlist::Data>::fromJson(json, this->mediaProviderStash);
+			return GoogleDriveFilesPage<LibraryItem>{
+				.items = jsutils::arrayListFromJson(json["items"], [&](auto& item) -> LibraryItem {
+					return LibraryItem{
+						.mediaItem = this->mediaItemBuilder->playlist(Playlist::Data::fromJson(item, this->mediaProviderStash)),
+						.addedAt = Date::maybeFromISOString(item["createdAt"].string_value())
+							.valueOrThrow(std::invalid_argument("Missing field \"createdAt\" for google drive playlist"))
+					};
+				}),
+				.nextPageToken = json["nextPageToken"].string_value()
+			};
 		});
 	}
 
@@ -476,17 +477,17 @@ namespace sh {
 
 
 
-	const auto GoogleDriveStorageProvider_syncTypes = ArrayList<String>{ "my-playlists", "followed-playlists", "followed-artists", "followed_users" };
+	const auto GoogleDriveStorageProvider_syncLibraryTypes = ArrayList<String>{ "my-playlists", "followed-playlists", "followed-artists", "followed_users" };
 
 	Json GoogleDriveStorageProvider::GenerateLibraryResumeData::toJson() const {
 		return Json::object{
-			{ "mostRecentPlaylistModification", mostRecentPlaylistModification ? Json((double)mostRecentPlaylistModification.value()) : Json() },
-			{ "mostRecentPlaylistFollow", mostRecentPlaylistFollow ? Json((double)mostRecentPlaylistFollow.value()) : Json() },
-			{ "mostRecentArtistFollow", mostRecentArtistFollow ? Json((double)mostRecentArtistFollow.value()) : Json() },
-			{ "mostRecentUserFollow", mostRecentUserFollow ? Json((double)mostRecentUserFollow.value()) : Json() },
-			{ "syncCurrentType", syncCurrentType },
-			{ "syncPageToken", syncPageToken },
-			{ "syncMostRecentSave", syncMostRecentSave ? Json((double)syncMostRecentSave.value()) : Json() },
+			{ "mostRecentPlaylistModification", mostRecentPlaylistModification ? (std::string)mostRecentPlaylistModification->toISOString() : Json() },
+			{ "mostRecentPlaylistFollow", mostRecentPlaylistFollow ? (std::string)mostRecentPlaylistFollow->toISOString() : Json() },
+			{ "mostRecentArtistFollow", mostRecentArtistFollow ? (std::string)mostRecentArtistFollow->toISOString() : Json() },
+			{ "mostRecentUserFollow", mostRecentUserFollow ? (std::string)mostRecentUserFollow->toISOString() : Json() },
+			{ "syncCurrentType", (std::string)syncCurrentType },
+			{ "syncPageToken", (std::string)syncPageToken },
+			{ "syncMostRecentSave", syncMostRecentSave ? (std::string)syncMostRecentSave->toISOString() : Json() },
 			{ "syncLastItemOffset", syncLastItemOffset ? Json((double)syncLastItemOffset.value()) : Json() },
 			{ "syncLastItem", syncLastItem ? syncLastItem->toJson() : Json() }
 		};
@@ -500,20 +501,20 @@ namespace sh {
 		auto syncMostRecentSave = json["syncMostRecentSave"];
 		auto syncLastItemOffset = json["syncLastItemOffset"];
 		auto resumeData = GenerateLibraryResumeData{
-			.mostRecentPlaylistModification = mostRecentPlaylistModification.is_number() ? maybe((time_t)mostRecentPlaylistModification.number_value()) : std::nullopt,
-			.mostRecentPlaylistFollow = mostRecentPlaylistFollow.is_number() ? maybe((time_t)mostRecentPlaylistFollow.number_value()) : std::nullopt,
-			.mostRecentArtistFollow = mostRecentArtistFollow.is_number() ? maybe((time_t)mostRecentArtistFollow.number_value()) : std::nullopt,
-			.mostRecentUserFollow = mostRecentUserFollow.is_number() ? maybe((time_t)mostRecentUserFollow.number_value()) : std::nullopt,
+			.mostRecentPlaylistModification = mostRecentPlaylistModification.is_string() ? Date::maybeFromISOString(mostRecentPlaylistModification.string_value()) : std::nullopt,
+			.mostRecentPlaylistFollow = mostRecentPlaylistFollow.is_string() ? Date::maybeFromISOString(mostRecentPlaylistFollow.string_value()) : std::nullopt,
+			.mostRecentArtistFollow = mostRecentArtistFollow.is_string() ? Date::maybeFromISOString(mostRecentArtistFollow.string_value()) : std::nullopt,
+			.mostRecentUserFollow = mostRecentUserFollow.is_string() ? Date::maybeFromISOString(mostRecentUserFollow.string_value()) : std::nullopt,
 			.syncCurrentType = json["syncCurrentType"].string_value(),
 			.syncPageToken = json["syncPageToken"].string_value(),
-			.syncMostRecentSave = syncMostRecentSave.is_number() ? maybe((time_t)syncMostRecentSave.number_value()) : std::nullopt,
+			.syncMostRecentSave = syncMostRecentSave.is_string() ? Date::maybeFromISOString(syncMostRecentSave.string_value()) : std::nullopt,
 			.syncLastItemOffset = syncLastItemOffset.is_number() ? maybe((size_t)syncLastItemOffset.number_value()) : std::nullopt,
 			.syncLastItem = Item::maybeFromJson(json["syncLastItem"])
 		};
-		bool syncTypeValid = GoogleDriveStorageProvider_syncTypes.contains(resumeData.syncCurrentType);
+		bool syncTypeValid = GoogleDriveStorageProvider_syncLibraryTypes.contains(resumeData.syncCurrentType);
 		if(!(resumeData.syncMostRecentSave.has_value() && resumeData.syncLastItemOffset.has_value()
 			 && resumeData.syncLastItem.has_value() && syncTypeValid)) {
-			resumeData.syncCurrentType = GoogleDriveStorageProvider_syncTypes[0];
+			resumeData.syncCurrentType = GoogleDriveStorageProvider_syncLibraryTypes[0];
 			resumeData.syncPageToken = String();
 			resumeData.syncMostRecentSave = std::nullopt;
 			resumeData.syncLastItemOffset = std::nullopt;
@@ -530,16 +531,20 @@ namespace sh {
 		if(uri.empty()) {
 			return std::nullopt;
 		}
+		auto addedAt = Date::maybeFromISOString(json["addedAt"].string_value());
+		if(!addedAt) {
+			return std::nullopt;
+		}
 		return Item{
 			.uri = uri,
-			.addedAt = json["addedAt"].string_value()
+			.addedAt = addedAt.value()
 		};
 	}
 
 	Json GoogleDriveStorageProvider::GenerateLibraryResumeData::Item::toJson() const {
 		return Json::object{
-			{ "uri", Json(uri) },
-			{ "addedAt", Json(addedAt) }
+			{ "uri", (std::string)uri },
+			{ "addedAt", (std::string)addedAt.toISOString() }
 		};
 	}
 
@@ -555,7 +560,7 @@ namespace sh {
 				if(firstItem && resumeData.syncLastItem && firstItem->uri == resumeData.syncLastItem->uri && firstItem->addedAt == resumeData.syncLastItem->addedAt) {
 					return true;
 				}
-				resumeData.syncCurrentType = GoogleDriveStorageProvider_syncTypes[0];
+				resumeData.syncCurrentType = GoogleDriveStorageProvider_syncLibraryTypes[0];
 				resumeData.syncLastItem = std::nullopt;
 				resumeData.syncLastItemOffset = std::nullopt;
 				resumeData.syncMostRecentSave = std::nullopt;
@@ -574,7 +579,7 @@ namespace sh {
 			auto& resumeData = sharedData->resumeData;
 			if(resumeData.syncCurrentType == "my-playlists") {
 				// sync playlists created by the current user
-				GoogleDriveFilesPage<Playlist::Data> page;
+				GoogleDriveFilesPage<LibraryItem> page;
 				auto pageToken = resumeData.syncPageToken;
 				if(sharedData->resuming && !pageToken.empty()) {
 					sharedData->resuming = false;
@@ -608,32 +613,26 @@ namespace sh {
 						.orderBy = "modifiedTime desc"
 					});
 				}
-				auto libraryItems = page.items.map([=](auto& playlist) {
-					return LibraryItem{
-						.mediaItem = this->mediaItemBuilder->playlist(playlist),
-						.addedAt = String()
-					};
-				});
 				size_t offset = resumeData.syncLastItemOffset.valueOr(0) + page.items.size();
 				bool sectionDone = page.nextPageToken.empty();
 				// check if sync is caught up with the previous sync's most recent modification date
 				if(!sectionDone && resumeData.mostRecentPlaylistModification && !page.items.empty()) {
-					auto& lastItem = page.items.back();
-					auto versionId = this->parsePlaylistVersionID(lastItem.versionId);
-					time_t lastTime = versionId.modifiedAt.toTimeVal();
+					auto lastItem = std::static_pointer_cast<Playlist>(page.items.back().mediaItem);
+					auto versionId = this->parsePlaylistVersionID(lastItem->versionId());
 					// check if last item was modified earlier than the most recent modification date
-					if(lastTime < resumeData.mostRecentPlaylistModification.value()) {
+					if(versionId.modifiedAt <= resumeData.mostRecentPlaylistModification.value()) {
 						sectionDone = true;
 					}
 				}
 				// apply syncMostRecentSave if we're at the first chunk
 				if(pageToken.empty() && !page.items.empty()) {
-					auto versionId = this->parsePlaylistVersionID(page.items.front().versionId);
-					resumeData.syncMostRecentSave = versionId.modifiedAt.toTimeVal();
+					auto firstItem = std::static_pointer_cast<Playlist>(page.items.front().mediaItem);
+					auto versionId = this->parsePlaylistVersionID(firstItem->versionId());
+					resumeData.syncMostRecentSave = versionId.modifiedAt;
 				}
 				// update resume data based on state
 				if(sectionDone) {
-					resumeData.syncCurrentType = GoogleDriveStorageProvider_syncTypes[1];
+					resumeData.syncCurrentType = GoogleDriveStorageProvider_syncLibraryTypes[1];
 					if(resumeData.syncMostRecentSave) {
 						resumeData.mostRecentPlaylistModification = resumeData.syncMostRecentSave;
 					}
@@ -649,8 +648,8 @@ namespace sh {
 				co_return YieldResult{
 					.value = GenerateLibraryResults{
 						.resumeData = resumeData.toJson(),
-						.progress = (sectionDone ? 1.0 : std::min(1.0, (double)offset / 10000.0)) / (double)GoogleDriveStorageProvider_syncTypes.size(),
-						.items = libraryItems
+						.progress = (sectionDone ? 1.0 : std::min(1.0, (double)offset / 10000.0)) / (double)GoogleDriveStorageProvider_syncLibraryTypes.size(),
+						.items = page.items
 					},
 					.done = sectionDone
 				};
@@ -658,13 +657,13 @@ namespace sh {
 			else {
 				// sync items followed by the current user
 				auto generateFollowedItems = [=](
-						Optional<time_t>* mostRecentSave,
+						Optional<Date>* mostRecentSave,
 						auto itemsGetter,
 						auto mediaItemsGetter,
 						auto mediaItemGetter) -> Promise<YieldResult> {
 					bool resuming = sharedData->resuming;
 					auto& resumeData = sharedData->resumeData;
-					size_t sectionIndex = GoogleDriveStorageProvider_syncTypes.indexOf(resumeData.syncCurrentType);
+					size_t sectionIndex = GoogleDriveStorageProvider_syncLibraryTypes.indexOf(resumeData.syncCurrentType);
 					// get page of followed items
 					size_t offset;
 					if(!sharedData->pendingPage || sharedData->pendingPage->items.size() == 0) {
@@ -680,7 +679,7 @@ namespace sh {
 									.value = GenerateLibraryResults{
 										.resumeData = resumeData.toJson(),
 										.items = {},
-										.progress = (double)sectionIndex / (double)GoogleDriveStorageProvider_syncTypes.size()
+										.progress = (double)sectionIndex / (double)GoogleDriveStorageProvider_syncLibraryTypes.size()
 									},
 									.done = false
 								};
@@ -755,35 +754,40 @@ namespace sh {
 					})));
 					// map items back into single list
 					ArrayList<LibraryItem> items;
-					items.resize(page.items.size());
-					for(auto& itemList : fetchedItemLists) {
-						for(auto& pair : itemList) {
-							items[pair.first] = pair.second;
+					{
+						ArrayList<Optional<LibraryItem>> optItems;
+						optItems.resize(page.items.size());
+						for(auto& itemList : fetchedItemLists) {
+							for(auto& pair : itemList) {
+								optItems[pair.first] = pair.second;
+							}
 						}
+						items = optItems.map([](auto& val) { return val.value(); });
 					}
 					// apply syncMostRecentSave if we're at 0
 					if(offset == 0 && page.items.size() > 0) {
-						resumeData.syncMostRecentSave = timeFromString(page.items.front().addedAt);
+						resumeData.syncMostRecentSave = page.items.front().addedAt;
 					}
 					// check if we're caught up
 					bool caughtUp = false;
 					if(*mostRecentSave) {
 						for(auto& item : page.items) {
-							time_t cmpTime = timeFromString(item.addedAt);
-							if(cmpTime <= *mostRecentSave) {
+							if(item.addedAt <= *mostRecentSave) {
 								caughtUp = true;
 								break;
 							}
 						}
 					}
 					// determine progress
-					bool lastSection = (sectionIndex == (GoogleDriveStorageProvider_syncTypes.size() - 1));
+					bool lastSection = (sectionIndex == (GoogleDriveStorageProvider_syncLibraryTypes.size() - 1));
 					bool sectionDone = (page.offset + page.items.size()) >= page.total;
 					bool done = false;
 					if(sectionDone || caughtUp) {
 						if(lastSection) {
 							done = true;
-							resumeData.syncCurrentType = GoogleDriveStorageProvider_syncTypes.at(0);
+							resumeData.syncCurrentType = String();
+						} else {
+							resumeData.syncCurrentType = GoogleDriveStorageProvider_syncLibraryTypes[sectionIndex + 1];
 						}
 						if(resumeData.syncMostRecentSave) {
 							*mostRecentSave = resumeData.syncMostRecentSave;
@@ -813,7 +817,7 @@ namespace sh {
 						.value = GenerateLibraryResults{
 							.resumeData = resumeData.toJson(),
 							.items = items,
-							.progress = ((double)sectionIndex + ((double)(offset + items.size()) / (double)page.total)) / (double)GoogleDriveStorageProvider_syncTypes.size()
+							.progress = ((double)sectionIndex + ((double)(offset + items.size()) / (double)page.total)) / (double)GoogleDriveStorageProvider_syncLibraryTypes.size()
 						},
 						.done = done
 					};

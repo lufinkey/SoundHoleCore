@@ -56,7 +56,7 @@ namespace sh {
 		auto sourceIndex = _sourceItem->indexInContext();
 		json.merge(Json::object{
 			{ "sourceItem", _sourceItem->toJson() },
-			{ "sourceIndex", sourceIndex ? Json((double)sourceIndex.value()) : Json() }
+			{ "sourceIndex", sourceIndex ? (double)sourceIndex.value() : Json() }
 		});
 		return json;
 	}

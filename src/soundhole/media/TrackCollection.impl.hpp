@@ -32,7 +32,7 @@ namespace sh {
 				if(pair.second.is_null()) {
 					continue;
 				}
-				items[index] = ItemType::Data::fromJson(pair.second, stash);
+				items.insert_or_assign(index, ItemType::Data::fromJson(pair.second, stash));
 			}
 		}
 		else if(itemsJson.is_array()) {
@@ -42,7 +42,7 @@ namespace sh {
 					i++;
 					continue;
 				}
-				items[i] = ItemType::Data::fromJson(itemJson, stash);
+				items.insert_or_assign(i, ItemType::Data::fromJson(itemJson, stash));
 				i++;
 			}
 		}

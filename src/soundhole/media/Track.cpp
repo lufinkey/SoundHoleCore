@@ -31,10 +31,10 @@ namespace sh {
 
 	Json Track::AudioSource::toJson() const {
 		return Json::object{
-			{"url",(std::string)url},
-			{"encoding",(std::string)encoding},
-			{"bitrate",bitrate},
-			{"videoBitrate",(videoBitrate ? Json(videoBitrate.value()) : Json())}
+			{"url", (std::string)url},
+			{"encoding", (std::string)encoding},
+			{"bitrate", bitrate},
+			{"videoBitrate", (videoBitrate ? videoBitrate.value() : Json())}
 		};
 	}
 

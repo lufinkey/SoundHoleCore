@@ -63,20 +63,17 @@ namespace sh {
 		struct GenerateLibraryResumeData {
 			String fanId;
 			
-			Optional<time_t> mostRecentHiddenSave;
-			Optional<time_t> mostRecentCollectionSave;
-			Optional<time_t> mostRecentWishlistSave;
+			Optional<Date> mostRecentHiddenSave;
+			Optional<Date> mostRecentCollectionSave;
+			Optional<Date> mostRecentWishlistSave;
 			
 			String syncCurrentType;
-			Optional<time_t> syncMostRecentSave;
+			Optional<Date> syncMostRecentSave;
 			String syncLastToken;
 			size_t syncOffset;
 			
 			Json toJson() const;
 			static GenerateLibraryResumeData fromJson(const Json&);
-			
-			static String typeFromSyncIndex(size_t index);
-			static Optional<size_t> syncIndexFromType(String type);
 		};
 		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options = GenerateLibraryOptions()) override;
 		
@@ -120,8 +117,6 @@ namespace sh {
 		virtual String getIdentityFilePath() const override;
 		
 	private:
-		static time_t timeFromString(String time);
-		
 		URI parseURL(String url) const;
 		String createURI(String type, String url) const;
 		

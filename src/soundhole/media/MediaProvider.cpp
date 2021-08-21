@@ -17,8 +17,8 @@ namespace sh {
 			throw std::invalid_argument("mediaItem must be an object");
 		}
 		return LibraryItem{
-			.mediaItem=stash->parseMediaItem(mediaItem),
-			.addedAt=json["addedAt"].string_value()
+			.mediaItem = stash->parseMediaItem(mediaItem),
+			.addedAt = Date::maybeFromISOString(json["addedAt"].string_value()).valueOr(Date::epoch())
 		};
 	}
 

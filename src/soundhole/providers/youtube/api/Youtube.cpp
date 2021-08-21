@@ -129,22 +129,30 @@ namespace sh {
 		if(session) {
 			request.headers["Authorization"] = session->getTokenType()+" "+session->getAccessToken();
 		}
-		return utils::performHttpRequest(request).map([=](auto response) -> Json {
-			std::string parseError;
-			auto responseJson = (response->data.length() > 0) ? Json::parse(response->data, parseError) : Json();
-			if(response->statusCode >= 300) {
-				if(parseError.empty()) {
-					auto errorMessage = responseJson["error"]["message"].string_value();
-					if(errorMessage.empty()) {
-						errorMessage = (std::string)response->statusMessage;
-					}
-					throw YoutubeError(YoutubeError::Code::REQUEST_FAILED, errorMessage);
-				} else {
-					throw YoutubeError(YoutubeError::Code::REQUEST_FAILED, response->statusMessage);
-				}
+		auto response = co_await utils::performHttpRequest(request);
+		// if response is unauthorized, refresh token and try again
+		if(response->statusCode == 401) {
+			session = auth->getSession();
+			if(session && !session->getRefreshToken().empty()) {
+				co_await auth->renewSession();
+				response = co_await utils::performHttpRequest(request);
 			}
-			return responseJson;
-		});
+		}
+		// parse response json
+		std::string parseError;
+		auto responseJson = (response->data.length() > 0) ? Json::parse(response->data, parseError) : Json();
+		if(response->statusCode >= 300) {
+			if(parseError.empty()) {
+				auto errorMessage = responseJson["error"]["message"].string_value();
+				if(errorMessage.empty()) {
+					errorMessage = (std::string)response->statusMessage;
+				}
+				throw YoutubeError(YoutubeError::Code::REQUEST_FAILED, errorMessage);
+			} else {
+				throw YoutubeError(YoutubeError::Code::REQUEST_FAILED, response->statusMessage);
+			}
+		}
+		co_return responseJson;
 	}
 
 
@@ -343,12 +351,12 @@ namespace sh {
 			auto contentDetails = Json::object{};
 			if(!options.playlists.empty() || options.type == "singlePlaylist" || options.type == "multiplePlaylists") {
 				contentDetails["playlists"] = options.playlists.map([](auto playlistId) -> Json {
-					return Json(playlistId);
+					return Json((std::string)playlistId);
 				});
 			}
 			if(!options.channels.empty() || options.type == "singleChannel" || options.type == "multipleChannels") {
 				contentDetails["channels"] = options.channels.map([](auto channelId) -> Json {
-					return Json(channelId);
+					return Json((std::string)channelId);
 				});
 			}
 			body["contentDetails"] = contentDetails;
@@ -363,13 +371,13 @@ namespace sh {
 		if(options.targeting) {
 			body["targeting"] = Json::object{
 				{ "languages", options.targeting->languages.map([](auto language) -> Json {
-					return Json(language);
+					return Json((std::string)language);
 				}) },
 				{ "regions", options.targeting->regions.map([](auto region) -> Json {
-					return Json(region);
+					return Json((std::string)region);
 				}) },
 				{ "countries", options.targeting->countries.map([](auto country) -> Json {
-					return Json(country);
+					return Json((std::string)country);
 				}) }
 			};
 		}
@@ -407,12 +415,12 @@ namespace sh {
 			auto contentDetails = Json::object{};
 			if(options.playlists) {
 				contentDetails["playlists"] = options.playlists->map([](auto playlistId) -> Json {
-					return Json(playlistId);
+					return Json((std::string)playlistId);
 				});
 			}
 			if(options.channels) {
 				contentDetails["channels"] = options.channels->map([](auto channelId) -> Json {
-					return Json(channelId);
+					return Json((std::string)channelId);
 				});
 			}
 			body["contentDetails"] = contentDetails;
@@ -420,13 +428,13 @@ namespace sh {
 		if(options.targeting) {
 			body["targeting"] = Json::object{
 				{ "languages", options.targeting->languages.map([](auto language) -> Json {
-					return Json(language);
+					return Json((std::string)language);
 				}) },
 				{ "regions", options.targeting->regions.map([](auto region) -> Json {
-					return Json(region);
+					return Json((std::string)region);
 				}) },
 				{ "countries", options.targeting->countries.map([](auto country) -> Json {
-					return Json(country);
+					return Json((std::string)country);
 				}) }
 			};
 		}

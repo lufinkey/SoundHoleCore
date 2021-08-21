@@ -41,6 +41,13 @@ Any sqlStringOrNull(String str) {
 			"(SELECT " field " FROM " table " WHERE uri = ?)", { Any(item->uri()) }) \
 		: sqlParam(params, value))
 
+#define EXISTING_FIELD_OR(params, value, fallback) \
+	String::join({ \
+		"COALESCE((",fallback,"), ",sqlParam(params, value),")" \
+	})
+
+#define COMMA ,
+
 
 
 ArrayList<String> artistColumns() {
@@ -158,7 +165,7 @@ CREATE TABLE IF NOT EXISTS SavedTrack (
 	libraryProvider TEXT NOT NULL,
 	addedAt TEXT,
 	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY(trackURI, libraryProvider),
+	PRIMARY KEY(trackURI),
 	FOREIGN KEY(trackURI) REFERENCES Track(uri)
 );
 CREATE TABLE IF NOT EXISTS SavedAlbum (
@@ -166,7 +173,7 @@ CREATE TABLE IF NOT EXISTS SavedAlbum (
 	libraryProvider TEXT NOT NULL,
 	addedAt TEXT,
 	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY(albumURI, libraryProvider),
+	PRIMARY KEY(albumURI),
 	FOREIGN KEY(albumURI) REFERENCES TrackCollection(uri)
 );
 CREATE TABLE IF NOT EXISTS SavedPlaylist (
@@ -174,21 +181,21 @@ CREATE TABLE IF NOT EXISTS SavedPlaylist (
 	libraryProvider TEXT NOT NULL,
 	addedAt TEXT,
 	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY(playlistURI, libraryProvider),
+	PRIMARY KEY(playlistURI),
 	FOREIGN KEY(playlistURI) REFERENCES TrackCollection(uri)
 );
 CREATE TABLE IF NOT EXISTS FollowedArtist (
 	artistURI TEXT NOT NULL UNIQUE,
 	libraryProvider TEXT NOT NULL UNIQUE,
 	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY(artistURI, libraryProvider),
+	PRIMARY KEY(artistURI),
 	FOREIGN KEY(artistURI) REFERENCES Artist(uri)
 );
 CREATE TABLE IF NOT EXISTS FollowedUserAccount (
 	userURI TEXT NOT NULL UNIQUE,
 	libraryProvider TEXT NOT NULL UNIQUE,
 	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY(userURI, libraryProvider),
+	PRIMARY KEY(userURI),
 	FOREIGN KEY(userURI) REFERENCES UserAccount(uri)
 );
 CREATE TABLE IF NOT EXISTS DBState (
@@ -407,7 +414,7 @@ String trackCollectionItemTuple(LinkedList<Any>& params, $<TrackCollectionItem> 
 	$<UserAccount> addedBy;
 	if(auto playlistItem = std::dynamic_pointer_cast<PlaylistItem>(item)) {
 		uniqueId = playlistItem->uniqueId();
-		addedAt = playlistItem->addedAt();
+		addedAt = playlistItem->addedAt().toISOString();
 		addedBy = playlistItem->addedBy();
 	}
 	return String::join({ "(",
@@ -491,14 +498,14 @@ String artistTuple(LinkedList<Any>& params, $<Artist> artist, const TupleOptions
 ArrayList<String> followedArtistTupleColumns() {
 	return { "artistURI", "libraryProvider", "updateTime" };
 }
-String followedArtistTuple(LinkedList<Any>& params, const FollowedArtist& followedArtist) {
+String followedArtistTuple(LinkedList<Any>& params, const FollowedArtist& artist) {
 	return String::join({ "(",
 		// artistURI
-		sqlParam(params, followedArtist.artistURI),",",
+		sqlParam(params, artist.artistURI),",",
 		// libraryProvider
-		sqlParam(params, followedArtist.libraryProvider),",",
+		sqlParam(params, artist.libraryProvider),",",
 		// addedAt
-		sqlParam(params, sqlStringOrNull(followedArtist.addedAt)),",",
+		EXISTING_FIELD_OR(params, sqlStringOrNull(artist.addedAt), "SELECT addedAt FROM FollowedArtist WHERE artistURI = " COMMA sqlParam(params COMMA sqlStringOrNull(artist.addedAt))),",",
 		// updateTime
 		"CURRENT_TIMESTAMP",
 	")" });
@@ -529,14 +536,14 @@ String userAccountTuple(LinkedList<Any>& params, $<UserAccount> userAccount, con
 ArrayList<String> followedUserAccountTupleColumns() {
 	return { "userURI", "libraryProvider", "updateTime" };
 }
-String followedUserAccountTuple(LinkedList<Any>& params, const FollowedUserAccount& followedUser) {
+String followedUserAccountTuple(LinkedList<Any>& params, const FollowedUserAccount& user) {
 	return String::join({ "(",
-		// artistURI
-		sqlParam(params, followedUser.userURI),",",
+		// userURI
+		sqlParam(params, user.userURI),",",
 		// libraryProvider
-		sqlParam(params, followedUser.libraryProvider),",",
+		sqlParam(params, user.libraryProvider),",",
 		// addedAt
-		sqlParam(params, sqlStringOrNull(followedUser.addedAt)),",",
+		EXISTING_FIELD_OR(params, sqlStringOrNull(user.addedAt), "SELECT addedAt FROM FollowedUserAccount WHERE userURI = " COMMA sqlParam(params COMMA sqlStringOrNull(user.addedAt))),",",
 		// updateTime
 		"CURRENT_TIMESTAMP",
 	")" });
@@ -554,7 +561,7 @@ String savedTrackTuple(LinkedList<Any>& params, const SavedTrack& track) {
 		// libraryProvider
 		sqlParam(params, track.libraryProvider),",",
 		// addedAt
-		sqlParam(params, sqlStringOrNull(track.addedAt)),",",
+		EXISTING_FIELD_OR(params, sqlStringOrNull(track.addedAt), "SELECT addedAt FROM SavedTrack WHERE trackURI = " COMMA sqlParam(params COMMA sqlStringOrNull(track.addedAt))),",",
 		// updateTime
 		"CURRENT_TIMESTAMP",
 	")" });
@@ -570,7 +577,7 @@ String savedAlbumTuple(LinkedList<Any>& params, const SavedAlbum& album) {
 		// libraryProvider
 		sqlParam(params, album.libraryProvider),",",
 		// addedAt
-		sqlParam(params, sqlStringOrNull(album.addedAt)),",",
+		EXISTING_FIELD_OR(params, sqlStringOrNull(album.addedAt), "SELECT addedAt FROM SavedAlbum WHERE albumURI = " COMMA sqlParam(params COMMA sqlStringOrNull(album.addedAt))),",",
 		// updateTime
 		"CURRENT_TIMESTAMP",
 	")" });
@@ -586,7 +593,7 @@ String savedPlaylistTuple(LinkedList<Any>& params, const SavedPlaylist& playlist
 		// libraryProvider
 		sqlParam(params, playlist.libraryProvider),",",
 		// addedAt
-		sqlParam(params, sqlStringOrNull(playlist.addedAt)),",",
+		EXISTING_FIELD_OR(params, sqlStringOrNull(playlist.addedAt), "SELECT addedAt FROM SavedPlaylist WHERE playlistURI = " COMMA sqlParam(params COMMA sqlStringOrNull(playlist.addedAt))),",",
 		// updateTime
 		"CURRENT_TIMESTAMP",
 	")" });

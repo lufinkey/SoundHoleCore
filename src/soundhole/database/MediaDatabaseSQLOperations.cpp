@@ -366,7 +366,7 @@ void insertOrReplaceLibraryItems(SQLiteTransaction& tx, const ArrayList<MediaPro
 			savedTrackTuples.pushBack(savedTrackTuple(savedTrackParams, {
 				.trackURI = track->uri(),
 				.libraryProvider = track->mediaProvider()->name(),
-				.addedAt = item.addedAt
+				.addedAt = item.addedAt.toISOString()
 			}));
 			addTrackTuples(track, trackTuples, true);
 		}
@@ -374,7 +374,7 @@ void insertOrReplaceLibraryItems(SQLiteTransaction& tx, const ArrayList<MediaPro
 			savedAlbumTuples.pushBack(savedAlbumTuple(savedAlbumParams, {
 				.albumURI = album->uri(),
 				.libraryProvider = album->mediaProvider()->name(),
-				.addedAt = item.addedAt
+				.addedAt = item.addedAt.toISOString()
 			}));
 			addTrackCollectionTuples(album, collectionTuples);
 		}
@@ -382,7 +382,7 @@ void insertOrReplaceLibraryItems(SQLiteTransaction& tx, const ArrayList<MediaPro
 			savedPlaylistTuples.pushBack(savedPlaylistTuple(savedPlaylistParams, {
 				.playlistURI = playlist->uri(),
 				.libraryProvider = playlist->mediaProvider()->name(),
-				.addedAt = item.addedAt
+				.addedAt = item.addedAt.toISOString()
 			}));
 			addTrackCollectionTuples(playlist, collectionTuples);
 		}
@@ -390,7 +390,7 @@ void insertOrReplaceLibraryItems(SQLiteTransaction& tx, const ArrayList<MediaPro
 			followedArtistTuples.pushBack(followedArtistTuple(followedArtistParams, {
 				.artistURI = artist->uri(),
 				.libraryProvider = artist->mediaProvider()->name(),
-				.addedAt = item.addedAt
+				.addedAt = item.addedAt.toISOString()
 			}));
 			if(artist->needsData()) {
 				trackTuples.partialArtistTuples.pushBack(artistTuple(trackTuples.partialArtistParams, artist, {.coalesce=true}));
@@ -402,7 +402,7 @@ void insertOrReplaceLibraryItems(SQLiteTransaction& tx, const ArrayList<MediaPro
 			followedUserAccountTuples.pushBack(followedUserAccountTuple(followedUserAccountParams, {
 				.userURI = userAccount->uri(),
 				.libraryProvider = userAccount->mediaProvider()->name(),
-				.addedAt = item.addedAt
+				.addedAt = item.addedAt.toISOString()
 			}));
 			if(artist->needsData()) {
 				collectionTuples.partialUserAccountTuples.pushBack(userAccountTuple(collectionTuples.partialUserAccountParams, userAccount, {.coalesce=true}));

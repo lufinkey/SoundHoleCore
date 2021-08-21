@@ -94,7 +94,7 @@ namespace sh {
 		Promise<GetJsonItemsListResult> getSavedTracksJson(sql::IndexRange range, GetSavedTracksJsonOptions options = GetSavedTracksJsonOptions{
 			.orderBy=sql::LibraryItemOrderBy::ADDED_AT,
 			.order=sql::Order::DESC});
-		Promise<Json> getSavedTrackJson(String uri, String libraryProvider);
+		Promise<Json> getSavedTrackJson(String uri);
 		Promise<ArrayList<bool>> hasSavedTracks(ArrayList<String> uris);
 		
 		Promise<size_t> getSavedAlbumsCount(GetSavedItemsCountOptions options = GetSavedItemsCountOptions());

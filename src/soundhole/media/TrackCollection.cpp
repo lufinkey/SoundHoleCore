@@ -129,8 +129,8 @@ namespace sh {
 		auto versionId = this->versionId();
 		auto itemCount = this->itemCount();
 		json.merge(Json::object{
-			{ "versionId", versionId.empty() ? Json() : Json((std::string)versionId) },
-			{ "itemCount", itemCount ? Json((double)itemCount.value()) : Json() }
+			{ "versionId", versionId.empty() ? Json() : (std::string)versionId },
+			{ "itemCount", itemCount ? (double)itemCount.value() : Json() }
 		});
 		return json;
 	}

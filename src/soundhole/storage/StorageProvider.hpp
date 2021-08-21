@@ -67,7 +67,7 @@ namespace sh {
 		struct FollowedItem {
 			String uri;
 			String provider;
-			String addedAt;
+			Date addedAt;
 			
 			#ifdef NODE_API_MODULE
 			static FollowedItem fromNapiObject(Napi::Object);

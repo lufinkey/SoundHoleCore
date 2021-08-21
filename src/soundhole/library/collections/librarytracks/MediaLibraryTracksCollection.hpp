@@ -22,7 +22,7 @@ namespace sh {
 	class MediaLibraryTracksCollectionItem: public SpecialTrackCollectionItem<MediaLibraryTracksCollection> {
 	public:
 		struct Data: public SpecialTrackCollectionItem<MediaLibraryTracksCollection>::Data {
-			String addedAt;
+			Date addedAt;
 			
 			static Data fromJson(const Json& json, MediaProviderStash* stash);
 		};
@@ -31,7 +31,7 @@ namespace sh {
 		
 		MediaLibraryTracksCollectionItem($<SpecialTrackCollection<MediaLibraryTracksCollectionItem>> collection, const Data& data);
 		
-		const String& addedAt() const;
+		const Date& addedAt() const;
 		
 		virtual bool matchesItem(const TrackCollectionItem* item) const override;
 		
@@ -39,7 +39,7 @@ namespace sh {
 		virtual Json toJson() const override;
 		
 	protected:
-		String _addedAt;
+		Date _addedAt;
 	};
 
 

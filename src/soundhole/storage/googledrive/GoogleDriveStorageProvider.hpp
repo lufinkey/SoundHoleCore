@@ -49,20 +49,20 @@ namespace sh {
 		struct GenerateLibraryResumeData {
 			struct Item {
 				String uri;
-				String addedAt;
+				Date addedAt;
 				
 				Json toJson() const;
 				static Optional<Item> maybeFromJson(const Json&);
 			};
 			
-			Optional<time_t> mostRecentPlaylistModification;
-			Optional<time_t> mostRecentPlaylistFollow;
-			Optional<time_t> mostRecentArtistFollow;
-			Optional<time_t> mostRecentUserFollow;
+			Optional<Date> mostRecentPlaylistModification;
+			Optional<Date> mostRecentPlaylistFollow;
+			Optional<Date> mostRecentArtistFollow;
+			Optional<Date> mostRecentUserFollow;
 			
 			String syncCurrentType;
 			String syncPageToken;
-			Optional<time_t> syncMostRecentSave;
+			Optional<Date> syncMostRecentSave;
 			Optional<size_t> syncLastItemOffset;
 			Optional<Item> syncLastItem;
 			
@@ -105,7 +105,7 @@ namespace sh {
 			Optional<size_t> pageSize;
 			String orderBy;
 		};
-		Promise<GoogleDriveFilesPage<Playlist::Data>> getMyPlaylists(GetMyPlaylistsOptions options);
+		Promise<GoogleDriveFilesPage<LibraryItem>> getMyPlaylists(GetMyPlaylistsOptions options);
 		Promise<GoogleSheetDBPage<FollowedItem>> getFollowedPlaylists(size_t offset, size_t limit);
 		Promise<GoogleSheetDBPage<FollowedItem>> getFollowedArtists(size_t offset, size_t limit);
 		Promise<GoogleSheetDBPage<FollowedItem>> getFollowedUsers(size_t offset, size_t limit);
@@ -115,8 +115,6 @@ namespace sh {
 		void updateSessionFromJS(napi_env env);
 		void loadSession();
 		void saveSession();
-		
-		static time_t timeFromString(String dateString);
 		
 		#ifdef NODE_API_MODULE
 		template<typename Result>

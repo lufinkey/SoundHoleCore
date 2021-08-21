@@ -261,12 +261,12 @@ namespace sh {
 
 	Json MediaItem::toJson() const {
 		return Json::object{
-			{"provider",(std::string)provider->name()},
-			{"partial",_partial},
-			{"type",(std::string)_type},
-			{"name",(std::string)_name},
-			{"uri",(std::string)_uri},
-			{"images",(_images ? Json(_images->map([&](auto& image) -> Json {
+			{"provider", (std::string)provider->name()},
+			{"partial", _partial},
+			{"type", (std::string)_type},
+			{"name", (std::string)_name},
+			{"uri", (std::string)_uri},
+			{"images", (_images ? Json(_images->map([&](auto& image) -> Json {
 				return image.toJson();
 			})) : Json())}
 		};

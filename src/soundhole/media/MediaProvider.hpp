@@ -26,7 +26,7 @@ namespace sh {
 	public:
 		struct LibraryItem {
 			$<MediaItem> mediaItem;
-			String addedAt;
+			Date addedAt;
 			
 			static LibraryItem fromJson(Json json, MediaProviderStash* stash);
 		};

@@ -104,13 +104,6 @@ namespace sh {
 	};
 
 
-	struct SpotifyVideoThumbnail {
-		String url;
-		
-		static SpotifyVideoThumbnail fromJson(const Json&);
-	};
-
-
 	struct SpotifyUser {
 		String type;
 		String id;
@@ -197,7 +190,6 @@ namespace sh {
 		struct Item {
 			String addedAt;
 			Optional<SpotifyUser> addedBy;
-			SpotifyVideoThumbnail videoThumbnail;
 			SpotifyTrack track;
 			
 			static Item fromJson(const Json&);

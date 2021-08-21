@@ -71,7 +71,7 @@ namespace sh {
 	Json Artist::toJson() const {
 		auto json = MediaItem::toJson().object_items();
 		json.merge(Json::object{
-			{"description",(_description ? Json((std::string)_description.value()) : Json())}
+			{"description", (_description ? (std::string)_description.value() : Json())}
 		});
 		return json;
 	}

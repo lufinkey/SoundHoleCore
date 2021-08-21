@@ -49,15 +49,6 @@ namespace sh {
 
 
 
-	Date YoutubeMediaProvider::dateFromString(String time) {
-		return Date::fromGmtString(time, "%Y-%m-%dT%H:%M:%S%z")
-			.valueElse([]() -> Date {
-				throw std::runtime_error("invalid date format");
-			});
-	}
-
-
-
 	#pragma mark URI/URL parsing
 
 	YoutubeMediaProvider::URI YoutubeMediaProvider::parseURI(String uri) const {
@@ -544,7 +535,7 @@ namespace sh {
 			}),
 			},
 			.uniqueId = playlistItem.id,
-			.addedAt = playlistItem.snippet.publishedAt,
+			.addedAt = Date::fromISOString(playlistItem.snippet.publishedAt),
 			.addedBy = this->userAccount(UserAccount::Data{
 				.partial = true,
 				.type = "user",
@@ -856,21 +847,23 @@ namespace sh {
 		return true;
 	}
 
+	auto YoutubeMediaProvider_syncLibraryTypes = ArrayList<String>{ "tracks" };
+
 	YoutubeMediaProvider::GenerateLibraryResumeData YoutubeMediaProvider::GenerateLibraryResumeData::fromJson(const Json& json) {
 		auto mostRecentTrackSave = json["mostRecentTrackSave"];
 		auto syncMostRecentSave = json["syncMostRecentSave"];
 		auto resumeData = GenerateLibraryResumeData{
 			.tracksPlaylistId = json["tracksPlaylistId"].string_value(),
-			.mostRecentTrackSave = mostRecentTrackSave.is_number() ? maybe((size_t)mostRecentTrackSave.number_value()) : std::nullopt,
+			.mostRecentTrackSave = mostRecentTrackSave.is_string() ? Date::maybeFromISOString(mostRecentTrackSave.string_value()) : std::nullopt,
 			.syncCurrentType = json["syncCurrentType"].string_value(),
-			.syncMostRecentSave = syncMostRecentSave.is_number() ? maybe((size_t)syncMostRecentSave.number_value()) : std::nullopt,
+			.syncMostRecentSave = syncMostRecentSave.is_string() ? Date::maybeFromISOString(syncMostRecentSave.string_value()) : std::nullopt,
 			.syncPageToken = json["syncPageToken"].string_value(),
 			.syncOffset = (size_t)json["syncOffset"].number_value()
 		};
-		bool syncTypeValid = ArrayList<String>{"tracks"}.contains(resumeData.syncCurrentType);
+		bool syncTypeValid = YoutubeMediaProvider_syncLibraryTypes.contains(resumeData.syncCurrentType);
 		if(!resumeData.syncMostRecentSave.has_value() || resumeData.syncPageToken.empty() || !syncTypeValid) {
 			if(!syncTypeValid) {
-				resumeData.syncCurrentType = "tracks";
+				resumeData.syncCurrentType = YoutubeMediaProvider_syncLibraryTypes[0];
 			}
 			resumeData.syncMostRecentSave = std::nullopt;
 			resumeData.syncPageToken = String();
@@ -881,11 +874,11 @@ namespace sh {
 
 	Json YoutubeMediaProvider::GenerateLibraryResumeData::toJson() const {
 		return Json::object{
-			{ "tracksPlaylistId", tracksPlaylistId },
-			{ "mostRecentTrackSave", mostRecentTrackSave ? Json((double)mostRecentTrackSave.value()) : Json() },
-			{ "syncCurrentType", syncCurrentType },
-			{ "syncMostRecentSave", syncMostRecentSave ? Json((double)syncMostRecentSave.value()) : Json() },
-			{ "syncPageToken", syncPageToken },
+			{ "tracksPlaylistId", (std::string)tracksPlaylistId },
+			{ "mostRecentTrackSave", mostRecentTrackSave ? (std::string)mostRecentTrackSave->toISOString() : Json() },
+			{ "syncCurrentType", (std::string)syncCurrentType },
+			{ "syncMostRecentSave", syncMostRecentSave ? (std::string)syncMostRecentSave->toISOString() : Json() },
+			{ "syncPageToken", (std::string)syncPageToken },
 			{ "syncOffset", (double)syncOffset }
 		};
 	}
@@ -986,7 +979,7 @@ namespace sh {
 				} else {
 					sharedData->resumeData.syncPageToken = page.nextPageToken;
 					if(pageToken.empty()) {
-						sharedData->resumeData.syncMostRecentSave = dateFromString(page.items.front().snippet.publishedAt).toTimeVal();
+						sharedData->resumeData.syncMostRecentSave = Date::fromISOString(page.items.front().snippet.publishedAt);
 					}
 				}
 				co_return YieldResult{

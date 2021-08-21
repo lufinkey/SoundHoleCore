@@ -525,8 +525,8 @@ namespace sh {
 		return provider->createPlaylist(name, options).then([=]($<Playlist> playlist) {
 			return db->cacheLibraryItems({
 				MediaProvider::LibraryItem{
-					.mediaItem=playlist,
-					.addedAt=String() // TODO add a default date possibly
+					.mediaItem = playlist,
+					.addedAt = Date::now()
 				}
 			}).map([=]() -> $<Playlist> {
 				return playlist;
@@ -538,8 +538,8 @@ namespace sh {
 
 	Promise<void> MediaLibrary::saveTrack($<Track> track) {
 		auto mediaProvider = track->mediaProvider();
-		auto date = Date();
-		auto dbPromise = db->getSavedTrackJson(track->uri(), mediaProvider->name());
+		auto date = Date::now();
+		auto dbPromise = db->getSavedTrackJson(track->uri());
 		auto dataPromise = track->fetchDataIfNeeded();
 		return mediaProvider->saveTrack(track->uri())
 		.then([=]() {
@@ -547,10 +547,11 @@ namespace sh {
 		}).then([=]() {
 			return dbPromise;
 		}).then([=](auto json) {
+			auto addedAt = json["addedAt"];
 			return db->cacheLibraryItems({
 				MediaProvider::LibraryItem{
 					.mediaItem = track,
-					.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
+					.addedAt = addedAt.is_string() ? Date::maybeFromISOString(addedAt.string_value()).valueOr(date) : date
 				}
 			});
 		});
@@ -572,7 +573,7 @@ namespace sh {
 
 	Promise<void> MediaLibrary::saveAlbum($<Album> album) {
 		auto mediaProvider = album->mediaProvider();
-		auto date = Date();
+		auto date = Date::now();
 		auto dbPromise = db->getSavedAlbumJson(album->uri());
 		auto dataPromise = album->fetchDataIfNeeded();
 		return mediaProvider->saveAlbum(album->uri())
@@ -581,10 +582,11 @@ namespace sh {
 		}).then([=]() {
 			return dbPromise;
 		}).then([=](auto json) {
+			auto addedAt = json["addedAt"];
 			return db->cacheLibraryItems({
 				MediaProvider::LibraryItem{
 					.mediaItem = album,
-					.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
+					.addedAt = addedAt.is_string() ? Date::maybeFromISOString(addedAt.string_value()).valueOr(date) : date
 				}
 			});
 		});
@@ -606,7 +608,7 @@ namespace sh {
 
 	Promise<void> MediaLibrary::savePlaylist($<Playlist> playlist) {
 		auto mediaProvider = playlist->mediaProvider();
-		auto date = Date();
+		auto date = Date::now();
 		if(mediaProvider->canSavePlaylists()) {
 			// save playlist through provider
 			auto dbPromise = db->getSavedPlaylistJson(playlist->uri());
@@ -617,10 +619,11 @@ namespace sh {
 			}).then([=]() {
 				return dbPromise;
 			}).then([=](auto json) {
+				auto addedAt = json["addedAt"];
 				return db->cacheLibraryItems({
 					MediaProvider::LibraryItem{
 						.mediaItem = playlist,
-						.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
+						.addedAt = addedAt.is_string() ? Date::maybeFromISOString(addedAt.string_value()).valueOr(date) : date
 					}
 				});
 			});
@@ -639,10 +642,11 @@ namespace sh {
 			}).then([=]() {
 				return dbPromise;
 			}).then([=](auto json) {
+				auto addedAt = json["addedAt"];
 				return db->cacheLibraryItems({
 					MediaProvider::LibraryItem{
 						.mediaItem = playlist,
-						.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
+						.addedAt = addedAt.is_string() ? Date::maybeFromISOString(addedAt.string_value()).valueOr(date) : date
 					}
 				});
 			});
@@ -679,7 +683,7 @@ namespace sh {
 
 	Promise<void> MediaLibrary::followArtist($<Artist> artist) {
 		auto mediaProvider = artist->mediaProvider();
-		auto date = Date();
+		auto date = Date::now();
 		if(mediaProvider->canFollowArtists()) {
 			// follow artist through provider
 			auto dbPromise = db->getFollowedArtistJson(artist->uri());
@@ -690,10 +694,11 @@ namespace sh {
 			}).then([=]() {
 				return dbPromise;
 			}).then([=](auto json) {
+				auto addedAt = json["addedAt"];
 				return db->cacheLibraryItems({
 					MediaProvider::LibraryItem{
 						.mediaItem = artist,
-						.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
+						.addedAt = addedAt.is_string() ? Date::maybeFromISOString(addedAt.string_value()).valueOr(date) : date
 					}
 				});
 			});
@@ -712,10 +717,11 @@ namespace sh {
 			}).then([=]() {
 				return dbPromise;
 			}).then([=](auto json) {
+				auto addedAt = json["addedAt"];
 				return db->cacheLibraryItems({
 					MediaProvider::LibraryItem{
 						.mediaItem = artist,
-						.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
+						.addedAt = addedAt.is_string() ? Date::maybeFromISOString(addedAt.string_value()).valueOr(date) : date
 					}
 				});
 			});
@@ -763,7 +769,7 @@ namespace sh {
 				.description = std::nullopt
 			}));
 		}
-		auto date = Date();
+		auto date = Date::now();
 		if(mediaProvider->canFollowUsers()) {
 			// follow user through provider
 			auto dbPromise = db->getFollowedUserAccountJson(userAccount->uri());
@@ -774,10 +780,11 @@ namespace sh {
 			}).then([=]() {
 				return dbPromise;
 			}).then([=](auto json) {
+				auto addedAt = json["addedAt"];
 				return db->cacheLibraryItems({
 					MediaProvider::LibraryItem{
 						.mediaItem = userAccount,
-						.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
+						.addedAt = addedAt.is_string() ? Date::maybeFromISOString(addedAt.string_value()).valueOr(date) : date
 					}
 				});
 			});
@@ -796,10 +803,11 @@ namespace sh {
 			}).then([=]() {
 				return dbPromise;
 			}).then([=](auto json) {
+				auto addedAt = json["addedAt"];
 				return db->cacheLibraryItems({
 					MediaProvider::LibraryItem{
 						.mediaItem = userAccount,
-						.addedAt = json.is_null() ? date.toISOString() : String(json["addedAt"].string_value())
+						.addedAt = addedAt.is_string() ? Date::maybeFromISOString(addedAt.string_value()).valueOr(date) : date
 					}
 				});
 			});

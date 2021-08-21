@@ -37,6 +37,9 @@ namespace sh {
 				delegate->onOAuthSessionExpire(this);
 			}
 		}
+		if(session) {
+			startRenewalTimer();
+		}
 		renewSessionIfNeeded({.retryUntilResponse = true});
 	}
 
@@ -56,14 +59,14 @@ namespace sh {
 		bool hadSession = session.hasValue();
 		session = newSession;
 		save();
-		if(session) {
-			startRenewalTimer();
-		}
 		if(!hadSession && session) {
 			delegate->onOAuthSessionStart(this);
 			if(session && !session->isValid()) {
 				delegate->onOAuthSessionExpire(this);
 			}
+		}
+		if(session) {
+			startRenewalTimer();
 		}
 		renewSessionIfNeeded({.retryUntilResponse = true});
 	}

@@ -20,7 +20,7 @@ namespace sh {
 	public:
 		struct Data: public SpecialTrackCollectionItem<Playlist>::Data {
 			String uniqueId;
-			String addedAt;
+			Date addedAt;
 			$<UserAccount> addedBy;
 			
 			static Data fromJson(const Json& json, MediaProviderStash* stash);
@@ -30,7 +30,7 @@ namespace sh {
 		PlaylistItem($<SpecialTrackCollection<PlaylistItem>> playlist, const Data& data);
 		
 		const String& uniqueId() const;
-		const String& addedAt() const;
+		const Date& addedAt() const;
 		$<UserAccount> addedBy();
 		$<const UserAccount> addedBy() const;
 		
@@ -41,7 +41,7 @@ namespace sh {
 		
 	protected:
 		String _uniqueId;
-		String _addedAt;
+		Date _addedAt;
 		$<UserAccount> _addedBy;
 	};
 

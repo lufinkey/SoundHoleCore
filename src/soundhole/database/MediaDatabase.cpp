@@ -416,7 +416,7 @@ namespace sh {
 		});
 	}
 
-	Promise<Json> MediaDatabase::getSavedTrackJson(String uri, String libraryProvider) {
+	Promise<Json> MediaDatabase::getSavedTrackJson(String uri) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
 			sql::selectSavedTrackWithTrack(tx, "items", uri);
 		}).map(nullptr, [=](auto results) -> Json {

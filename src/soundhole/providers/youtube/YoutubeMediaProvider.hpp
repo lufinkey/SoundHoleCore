@@ -76,10 +76,10 @@ namespace sh {
 		virtual bool handlesUsersAsArtists() const override;
 		struct GenerateLibraryResumeData {
 			String tracksPlaylistId;
-			Optional<time_t> mostRecentTrackSave;
+			Optional<Date> mostRecentTrackSave;
 			
 			String syncCurrentType;
-			Optional<time_t> syncMostRecentSave;
+			Optional<Date> syncMostRecentSave;
 			String syncPageToken;
 			size_t syncOffset;
 			
@@ -138,8 +138,6 @@ namespace sh {
 		Promise<String> fetchLibraryTracksPlaylistID(String pageToken = String());
 		
 	private:
-		static Date dateFromString(String time);
-		
 		String createURI(String type, String id) const;
 		URI parseURL(String url) const;
 		

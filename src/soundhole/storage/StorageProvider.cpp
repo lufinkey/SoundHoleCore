@@ -63,7 +63,7 @@ namespace sh {
 		return FollowedItem{
 			.uri = jsutils::nonNullStringPropFromNapiObject(obj, "uri"),
 			.provider = jsutils::nonNullStringPropFromNapiObject(obj, "provider"),
-			.addedAt = jsutils::nonNullStringPropFromNapiObject(obj, "addedAt")
+			.addedAt = Date::fromISOString(jsutils::nonNullStringPropFromNapiObject(obj, "addedAt"))
 		};
 	}
 

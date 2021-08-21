@@ -16,7 +16,7 @@ namespace sh {
 	MediaLibraryTracksCollectionItem::Data MediaLibraryTracksCollectionItem::Data::fromJson(const Json& json, MediaProviderStash* stash) {
 		return MediaLibraryTracksCollectionItem::Data{
 			SpecialTrackCollectionItem<MediaLibraryTracksCollection>::Data::fromJson(json, stash),
-			.addedAt = json["addedAt"].string_value()
+			.addedAt = Date::maybeFromISOString(json["addedAt"].string_value()).valueOr(Date::epoch())
 		};
 	}
 
@@ -33,7 +33,7 @@ namespace sh {
 		//
 	}
 
-	const String& MediaLibraryTracksCollectionItem::addedAt() const {
+	const Date& MediaLibraryTracksCollectionItem::addedAt() const {
 		return _addedAt;
 	}
 	
@@ -54,7 +54,7 @@ namespace sh {
 	Json MediaLibraryTracksCollectionItem::toJson() const {
 		auto json = SpecialTrackCollectionItem<MediaLibraryTracksCollection>::toJson().object_items();
 		json.merge(Json::object{
-			{ "addedAt", _addedAt.empty() ? Json() : Json(_addedAt) }
+			{ "addedAt", (std::string)_addedAt.toISOString() }
 		});
 		return json;
 	}
@@ -185,7 +185,7 @@ namespace sh {
 		auto json = SpecialTrackCollection<MediaLibraryTracksCollectionItem>::toJson(options).object_items();
 		json.merge(Json::object{
 			{ "filters", Json::object{
-				{ "libraryProvider", (_filters.libraryProvider != nullptr) ? Json((std::string)_filters.libraryProvider->name()) : Json() },
+				{ "libraryProvider", (_filters.libraryProvider != nullptr) ? (std::string)_filters.libraryProvider->name() : Json() },
 				{ "orderBy", (std::string)sql::LibraryItemOrderBy_toString(_filters.orderBy) },
 				{ "order", (std::string)sql::Order_toString(_filters.order) }
 			} }

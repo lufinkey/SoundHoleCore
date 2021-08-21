@@ -74,7 +74,7 @@ namespace sh {
 		struct GenerateLibraryResumeData {
 			struct Item {
 				String uri;
-				String addedAt;
+				Date addedAt;
 				
 				Json toJson() const;
 				static Optional<Item> maybeFromJson(const Json&);
@@ -82,20 +82,18 @@ namespace sh {
 			
 			String userId;
 			
-			Optional<time_t> mostRecentTrackSave;
-			Optional<time_t> mostRecentAlbumSave;
+			Optional<Date> mostRecentTrackSave;
+			Optional<Date> mostRecentAlbumSave;
 			
 			String syncCurrentType;
-			Optional<time_t> syncMostRecentSave;
+			Optional<Date> syncMostRecentSave;
 			Optional<size_t> syncLastItemOffset;
 			Optional<Item> syncLastItem;
 			
 			Json toJson() const;
-			
 			static GenerateLibraryResumeData fromJson(const Json&);
-			static String typeFromSyncIndex(size_t index);
-			static Optional<size_t> syncIndexFromType(String type);
 		};
+		
 		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options = GenerateLibraryOptions()) override;
 		
 		virtual bool canFollowArtists() const override;
@@ -145,8 +143,6 @@ namespace sh {
 		virtual String getIdentityFilePath() const override;
 		
 	private:
-		static time_t timeFromString(String time);
-
 		static MediaItem::Image createImage(SpotifyImage image);
 		
 		Spotify* spotify;
