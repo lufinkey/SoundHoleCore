@@ -89,6 +89,9 @@ namespace sh {
 		void setShuffling(bool shuffling);
 		bool isShuffling() const;
 		
+		bool isPreparing() const;
+		bool hasPreparedNext() const;
+		
 		static $<Track> trackFromItem(ItemVariant item);
 		
 	private:

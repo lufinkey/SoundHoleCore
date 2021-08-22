@@ -564,14 +564,15 @@ namespace sh {
 		auto playbackState = playbackProvider->state();
 		this->providerPlaybackState = playbackState;
 		
-		// TODO compare state with previous state
+		// TODO maybe compare state with previous state? in case of buffering track?
 		// emit state change event
 		callPlayerListenerEvent(&EventListener::onPlayerStateChange, self, createEvent());
 		
 		// check if next track needs preparing
 		auto metadata = self->metadata();
 		if(metadata.currentTrack && playbackState.playing
-		   && (playbackState.position + options.nextTrackPreloadTime) >= metadata.currentTrack->duration().value_or(0.0)) {
+		   && (playbackState.position + options.nextTrackPreloadTime) >= metadata.currentTrack->duration().value_or(0.0)
+		   && !organizer->isPreparing() && !organizer->hasPreparedNext()) {
 			// prepare next track
 			organizer->prepareNextIfNeeded().except([=](std::exception_ptr error) {
 				// error

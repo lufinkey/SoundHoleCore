@@ -225,15 +225,12 @@ namespace sh {
 	}
 
 	Promise<void> PlaybackOrganizer::prepareNextIfNeeded() {
-		if(auto taskNode = continuousPlayQueue.getTaskWithTag("prepare")) {
-			return taskNode->promise;
-		}
 		auto runOptions = AsyncQueue::RunOptions{
 			.tag = "prepare",
 			.cancelMatchingTags = true
 		};
 		w$<PlaybackOrganizer> weakSelf = shared_from_this();
-		return continuousPlayQueue.run(runOptions, coLambda([=](auto task) -> Generator<void> {
+		return continuousPlayQueue.runSingle(runOptions, coLambda([=](auto task) -> Generator<void> {
 			co_yield setGenResumeQueue(DispatchQueue::main());
 			co_yield initialGenNext();
 			auto self = weakSelf.lock();
@@ -553,6 +550,16 @@ namespace sh {
 
 
 
+	bool PlaybackOrganizer::isPreparing() const {
+		return continuousPlayQueue.hasTaskWithTag("prepare");
+	}
+
+	bool PlaybackOrganizer::hasPreparedNext() const {
+		return preparedNext;
+	}
+
+
+
 	Promise<void> PlaybackOrganizer::prepareCollectionTracks($<TrackCollection> collection, size_t index) {
 		size_t startIndex = index;
 		if(startIndex <= options.contextLoadBuffer) {
@@ -572,7 +579,7 @@ namespace sh {
 				}
 				
 				bool queueChanged = false;
-				if(std::get_if<NoItem>(&item)) {
+				if(std::get_if<NoItem>(&item) != nullptr) {
 					return;
 				}
 				else if(auto queueItemPtr = std::get_if<$<QueueItem>>(&item)) {
@@ -628,12 +635,12 @@ namespace sh {
 		};
 		w$<PlaybackOrganizer> weakSelf = shared_from_this();
 		return continuousPlayQueue.run(runOptions, coLambda([=](auto task) -> Generator<void> {
+			co_yield setGenResumeQueue(DispatchQueue::main());
+			co_yield initialGenNext();
 			auto self = weakSelf.lock();
 			if(!self) {
 				co_return;
 			}
-			co_yield setGenResumeQueue(DispatchQueue::main());
-			co_yield initialGenNext();
 			size_t sleepCount = 1;
 			auto track = trackFromItem(item);
 			while(true) {
