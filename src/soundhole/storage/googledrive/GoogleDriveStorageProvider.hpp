@@ -46,6 +46,8 @@ namespace sh {
 		
 		virtual UserPlaylistsGenerator getUserPlaylists(String userURI) override;
 		
+		virtual Promise<UserAccount::Data> getUserData(String uri) override;
+		
 		struct GenerateLibraryResumeData {
 			struct Item {
 				String uri;

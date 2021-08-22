@@ -187,7 +187,15 @@ namespace sh {
 	}
 
 	Promise<UserAccount::Data> SoundHoleMediaProvider::getUserData(String uri) {
-		return Promise<UserAccount::Data>::reject(std::logic_error("SoundHoleMediaProvider::getUserData is unimplemented"));
+		auto uriParts = parseURI(uri);
+		if(uriParts.type != "user") {
+			return Promise<UserAccount::Data>::reject(std::runtime_error("SoundHole URI "+uri+" is not a user URI"));
+		}
+		auto storageProvider = getStorageProvider(uriParts.storageProvider);
+		if(storageProvider == nullptr) {
+			return Promise<UserAccount::Data>::reject(std::runtime_error("Could not find storage provider "+uriParts.storageProvider));
+		}
+		return storageProvider->getUserData(uri);
 	}
 
 

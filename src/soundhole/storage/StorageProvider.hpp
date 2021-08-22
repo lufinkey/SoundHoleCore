@@ -85,6 +85,9 @@ namespace sh {
 		
 		virtual UserPlaylistsGenerator getUserPlaylists(String userURI) = 0;
 		
+		virtual Promise<UserAccount::Data> getUserData(String uri) = 0;
+		virtual Promise<ArrayList<UserAccount::Data>> getUsersData(ArrayList<String> uris);
+		
 		using GenerateLibraryOptions = MediaProvider::GenerateLibraryOptions;
 		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options) = 0;
 		

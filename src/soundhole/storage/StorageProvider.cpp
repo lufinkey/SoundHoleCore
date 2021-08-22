@@ -34,6 +34,13 @@ namespace sh {
 		}));
 	}
 
+	Promise<ArrayList<UserAccount::Data>> StorageProvider::getUsersData(ArrayList<String> uris) {
+		// TODO handle 429 responses and try again
+		return Promise<UserAccount::Data>::all(uris.map([&](auto& uri) {
+			return this->getUserData(uri);
+		}));
+	}
+
 	#ifdef NODE_API_MODULE
 
 	Napi::Object StorageProvider::URI::toNapiObject(napi_env env) const {

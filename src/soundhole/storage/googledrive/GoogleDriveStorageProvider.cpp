@@ -321,7 +321,7 @@ namespace sh {
 			std::string jsonError;
 			auto json = Json::parse(jsonString, jsonError);
 			if(!jsonError.empty()) {
-				throw std::runtime_error("failed to decode json for createPlaylist result");
+				throw std::runtime_error("failed to decode json for getPlaylistData result");
 			}
 			return Playlist::Data::fromJson(json, this->mediaProviderStash);
 		});
@@ -436,6 +436,32 @@ namespace sh {
 		});
 	}
 
+
+
+	#pragma mark User
+
+	Promise<UserAccount::Data> GoogleDriveStorageProvider::getUserData(String uri) {
+		return performAsyncJSAPIFunc<UserAccount::Data>("getUser", [=](napi_env env) {
+			return std::vector<napi_value>{
+				uri.toNodeJSValue(env)
+			};
+		}, [=](napi_env env, Napi::Value value) {
+			auto jsExports = scripts::getJSExports(env);
+			auto json_encode = jsExports.Get("json_encode").As<Napi::Function>();
+			auto jsonString = json_encode.Call({ value }).As<Napi::String>().Utf8Value();
+			std::string jsonError;
+			auto json = Json::parse(jsonString, jsonError);
+			if(!jsonError.empty()) {
+				throw std::runtime_error("failed to decode json for getUserData result");
+			}
+			return UserAccount::Data::fromJson(json, this->mediaProviderStash);
+		});
+	}
+	
+
+
+	#pragma mark Get Followed Items
+
 	Promise<GoogleSheetDBPage<StorageProvider::FollowedItem>> GoogleDriveStorageProvider::getFollowedPlaylists(size_t offset, size_t limit) {
 		return performAsyncJSAPIFunc<GoogleSheetDBPage<FollowedItem>>("getFollowedPlaylists", [=](napi_env env) {
 			auto optionsObj = Napi::Object::New(env);
@@ -476,6 +502,8 @@ namespace sh {
 	}
 
 
+
+	#pragma mark User Library
 
 	const auto GoogleDriveStorageProvider_syncLibraryTypes = ArrayList<String>{ "my-playlists", "followed-playlists", "followed-artists", "followed_users" };
 
@@ -909,7 +937,7 @@ namespace sh {
 			std::string jsonError;
 			auto json = Json::parse(jsonString, jsonError);
 			if(!jsonError.empty()) {
-				throw std::runtime_error("failed to decode json for getPlaylistItems result");
+				throw std::runtime_error("failed to decode json for insertPlaylistItems result");
 			}
 			return GoogleDrivePlaylistItemsPage::fromJson(json, this->mediaProviderStash);
 		});
@@ -934,7 +962,7 @@ namespace sh {
 			std::string jsonError;
 			auto json = Json::parse(jsonString, jsonError);
 			if(!jsonError.empty()) {
-				throw std::runtime_error("failed to decode json for getPlaylistItems result");
+				throw std::runtime_error("failed to decode json for appendPlaylistItems result");
 			}
 			return GoogleDrivePlaylistItemsPage::fromJson(json, this->mediaProviderStash);
 		});
