@@ -6,7 +6,8 @@ import {
 import {
 	MediaItemBuilder,
 	createStorageProviderURI,
-	parseStorageProviderURI } from '../StorageProvider';
+	parseStorageProviderURI,
+	User } from '../StorageProvider';
 
 export const LIBRARY_DB_NAME = 'library';
 export const LIBRARY_DB_VERSIONS = [ '1.0' ];
@@ -109,9 +110,16 @@ export const parseUserID = (userId: string): UserIDParts => {
 				email: userId
 			};
 		} else {
-			return {
-				permissionId: userId
-			};
+			if(userId.match(/^[0-9]+$/) != null) {
+				return {
+					permissionId: userId
+				};
+			}
+			else {
+				return {
+					baseFolderId: userId
+				};
+			}
 		}
 	}
 	const baseFolderId = userId.substring(0, index);
@@ -197,3 +205,9 @@ export type GoogleDriveProfileInfo = {
 	youtubeUserURI?: string
 	bandcampUserURI?: string
 }
+
+export type GoogleDriveUser = User & {
+	baseFolderId: string
+	permissionId?: string | null
+	email?: string | null
+} & GoogleDriveProfileInfo

@@ -132,18 +132,24 @@ export default class GoogleDriveLibraryDB extends GoogleSheetsDBWrapper {
 
 
 
-	static forFileID(fileId: string, {appKey, drive, sheets}: KeyingOptions & RequiredGoogleAPIs): GoogleDriveLibraryDB {
+	static forFile(fileOrFileId: string | drive_v3.Schema$File, {appKey, drive, sheets}: KeyingOptions & RequiredGoogleAPIs): GoogleDriveLibraryDB {
+		const fileId = (typeof fileOrFileId === 'string') ? fileOrFileId : fileOrFileId.id;
+		if(!fileId) {
+			throw new Error("Missing file ID");
+		}
+		const file = (typeof fileOrFileId === 'object') ? fileOrFileId : undefined;
 		return new GoogleDriveLibraryDB({
 			appKey,
 			db: new GoogleSheetsDB({
 				fileId,
 				drive,
 				sheets
-			})
+			}),
+			file
 		});
 	}
 
-	static async prepare({appKey, folderId, drive, sheets}: PrepareOptions): Promise<GoogleDriveLibraryDB> {
+	static async findFile(folderId: string, {appKey, drive}: KeyingOptions & {drive: drive_v3.Drive}): Promise<drive_v3.Schema$File | null> {
 		const libraryDBPropKey = this.key_appProperties_userLibrary({appKey});
 		// find existing library file if exists
 		const { files } = (await drive.files.list({
@@ -156,6 +162,15 @@ export default class GoogleDriveLibraryDB extends GoogleSheetsDBWrapper {
 			throw new Error(`Unable to find files property in response when searching for "${this.FILE_NAME}" file`);
 		}
 		const file = files[0];
+		if(!file) {
+			return null;
+		}
+		return file;
+	}
+
+	static async prepare({appKey, folderId, drive, sheets}: PrepareOptions): Promise<GoogleDriveLibraryDB> {
+		// find existing library file if exists
+		const file = await this.findFile(folderId, { appKey, drive });
 		const existingFileId = file?.id;
 		// create db object
 		const db = new GoogleSheetsDB({
@@ -181,7 +196,7 @@ export default class GoogleDriveLibraryDB extends GoogleSheetsDBWrapper {
 		// create library DB
 		const libraryDB = new GoogleDriveLibraryDB({
 			appKey,
-			file,
+			file: file ?? undefined,
 			...(instantiateResult ?? {}),
 			db
 		});

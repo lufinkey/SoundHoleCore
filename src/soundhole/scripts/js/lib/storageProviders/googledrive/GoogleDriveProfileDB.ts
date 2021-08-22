@@ -71,18 +71,32 @@ export default class GoogleDriveProfileDB extends GoogleSheetsDBWrapper {
 
 
 
-	static forFileID(fileId: string, {appKey, drive, sheets}: KeyingOptions & RequiredGoogleAPIs): GoogleDriveProfileDB {
+	static forFile(fileOrFileId: string | drive_v3.Schema$File, {appKey, drive, sheets}: KeyingOptions & RequiredGoogleAPIs): GoogleDriveProfileDB {
+		const fileId = (typeof fileOrFileId === 'string') ? fileOrFileId : fileOrFileId.id;
+		if(!fileId) {
+			throw new Error("Missing file ID");
+		}
+		const file = (typeof fileOrFileId === 'object') ? fileOrFileId : undefined;
 		return new GoogleDriveProfileDB({
 			appKey,
 			db: new GoogleSheetsDB({
 				fileId,
 				drive,
 				sheets
-			})
+			}),
+			file
 		});
 	}
 
-	static async prepare({appKey, folderId, drive, sheets}: PrepareOptions): Promise<GoogleDriveProfileDB> {
+	static async fromFolder(folderId: string, {appKey, drive, sheets}: KeyingOptions & RequiredGoogleAPIs): Promise<GoogleDriveProfileDB> {
+		const file = await this.findFile(folderId, {appKey, drive});
+		if(!file) {
+			throw new Error("\"profile\" file not found");
+		}
+		return this.forFile(file, {appKey, drive, sheets});
+	}
+
+	static async findFile(folderId: string, {appKey, drive}: KeyingOptions & {drive: drive_v3.Drive}): Promise<drive_v3.Schema$File | null> {
 		const profileDBPropKey = this.key_appProperties_userProfile({appKey});
 		// find existing library file if exists
 		const { files } = (await drive.files.list({
@@ -95,6 +109,15 @@ export default class GoogleDriveProfileDB extends GoogleSheetsDBWrapper {
 			throw new Error(`Unable to find files property in response when searching for "${this.FILE_NAME}" file`);
 		}
 		const file = files[0];
+		if(!file) {
+			return null;
+		}
+		return file;
+	}
+
+	static async prepare({appKey, folderId, drive, sheets}: PrepareOptions): Promise<GoogleDriveProfileDB> {
+		// find existing library file if exists
+		const file = await this.findFile(folderId, { appKey, drive });
 		const existingFileId = file?.id;
 		// create db object
 		const db = new GoogleSheetsDB({
@@ -120,7 +143,7 @@ export default class GoogleDriveProfileDB extends GoogleSheetsDBWrapper {
 		// create library DB
 		const profileDB = new GoogleDriveProfileDB({
 			appKey,
-			file,
+			file: file ?? undefined,
 			...(instantiateResult ?? {}),
 			db
 		});

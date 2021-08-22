@@ -26,6 +26,7 @@ import StorageProvider, {
 	User,
 	validatePlaylistPrivacy } from '../StorageProvider';
 import {
+	GoogleDriveUser,
 	GoogleDriveIdentity,
 	GoogleDriveSession,
 	PlaylistURIParts,
@@ -550,7 +551,7 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 			images: (owner.photoLink != null) ? [
 				{
 					url: owner.photoLink,
-					size: 'MEDIUM'
+					size: 'SMALL'
 				}
 			] : []
 		};
@@ -772,7 +773,7 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 		await this._prepareForRequest();
 		const uriParts = this._parseUserURI(userURI);
 		if(!uriParts.baseFolderId) {
-			throw new Error("user URI does not include SoundHole folder ID");
+			throw new Error(`User URI does not include Google Drive folder ID for "${this._options.baseFolderName}"`);
 		}
 		const userBaseFolderId = uriParts.baseFolderId;
 		const userIdentifier = uriParts.permissionId ?? uriParts.email;
@@ -970,6 +971,45 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 			sheets: this._sheets
 		});
 		return await gdbPlaylist.moveItems(index, count, newIndex);
+	}
+
+
+
+	async getUser(userURI: string): Promise<GoogleDriveUser> {
+		const uriParts = this._parseUserURI(userURI);
+		if(!uriParts.baseFolderId) {
+			throw new Error(`User URI does not include Google Drive folder ID for "${this._options.baseFolderName}"`);
+		}
+		// get base folder
+		const baseFolder = (await this._drive.files.get({
+			fileId: uriParts.baseFolderId,
+			fields: "*"
+		})).data;
+		if(!baseFolder.id) {
+			throw new Error("Missing \"id\" property of base folder");
+		}
+		if(!baseFolder.owners) {
+			throw new Error("Missing \"owners\" property in base folder file result");
+		}
+		if(baseFolder.owners.length == 0) {
+			throw new Error("Base folder has no owners");
+		}
+		const baseFolderOwner = baseFolder.owners[0];
+		// get profile DB
+		const profileDB = await GoogleDriveProfileDB.fromFolder(baseFolder.id, {
+			appKey: this._options.appKey,
+			drive: this._drive,
+			sheets: this._sheets
+		});
+		const profileInfo = await profileDB.getProfileInfo();
+		const userInfo = this._createUserObject(baseFolderOwner, baseFolder.id);
+		return {
+			...userInfo,
+			baseFolderId: baseFolder.id,
+			permissionId: baseFolderOwner.permissionId,
+			email: baseFolderOwner.emailAddress,
+			...profileInfo
+		};
 	}
 
 
