@@ -15,6 +15,7 @@ namespace sh {
 	class QueueItem: std::enable_shared_from_this<QueueItem> {
 	public:
 		static $<QueueItem> new$($<Track> track);
+		
 		QueueItem($<Track> track);
 		virtual ~QueueItem();
 		

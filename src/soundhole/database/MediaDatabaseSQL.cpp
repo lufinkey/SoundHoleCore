@@ -80,6 +80,9 @@ ArrayList<String> savedAlbumColumns() {
 ArrayList<String> savedPlaylistColumns() {
 	return { "playlistURI", "libraryProvider", "addedAt", "updateTime" };
 }
+ArrayList<String> playbackHistoryItemColumns() {
+	return { "startTime", "trackURI", "contextURI", "duration", "chosenByUser", "updateTime" };
+}
 
 
 
@@ -161,7 +164,7 @@ CREATE TABLE IF NOT EXISTS TrackCollectionItem (
 	FOREIGN KEY(trackURI) REFERENCES Track(uri)
 );
 CREATE TABLE IF NOT EXISTS SavedTrack (
-	trackURI TEXT NOT NULL,
+	trackURI TEXT NOT NULL UNIQUE,
 	libraryProvider TEXT NOT NULL,
 	addedAt TEXT,
 	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -169,7 +172,7 @@ CREATE TABLE IF NOT EXISTS SavedTrack (
 	FOREIGN KEY(trackURI) REFERENCES Track(uri)
 );
 CREATE TABLE IF NOT EXISTS SavedAlbum (
-	albumURI TEXT NOT NULL,
+	albumURI TEXT NOT NULL UNIQUE,
 	libraryProvider TEXT NOT NULL,
 	addedAt TEXT,
 	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -177,7 +180,7 @@ CREATE TABLE IF NOT EXISTS SavedAlbum (
 	FOREIGN KEY(albumURI) REFERENCES TrackCollection(uri)
 );
 CREATE TABLE IF NOT EXISTS SavedPlaylist (
-	playlistURI TEXT NOT NULL,
+	playlistURI TEXT NOT NULL UNIQUE,
 	libraryProvider TEXT NOT NULL,
 	addedAt TEXT,
 	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -198,6 +201,16 @@ CREATE TABLE IF NOT EXISTS FollowedUserAccount (
 	PRIMARY KEY(userURI),
 	FOREIGN KEY(userURI) REFERENCES UserAccount(uri)
 );
+CREATE TABLE IF NOT EXISTS PlaybackHistoryItem (
+	startTime TIMESTAMP NOT NULL,
+	trackURI TEXT NOT NULL,
+	contextURI TEXT,
+	duration REAL,
+	chosenByUser INT(1),
+	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY(startTime, trackURI),
+	FOREIGN KEY(trackURI) REFERENCES Track(uri)
+);
 CREATE TABLE IF NOT EXISTS DBState (
 	stateKey TEXT NOT NULL,
 	stateValue TEXT NOT NULL,
@@ -209,6 +222,7 @@ CREATE TABLE IF NOT EXISTS DBState (
 
 String purgeDB() {
 	return R"SQL(
+DROP TABLE IF EXISTS PlaybackHistoryItem;
 DROP TABLE IF EXISTS FollowedUserAccount;
 DROP TABLE IF EXISTS FollowedArtist;
 DROP TABLE IF EXISTS SavedPlaylist;
@@ -596,6 +610,24 @@ String savedPlaylistTuple(LinkedList<Any>& params, const SavedPlaylist& playlist
 		EXISTING_FIELD_OR(params, sqlStringOrNull(playlist.addedAt), "SELECT addedAt FROM SavedPlaylist WHERE playlistURI = " COMMA sqlParam(params COMMA sqlStringOrNull(playlist.addedAt))),",",
 		// updateTime
 		"CURRENT_TIMESTAMP",
+	")" });
+}
+
+ArrayList<String> playbackHistoryItemTupleColumns() {
+	return { "startTime", "trackURI", "contextURI", "duration", "chosenByUser", "updateTime" };
+}
+String playbackHistoryItemTuple(LinkedList<Any>& params, $<PlaybackHistoryItem> item) {
+	return String::join({ "(",
+		// startTime
+		sqlParam(params, item->startTime().toISOString()),
+		// trackURI
+		sqlParam(params, item->track()->uri()),",",
+		// contextURI
+		sqlParam(params, sqlStringOrNull(item->contextURI())),
+		// duration
+		sqlParam(params, item->duration() ? Any(item->duration().value()) : Any()),
+		// chosenByUser
+		sqlParam(params, item->chosenByUser()),
 	")" });
 }
 

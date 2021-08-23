@@ -11,8 +11,8 @@
 namespace sh::sql {
 	String Order_toString(Order order) {
 		switch(order) {
-			case Order::NONE:
-				return "NONE";
+			case Order::DEFAULT:
+				return "DEFAULT";
 			case Order::ASC:
 				return "ASC";
 			case Order::DESC:
@@ -22,8 +22,8 @@ namespace sh::sql {
 	}
 
 	Order Order_fromString(String order) {
-		if(order == "NONE") {
-			return Order::NONE;
+		if(order == "DEFAULT") {
+			return Order::DEFAULT;
 		}
 		else if(order == "ASC") {
 			return Order::ASC;

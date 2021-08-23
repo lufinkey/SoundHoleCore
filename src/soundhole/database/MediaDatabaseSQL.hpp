@@ -15,6 +15,7 @@
 #include <soundhole/media/Playlist.hpp>
 #include <soundhole/media/Artist.hpp>
 #include <soundhole/media/MediaProvider.hpp>
+#include <soundhole/media/PlaybackHistoryItem.hpp>
 
 namespace sh::sql {
 
@@ -32,6 +33,7 @@ ArrayList<String> trackCollectionItemColumns();
 ArrayList<String> savedTrackColumns();
 ArrayList<String> savedAlbumColumns();
 ArrayList<String> savedPlaylistColumns();
+ArrayList<String> playbackHistoryItemColumns();
 
 String createDB();
 String purgeDB();
@@ -119,6 +121,9 @@ struct SavedPlaylist {
 };
 ArrayList<String> savedPlaylistTupleColumns();
 String savedPlaylistTuple(LinkedList<Any>& params, const SavedPlaylist& playlist);
+
+ArrayList<String> playbackHistoryItemTupleColumns();
+String playbackHistoryItemTuple(LinkedList<Any>& params, $<PlaybackHistoryItem> item);
 
 struct DBState {
 	String stateKey;

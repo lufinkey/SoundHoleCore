@@ -240,7 +240,7 @@ namespace sh {
 			if(items.size() == 0) {
 				return (size_t)0;
 			}
-			return (size_t)items.front()["total"].number_value();
+			return (size_t)items.front().number_value();
 		});
 	}
 
@@ -380,6 +380,18 @@ namespace sh {
 	}
 
 
+
+	Promise<void> MediaDatabase::cachePlaybackHistoryItems(ArrayList<$<PlaybackHistoryItem>> historyItems, CacheOptions options) {
+		if(historyItems.size() == 0 && options.dbState.size() == 0) {
+			return Promise<void>::resolve();
+		}
+		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
+			sql::insertOrReplacePlaybackHistoryItems(tx, historyItems);
+			sql::applyDBState(tx, options.dbState);
+		}).toVoid();
+	}
+
+
 	
 	Promise<size_t> MediaDatabase::getSavedTracksCount(GetSavedItemsCountOptions options) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
@@ -389,13 +401,13 @@ namespace sh {
 			if(items.size() == 0) {
 				return (size_t)0;
 			}
-			return (size_t)items.front()["total"].number_value();
+			return (size_t)items.front().number_value();
 		});
 	}
 
-	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getSavedTracksJson(sql::IndexRange range, GetSavedTracksJsonOptions options) {
+	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getSavedTracksJson(sql::IndexRange range, GetSavedTracksOptions options) {
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
-			sql::selectSavedTrackCount(tx, "count");
+			sql::selectSavedTrackCount(tx, "count", options.libraryProvider);
 			sql::selectSavedTracksWithTracks(tx, "items", {
 				.libraryProvider = options.libraryProvider,
 				.range = range,
@@ -407,7 +419,7 @@ namespace sh {
 			if(countItems.size() == 0) {
 				throw std::runtime_error("failed to get items count");
 			}
-			size_t total = (size_t)countItems.front()["total"].number_value();
+			size_t total = (size_t)countItems.front().number_value();
 			auto rows = LinkedList<Json>(results["items"]);
 			return GetJsonItemsListResult{
 				.items = rows,
@@ -460,13 +472,13 @@ namespace sh {
 			if(items.size() == 0) {
 				return (size_t)0;
 			}
-			return (size_t)items.front()["total"].number_value();
+			return (size_t)items.front().number_value();
 		});
 	}
 
-	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getSavedAlbumsJson(GetSavedAlbumsJsonOptions options) {
+	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getSavedAlbumsJson(GetSavedAlbumsOptions options) {
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
-			sql::selectSavedAlbumCount(tx, "count");
+			sql::selectSavedAlbumCount(tx, "count", options.libraryProvider);
 			sql::selectSavedAlbumsWithAlbums(tx, "items", {
 				.libraryProvider = options.libraryProvider,
 				.range = options.range,
@@ -478,7 +490,7 @@ namespace sh {
 			if(countItems.size() == 0) {
 				throw std::runtime_error("failed to get items count");
 			}
-			size_t total = (size_t)countItems.front()["total"].number_value();
+			size_t total = (size_t)countItems.front().number_value();
 			auto rows = LinkedList<Json>(results["items"]);
 			return GetJsonItemsListResult{
 				.items = rows,
@@ -531,13 +543,13 @@ namespace sh {
 			if(items.size() == 0) {
 				return (size_t)0;
 			}
-			return (size_t)items.front()["total"].number_value();
+			return (size_t)items.front().number_value();
 		});
 	}
 
-	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getSavedPlaylistsJson(GetSavedPlaylistsJsonOptions options) {
+	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getSavedPlaylistsJson(GetSavedPlaylistsOptions options) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
-			sql::selectSavedPlaylistCount(tx, "count");
+			sql::selectSavedPlaylistCount(tx, "count", options.libraryProvider);
 			sql::selectSavedPlaylistsWithPlaylistsAndOwners(tx, "items", {
 				.libraryProvider = options.libraryProvider,
 				.range = options.range,
@@ -549,7 +561,7 @@ namespace sh {
 			if(countItems.size() == 0) {
 				throw std::runtime_error("failed to get items count");
 			}
-			size_t total = (size_t)countItems.front()["total"].number_value();
+			size_t total = (size_t)countItems.front().number_value();
 			auto rows = LinkedList<Json>(results["items"]);
 			return GetJsonItemsListResult{
 				.items=rows,
@@ -602,13 +614,13 @@ namespace sh {
 			if(items.size() == 0) {
 				return (size_t)0;
 			}
-			return (size_t)items.front()["total"].number_value();
+			return (size_t)items.front().number_value();
 		});
 	}
 
-	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getFollowedArtistsJson(GetFollowedArtistsJsonOptions options) {
+	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getFollowedArtistsJson(GetFollowedArtistsOptions options) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
-			sql::selectFollowedArtistCount(tx, "count");
+			sql::selectFollowedArtistCount(tx, "count", options.libraryProvider);
 			sql::selectFollowedArtistsWithArtists(tx, "items", {
 				.libraryProvider = options.libraryProvider,
 				.range = options.range,
@@ -620,7 +632,7 @@ namespace sh {
 			if(countItems.size() == 0) {
 				throw std::runtime_error("failed to get items count");
 			}
-			size_t total = (size_t)countItems.front()["total"].number_value();
+			size_t total = (size_t)countItems.front().number_value();
 			auto rows = LinkedList<Json>(results["items"]);
 			return GetJsonItemsListResult{
 				.items=rows,
@@ -673,13 +685,13 @@ namespace sh {
 			if(items.size() == 0) {
 				return (size_t)0;
 			}
-			return (size_t)items.front()["total"].number_value();
+			return (size_t)items.front().number_value();
 		});
 	}
 
-	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getFollowedUserAccountsJson(GetFollowedUserAccountsJsonOptions options) {
+	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getFollowedUserAccountsJson(GetFollowedUserAccountsOptions options) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
-			sql::selectFollowedUserAccountCount(tx, "count");
+			sql::selectFollowedUserAccountCount(tx, "count", options.libraryProvider);
 			sql::selectFollowedUserAccountsWithUserAccounts(tx, "items", {
 				.libraryProvider = options.libraryProvider,
 				.range = options.range,
@@ -691,7 +703,7 @@ namespace sh {
 			if(countItems.size() == 0) {
 				throw std::runtime_error("failed to get items count");
 			}
-			size_t total = (size_t)countItems.front()["total"].number_value();
+			size_t total = (size_t)countItems.front().number_value();
 			auto rows = LinkedList<Json>(results["items"]);
 			return GetJsonItemsListResult{
 				.items=rows,
@@ -731,6 +743,57 @@ namespace sh {
 				boolResults.pushBack(list.size() > 0);
 			}
 			return boolResults;
+		});
+	}
+
+
+
+	Promise<size_t> MediaDatabase::getPlaybackHistoryItemCount(PlaybackHistoryItemFilters filters) {
+		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
+			sql::selectPlaybackHistoryItemCount(tx, "count", {
+				.trackURIs = filters.trackURIs,
+				.minDate = filters.minDate,
+				.maxDate = filters.maxDate,
+				.minDuration = filters.minDuration,
+				.minDurationRatio = filters.minDurationRatio,
+				.includeNullDuration = filters.includeNullDuration
+			});
+		}).map(nullptr, [=](auto results) {
+			auto items = results["count"];
+			if(items.size() == 0) {
+				return (size_t)0;
+			}
+			return (size_t)items.front().number_value();
+		});
+	}
+
+	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getPlaybackHistoryItemsJson(GetPlaybackHistoryItemsOptions options) {
+		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
+			auto& filters = options.filters;
+			auto sqlFilters = sql::PlaybackHistorySelectFilters{
+				.trackURIs = filters.trackURIs,
+				.minDate = filters.minDate,
+				.maxDate = filters.maxDate,
+				.minDuration = filters.minDuration,
+				.minDurationRatio = filters.minDurationRatio,
+				.includeNullDuration = filters.includeNullDuration
+			};
+			sql::selectPlaybackHistoryItemCount(tx, "count", sqlFilters);
+			sql::selectPlaybackHistoryItemsWithTracks(tx, "items", sqlFilters, {
+				.range = options.range,
+				.order = options.order
+			});
+		}).map(nullptr, [=](auto results) {
+			auto countItems = results["count"];
+			if(countItems.size() == 0) {
+				throw std::runtime_error("failed to get items count");
+			}
+			size_t total = (size_t)countItems.front().number_value();
+			auto rows = LinkedList<Json>(results["items"]);
+			return GetJsonItemsListResult{
+				.items = rows,
+				.total = total
+			};
 		});
 	}
 

@@ -23,5 +23,6 @@ Json transformDBSavedAlbum(Json savedAlbumJson, Json albumJson);
 Json transformDBSavedPlaylist(Json savedPlaylistJson, Json playlistJson, Json ownerJson);
 Json transformDBFollowedArtist(Json followedArtistJson, Json artistJson);
 Json transformDBFollowedUserAccount(Json followedUserAccountJson, Json userAccountJson);
+Json transformDBPlaybackHistoryItem(Json historyItemJson, Json trackJson);
 
 }

@@ -45,13 +45,7 @@ namespace sh {
 	Track::Data Track::Data::fromJson(const Json& json, MediaProviderStash* stash) {
 		auto mediaItemData = MediaItem::Data::fromJson(json, stash);
 		auto albumName = json["albumName"];
-		if(!albumName.is_string()) {
-			throw std::invalid_argument("invalid json for Track: 'albumName' is required");
-		}
 		auto albumURI = json["albumURI"];
-		if(!albumURI.is_string()) {
-			throw std::invalid_argument("invalid json for Track: 'albumURI' is required");
-		}
 		auto artists = json["artists"];
 		if(!artists.is_array()) {
 			throw std::invalid_argument("invalid json for Track: 'artists' is required");
@@ -77,9 +71,6 @@ namespace sh {
 			throw std::invalid_argument("invalid json for Track: 'audioSources' must be an array or null");
 		}
 		auto playable = json["playable"];
-		if(!playable.is_null() && !playable.is_bool() && !playable.is_number()) {
-			throw std::invalid_argument("invalid json for Track: 'playable' must be a bool, a number, or null");
-		}
 		return Track::Data{
 			mediaItemData,
 			.albumName = albumName.string_value(),
@@ -104,7 +95,12 @@ namespace sh {
 			.audioSources = ArrayList<Json>(audioSources.array_items()).map([](auto& audioSourceJson) -> AudioSource {
 				return AudioSource::fromJson(audioSourceJson);
 			}),
-			.playable = playable.is_null() ? Optional<bool>() : playable.is_number() ? (playable.number_value() != 0) : playable.bool_value()
+			.playable = playable.is_bool() ? maybe(playable.bool_value())
+				: playable.is_number() ?
+				   (playable.number_value() == 0) ? maybe(false)
+				   : (playable.number_value() == 1) ? maybe(true)
+				   : std::nullopt
+				: std::nullopt
 		};
 	}
 

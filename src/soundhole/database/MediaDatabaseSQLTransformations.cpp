@@ -142,4 +142,10 @@ Json transformDBFollowedUserAccount(Json followedUserAccountJson, Json userAccou
 	return obj;
 }
 
+Json transformDBPlaybackHistoryItem(Json historyItemJson, Json trackJson) {
+	auto obj = historyItemJson.object_items();
+	obj["track"] = transformDBTrack(trackJson);
+	return obj;
+}
+
 }

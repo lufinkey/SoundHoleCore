@@ -12,7 +12,7 @@
 
 namespace sh::sql {
 	enum class Order {
-		NONE,
+		DEFAULT,
 		ASC,
 		DESC
 	};

@@ -15,6 +15,7 @@
 #include <soundhole/media/Album.hpp>
 #include <soundhole/media/Playlist.hpp>
 #include <soundhole/media/MediaProvider.hpp>
+#include <soundhole/media/PlaybackHistoryItem.hpp>
 #include <soundhole/media/MediaProviderStash.hpp>
 #include "SQLIndexRange.hpp"
 #include "SQLOrder.hpp"
@@ -81,73 +82,92 @@ namespace sh {
 		
 		Promise<void> cacheLibraryItems(ArrayList<MediaProvider::LibraryItem> items, CacheOptions options = CacheOptions());
 		
+		Promise<void> cachePlaybackHistoryItems(ArrayList<$<PlaybackHistoryItem>> historyItems, CacheOptions options = CacheOptions());
+		
 		struct GetSavedItemsCountOptions {
 			String libraryProvider;
 		};
 		
 		Promise<size_t> getSavedTracksCount(GetSavedItemsCountOptions options = GetSavedItemsCountOptions());
-		struct GetSavedTracksJsonOptions {
+		struct GetSavedTracksOptions {
 			String libraryProvider;
 			sql::LibraryItemOrderBy orderBy = sql::LibraryItemOrderBy::ADDED_AT;
 			sql::Order order = sql::Order::DESC;
 		};
-		Promise<GetJsonItemsListResult> getSavedTracksJson(sql::IndexRange range, GetSavedTracksJsonOptions options = GetSavedTracksJsonOptions{
+		Promise<GetJsonItemsListResult> getSavedTracksJson(sql::IndexRange range, GetSavedTracksOptions options = GetSavedTracksOptions{
 			.orderBy=sql::LibraryItemOrderBy::ADDED_AT,
 			.order=sql::Order::DESC});
 		Promise<Json> getSavedTrackJson(String uri);
 		Promise<ArrayList<bool>> hasSavedTracks(ArrayList<String> uris);
 		
 		Promise<size_t> getSavedAlbumsCount(GetSavedItemsCountOptions options = GetSavedItemsCountOptions());
-		struct GetSavedAlbumsJsonOptions {
+		struct GetSavedAlbumsOptions {
 			String libraryProvider;
 			Optional<sql::IndexRange> range;
 			sql::LibraryItemOrderBy orderBy = sql::LibraryItemOrderBy::NAME;
 			sql::Order order = sql::Order::ASC;
 		};
-		Promise<GetJsonItemsListResult> getSavedAlbumsJson(GetSavedAlbumsJsonOptions options = GetSavedAlbumsJsonOptions{
+		Promise<GetJsonItemsListResult> getSavedAlbumsJson(GetSavedAlbumsOptions options = GetSavedAlbumsOptions{
 			.orderBy=sql::LibraryItemOrderBy::NAME,
 			.order=sql::Order::DESC});
 		Promise<Json> getSavedAlbumJson(String uri);
 		Promise<ArrayList<bool>> hasSavedAlbums(ArrayList<String> uris);
 		
 		Promise<size_t> getSavedPlaylistsCount(GetSavedItemsCountOptions options = GetSavedItemsCountOptions());
-		struct GetSavedPlaylistsJsonOptions {
+		struct GetSavedPlaylistsOptions {
 			String libraryProvider;
 			Optional<sql::IndexRange> range;
 			sql::LibraryItemOrderBy orderBy = sql::LibraryItemOrderBy::NAME;
 			sql::Order order = sql::Order::ASC;
 		};
-		Promise<GetJsonItemsListResult> getSavedPlaylistsJson(GetSavedPlaylistsJsonOptions options = GetSavedPlaylistsJsonOptions{
+		Promise<GetJsonItemsListResult> getSavedPlaylistsJson(GetSavedPlaylistsOptions options = GetSavedPlaylistsOptions{
 			.orderBy=sql::LibraryItemOrderBy::NAME,
 			.order=sql::Order::ASC});
 		Promise<Json> getSavedPlaylistJson(String uri);
 		Promise<ArrayList<bool>> hasSavedPlaylists(ArrayList<String> uris);
 		
 		Promise<size_t> getFollowedArtistsCount(GetSavedItemsCountOptions options = GetSavedItemsCountOptions());
-		struct GetFollowedArtistsJsonOptions {
+		struct GetFollowedArtistsOptions {
 			String libraryProvider;
 			Optional<sql::IndexRange> range;
 			sql::LibraryItemOrderBy orderBy = sql::LibraryItemOrderBy::NAME;
 			sql::Order order = sql::Order::ASC;
 		};
-		Promise<GetJsonItemsListResult> getFollowedArtistsJson(GetFollowedArtistsJsonOptions options = GetFollowedArtistsJsonOptions{
+		Promise<GetJsonItemsListResult> getFollowedArtistsJson(GetFollowedArtistsOptions options = GetFollowedArtistsOptions{
 			.orderBy=sql::LibraryItemOrderBy::NAME,
 			.order=sql::Order::ASC});
 		Promise<Json> getFollowedArtistJson(String uri);
 		Promise<ArrayList<bool>> hasFollowedArtists(ArrayList<String> uris);
 		
 		Promise<size_t> getFollowedUserAccountsCount(GetSavedItemsCountOptions options = GetSavedItemsCountOptions());
-		struct GetFollowedUserAccountsJsonOptions {
+		struct GetFollowedUserAccountsOptions {
 			String libraryProvider;
 			Optional<sql::IndexRange> range;
 			sql::LibraryItemOrderBy orderBy = sql::LibraryItemOrderBy::NAME;
 			sql::Order order = sql::Order::ASC;
 		};
-		Promise<GetJsonItemsListResult> getFollowedUserAccountsJson(GetFollowedUserAccountsJsonOptions options = GetFollowedUserAccountsJsonOptions{
-			.orderBy=sql::LibraryItemOrderBy::NAME,
-			.order=sql::Order::ASC});
+		Promise<GetJsonItemsListResult> getFollowedUserAccountsJson(GetFollowedUserAccountsOptions options = GetFollowedUserAccountsOptions{
+			.orderBy = sql::LibraryItemOrderBy::NAME,
+			.order = sql::Order::ASC});
 		Promise<Json> getFollowedUserAccountJson(String uri);
 		Promise<ArrayList<bool>> hasFollowedUserAccounts(ArrayList<String> uris);
+		
+		struct PlaybackHistoryItemFilters {
+			ArrayList<String> trackURIs;
+			Optional<Date> minDate;
+			Optional<Date> maxDate;
+			Optional<double> minDuration;
+			Optional<double> minDurationRatio;
+			Optional<bool> includeNullDuration;
+		};
+		Promise<size_t> getPlaybackHistoryItemCount(PlaybackHistoryItemFilters filters = PlaybackHistoryItemFilters());
+		struct GetPlaybackHistoryItemsOptions {
+			PlaybackHistoryItemFilters filters;
+			Optional<sql::IndexRange> range;
+			sql::Order order = sql::Order::DESC;
+		};
+		Promise<GetJsonItemsListResult> getPlaybackHistoryItemsJson(GetPlaybackHistoryItemsOptions options = GetPlaybackHistoryItemsOptions{
+			.order = sql::Order::DESC});
 		
 		Promise<void> setState(std::map<String,String> state);
 		Promise<std::map<String,String>> getState(ArrayList<String> keys);

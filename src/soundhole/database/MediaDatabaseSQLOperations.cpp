@@ -474,7 +474,7 @@ void insertOrReplaceSavedAlbums(SQLiteTransaction& tx, const ArrayList<SavedAlbu
 	}
 }
 
-void insertOrReplaceSavedPlaylist(SQLiteTransaction& tx, const ArrayList<SavedPlaylist>& savedPlaylists) {
+void insertOrReplaceSavedPlaylists(SQLiteTransaction& tx, const ArrayList<SavedPlaylist>& savedPlaylists) {
 	LinkedList<String> savedPlaylistTuples;
 	LinkedList<Any> savedPlaylistParams;
 	for(auto& savedPlaylist : savedPlaylists) {
@@ -487,6 +487,25 @@ void insertOrReplaceSavedPlaylist(SQLiteTransaction& tx, const ArrayList<SavedPl
 			") VALUES ",
 			String::join(savedPlaylistTuples, ", ")
 		}), savedPlaylistParams);
+	}
+}
+
+void insertOrReplacePlaybackHistoryItems(SQLiteTransaction& tx, const ArrayList<$<PlaybackHistoryItem>>& items) {
+	TrackTuplesAndParams trackTuples;
+	LinkedList<String> historyItemTuples;
+	LinkedList<Any> historyItemParams;
+	for(auto& item : items) {
+		addTrackTuples(item->track(), trackTuples, true);
+		historyItemTuples.pushBack(playbackHistoryItemTuple(historyItemParams, item));
+	}
+	applyTrackTuples(tx, trackTuples);
+	if(historyItemTuples.size() > 0) {
+		tx.addSQL(String::join({
+			"INSERT OR REPLACE INTO PlaybackHistoryItem (",
+			String::join(playbackHistoryItemTupleColumns(), ", "),
+			") VALUES ",
+			String::join(historyItemTuples, ", ")
+		}), historyItemParams);
 	}
 }
 
@@ -531,7 +550,12 @@ void selectTrack(SQLiteTransaction& tx, String outKey, String uri) {
 }
 
 void selectTrackCount(SQLiteTransaction& tx, String outKey) {
-	tx.addSQL("SELECT count(*) AS total FROM Track", {}, { .outKey=outKey });
+	tx.addSQL("SELECT count(*) AS total FROM Track", {}, {
+		.outKey=outKey,
+		.mapper=[=](auto row) {
+			return row["total"];
+		}
+	});
 }
 
 void selectTrackCollectionWithOwner(SQLiteTransaction& tx, String outKey, String uri) {
@@ -638,7 +662,7 @@ void selectSavedTracksWithTracks(SQLiteTransaction& tx, String outKey, LibraryIt
 			throw std::runtime_error("invalid LibraryItemOrderBy value");
 		})(),([&]() {
 			switch(options.order) {
-				case Order::NONE:
+				case Order::DEFAULT:
 					return "";
 				case Order::ASC:
 					return " ASC";
@@ -668,7 +692,12 @@ void selectSavedTrackCount(SQLiteTransaction& tx, String outKey, String libraryP
 				" WHERE libraryProvider = ",sqlParam(params, libraryProvider),
 			})
 	});
-	tx.addSQL(query, params, { .outKey=outKey });
+	tx.addSQL(query, params, {
+		.outKey=outKey,
+		.mapper=[=](auto row) {
+			return row["total"];
+		}
+	});
 }
 
 void selectSavedTrack(SQLiteTransaction& tx, String outKey, String uri) {
@@ -738,7 +767,7 @@ void selectSavedAlbumsWithAlbums(SQLiteTransaction& tx, String outKey, LibraryIt
 			throw std::runtime_error("invalid LibraryItemOrderBy value");
 		})(),([&]() {
 			switch(options.order) {
-				case Order::NONE:
+				case Order::DEFAULT:
 					return "";
 				case Order::ASC:
 					return " ASC";
@@ -768,7 +797,12 @@ void selectSavedAlbumCount(SQLiteTransaction& tx, String outKey, String libraryP
 				" WHERE libraryProvider = ",sqlParam(params, libraryProvider),
 			})
 	});
-	tx.addSQL(query, params, { .outKey=outKey });
+	tx.addSQL(query, params, {
+		.outKey=outKey,
+		.mapper=[=](auto row) {
+			return row["total"];
+		}
+	});
 }
 
 void selectSavedAlbum(SQLiteTransaction& tx, String outKey, String uri) {
@@ -844,7 +878,7 @@ void selectSavedPlaylistsWithPlaylistsAndOwners(SQLiteTransaction& tx, String ou
 			throw std::runtime_error("invalid LibraryItemOrderBy value");
 		})(),([&]() {
 			switch(options.order) {
-				case Order::NONE:
+				case Order::DEFAULT:
 					return "";
 				case Order::ASC:
 					return " ASC";
@@ -874,7 +908,12 @@ void selectSavedPlaylistCount(SQLiteTransaction& tx, String outKey, String libra
 				" WHERE libraryProvider = ",sqlParam(params, libraryProvider),
 			})
 	});
-	tx.addSQL(query, params, { .outKey=outKey });
+	tx.addSQL(query, params, {
+		.outKey=outKey,
+		.mapper=[=](auto row) {
+			return row["total"];
+		}
+	});
 }
 
 void selectSavedPlaylist(SQLiteTransaction& tx, String outKey, String uri) {
@@ -950,7 +989,7 @@ void selectFollowedArtistsWithArtists(SQLiteTransaction& tx, String outKey, Libr
 			throw std::runtime_error("invalid LibraryItemOrderBy value");
 		})(),([&]() {
 			switch(options.order) {
-				case Order::NONE:
+				case Order::DEFAULT:
 					return "";
 				case Order::ASC:
 					return " ASC";
@@ -980,7 +1019,12 @@ void selectFollowedArtistCount(SQLiteTransaction& tx, String outKey, String libr
 				" WHERE libraryProvider = ",sqlParam(params, libraryProvider),
 			})
 	});
-	tx.addSQL(query, params, { .outKey=outKey });
+	tx.addSQL(query, params, {
+		.outKey=outKey,
+		.mapper=[=](auto row) {
+			return row["total"];
+		}
+	});
 }
 
 void selectFollowedArtist(SQLiteTransaction& tx, String outKey, String uri) {
@@ -1050,7 +1094,7 @@ void selectFollowedUserAccountsWithUserAccounts(SQLiteTransaction& tx, String ou
 			throw std::runtime_error("invalid LibraryItemOrderBy value");
 		})(),([&]() {
 			switch(options.order) {
-				case Order::NONE:
+				case Order::DEFAULT:
 					return "";
 				case Order::ASC:
 					return " ASC";
@@ -1080,7 +1124,12 @@ void selectFollowedUserAccountCount(SQLiteTransaction& tx, String outKey, String
 				" WHERE libraryProvider = ",sqlParam(params, libraryProvider),
 			})
 	});
-	tx.addSQL(query, params, { .outKey=outKey });
+	tx.addSQL(query, params, {
+		.outKey=outKey,
+		.mapper=[=](auto row) {
+			return row["total"];
+		}
+	});
 }
 
 void selectFollowedUserAccount(SQLiteTransaction& tx, String outKey, String uri) {
@@ -1161,7 +1210,7 @@ void selectLibraryArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelec
 			throw std::runtime_error("invalid LibraryItemOrderBy value");
 		})(),([&]() {
 			switch(options.order) {
-				case Order::NONE:
+				case Order::DEFAULT:
 					return "";
 				case Order::ASC:
 					return " ASC";
@@ -1192,21 +1241,153 @@ void selectLibraryArtistCount(SQLiteTransaction& tx, String outKey, String libra
 			}),
 		"("
 			"EXISTS("
+				// if artist is attached to saved track
 				"SELECT TrackArtist.trackURI, TrackArtist.artistURI FROM TrackArtist, SavedTrack "
 					"WHERE TrackArtist.artistURI = a.uri AND TrackArtist.trackURI = SavedTrack.trackURI"
 			") "
 			"OR EXISTS("
+				// if artist is attached to saved album
 				"SELECT TrackCollectionArtist.trackURI, TrackCollectionArtist.artistURI FROM TrackCollectionArtist, SavedAlbum "
 					"WHERE TrackCollectionArtist.artistURI = a.uri AND TrackCollectionArtist.collectionURI = SavedAlbum.albumURI"
 			") "
 			"OR EXISTS("
+				// if artist is attached to saved playlist
 				"SELECT TrackCollectionArtist.trackURI, TrackCollectionArtist.artistURI FROM TrackCollectionArtist, SavedPlaylist "
 					"WHERE TrackCollectionArtist.artistURI = a.uri AND TrackCollectionArtist.collectionURI = SavedPlaylist.playlistURI"
 			") "
 		")"
 	});
-	tx.addSQL(query, params, { .outKey=outKey });
+	tx.addSQL(query, params, {
+		.outKey=outKey,
+		.mapper=[=](auto row) {
+			return row["total"];
+		}
+	});
 }
+
+
+
+String PlaybackHistorySelectFilters::sql(LinkedList<Any>& params) const {
+	return String::join(ArrayList<String>{
+		// trackURIs
+	   (!trackURIs.empty()) ?
+		   String::join({
+			   "(",
+			   String::join(trackURIs.map([&](auto& trackURI) {
+				   return String::join({ "PlaybackHistoryItem.trackURI = ",sqlParam(params, trackURI) });
+			   }), " OR "),
+			   ")"
+		   })
+		   : String(),
+	   // minDate
+	   (minDate.hasValue()) ?
+		   String::join({ "PlaybackHistoryItem.startTime >= ",sqlParam(params, minDate->toISOString()) })
+		   : String(),
+	   // maxDate
+	   (maxDate.hasValue()) ?
+		   String::join({ "PlaybackHistoryItem.startTime < ",sqlParam(params, maxDate->toISOString()) })
+		   : String(),
+	   // includeNullDuration
+	   (!includeNullDuration.valueOr(true)) ?
+		   "PlaybackHistoryItem.duration IS NOT NULL"
+		   : String(),
+	   // minDuration or minDurationRatio
+	   (minDuration.hasValue() || minDurationRatio.hasValue()) ?
+		   String::join({
+			   // minDuration
+			   minDuration.hasValue() ?
+				   String::join({
+					   "(",
+					   includeNullDuration.valueOr(true) ?
+						   "PlaybackHistoryItem.duration IS NULL OR "
+						   : String(),
+					   "PlaybackHistoryItem.duration >= ",sqlParam(params, minDuration.value()),
+					   ")"
+				   })
+				   : String(),
+			   // minDurationRatio
+			   minDurationRatio.hasValue() ?
+				   String::join({
+					   minDuration.hasValue() ? " AND " : String(),
+					   "(",
+					   includeNullDuration.valueOr(true) ?
+						   "PlaybackHistoryItem.duration IS NULL OR "
+						   : String(),
+					   "PlaybackHistoryItem.duration >= (COALESCE(Track.duration, 120.0) * ",sqlParam(params, minDurationRatio.hasValue()),")"
+					   ")"
+				   })
+				   : String(),
+		   })
+		   : String()
+	}.where([](auto& str) {return !str.empty();}), " AND ");
+}
+
+void selectPlaybackHistoryItemsWithTracks(SQLiteTransaction& tx, String outKey, const PlaybackHistorySelectFilters& filters, const PlaybackHistorySelectOptions& options) {
+	auto joinTables = ArrayList<JoinTable>{
+		{
+			.name = "PlaybackHistoryItem",
+			.prefix = "r1_",
+			.columns = playbackHistoryItemColumns()
+		}, {
+			.name = "Track",
+			.prefix = "r2_",
+			.columns = trackColumns()
+		}
+	};
+	auto columns = joinedTableColumns(joinTables);
+	LinkedList<Any> params;
+	auto query = String::join({
+		"SELECT ",columns," FROM PlaybackHistoryItem, Track WHERE PlaybackHistoryItem.trackURI = Track.uri",
+		([&]() {
+			auto sql = filters.sql(params);
+			if(sql.empty()) {
+				return String();
+			}
+			return " AND " + sql;
+		})(),
+		" ORDER BY PlaybackHistoryItem.startTime",([&]() -> String {
+			switch(options.order) {
+				case Order::DEFAULT:
+					return "";
+				case Order::ASC:
+					return " ASC";
+				case Order::DESC:
+					return " DESC";
+			}
+			throw std::invalid_argument("invalid value for options.order");
+		})(),
+		sqlOffsetAndLimitFromRange(options.range, params)
+	});
+	tx.addSQL(query, params, {
+		.outKey=outKey,
+		.mapper=[=](auto row) {
+			auto results = splitJoinedResults(joinTables, row);
+			return transformDBPlaybackHistoryItem(results[0], results[1]);
+		}
+	});
+}
+
+void selectPlaybackHistoryItemCount(SQLiteTransaction& tx, String outKey, const PlaybackHistorySelectFilters& filters) {
+	LinkedList<Any> params;
+	auto query = String::join({
+		"SELECT count(*) AS total FROM FollowedUserAccount",
+		([&]() {
+			auto sql = filters.sql(params);
+			if(sql.empty()) {
+				return String();
+			}
+			return " WHERE "+sql;
+		})()
+	});
+	tx.addSQL(query, params, {
+		.outKey=outKey,
+		.mapper=[=](auto row) {
+			return row["total"];
+		}
+	});
+}
+
+
 
 void selectDBState(SQLiteTransaction& tx, String outKey, String stateKey) {
 	tx.addSQL("SELECT * FROM DBState WHERE stateKey = ?", { stateKey }, { .outKey=outKey });

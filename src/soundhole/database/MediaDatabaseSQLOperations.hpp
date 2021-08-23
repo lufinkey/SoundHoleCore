@@ -27,6 +27,10 @@ struct InsertTrackCollectionItemsOptions {
 };
 void insertOrReplaceItemsFromTrackCollection(SQLiteTransaction& tx, $<TrackCollection> collection, InsertTrackCollectionItemsOptions options = InsertTrackCollectionItemsOptions());
 void insertOrReplaceLibraryItems(SQLiteTransaction& tx, const ArrayList<MediaProvider::LibraryItem>& items);
+void insertOrReplaceSavedTracks(SQLiteTransaction& tx, const ArrayList<SavedTrack>& savedTracks);
+void insertOrReplaceSavedAlbums(SQLiteTransaction& tx, const ArrayList<SavedAlbum>& savedAlbums);
+void insertOrReplaceSavedPlaylists(SQLiteTransaction& tx, const ArrayList<SavedPlaylist>& savedPlaylists);
+void insertOrReplacePlaybackHistoryItems(SQLiteTransaction& tx, const ArrayList<$<PlaybackHistoryItem>>& items);
 void insertOrReplaceDBStates(SQLiteTransaction& tx, const ArrayList<DBState>& states);
 void applyDBState(SQLiteTransaction& tx, std::map<String,String> state);
 
@@ -40,7 +44,7 @@ void selectArtist(SQLiteTransaction& tx, String outKey, String uri);
 struct LibraryItemSelectOptions {
 	String libraryProvider;
 	Optional<IndexRange> range;
-	Order order = Order::NONE;
+	Order order = Order::DEFAULT;
 	LibraryItemOrderBy orderBy = LibraryItemOrderBy::ADDED_AT;
 };
 void selectSavedTracksWithTracks(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions());
@@ -70,6 +74,23 @@ void selectFollowedUserAccountWithUserAccount(SQLiteTransaction& tx, String outK
 
 void selectLibraryArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelectOptions options = LibraryItemSelectOptions{.orderBy=LibraryItemOrderBy::NAME});
 void selectLibraryArtistCount(SQLiteTransaction& tx, String outKey, String libraryProvider = String());
+
+struct PlaybackHistorySelectFilters {
+	ArrayList<String> trackURIs;
+	Optional<Date> minDate;
+	Optional<Date> maxDate;
+	Optional<double> minDuration;
+	Optional<double> minDurationRatio;
+	Optional<bool> includeNullDuration;
+	
+	String sql(LinkedList<Any>& params) const;
+};
+struct PlaybackHistorySelectOptions {
+	Optional<IndexRange> range;
+	Order order = Order::DEFAULT;
+};
+void selectPlaybackHistoryItemsWithTracks(SQLiteTransaction& tx, String outKey, const PlaybackHistorySelectFilters& filters, const PlaybackHistorySelectOptions& options);
+void selectPlaybackHistoryItemCount(SQLiteTransaction& tx, String outKey, const PlaybackHistorySelectFilters& filters);
 
 void selectDBState(SQLiteTransaction& tx, String outKey, String stateKey);
 
