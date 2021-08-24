@@ -570,7 +570,7 @@ namespace sh {
 		if(auto contextIndex = (contextItem ? contextItem->indexInContext() : std::nullopt)) {
 			return contextIndex;
 		}
-		if(shuffling) {
+		if(std::dynamic_pointer_cast<ShuffledTrackCollection>(context) != nullptr) {
 			if(shuffledContextIndex) {
 				return shuffledContextIndex->index;
 			}
@@ -592,7 +592,7 @@ namespace sh {
 			contextIndex = contextItem->indexInContext();
 		}
 		if(!contextIndex) {
-			if(shuffling) {
+			if(std::dynamic_pointer_cast<ShuffledTrackCollection>(context) != nullptr) {
 				if(shuffledContextIndex) {
 					wasRemoved = (shuffledContextIndex->state == TrackCollection::ItemIndexMarkerState::REMOVED);
 					contextIndex = shuffledContextIndex->index;
@@ -636,7 +636,7 @@ namespace sh {
 		if(contextIndex) {
 			return contextIndex.value() + 1;
 		}
-		if(shuffling) {
+		if(std::dynamic_pointer_cast<ShuffledTrackCollection>(context)) {
 			if(shuffledContextIndex) {
 				if(shuffledContextIndex->state == TrackCollection::ItemIndexMarkerState::REMOVED) {
 					return shuffledContextIndex->index;
@@ -988,10 +988,8 @@ namespace sh {
 		$<ShuffledTrackCollectionItem> prevShuffledContextItem;
 		auto prevSourceContextIndex = this->sourceContextIndex;
 		auto prevShuffledContextIndex = this->shuffledContextIndex;
-		bool wasShuffling = this->shuffling;
 		if(prevContext) {
-			if(wasShuffling) {
-				auto shuffledContext = std::static_pointer_cast<ShuffledTrackCollection>(prevContext);
+			if(auto shuffledContext = std::dynamic_pointer_cast<ShuffledTrackCollection>(prevContext)) {
 				auto shuffledContextItem = std::static_pointer_cast<ShuffledTrackCollectionItem>(prevContextItem);
 				prevSourceContext = shuffledContext->source();
 				prevSourceContextItem = shuffledContextItem ? shuffledContextItem->sourceItem() : nullptr;
