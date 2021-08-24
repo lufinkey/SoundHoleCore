@@ -40,7 +40,6 @@ namespace sh {
 			Metadata metadata;
 			State state;
 			$<TrackCollection> context;
-			LinkedList<$<QueueItem>> queue;
 		};
 		
 		class EventListener {
@@ -58,15 +57,25 @@ namespace sh {
 		
 		struct Options {
 			String savePrefix;
+			MediaControls* mediaControls = nullptr;
+		};
+		
+		
+		struct Preferences {
 			double nextTrackPreloadTime = 10.0;
 			double progressSaveInterval = 1.0;
-			MediaControls* mediaControls = nullptr;
 		};
 		
 		static $<Player> new$(Options options);
 		
 		Player(Options);
 		virtual ~Player();
+		
+		void setPreferences(Preferences);
+		const Preferences& getPreferences() const;
+		
+		void setOrganizerPreferences(PlaybackOrganizer::Preferences);
+		const PlaybackOrganizer::Preferences& getOrganizerPreferences() const;
 		
 		void addEventListener(EventListener* listener);
 		void removeEventListener(EventListener* listener);
@@ -93,6 +102,8 @@ namespace sh {
 		Promise<bool> skipToNext();
 		
 		$<QueueItem> addToQueue($<Track> track);
+		$<QueueItem> addToQueueFront($<Track> track);
+		$<QueueItem> addToQueueRandomly($<Track> track);
 		void removeFromQueue($<QueueItem> queueItem);
 		
 		Promise<void> setPlaying(bool playing);
@@ -108,7 +119,8 @@ namespace sh {
 		Optional<size_t> previousContextIndex() const;
 		Optional<size_t> nextContextIndex() const;
 		
-		LinkedList<$<QueueItem>> queueItems() const;
+		ArrayList<$<QueueItem>> queuePastItems() const;
+		ArrayList<$<QueueItem>> queueItems() const;
 		
 		void setMediaControls(MediaControls*);
 		MediaControls* getMediaControls();
@@ -176,6 +188,7 @@ namespace sh {
 		void updateMediaControls();
 		
 		Options options;
+		Preferences prefs;
 		
 		$<PlaybackOrganizer> organizer;
 		

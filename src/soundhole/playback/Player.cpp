@@ -39,6 +39,22 @@ namespace sh {
 		#endif
 	}
 
+	void Player::setPreferences(Preferences prefs) {
+		this->prefs = prefs;
+	}
+
+	const Player::Preferences& Player::getPreferences() const {
+		return this->prefs;
+	}
+
+	void Player::setOrganizerPreferences(PlaybackOrganizer::Preferences organizerPrefs) {
+		organizer->setPreferences(organizerPrefs);
+	}
+
+	const PlaybackOrganizer::Preferences& Player::getOrganizerPreferences() const {
+		return organizer->getPreferences();
+	}
+
 
 
 	#pragma mark Saving / Loading
@@ -227,32 +243,20 @@ namespace sh {
 
 
 	$<QueueItem> Player::addToQueue($<Track> track) {
-		bool queueWasEmpty = (organizer->getQueueLength() == 0);
 		auto queueItem = organizer->addToQueue(track);
 		saveInBackground({.includeMetadata=true});
-		// if queue was empty and we're not playing anything, attempt to play queued item
-		if(queueWasEmpty && !this->playingTrack && !playQueue.getTaskWithTag("play")) {
-			w$<Player> weakSelf = shared_from_this();
-			playQueue.run({.tag="play"}, coLambda([=](auto task) -> Generator<void> {
-				co_yield setGenResumeQueue(DispatchQueue::main());
-				co_yield initialGenNext();
-				// wait till end of frame before trying
-				co_await resumeOnQueue(DispatchQueue::main(), true);
-				co_yield {};
-				auto self = weakSelf.lock();
-				if(!self) {
-					co_return;
-				}
-				if(self->playingTrack || self->organizer->getQueueLength() == 0) {
-					co_return;
-				}
-				auto queueItem = self->organizer->getQueueItem(0);
-				co_await self->organizer->play(queueItem);
-			})).promise.except([=](std::exception_ptr error) {
-				// error
-				console::error("Error while player was auto-starting from queue: ", utils::getExceptionDetails(error).fullDescription);
-			});
-		}
+		return queueItem;
+	}
+
+	$<QueueItem> Player::addToQueueFront($<Track> track) {
+		auto queueItem = organizer->addToQueueFront(track);
+		saveInBackground({.includeMetadata=true});
+		return queueItem;
+	}
+
+	$<QueueItem> Player::addToQueueRandomly($<Track> track) {
+		auto queueItem = organizer->addToQueueRandomly(track);
+		saveInBackground({.includeMetadata=true});
 		return queueItem;
 	}
 
@@ -360,8 +364,12 @@ namespace sh {
 		return organizer->getNextContextIndex();
 	}
 
-	LinkedList<$<QueueItem>> Player::queueItems() const {
-		return organizer->getQueue();
+	ArrayList<$<QueueItem>> Player::queuePastItems() const {
+		return organizer->getQueuePastItems();
+	}
+
+	ArrayList<$<QueueItem>> Player::queueItems() const {
+		return organizer->getQueueItems();
 	}
 
 
@@ -571,7 +579,7 @@ namespace sh {
 		// check if next track needs preparing
 		auto metadata = self->metadata();
 		if(metadata.currentTrack && playbackState.playing
-		   && (playbackState.position + options.nextTrackPreloadTime) >= metadata.currentTrack->duration().value_or(0.0)
+		   && (playbackState.position + prefs.nextTrackPreloadTime) >= metadata.currentTrack->duration().value_or(0.0)
 		   && !organizer->isPreparing() && !organizer->hasPreparedNext()) {
 			// prepare next track
 			organizer->prepareNextIfNeeded().except([=](std::exception_ptr error) {
@@ -581,7 +589,7 @@ namespace sh {
 		}
 		// save player state if needed
 		auto currentTime = std::chrono::steady_clock::now();
-		if(!lastSaveTime || (currentTime - lastSaveTime.value()) >= std::chrono::milliseconds((size_t)(options.progressSaveInterval * 1000))) {
+		if(!lastSaveTime || (currentTime - lastSaveTime.value()) >= std::chrono::milliseconds((size_t)(prefs.progressSaveInterval * 1000))) {
 			lastSaveTime = currentTime;
 			saveInBackground({.includeMetadata=false});
 		}
@@ -748,10 +756,9 @@ namespace sh {
 
 	Player::Event Player::createEvent() {
 		return Event{
-			.metadata=this->metadata(),
-			.state=this->state(),
-			.context=this->organizer->getContext(),
-			.queue=this->organizer->getQueue()
+			.metadata = this->metadata(),
+			.state = this->state(),
+			.context = this->organizer->getContext()
 		};
 	}
 
