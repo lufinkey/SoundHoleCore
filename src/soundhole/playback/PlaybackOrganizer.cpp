@@ -11,16 +11,16 @@
 #include <soundhole/utils/Utils.hpp>
 
 namespace sh {
-	$<PlaybackOrganizer> PlaybackOrganizer::new$(Options options) {
-		return fgl::new$<PlaybackOrganizer>(options);
+	$<PlaybackOrganizer> PlaybackOrganizer::new$(Delegate* delegate) {
+		return fgl::new$<PlaybackOrganizer>(delegate);
 	}
 
 
 
-	PlaybackOrganizer::PlaybackOrganizer(Options options)
-	: options(options),
+	PlaybackOrganizer::PlaybackOrganizer(Delegate* delegate)
+	: delegate(delegate),
 	shuffling(false), preparedNext(false),
-	applyingItem(NoItem()), playingItem(NoItem()) {
+	applyingItem(std::nullopt), playingItem(std::nullopt) {
 		//
 	}
 
@@ -33,14 +33,16 @@ namespace sh {
 		return this->prefs;
 	}
 
-	
+
 
 	Promise<void> PlaybackOrganizer::save(String path) {
 		auto currentItem = getCurrentItem();
-		if(auto contextItemPtr = std::get_if<$<TrackCollectionItem>>(&currentItem)) {
-			auto contextItem = *contextItemPtr;
-			if(auto shuffledItem = std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(contextItem)) {
-				currentItem = shuffledItem->sourceItem();
+		if(currentItem.hasValue()) {
+			if(auto contextItemPtr = std::get_if<$<TrackCollectionItem>>(&currentItem.value())) {
+				auto contextItem = *contextItemPtr;
+				if(auto shuffledItem = std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(contextItem)) {
+					currentItem = shuffledItem->sourceItem();
+				}
 			}
 		}
 		auto context = this->context;
@@ -61,8 +63,8 @@ namespace sh {
 			.itemsLimit = tracksLimit
 		}) : Json();
 		// add current item to context if needed
-		if(!contextJson.is_null() && sourceContextIndex && currentItem.index() != 0 && std::get_if<$<TrackCollectionItem>>(&currentItem)) {
-			auto contextItem = std::get<$<TrackCollectionItem>>(currentItem);
+		if(!contextJson.is_null() && sourceContextIndex && currentItem.hasValue() && std::get_if<$<TrackCollectionItem>>(&currentItem.value())) {
+			auto contextItem = std::get<$<TrackCollectionItem>>(currentItem.value());
 			auto itemsJson = contextJson["items"].object_items();
 			itemsJson.insert_or_assign(std::to_string(sourceContextIndex->index), contextItem->toJson());
 			auto contextMap = contextJson.object_items();
@@ -74,7 +76,8 @@ namespace sh {
 		if(prefs.savePastQueueToDisk) {
 			// get past queue items
 			size_t queuePastItemsEndIndex = queue.pastItems.size();
-			if(std::get_if<$<QueueItem>>(&currentItem) && queue.pastItems.size() > 0 && std::get<$<QueueItem>>(currentItem) == queue.pastItems.back()) {
+			if(currentItem.hasValue() && std::get_if<$<QueueItem>>(&currentItem.value())
+			   && queue.pastItems.size() > 0 && std::get<$<QueueItem>>(currentItem.value()) == queue.pastItems.back()) {
 				// since current item is the last queue item, disclude that item from queuePast
 				queuePastItemsEndIndex -= 1;
 			}
@@ -90,7 +93,7 @@ namespace sh {
 		}
 		// create json and save to file
 		auto json = Json(Json::object{
-			{ "currentItem", itemToJson(currentItem) },
+			{ "currentItem", currentItem.hasValue() ? itemToJson(currentItem.value()) : Json() },
 			{ "context", contextJson },
 			{ "contextIndex", sourceContextIndex ? Json((double)sourceContextIndex->index) : Json() },
 			{ "queuePast", queuePast },
@@ -116,14 +119,13 @@ namespace sh {
 			} catch(...) {
 				return Json();
 			}
-		}).then([=](Json json) {
+		}).map([=](Json json) -> bool {
 			if(json.is_null()) {
-				return Promise<bool>::resolve(false);
+				return false;
 			}
 			auto currentItemJson = json["currentItem"];
 			auto contextJson = json["context"];
 			auto contextIndexJson = json["contextIndex"];
-			auto contextItemJson = json["contextItem"];
 			auto queuePastJson = json["queuePast"];
 			auto queueJson = json["queue"];
 			auto shuffling = json["shuffling"].bool_value();
@@ -132,7 +134,7 @@ namespace sh {
 				: std::dynamic_pointer_cast<TrackCollection>(
 					stash->parseMediaItem(contextJson));
 			$<TrackCollectionItem> contextItem;
-			ItemVariant currentItem = NoItem();
+			Optional<ItemVariant> currentItem = std::nullopt;
 			auto itemType = currentItemJson["type"].string_value();
 			if(itemType == "collectionItem") {
 				auto trackUri = currentItemJson["track"]["uri"].string_value();
@@ -164,8 +166,11 @@ namespace sh {
 			for(auto itemJson : queuePastJson.array_items()) {
 				queuePastItems.pushBack(QueueItem::fromJson(itemJson, stash));
 			}
-			if(auto queueItemPtr = std::get_if<$<QueueItem>>(&currentItem)) {
-				queuePastItems.pushBack(*queueItemPtr);
+			if(currentItem.hasValue()) {
+				// if current item is queue item, add to past items
+				if(auto queueItemPtr = std::get_if<$<QueueItem>>(&currentItem.value())) {
+					queuePastItems.pushBack(*queueItemPtr);
+				}
 			}
 			this->queue = PlaybackQueue{
 				.pastItems = queuePastItems,
@@ -178,7 +183,7 @@ namespace sh {
 				this->applyingItem = currentItem;
 				this->updateMainContext(nullptr, nullptr, shuffling);
 			}
-			return Promise<bool>::resolve(true);
+			return true;
 		});
 	}
 
@@ -199,19 +204,14 @@ namespace sh {
 
 
 	$<Track> PlaybackOrganizer::trackFromItem(ItemVariant item) {
-		switch(item.index()) {
-			case 0:
-				std::get<NoItem>(item);
-				return nullptr;
-				
-			case 1:
-				return std::get<$<Track>>(item);
-				
-			case 2:
-				return std::get<$<TrackCollectionItem>>(item)->track();
-				
-			case 3:
-				return std::get<$<QueueItem>>(item)->track();
+		if(auto trackPtr = std::get_if<$<Track>>(&item)) {
+			return *trackPtr;
+		}
+		else if(auto itemPtr = std::get_if<$<TrackCollectionItem>>(&item)) {
+			return (*itemPtr)->track();
+		}
+		else if(auto itemPtr = std::get_if<$<QueueItem>>(&item)) {
+			return (*itemPtr)->track();
 		}
 		throw std::logic_error("invalid state for current item");
 	}
@@ -233,13 +233,13 @@ namespace sh {
 	Promise<bool> PlaybackOrganizer::previous() {
 		auto valid = fgl::new$<bool>(false);
 		w$<PlaybackOrganizer> weakSelf = shared_from_this();
-		return setPlayingItem([=]() {
+		return setPlayingItem([=]() -> Promise<Optional<ItemVariant>> {
 			auto self = weakSelf.lock();
 			if(!self) {
-				return Promise<ItemVariant>::resolve(NoItem());
+				return resolveWith(std::nullopt);
 			}
-			return self->getValidPreviousItem().map([=](auto item) -> ItemVariant {
-				if(item.index() != 0) {
+			return self->getValidPreviousItem().map([=](auto item) {
+				if(item.hasValue()) {
 					*valid = true;
 				}
 				return item;
@@ -254,13 +254,13 @@ namespace sh {
 	Promise<bool> PlaybackOrganizer::next() {
 		auto valid = fgl::new$<bool>(false);
 		w$<PlaybackOrganizer> weakSelf = shared_from_this();
-		return setPlayingItem([=]() {
+		return setPlayingItem([=]() -> Promise<Optional<ItemVariant>> {
 			auto self = weakSelf.lock();
 			if(!self) {
-				return Promise<ItemVariant>::resolve(NoItem());
+				return resolveWith(std::nullopt);
 			}
-			return self->getValidNextItem().map([=](auto item) -> ItemVariant {
-				if(item.index() != 0) {
+			return self->getValidNextItem().map([=](auto item) {
+				if(item.hasValue()) {
 					*valid = true;
 				}
 				return item;
@@ -288,16 +288,16 @@ namespace sh {
 			if(self->preparedNext) {
 				co_return;
 			}
-			ItemVariant nextItem = co_await self->getNextItem();
+			auto maybeNextItem = co_await self->getNextItem();
 			co_yield {};
-			auto nextTrack = trackFromItem(nextItem);
-			if(!nextTrack) {
+			if(!maybeNextItem.hasValue()) {
 				co_return;
 			}
-			if(self->options.delegate == nullptr) {
+			auto nextItem = maybeNextItem.value();
+			if(self->delegate == nullptr) {
 				self->preparedNext = true;
 			} else {
-				co_await self->options.delegate->onPlaybackOrganizerPrepareTrack(self, nextTrack);
+				co_await self->delegate->onPlaybackOrganizerPrepareItem(self, nextItem);
 				self->preparedNext = true;
 			}
 		})).promise;
@@ -305,8 +305,8 @@ namespace sh {
 	
 	Promise<void> PlaybackOrganizer::play($<QueueItem> item) {
 		FGL_ASSERT(item != nullptr, "item cannot be null");
-		return setPlayingItem([=]() {
-			return Promise<ItemVariant>::resolve(item);
+		return setPlayingItem([=]() -> Promise<Optional<ItemVariant>> {
+			return resolveWith(item);
 		}, {
 			.trigger = SetPlayingOptions::Trigger::PLAY
 		});
@@ -316,8 +316,8 @@ namespace sh {
 		FGL_ASSERT(item != nullptr, "item cannot be null");
 		auto context = item->context().lock();
 		FGL_ASSERT(context != nullptr, "item cannot be detached from context");
-		return setPlayingItem([context,item]() {
-			return Promise<ItemVariant>::resolve(item);
+		return setPlayingItem([context,item]() -> Promise<Optional<ItemVariant>> {
+			return resolveWith(item);
 		}, {
 			.trigger = SetPlayingOptions::Trigger::PLAY
 		});
@@ -325,22 +325,20 @@ namespace sh {
 
 	Promise<void> PlaybackOrganizer::play($<Track> track) {
 		FGL_ASSERT(track != nullptr, "track cannot be null");
-		return setPlayingItem([=]() {
-			return Promise<ItemVariant>::resolve(track);
+		return setPlayingItem([=]() -> Promise<Optional<ItemVariant>> {
+			return resolveWith(track);
 		}, {
 			.trigger = SetPlayingOptions::Trigger::PLAY
 		});
 	}
 
 	Promise<void> PlaybackOrganizer::play(ItemVariant item) {
-		if(std::get_if<NoItem>(&item)) {
-			return Promise<void>::reject(std::invalid_argument("Cannot pass NoItem to PlaybackOrganizer::play"));
-		} else if(auto track = std::get_if<$<Track>>(&item)) {
-			return play(*track);
-		} else if(auto collectionItem = std::get_if<$<TrackCollectionItem>>(&item)) {
-			return play(*collectionItem);
-		} else if(auto queueItem = std::get_if<$<QueueItem>>(&item)) {
-			return play(*queueItem);
+		if(auto trackPtr = std::get_if<$<Track>>(&item)) {
+			return play(*trackPtr);
+		} else if(auto collectionItemPtr = std::get_if<$<TrackCollectionItem>>(&item)) {
+			return play(*collectionItemPtr);
+		} else if(auto queueItemPtr = std::get_if<$<QueueItem>>(&item)) {
+			return play(*queueItemPtr);
 		} else {
 			throw std::logic_error("Unhandled state for ItemVariant");
 		}
@@ -410,95 +408,108 @@ namespace sh {
 
 
 
-	PlaybackOrganizer::ItemVariant PlaybackOrganizer::getCurrentItem() const {
-		if(applyingItem.index() != 0) {
-			return applyingItem;
-		} else if(playingItem.index() != 0) {
-			return playingItem;
+	Optional<PlaybackOrganizer::ItemVariant> PlaybackOrganizer::getCurrentItem() const {
+		if(applyingItem.hasValue()) {
+			return applyingItem.value();
+		} else if(playingItem.hasValue()) {
+			return playingItem.value();
 		}
-		return NoItem();
+		return std::nullopt;
 	}
 
-	Promise<PlaybackOrganizer::ItemVariant> PlaybackOrganizer::getPreviousItem() {
+	Promise<Optional<PlaybackOrganizer::ItemVariant>> PlaybackOrganizer::getPreviousItem() {
 		auto queueItem = getPreviousInQueue();
 		if(queueItem) {
-			return Promise<ItemVariant>::resolve(queueItem);
-		}
-		return getPreviousInContext().map(nullptr, []($<TrackCollectionItem> item) -> ItemVariant {
-			if(!item) {
-				return NoItem();
-			}
-			return item;
-		});
-	}
-
-	Promise<PlaybackOrganizer::ItemVariant> PlaybackOrganizer::getNextItem() {
-		auto queueItem = getNextInQueue();
-		if(queueItem) {
-			return Promise<ItemVariant>::resolve(queueItem);
+			return resolveWith(queueItem);
 		}
 		w$<PlaybackOrganizer> weakSelf = shared_from_this();
-		return getNextInContext().map([=]($<TrackCollectionItem> item) -> ItemVariant {
+		return getPreviousInContext().map(nullptr, [=]($<TrackCollectionItem> item) -> Optional<ItemVariant> {
 			if(item) {
 				return item;
 			}
 			auto self = weakSelf.lock();
 			if(!self) {
-				return NoItem();
+				return std::nullopt;
+			}
+			auto queueItem = self->getPreviousInQueue();
+			if(queueItem) {
+				return queueItem;
+			}
+			return std::nullopt;
+		});
+	}
+
+	Promise<Optional<PlaybackOrganizer::ItemVariant>> PlaybackOrganizer::getNextItem() {
+		auto queueItem = getNextInQueue();
+		if(queueItem) {
+			return resolveWith(queueItem);
+		}
+		w$<PlaybackOrganizer> weakSelf = shared_from_this();
+		return getNextInContext().map([=]($<TrackCollectionItem> item) -> Optional<ItemVariant> {
+			if(item) {
+				return item;
+			}
+			auto self = weakSelf.lock();
+			if(!self) {
+				return std::nullopt;
 			}
 			auto queueItem = self->getNextInQueue();
 			if(queueItem) {
 				return queueItem;
 			}
-			return NoItem();
+			return std::nullopt;
 		});
 	}
 
-	Promise<PlaybackOrganizer::ItemVariant> PlaybackOrganizer::getValidPreviousItem() {
+	Promise<Optional<PlaybackOrganizer::ItemVariant>> PlaybackOrganizer::getValidPreviousItem() {
 		auto currentContext = this->context;
 		w$<PlaybackOrganizer> weakSelf = shared_from_this();
-		return getPreviousItem().then([=](ItemVariant item) -> Promise<ItemVariant> {
+		return getPreviousItem().then([=](auto item) -> Promise<Optional<ItemVariant>> {
 			auto self = weakSelf.lock();
 			if(!self) {
-				return Promise<ItemVariant>::resolve(NoItem());
+				return resolveWith(std::nullopt);
 			}
 			if(self->context != currentContext) {
 				return getValidPreviousItem();
 			}
-			return Promise<ItemVariant>::resolve(item);
+			return resolveWith(item);
 		});
 	}
 
-	Promise<PlaybackOrganizer::ItemVariant> PlaybackOrganizer::getValidNextItem() {
+	Promise<Optional<PlaybackOrganizer::ItemVariant>> PlaybackOrganizer::getValidNextItem() {
 		auto currentContext = this->context;
 		w$<PlaybackOrganizer> weakSelf = shared_from_this();
-		return getNextItem().then([=](ItemVariant item) -> Promise<ItemVariant> {
+		return getNextItem().then([=](auto item) -> Promise<Optional<ItemVariant>> {
 			auto self = weakSelf.lock();
 			if(!self) {
-				return Promise<ItemVariant>::resolve(NoItem());
+				return resolveWith(std::nullopt);
 			}
 			if(self->context != currentContext) {
 				return getValidNextItem();
 			}
-			return Promise<ItemVariant>::resolve(item);
+			return resolveWith(item);
 		});
 	}
 
 
 
 	$<Track> PlaybackOrganizer::getCurrentTrack() const {
-		return trackFromItem(getCurrentItem());
+		auto item = getCurrentItem();
+		if(!item.hasValue()) {
+			return nullptr;
+		}
+		return trackFromItem(item.value());
 	}
 
 	Promise<$<Track>> PlaybackOrganizer::getPreviousTrack() {
-		return getPreviousItem().map(nullptr, [](ItemVariant item) -> $<Track> {
-			return trackFromItem(item);
+		return getPreviousItem().map(nullptr, [](auto item) -> $<Track> {
+			return item.hasValue() ? trackFromItem(item.value()) : nullptr;
 		});
 	}
 
 	Promise<$<Track>> PlaybackOrganizer::getNextTrack() {
-		return getNextItem().map(nullptr, [](ItemVariant item) -> $<Track> {
-			return trackFromItem(item);
+		return getNextItem().map(nullptr, [](auto item) -> $<Track> {
+			return item.hasValue() ? trackFromItem(item.value()) : nullptr;
 		});
 	}
 
@@ -509,13 +520,15 @@ namespace sh {
 			return nullptr;
 		}
 		auto currentItem = getCurrentItem();
-		if(auto queueItemPtr = std::get_if<$<QueueItem>>(&currentItem);
-		   queueItemPtr != nullptr && queue.pastItems.size() > 0 && *queueItemPtr == queue.pastItems.back()) {
-			// current item is the last item in queue.pastItems, so get the item before that
-			if(queue.pastItems.size() > 1) {
-				return *std::prev(queue.pastItems.end(), 2);
+		if(currentItem.hasValue()) {
+			if(auto queueItemPtr = std::get_if<$<QueueItem>>(&currentItem.value());
+			   queueItemPtr != nullptr && queue.pastItems.size() > 0 && *queueItemPtr == queue.pastItems.back()) {
+				// current item is the last item in queue.pastItems, so get the item before that
+				if(queue.pastItems.size() > 1) {
+					return *std::prev(queue.pastItems.end(), 2);
+				}
+				return nullptr;
 			}
-			return nullptr;
 		}
 		return queue.pastItems.back();
 	}
@@ -530,7 +543,7 @@ namespace sh {
 	Promise<$<TrackCollectionItem>> PlaybackOrganizer::getPreviousInContext() {
 		auto prevIndex = getPreviousContextIndex();
 		if(!prevIndex) {
-			return Promise<$<TrackCollectionItem>>::resolve(nullptr);
+			return resolveWith(nullptr);
 		}
 		return context->getItem(prevIndex.value(), {
 			.trackIndexChanges = true
@@ -540,7 +553,7 @@ namespace sh {
 	Promise<$<TrackCollectionItem>> PlaybackOrganizer::getNextInContext() {
 		auto nextIndex = getNextContextIndex();
 		if(!nextIndex) {
-			return Promise<$<TrackCollectionItem>>::resolve(nullptr);
+			return resolveWith(nullptr);
 		}
 		return context->getItem(nextIndex.value(), {
 			.trackIndexChanges=true
@@ -554,60 +567,62 @@ namespace sh {
 	}
 
 	Optional<size_t> PlaybackOrganizer::getContextIndex() const {
-		if(!contextItem) {
-			if(shuffling) {
-				return shuffledContextIndex ? maybe(shuffledContextIndex->index) : std::nullopt;
-			} else {
-				return sourceContextIndex ? maybe(sourceContextIndex->index) : std::nullopt;
-			}
-		}
-		auto contextIndex = contextItem->indexInContext();
-		if(contextIndex) {
+		if(auto contextIndex = (contextItem ? contextItem->indexInContext() : std::nullopt)) {
 			return contextIndex;
 		}
-		if(std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(contextItem) != nullptr) {
-			return shuffledContextIndex ? maybe(shuffledContextIndex->index) : std::nullopt;
+		if(shuffling) {
+			if(shuffledContextIndex) {
+				return shuffledContextIndex->index;
+			}
 		} else {
-			return sourceContextIndex ? maybe(sourceContextIndex->index) : std::nullopt;
+			if(sourceContextIndex) {
+				return sourceContextIndex->index;
+			}
 		}
+		return std::nullopt;
 	}
 
 	Optional<size_t> PlaybackOrganizer::getPreviousContextIndex() const {
 		if(!context) {
 			return std::nullopt;
 		}
-		auto optContextIndex = getContextIndex();
-		if(!optContextIndex) {
+		bool wasRemoved = false;
+		Optional<size_t> contextIndex;
+		if(contextItem) {
+			contextIndex = contextItem->indexInContext();
+		}
+		if(!contextIndex) {
+			if(shuffling) {
+				if(shuffledContextIndex) {
+					wasRemoved = (shuffledContextIndex->state == TrackCollection::ItemIndexMarkerState::REMOVED);
+					contextIndex = shuffledContextIndex->index;
+				}
+			} else {
+				if(sourceContextIndex) {
+					wasRemoved = (sourceContextIndex->state == TrackCollection::ItemIndexMarkerState::REMOVED);
+					contextIndex = sourceContextIndex->index;
+				}
+			}
+		}
+		if(!contextIndex) {
 			return std::nullopt;
 		}
-		size_t contextIndex = optContextIndex.value();
 		auto currentItem = getCurrentItem();
-		if(auto contextItemPtr = std::get_if<$<TrackCollectionItem>>(&currentItem);
+		if(auto contextItemPtr = std::get_if<$<TrackCollectionItem>>(&currentItem.value());
 		   contextItemPtr != nullptr && *contextItemPtr == contextItem) {
 			// current item is context item
 			if(contextIndex == 0) {
 				return std::nullopt;
 			}
-			return contextIndex - 1;
+			return contextIndex.value() - 1;
 		} else {
 			// current item is not context item
-			bool wasRemoved = false;
-			if(std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(contextItem) != nullptr) {
-				if(shuffledContextIndex && shuffledContextIndex->state == TrackCollection::ItemIndexMarkerState::REMOVED) {
-					wasRemoved = true;
-				}
-			} else {
-				if(sourceContextIndex && sourceContextIndex->state == TrackCollection::ItemIndexMarkerState::REMOVED) {
-					wasRemoved = true;
-				}
-			}
 			if(wasRemoved) {
 				if(contextIndex == 0) {
 					return std::nullopt;
 				}
-				return contextIndex - 1;
-			}
-			else {
+				return contextIndex.value() - 1;
+			} else {
 				return contextIndex;
 			}
 		}
@@ -617,34 +632,31 @@ namespace sh {
 		if(!context) {
 			return std::nullopt;
 		}
-		size_t nextIndex = -1;
-		auto optContextIndex = contextItem ? contextItem->indexInContext() : std::nullopt;
-		if(!optContextIndex) {
-			if(std::dynamic_pointer_cast<ShuffledTrackCollection>(context) != nullptr) {
-				if(shuffledContextIndex) {
-					if(shuffledContextIndex->state == TrackCollection::ItemIndexMarkerState::REMOVED) {
-						nextIndex = shuffledContextIndex->index;
-					} else {
-						nextIndex = shuffledContextIndex->index + 1;
-					}
+		auto contextIndex = contextItem ? contextItem->indexInContext() : std::nullopt;
+		if(contextIndex) {
+			return contextIndex.value() + 1;
+		}
+		if(shuffling) {
+			if(shuffledContextIndex) {
+				if(shuffledContextIndex->state == TrackCollection::ItemIndexMarkerState::REMOVED) {
+					return shuffledContextIndex->index;
 				} else {
-					return std::nullopt;
+					return shuffledContextIndex->index + 1;
 				}
 			} else {
-				if(sourceContextIndex) {
-					if(sourceContextIndex->state == TrackCollection::ItemIndexMarkerState::REMOVED) {
-						nextIndex = sourceContextIndex->index;
-					} else {
-						nextIndex = sourceContextIndex->index + 1;
-					}
-				} else {
-					return std::nullopt;
-				}
+				return std::nullopt;
 			}
 		} else {
-			nextIndex = optContextIndex.value() + 1;
+			if(sourceContextIndex) {
+				if(sourceContextIndex->state == TrackCollection::ItemIndexMarkerState::REMOVED) {
+					return sourceContextIndex->index;
+				} else {
+					return sourceContextIndex->index + 1;
+				}
+			} else {
+				return std::nullopt;
+			}
 		}
-		return nextIndex;
 	}
 
 	ArrayList<$<QueueItem>> PlaybackOrganizer::getQueuePastItems() const {
@@ -652,9 +664,11 @@ namespace sh {
 			return {};
 		}
 		auto currentItem = getCurrentItem();
-		if(auto queueItemPtr = std::get_if<$<QueueItem>>(&currentItem);
-		   queueItemPtr != nullptr && *queueItemPtr == queue.pastItems.back()) {
-			return ArrayList<$<QueueItem>>(queue.pastItems.begin(), std::prev(queue.pastItems.end(), 1));
+		if(currentItem.hasValue()) {
+			if(auto queueItemPtr = std::get_if<$<QueueItem>>(&currentItem.value());
+			   queueItemPtr != nullptr && *queueItemPtr == queue.pastItems.back()) {
+				return ArrayList<$<QueueItem>>(queue.pastItems.begin(), std::prev(queue.pastItems.end(), 1));
+			}
 		}
 		return queue.pastItems;
 	}
@@ -681,9 +695,11 @@ namespace sh {
 		size_t count = queue.pastItems.size();
 		if(count > 0) {
 			auto currentItem = getCurrentItem();
-			if(auto queueItemPtr = std::get_if<$<QueueItem>>(&currentItem);
-			   queueItemPtr != nullptr && *queueItemPtr == queue.pastItems.back()) {
-				count -= 1;
+			if(currentItem.hasValue()) {
+				if(auto queueItemPtr = std::get_if<$<QueueItem>>(&currentItem.value());
+				   queueItemPtr != nullptr && *queueItemPtr == queue.pastItems.back()) {
+					count -= 1;
+				}
 			}
 		}
 		return count;
@@ -717,34 +733,64 @@ namespace sh {
 
 	Promise<void> PlaybackOrganizer::prepareCollectionTracks($<TrackCollection> collection, size_t index) {
 		size_t startIndex = index;
-		if(startIndex <= options.contextLoadBuffer) {
+		if(startIndex <= prefs.contextLoadBuffer) {
 			startIndex = 0;
 		}
-		size_t endIndex = index + options.contextLoadBuffer;
+		size_t endIndex = index + prefs.contextLoadBuffer;
 		return collection->loadItems(startIndex, (endIndex - startIndex));
 	}
 
-	Promise<void> PlaybackOrganizer::setPlayingItem(Function<Promise<ItemVariant>()> itemGetter, SetPlayingOptions options) {
+	Promise<void> PlaybackOrganizer::setPlayingItem(Function<Promise<Optional<ItemVariant>>()> itemGetter, SetPlayingOptions options) {
 		w$<PlaybackOrganizer> weakSelf = shared_from_this();
 		return playQueue.run({.cancelAll=true}, [=](auto task) {
-			return itemGetter().then([=](ItemVariant item) {
+			return itemGetter().then([=](auto maybeItem) {
 				auto self = weakSelf.lock();
 				if(!self) {
 					return;
 				}
+				if(!maybeItem.hasValue()) {
+					return;
+				}
+				auto item = maybeItem.value();
 				
-				auto oldItem = this->getCurrentItem();
-				auto oldContext = this->context;
+				auto oldItem = self->getCurrentItem();
+				auto oldContext = self->context;
 				if(auto oldShuffledContext = std::dynamic_pointer_cast<ShuffledTrackCollection>(oldContext)) {
 					oldContext = oldShuffledContext->source();
 				}
 				
 				bool queueChanged = false;
-				if(std::get_if<NoItem>(&item) != nullptr) {
-					return;
-				}
-				else if(auto queueItemPtr = std::get_if<$<QueueItem>>(&item)) {
+				if(auto queueItemPtr = std::get_if<$<QueueItem>>(&item)) {
 					auto queueItem = *queueItemPtr;
+					// check if we've backed out of a context into the past queue
+					if(oldItem.hasValue() && std::get_if<$<TrackCollectionItem>>(&oldItem.value())) {
+						auto oldCollectionItem = std::get<$<TrackCollectionItem>>(oldItem.value());
+						if(oldCollectionItem && oldCollectionItem->context().lock() == oldContext
+						   && queue.isPastItem(queueItem) && options.trigger != SetPlayingOptions::Trigger::NEXT) {
+							// move to previous context item or set index state to "removed"
+							auto prevItemPromise = getPreviousInContext();
+							auto setContextIndexRemoved = [&]() {
+								if(sourceContextIndex) {
+									sourceContextIndex->state = TrackCollection::ItemIndexMarkerState::REMOVED;
+								}
+								if(shuffledContextIndex) {
+									shuffledContextIndex->state = TrackCollection::ItemIndexMarkerState::REMOVED;
+								}
+								self->contextItem = nullptr;
+							};
+							if(prevItemPromise.isComplete()) {
+								auto prevItem = maybeTry([&](){ return prevItemPromise.get(); }, nullptr);
+								if(!prevItem) {
+									setContextIndexRemoved();
+								} else {
+									updateMainContext(oldContext, prevItem, self->shuffling);
+								}
+							} else {
+								setContextIndexRemoved();
+							}
+						}
+					}
+					// update queue
 					queue.shiftToItem(queueItem);
 					if(!prefs.pastQueueEnabled) {
 						queue.clearPastItems();
@@ -757,8 +803,8 @@ namespace sh {
 					if(!collection) {
 						throw std::logic_error("TrackCollectionItem has null context");
 					}
-					self->updateMainContext(collection, collectionItem, this->shuffling);
-					// TODO figure out if this code below is actually necessary
+					self->updateMainContext(collection, collectionItem, self->shuffling);
+					// update item
 					auto contextItem = self->contextItem;
 					FGL_ASSERT(contextItem != nullptr, "contextItem should not be null after call to updateMainContext");
 					item = contextItem;
@@ -767,7 +813,7 @@ namespace sh {
 					self->updateMainContext(nullptr, nullptr, self->shuffling);
 				}
 				
-				auto newContext = this->context;
+				auto newContext = self->context;
 				if(auto newShuffledContext = std::dynamic_pointer_cast<ShuffledTrackCollection>(newContext)) {
 					newContext = newShuffledContext->source();
 				}
@@ -775,9 +821,10 @@ namespace sh {
 				// handle specific trigger cases
 				if(options.trigger == SetPlayingOptions::Trigger::NEXT) {
 					// clear past queue if queue exited
-					if(std::get_if<$<QueueItem>>(&oldItem)) {
+					if(oldItem.hasValue() && std::get_if<$<QueueItem>>(&oldItem.value())) {
+						// previous item was queue item
 						if(!std::get_if<$<QueueItem>>(&item) && queue.items.empty()) {
-							// previous item was queue item, new item is not and we have no more queue items
+							// new item is not queue item and we have no more queue items
 							if(prefs.clearPastQueueOnExitQueue && !queue.pastItems.empty()) {
 								queue.clearPastItems();
 								queueChanged = true;
@@ -794,29 +841,35 @@ namespace sh {
 				}
 				else if(options.trigger == SetPlayingOptions::Trigger::PREVIOUS) {
 					// shift queue if we've backed out of it
-					if(auto queueItemPtr = std::get_if<$<QueueItem>>(&oldItem);
-					   queueItemPtr != nullptr && !std::get_if<$<QueueItem>>(&item)) {
-						// previous item was queue item, new item is not
-						auto queueItem = *queueItemPtr;
-						if(queue.shiftBehindItem(queueItem)) {
-							queueChanged = true;
+					if(oldItem.hasValue()) {
+						if(auto queueItemPtr = std::get_if<$<QueueItem>>(&oldItem.value());
+						   queueItemPtr != nullptr && !std::get_if<$<QueueItem>>(&item)) {
+							// previous item was queue item, new item is not
+							auto queueItem = *queueItemPtr;
+							if(queue.shiftBehindItem(queueItem)) {
+								queueChanged = true;
+							}
 						}
 					}
 				}
 				else if(options.trigger == SetPlayingOptions::Trigger::PLAY) {
 					// clear past queue if context changed and we had an item previously
-					if(!std::get_if<$<QueueItem>>(&item) && !std::get_if<NoItem>(&oldItem) && oldContext != newContext) {
+					if(!std::get_if<$<QueueItem>>(&item) && oldItem.hasValue() && oldContext != newContext) {
 						if(prefs.clearPastQueueOnContextChange && !queue.pastItems.empty()) {
 							queue.clearPastItems();
 							queueChanged = true;
 						}
 					}
 				}
+				
+				// if old item was queue item and new item is not, ensure a queue changed event
+				if(!std::get_if<$<QueueItem>>(&item) && oldItem.hasValue() && std::get_if<$<QueueItem>>(&oldItem.value())) {
+					queueChanged = true;
+				}
+				
 				// apply item
 				applyingItem = item;
-				if(options.apply) {
-					applyPlayingItem(item);
-				}
+				applyPlayingItem(item);
 				{// emit track change event
 					std::unique_lock<std::mutex> lock(self->listenersMutex);
 					auto listeners = self->listeners;
@@ -851,23 +904,22 @@ namespace sh {
 			if(!self) {
 				co_return;
 			}
-			size_t sleepCount = 1;
 			auto track = trackFromItem(item);
 			while(true) {
 				try {
-					if(track->needsData()) {
+					// TODO some items may have a null track and need to load it in the future possibly?
+					if(track != nullptr && track->needsData()) {
 						co_await track->fetchDataIfNeeded();
 					}
-					if(track->isPlayable()) {
+					if(track != nullptr && track->isPlayable()) {
 						// play track
-						if(self->options.delegate != nullptr) {
-							co_await self->options.delegate->onPlaybackOrganizerPlayTrack(self, track);
+						if(self->delegate != nullptr) {
+							co_await self->delegate->onPlaybackOrganizerPlayItem(self, item);
 						}
-						co_await Promise<void>::resolve().then([&]() {
-							self->playingItem = item;
-							self->applyingItem = NoItem();
-							self->preparedNext = false;
-						});
+						// apply playing item
+						self->playingItem = item;
+						self->applyingItem = std::nullopt;
+						self->preparedNext = false;
 						co_yield {};
 						// load surrounding context until success
 						while(true) {
@@ -918,7 +970,7 @@ namespace sh {
 					// ignore error and try again
 				}
 				co_yield {};
-				for(size_t i=0; i<sleepCount; i++) {
+				for(size_t i=0; i<1; i++) {
 					std::this_thread::sleep_for(std::chrono::milliseconds(100));
 					co_yield {};
 				}
@@ -927,21 +979,22 @@ namespace sh {
 	}
 
 	void PlaybackOrganizer::updateMainContext($<TrackCollection> context, $<TrackCollectionItem> contextItem, bool shuffling) {
-		FGL_ASSERT((context != nullptr) == (contextItem != nullptr), "context and contextItem must both be null or non-null");
-		
+		FGL_ASSERT(context || !contextItem, "if context is null, contextItem should also be null");
 		auto prevContext = this->context;
 		auto prevContextItem = this->contextItem;
 		$<TrackCollection> prevSourceContext;
 		$<TrackCollectionItem> prevSourceContextItem;
 		$<ShuffledTrackCollection> prevShuffledContext;
 		$<ShuffledTrackCollectionItem> prevShuffledContextItem;
+		auto prevSourceContextIndex = this->sourceContextIndex;
+		auto prevShuffledContextIndex = this->shuffledContextIndex;
 		bool wasShuffling = this->shuffling;
 		if(prevContext) {
 			if(wasShuffling) {
 				auto shuffledContext = std::static_pointer_cast<ShuffledTrackCollection>(prevContext);
 				auto shuffledContextItem = std::static_pointer_cast<ShuffledTrackCollectionItem>(prevContextItem);
 				prevSourceContext = shuffledContext->source();
-				prevSourceContextItem = shuffledContextItem->sourceItem();
+				prevSourceContextItem = shuffledContextItem ? shuffledContextItem->sourceItem() : nullptr;
 				prevShuffledContext = shuffledContext;
 				prevShuffledContextItem = shuffledContextItem;
 			} else {
@@ -962,44 +1015,48 @@ namespace sh {
 		TrackCollection::ItemIndexMarker shuffledContextIndex;
 		
 		if(context) {
+			// TODO lock context
 			if(shuffling) {
 				if(auto castShuffledContext = std::dynamic_pointer_cast<ShuffledTrackCollection>(context)) {
 					auto castShuffledItem = std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(contextItem);
-					FGL_ASSERT(castShuffledItem != nullptr, "contextItem of ShuffledTrackCollection must be a ShuffledTrackCollectionItem");
 					sourceContext = castShuffledContext->source();
-					sourceContextItem = castShuffledItem->sourceItem();
+					sourceContextItem = castShuffledItem ? castShuffledItem->sourceItem() : nullptr;
 					shuffledContext = castShuffledContext;
 					shuffledContextItem = castShuffledItem;
 				}
 				else {
 					sourceContext = context;
 					sourceContextItem = contextItem;
-					shuffledContext = ShuffledTrackCollection::new$(sourceContext, { sourceContextItem });
+					ArrayList<$<TrackCollectionItem>> sourceItems;
+					if(sourceContextItem) {
+						sourceItems.pushBack(sourceContextItem);
+					}
+					shuffledContext = ShuffledTrackCollection::new$(sourceContext, sourceItems);
 					shuffledContextItem = std::static_pointer_cast<ShuffledTrackCollectionItem>(shuffledContext->itemAt(0));
-					FGL_ASSERT(shuffledContextItem != nullptr, "First item in shuffled context cannot be null");
 					context = shuffledContext;
 					contextItem = shuffledContextItem;
 				}
-				auto sourceIndex = sourceContextItem->indexInContext();
-				if(sourceIndex.has_value()) {
+				FGL_ASSERT(prevSourceContext == sourceContext || (sourceContextItem && sourceContextItem->context().lock() == sourceContext), "A valid context item must be supplied if the source context has changed");
+				FGL_ASSERT(contextItem == nullptr || contextItem->context().lock() == context, "contextItem must belong to context");
+				if(prevSourceContext == sourceContext && prevSourceContextItem == sourceContextItem) {
+					sourceContextIndex = prevSourceContextIndex;
+				} else if(auto sourceIndex = (sourceContextItem ? sourceContextItem->indexInContext() : std::nullopt)) {
 					sourceContextIndex = sourceContext->watchIndex(sourceIndex.value());
-				} else if(prevSourceContext == sourceContext) {
-					sourceContextIndex = this->sourceContextIndex;
 				}
-				auto shuffledIndex = shuffledContextItem->indexInContext();
-				if(shuffledIndex.has_value()) {
+				if(prevShuffledContext == shuffledContext && prevShuffledContextItem == shuffledContextItem) {
+					shuffledContextIndex = prevShuffledContextIndex;
+				} else if(auto shuffledIndex = (shuffledContextItem ? shuffledContextItem->indexInContext() : std::nullopt)) {
 					shuffledContextIndex = shuffledContext->watchIndex(shuffledIndex.value());
-				} else if(prevContext == context) {
-					shuffledContextIndex = this->shuffledContextIndex;
+				} else {
+					shuffledContextIndex = shuffledContext->watchRemovedIndex(0);
 				}
 				contextIndex = shuffledContextIndex ? maybe(shuffledContextIndex->index) : std::nullopt;
 			}
 			else {
 				if(auto castShuffledContext = std::dynamic_pointer_cast<ShuffledTrackCollection>(context)) {
 					auto castShuffledItem = std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(contextItem);
-					FGL_ASSERT(castShuffledItem != nullptr, "contextItem of ShuffledTrackCollection must be a ShuffledTrackCollectionItem");
 					context = castShuffledContext->source();
-					contextItem = castShuffledItem->sourceItem();
+					contextItem = castShuffledItem ? castShuffledItem->sourceItem() : nullptr;
 					sourceContext = context;
 					sourceContextItem = contextItem;
 					shuffledContext = nullptr;
@@ -1011,12 +1068,12 @@ namespace sh {
 					shuffledContext = nullptr;
 					shuffledContextItem = nullptr;
 				}
-				FGL_ASSERT(contextItem->context().lock() == context, "contextItem must belong to context");
-				auto sourceIndex = sourceContextItem->indexInContext();
-				if(sourceIndex.has_value()) {
+				FGL_ASSERT(prevSourceContext == sourceContext || (sourceContextItem && sourceContextItem->context().lock() == sourceContext), "A valid context item must be supplied if the source context has changed");
+				FGL_ASSERT(contextItem == nullptr || contextItem->context().lock() == context, "contextItem must belong to context");
+				if(prevSourceContext == sourceContext && prevSourceContextItem == sourceContextItem) {
+					sourceContextIndex = prevSourceContextIndex;
+				} else if(auto sourceIndex = (sourceContextItem ? sourceContextItem->indexInContext() : std::nullopt)) {
 					sourceContextIndex = sourceContext->watchIndex(sourceIndex.value());
-				} else if(prevSourceContext == sourceContext) {
-					sourceContextIndex = this->sourceContextIndex;
 				}
 				contextIndex = sourceContextIndex ? maybe(sourceContextIndex->index) : std::nullopt;
 			}
@@ -1029,29 +1086,27 @@ namespace sh {
 			// TODO subscribe / unsubscribe from context changes
 		}
 		
-		if(context && context != this->context && contextIndex) {
+		if(context && context != this->context) {
 			// TODO log error in logger
-			prepareCollectionTracks(context, contextIndex.value()).except([=](std::exception_ptr error) {
+			prepareCollectionTracks(context, contextIndex.valueOr(0)).except([=](std::exception_ptr error) {
 				console::error("Error preparing collection tracks: ", utils::getExceptionDetails(error).fullDescription);
 			});
 		}
 		
-		auto prevSourceContextIndex = this->sourceContextIndex;
-		auto prevShuffledContextIndex = this->shuffledContextIndex;
 		this->context = context;
 		this->contextItem = contextItem;
 		this->sourceContextIndex = sourceContextIndex;
 		this->shuffledContextIndex = shuffledContextIndex;
 		this->shuffling = shuffling;
-		if(this->playingItem.index() == 0 && this->applyingItem.index() == 0 && contextItem) {
+		if(!this->playingItem.hasValue() && !this->applyingItem.hasValue() && contextItem) {
 			this->applyingItem = contextItem;
 		}
 		else if(sourceContextItem && prevSourceContextItem && prevSourceContextItem == sourceContextItem) {
-			if(this->applyingItem.index() != 0
+			if(this->applyingItem.hasValue()
 			   && (this->applyingItem == ItemVariant(prevSourceContextItem) || this->applyingItem == ItemVariant(prevShuffledContextItem))) {
 				this->applyingItem = contextItem;
 			}
-			if(this->playingItem.index() != 0
+			else if(this->playingItem.hasValue()
 			   && (this->playingItem == ItemVariant(prevSourceContextItem) || this->playingItem == ItemVariant(prevShuffledContextItem))) {
 				this->playingItem = contextItem;
 			}

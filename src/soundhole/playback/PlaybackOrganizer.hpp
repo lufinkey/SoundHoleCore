@@ -17,15 +17,14 @@
 namespace sh {
 	class PlaybackOrganizer: public std::enable_shared_from_this<PlaybackOrganizer> {
 	public:
-		using NoItem = std::nullptr_t;
-		using ItemVariant = std::variant<NoItem,$<Track>,$<TrackCollectionItem>,$<QueueItem>>;
+		using ItemVariant = std::variant<$<Track>,$<TrackCollectionItem>,$<QueueItem>>;
 		
 		class Delegate {
 		public:
 			virtual ~Delegate() {}
 			
-			virtual Promise<void> onPlaybackOrganizerPrepareTrack($<PlaybackOrganizer> organizer, $<Track> track) = 0;
-			virtual Promise<void> onPlaybackOrganizerPlayTrack($<PlaybackOrganizer> organizer, $<Track> track) = 0;
+			virtual Promise<void> onPlaybackOrganizerPrepareItem($<PlaybackOrganizer> organizer, ItemVariant item) = 0;
+			virtual Promise<void> onPlaybackOrganizerPlayItem($<PlaybackOrganizer> organizer, ItemVariant item) = 0;
 		};
 		
 		class EventListener {
@@ -36,12 +35,9 @@ namespace sh {
 			virtual void onPlaybackOrganizerQueueChange($<PlaybackOrganizer> organizer) {}
 		};
 		
-		struct Options {
-			Delegate* delegate = nullptr;
-			size_t contextLoadBuffer = 5;
-		};
-		
 		struct Preferences {
+			size_t contextLoadBuffer = 5;
+			
 			bool pastQueueEnabled = true;
 			bool savePastQueueToDisk = false;
 			
@@ -50,9 +46,9 @@ namespace sh {
 			bool clearPastQueueOnContextChange = false;
 		};
 		
-		static $<PlaybackOrganizer> new$(Options options);
+		static $<PlaybackOrganizer> new$(Delegate* delegate);
 		
-		PlaybackOrganizer(Options options);
+		PlaybackOrganizer(Delegate* delegate);
 		
 		void setPreferences(Preferences);
 		const Preferences& getPreferences() const;
@@ -78,9 +74,9 @@ namespace sh {
 		$<QueueItem> addToQueueRandomly($<Track> track);
 		bool removeFromQueue($<QueueItem> item);
 		
-		ItemVariant getCurrentItem() const;
-		Promise<ItemVariant> getPreviousItem();
-		Promise<ItemVariant> getNextItem();
+		Optional<ItemVariant> getCurrentItem() const;
+		Promise<Optional<ItemVariant>> getPreviousItem();
+		Promise<Optional<ItemVariant>> getNextItem();
 		
 		$<Track> getCurrentTrack() const;
 		Promise<$<Track>> getPreviousTrack();
@@ -122,17 +118,16 @@ namespace sh {
 			};
 			
 			Trigger trigger = Trigger::PLAY;
-			bool apply = true;
 		};
-		Promise<void> setPlayingItem(Function<Promise<ItemVariant>()> itemGetter, SetPlayingOptions options);
+		Promise<void> setPlayingItem(Function<Promise<Optional<ItemVariant>>()> itemGetter, SetPlayingOptions options);
 		Promise<void> applyPlayingItem(ItemVariant item);
 		
-		Promise<ItemVariant> getValidPreviousItem();
-		Promise<ItemVariant> getValidNextItem();
-			
+		Promise<Optional<ItemVariant>> getValidPreviousItem();
+		Promise<Optional<ItemVariant>> getValidNextItem();
+		
 		static Json itemToJson(ItemVariant itemVariant);
 		
-		Options options;
+		Delegate* delegate;
 		Preferences prefs;
 		
 		$<TrackCollection> context;
@@ -142,8 +137,8 @@ namespace sh {
 		bool shuffling;
 		
 		bool preparedNext;
-		std::variant<NoItem,$<Track>,$<TrackCollectionItem>,$<QueueItem>> applyingItem;
-		std::variant<NoItem,$<Track>,$<TrackCollectionItem>,$<QueueItem>> playingItem;
+		Optional<ItemVariant> applyingItem;
+		Optional<ItemVariant> playingItem;
 		
 		PlaybackQueue queue;
 		

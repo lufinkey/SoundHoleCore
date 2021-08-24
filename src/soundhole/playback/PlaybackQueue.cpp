@@ -61,6 +61,10 @@ namespace sh {
 		pastItems.clear();
 	}
 
+	bool PlaybackQueue::isPastItem($<QueueItem> queueItem) {
+		return pastItems.contains(queueItem);
+	}
+
 	$<QueueItem> PlaybackQueue::prependItem($<Track> track) {
 		auto queueItem = QueueItem::new$(track);
 		items.pushFront(queueItem);

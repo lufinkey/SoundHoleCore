@@ -17,7 +17,7 @@ namespace sh {
 
 	Player::Player(Options options)
 	: options(options),
-	organizer(PlaybackOrganizer::new$({.delegate=this})),
+	organizer(PlaybackOrganizer::new$(this)),
 	mediaProvider(nullptr),
 	preparedMediaProvider(nullptr) {
 		organizer->addEventListener(this);
@@ -176,37 +176,33 @@ namespace sh {
 	#pragma mark Media Control functions
 
 	Promise<void> Player::play($<Track> track) {
+		FGL_ASSERT(track != nullptr, "track cannot be null");
 		#ifdef TARGETPLATFORM_IOS
-		if(track) {
 			activateAudioSession();
-		}
 		#endif
 		return organizer->play(track);
 	}
 
 	Promise<void> Player::play($<TrackCollectionItem> item) {
+		FGL_ASSERT(item != nullptr, "item cannot be null");
 		#ifdef TARGETPLATFORM_IOS
-		if(item) {
 			activateAudioSession();
-		}
 		#endif
 		return organizer->play(item);
 	}
 
 	Promise<void> Player::play($<QueueItem> queueItem) {
+		FGL_ASSERT(queueItem != nullptr, "queueItem cannot be null");
 		#ifdef TARGETPLATFORM_IOS
-		if(queueItem) {
 			activateAudioSession();
-		}
 		#endif
 		return organizer->play(queueItem);
 	}
 
 	Promise<void> Player::play(ItemVariant item) {
+		FGL_ASSERT(trackFromItem(item) != nullptr, "item track cannot be null");
 		#ifdef TARGETPLATFORM_IOS
-			if(std::get_if<NoItem>(&item) == nullptr) {
-				activateAudioSession();
-			}
+			activateAudioSession();
 		#endif
 		return organizer->play(item);
 	}
@@ -214,9 +210,7 @@ namespace sh {
 	Promise<void> Player::playAtQueueIndex(size_t index) {
 		auto item = organizer->getQueueItem(index);
 		#ifdef TARGETPLATFORM_IOS
-		if(item) {
 			activateAudioSession();
-		}
 		#endif
 		return organizer->play(item);
 	}
@@ -272,9 +266,9 @@ namespace sh {
 		auto resumableProgress = this->resumableProgress;
 		if(resumableProgress && mediaProvider == nullptr && playing) {
 			auto currentItem = organizer->getCurrentItem();
-			auto currentTrack = PlaybackOrganizer::trackFromItem(currentItem);
+			auto currentTrack = currentItem.hasValue() ? trackFromItem(currentItem.value()) : nullptr;
 			if(currentTrack && resumableProgress->uri == currentTrack->uri() && resumableProgress->providerName == currentTrack->mediaProvider()->name()) {
-				return organizer->play(currentItem);
+				return organizer->play(currentItem.value());
 			}
 		}
 		// if there is no playback provider, return without doing anything
@@ -314,7 +308,8 @@ namespace sh {
 		if(nextTrackPromise.isComplete()) {
 			nextTrack = nextTrackPromise.get();
 		}
-		auto currentTrack = playingTrack ? playingTrack : organizer->getCurrentTrack();
+		auto currentItem = this->currentItem();
+		auto currentTrack = currentItem.hasValue() ? trackFromItem(currentItem.value()) : nullptr;
 		return Metadata{
 			.previousTrack = previousTrack,
 			.currentTrack = currentTrack,
@@ -339,11 +334,16 @@ namespace sh {
 		};
 	}
 	
-	Player::ItemVariant Player::currentItem() const {
+	Optional<Player::ItemVariant> Player::currentItem() const {
 		auto organizerItem = organizer->getCurrentItem();
-		auto organizerTrack = PlaybackOrganizer::trackFromItem(organizerItem);
-		if(playingTrack && (!organizerTrack || playingTrack->uri() != organizerTrack->uri())) {
-			return playingTrack;
+		auto organizerTrack = organizerItem.hasValue() ? trackFromItem(organizerItem.value()) : nullptr;
+		if(playingItem.hasValue()) {
+			auto playingTrack = trackFromItem(playingItem.value());
+			// check if playing track doesn't match organizer track
+			if(playingTrack == nullptr || !organizerTrack || playingTrack->uri() != organizerTrack->uri()) {
+				// since playing track is different than organizer track, return playing item
+				return playingItem;
+			}
 		}
 		return organizerItem;
 	}
@@ -455,16 +455,21 @@ namespace sh {
 
 	#pragma mark Preparing / Playing Track
 
-	Promise<void> Player::prepareTrack($<Track> track) {
+	Promise<void> Player::prepareItem(ItemVariant item) {
 		auto runOptions = AsyncQueue::RunOptions{
 			.tag="prepare",
 			.cancelMatchingTags=true
 		};
 		w$<Player> weakSelf = shared_from_this();
-		return playQueue.run(runOptions, [=](auto task) {
+		return playQueue.run(runOptions, [=](auto task) -> Promise<void> {
 			auto self = weakSelf.lock();
 			if(!self) {
-				return Promise<void>::resolve();
+				return resolveVoid();
+			}
+			auto track = trackFromItem(item);
+			if(!track) {
+				// TODO maybe some items will need to load their track asynchronously?
+				return resolveVoid();
 			}
 			auto provider = track->mediaProvider();
 			auto playbackProvider = provider->player();
@@ -478,17 +483,20 @@ namespace sh {
 		}).promise;
 	}
 
-	Promise<void> Player::playTrack($<Track> track) {
+	Promise<void> Player::playItem(ItemVariant item) {
 		auto runOptions = AsyncQueue::RunOptions{
 			.tag="play",
 			.cancelMatchingTags=true
 		};
 		w$<Player> weakSelf = shared_from_this();
-		return playQueue.run(runOptions, [=](auto task) {
+		return playQueue.run(runOptions, [=](auto task) -> Promise<void> {
 			auto self = weakSelf.lock();
 			if(!self) {
-				return Promise<void>::resolve();
+				return resolveVoid();
 			}
+			auto track = trackFromItem(item);
+			// TODO maybe some items will need to load their tracks asynchronously?
+			FGL_ASSERT(track != nullptr, "item cannot have a null track");
 			auto provider = track->mediaProvider();
 			auto playbackProvider = provider->player();
 			auto preparedPlaybackProvider = (self->preparedMediaProvider != nullptr) ? self->preparedMediaProvider->player() : nullptr;
@@ -599,12 +607,12 @@ namespace sh {
 
 	#pragma mark PlaybackOrganizer::EventListener
 
-	Promise<void> Player::onPlaybackOrganizerPrepareTrack($<PlaybackOrganizer> organizer, $<Track> track) {
-		return prepareTrack(track);
+	Promise<void> Player::onPlaybackOrganizerPrepareItem($<PlaybackOrganizer> organizer, ItemVariant item) {
+		return prepareItem(item);
 	}
 
-	Promise<void> Player::onPlaybackOrganizerPlayTrack($<PlaybackOrganizer> organizer, $<Track> track) {
-		return playTrack(track);
+	Promise<void> Player::onPlaybackOrganizerPlayItem($<PlaybackOrganizer> organizer, ItemVariant item) {
+		return playItem(item);
 	}
 
 	void Player::onPlaybackOrganizerTrackChange($<PlaybackOrganizer> organizer) {
@@ -734,16 +742,28 @@ namespace sh {
 		auto providerState = (playbackProvider != nullptr) ? maybe(playbackProvider->state()) : std::nullopt;
 		auto providerMetadata = (playbackProvider != nullptr) ? maybe(playbackProvider->metadata()) : std::nullopt;
 		auto providerTrack = (providerMetadata) ? providerMetadata->currentTrack : nullptr;
-		auto prevPlayingTrack = this->playingTrack;
-		auto organizerTrack = organizer->getCurrentTrack();
+		auto prevPlayingItem = this->playingItem;
+		auto prevPlayingTrack = prevPlayingItem.hasValue() ? trackFromItem(prevPlayingItem.value()) : nullptr;
+		auto organizerItem = organizer->getCurrentItem();
+		auto organizerTrack = organizerItem.hasValue() ? trackFromItem(organizerItem.value()) : nullptr;
 		
 		this->providerPlaybackState = providerState;
 		this->providerPlaybackMetadata = providerMetadata;
 		
 		if(organizerTrack != nullptr && providerTrack != nullptr && organizerTrack->uri() == providerTrack->uri()) {
-			this->playingTrack = organizerTrack;
+			this->playingItem = organizerItem;
+		} else if(prevPlayingTrack != nullptr && providerTrack != nullptr && prevPlayingTrack->uri() == providerTrack->uri()) {
+			this->playingItem = prevPlayingItem;
 		} else {
-			this->playingTrack = providerTrack;
+			if(providerTrack == nullptr) {
+				if(organizerItem.hasValue()) {
+					this->playingItem = organizerItem;
+				} else {
+					this->playingItem = std::nullopt;
+				}
+			} else {
+				this->playingItem = providerTrack;
+			}
 		}
 		
 		/*if(this->playingTrack != nullptr && this->playingTrack != prevPlayingTrack) {

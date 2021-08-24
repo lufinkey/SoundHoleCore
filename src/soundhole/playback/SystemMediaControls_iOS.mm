@@ -221,7 +221,9 @@ namespace sh {
 		commandCenter.stopCommand.enabled = state.stopEnabled;
 		commandCenter.previousTrackCommand.enabled = state.previousEnabled;
 		commandCenter.nextTrackCommand.enabled = state.nextEnabled;
+		commandCenter.changeRepeatModeCommand.enabled = state.repeatEnabled;
 		commandCenter.changeRepeatModeCommand.currentRepeatType = [SHSystemMediaControlsListenerWrapper nativeRepeatModeFrom:state.repeatMode];
+		commandCenter.changeShuffleModeCommand.enabled = state.shuffleEnabled;
 		commandCenter.changeShuffleModeCommand.currentShuffleType = [SHSystemMediaControlsListenerWrapper nativeShuffleModeFrom:state.shuffleMode];
 	}
 	

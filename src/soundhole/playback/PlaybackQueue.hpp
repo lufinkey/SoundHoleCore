@@ -20,6 +20,7 @@ namespace sh {
 		bool removeItem($<QueueItem> queueItem);
 		void clear();
 		void clearPastItems();
+		bool isPastItem($<QueueItem> queueItem);
 		
 		$<QueueItem> prependItem($<Track> track);
 		$<QueueItem> appendItem($<Track> track);

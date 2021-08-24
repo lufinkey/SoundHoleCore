@@ -21,7 +21,6 @@
 namespace sh {
 	class Player: public std::enable_shared_from_this<Player>, protected PlaybackOrganizer::Delegate, protected PlaybackOrganizer::EventListener, protected MediaPlaybackProvider::EventListener, protected MediaControls::Listener {
 	public:
-		using NoItem = PlaybackOrganizer::NoItem;
 		using ItemVariant = PlaybackOrganizer::ItemVariant;
 		
 		struct State {
@@ -60,10 +59,10 @@ namespace sh {
 			MediaControls* mediaControls = nullptr;
 		};
 		
-		
 		struct Preferences {
 			double nextTrackPreloadTime = 10.0;
 			double progressSaveInterval = 1.0;
+			Optional<double> minimumDurationForHistory = 0.5;
 		};
 		
 		static $<Player> new$(Options options);
@@ -112,7 +111,7 @@ namespace sh {
 		Metadata metadata();
 		State state() const;
 		
-		ItemVariant currentItem() const;
+		Optional<ItemVariant> currentItem() const;
 		
 		$<TrackCollection> context() const;
 		Optional<size_t> contextIndex() const;
@@ -126,9 +125,11 @@ namespace sh {
 		MediaControls* getMediaControls();
 		const MediaControls* getMediaControls() const;
 		
+		inline static $<Track> trackFromItem(ItemVariant item);
+		
 	protected:
-		virtual Promise<void> onPlaybackOrganizerPrepareTrack($<PlaybackOrganizer> organizer, $<Track> track) override;
-		virtual Promise<void> onPlaybackOrganizerPlayTrack($<PlaybackOrganizer> organizer, $<Track> track) override;
+		virtual Promise<void> onPlaybackOrganizerPrepareItem($<PlaybackOrganizer> organizer, ItemVariant track) override;
+		virtual Promise<void> onPlaybackOrganizerPlayItem($<PlaybackOrganizer> organizer, ItemVariant track) override;
 		virtual void onPlaybackOrganizerTrackChange($<PlaybackOrganizer> organizer) override;
 		virtual void onPlaybackOrganizerQueueChange($<PlaybackOrganizer> organizer) override;
 		
@@ -166,8 +167,8 @@ namespace sh {
 		Promise<void> performSave(SaveOptions options);
 		void saveInBackground(SaveOptions options);
 		
-		Promise<void> prepareTrack($<Track> track);
-		Promise<void> playTrack($<Track> track);
+		Promise<void> prepareItem(ItemVariant item);
+		Promise<void> playItem(ItemVariant item);
 		void setMediaProvider(MediaProvider* provider);
 		
 		void startPlayerStateInterval();
@@ -197,7 +198,7 @@ namespace sh {
 		
 		Optional<MediaPlaybackProvider::State> providerPlaybackState;
 		Optional<MediaPlaybackProvider::Metadata> providerPlaybackMetadata;
-		$<Track> playingTrack;
+		Optional<ItemVariant> playingItem;
 		
 		$<Timer> providerPlayerStateTimer;
 		
@@ -223,6 +224,10 @@ namespace sh {
 		for(auto listener : listeners) {
 			(listener->*func)(args...);
 		}
+	}
+
+	$<Track> Player::trackFromItem(ItemVariant item) {
+		return PlaybackOrganizer::trackFromItem(item);
 	}
 }
 
