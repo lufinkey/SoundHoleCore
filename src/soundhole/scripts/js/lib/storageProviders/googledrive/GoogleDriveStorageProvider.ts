@@ -39,7 +39,7 @@ import {
 	createUserURIFromUser,
 	createUserIDFromUser,
 	GoogleSheetPage } from './types';
-import GoogleDrivePlaylist, { InsertingPlaylistItem } from './GoogleDrivePlaylist';
+import GoogleDrivePlaylist, { InsertingPlaylistItem, NewItemProtection } from './GoogleDrivePlaylist';
 import GoogleDriveLibraryDB from './GoogleDriveLibraryDB';
 import GoogleDriveProfileDB from './GoogleDriveProfileDB';
 
@@ -872,7 +872,7 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 
 
 
-	_playlistItemsFromTracks(tracks: Track[], user: drive_v3.Schema$User, baseFolderId: string): InsertingPlaylistItem[] {
+	_playlistItemsFromTracks(tracks: Track[], user: drive_v3.Schema$User, baseFolderId: string, protection: NewItemProtection | null): InsertingPlaylistItem[] {
 		const addedAt = (new Date()).getTime();
 		const addedBy = this._createUserObject(user, baseFolderId);
 		const addedById = createUserIDFromUser(user, baseFolderId);
@@ -881,11 +881,12 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 			addedAt,
 			addedBy,
 			addedById,
-			track
+			track,
+			protection: protection ?? undefined
 		}));
 	}
 
-	async insertPlaylistItems(playlistURI: string, index: number, tracks: Track[]): Promise<PlaylistItemPage> {
+	async insertPlaylistItems(playlistURI: string, index: number, tracks: Track[], options?: {protection?: NewItemProtection}): Promise<PlaylistItemPage> {
 		if(!Number.isInteger(index) || index < 0) {
 			throw new Error("index must be a positive integer");
 		}
@@ -903,7 +904,7 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 			throw new Error("No drive user available");
 		}
 		// create items
-		const playlistItems = this._playlistItemsFromTracks(tracks, driveInfo.user, baseFolderId);
+		const playlistItems = this._playlistItemsFromTracks(tracks, driveInfo.user, baseFolderId, options?.protection ?? null);
 		// insert items on playlist
 		const gdbPlaylist = GoogleDrivePlaylist.forFileID(uriParts.fileId, {
 			appKey: this._options.appKey,
@@ -913,7 +914,7 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 		return await gdbPlaylist.insertItems(index, playlistItems);
 	}
 
-	async appendPlaylistItems(playlistURI: string, tracks: Track[]): Promise<PlaylistItemPage> {
+	async appendPlaylistItems(playlistURI: string, tracks: Track[], options?: {protection?: NewItemProtection}): Promise<PlaylistItemPage> {
 		await this._prepareForRequest();
 		// ensure base folder ID
 		const baseFolderId = this._baseFolderId;
@@ -928,7 +929,7 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 			throw new Error("No drive user available");
 		}
 		// create items
-		const playlistItems = this._playlistItemsFromTracks(tracks, driveInfo.user, baseFolderId);
+		const playlistItems = this._playlistItemsFromTracks(tracks, driveInfo.user, baseFolderId, options?.protection ?? null);
 		// append items on playlist
 		const gdbPlaylist = GoogleDrivePlaylist.forFileID(uriParts.fileId, {
 			appKey: this._options.appKey,

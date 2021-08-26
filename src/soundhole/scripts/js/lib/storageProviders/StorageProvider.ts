@@ -52,12 +52,19 @@ export const validatePlaylistPrivacy = (privacy: string): PlaylistPrivacyId => {
 	return (privacy as PlaylistPrivacyId);
 };
 
+export type PlaylistItemProtection = {
+	id: string
+	description: string | null
+	userIds?: string[]
+}
+
 
 export type PlaylistItem = {
 	uniqueId: string
 	track: Track
 	addedAt: string | number
 	addedBy: User
+	protection: PlaylistItemProtection | null
 }
 
 export type Playlist = {

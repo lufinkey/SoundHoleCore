@@ -5,7 +5,10 @@ import {
 	KeyingOptions,
 	PlaylistItem,
 	PlaylistItemPage,
+	PlaylistItemProtection,
 	PlaylistPrivacyId,
+	Track,
+	User,
 	validatePlaylistPrivacy } from '../StorageProvider';
 import {
 	GoogleSheetsDB,
@@ -13,6 +16,7 @@ import {
 	GSDBCellValue,
 	GSDBFullInfo,
 	GSDBInfo,
+	GSDBNewRow,
 	GSDBRow,
 	GSDBTableData,
 	GSDBTableInfo,
@@ -42,8 +46,18 @@ type CreateOptions = KeyingOptions & RequiredGoogleAPIs & {
 	image?: ImageData
 }
 
-export type InsertingPlaylistItem = PlaylistItem & {
+export type NewItemProtection = {
+	description: string | null
+	userIds?: string[]
+}
+
+export type InsertingPlaylistItem = {
+	uniqueId: string
+	track: Track
+	addedAt: string | number
+	addedBy: User
 	addedById: string
+	protection?: NewItemProtection
 }
 
 export default class GoogleDrivePlaylist extends GoogleSheetsDBWrapper {
@@ -283,14 +297,16 @@ export default class GoogleDrivePlaylist extends GoogleSheetsDBWrapper {
 			throw new Error(`item index ${index} is out of bounds`);
 		}
 		// insert rows
-		await this.db.insertTableRows(tableInfo, index, items.map((item: PlaylistItem): GSDBRow => {
+		const insertedRows = await this.db.insertTableRows(tableInfo, index, items.map((item): GSDBNewRow => {
 			return this._rowFromPlaylistItem(tableInfo, item);
 		}));
 		tableInfo.rowCount += items.length;
 		return {
 			offset: index,
 			total: tableInfo.rowCount,
-			items
+			items: insertedRows.map((row, i) => {
+				return this._parsePlaylistItemTableRow(row, tableInfo, (index + i));
+			})
 		};
 	}
 
@@ -299,14 +315,16 @@ export default class GoogleDrivePlaylist extends GoogleSheetsDBWrapper {
 		const tableInfo = await this.getTableInfo(GoogleDrivePlaylist.TABLENAME_ITEMS);
 		// insert rows at end
 		const index = tableInfo.rowCount;
-		await this.db.insertTableRows(tableInfo, index, items.map((item: PlaylistItem): GSDBRow => {
+		const insertedRows = await this.db.insertTableRows(tableInfo, index, items.map((item): GSDBNewRow => {
 			return this._rowFromPlaylistItem(tableInfo, item);
 		}));
 		tableInfo.rowCount += items.length;
 		return {
 			offset: index,
 			total: tableInfo.rowCount,
-			items
+			items: insertedRows.map((row, i) => {
+				return this._parsePlaylistItemTableRow(row, tableInfo, (index + i));
+			})
 		};
 	}
 
@@ -335,6 +353,20 @@ export default class GoogleDrivePlaylist extends GoogleSheetsDBWrapper {
 		}
 		// return result
 		return result;
+	}
+
+	async updateItemProtections(itemProtections: PlaylistItemProtection[]) {
+		await this.db.updateRowProtections(itemProtections.map((p) => {
+			let id: number | string = Number.parseInt(p.id);
+			if(Number.isNaN(id)) {
+				id = p.id;
+			}
+			return {
+				id: id as number,
+				description: p.description,
+				userIds: p.userIds
+			};
+		}));
 	}
 
 	async moveItems(index: number, count: number, newIndex: number): Promise<void> {
@@ -395,6 +427,13 @@ export default class GoogleDrivePlaylist extends GoogleSheetsDBWrapper {
 			// format timestamp as date string
 			playlistItem.addedAt = this.formatDate(new Date(item.addedAt));
 		}
+		if(row.protection) {
+			playlistItem.protection = {
+				id: ''+row.protection.id,
+				description: row.protection.description ?? null,
+				userIds: row.protection.userIds
+			};
+		}
 		return item;
 	}
 
@@ -411,7 +450,7 @@ export default class GoogleDrivePlaylist extends GoogleSheetsDBWrapper {
 		};
 	}
 
-	_rowFromPlaylistItem(tableInfo: GSDBTableSheetInfo, item: PlaylistItem): GSDBRow {
+	_rowFromPlaylistItem(tableInfo: GSDBTableSheetInfo, item: InsertingPlaylistItem): GSDBNewRow {
 		const cls = GoogleDrivePlaylist;
 		// build row values
 		const values: GSDBCellValue[] = [];
@@ -437,7 +476,8 @@ export default class GoogleDrivePlaylist extends GoogleSheetsDBWrapper {
 		}
 		return {
 			values,
-			metadata
+			metadata,
+			protection: item.protection
 		};
 	}
 }
