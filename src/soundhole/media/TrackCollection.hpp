@@ -79,8 +79,8 @@ namespace sh {
 			bool forceReload = false;
 			bool trackIndexChanges = false;
 			
-			std::map<String,Any> toDict() const;
-			static LoadItemOptions fromDict(const std::map<String,Any>& dict);
+			Map<String,Any> toMap() const;
+			static LoadItemOptions fromMap(const Map<String,Any>&);
 			
 			static LoadItemOptions defaultOptions();
 		};
@@ -151,12 +151,7 @@ namespace sh {
 			virtual ~MutatorDelegate() {}
 			
 			virtual size_t getChunkSize() const = 0;
-			
 			virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) = 0;
-			virtual Promise<void> insertItems(Mutator* mutator, size_t index, LinkedList<$<Track>> tracks) = 0;
-			virtual Promise<void> appendItems(Mutator* mutator, LinkedList<$<Track>> tracks) = 0;
-			virtual Promise<void> removeItems(Mutator* mutator, size_t index, size_t count) = 0;
-			virtual Promise<void> moveItems(Mutator* mutator, size_t index, size_t count, size_t newIndex) = 0;
 		};
 		
 		struct Data: public TrackCollection::Data {
@@ -223,11 +218,11 @@ namespace sh {
 		virtual size_t getAsyncListChunkSize(const AsyncList* list) const override;
 		virtual bool areAsyncListItemsEqual(const AsyncList* list, const $<ItemType>& item1, const $<ItemType>& item2) const override;
 		virtual void mergeAsyncListItem(const AsyncList* list, $<ItemType>& overwritingItem, $<ItemType>& existingItem) override;
-		virtual Promise<void> loadAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count, std::map<String,Any> options) override;
-		virtual Promise<void> insertAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, LinkedList<$<Track>> tracks) override;
-		virtual Promise<void> appendAsyncListItems(typename AsyncList::Mutator* mutator, LinkedList<$<Track>> tracks) override;
-		virtual Promise<void> removeAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count) override;
-		virtual Promise<void> moveAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count, size_t newIndex) override;
+		virtual Promise<void> loadAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count, Map<String,Any> options) override;
+		virtual Promise<void> insertAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, LinkedList<$<Track>> tracks, Map<String,Any> options) override;
+		virtual Promise<void> appendAsyncListItems(typename AsyncList::Mutator* mutator, LinkedList<$<Track>> tracks, Map<String,Any> options) override;
+		virtual Promise<void> removeAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count, Map<String,Any> options) override;
+		virtual Promise<void> moveAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count, size_t newIndex, Map<String,Any> options) override;
 		virtual void onAsyncListMutations(const AsyncList* list, AsyncListChange change) override;
 		
 		virtual MutatorDelegate* createMutatorDelegate();

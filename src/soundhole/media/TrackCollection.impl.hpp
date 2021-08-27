@@ -277,7 +277,7 @@ namespace sh {
 		return asyncItemsList()->getItem(index, {
 			.forceReload = options.forceReload,
 			.trackIndexChanges = options.trackIndexChanges,
-			.loadOptions = options.toDict()
+			.loadOptions = options.toMap()
 		}).map(nullptr, [](auto item) -> $<TrackCollectionItem> {
 			return std::static_pointer_cast<TrackCollectionItem>(item.value_or(nullptr));
 		});
@@ -303,7 +303,7 @@ namespace sh {
 		return this->asyncItemsList()->getItems(index, count, {
 			.forceReload = options.forceReload,
 			.trackIndexChanges = options.trackIndexChanges,
-			.loadOptions = options.toDict()
+			.loadOptions = options.toMap()
 		}).map(nullptr, [](auto items) -> LinkedList<$<TrackCollectionItem>> {
 			return items.map([](auto& item) -> $<TrackCollectionItem> {
 				return std::static_pointer_cast<TrackCollectionItem>(item);
@@ -321,7 +321,7 @@ namespace sh {
 			return asyncItemsList()->generateItems(startIndex, {
 				.forceReload = options.forceReload,
 				.trackIndexChanges = options.trackIndexChanges,
-				.loadOptions = options.toDict()
+				.loadOptions = options.toMap()
 			}).map([](auto items) -> LinkedList<$<TrackCollectionItem>> {
 				return items.map([](auto& item) -> $<TrackCollectionItem> {
 					return std::static_pointer_cast<TrackCollectionItem>(item);
@@ -395,7 +395,7 @@ namespace sh {
 			return asyncItemsList()->loadItems(index,count, {
 				.forceReload = options.forceReload,
 				.trackIndexChanges = options.trackIndexChanges,
-				.loadOptions = options.toDict()
+				.loadOptions = options.toMap()
 			});
 		} else {
 			return Promise<void>::resolve();
@@ -629,33 +629,29 @@ namespace sh {
 	}
 
 	template<typename ItemType>
-	Promise<void> SpecialTrackCollection<ItemType>::loadAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count, std::map<String,Any> options) {
+	Promise<void> SpecialTrackCollection<ItemType>::loadAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count, Map<String,Any> options) {
 		auto delegate = mutatorDelegate();
-		return delegate->loadItems(mutator, index, count, LoadItemOptions::fromDict(options));
+		return delegate->loadItems(mutator, index, count, LoadItemOptions::fromMap(options));
 	}
 
 	template<typename ItemType>
-	Promise<void> SpecialTrackCollection<ItemType>::insertAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, LinkedList<$<Track>> tracks) {
-		auto delegate = mutatorDelegate();
-		return delegate->insertItems(mutator, index, tracks);
+	Promise<void> SpecialTrackCollection<ItemType>::insertAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, LinkedList<$<Track>> tracks, Map<String,Any> options) {
+		return Promise<void>::reject(std::runtime_error("insertion is not implemented for this TrackCollection"));
 	}
 
 	template<typename ItemType>
-	Promise<void> SpecialTrackCollection<ItemType>::appendAsyncListItems(typename AsyncList::Mutator* mutator, LinkedList<$<Track>> tracks) {
-		auto delegate = mutatorDelegate();
-		return delegate->appendItems(mutator, tracks);
+	Promise<void> SpecialTrackCollection<ItemType>::appendAsyncListItems(typename AsyncList::Mutator* mutator, LinkedList<$<Track>> tracks, Map<String,Any> options) {
+		return Promise<void>::reject(std::runtime_error("appending items not implemented for this TrackCollection"));
 	}
 
 	template<typename ItemType>
-	Promise<void> SpecialTrackCollection<ItemType>::removeAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count) {
-		auto delegate = mutatorDelegate();
-		return delegate->removeItems(mutator, index, count);
+	Promise<void> SpecialTrackCollection<ItemType>::removeAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count, Map<String,Any> options) {
+		return Promise<void>::reject(std::runtime_error("inserting items is not implemented for this TrackCollection"));
 	}
 
 	template<typename ItemType>
-	Promise<void> SpecialTrackCollection<ItemType>::moveAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count, size_t newIndex) {
-		auto delegate = mutatorDelegate();
-		return delegate->moveItems(mutator, index, count, newIndex);
+	Promise<void> SpecialTrackCollection<ItemType>::moveAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count, size_t newIndex, Map<String,Any> options) {
+		return Promise<void>::reject(std::runtime_error("moving items is not implemented for this TrackCollection"));
 	}
 
 	template<typename ItemType>

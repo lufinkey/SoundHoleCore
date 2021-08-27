@@ -86,7 +86,7 @@ namespace sh {
 
 	#pragma mark TrackCollection::LoadItemOptions
 
-	std::map<String,Any> TrackCollection::LoadItemOptions::toDict() const {
+	Map<String,Any> TrackCollection::LoadItemOptions::toMap() const {
 		return {
 			{ "database", database },
 			{ "offline", offline },
@@ -95,7 +95,7 @@ namespace sh {
 		};
 	}
 
-	TrackCollection::LoadItemOptions TrackCollection::LoadItemOptions::fromDict(const std::map<String,Any>& dict) {
+	TrackCollection::LoadItemOptions TrackCollection::LoadItemOptions::fromMap(const Map<String,Any>& dict) {
 		auto databaseIt = dict.find("database");
 		auto offlineIt = dict.find("offline");
 		auto forceReload = dict.find("forceReload");

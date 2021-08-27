@@ -77,4 +77,8 @@ namespace sh {
 	bool PlaybackHistoryItem::chosenByUser() const {
 		return _chosenByUser;
 	}
+
+	void PlaybackHistoryItem::increaseDuration(double amount) {
+		_duration = _duration.valueOr(0) + amount;
+	}
 }

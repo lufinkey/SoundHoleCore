@@ -18,6 +18,12 @@ namespace sh {
 
 	class PlaylistItem: public SpecialTrackCollectionItem<Playlist> {
 	public:
+		struct Protection {
+			String id;
+			String description;
+			ArrayList<String> userIds;
+		};
+		
 		struct Data: public SpecialTrackCollectionItem<Playlist>::Data {
 			String uniqueId;
 			Date addedAt;
@@ -56,6 +62,31 @@ namespace sh {
 		static String Privacy_toString(Privacy);
 		static Optional<Privacy> Privacy_fromString(const String&);
 		
+		struct InsertItemOptions {
+			struct Protection {
+				String description;
+				ArrayList<String> userIds;
+			};
+			
+			MediaDatabase* database = nullptr;
+			Optional<Protection> protection;
+			
+			Map<String,Any> toMap() const;
+			static InsertItemOptions fromMap(const Map<String,Any>&);
+			
+			static InsertItemOptions defaultOptions();
+		};
+		
+		class MutatorDelegate: public SpecialTrackCollection<PlaylistItem>::MutatorDelegate {
+		public:
+			using InsertItemOptions = Playlist::InsertItemOptions;
+			
+			virtual Promise<void> insertItems(Mutator* mutator, size_t index, LinkedList<$<Track>> tracks, InsertItemOptions options) = 0;
+			virtual Promise<void> appendItems(Mutator* mutator, LinkedList<$<Track>> tracks, InsertItemOptions options) = 0;
+			virtual Promise<void> removeItems(Mutator* mutator, size_t index, size_t count) = 0;
+			virtual Promise<void> moveItems(Mutator* mutator, size_t index, size_t count, size_t newIndex) = 0;
+		};
+		
 		struct Data: public SpecialTrackCollection<PlaylistItem>::Data {
 			$<UserAccount> owner;
 			Optional<Privacy> privacy;
@@ -80,16 +111,30 @@ namespace sh {
 		Data toData(const DataOptions& options = DataOptions()) const;
 		virtual Json toJson(const ToJsonOptions& options) const override;
 		
-		Promise<void> insertItems(size_t index, LinkedList<$<Track>> items);
-		Promise<void> appendItems(LinkedList<$<Track>> items);
+		Promise<void> insertItems(size_t index, LinkedList<$<Track>> items, InsertItemOptions options = InsertItemOptions::defaultOptions());
+		Promise<void> appendItems(LinkedList<$<Track>> items, InsertItemOptions options = InsertItemOptions::defaultOptions());
 		Promise<void> removeItems(size_t index, size_t count);
 		Promise<void> moveItems(size_t index, size_t count, size_t newIndex);
 		
 	protected:
+		virtual Promise<void> insertAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, LinkedList<$<Track>> tracks, Map<String,Any> options) override;
+		virtual Promise<void> appendAsyncListItems(typename AsyncList::Mutator* mutator, LinkedList<$<Track>> tracks, Map<String,Any> options) override;
+		virtual Promise<void> removeAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count, Map<String,Any> options) override;
+		virtual Promise<void> moveAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count, size_t newIndex, Map<String,Any> options) override;
+		
 		virtual MutatorDelegate* createMutatorDelegate() override;
+		inline MutatorDelegate* mutatorDelegate();
 		
 		$<UserAccount> _owner;
 		Optional<Privacy> _privacy;
 		Optional<bool> _editable;
 	};
+
+
+
+	#pragma mark Playlist implementation
+
+	Playlist::MutatorDelegate* Playlist::mutatorDelegate() {
+		return static_cast<MutatorDelegate*>(SpecialTrackCollection<PlaylistItem>::mutatorDelegate());
+	}
 }

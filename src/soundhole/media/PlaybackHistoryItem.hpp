@@ -37,6 +37,8 @@ namespace sh {
 		const Optional<double>& duration() const;
 		bool chosenByUser() const;
 		
+		void increaseDuration(double amount);
+		
 	private:
 		$<Track> _track;
 		Date _startTime;

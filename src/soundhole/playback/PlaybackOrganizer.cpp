@@ -636,7 +636,7 @@ namespace sh {
 		if(contextIndex) {
 			return contextIndex.value() + 1;
 		}
-		if(std::dynamic_pointer_cast<ShuffledTrackCollection>(context)) {
+		if(std::dynamic_pointer_cast<ShuffledTrackCollection>(context) != nullptr) {
 			if(shuffledContextIndex) {
 				if(shuffledContextIndex->state == TrackCollection::ItemIndexMarkerState::REMOVED) {
 					return shuffledContextIndex->index;

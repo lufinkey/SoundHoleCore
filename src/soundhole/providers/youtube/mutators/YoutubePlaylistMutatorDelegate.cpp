@@ -233,7 +233,7 @@ namespace sh {
 
 
 
-	Promise<void> YoutubePlaylistMutatorDelegate::insertItems(Mutator* mutator, size_t index, LinkedList<$<Track>> tracks) {
+	Promise<void> YoutubePlaylistMutatorDelegate::insertItems(Mutator* mutator, size_t index, LinkedList<$<Track>> tracks, InsertItemOptions options) {
 		auto playlist = this->playlist.lock();
 		auto provider = (YoutubeMediaProvider*)playlist->mediaProvider();
 		auto playlistId = provider->parseURI(playlist->uri()).id;
@@ -258,7 +258,7 @@ namespace sh {
 		return promise;
 	}
 
-	Promise<void> YoutubePlaylistMutatorDelegate::appendItems(Mutator* mutator, LinkedList<$<Track>> tracks) {
+	Promise<void> YoutubePlaylistMutatorDelegate::appendItems(Mutator* mutator, LinkedList<$<Track>> tracks, InsertItemOptions options) {
 		auto playlist = this->playlist.lock();
 		auto provider = (YoutubeMediaProvider*)playlist->mediaProvider();
 		auto playlistId = provider->parseURI(playlist->uri()).id;

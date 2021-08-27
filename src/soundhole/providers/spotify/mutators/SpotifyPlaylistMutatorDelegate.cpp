@@ -109,8 +109,7 @@ namespace sh {
 		if(options.offline && options.database != nullptr) {
 			// offline load
 			return loadDatabaseItems(mutator, options.database, index, count);
-		}
-		else {
+		} else {
 			// online load
 			return loadAPIItems(mutator, index, count);
 		}
@@ -118,7 +117,7 @@ namespace sh {
 
 
 
-	Promise<void> SpotifyPlaylistMutatorDelegate::insertItems(Mutator* mutator, size_t index, LinkedList<$<Track>> tracks) {
+	Promise<void> SpotifyPlaylistMutatorDelegate::insertItems(Mutator* mutator, size_t index, LinkedList<$<Track>> tracks, InsertItemOptions options) {
 		size_t chunkSize = getChunkSize();
 		size_t halfChunkSize = chunkSize / 2;
 		
@@ -226,7 +225,7 @@ namespace sh {
 
 
 
-	Promise<void> SpotifyPlaylistMutatorDelegate::appendItems(Mutator* mutator, LinkedList<$<Track>> tracks) {
+	Promise<void> SpotifyPlaylistMutatorDelegate::appendItems(Mutator* mutator, LinkedList<$<Track>> tracks, InsertItemOptions options) {
 		size_t chunkSize = getChunkSize();
 		size_t halfChunkSize = chunkSize / 2;
 		

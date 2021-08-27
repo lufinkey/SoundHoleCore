@@ -8,6 +8,7 @@
 
 #include "Playlist.hpp"
 #include "MediaProvider.hpp"
+#include <soundhole/database/MediaDatabase.hpp>
 
 namespace sh {
 
@@ -159,6 +160,30 @@ namespace sh {
 
 
 
+	#pragma mark InsertItemOptions
+
+	Playlist::InsertItemOptions Playlist::InsertItemOptions::defaultOptions() {
+		return InsertItemOptions();
+	}
+
+	Map<String,Any> Playlist::InsertItemOptions::toMap() const {
+		return {
+			{ "database", database },
+			{ "protection", protection.hasValue() ? protection.value() : Any() }
+		};
+	}
+
+	Playlist::InsertItemOptions Playlist::InsertItemOptions::fromMap(const Map<String,Any>& dict) {
+		auto database = dict.get("database", Any()).maybeAs<MediaDatabase*>().valueOr(nullptr);
+		auto protection = dict.get("protection", Any()).maybeAs<Protection>();
+		return InsertItemOptions{
+			.database = database,
+			.protection = protection
+		};
+	}
+
+
+
 	#pragma mark Playlist
 
 	$<Playlist> Playlist::new$(MediaProvider* provider, const Data& data) {
@@ -229,20 +254,40 @@ namespace sh {
 		return json;
 	}
 
+	Promise<void> Playlist::insertAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, LinkedList<$<Track>> tracks, Map<String,Any> options) {
+		auto delegate = mutatorDelegate();
+		return delegate->insertItems(mutator, index, tracks, InsertItemOptions::fromMap(options));
+	}
+
+	Promise<void> Playlist::appendAsyncListItems(typename AsyncList::Mutator* mutator, LinkedList<$<Track>> tracks, Map<String,Any> options) {
+		auto delegate = mutatorDelegate();
+		return delegate->appendItems(mutator, tracks, InsertItemOptions::fromMap(options));
+	}
+
+	Promise<void> Playlist::removeAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count, Map<String,Any> options) {
+		auto delegate = mutatorDelegate();
+		return delegate->removeItems(mutator, index, count);
+	}
+
+	Promise<void> Playlist::moveAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count, size_t newIndex, Map<String,Any> options) {
+		auto delegate = mutatorDelegate();
+		return delegate->moveItems(mutator, index, count, newIndex);
+	}
+
 	Playlist::MutatorDelegate* Playlist::createMutatorDelegate() {
 		return provider->createPlaylistMutatorDelegate(std::static_pointer_cast<Playlist>(shared_from_this()));
 	}
 
 
 
-	Promise<void> Playlist::insertItems(size_t index, LinkedList<$<Track>> items) {
+	Promise<void> Playlist::insertItems(size_t index, LinkedList<$<Track>> items, InsertItemOptions options) {
 		makeTracksAsync();
-		return asyncItemsList()->insertItems(index, items);
+		return asyncItemsList()->insertItems(index, items, options.toMap());
 	}
 
-	Promise<void> Playlist::appendItems(LinkedList<$<Track>> items) {
+	Promise<void> Playlist::appendItems(LinkedList<$<Track>> items, InsertItemOptions options) {
 		makeTracksAsync();
-		return asyncItemsList()->appendItems(items);
+		return asyncItemsList()->appendItems(items, options.toMap());
 	}
 
 	Promise<void> Playlist::removeItems(size_t index, size_t count) {

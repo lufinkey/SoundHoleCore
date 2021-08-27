@@ -196,6 +196,7 @@ namespace sh {
 		_source->lockItems([&]() {
 			filterRemainingIndexes();
 			size_t endIndex = index+count;
+			FGL_ASSERT(index <= endIndex, "index overflowed");
 			auto items = fgl::new$<LinkedList<$<Item>>>();
 			auto promise = Promise<void>::resolve();
 			auto tmpRemainingIndexes = _remainingIndexes;
@@ -242,22 +243,6 @@ namespace sh {
 			}));
 		});
 		return std::move(*promise_ptr);
-	}
-
-	Promise<void> ShuffledTrackCollection::insertItems(Mutator* mutator, size_t index, LinkedList<$<Track>> tracks) {
-		return Promise<void>::reject(std::runtime_error("Cannot insert items into a ShuffledTrackCollection"));
-	}
-
-	Promise<void> ShuffledTrackCollection::appendItems(Mutator* mutator, LinkedList<$<Track>> tracks) {
-		return Promise<void>::reject(std::runtime_error("Cannot append items to a ShuffledTrackCollection"));
-	}
-
-	Promise<void> ShuffledTrackCollection::removeItems(Mutator* mutator, size_t index, size_t count) {
-		return Promise<void>::reject(std::runtime_error("Cannot remove items from a ShuffledTrackCollection"));
-	}
-
-	Promise<void> ShuffledTrackCollection::moveItems(Mutator* mutator, size_t index, size_t count, size_t newIndex) {
-		return Promise<void>::reject(std::runtime_error("Cannot move items inside a ShuffledTrackCollection"));
 	}
 
 

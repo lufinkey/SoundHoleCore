@@ -52,21 +52,4 @@ namespace sh {
 			});
 		}
 	}
-
-
-	Promise<void> SpotifyAlbumMutatorDelegate::insertItems(Mutator* mutator, size_t index, LinkedList<$<Track>> tracks) {
-		return Promise<void>::reject(std::runtime_error("Cannot insert items into an album"));
-	}
-
-	Promise<void> SpotifyAlbumMutatorDelegate::appendItems(Mutator* mutator, LinkedList<$<Track>> tracks) {
-		return Promise<void>::reject(std::runtime_error("Cannot append items to an album"));
-	}
-
-	Promise<void> SpotifyAlbumMutatorDelegate::removeItems(Mutator* mutator, size_t index, size_t count) {
-		return Promise<void>::reject(std::runtime_error("Cannot remove items from an album"));
-	}
-
-	Promise<void> SpotifyAlbumMutatorDelegate::moveItems(Mutator* mutator, size_t index, size_t count, size_t newIndex) {
-		return Promise<void>::reject(std::runtime_error("Cannot move items inside an album"));
-	}
 }
