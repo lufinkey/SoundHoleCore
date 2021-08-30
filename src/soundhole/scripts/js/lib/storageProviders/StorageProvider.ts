@@ -54,7 +54,7 @@ export const validatePlaylistPrivacy = (privacy: string): PlaylistPrivacyId => {
 
 export type PlaylistItemProtection = {
 	id: string
-	description: string | null
+	description?: string | null
 	userIds?: string[]
 }
 

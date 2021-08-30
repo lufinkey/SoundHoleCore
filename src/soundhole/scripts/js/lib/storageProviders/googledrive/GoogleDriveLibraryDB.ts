@@ -353,7 +353,7 @@ export default class GoogleDriveLibraryDB extends GoogleSheetsDBWrapper {
 		}
 		existingItems.sort((a, b) => (a.index - b.index));
 		// insert new item rows
-		this.db.insertTableRows(tableInfo, 0, newItems.map((item): GSDBRow => {
+		this.db.insertTableRows(tableInfo, 0, newItems.map((item) => {
 			const values: GSDBCellValue[] = [];
 			for(const columnInfo of tableInfo.columnInfo) {
 				values.push((item as any)[columnInfo.name]);
@@ -364,7 +364,7 @@ export default class GoogleDriveLibraryDB extends GoogleSheetsDBWrapper {
 			}
 			return {
 				values,
-				metadata
+				metadata,
 			};
 		}));
 		tableInfo.rowCount += newItems.length;

@@ -354,21 +354,7 @@ export default class GoogleDrivePlaylist extends GoogleSheetsDBWrapper {
 		// return result
 		return result;
 	}
-
-	async updateItemProtections(itemProtections: PlaylistItemProtection[]) {
-		await this.db.updateRowProtections(itemProtections.map((p) => {
-			let id: number | string = Number.parseInt(p.id);
-			if(Number.isNaN(id)) {
-				id = p.id;
-			}
-			return {
-				id: id as number,
-				description: p.description,
-				userIds: p.userIds
-			};
-		}));
-	}
-
+	
 	async moveItems(index: number, count: number, newIndex: number): Promise<void> {
 		if(!Number.isInteger(index) || index < 0) {
 			throw new Error("index must be a positive integer");
@@ -381,6 +367,33 @@ export default class GoogleDrivePlaylist extends GoogleSheetsDBWrapper {
 		}
 		const itemsTableName = GoogleDrivePlaylist.TABLENAME_ITEMS;
 		await this.db.moveTableRows(itemsTableName, index, count, newIndex);
+	}
+
+	async setItemProtections(itemIds: string[], protection: NewItemProtection): Promise<PlaylistItem[]> {
+		// get table info
+		const tableInfo = await this.getTableInfo(GoogleDrivePlaylist.TABLENAME_ITEMS);
+		const matches = await this.db.setProtectionsForTableRowsWithMetadata(tableInfo, itemIds.map((itemId) => {
+			return {
+				key: 'uniqueId',
+				value: itemId,
+				match: 'any'
+			};
+		}), protection);
+		return matches.map((row) => {
+			return this._parsePlaylistItemTableRow(row, tableInfo, row.index);
+		});
+	}
+
+	async removeItemProtections(itemIds: string[]) {
+		// get table info
+		const tableInfo = await this.getTableInfo(GoogleDrivePlaylist.TABLENAME_ITEMS);
+		await this.db.removeProtectionsFromTableRowsWithMetadata(tableInfo, itemIds.map((itemId) => {
+			return {
+				key: 'uniqueId',
+				value: itemId,
+				match: 'any'
+			};
+		}));
 	}
 
 
