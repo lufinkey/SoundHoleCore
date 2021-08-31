@@ -974,6 +974,32 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 		return await gdbPlaylist.moveItems(index, count, newIndex);
 	}
 
+	async setPlaylistItemProtections(playlistURI: string, itemIds: string[], protection: NewItemProtection) {
+		await this._prepareForRequest();
+		// parse uri
+		const uriParts = this._parsePlaylistURI(playlistURI);
+		// delete playlist item protections
+		const gdbPlaylist = GoogleDrivePlaylist.forFileID(uriParts.fileId, {
+			appKey: this._options.appKey,
+			drive: this._drive,
+			sheets: this._sheets
+		});
+		return await gdbPlaylist.setItemProtections(itemIds, protection);
+	}
+
+	async removePlaylistItemProtections(playlistURI: string, itemIds: string[]) {
+		await this._prepareForRequest();
+		// parse uri
+		const uriParts = this._parsePlaylistURI(playlistURI);
+		// delete playlist item protections
+		const gdbPlaylist = GoogleDrivePlaylist.forFileID(uriParts.fileId, {
+			appKey: this._options.appKey,
+			drive: this._drive,
+			sheets: this._sheets
+		});
+		return await gdbPlaylist.removeItemProtections(itemIds);
+	}
+
 
 
 	async getUser(userURI: string): Promise<GoogleDriveUser> {

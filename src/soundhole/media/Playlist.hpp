@@ -18,12 +18,6 @@ namespace sh {
 
 	class PlaylistItem: public SpecialTrackCollectionItem<Playlist> {
 	public:
-		struct Protection {
-			String id;
-			String description;
-			ArrayList<String> userIds;
-		};
-		
 		struct Data: public SpecialTrackCollectionItem<Playlist>::Data {
 			String uniqueId;
 			Date addedAt;
@@ -63,13 +57,7 @@ namespace sh {
 		static Optional<Privacy> Privacy_fromString(const String&);
 		
 		struct InsertItemOptions {
-			struct Protection {
-				String description;
-				ArrayList<String> userIds;
-			};
-			
 			MediaDatabase* database = nullptr;
-			Optional<Protection> protection;
 			
 			Map<String,Any> toMap() const;
 			static InsertItemOptions fromMap(const Map<String,Any>&);

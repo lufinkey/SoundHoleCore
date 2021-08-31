@@ -168,17 +168,14 @@ namespace sh {
 
 	Map<String,Any> Playlist::InsertItemOptions::toMap() const {
 		return {
-			{ "database", database },
-			{ "protection", protection.hasValue() ? protection.value() : Any() }
+			{ "database", database }
 		};
 	}
 
 	Playlist::InsertItemOptions Playlist::InsertItemOptions::fromMap(const Map<String,Any>& dict) {
 		auto database = dict.get("database", Any()).maybeAs<MediaDatabase*>().valueOr(nullptr);
-		auto protection = dict.get("protection", Any()).maybeAs<Protection>();
 		return InsertItemOptions{
-			.database = database,
-			.protection = protection
+			.database = database
 		};
 	}
 

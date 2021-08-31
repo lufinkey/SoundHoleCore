@@ -25,6 +25,8 @@ namespace sh {
 
 	class TrackCollectionItem: public std::enable_shared_from_this<TrackCollectionItem> {
 	public:
+		using IndexMarker = AsyncListIndexMarker;
+		
 		struct Data {
 			$<Track> track;
 

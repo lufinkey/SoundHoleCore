@@ -118,16 +118,19 @@ namespace sh {
 		
 		return Promise<void>::all(ArrayList<Promise<void>>(promises))
 		.then([=]() {
+			// if list size has changed since we fetched the items / tracks
 			size_t newListSize = list->size().valueOr(0);
 			if(newListSize != origListSize) {
+				// if the list size has moved outside of the loaded chunk range
 				if(newListSize < chunkStart || newListSize >= (chunkStart + chunkSize)) {
+					// determine new chunk range and load that
 					size_t chunk2Start = newListSize;
 					if(chunk2Start > halfChunkSize) {
 						chunk2Start -= halfChunkSize;
 					} else {
 						chunk2Start = 0;
 					}
-					return loadItems(mutator, chunkStart, chunkSize, LoadItemOptions());
+					return loadAPIItems(mutator, chunkStart, chunkSize);
 				}
 			}
 			return Promise<void>::resolve();
