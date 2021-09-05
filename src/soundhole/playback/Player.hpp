@@ -10,6 +10,7 @@
 
 #include <soundhole/common.hpp>
 #include <soundhole/media/MediaProvider.hpp>
+#include <soundhole/database/MediaDatabase.hpp>
 #include "PlaybackOrganizer.hpp"
 #include "MediaControls.hpp"
 
@@ -19,10 +20,10 @@
 #endif
 
 namespace sh {
+	class PlayerHistoryManager;
+
 	class Player: public std::enable_shared_from_this<Player>, protected PlaybackOrganizer::Delegate, protected PlaybackOrganizer::EventListener, protected MediaPlaybackProvider::EventListener, protected MediaControls::Listener {
 	public:
-		using ItemVariant = PlaybackOrganizer::ItemVariant;
-		
 		struct State {
 			bool playing;
 			double position;
@@ -47,6 +48,7 @@ namespace sh {
 			
 			virtual void onPlayerStateChange($<Player> player, const Event& event) {}
 			virtual void onPlayerMetadataChange($<Player> player, const Event& event) {}
+			virtual void onPlayerOrganizerItemChange($<Player> player, PlayerItem item) {}
 			virtual void onPlayerQueueChange($<Player> player, const Event& event) {}
 			virtual void onPlayerTrackFinish($<Player> player, const Event& event) {}
 			
@@ -55,20 +57,24 @@ namespace sh {
 		};
 		
 		struct Options {
-			String savePrefix;
+			String savePath;
 			MediaControls* mediaControls = nullptr;
 		};
 		
 		struct Preferences {
 			double nextTrackPreloadTime = 10.0;
 			double progressSaveInterval = 1.0;
-			Optional<double> minimumDurationForHistory = 0.5;
+			Optional<double> minDurationForHistory = 0.5;
+			Optional<double> minDurationRatioForRepeatSongToBeNewHistoryItem = 0.75;
 		};
 		
-		static $<Player> new$(Options options);
+		static $<Player> new$(MediaDatabase* database, Options options);
 		
-		Player(Options);
+		Player(MediaDatabase* database, Options);
 		virtual ~Player();
+		
+		Player(const Player&) = delete;
+		Player& operator=(const Player&) = delete;
 		
 		void setPreferences(Preferences);
 		const Preferences& getPreferences() const;
@@ -94,7 +100,7 @@ namespace sh {
 		Promise<void> play($<Track> track);
 		Promise<void> play($<TrackCollectionItem> item);
 		Promise<void> play($<QueueItem> queueItem);
-		Promise<void> play(ItemVariant item);
+		Promise<void> play(PlayerItem item);
 		Promise<void> playAtQueueIndex(size_t index);
 		Promise<void> seek(double position);
 		Promise<bool> skipToPrevious();
@@ -111,7 +117,7 @@ namespace sh {
 		Metadata metadata();
 		State state() const;
 		
-		Optional<ItemVariant> currentItem() const;
+		Optional<PlayerItem> currentItem() const;
 		
 		$<TrackCollection> context() const;
 		Optional<size_t> contextIndex() const;
@@ -125,12 +131,10 @@ namespace sh {
 		MediaControls* getMediaControls();
 		const MediaControls* getMediaControls() const;
 		
-		inline static $<Track> trackFromItem(ItemVariant item);
-		
 	protected:
-		virtual Promise<void> onPlaybackOrganizerPrepareItem($<PlaybackOrganizer> organizer, ItemVariant track) override;
-		virtual Promise<void> onPlaybackOrganizerPlayItem($<PlaybackOrganizer> organizer, ItemVariant track) override;
-		virtual void onPlaybackOrganizerTrackChange($<PlaybackOrganizer> organizer) override;
+		virtual Promise<void> onPlaybackOrganizerPrepareItem($<PlaybackOrganizer> organizer, PlayerItem item) override;
+		virtual Promise<void> onPlaybackOrganizerPlayItem($<PlaybackOrganizer> organizer, PlayerItem item) override;
+		virtual void onPlaybackOrganizerItemChange($<PlaybackOrganizer> organizer) override;
 		virtual void onPlaybackOrganizerQueueChange($<PlaybackOrganizer> organizer) override;
 		
 		virtual void onMediaPlaybackProviderPlay(MediaPlaybackProvider* provider) override;
@@ -167,8 +171,8 @@ namespace sh {
 		Promise<void> performSave(SaveOptions options);
 		void saveInBackground(SaveOptions options);
 		
-		Promise<void> prepareItem(ItemVariant item);
-		Promise<void> playItem(ItemVariant item);
+		Promise<void> prepareItem(PlayerItem item);
+		Promise<void> playItem(PlayerItem item);
 		void setMediaProvider(MediaProvider* provider);
 		
 		void startPlayerStateInterval();
@@ -188,6 +192,8 @@ namespace sh {
 		
 		void updateMediaControls();
 		
+		MediaDatabase* database;
+		
 		Options options;
 		Preferences prefs;
 		
@@ -198,7 +204,7 @@ namespace sh {
 		
 		Optional<MediaPlaybackProvider::State> providerPlaybackState;
 		Optional<MediaPlaybackProvider::Metadata> providerPlaybackMetadata;
-		Optional<ItemVariant> playingItem;
+		Optional<PlayerItem> playingItem;
 		
 		$<Timer> providerPlayerStateTimer;
 		
@@ -210,6 +216,8 @@ namespace sh {
 		
 		std::mutex listenersMutex;
 		LinkedList<EventListener*> listeners;
+		
+		PlayerHistoryManager* historyManager;
 	};
 
 
@@ -224,10 +232,6 @@ namespace sh {
 		for(auto listener : listeners) {
 			(listener->*func)(args...);
 		}
-	}
-
-	$<Track> Player::trackFromItem(ItemVariant item) {
-		return PlaybackOrganizer::trackFromItem(item);
 	}
 }
 

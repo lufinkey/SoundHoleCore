@@ -1270,55 +1270,59 @@ void selectLibraryArtistCount(SQLiteTransaction& tx, String outKey, String libra
 String PlaybackHistorySelectFilters::sql(LinkedList<Any>& params) const {
 	return String::join(ArrayList<String>{
 		// trackURIs
-	   (!trackURIs.empty()) ?
-		   String::join({
-			   "(",
-			   String::join(trackURIs.map([&](auto& trackURI) {
-				   return String::join({ "PlaybackHistoryItem.trackURI = ",sqlParam(params, trackURI) });
-			   }), " OR "),
-			   ")"
-		   })
-		   : String(),
-	   // minDate
-	   (minDate.hasValue()) ?
-		   String::join({ "PlaybackHistoryItem.startTime >= ",sqlParam(params, minDate->toISOString()) })
-		   : String(),
-	   // maxDate
-	   (maxDate.hasValue()) ?
-		   String::join({ "PlaybackHistoryItem.startTime < ",sqlParam(params, maxDate->toISOString()) })
-		   : String(),
-	   // includeNullDuration
-	   (!includeNullDuration.valueOr(true)) ?
-		   "PlaybackHistoryItem.duration IS NOT NULL"
-		   : String(),
-	   // minDuration or minDurationRatio
-	   (minDuration.hasValue() || minDurationRatio.hasValue()) ?
-		   String::join({
-			   // minDuration
-			   minDuration.hasValue() ?
-				   String::join({
-					   "(",
-					   includeNullDuration.valueOr(true) ?
-						   "PlaybackHistoryItem.duration IS NULL OR "
-						   : String(),
-					   "PlaybackHistoryItem.duration >= ",sqlParam(params, minDuration.value()),
-					   ")"
+		(!trackURIs.empty()) ?
+			String::join({
+				"(",
+				String::join(trackURIs.map([&](auto& trackURI) {
+					return String::join({ "PlaybackHistoryItem.trackURI = ",sqlParam(params, trackURI) });
+				}), " OR "),
+				")"
+			})
+			: String(),
+		// minDate
+		(minDate.hasValue()) ?
+			String::join({ "PlaybackHistoryItem.startTime >= ",sqlParam(params, minDate->toISOString()) })
+			: String(),
+		// maxDate
+		(maxDate.hasValue()) ?
+			String::join({ "PlaybackHistoryItem.startTime < ",sqlParam(params, maxDate->toISOString()) })
+			: String(),
+		// includeNullDuration
+		(!includeNullDuration.valueOr(true)) ?
+			"PlaybackHistoryItem.duration IS NOT NULL"
+			: String(),
+		// minDuration or minDurationRatio
+		(minDuration.hasValue() || minDurationRatio.hasValue()) ?
+			String::join({
+				// minDuration
+				minDuration.hasValue() ?
+					String::join({
+						"(",
+						includeNullDuration.valueOr(true) ?
+							"PlaybackHistoryItem.duration IS NULL OR "
+							: String(),
+						"PlaybackHistoryItem.duration >= ",sqlParam(params, minDuration.value()),
+						")"
+					})
+					: String(),
+				// minDurationRatio
+				minDurationRatio.hasValue() ?
+					String::join({
+						minDuration.hasValue() ? " AND " : String(),
+						"(",
+						includeNullDuration.valueOr(true) ?
+							"PlaybackHistoryItem.duration IS NULL OR "
+							: String(),
+						"PlaybackHistoryItem.duration >= "
+							"("
+							"COALESCE(Track.duration, ",sqlParam(params, PlaybackHistoryItem::FALLBACK_DURATION),")"
+							" * ",sqlParam(params, minDurationRatio.hasValue()),
+							")"
+						")"
 				   })
 				   : String(),
-			   // minDurationRatio
-			   minDurationRatio.hasValue() ?
-				   String::join({
-					   minDuration.hasValue() ? " AND " : String(),
-					   "(",
-					   includeNullDuration.valueOr(true) ?
-						   "PlaybackHistoryItem.duration IS NULL OR "
-						   : String(),
-					   "PlaybackHistoryItem.duration >= (COALESCE(Track.duration, 120.0) * ",sqlParam(params, minDurationRatio.hasValue()),")"
-					   ")"
-				   })
-				   : String(),
-		   })
-		   : String()
+			})
+			: String()
 	}.where([](auto& str) {return !str.empty();}), " AND ");
 }
 

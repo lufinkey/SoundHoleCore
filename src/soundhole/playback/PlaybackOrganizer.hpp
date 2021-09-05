@@ -12,26 +12,25 @@
 #include <soundhole/media/Track.hpp>
 #include <soundhole/media/TrackCollection.hpp>
 #include <soundhole/media/QueueItem.hpp>
+#include <soundhole/media/PlayerItem.hpp>
 #include "PlaybackQueue.hpp"
 
 namespace sh {
 	class PlaybackOrganizer: public std::enable_shared_from_this<PlaybackOrganizer> {
 	public:
-		using ItemVariant = std::variant<$<Track>,$<TrackCollectionItem>,$<QueueItem>>;
-		
 		class Delegate {
 		public:
 			virtual ~Delegate() {}
 			
-			virtual Promise<void> onPlaybackOrganizerPrepareItem($<PlaybackOrganizer> organizer, ItemVariant item) = 0;
-			virtual Promise<void> onPlaybackOrganizerPlayItem($<PlaybackOrganizer> organizer, ItemVariant item) = 0;
+			virtual Promise<void> onPlaybackOrganizerPrepareItem($<PlaybackOrganizer> organizer, PlayerItem item) = 0;
+			virtual Promise<void> onPlaybackOrganizerPlayItem($<PlaybackOrganizer> organizer, PlayerItem item) = 0;
 		};
 		
 		class EventListener {
 		public:
 			virtual ~EventListener() {}
 			
-			virtual void onPlaybackOrganizerTrackChange($<PlaybackOrganizer> organizer) {}
+			virtual void onPlaybackOrganizerItemChange($<PlaybackOrganizer> organizer) {}
 			virtual void onPlaybackOrganizerQueueChange($<PlaybackOrganizer> organizer) {}
 		};
 		
@@ -65,8 +64,8 @@ namespace sh {
 		Promise<void> play($<QueueItem> item);
 		Promise<void> play($<TrackCollectionItem> item);
 		Promise<void> play($<Track> track);
-		Promise<void> play(ItemVariant item);
-		Promise<void> setCurrentItem(ItemVariant item);
+		Promise<void> play(PlayerItem item);
+		Promise<void> setCurrentItem(PlayerItem item);
 		Promise<void> stop();
 		
 		$<QueueItem> addToQueue($<Track> track);
@@ -74,9 +73,9 @@ namespace sh {
 		$<QueueItem> addToQueueRandomly($<Track> track);
 		bool removeFromQueue($<QueueItem> item);
 		
-		Optional<ItemVariant> getCurrentItem() const;
-		Promise<Optional<ItemVariant>> getPreviousItem();
-		Promise<Optional<ItemVariant>> getNextItem();
+		Optional<PlayerItem> getCurrentItem() const;
+		Promise<Optional<PlayerItem>> getPreviousItem();
+		Promise<Optional<PlayerItem>> getNextItem();
 		
 		$<Track> getCurrentTrack() const;
 		Promise<$<Track>> getPreviousTrack();
@@ -104,8 +103,6 @@ namespace sh {
 		bool isPreparing() const;
 		bool hasPreparedNext() const;
 		
-		static $<Track> trackFromItem(ItemVariant item);
-		
 	private:
 		void updateMainContext($<TrackCollection> context, $<TrackCollectionItem> contextItem, bool shuffling);
 		Promise<void> prepareCollectionTracks($<TrackCollection> collection, size_t index);
@@ -119,13 +116,11 @@ namespace sh {
 			
 			Trigger trigger = Trigger::PLAY;
 		};
-		Promise<void> setPlayingItem(Function<Promise<Optional<ItemVariant>>()> itemGetter, SetPlayingOptions options);
-		Promise<void> applyPlayingItem(ItemVariant item);
+		Promise<void> setPlayingItem(Function<Promise<Optional<PlayerItem>>()> itemGetter, SetPlayingOptions options);
+		Promise<void> applyPlayingItem(PlayerItem item);
 		
-		Promise<Optional<ItemVariant>> getValidPreviousItem();
-		Promise<Optional<ItemVariant>> getValidNextItem();
-		
-		static Json itemToJson(ItemVariant itemVariant);
+		Promise<Optional<PlayerItem>> getValidPreviousItem();
+		Promise<Optional<PlayerItem>> getValidNextItem();
 		
 		Delegate* delegate;
 		Preferences prefs;
@@ -137,8 +132,8 @@ namespace sh {
 		bool shuffling;
 		
 		bool preparedNext;
-		Optional<ItemVariant> applyingItem;
-		Optional<ItemVariant> playingItem;
+		Optional<PlayerItem> applyingItem;
+		Optional<PlayerItem> playingItem;
 		
 		PlaybackQueue queue;
 		

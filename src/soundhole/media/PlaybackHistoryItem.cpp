@@ -20,6 +20,9 @@ namespace sh {
 		}
 		auto startTime = json["startTime"];
 		auto duration = json["duration"];
+		if(!duration.is_number()) {
+			throw std::invalid_argument("Invalid json for PlaybackHistoryItem: 'duration' property is required");
+		}
 		auto chosenByUser = json["chosenByUser"];
 		return PlaybackHistoryItem::Data{
 			.track = track,
@@ -27,7 +30,7 @@ namespace sh {
 				Date::maybeFromISOString(startTime.string_value())
 					.valueOrThrow(std::invalid_argument("Invalid date string \""+startTime.string_value()+"\" for PlaybackHistoryItem property 'startTime'")),
 			.contextURI = json["contextURI"].string_value(),
-			.duration = duration.is_number() ? maybe(duration.number_value()) : std::nullopt,
+			.duration = duration.number_value(),
 			.chosenByUser = chosenByUser.is_bool() ? chosenByUser.bool_value()
 				: chosenByUser.is_number() ?
 					(chosenByUser.number_value() == 0) ? false
@@ -70,7 +73,7 @@ namespace sh {
 		return _contextURI;
 	}
 
-	const Optional<double>& PlaybackHistoryItem::duration() const {
+	double PlaybackHistoryItem::duration() const {
 		return _duration;
 	}
 
@@ -79,6 +82,30 @@ namespace sh {
 	}
 
 	void PlaybackHistoryItem::increaseDuration(double amount) {
-		_duration = _duration.valueOr(0) + amount;
+		_duration = _duration + amount;
+	}
+
+	void PlaybackHistoryItem::setDuration(double duration) {
+		_duration = duration;
+	}
+
+	bool PlaybackHistoryItem::matchesItem(const PlayerItem& cmpItem) const {
+		auto cmpContext = cmpItem.isCollectionItem() ? cmpItem.asCollectionItem()->context().lock() : nullptr;
+		auto cmpContextURI = cmpContext ? cmpContext->uri() : String();
+		auto cmpTrackURI = cmpItem.track()->uri();
+		if(_track->uri() == cmpTrackURI && _contextURI == cmpContextURI) {
+			return true;
+		}
+		return false;
+	}
+
+	PlaybackHistoryItem::Data PlaybackHistoryItem::toData() const {
+		return Data{
+			.track = _track,
+			.startTime = _startTime,
+			.contextURI = _contextURI,
+			.duration = _duration,
+			.chosenByUser = _chosenByUser
+		};
 	}
 }

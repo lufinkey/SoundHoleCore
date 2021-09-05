@@ -10,15 +10,18 @@
 
 #include <soundhole/common.hpp>
 #include "Track.hpp"
+#include "PlayerItem.hpp"
 
 namespace sh {
 	class PlaybackHistoryItem: public std::enable_shared_from_this<PlaybackHistoryItem> {
 	public:
+		static constexpr double FALLBACK_DURATION = 120.0;
+		
 		struct Data {
 			$<Track> track;
 			Date startTime;
 			String contextURI;
-			Optional<double> duration;
+			double duration;
 			bool chosenByUser;
 			
 			static Data fromJson(const Json& json, MediaProviderStash* stash);
@@ -34,16 +37,21 @@ namespace sh {
 		
 		const Date& startTime() const;
 		const String& contextURI() const;
-		const Optional<double>& duration() const;
+		double duration() const;
 		bool chosenByUser() const;
 		
 		void increaseDuration(double amount);
+		void setDuration(double duration);
+		
+		bool matchesItem(const PlayerItem&) const;
+		
+		Data toData() const;
 		
 	private:
 		$<Track> _track;
 		Date _startTime;
 		String _contextURI;
-		Optional<double> _duration;
+		double _duration;
 		bool _chosenByUser;
 	};
 }

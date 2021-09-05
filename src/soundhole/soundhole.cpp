@@ -27,6 +27,9 @@ namespace sh {
 			_mediaProviders.pushBack(new BandcampMediaProvider(options.bandcamp.value(), _streamPlayer));
 		}
 		if(options.youtube) {
+			if(options.youtube->libraryPlaylistName.empty()) {
+				options.youtube->libraryPlaylistName = "SoundHole Library";
+			}
 			_mediaProviders.pushBack(new YoutubeMediaProvider(options.youtube.value(), _streamPlayer));
 		}
 		
@@ -36,7 +39,7 @@ namespace sh {
 		});
 		
 		if(options.player) {
-			_player = Player::new$(options.player.value());
+			_player = Player::new$(_mediaLibrary->database(), options.player.value());
 		}
 	}
 

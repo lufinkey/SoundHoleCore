@@ -193,6 +193,12 @@
 		A5BA49C826D407A800139269 /* PlaybackQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA49C626D407A800139269 /* PlaybackQueue.cpp */; };
 		A5BA49C926D407A800139269 /* PlaybackQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA49C626D407A800139269 /* PlaybackQueue.cpp */; };
 		A5BA49CA26D407A800139269 /* PlaybackQueue.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5BA49C726D407A800139269 /* PlaybackQueue.hpp */; };
+		A5BA49D426DDB93C00139269 /* PlayerHistoryManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA49D226DDB93B00139269 /* PlayerHistoryManager.cpp */; };
+		A5BA49D526DDB93C00139269 /* PlayerHistoryManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA49D226DDB93B00139269 /* PlayerHistoryManager.cpp */; };
+		A5BA49D626DDB93C00139269 /* PlayerHistoryManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5BA49D326DDB93B00139269 /* PlayerHistoryManager.hpp */; };
+		A5BA49DA26E072EB00139269 /* PlayerItem.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5BA49D926E072EB00139269 /* PlayerItem.hpp */; };
+		A5BA49DC26E076FA00139269 /* PlayerItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA49DB26E076FA00139269 /* PlayerItem.cpp */; };
+		A5BA49DD26E076FA00139269 /* PlayerItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA49DB26E076FA00139269 /* PlayerItem.cpp */; };
 		A5C0A8E123CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5C0A8DF23CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.cpp */; };
 		A5C0A8E223CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5C0A8DF23CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.cpp */; };
 		A5C0A8E323CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5C0A8E023CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.hpp */; };
@@ -493,6 +499,10 @@
 		A5BA49C226D2F9A400139269 /* PlaybackHistoryItem.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PlaybackHistoryItem.hpp; sourceTree = "<group>"; };
 		A5BA49C626D407A800139269 /* PlaybackQueue.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PlaybackQueue.cpp; sourceTree = "<group>"; };
 		A5BA49C726D407A800139269 /* PlaybackQueue.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PlaybackQueue.hpp; sourceTree = "<group>"; };
+		A5BA49D226DDB93B00139269 /* PlayerHistoryManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PlayerHistoryManager.cpp; sourceTree = "<group>"; };
+		A5BA49D326DDB93B00139269 /* PlayerHistoryManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PlayerHistoryManager.hpp; sourceTree = "<group>"; };
+		A5BA49D926E072EB00139269 /* PlayerItem.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PlayerItem.hpp; sourceTree = "<group>"; };
+		A5BA49DB26E076FA00139269 /* PlayerItem.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PlayerItem.cpp; sourceTree = "<group>"; };
 		A5C0A8DF23CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyAlbumMutatorDelegate.cpp; sourceTree = "<group>"; };
 		A5C0A8E023CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyAlbumMutatorDelegate.hpp; sourceTree = "<group>"; };
 		A5C0A8E623CFE59100CDB59E /* SpotifyPlaylistMutatorDelegate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyPlaylistMutatorDelegate.cpp; sourceTree = "<group>"; };
@@ -808,6 +818,8 @@
 				A5C6D17425AD697900596878 /* MediaProviderStash.cpp */,
 				A5BA49C226D2F9A400139269 /* PlaybackHistoryItem.hpp */,
 				A5BA49C126D2F9A400139269 /* PlaybackHistoryItem.cpp */,
+				A5BA49D926E072EB00139269 /* PlayerItem.hpp */,
+				A5BA49DB26E076FA00139269 /* PlayerItem.cpp */,
 			);
 			path = media;
 			sourceTree = "<group>";
@@ -848,6 +860,8 @@
 				A578785323DE547F00B6B0A5 /* PlaybackOrganizer.cpp */,
 				A5BA49C726D407A800139269 /* PlaybackQueue.hpp */,
 				A5BA49C626D407A800139269 /* PlaybackQueue.cpp */,
+				A5BA49D326DDB93B00139269 /* PlayerHistoryManager.hpp */,
+				A5BA49D226DDB93B00139269 /* PlayerHistoryManager.cpp */,
 				A54F2546239DAA2700C81E1C /* StreamPlayer.hpp */,
 				A54F2545239DAA2700C81E1C /* StreamPlayer.cpp */,
 				A5E51BB423A3EE24006E061F /* StreamPlayer_iOS.mm */,
@@ -1232,6 +1246,7 @@
 				A5B9736723822C0100FB3F1C /* TrackCollection.hpp in Headers */,
 				A5E851BE235A4AE90001F74D /* JSUtils.hpp in Headers */,
 				A5AE3F44248728F600FB9AFF /* MediaLibrary.hpp in Headers */,
+				A5BA49D626DDB93C00139269 /* PlayerHistoryManager.hpp in Headers */,
 				A5B2BBFC2360F1E900ED010C /* SpotifyMediaTypes.impl.hpp in Headers */,
 				A5E7852B23CE742E00BD1C67 /* YoutubePlaybackProvider.hpp in Headers */,
 				A5B9736223822BA300FB3F1C /* Album.hpp in Headers */,
@@ -1254,6 +1269,7 @@
 				A5B7A7DF233F126800301FC0 /* Spotify.hpp in Headers */,
 				A540D8482550A7B800EE5CA8 /* SHObjcUtils.h in Headers */,
 				A50F74B6238B223F0061D9FD /* TrackCollection.impl.hpp in Headers */,
+				A5BA49DA26E072EB00139269 /* PlayerItem.hpp in Headers */,
 				A5AE3F06247B890000FB9AFF /* MediaDatabase.hpp in Headers */,
 				A5E7852A23CE742C00BD1C67 /* StreamPlaybackProvider.hpp in Headers */,
 				A5E851AC2357BECD0001F74D /* BandcampError.hpp in Headers */,
@@ -1666,6 +1682,7 @@
 				A578785023DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp in Sources */,
 				A5E7852323CE70BC00BD1C67 /* YoutubePlaybackProvider.cpp in Sources */,
 				A5C6D17525AD697900596878 /* MediaProviderStash.cpp in Sources */,
+				A5BA49D426DDB93C00139269 /* PlayerHistoryManager.cpp in Sources */,
 				A58189A326961A5A007BFD82 /* MediaDatabaseSQLTransformations.cpp in Sources */,
 				A5E851BF235A4AE90001F74D /* JSUtils.cpp in Sources */,
 				A571E1A6233440A800603E14 /* HttpClient.cpp in Sources */,
@@ -1694,6 +1711,7 @@
 				A563A5CB24AFF3600036A842 /* SQLOrderBy.cpp in Sources */,
 				A5E851AA2357BECD0001F74D /* BandcampError.cpp in Sources */,
 				A5F081602543CFAE00C41A36 /* SystemMediaControls.cpp in Sources */,
+				A5BA49DC26E076FA00139269 /* PlayerItem.cpp in Sources */,
 				A5E851C4235A505B0001F74D /* Youtube.cpp in Sources */,
 				A5BA49C826D407A800139269 /* PlaybackQueue.cpp in Sources */,
 				A5AE3F1C247C593100FB9AFF /* SQLiteTransaction.cpp in Sources */,
@@ -1783,6 +1801,7 @@
 				A58189A926A1DD18007BFD82 /* JSError.cpp in Sources */,
 				A5C6D17625AD697900596878 /* MediaProviderStash.cpp in Sources */,
 				A5AE3F43248728F600FB9AFF /* MediaLibrary.cpp in Sources */,
+				A5BA49DD26E076FA00139269 /* PlayerItem.cpp in Sources */,
 				A5D9E10F2550BAB500E4762A /* BandcampAuth.cpp in Sources */,
 				A5C0A8E223CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.cpp in Sources */,
 				A540D7C12550790D00EE5CA8 /* HttpClient_objc.mm in Sources */,
@@ -1808,6 +1827,7 @@
 				A52C4713250EE85800131918 /* OAuthSession.cpp in Sources */,
 				A5B973522381F16A00FB3F1C /* JSWrapClass.cpp in Sources */,
 				A5B973572381F91900FB3F1C /* Track.cpp in Sources */,
+				A5BA49D526DDB93C00139269 /* PlayerHistoryManager.cpp in Sources */,
 				A5E851C0235A4AE90001F74D /* JSUtils.cpp in Sources */,
 				A540D84A2550A7B800EE5CA8 /* SHObjcUtils.mm in Sources */,
 				A5E7852923CE742300BD1C67 /* StreamPlaybackProvider.cpp in Sources */,

@@ -205,8 +205,8 @@ CREATE TABLE IF NOT EXISTS PlaybackHistoryItem (
 	startTime TIMESTAMP NOT NULL,
 	trackURI TEXT NOT NULL,
 	contextURI TEXT,
-	duration REAL,
-	chosenByUser INT(1),
+	duration REAL NOT NULL,
+	chosenByUser INT(1) NOT NULL,
 	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(startTime, trackURI),
 	FOREIGN KEY(trackURI) REFERENCES Track(uri)
@@ -625,7 +625,7 @@ String playbackHistoryItemTuple(LinkedList<Any>& params, $<PlaybackHistoryItem> 
 		// contextURI
 		sqlParam(params, sqlStringOrNull(item->contextURI())),
 		// duration
-		sqlParam(params, item->duration() ? Any(item->duration().value()) : Any()),
+		sqlParam(params, item->duration()),
 		// chosenByUser
 		sqlParam(params, item->chosenByUser()),
 	")" });
