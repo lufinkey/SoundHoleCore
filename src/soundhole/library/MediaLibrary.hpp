@@ -12,6 +12,7 @@
 #include <soundhole/database/MediaDatabase.hpp>
 #include "MediaLibraryProxyProvider.hpp"
 #include "collections/librarytracks/MediaLibraryTracksCollection.hpp"
+#include "collections/playbackhistory/PlaybackHistoryTrackCollection.hpp"
 
 namespace sh {
 	class MediaLibrary {
@@ -48,8 +49,8 @@ namespace sh {
 		AsyncQueue::TaskNode synchronizeAllLibraries();
 		
 		
-		using GetLibraryTracksOptions = MediaLibraryProxyProvider::GetLibraryTracksOptions;
-		Promise<$<MediaLibraryTracksCollection>> getLibraryTracksCollection(GetLibraryTracksOptions options = GetLibraryTracksOptions());
+		using GetLibraryTracksCollectionOptions = MediaLibraryProxyProvider::GetLibraryTracksCollectionOptions;
+		Promise<$<MediaLibraryTracksCollection>> getLibraryTracksCollection(GetLibraryTracksCollectionOptions options = GetLibraryTracksCollectionOptions());
 		
 		
 		struct LibraryAlbumsFilters {
@@ -58,14 +59,14 @@ namespace sh {
 			sql::Order order = sql::Order::ASC;
 		};
 		Promise<LinkedList<$<Album>>> getLibraryAlbums(LibraryAlbumsFilters filters = LibraryAlbumsFilters{
-			.libraryProvider=nullptr,
+			.libraryProvider = nullptr,
 			.orderBy = sql::LibraryItemOrderBy::NAME,
 			.order = sql::Order::ASC
 		});
 		
 		struct GenerateLibraryAlbumsOptions {
 			size_t offset = 0;
-			size_t chunkSize = (size_t)-1;
+			size_t chunkSize = 25;
 			LibraryAlbumsFilters filters = LibraryAlbumsFilters();
 		};
 		struct GenerateLibraryAlbumsResult {
@@ -76,7 +77,7 @@ namespace sh {
 		using LibraryAlbumsGenerator = ContinuousGenerator<GenerateLibraryAlbumsResult,void>;
 		LibraryAlbumsGenerator generateLibraryAlbums(GenerateLibraryAlbumsOptions options = GenerateLibraryAlbumsOptions{
 			.offset = 0,
-			.chunkSize = (size_t)-1,
+			.chunkSize = 25,
 			.filters = {
 				.libraryProvider=nullptr,
 				.orderBy = sql::LibraryItemOrderBy::NAME,
@@ -91,14 +92,14 @@ namespace sh {
 			sql::Order order = sql::Order::ASC;
 		};
 		Promise<LinkedList<$<Playlist>>> getLibraryPlaylists(LibraryPlaylistsFilters filters = LibraryPlaylistsFilters{
-			.libraryProvider=nullptr,
+			.libraryProvider = nullptr,
 			.orderBy = sql::LibraryItemOrderBy::NAME,
 			.order = sql::Order::ASC
 		});
 		
 		struct GenerateLibraryPlaylistsOptions {
 			size_t offset = 0;
-			size_t chunkSize = (size_t)-1;
+			size_t chunkSize = 25;
 			LibraryPlaylistsFilters filters;
 		};
 		struct GenerateLibraryPlaylistsResult {
@@ -108,14 +109,39 @@ namespace sh {
 		};
 		using LibraryPlaylistsGenerator = ContinuousGenerator<GenerateLibraryPlaylistsResult,void>;
 		LibraryPlaylistsGenerator generateLibraryPlaylists(GenerateLibraryPlaylistsOptions options = GenerateLibraryPlaylistsOptions{
-			.offset=0,
-			.chunkSize=24,
+			.offset = 0,
+			.chunkSize = 25,
 			.filters = {
 				.libraryProvider=nullptr,
 				.orderBy = sql::LibraryItemOrderBy::NAME,
 				.order = sql::Order::ASC
 			}
 		});
+		
+		
+		using PlaybackHistoryFilters = PlaybackHistoryTrackCollection::Filters;
+		struct GetPlaybackHistoryItemsOptions {
+			size_t offset = 0;
+			size_t limit = 25;
+			PlaybackHistoryFilters filters;
+		};
+		struct GetPlaybackHistoryItemsResult {
+			ArrayList<$<PlaybackHistoryItem>> items;
+			size_t total;
+		};
+		Promise<GetPlaybackHistoryItemsResult> getPlaybackHistoryItems(GetPlaybackHistoryItemsOptions options);
+		
+		struct GeneratePlaybackHistoryItemsOptions {
+			size_t offset = 0;
+			size_t chunkSize = 25;
+			PlaybackHistoryFilters filters;
+		};
+		using PlaybackHistoryItemGenerator = ContinuousGenerator<ArrayList<$<PlaybackHistoryItem>>,void>;
+		PlaybackHistoryItemGenerator generatePlaybackHistoryItems(GeneratePlaybackHistoryItemsOptions options);
+		
+		
+		using GetPlaybackHistoryCollectionOptions = MediaLibraryProxyProvider::GetPlaybackHistoryCollectionOptions;
+		Promise<$<PlaybackHistoryTrackCollection>> getPlaybackHistoryCollection(GetPlaybackHistoryCollectionOptions options);
 		
 		
 		using CreatePlaylistOptions = MediaProvider::CreatePlaylistOptions;

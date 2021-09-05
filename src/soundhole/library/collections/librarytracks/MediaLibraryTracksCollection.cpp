@@ -101,7 +101,7 @@ namespace sh {
 		}
 		query.pushBack("orderBy="+sql::LibraryItemOrderBy_toString(filters.orderBy));
 		query.pushBack("order="+sql::Order_toString(filters.order));
-		return String::join({ uri,"?",String::join(query) });
+		return String::join({ uri,"?",String::join(query,"&") });
 	}
 
 	String MediaLibraryTracksCollection::name(const Filters& filters) {

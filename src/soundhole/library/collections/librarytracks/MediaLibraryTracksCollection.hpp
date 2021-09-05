@@ -82,6 +82,8 @@ namespace sh {
 		Data toData(const DataOptions& options = DataOptions()) const;
 		virtual Json toJson(const ToJsonOptions& options) const override;
 		
+		using SpecialTrackCollection<MediaLibraryTracksCollectionItem>::loadItems;
+		
 	protected:
 		virtual MutatorDelegate* createMutatorDelegate() override final;
 		

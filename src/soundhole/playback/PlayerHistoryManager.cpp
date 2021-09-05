@@ -30,6 +30,10 @@ namespace sh {
 		}
 	}
 
+	$<PlaybackHistoryItem> PlayerHistoryManager::currentItem() const {
+		return historyItem;
+	}
+
 	void PlayerHistoryManager::updateFromPlayer($<Player> player, bool finishedItem) {
 		auto currentDate = Date::now();
 		auto currentSteadyTime = SteadyClock::now();
@@ -42,11 +46,16 @@ namespace sh {
 				: nullptr;
 		auto context = collectionItem ? collectionItem->context().lock() : nullptr;
 		auto& playerPrefs = player->getPreferences();
+		
+		$<PlaybackHistoryItem> updatedItem;
+		$<PlaybackHistoryItem> createdItem;
 		bool historyItemNeedsDBUpdate = false;
 		
 		if(!currentItem) {
 			// no current track, so clear history item
 			historyItem = nullptr;
+			restartedHistoryItem = nullptr;
+			nonRestartedHistoryItem = nullptr;
 		} else {
 			// update active history item if matches
 			if(historyItem && historyItem->matchesItem(currentItem.value())) {
@@ -67,8 +76,8 @@ namespace sh {
 				double durationIncrease = 0;
 				if(wasPlaying || playerState.playing) {
 					if(position) {
-						if(playerState.position > position.value()) {
-							durationIncrease = playerState.position - position.value();
+						if(playerPosition > position.value()) {
+							durationIncrease = playerPosition - position.value();
 							auto timeDiff = currentSteadyTime - positionTimePoint;
 							double timeDiffSecs = ((double)std::chrono::duration_cast<std::chrono::milliseconds>(timeDiff).count() / 1000.0);
 							if(durationIncrease > (timeDiffSecs + 0.1)) {
@@ -80,6 +89,7 @@ namespace sh {
 				// increase history item duration
 				if(durationIncrease > 0) {
 					historyItem->increaseDuration(durationIncrease);
+					updatedItem = historyItem;
 					historyItemNeedsDBUpdate = true;
 				}
 				// check for potentially restarted item
@@ -91,16 +101,18 @@ namespace sh {
 					}
 					// check preferences to see if we're still checking for restarts
 					if(playerPrefs.minDurationRatioForRepeatSongToBeNewHistoryItem) {
-						double restartedDurationRatio = restartedHistoryItem->duration() / trackDuration;
+						double restartedDurationRatio = restartedHistoryItem->duration().valueOr(0) / trackDuration;
 						// see if restarted item has elapsed enough time to become current item
 						if(restartedDurationRatio >= playerPrefs.minDurationRatioForRepeatSongToBeNewHistoryItem.value()) {
 							// cache current item with old duration
 							historyItem->setDuration(nonRestartedHistoryItem->duration());
 							updateHistoryDBIfNeeded(historyItem);
+							updatedItem = historyItem;
 							// update current history item to restarted item
 							historyItem = restartedHistoryItem;
 							restartedHistoryItem = nullptr;
 							nonRestartedHistoryItem = nullptr;
+							createdItem = historyItem;
 							historyItemNeedsDBUpdate = true;
 						}
 					} else {
@@ -110,12 +122,12 @@ namespace sh {
 				}
 				else {
 					// check if we should track the song as restarted
-					double durationRatio = historyItem->duration() / trackDuration;
+					double durationRatio = historyItem->duration().valueOr(0) / trackDuration;
 					if(playerPrefs.minDurationRatioForRepeatSongToBeNewHistoryItem && position
 					   // if position moved backwards
-					   && playerState.position < position.value()
+					   && playerPosition < position.value()
 					   // and position is less than the remaining time of the song at the repeat min duration ratio
-					   && playerState.position <= ((1.0 - playerPrefs.minDurationRatioForRepeatSongToBeNewHistoryItem.value()) * trackDuration)
+					   && playerPosition <= ((1.0 - playerPrefs.minDurationRatioForRepeatSongToBeNewHistoryItem.value()) * trackDuration)
 					   // and the duration is greater than or equal to the repeat min duration ratio
 					   && durationRatio >= playerPrefs.minDurationRatioForRepeatSongToBeNewHistoryItem.value()) {
 						// track could have restarted, so track potential restart
@@ -143,15 +155,18 @@ namespace sh {
 				});
 				restartedHistoryItem = nullptr;
 				nonRestartedHistoryItem = nullptr;
+				createdItem = historyItem;
 				historyItemNeedsDBUpdate = true;
 			}
 		}
+		
 		// check if we have a history item
 		if(historyItem) {
 			// update current history item in DB
 			if(historyItemNeedsDBUpdate) {
 				updateHistoryDBIfNeeded(historyItem);
 			}
+			// update state
 			position = playerState.position;
 			positionTimePoint = currentSteadyTime;
 			wasPlaying = playerState.playing;
@@ -161,11 +176,19 @@ namespace sh {
 			positionTimePoint = SteadyClock::time_point();
 			wasPlaying = false;
 		}
+		
+		// call listener events
+		if(updatedItem) {
+			player->callPlayerListenerEvent(&Player::EventListener::onPlayerUpdateHistoryItem, player, updatedItem);
+		}
+		if(createdItem) {
+			player->callPlayerListenerEvent(&Player::EventListener::onPlayerCreateHistoryItem, player, createdItem);
+		}
 	}
 
 	void PlayerHistoryManager::updateHistoryDBIfNeeded($<PlaybackHistoryItem> historyItem) {
 		auto& playerPrefs = player->getPreferences();
-		if(!playerPrefs.minDurationForHistory || playerPrefs.minDurationForHistory.value() <= historyItem->duration()) {
+		if(!playerPrefs.minDurationForHistory || playerPrefs.minDurationForHistory.value() <= historyItem->duration().valueOr(0)) {
 			database->cachePlaybackHistoryItems({ historyItem }).except([](std::exception_ptr error) {
 				console::error("Error caching history item: ", utils::getExceptionDetails(error).fullDescription);
 			});

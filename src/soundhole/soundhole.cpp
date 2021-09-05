@@ -171,8 +171,20 @@ namespace sh {
 		return _mediaLibrary->synchronizeAllLibraries();
 	}
 
-	Promise<$<MediaLibraryTracksCollection>> SoundHole::getLibraryTracksCollection(GetLibraryTracksOptions options) {
+	Promise<$<MediaLibraryTracksCollection>> SoundHole::getLibraryTracksCollection(GetLibraryTracksCollectionOptions options) {
 		return _mediaLibrary->getLibraryTracksCollection(options);
+	}
+
+	Promise<SoundHole::GetPlaybackHistoryItemsResult> SoundHole::getPlaybackHistoryItems(GetPlaybackHistoryItemsOptions options) {
+		return _mediaLibrary->getPlaybackHistoryItems(options);
+	}
+
+	SoundHole::PlaybackHistoryItemGenerator SoundHole::generatePlaybackHistoryItems(GeneratePlaybackHistoryItemsOptions options) {
+		return _mediaLibrary->generatePlaybackHistoryItems(options);
+	}
+
+	Promise<$<PlaybackHistoryTrackCollection>> SoundHole::getPlaybackHistoryCollection(GetPlaybackHistoryCollectionOptions options) {
+		return _mediaLibrary->getPlaybackHistoryCollection(options);
 	}
 
 	Promise<LinkedList<$<Album>>> SoundHole::getLibraryAlbums(LibraryAlbumsFilters filters) {

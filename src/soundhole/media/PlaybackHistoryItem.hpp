@@ -21,13 +21,14 @@ namespace sh {
 			$<Track> track;
 			Date startTime;
 			String contextURI;
-			double duration;
+			Optional<double> duration;
 			bool chosenByUser;
 			
 			static Data fromJson(const Json& json, MediaProviderStash* stash);
 		};
 		
 		static $<PlaybackHistoryItem> new$(const Data& data);
+		static $<PlaybackHistoryItem> fromJson(const Json& json, MediaProviderStash* stash);
 		
 		PlaybackHistoryItem(const Data& data);
 		virtual ~PlaybackHistoryItem();
@@ -37,21 +38,22 @@ namespace sh {
 		
 		const Date& startTime() const;
 		const String& contextURI() const;
-		double duration() const;
+		const Optional<double>& duration() const;
 		bool chosenByUser() const;
 		
 		void increaseDuration(double amount);
-		void setDuration(double duration);
+		void setDuration(Optional<double> duration);
 		
 		bool matchesItem(const PlayerItem&) const;
 		
 		Data toData() const;
+		Json toJson() const;
 		
 	private:
 		$<Track> _track;
 		Date _startTime;
 		String _contextURI;
-		double _duration;
+		Optional<double> _duration;
 		bool _chosenByUser;
 	};
 }

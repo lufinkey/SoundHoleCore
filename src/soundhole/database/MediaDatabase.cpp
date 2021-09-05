@@ -751,9 +751,12 @@ namespace sh {
 	Promise<size_t> MediaDatabase::getPlaybackHistoryItemCount(PlaybackHistoryItemFilters filters) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
 			sql::selectPlaybackHistoryItemCount(tx, "count", {
+				.provider = filters.provider,
 				.trackURIs = filters.trackURIs,
 				.minDate = filters.minDate,
+				.minDateInclusive = filters.minDateInclusive,
 				.maxDate = filters.maxDate,
+				.maxDateInclusive = filters.maxDateInclusive,
 				.minDuration = filters.minDuration,
 				.minDurationRatio = filters.minDurationRatio,
 				.includeNullDuration = filters.includeNullDuration
@@ -771,9 +774,12 @@ namespace sh {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
 			auto& filters = options.filters;
 			auto sqlFilters = sql::PlaybackHistorySelectFilters{
+				.provider = filters.provider,
 				.trackURIs = filters.trackURIs,
 				.minDate = filters.minDate,
+				.minDateInclusive = filters.minDateInclusive,
 				.maxDate = filters.maxDate,
+				.maxDateInclusive = filters.maxDateInclusive,
 				.minDuration = filters.minDuration,
 				.minDurationRatio = filters.minDurationRatio,
 				.includeNullDuration = filters.includeNullDuration

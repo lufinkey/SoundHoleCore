@@ -11,7 +11,7 @@
 
 namespace sh {
 	MediaLibraryProxyProvider::MediaLibraryProxyProvider(MediaLibrary* library)
-	: library(library) {
+	: _library(library) {
 		//
 	}
 
@@ -21,12 +21,20 @@ namespace sh {
 
 
 
+	MediaLibrary* MediaLibraryProxyProvider::library() {
+		return _library;
+	}
+
+	const MediaLibrary* MediaLibraryProxyProvider::library() const {
+		return _library;
+	}
+
 	MediaDatabase* MediaLibraryProxyProvider::database() {
-		return library->database();
+		return _library->database();
 	}
 
 	const MediaDatabase* MediaLibraryProxyProvider::database() const {
-		return library->database();
+		return _library->database();
 	}
 
 
@@ -75,16 +83,17 @@ namespace sh {
 		return Promise<Album::Data>::reject(std::runtime_error("MediaLibraryProxyProvider cannot fetch albums"));
 	}
 
-	Promise<Playlist::Data> MediaLibraryProxyProvider::getPlaylistData(String uri) {
-		return Promise<Playlist::Data>::reject(std::runtime_error("MediaLibraryProxyProvider cannot fetch playlists"));
-	}
-
 	Promise<UserAccount::Data> MediaLibraryProxyProvider::getUserData(String uri) {
 		return Promise<UserAccount::Data>::reject(std::runtime_error("MediaLibraryProxyProvider cannot fetch users"));
 	}
 
 	Promise<ArrayList<$<Track>>> MediaLibraryProxyProvider::getArtistTopTracks(String artistURI) {
 		return Promise<ArrayList<$<Track>>>::reject(std::runtime_error("MediaLibraryProxyProvider cannot fetch artist top tracks"));
+	}
+
+	Promise<Playlist::Data> MediaLibraryProxyProvider::getPlaylistData(String uri) {
+		// TODO get playlists
+		return Promise<Playlist::Data>::reject(std::runtime_error("MediaLibraryProxyProvider cannot fetch playlists"));
 	}
 
 
@@ -120,6 +129,7 @@ namespace sh {
 	}
 
 	bool MediaLibraryProxyProvider::canFollowArtists() const {
+		// return true to ensure code doesn't attempt to save local media library artists elsewhere successfully
 		return true;
 	}
 
@@ -132,6 +142,7 @@ namespace sh {
 	}
 
 	bool MediaLibraryProxyProvider::canFollowUsers() const {
+		// return true to ensure code doesn't attempt to save local media library users elsewhere successfully
 		return true;
 	}
 
@@ -160,6 +171,7 @@ namespace sh {
 	}
 
 	bool MediaLibraryProxyProvider::canSavePlaylists() const {
+		// return true to ensure code doesn't attempt to save local media library playlists elsewhere successfully
 		return true;
 	}
 
@@ -195,32 +207,31 @@ namespace sh {
 		return libraryTracksCollection(MediaLibraryTracksCollection::data(filters, itemCount, items));
 	}
 
-	Promise<$<MediaLibraryTracksCollection>> MediaLibraryProxyProvider::getLibraryTracksCollection(GetLibraryTracksOptions options) {
-		auto db = database();
-		size_t startIndex = options.itemsStartIndex.valueOr(0);
-		size_t endIndex = startIndex + options.itemsLimit.valueOr(24);
-		return db->getSavedTracksJson({
-			.startIndex=startIndex,
-			.endIndex=endIndex
-		}, {
-			.libraryProvider = (options.filters.libraryProvider != nullptr) ? options.filters.libraryProvider->name() : String(),
-			.orderBy = options.filters.orderBy,
-			.order = options.filters.order
-		}).map(nullptr, [=](MediaDatabase::GetJsonItemsListResult results) -> $<MediaLibraryTracksCollection> {
-			auto items = Map<size_t,MediaLibraryTracksCollectionItem::Data>();
-			size_t itemIndex = startIndex;
-			for(auto& jsonItem : results.items) {
-				auto jsonItemObj = jsonItem.object_items();
-				auto trackJsonIt = jsonItemObj.find("mediaItem");
-				if(trackJsonIt != jsonItemObj.end()) {
-					auto trackJson = trackJsonIt->second;
-					jsonItemObj.erase(trackJsonIt);
-					jsonItemObj["track"] = trackJson;
-				}
-				items.insert_or_assign(itemIndex, MediaLibraryTracksCollectionItem::Data::fromJson(jsonItemObj, library->mediaProviderStash));
-				itemIndex++;
-			}
-			return libraryTracksCollection(options.filters, results.total, items);
+	Promise<$<MediaLibraryTracksCollection>> MediaLibraryProxyProvider::getLibraryTracksCollection(GetLibraryTracksCollectionOptions options) {
+		auto collection = MediaLibraryTracksCollection::new$(this, options.filters);
+		return collection->loadItems(options.itemsStartIndex.valueOr(0), options.itemsStartIndex.valueOr(25))
+		.map([=]() {
+			return collection;
+		});
+	}
+
+
+
+	#pragma mark Playback History Collection
+
+	$<PlaybackHistoryTrackCollection> MediaLibraryProxyProvider::playbackHistoryCollection(const PlaybackHistoryTrackCollection::Data& data) {
+		return PlaybackHistoryTrackCollection::new$(this, data);
+	}
+
+	$<PlaybackHistoryTrackCollection> MediaLibraryProxyProvider::playbackHistoryCollection(const PlaybackHistoryFilters& filters, Optional<size_t> itemCount, Map<size_t,PlaybackHistoryTrackCollectionItem::Data> items) {
+		return playbackHistoryCollection(PlaybackHistoryTrackCollection::data(filters, itemCount, items));
+	}
+
+	Promise<$<PlaybackHistoryTrackCollection>> MediaLibraryProxyProvider::getPlaybackHistoryCollection(GetPlaybackHistoryCollectionOptions options) {
+		auto collection = PlaybackHistoryTrackCollection::new$(this, options.filters);
+		return collection->loadItems(options.itemsStartIndex.valueOr(0), options.itemsStartIndex.valueOr(25))
+		.map([=]() {
+			return collection;
 		});
 	}
 }

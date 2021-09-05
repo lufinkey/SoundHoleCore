@@ -21,6 +21,8 @@ namespace sh {
 		
 		void setPlayer(Player* player);
 		
+		$<PlaybackHistoryItem> currentItem() const;
+		
 	protected:
 		virtual void onPlayerStateChange($<Player> player, const Player::Event& event) override;
 		virtual void onPlayerMetadataChange($<Player> player, const Player::Event& event) override;

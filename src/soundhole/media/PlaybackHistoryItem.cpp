@@ -12,17 +12,17 @@ namespace sh {
 	PlaybackHistoryItem::Data PlaybackHistoryItem::Data::fromJson(const Json& json, MediaProviderStash* stash) {
 		auto mediaItem = stash->parseMediaItem(json["track"]);
 		if(!mediaItem) {
-			throw std::invalid_argument("Invalid json for PlaybackHistoryItem: 'track' is required");
+			throw std::invalid_argument("Invalid json for PlaybackHistoryItem: 'track' property is missing");
 		}
 		auto track = std::dynamic_pointer_cast<Track>(mediaItem);
 		if(!track) {
 			throw std::invalid_argument("Invalid json for PlaybackHistoryItem: 'track' property cannot have type '"+mediaItem->type()+"'");
 		}
 		auto startTime = json["startTime"];
-		auto duration = json["duration"];
-		if(!duration.is_number()) {
-			throw std::invalid_argument("Invalid json for PlaybackHistoryItem: 'duration' property is required");
+		if(startTime.is_null()) {
+			throw std::invalid_argument("Invalid json for PlaybackHistoryItem: 'startTime' property is missing");
 		}
+		auto duration = json["duration"];
 		auto chosenByUser = json["chosenByUser"];
 		return PlaybackHistoryItem::Data{
 			.track = track,
@@ -30,7 +30,7 @@ namespace sh {
 				Date::maybeFromISOString(startTime.string_value())
 					.valueOrThrow(std::invalid_argument("Invalid date string \""+startTime.string_value()+"\" for PlaybackHistoryItem property 'startTime'")),
 			.contextURI = json["contextURI"].string_value(),
-			.duration = duration.number_value(),
+			.duration = duration.is_number() ? maybe(duration.number_value()) : std::nullopt,
 			.chosenByUser = chosenByUser.is_bool() ? chosenByUser.bool_value()
 				: chosenByUser.is_number() ?
 					(chosenByUser.number_value() == 0) ? false
@@ -42,6 +42,10 @@ namespace sh {
 
 	$<PlaybackHistoryItem> PlaybackHistoryItem::new$(const Data& data) {
 		return fgl::new$<PlaybackHistoryItem>(data);
+	}
+
+	$<PlaybackHistoryItem> PlaybackHistoryItem::fromJson(const Json& json, MediaProviderStash* stash) {
+		return fgl::new$<PlaybackHistoryItem>(Data::fromJson(json, stash));
 	}
 
 	PlaybackHistoryItem::PlaybackHistoryItem(const Data& data)
@@ -73,7 +77,7 @@ namespace sh {
 		return _contextURI;
 	}
 
-	double PlaybackHistoryItem::duration() const {
+	const Optional<double>& PlaybackHistoryItem::duration() const {
 		return _duration;
 	}
 
@@ -82,10 +86,10 @@ namespace sh {
 	}
 
 	void PlaybackHistoryItem::increaseDuration(double amount) {
-		_duration = _duration + amount;
+		_duration = _duration.valueOr(0) + amount;
 	}
 
-	void PlaybackHistoryItem::setDuration(double duration) {
+	void PlaybackHistoryItem::setDuration(Optional<double> duration) {
 		_duration = duration;
 	}
 
@@ -106,6 +110,17 @@ namespace sh {
 			.contextURI = _contextURI,
 			.duration = _duration,
 			.chosenByUser = _chosenByUser
+		};
+	}
+
+	Json PlaybackHistoryItem::toJson() const {
+		return Json::object{
+			{ "type", "playbackHistoryItem" },
+			{ "track", _track->toJson() },
+			{ "startTime", (std::string)_startTime.toISOString() },
+			{ "contextURI", (std::string)_contextURI },
+			{ "duration", _duration ? _duration.value() : Json() },
+			{ "chosenByUser", _chosenByUser }
 		};
 	}
 }

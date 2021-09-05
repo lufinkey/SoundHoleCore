@@ -377,6 +377,22 @@ namespace sh {
 		return false;
 	}
 
+	bool PlaybackOrganizer::clearQueue() {
+		bool hadItems = !queue.pastItems.empty() || !queue.items.empty();
+		queue.clear();
+		if(hadItems) {
+			// emit queue change event
+			std::unique_lock<std::mutex> lock(listenersMutex);
+			auto listeners = this->listeners;
+			lock.unlock();
+			auto self = shared_from_this();
+			for(auto listener : listeners) {
+				listener->onPlaybackOrganizerQueueChange(self);
+			}
+		}
+		return hadItems;
+	}
+
 
 
 	Optional<PlayerItem> PlaybackOrganizer::getCurrentItem() const {

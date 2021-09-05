@@ -11,6 +11,7 @@
 #include <soundhole/common.hpp>
 #include <soundhole/media/MediaProvider.hpp>
 #include "collections/librarytracks/MediaLibraryTracksCollection.hpp"
+#include "collections/playbackhistory/PlaybackHistoryTrackCollection.hpp"
 
 namespace sh {
 	class MediaLibrary;
@@ -22,6 +23,9 @@ namespace sh {
 		
 		MediaLibraryProxyProvider(MediaLibrary* mediaLibrary);
 		virtual ~MediaLibraryProxyProvider();
+		
+		MediaLibrary* library();
+		const MediaLibrary* library() const;
 		
 		MediaDatabase* database();
 		const MediaDatabase* database() const;
@@ -73,17 +77,29 @@ namespace sh {
 		
 		
 		using LibraryTracksFilters = MediaLibraryTracksCollection::Filters;
-		struct GetLibraryTracksOptions {
+		struct GetLibraryTracksCollectionOptions {
 			Optional<size_t> itemsStartIndex;
 			Optional<size_t> itemsLimit;
 			LibraryTracksFilters filters;
 		};
-		Promise<$<MediaLibraryTracksCollection>> getLibraryTracksCollection(GetLibraryTracksOptions options = GetLibraryTracksOptions());
+		Promise<$<MediaLibraryTracksCollection>> getLibraryTracksCollection(GetLibraryTracksCollectionOptions options = GetLibraryTracksCollectionOptions());
 		
 		$<MediaLibraryTracksCollection> libraryTracksCollection(const MediaLibraryTracksCollection::Data& data);
 		$<MediaLibraryTracksCollection> libraryTracksCollection(const LibraryTracksFilters& filters, Optional<size_t> itemCount, Map<size_t,MediaLibraryTracksCollectionItem::Data> items);
 		
+		
+		using PlaybackHistoryFilters = PlaybackHistoryTrackCollection::Filters;
+		struct GetPlaybackHistoryCollectionOptions {
+			Optional<size_t> itemsStartIndex;
+			Optional<size_t> itemsLimit;
+			PlaybackHistoryFilters filters;
+		};
+		Promise<$<PlaybackHistoryTrackCollection>> getPlaybackHistoryCollection(GetPlaybackHistoryCollectionOptions options);
+		
+		$<PlaybackHistoryTrackCollection> playbackHistoryCollection(const PlaybackHistoryTrackCollection::Data& data);
+		$<PlaybackHistoryTrackCollection> playbackHistoryCollection(const PlaybackHistoryFilters& filters, Optional<size_t> itemCount, Map<size_t,PlaybackHistoryTrackCollectionItem::Data> items);
+		
 	private:
-		MediaLibrary* library;
+		MediaLibrary* _library;
 	};
 }

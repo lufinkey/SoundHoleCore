@@ -263,9 +263,16 @@ namespace sh {
 		return queueItem;
 	}
 
-	void Player::removeFromQueue($<QueueItem> queueItem) {
-		this->organizer->removeFromQueue(queueItem);
+	bool Player::removeFromQueue($<QueueItem> queueItem) {
+		bool removed = organizer->removeFromQueue(queueItem);
 		saveInBackground({.includeMetadata=true});
+		return removed;
+	}
+
+	bool Player::clearQueue() {
+		bool removed = organizer->clearQueue();
+		saveInBackground({.includeMetadata=true});
+		return removed;
 	}
 
 
@@ -355,6 +362,10 @@ namespace sh {
 			}
 		}
 		return organizerItem;
+	}
+	
+	$<PlaybackHistoryItem> Player::currentHistoryItem() const {
+		return historyManager->currentItem();
 	}
 	
 	$<TrackCollection> Player::context() const {

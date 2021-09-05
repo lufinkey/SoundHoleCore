@@ -62,8 +62,19 @@ namespace sh {
 		AsyncQueue::TaskNode synchronizeProviderLibrary(MediaProvider* libraryProvider);
 		AsyncQueue::TaskNode synchronizeAllLibraries();
 		
-		using GetLibraryTracksOptions = MediaLibrary::GetLibraryTracksOptions;
-		Promise<$<MediaLibraryTracksCollection>> getLibraryTracksCollection(GetLibraryTracksOptions options = GetLibraryTracksOptions());
+		using GetLibraryTracksCollectionOptions = MediaLibrary::GetLibraryTracksCollectionOptions;
+		Promise<$<MediaLibraryTracksCollection>> getLibraryTracksCollection(GetLibraryTracksCollectionOptions options = GetLibraryTracksCollectionOptions());
+		
+		using GetPlaybackHistoryItemsOptions = MediaLibrary::GetPlaybackHistoryItemsOptions;
+		using GetPlaybackHistoryItemsResult = MediaLibrary::GetPlaybackHistoryItemsResult;
+		Promise<GetPlaybackHistoryItemsResult> getPlaybackHistoryItems(GetPlaybackHistoryItemsOptions options);
+		
+		using GeneratePlaybackHistoryItemsOptions = MediaLibrary::GeneratePlaybackHistoryItemsOptions;
+		using PlaybackHistoryItemGenerator = MediaLibrary::PlaybackHistoryItemGenerator;
+		PlaybackHistoryItemGenerator generatePlaybackHistoryItems(GeneratePlaybackHistoryItemsOptions options);
+		
+		using GetPlaybackHistoryCollectionOptions = MediaLibrary::GetPlaybackHistoryCollectionOptions;
+		Promise<$<PlaybackHistoryTrackCollection>> getPlaybackHistoryCollection(GetPlaybackHistoryCollectionOptions options);
 		
 		using LibraryAlbumsFilters = MediaLibrary::LibraryAlbumsFilters;
 		Promise<LinkedList<$<Album>>> getLibraryAlbums(LibraryAlbumsFilters filters = LibraryAlbumsFilters());

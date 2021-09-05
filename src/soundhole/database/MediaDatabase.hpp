@@ -153,21 +153,32 @@ namespace sh {
 		Promise<ArrayList<bool>> hasFollowedUserAccounts(ArrayList<String> uris);
 		
 		struct PlaybackHistoryItemFilters {
+			String provider;
 			ArrayList<String> trackURIs;
 			Optional<Date> minDate;
+			bool minDateInclusive = true;
 			Optional<Date> maxDate;
+			bool maxDateInclusive = false;
 			Optional<double> minDuration;
 			Optional<double> minDurationRatio;
 			Optional<bool> includeNullDuration;
 		};
-		Promise<size_t> getPlaybackHistoryItemCount(PlaybackHistoryItemFilters filters = PlaybackHistoryItemFilters());
+		Promise<size_t> getPlaybackHistoryItemCount(PlaybackHistoryItemFilters filters = PlaybackHistoryItemFilters{
+			.minDateInclusive = true,
+			.maxDateInclusive = false
+		});
 		struct GetPlaybackHistoryItemsOptions {
 			PlaybackHistoryItemFilters filters;
 			Optional<sql::IndexRange> range;
 			sql::Order order = sql::Order::DESC;
 		};
 		Promise<GetJsonItemsListResult> getPlaybackHistoryItemsJson(GetPlaybackHistoryItemsOptions options = GetPlaybackHistoryItemsOptions{
-			.order = sql::Order::DESC});
+			.filters = PlaybackHistoryItemFilters{
+				.minDateInclusive = true,
+				.maxDateInclusive = false
+			},
+			.order = sql::Order::DESC
+		});
 		
 		Promise<void> setState(std::map<String,String> state);
 		Promise<std::map<String,String>> getState(ArrayList<String> keys);

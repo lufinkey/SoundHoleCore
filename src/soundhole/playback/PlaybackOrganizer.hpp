@@ -72,6 +72,7 @@ namespace sh {
 		$<QueueItem> addToQueueFront($<Track> track);
 		$<QueueItem> addToQueueRandomly($<Track> track);
 		bool removeFromQueue($<QueueItem> item);
+		bool clearQueue();
 		
 		Optional<PlayerItem> getCurrentItem() const;
 		Promise<Optional<PlayerItem>> getPreviousItem();

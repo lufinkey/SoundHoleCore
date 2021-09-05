@@ -10,6 +10,7 @@
 
 #include <soundhole/common.hpp>
 #include <soundhole/media/MediaProvider.hpp>
+#include <soundhole/media/PlaybackHistoryItem.hpp>
 #include <soundhole/database/MediaDatabase.hpp>
 #include "PlaybackOrganizer.hpp"
 #include "MediaControls.hpp"
@@ -23,6 +24,7 @@ namespace sh {
 	class PlayerHistoryManager;
 
 	class Player: public std::enable_shared_from_this<Player>, protected PlaybackOrganizer::Delegate, protected PlaybackOrganizer::EventListener, protected MediaPlaybackProvider::EventListener, protected MediaControls::Listener {
+		friend class PlayerHistoryManager;
 	public:
 		struct State {
 			bool playing;
@@ -54,6 +56,9 @@ namespace sh {
 			
 			virtual void onPlayerPlay($<Player> player, const Event& event) {}
 			virtual void onPlayerPause($<Player> player, const Event& event) {}
+			
+			virtual void onPlayerCreateHistoryItem($<Player> player, $<PlaybackHistoryItem> historyItem) {}
+			virtual void onPlayerUpdateHistoryItem($<Player> player, $<PlaybackHistoryItem> historyItem) {}
 		};
 		
 		struct Options {
@@ -109,7 +114,8 @@ namespace sh {
 		$<QueueItem> addToQueue($<Track> track);
 		$<QueueItem> addToQueueFront($<Track> track);
 		$<QueueItem> addToQueueRandomly($<Track> track);
-		void removeFromQueue($<QueueItem> queueItem);
+		bool removeFromQueue($<QueueItem> queueItem);
+		bool clearQueue();
 		
 		Promise<void> setPlaying(bool playing);
 		void setShuffling(bool shuffling);
@@ -118,6 +124,7 @@ namespace sh {
 		State state() const;
 		
 		Optional<PlayerItem> currentItem() const;
+		$<PlaybackHistoryItem> currentHistoryItem() const;
 		
 		$<TrackCollection> context() const;
 		Optional<size_t> contextIndex() const;

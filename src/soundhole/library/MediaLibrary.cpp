@@ -375,7 +375,7 @@ namespace sh {
 
 	#pragma mark Library Tracks
 
-	Promise<$<MediaLibraryTracksCollection>> MediaLibrary::getLibraryTracksCollection(GetLibraryTracksOptions options) {
+	Promise<$<MediaLibraryTracksCollection>> MediaLibrary::getLibraryTracksCollection(GetLibraryTracksCollectionOptions options) {
 		return libraryProxyProvider->getLibraryTracksCollection(options);
 	}
 
@@ -521,6 +521,91 @@ namespace sh {
 
 
 
+	#pragma mark Playback History
+
+	Promise<MediaLibrary::GetPlaybackHistoryItemsResult> MediaLibrary::getPlaybackHistoryItems(GetPlaybackHistoryItemsOptions options) {
+		return db->getPlaybackHistoryItemsJson({
+			.filters = {
+				.provider = options.filters.provider ? options.filters.provider->name() : String(),
+				.trackURIs = options.filters.trackURIs,
+				.minDate = options.filters.minDate,
+				.minDateInclusive = options.filters.minDateInclusive,
+				.maxDate = options.filters.maxDate,
+				.maxDateInclusive = options.filters.maxDateInclusive,
+				.minDuration = options.filters.minDuration,
+				.minDurationRatio = options.filters.minDurationRatio,
+				.includeNullDuration = options.filters.includeNullDuration
+			},
+			.range = sql::IndexRange{
+				.startIndex = options.offset,
+				.endIndex = (options.limit == (size_t)-1) ? (size_t)-1 : (options.offset + options.limit)
+			},
+			.order = options.filters.order
+		}).map(nullptr, [=](auto results) {
+			return GetPlaybackHistoryItemsResult{
+				.items = results.items.map([=](auto& json) {
+					return PlaybackHistoryItem::fromJson(json, mediaProviderStash);
+				}),
+				.total = results.total
+			};
+		});
+	}
+
+	MediaLibrary::PlaybackHistoryItemGenerator MediaLibrary::generatePlaybackHistoryItems(GeneratePlaybackHistoryItemsOptions options) {
+		struct SharedData {
+			size_t offset;
+			Optional<Date> prevDate;
+		};
+		auto sharedData = fgl::new$<SharedData>(SharedData{
+			.offset = options.offset,
+			.prevDate = std::nullopt
+		});
+		using YieldResult = typename PlaybackHistoryItemGenerator::YieldResult;
+		return PlaybackHistoryItemGenerator([=]() -> Promise<YieldResult> {
+			auto queryOptions = GetPlaybackHistoryItemsOptions{
+				.offset = sharedData->offset,
+				.limit = options.chunkSize,
+				.filters = options.filters
+			};
+			// if we're not at the first query, offset by date
+			if(sharedData->prevDate) {
+				if(options.filters.order == sql::Order::DESC) {
+					// update with new max date
+					queryOptions.filters.maxDate = sharedData->prevDate.value();
+					queryOptions.filters.maxDateInclusive = false;
+					queryOptions.offset = 0;
+				}
+				else if(options.filters.order == sql::Order::ASC) {
+					// update with new min date
+					queryOptions.filters.minDate = sharedData->prevDate.value();
+					queryOptions.filters.minDateInclusive = false;
+					queryOptions.offset = 0;
+				}
+			}
+			size_t queryOffset = queryOptions.offset;
+			// get items
+			return this->getPlaybackHistoryItems(queryOptions).map(nullptr, [=](auto result) -> YieldResult {
+				sharedData->offset += result.items.size();
+				bool done = false;
+				if((queryOffset + result.items.size()) >= result.total) {
+					done = true;
+				}
+				return YieldResult{
+					.value = result.items,
+					.done = done
+				};
+			});
+		});
+	}
+
+	Promise<$<PlaybackHistoryTrackCollection>> MediaLibrary::getPlaybackHistoryCollection(GetPlaybackHistoryCollectionOptions options) {
+		return libraryProxyProvider->getPlaybackHistoryCollection(options);
+	}
+
+
+
+	#pragma mark Creating Media
+
 	Promise<$<Playlist>> MediaLibrary::createPlaylist(String name, MediaProvider* provider, CreatePlaylistOptions options) {
 		return provider->createPlaylist(name, options).then([=]($<Playlist> playlist) {
 			return db->cacheLibraryItems({
@@ -535,6 +620,8 @@ namespace sh {
 	}
 
 
+
+	#pragma mark Saving / Following
 
 	Promise<void> MediaLibrary::saveTrack($<Track> track) {
 		auto mediaProvider = track->mediaProvider();

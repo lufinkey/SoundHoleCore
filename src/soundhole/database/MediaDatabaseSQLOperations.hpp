@@ -76,9 +76,12 @@ void selectLibraryArtists(SQLiteTransaction& tx, String outKey, LibraryItemSelec
 void selectLibraryArtistCount(SQLiteTransaction& tx, String outKey, String libraryProvider = String());
 
 struct PlaybackHistorySelectFilters {
+	String provider;
 	ArrayList<String> trackURIs;
 	Optional<Date> minDate;
+	bool minDateInclusive = true;
 	Optional<Date> maxDate;
+	bool maxDateInclusive = false;
 	Optional<double> minDuration;
 	Optional<double> minDurationRatio;
 	Optional<bool> includeNullDuration;
