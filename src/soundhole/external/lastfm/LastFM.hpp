@@ -10,6 +10,7 @@
 
 #include <soundhole/common.hpp>
 #include "LastFMSession.hpp"
+#include "LastFMMediaTypes.hpp"
 #include <soundhole/utils/HttpClient.hpp>
 
 namespace sh {
@@ -29,6 +30,8 @@ namespace sh {
 		void logout();
 		
 		Optional<LastFMSession> session() const;
+		
+		Promise<LastFMScrobbleResponse> scrobble(LastFMScrobbleRequest request);
 		
 	private:
 		Optional<LastFMSession> loadSession();

@@ -785,6 +785,7 @@
 				A513DB6F232DA1F8000DCAC7 /* providers */,
 				A5C6CCE22597DADC00596878 /* storage */,
 				A54F2544239DA9B800C81E1C /* playback */,
+				A5BA4A2526E6847D00139269 /* external */,
 				A513DB76232DA1F8000DCAC7 /* scripts */,
 				A571E16223332CC600603E14 /* utils */,
 			);
@@ -795,7 +796,6 @@
 			isa = PBXGroup;
 			children = (
 				A5C6CDD925985CE800596878 /* soundhole */,
-				A5BA49EE26E56DFA00139269 /* lastfm */,
 				A571E12F2332C5AC00603E14 /* bandcamp */,
 				A571E1312332C5D000603E14 /* spotify */,
 				A571E1302332C5BC00603E14 /* youtube */,
@@ -1128,16 +1128,7 @@
 			path = playbackhistory;
 			sourceTree = "<group>";
 		};
-		A5BA49EE26E56DFA00139269 /* lastfm */ = {
-			isa = PBXGroup;
-			children = (
-				A5BA49EF26E56E7800139269 /* api */,
-				A5BA49F026E56E7E00139269 /* mutators */,
-			);
-			path = lastfm;
-			sourceTree = "<group>";
-		};
-		A5BA49EF26E56E7800139269 /* api */ = {
+		A5BA49EF26E56E7800139269 /* lastfm */ = {
 			isa = PBXGroup;
 			children = (
 				A5BA49F226E56EA300139269 /* LastFM.hpp */,
@@ -1149,14 +1140,15 @@
 				A5BA4A0226E5A41000139269 /* LastFMMediaTypes.hpp */,
 				A5BA4A0126E5A41000139269 /* LastFMMediaTypes.cpp */,
 			);
-			path = api;
+			path = lastfm;
 			sourceTree = "<group>";
 		};
-		A5BA49F026E56E7E00139269 /* mutators */ = {
+		A5BA4A2526E6847D00139269 /* external */ = {
 			isa = PBXGroup;
 			children = (
+				A5BA49EF26E56E7800139269 /* lastfm */,
 			);
-			path = mutators;
+			path = external;
 			sourceTree = "<group>";
 		};
 		A5C0A8E523CFE28600CDB59E /* mutators */ = {

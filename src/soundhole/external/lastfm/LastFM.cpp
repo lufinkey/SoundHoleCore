@@ -36,6 +36,7 @@ namespace sh {
 		}
 	}
 
+
 	Promise<Json> LastFM::sendRequest(utils::HttpMethod httpMethod, String apiMethod, std::map<String,String> params, bool usesAuth) {
 		String url = "https://ws.audioscrobbler.com/2.0";
 		params["method"] = apiMethod;
@@ -59,6 +60,7 @@ namespace sh {
 			params["api_sig"] = requestSig;
 		}
 		
+		// create body
 		String body;
 		if(httpMethod == utils::HttpMethod::GET) {
 			if(params.size() > 0) {
@@ -71,23 +73,28 @@ namespace sh {
 			}
 		}
 		
+		// add headers
 		std::map<String,String> headers;
 		if(body.length() > 0) {
 			headers["Content-Type"] = "application/x-www-form-urlencoded";
 			headers["Content-Length"] = std::to_string(body.length());
 		}
 		
+		// build request
 		auto request = utils::HttpRequest{
 			.url = Url(url),
 			.method = httpMethod,
 			.headers = headers,
 			.data = body
 		};
+		// perform request
 		return utils::performHttpRequest(request).map(nullptr, [](utils::SharedHttpResponse response) {
+			// map response
 			std::string parseError;
 			auto json = Json::parse(response->data, parseError);
 			auto errorJson = json["error"];
 			if(response->statusCode >= 300 || errorJson.number_value() != 0) {
+				// handle error
 				auto messageJson = json["message"];
 				throw LastFMError(LastFMError::Code::REQUEST_FAILED,
 					messageJson.is_string() ?
@@ -95,11 +102,12 @@ namespace sh {
 						: "Request failed with error "+std::to_string(errorJson.number_value()));
 			}
 			if(!parseError.empty()) {
-				throw LastFMError(LastFMError::Code::BAD_DATA, "failed to parse response");
+				throw LastFMError(LastFMError::Code::BAD_DATA, "failed to parse response: "+parseError);
 			}
 			return json;
 		});
 	}
+
 
 	Promise<LastFMSession> LastFM::authenticate(String username, String password) {
 		return sendRequest(utils::HttpMethod::POST, "auth.getMobileSession", {
@@ -127,5 +135,12 @@ namespace sh {
 
 	Optional<LastFMSession> LastFM::session() const {
 		return _session;
+	}
+
+
+	Promise<LastFMScrobbleResponse> LastFM::scrobble(LastFMScrobbleRequest request) {
+		return sendRequest(utils::HttpMethod::POST, "track.scrobble", request.toQueryItems()).map(nullptr, [](Json response) {
+			return LastFMScrobbleResponse::fromJson(response);
+		});
 	}
 }
