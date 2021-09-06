@@ -56,7 +56,7 @@ namespace sh {
 	}
 	
 	
-	SpotifyError::SpotifyError(Code code, String message, std::map<String,Any> details)
+	SpotifyError::SpotifyError(Code code, String message, Map<String,Any> details)
 	: code(code), message(message), details(details) {
 		//
 	}
@@ -65,16 +65,12 @@ namespace sh {
 		return code;
 	}
 	
-	const std::map<String,Any>& SpotifyError::getDetails() const {
+	const Map<String,Any>& SpotifyError::getDetails() const {
 		return details;
 	}
 	
 	Any SpotifyError::getDetail(const String& key) const {
-		try {
-			return details.at(key);
-		} catch(std::out_of_range&) {
-			return Any();
-		}
+		return details.get(key, Any());
 	}
 	
 	String SpotifyError::getMessage() const {

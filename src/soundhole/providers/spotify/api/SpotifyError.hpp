@@ -59,7 +59,7 @@ namespace sh {
 		};
 		static String Code_toString(Code code);
 		
-		SpotifyError(Code code, String message, std::map<String,Any> details = {});
+		SpotifyError(Code code, String message, Map<String,Any> details = {});
 		
 		#if defined(__OBJC__) && defined(TARGETPLATFORM_IOS)
 		SpotifyError(NSError* error);
@@ -70,7 +70,7 @@ namespace sh {
 		#endif
 		
 		Code getCode() const;
-		const std::map<String,Any>& getDetails() const;
+		const Map<String,Any>& getDetails() const;
 		Any getDetail(const String& key) const override;
 		
 		virtual String getMessage() const override;
@@ -80,6 +80,6 @@ namespace sh {
 	private:
 		Code code;
 		String message;
-		std::map<String,Any> details;
+		Map<String,Any> details;
 	};
 }

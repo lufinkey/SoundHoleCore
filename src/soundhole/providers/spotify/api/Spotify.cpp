@@ -234,8 +234,10 @@ namespace sh {
 				url += "?" + utils::makeQueryString(queryParams);
 			}
 			std::map<String,String> headers;
+			String body = (!bodyParams.is_null()) ? bodyParams.dump() : String();
 			if(!bodyParams.is_null()) {
 				headers["Content-Type"] = "application/json; charset=utf-8";
+				headers["Content-Length"] = std::to_string(body.length());
 			}
 			auto session = auth->getSession();
 			if(session) {
@@ -245,7 +247,7 @@ namespace sh {
 				.url = Url(url),
 				.method = method,
 				.headers = headers,
-				.data = (!bodyParams.is_null()) ? bodyParams.dump() : ""
+				.data = body
 			};
 			return utils::performHttpRequest(request)
 			.then([=](utils::SharedHttpResponse response) -> Promise<utils::SharedHttpResponse> {

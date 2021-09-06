@@ -118,17 +118,21 @@ namespace sh {
 		if(!session && !apiKey.empty()) {
 			query["key"] = apiKey;
 		}
+		std::map<String,String> headers;
+		String bodyData = ((!body.is_null()) ? body.dump() : String());
+		if(!body.is_null()) {
+			headers["Content-Type"] = "application/json";
+			headers["Content-Length"] = std::to_string(bodyData.length());
+		}
+		if(session) {
+			headers["Authorization"] = session->getTokenType()+" "+session->getAccessToken();
+		}
 		auto request = utils::HttpRequest{
 			.url = Url(YOUTUBE_API_URL+'/'+endpoint+'?'+utils::makeQueryString(query)),
 			.method = method,
-			.headers = {
-				{ "Content-Type", "application/json" }
-			},
-			.data = ((!body.is_null()) ? body.dump() : "")
+			.headers = headers,
+			.data = bodyData
 		};
-		if(session) {
-			request.headers["Authorization"] = session->getTokenType()+" "+session->getAccessToken();
-		}
 		auto response = co_await utils::performHttpRequest(request);
 		// if response is unauthorized, refresh token and try again
 		if(response->statusCode == 401) {
