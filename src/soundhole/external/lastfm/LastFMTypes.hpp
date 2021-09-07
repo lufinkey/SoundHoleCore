@@ -1,5 +1,5 @@
 //
-//  LastFMMediaTypes.hpp
+//  LastFMTypes.hpp
 //  SoundHoleCore
 //
 //  Created by Luis Finke on 9/5/21.
@@ -11,6 +11,29 @@
 #include <soundhole/common.hpp>
 
 namespace sh {
+	struct LastFMAPICredentials {
+		String key;
+		String secret;
+	};
+
+
+	struct LastFMSession {
+		String name;
+		bool subscriber;
+		String key;
+		
+		static LastFMSession fromJson(const Json& json);
+		Json toJson() const;
+	};
+
+
+	struct LastFMWebAuthResult {
+		String username;
+		String password;
+		ArrayList<String> cookies;
+	};
+
+
 	struct LastFMScrobbleRequest {
 		struct Item {
 			String track;

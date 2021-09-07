@@ -25,16 +25,23 @@ namespace sh {
 				NSString* xssState = [NSUUID UUID].UUIDString;
 				
 				SHWebAuthNavigationController* authController = [[SHWebAuthNavigationController alloc] init];
-				authController.onWebRedirect = ^BOOL(SHWebAuthNavigationController* authNav, WKWebView* webView, WKNavigationAction* action) {
+				authController.handleNavigationAction = ^(SHWebAuthNavigationController* authNav, WKNavigationAction* action, void(^decisionHandler)(WKNavigationActionPolicy)) {
 					// check if redirect URL matches
 					NSURL* url = action.request.URL;
 					if(!utils::checkURLMatch(options.redirectURL, String(url.absoluteString))) {
-						return NO;
+						// URL doesn't match redirect URL
+						decisionHandler(WKNavigationActionPolicyAllow);
+						return;
 					}
+					// URL matches redirectURL
+					decisionHandler(WKNavigationActionPolicyCancel);
+					// show loading overlay
 					[authNav setLoadingOverlayVisible:YES animated:YES];
-					auto params = utils::parseURLQueryParams(String(url.absoluteString));
+					// define function to dismiss controller
 					auto dismissAuthController = [=](void(^completion)(void)) {
+						// hide loading overlay
 						[authNav setLoadingOverlayVisible:NO animated:YES];
+						// dismiss controller
 						dispatch_async(dispatch_get_main_queue(), ^{
 							if(authNav.presentingViewController != nil) {
 								[authNav.presentingViewController dismissViewControllerAnimated:YES completion:completion];
@@ -43,6 +50,8 @@ namespace sh {
 							}
 						});
 					};
+					// handle oauth redirect
+					auto params = utils::parseURLQueryParams(String(url.absoluteString));
 					SpotifyAuth::handleOAuthRedirect(params, options, String(xssState)).then([=](Optional<SpotifySession> session) {
 						dismissAuthController(^{
 							resolve(session);
@@ -52,7 +61,6 @@ namespace sh {
 							reject(error);
 						});
 					});
-					return YES;
 				};
 				authController.onCancel = ^{
 					// cancel auth

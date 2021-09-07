@@ -233,15 +233,15 @@ namespace sh {
 			if(queryParams.size() > 0) {
 				url += "?" + utils::makeQueryString(queryParams);
 			}
-			std::map<String,String> headers;
+			utils::HttpHeaders headers;
 			String body = (!bodyParams.is_null()) ? bodyParams.dump() : String();
 			if(!bodyParams.is_null()) {
-				headers["Content-Type"] = "application/json; charset=utf-8";
-				headers["Content-Length"] = std::to_string(body.length());
+				headers.set("Content-Type", "application/json; charset=utf-8");
+				headers.set("Content-Length", std::to_string(body.length()));
 			}
 			auto session = auth->getSession();
 			if(session) {
-				headers["Authorization"] = session->getTokenType()+" "+session->getAccessToken();
+				headers.set("Authorization", session->getTokenType()+" "+session->getAccessToken());
 			}
 			auto request = utils::HttpRequest{
 				.url = Url(url),
@@ -281,12 +281,11 @@ namespace sh {
 				// parse any possible response errors
 				parseResponseError(response, resultObj);
 				// throw body parse error if needed
-				auto contentTypeIt = response->headers.find("Content-Type");
-				String contentType = (contentTypeIt != response->headers.end()) ? contentTypeIt->second : "";
-				if(!contentType.empty()) {
-					contentType = contentType.split(';').front().trim().toLowerCase();
-				}
-				if(!contentType.empty() && contentType == "application/json" && response->statusCode != 204) {
+				bool hasJsonContentType = response->headers.get("Content-Type")
+					.containsWhere([](auto& val) {
+						return (!val.empty() && val.split(";").front() == "application/json");
+					});
+				if(hasJsonContentType && response->statusCode != 204) {
 					if(!parseError.empty()) {
 						throw SpotifyError(SpotifyError::Code::BAD_DATA, "Failed to parse response json: "+parseError);
 					}
@@ -320,8 +319,8 @@ namespace sh {
 		}
 		// if Retry-After is set, include in error
 		if(response->statusCode == 429) {
-			auto retryAfterIt = response->headers.find("Retry-After");
-			String retryAfter = (retryAfterIt != response->headers.end()) ? retryAfterIt->second : "";
+			auto retryAfterVals = response->headers.get("Retry-After");
+			String retryAfter = !retryAfterVals.empty() ? retryAfterVals.front() : "";
 			if(!retryAfter.empty()) {
 				errorMessage += ". Retry after "+retryAfter+" seconds";
 			}

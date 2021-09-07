@@ -15,15 +15,18 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SHWebAuthNavigationController;
-typedef BOOL(^SHWebAuthNavigationControllerRedirectHandler)(SHWebAuthNavigationController* controller, WKWebView* webView, WKNavigationAction* action);
+typedef void(^SHWebAuthNavigationActionHandler)(SHWebAuthNavigationController* controller, WKNavigationAction* action, void(^decisionHandler)(WKNavigationActionPolicy));
+typedef void(^SHWebAuthNavigationResponseHandler)(SHWebAuthNavigationController* controller, WKNavigationResponse* response, void(^decisionHandler)(WKNavigationResponsePolicy));
 
 @interface SHWebAuthNavigationController: UINavigationController <WKNavigationDelegate, UIAdaptivePresentationControllerDelegate>
 
 -(id)init;
 
 @property (nonatomic, readonly) SHWebViewController* webViewController;
-@property (nonatomic, nullable) SHWebAuthNavigationControllerRedirectHandler onWebRedirect;
-@property (nonatomic, nullable) void(^onCancel)(void);
+@property (nonatomic, readonly) WKWebView* webView;
+@property (nonatomic, nullable) SHWebAuthNavigationActionHandler handleNavigationAction;
+@property (nonatomic, nullable) SHWebAuthNavigationResponseHandler handleNavigationResponse;
+@property (nonatomic, nullable) void(^onCancel)();
 
 @property (nonatomic) BOOL loadingOverlayVisible;
 -(void)setLoadingOverlayVisible:(BOOL)loadingOverlayVisible animated:(BOOL)animated;

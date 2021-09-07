@@ -52,12 +52,14 @@ namespace sh {
 					"ABCDEFGHIJKLMNOPQRSTUVWXYZ" "abcdefghijklmnopqrstuvwxyz" "0123456789" "-._~");
 				
 				SHWebAuthNavigationController* authController = [[SHWebAuthNavigationController alloc] init];
-				authController.onWebRedirect = ^BOOL(SHWebAuthNavigationController* authNav, WKWebView* webView, WKNavigationAction* action) {
+				authController.handleNavigationAction = ^void(SHWebAuthNavigationController* authNav, WKNavigationAction* action, void(^decisionHandler)(WKNavigationActionPolicy)) {
 					// check if redirect URL matches
 					NSURL* url = action.request.URL;
 					if(!utils::checkURLMatch(options.redirectURL, String(url.absoluteString))) {
-						return NO;
+						decisionHandler(WKNavigationActionPolicyAllow);
+						return;
 					}
+					decisionHandler(WKNavigationActionPolicyCancel);
 					[authNav setLoadingOverlayVisible:YES animated:YES];
 					auto params = utils::parseURLQueryParams(String(url.absoluteString));
 					auto dismissAuthController = [=](void(^completion)(void)) {
@@ -79,7 +81,6 @@ namespace sh {
 							reject(error);
 						});
 					});
-					return YES;
 				};
 				authController.onCancel = ^{
 					// cancel auth

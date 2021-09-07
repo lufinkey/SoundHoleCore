@@ -118,14 +118,14 @@ namespace sh {
 		if(!session && !apiKey.empty()) {
 			query["key"] = apiKey;
 		}
-		std::map<String,String> headers;
+		utils::HttpHeaders headers;
 		String bodyData = ((!body.is_null()) ? body.dump() : String());
 		if(!body.is_null()) {
-			headers["Content-Type"] = "application/json";
-			headers["Content-Length"] = std::to_string(bodyData.length());
+			headers.set("Content-Type", "application/json");
+			headers.set("Content-Length", std::to_string(bodyData.length()));
 		}
 		if(session) {
-			headers["Authorization"] = session->getTokenType()+" "+session->getAccessToken();
+			headers.set("Authorization", session->getTokenType()+" "+session->getAccessToken());
 		}
 		auto request = utils::HttpRequest{
 			.url = Url(YOUTUBE_API_URL+'/'+endpoint+'?'+utils::makeQueryString(query)),

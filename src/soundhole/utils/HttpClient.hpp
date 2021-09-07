@@ -26,18 +26,33 @@ namespace sh::utils {
 	};
 	
 	String HttpMethod_toString(HttpMethod);
+
+	struct HttpHeaders {
+		using ValueVariant = Variant<ArrayList<String>,String>;
+		
+		HttpHeaders();
+		HttpHeaders(Map<String,ValueVariant> map);
+		HttpHeaders(const Map<String,String>& map);
+		
+		Map<String,ValueVariant> map;
+		
+		void add(String key, String value);
+		void set(String key, String value);
+		void set(String key, ArrayList<String> values);
+		ArrayList<String> get(String key) const;
+	};
 	
 	struct HttpRequest {
 		Url url;
 		HttpMethod method;
-		std::map<String,String> headers;
+		HttpHeaders headers;
 		String data;
 	};
 	
 	struct HttpResponse {
 		int statusCode;
 		String statusMessage;
-		std::map<String,String> headers;
+		HttpHeaders headers;
 		String data;
 	};
 	using SharedHttpResponse = std::shared_ptr<HttpResponse>;
@@ -47,6 +62,7 @@ namespace sh::utils {
 	String encodeURLComponent(String);
 	String decodeURLComponent(String);
 	String makeQueryString(std::map<String,String> params);
+	Map<String,String> parseQueryString(const String& queryString);
 	std::map<String,String> parseURLQueryParams(String url);
 
 	bool checkURLMatch(const String& baseURL, const String& url);

@@ -32,6 +32,10 @@
 	return self;
 }
 
+-(WKWebView*)webView {
+	return _webViewController.webView;
+}
+
 -(UIStatusBarStyle)preferredStatusBarStyle {
 	return _statusBarStyle;
 }
@@ -85,11 +89,18 @@
 #pragma mark - WKWebViewDelegate
 
 -(void)webView:(WKWebView*)webView decidePolicyForNavigationAction:(WKNavigationAction*)navigationAction decisionHandler:(void(^)(WKNavigationActionPolicy))decisionHandler {
-	if(self.onWebRedirect != nil && self.onWebRedirect(self,webView,navigationAction)) {
-		decisionHandler(WKNavigationActionPolicyCancel);
-	}
-	else {
+	if(self.handleNavigationAction != nil) {
+		self.handleNavigationAction(self,navigationAction,decisionHandler);
+	} else {
 		decisionHandler(WKNavigationActionPolicyAllow);
+	}
+}
+
+-(void)webView:(WKWebView*)webView decidePolicyForNavigationResponse:(WKNavigationResponse*)navigationResponse decisionHandler:(nonnull void (^)(WKNavigationResponsePolicy))decisionHandler {
+	if(self.handleNavigationResponse != nil) {
+		self.handleNavigationResponse(self,navigationResponse,decisionHandler);
+	} else {
+		decisionHandler(WKNavigationResponsePolicyAllow);
 	}
 }
 

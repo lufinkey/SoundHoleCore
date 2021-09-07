@@ -54,7 +54,6 @@
 		A540D8482550A7B800EE5CA8 /* SHObjcUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = A540D8462550A7B800EE5CA8 /* SHObjcUtils.h */; };
 		A540D8492550A7B800EE5CA8 /* SHObjcUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = A540D8472550A7B800EE5CA8 /* SHObjcUtils.mm */; };
 		A540D84A2550A7B800EE5CA8 /* SHObjcUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = A540D8472550A7B800EE5CA8 /* SHObjcUtils.mm */; };
-		A540D8EA2550AD1300EE5CA8 /* BandcampAuthViewController_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A540D8E82550AD1300EE5CA8 /* BandcampAuthViewController_iOS.mm */; };
 		A5485A1E238CCB5F00CB7749 /* UserAccount.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5485A1C238CCB5F00CB7749 /* UserAccount.cpp */; };
 		A5485A1F238CCB5F00CB7749 /* UserAccount.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5485A1C238CCB5F00CB7749 /* UserAccount.cpp */; };
 		A5485A20238CCB5F00CB7749 /* UserAccount.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5485A1D238CCB5F00CB7749 /* UserAccount.hpp */; };
@@ -208,17 +207,21 @@
 		A5BA49FE26E599DC00139269 /* LastFMError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA49FC26E599DC00139269 /* LastFMError.cpp */; };
 		A5BA49FF26E599DC00139269 /* LastFMError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA49FC26E599DC00139269 /* LastFMError.cpp */; };
 		A5BA4A0026E599DC00139269 /* LastFMError.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5BA49FD26E599DC00139269 /* LastFMError.hpp */; };
-		A5BA4A0326E5A41000139269 /* LastFMMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A0126E5A41000139269 /* LastFMMediaTypes.cpp */; };
-		A5BA4A0426E5A41000139269 /* LastFMMediaTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A0126E5A41000139269 /* LastFMMediaTypes.cpp */; };
-		A5BA4A0526E5A41000139269 /* LastFMMediaTypes.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5BA4A0226E5A41000139269 /* LastFMMediaTypes.hpp */; };
-		A5BA4A0826E5A49E00139269 /* LastFMSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A0626E5A49E00139269 /* LastFMSession.cpp */; };
-		A5BA4A0926E5A49E00139269 /* LastFMSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A0626E5A49E00139269 /* LastFMSession.cpp */; };
-		A5BA4A0A26E5A49E00139269 /* LastFMSession.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5BA4A0726E5A49E00139269 /* LastFMSession.hpp */; };
+		A5BA4A0326E5A41000139269 /* LastFMTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A0126E5A41000139269 /* LastFMTypes.cpp */; };
+		A5BA4A0426E5A41000139269 /* LastFMTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A0126E5A41000139269 /* LastFMTypes.cpp */; };
+		A5BA4A0526E5A41000139269 /* LastFMTypes.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5BA4A0226E5A41000139269 /* LastFMTypes.hpp */; };
 		A5BA4A0D26E5A82800139269 /* SecureStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A0B26E5A82800139269 /* SecureStore.cpp */; };
 		A5BA4A0E26E5A82800139269 /* SecureStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A0B26E5A82800139269 /* SecureStore.cpp */; };
 		A5BA4A0F26E5A82800139269 /* SecureStore.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5BA4A0C26E5A82800139269 /* SecureStore.hpp */; };
 		A5BA4A1126E5A88000139269 /* SecureStore_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A1026E5A88000139269 /* SecureStore_apple.mm */; };
 		A5BA4A1226E5A88000139269 /* SecureStore_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A1026E5A88000139269 /* SecureStore_apple.mm */; };
+		A5BA4A3A26E6B1EC00139269 /* LastFMAuth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A3826E6B1EC00139269 /* LastFMAuth.cpp */; };
+		A5BA4A3B26E6B1EC00139269 /* LastFMAuth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A3826E6B1EC00139269 /* LastFMAuth.cpp */; };
+		A5BA4A3C26E6B1EC00139269 /* LastFMAuth.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5BA4A3926E6B1EC00139269 /* LastFMAuth.hpp */; };
+		A5BA4A3F26E6B26200139269 /* LastFMAPIRequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A3D26E6B26200139269 /* LastFMAPIRequest.cpp */; };
+		A5BA4A4026E6B26200139269 /* LastFMAPIRequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A3D26E6B26200139269 /* LastFMAPIRequest.cpp */; };
+		A5BA4A4126E6B26200139269 /* LastFMAPIRequest.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5BA4A3E26E6B26200139269 /* LastFMAPIRequest.hpp */; };
+		A5BA4A4326E6BA4B00139269 /* LastFMAuth_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A4226E6BA4B00139269 /* LastFMAuth_iOS.mm */; };
 		A5C0A8E123CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5C0A8DF23CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.cpp */; };
 		A5C0A8E223CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5C0A8DF23CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.cpp */; };
 		A5C0A8E323CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5C0A8E023CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.hpp */; };
@@ -405,8 +408,6 @@
 		A540D83225508A1D00EE5CA8 /* SHiOSUtils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SHiOSUtils.mm; sourceTree = "<group>"; };
 		A540D8462550A7B800EE5CA8 /* SHObjcUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SHObjcUtils.h; sourceTree = "<group>"; };
 		A540D8472550A7B800EE5CA8 /* SHObjcUtils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SHObjcUtils.mm; sourceTree = "<group>"; };
-		A540D8E72550AD1300EE5CA8 /* BandcampAuthViewController_iOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BandcampAuthViewController_iOS.h; sourceTree = "<group>"; };
-		A540D8E82550AD1300EE5CA8 /* BandcampAuthViewController_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = BandcampAuthViewController_iOS.mm; sourceTree = "<group>"; };
 		A5485A1C238CCB5F00CB7749 /* UserAccount.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UserAccount.cpp; sourceTree = "<group>"; };
 		A5485A1D238CCB5F00CB7749 /* UserAccount.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = UserAccount.hpp; sourceTree = "<group>"; };
 		A5485A21238DFB1300CB7749 /* Utils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Utils.cpp; sourceTree = "<group>"; };
@@ -529,13 +530,16 @@
 		A5BA49F226E56EA300139269 /* LastFM.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = LastFM.hpp; sourceTree = "<group>"; };
 		A5BA49FC26E599DC00139269 /* LastFMError.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LastFMError.cpp; sourceTree = "<group>"; };
 		A5BA49FD26E599DC00139269 /* LastFMError.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = LastFMError.hpp; sourceTree = "<group>"; };
-		A5BA4A0126E5A41000139269 /* LastFMMediaTypes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LastFMMediaTypes.cpp; sourceTree = "<group>"; };
-		A5BA4A0226E5A41000139269 /* LastFMMediaTypes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = LastFMMediaTypes.hpp; sourceTree = "<group>"; };
-		A5BA4A0626E5A49E00139269 /* LastFMSession.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LastFMSession.cpp; sourceTree = "<group>"; };
-		A5BA4A0726E5A49E00139269 /* LastFMSession.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = LastFMSession.hpp; sourceTree = "<group>"; };
+		A5BA4A0126E5A41000139269 /* LastFMTypes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LastFMTypes.cpp; sourceTree = "<group>"; };
+		A5BA4A0226E5A41000139269 /* LastFMTypes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = LastFMTypes.hpp; sourceTree = "<group>"; };
 		A5BA4A0B26E5A82800139269 /* SecureStore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SecureStore.cpp; sourceTree = "<group>"; };
 		A5BA4A0C26E5A82800139269 /* SecureStore.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SecureStore.hpp; sourceTree = "<group>"; };
 		A5BA4A1026E5A88000139269 /* SecureStore_apple.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SecureStore_apple.mm; sourceTree = "<group>"; };
+		A5BA4A3826E6B1EC00139269 /* LastFMAuth.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LastFMAuth.cpp; sourceTree = "<group>"; };
+		A5BA4A3926E6B1EC00139269 /* LastFMAuth.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = LastFMAuth.hpp; sourceTree = "<group>"; };
+		A5BA4A3D26E6B26200139269 /* LastFMAPIRequest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LastFMAPIRequest.cpp; sourceTree = "<group>"; };
+		A5BA4A3E26E6B26200139269 /* LastFMAPIRequest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = LastFMAPIRequest.hpp; sourceTree = "<group>"; };
+		A5BA4A4226E6BA4B00139269 /* LastFMAuth_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = LastFMAuth_iOS.mm; sourceTree = "<group>"; };
 		A5C0A8DF23CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyAlbumMutatorDelegate.cpp; sourceTree = "<group>"; };
 		A5C0A8E023CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyAlbumMutatorDelegate.hpp; sourceTree = "<group>"; };
 		A5C0A8E623CFE59100CDB59E /* SpotifyPlaylistMutatorDelegate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyPlaylistMutatorDelegate.cpp; sourceTree = "<group>"; };
@@ -1133,12 +1137,15 @@
 			children = (
 				A5BA49F226E56EA300139269 /* LastFM.hpp */,
 				A5BA49F126E56EA300139269 /* LastFM.cpp */,
+				A5BA4A3E26E6B26200139269 /* LastFMAPIRequest.hpp */,
+				A5BA4A3D26E6B26200139269 /* LastFMAPIRequest.cpp */,
+				A5BA4A3926E6B1EC00139269 /* LastFMAuth.hpp */,
+				A5BA4A3826E6B1EC00139269 /* LastFMAuth.cpp */,
+				A5BA4A4226E6BA4B00139269 /* LastFMAuth_iOS.mm */,
 				A5BA49FD26E599DC00139269 /* LastFMError.hpp */,
 				A5BA49FC26E599DC00139269 /* LastFMError.cpp */,
-				A5BA4A0726E5A49E00139269 /* LastFMSession.hpp */,
-				A5BA4A0626E5A49E00139269 /* LastFMSession.cpp */,
-				A5BA4A0226E5A41000139269 /* LastFMMediaTypes.hpp */,
-				A5BA4A0126E5A41000139269 /* LastFMMediaTypes.cpp */,
+				A5BA4A0226E5A41000139269 /* LastFMTypes.hpp */,
+				A5BA4A0126E5A41000139269 /* LastFMTypes.cpp */,
 			);
 			path = lastfm;
 			sourceTree = "<group>";
@@ -1231,8 +1238,6 @@
 				A5D9E10C2550BAB500E4762A /* BandcampAuth.cpp */,
 				A5D9E12B2550E8D000E4762A /* BandcampAuth_iOS.mm */,
 				A5D9E1352550E96900E4762A /* BandcampAuthEventListener.h */,
-				A540D8E72550AD1300EE5CA8 /* BandcampAuthViewController_iOS.h */,
-				A540D8E82550AD1300EE5CA8 /* BandcampAuthViewController_iOS.mm */,
 				A5D9E1162550BC0B00E4762A /* BandcampSession.hpp */,
 				A5D9E1152550BC0B00E4762A /* BandcampSession.cpp */,
 				A5D9E1362550EC7700E4762A /* BandcampSession_ObjC.mm */,
@@ -1309,7 +1314,7 @@
 				A5E851D0235DFEBC0001F74D /* BandcampMediaTypes.hpp in Headers */,
 				A58189AA26A1DD18007BFD82 /* JSError.hpp in Headers */,
 				A5D9F568255E0BC100E4762A /* YoutubeAuthEventListener.hpp in Headers */,
-				A5BA4A0526E5A41000139269 /* LastFMMediaTypes.hpp in Headers */,
+				A5BA4A0526E5A41000139269 /* LastFMTypes.hpp in Headers */,
 				A5D9F54B255E0B4700E4762A /* YoutubeAuth.hpp in Headers */,
 				A5C6DB4A25BE03E600596878 /* GoogleDriveStorageMediaTypes.impl.hpp in Headers */,
 				A58189A526961A5A007BFD82 /* MediaDatabaseSQLTransformations.hpp in Headers */,
@@ -1353,6 +1358,7 @@
 				A52C4714250EE85800131918 /* OAuthSession.hpp in Headers */,
 				A5AB5BC62368B1630028851A /* YoutubeMediaTypes.hpp in Headers */,
 				A5C6CD692598582200596878 /* JSWrapClass.impl.hpp in Headers */,
+				A5BA4A4126E6B26200139269 /* LastFMAPIRequest.hpp in Headers */,
 				A5AE3F1E247C593100FB9AFF /* SQLiteTransaction.hpp in Headers */,
 				A5B1B9072548EB3600DACA2D /* SHKeychainUtils_objc.h in Headers */,
 				A5AE3F25247C937400FB9AFF /* MediaDatabaseSQLOperations.hpp in Headers */,
@@ -1361,7 +1367,6 @@
 				A540D83325508A1D00EE5CA8 /* SHiOSUtils.h in Headers */,
 				A513ED9C232DA20C000DCAC7 /* MediaItem.hpp in Headers */,
 				A56325D7256A3BDD00C005AE /* BandcampMediaTypes.impl.hpp in Headers */,
-				A5BA4A0A26E5A49E00139269 /* LastFMSession.hpp in Headers */,
 				A5BA49CA26D407A800139269 /* PlaybackQueue.hpp in Headers */,
 				A5485A2F239432CE00CB7749 /* SpotifyPlaybackProvider.hpp in Headers */,
 				A5C6CF1125A252C700596878 /* AuthedProvider.hpp in Headers */,
@@ -1377,6 +1382,7 @@
 				A54F2549239DAA2700C81E1C /* StreamPlayer.hpp in Headers */,
 				A5AE3F3F247DFFE400FB9AFF /* MediaLibraryProxyProvider.hpp in Headers */,
 				A5C6CF1725A2575000596878 /* NamedProvider.hpp in Headers */,
+				A5BA4A3C26E6B1EC00139269 /* LastFMAuth.hpp in Headers */,
 				A5C6DAFB25BCD9B100596878 /* GoogleDrivePlaylistMutatorDelegate.hpp in Headers */,
 				A513ED8F232DA20B000DCAC7 /* YoutubeMediaProvider.hpp in Headers */,
 				A513ED9D232DA20C000DCAC7 /* soundhole.hpp in Headers */,
@@ -1758,7 +1764,6 @@
 				A578785023DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp in Sources */,
 				A5E7852323CE70BC00BD1C67 /* YoutubePlaybackProvider.cpp in Sources */,
 				A5C6D17525AD697900596878 /* MediaProviderStash.cpp in Sources */,
-				A5BA4A0826E5A49E00139269 /* LastFMSession.cpp in Sources */,
 				A5BA49D426DDB93C00139269 /* PlayerHistoryManager.cpp in Sources */,
 				A58189A326961A5A007BFD82 /* MediaDatabaseSQLTransformations.cpp in Sources */,
 				A5E851BF235A4AE90001F74D /* JSUtils.cpp in Sources */,
@@ -1781,9 +1786,11 @@
 				A5C6CCF02598013D00596878 /* GoogleDriveStorageProvider.cpp in Sources */,
 				A5D9E12C2550E8D000E4762A /* BandcampAuth_iOS.mm in Sources */,
 				A5A970E023CBDCD0009887CA /* StreamPlayerEventHandler_iOS.mm in Sources */,
+				A5BA4A3F26E6B26200139269 /* LastFMAPIRequest.cpp in Sources */,
 				A5AE3F04247B890000FB9AFF /* MediaDatabase.cpp in Sources */,
 				A5D9E10E2550BAB500E4762A /* BandcampAuth.cpp in Sources */,
 				A5BA49F326E56EA300139269 /* LastFM.cpp in Sources */,
+				A5BA4A3A26E6B1EC00139269 /* LastFMAuth.cpp in Sources */,
 				A5B7A7DD233F126800301FC0 /* Spotify.cpp in Sources */,
 				A52C4716250EE98B00131918 /* OAuthSession_iOS.mm in Sources */,
 				A5D9F610255E5BD400E4762A /* OAuthSessionManager.cpp in Sources */,
@@ -1796,7 +1803,6 @@
 				A5BA49C826D407A800139269 /* PlaybackQueue.cpp in Sources */,
 				A5AE3F1C247C593100FB9AFF /* SQLiteTransaction.cpp in Sources */,
 				A5E7852623CE73A300BD1C67 /* StreamPlaybackProvider.cpp in Sources */,
-				A540D8EA2550AD1300EE5CA8 /* BandcampAuthViewController_iOS.mm in Sources */,
 				A5F60C2F255F3E4700A0D4E3 /* Base64.cpp in Sources */,
 				A5C0A8E823CFE59100CDB59E /* SpotifyPlaylistMutatorDelegate.cpp in Sources */,
 				A5C6CCFC2598178200596878 /* StorageProvider.cpp in Sources */,
@@ -1820,10 +1826,11 @@
 				A513ED8D232DA20B000DCAC7 /* MediaProvider.cpp in Sources */,
 				A571E12E2332C5A300603E14 /* SpotifyMediaProvider.cpp in Sources */,
 				A5D9F555255E0BA200E4762A /* YoutubeAuth_iOS.mm in Sources */,
-				A5BA4A0326E5A41000139269 /* LastFMMediaTypes.cpp in Sources */,
+				A5BA4A0326E5A41000139269 /* LastFMTypes.cpp in Sources */,
 				A540D8492550A7B800EE5CA8 /* SHObjcUtils.mm in Sources */,
 				A5D9F549255E0B4700E4762A /* YoutubeAuth.cpp in Sources */,
 				A5B7A7C5233EA8CC00301FC0 /* SHProgressView_iOS.mm in Sources */,
+				A5BA4A4326E6BA4B00139269 /* LastFMAuth_iOS.mm in Sources */,
 				A5B7A79F2336C29200301FC0 /* SpotifyError.cpp in Sources */,
 				A5F07D7E2543840100C41A36 /* YoutubeMediaTypes.cpp in Sources */,
 				A5C6D08025A28DE500596878 /* SoundHoleMediaProvider_iOS.mm in Sources */,
@@ -1863,6 +1870,7 @@
 				A578785B23E37A7B00B6B0A5 /* QueueItem.cpp in Sources */,
 				A563A5CF24AFF43E0036A842 /* SQLOrder.cpp in Sources */,
 				A5E851C5235A505B0001F74D /* Youtube.cpp in Sources */,
+				A5BA4A3B26E6B1EC00139269 /* LastFMAuth.cpp in Sources */,
 				A5BA49F426E56EA300139269 /* LastFM.cpp in Sources */,
 				A5B7A78F2335C91800301FC0 /* SoundHoleError.cpp in Sources */,
 				A563A60B24B633CF0036A842 /* soundhole.cpp in Sources */,
@@ -1879,7 +1887,7 @@
 				A5E851A62357B1660001F74D /* Bandcamp.cpp in Sources */,
 				A5B9736B23823BFE00FB3F1C /* Playlist.cpp in Sources */,
 				A5B7A7AC2337F1DE00301FC0 /* SpotifyPlayer.cpp in Sources */,
-				A5BA4A0426E5A41000139269 /* LastFMMediaTypes.cpp in Sources */,
+				A5BA4A0426E5A41000139269 /* LastFMTypes.cpp in Sources */,
 				A5C6DB0D25BCDCA600596878 /* GoogleDriveStorageMediaTypes.cpp in Sources */,
 				A5C0A8E923CFE59100CDB59E /* SpotifyPlaylistMutatorDelegate.cpp in Sources */,
 				A5B2BBF92360E84C00ED010C /* SpotifyMediaTypes.cpp in Sources */,
@@ -1911,7 +1919,6 @@
 				A5D9F600255E4DD400E4762A /* OAuthError.cpp in Sources */,
 				A5C6DAFA25BCD9B100596878 /* GoogleDrivePlaylistMutatorDelegate.cpp in Sources */,
 				A5AE3F1D247C593100FB9AFF /* SQLiteTransaction.cpp in Sources */,
-				A5BA4A0926E5A49E00139269 /* LastFMSession.cpp in Sources */,
 				A5E851AB2357BECD0001F74D /* BandcampError.cpp in Sources */,
 				A5B9735C2381FBA700FB3F1C /* Artist.cpp in Sources */,
 				A52C4713250EE85800131918 /* OAuthSession.cpp in Sources */,
@@ -1920,6 +1927,7 @@
 				A5BA49D526DDB93C00139269 /* PlayerHistoryManager.cpp in Sources */,
 				A5E851C0235A4AE90001F74D /* JSUtils.cpp in Sources */,
 				A540D84A2550A7B800EE5CA8 /* SHObjcUtils.mm in Sources */,
+				A5BA4A4026E6B26200139269 /* LastFMAPIRequest.cpp in Sources */,
 				A5E7852923CE742300BD1C67 /* StreamPlaybackProvider.cpp in Sources */,
 				A5D9E1182550BC0B00E4762A /* BandcampSession.cpp in Sources */,
 				A5AE3F05247B890000FB9AFF /* MediaDatabase.cpp in Sources */,

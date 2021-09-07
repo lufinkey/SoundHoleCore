@@ -62,8 +62,8 @@ namespace sh {
 		utils::HttpRequest request;
 		request.url = Url(url);
 		request.method = utils::HttpMethod::POST;
-		request.headers = headers;
-		request.headers["Content-Type"] = "application/x-www-form-urlencoded";
+		request.headers = utils::HttpHeaders(headers);
+		request.headers.set("Content-Type", "application/x-www-form-urlencoded");
 		request.data = utils::makeQueryString(params);
 		return utils::performHttpRequest(request)
 		.except([=](std::exception& error) -> utils::SharedHttpResponse {

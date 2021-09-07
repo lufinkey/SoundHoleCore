@@ -20,8 +20,14 @@ namespace sh::utils {
 		}
 		NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:url];
 		request.HTTPMethod = HttpMethod_toString(req.method).toNSString();
-		for(auto& header : req.headers) {
-			[request setValue:header.second.toNSString() forHTTPHeaderField:header.first.toNSString()];
+		for(auto& header : req.headers.map) {
+			if(header.second.is<String>()) {
+				[request setValue:header.second.get<String>().toNSString() forHTTPHeaderField:header.first.toNSString()];
+			} else {
+				for(auto val : header.second.get<ArrayList<String>>()) {
+					[request addValue:val.toNSString() forHTTPHeaderField:header.first.toNSString()];
+				}
+			}
 		}
 		if(!req.data.empty()) {
 			request.HTTPBody = [NSData dataWithBytes:(const void*)req.data.c_str() length:(NSUInteger)req.data.length()];
@@ -42,8 +48,19 @@ namespace sh::utils {
 				res->statusMessage = String([NSHTTPURLResponse localizedStringForStatusCode:httpResponse.statusCode]);
 				NSDictionary* allHeaders = httpResponse.allHeaderFields;
 				for(NSString* headerName in allHeaders.allKeys) {
-					NSString* headerValue = allHeaders[headerName];
-					res->headers[String(headerName)] = String(headerValue);
+					id headerValue = allHeaders[headerName];
+					if([headerValue isKindOfClass:NSString.class]) {
+						res->headers.set(String(headerName), String((NSString*)headerValue));
+					} else if([headerValue isKindOfClass:NSArray.class]) {
+						NSArray* headerValues = headerValue;
+						for(id headerVal in headerValues) {
+							if([headerVal isKindOfClass:NSString.class]) {
+								res->headers.add(String(headerName), String((NSString*)headerVal));
+							} else if([headerVal isKindOfClass:NSNumber.class]) {
+								res->headers.add(String(headerName), String(((NSNumber*)headerVal).stringValue));
+							}
+						}
+					}
 				}
 				if(data != nil) {
 					res->data = String((const char*)data.bytes, (size_t)data.length);
