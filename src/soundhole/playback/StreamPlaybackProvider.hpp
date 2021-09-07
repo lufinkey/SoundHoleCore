@@ -15,7 +15,7 @@
 namespace sh {
 	class StreamPlaybackProvider: public MediaPlaybackProvider, protected StreamPlayer::Listener {
 	public:
-		StreamPlaybackProvider(StreamPlayer* player);
+		StreamPlaybackProvider($<StreamPlayer> player);
 		virtual ~StreamPlaybackProvider();
 		
 		virtual bool usesPublicAudioStreams() const override;
@@ -30,12 +30,12 @@ namespace sh {
 		virtual Metadata metadata() const override;
 		
 	protected:
-		virtual void onStreamPlayerPlay(StreamPlayer* player) override;
-		virtual void onStreamPlayerPause(StreamPlayer* player) override;
-		virtual void onStreamPlayerTrackFinish(StreamPlayer* player, String audioURL) override;
+		virtual void onStreamPlayerPlay($<StreamPlayer> player) override;
+		virtual void onStreamPlayerPause($<StreamPlayer> player) override;
+		virtual void onStreamPlayerTrackFinish($<StreamPlayer> player, String audioURL) override;
 		
 	private:
-		StreamPlayer* player;
+		$<StreamPlayer> player;
 		
 		$<Track> currentTrack;
 		String currentTrackAudioURL;

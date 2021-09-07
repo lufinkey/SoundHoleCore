@@ -12,16 +12,17 @@
 #include "PlayerHistoryManager.hpp"
 
 namespace sh {
-	$<Player> Player::new$(MediaDatabase* database, Options options) {
-		return fgl::new$<Player>(database, options);
+	$<Player> Player::new$(MediaDatabase* database, $<StreamPlayer> streamPlayer, Options options) {
+		return fgl::new$<Player>(database, streamPlayer, options);
 	}
 
-	Player::Player(MediaDatabase* database, Options options)
+	Player::Player(MediaDatabase* database, $<StreamPlayer> streamPlayer, Options options)
 	: database(database),
 	options(options),
 	organizer(PlaybackOrganizer::new$(this)),
-	mediaProvider(nullptr),
-	preparedMediaProvider(nullptr),
+	streamPlaybackProvider(new StreamPlaybackProvider(streamPlayer)),
+	playbackProvider(nullptr),
+	preparedPlaybackProvider(nullptr),
 	historyManager(nullptr) {
 		organizer->addEventListener(this);
 		if(options.mediaControls != nullptr) {
@@ -37,15 +38,19 @@ namespace sh {
 			historyManager = nullptr;
 		}
 		if(options.mediaControls != nullptr) {
+			options.mediaControls->setNowPlaying(MediaControls::NowPlaying{});
 			options.mediaControls->removeListener(this);
 		}
 		organizer->removeEventListener(this);
 		organizer->stop();
-		setMediaProvider(nullptr);
+		setPlaybackProvider(nullptr);
 		stopPlayerStateInterval();
 		#if defined(TARGETPLATFORM_IOS)
 		deleteObjcListenerWrappers();
 		#endif
+		if(streamPlaybackProvider != nullptr) {
+			delete streamPlaybackProvider;
+		}
 	}
 
 	void Player::setPreferences(Preferences prefs) {
@@ -78,15 +83,20 @@ namespace sh {
 
 	Promise<void> Player::load(MediaProviderStash* stash) {
 		if(options.savePath.empty()) {
-			return Promise<void>::resolve();
+			return resolveVoid();
 		}
+		w$<Player> weakSelf = shared_from_this();
 		auto runOptions = AsyncQueue::RunOptions{
 			.tag="load"
 		};
-		return saveQueue.run(runOptions, [=](auto task) {
+		return saveQueue.run(runOptions, [=](auto task) -> Promise<void> {
+			auto self = weakSelf.lock();
+			if(!self) {
+				return resolveVoid();
+			}
 			return promiseThread([=]() -> Optional<ProgressData> {
 				// load progress data
-				auto progressPath = getProgressFilePath();
+				auto progressPath = self->getProgressFilePath();
 				if(fs::exists(progressPath)) {
 					auto data = fs::readFile(progressPath);
 					std::string jsonError;
@@ -98,10 +108,10 @@ namespace sh {
 				return std::nullopt;
 			}).then([=](Optional<ProgressData> progressData) {
 				// load organizer
-				auto metadataPath = getMetadataFilePath();
-				return organizer->load(metadataPath, stash).then([=](bool loaded) {
+				auto metadataPath = self->getMetadataFilePath();
+				return self->organizer->load(metadataPath, stash).then([=](bool loaded) {
 					// apply progress data
-					this->resumableProgress = progressData;
+					self->resumableProgress = progressData;
 					// TODO possibly update media controls?
 				});
 			});
@@ -109,15 +119,21 @@ namespace sh {
 	}
 
 	Promise<void> Player::save(SaveOptions options) {
+		w$<Player> weakSelf = shared_from_this();
 		auto runOptions = AsyncQueue::RunOptions{
 			.tag = options.includeMetadata ? "metadata" : "progress"
 		};
-		return saveQueue.run(runOptions, [=](auto task) {
-			return performSave(options);
+		return saveQueue.run(runOptions, [=](auto task) -> Promise<void> {
+			auto self = weakSelf.lock();
+			if(!self) {
+				return resolveVoid();
+			}
+			return self->performSave(options);
 		}).promise;
 	}
 
 	void Player::saveInBackground(SaveOptions options) {
+		w$<Player> weakSelf = shared_from_this();
 		auto runOptions = options.includeMetadata ?
 			AsyncQueue::RunOptions{
 				.tag = "bgMetadata",
@@ -126,12 +142,17 @@ namespace sh {
 				.tag = "bgProgress",
 				.cancelTags = { "bgProgress" }
 			};
-		saveQueue.run(runOptions, [=](auto task) {
-			return performSave(options);
+		saveQueue.run(runOptions, [=](auto task) -> Promise<void> {
+			auto self = weakSelf.lock();
+			if(!self) {
+				return resolveVoid();
+			}
+			return self->performSave(options);
 		});
 	}
 
 	Promise<void> Player::performSave(SaveOptions options) {
+		auto self = shared_from_this();
 		auto currentTrack = organizer->getCurrentTrack();
 		auto playbackState = providerPlaybackState;
 		auto metadataPromise = Promise<void>::resolve();
@@ -140,7 +161,7 @@ namespace sh {
 			metadataPromise = organizer->save(metadataPath);
 		}
 		return metadataPromise.then([=]() {
-			auto progressPath = getProgressFilePath();
+			auto progressPath = self->getProgressFilePath();
 			if(currentTrack && playbackState) {
 				auto progressData = ProgressData{
 					.uri = currentTrack->uri(),
@@ -225,12 +246,8 @@ namespace sh {
 	}
 
 	Promise<void> Player::seek(double position) {
-		if(mediaProvider == nullptr) {
-			return Promise<void>::resolve();
-		}
-		auto playbackProvider = mediaProvider->player();
 		if(playbackProvider == nullptr) {
-			return Promise<void>::resolve();
+			return resolveVoid();
 		}
 		return playbackProvider->seek(position);
 	}
@@ -280,7 +297,7 @@ namespace sh {
 	Promise<void> Player::setPlaying(bool playing) {
 		// if there is a track waiting to be resumed from save, resume it
 		auto resumableProgress = this->resumableProgress;
-		if(resumableProgress && mediaProvider == nullptr && playing) {
+		if(resumableProgress && this->playbackProvider == nullptr && playing) {
 			auto currentItem = organizer->getCurrentItem();
 			auto currentTrack = currentItem ? currentItem->track() : nullptr;
 			if(currentTrack && resumableProgress->uri == currentTrack->uri() && resumableProgress->providerName == currentTrack->mediaProvider()->name()) {
@@ -288,17 +305,16 @@ namespace sh {
 			}
 		}
 		// if there is no playback provider, return without doing anything
-		auto playbackProvider = (mediaProvider != nullptr) ? mediaProvider->player() : nullptr;
-		if(playbackProvider == nullptr) {
-			return Promise<void>::resolve();
+		if(this->playbackProvider == nullptr) {
+			return resolveVoid();
 		}
 		// play from playback provider
-		return playbackProvider->setPlaying(playing);
+		return this->playbackProvider->setPlaying(playing);
 	}
 
 	void Player::setShuffling(bool shuffling) {
 		this->organizer->setShuffling(shuffling);
-		// emit state change event
+		// emit state change event from main thread
 		w$<Player> weakSelf = shared_from_this();
 		Promise<void>::resolve().then([=]() {
 			auto self = weakSelf.lock();
@@ -491,14 +507,23 @@ namespace sh {
 				// TODO maybe some items will need to load their track asynchronously?
 				return resolveVoid();
 			}
+			// TODO handle omni track
+			// get track playback provider
 			auto provider = track->mediaProvider();
 			auto playbackProvider = provider->player();
-			auto preparedPlaybackProvider = (self->preparedMediaProvider != nullptr) ? self->preparedMediaProvider->player() : nullptr;
-			if(preparedPlaybackProvider != nullptr && preparedPlaybackProvider != playbackProvider) {
-				self->preparedMediaProvider = nullptr;
+			// if track has no playback provider, fall back to stream provider
+			if(playbackProvider == nullptr) {
+				playbackProvider = streamPlaybackProvider;
 			}
+			// check if new prepared provider will be different than current prepared provider
+			auto preparedPlaybackProvider = self->preparedPlaybackProvider;
+			if(preparedPlaybackProvider != nullptr && preparedPlaybackProvider != playbackProvider) {
+				// clear old prepared provider
+				self->preparedPlaybackProvider = nullptr;
+			}
+			// prepare track and update prepared provider
 			return playbackProvider->prepare(track).then([=]() {
-				self->preparedMediaProvider = provider;
+				self->preparedPlaybackProvider = playbackProvider;
 			});
 		}).promise;
 	}
@@ -517,18 +542,28 @@ namespace sh {
 			auto track = item.track();
 			// TODO maybe some items will need to load their tracks asynchronously?
 			FGL_ASSERT(track != nullptr, "item cannot have a null track");
+			// TODO handle omni track
+			// get track playback provider
 			auto provider = track->mediaProvider();
 			auto playbackProvider = provider->player();
-			auto preparedPlaybackProvider = (self->preparedMediaProvider != nullptr) ? self->preparedMediaProvider->player() : nullptr;
-			if(preparedPlaybackProvider != nullptr && preparedPlaybackProvider != playbackProvider) {
-				preparedPlaybackProvider->stop();
-				preparedMediaProvider = nullptr;
+			// if track has no playback provider, fall back to stream provider
+			if(playbackProvider == nullptr) {
+				playbackProvider = streamPlaybackProvider;
 			}
-			auto currentPlaybackProvider = (self->mediaProvider != nullptr) ? self->mediaProvider->player() : nullptr;
+			// check if new provider will be different than current prepared provider
+			auto preparedPlaybackProvider = self->preparedPlaybackProvider;
+			if(preparedPlaybackProvider != nullptr && preparedPlaybackProvider != playbackProvider) {
+				// stop and clear prepared provider
+				preparedPlaybackProvider->stop();
+				self->preparedPlaybackProvider = nullptr;
+			}
+			// check if new provider will be different than current provider
+			auto currentPlaybackProvider = self->playbackProvider;
 			if(currentPlaybackProvider != nullptr && currentPlaybackProvider != playbackProvider) {
+				// stop current playback provider
 				currentPlaybackProvider->stop();
 			}
-			setMediaProvider(provider);
+			setPlaybackProvider(playbackProvider);
 			double position = 0;
 			auto resumableProgress = self->resumableProgress;
 			if(resumableProgress) {
@@ -539,28 +574,27 @@ namespace sh {
 				}
 			}
 			return playbackProvider->play(track, position).then([=]() {
-				this->resumableProgress = std::nullopt;
-				updateMediaControls();
-				saveInBackground({.includeMetadata=true});
+				self->resumableProgress = std::nullopt;
+				self->updateMediaControls();
+				self->saveInBackground({.includeMetadata=true});
 			});
 		}).promise;
 	}
 
 
 
-	void Player::setMediaProvider(MediaProvider* provider) {
-		if (provider == this->mediaProvider) {
+	void Player::setPlaybackProvider(MediaPlaybackProvider* playbackProvider) {
+		if (playbackProvider == this->playbackProvider) {
 			return;
 		}
-		auto playbackProvider = provider->player();
-		auto oldPlaybackProvider = (this->mediaProvider != nullptr) ? this->mediaProvider->player() : nullptr;
+		auto oldPlaybackProvider = this->playbackProvider;
 		if (oldPlaybackProvider != nullptr) {
 			oldPlaybackProvider->removeEventListener(this);
 			stopPlayerStateInterval();
 		}
-		this->mediaProvider = provider;
-		if(this->mediaProvider != nullptr && this->mediaProvider == this->preparedMediaProvider) {
-			this->preparedMediaProvider = nullptr;
+		this->playbackProvider = playbackProvider;
+		if(this->playbackProvider != nullptr && this->playbackProvider == this->preparedPlaybackProvider) {
+			this->preparedPlaybackProvider = nullptr;
 		}
 		if (playbackProvider != nullptr) {
 			playbackProvider->addEventListener(this);
@@ -593,7 +627,6 @@ namespace sh {
 	void Player::onPlayerStateInterval() {
 		auto self = shared_from_this();
 		
-		auto playbackProvider = (this->mediaProvider != nullptr) ? this->mediaProvider->player() : nullptr;
 		if(playbackProvider == nullptr) {
 			return;
 		}
@@ -764,7 +797,6 @@ namespace sh {
 	}
 
 	void Player::onMediaPlaybackProviderEvent() {
-		auto playbackProvider = this->mediaProvider->player();
 		auto providerState = (playbackProvider != nullptr) ? maybe(playbackProvider->state()) : std::nullopt;
 		auto providerMetadata = (playbackProvider != nullptr) ? maybe(playbackProvider->metadata()) : std::nullopt;
 		auto providerTrack = (providerMetadata) ? providerMetadata->currentTrack : nullptr;

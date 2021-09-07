@@ -20,7 +20,7 @@ namespace sh {
 			auto listeners = this->listeners;
 			lock.unlock();
 			for(auto listener : listeners) {
-				listener->onStreamPlayerPlay(this);
+				listener->onStreamPlayerPlay(this->shared_from_this());
 			}
 		};
 		playerEventHandler.onPause = ^{
@@ -28,22 +28,19 @@ namespace sh {
 			auto listeners = this->listeners;
 			lock.unlock();
 			for(auto listener : listeners) {
-				listener->onStreamPlayerPause(this);
+				listener->onStreamPlayerPause(this->shared_from_this());
 			}
 		};
 		playerEventHandler.onItemFinish = ^(AVPlayerItem* _Nonnull item) {
-			std::unique_lock<std::recursive_mutex> playerLock(playerMutex);
 			auto audioURL = playerAudioURL;
 			if(item != player.currentItem) {
 				return;
 			}
-			playerLock.unlock();
-			
 			std::unique_lock<std::mutex> lock(listenersMutex);
 			auto listeners = this->listeners;
 			lock.unlock();
 			for(auto listener : listeners) {
-				listener->onStreamPlayerTrackFinish(this, audioURL);
+				listener->onStreamPlayerTrackFinish(this->shared_from_this(), audioURL);
 			}
 		};
 	}
@@ -61,7 +58,6 @@ namespace sh {
 	}
 
 	void StreamPlayer::setPlayer(AVPlayer* player, String audioURL) {
-		std::unique_lock<std::recursive_mutex> lock(playerMutex);
 		destroyPlayer();
 		this->player = player;
 		this->playerAudioURL = audioURL;
@@ -70,7 +66,6 @@ namespace sh {
 	}
 
 	void StreamPlayer::destroyPlayer() {
-		std::unique_lock<std::recursive_mutex> lock(playerMutex);
 		if(player == nil) {
 			return;
 		}
@@ -79,13 +74,11 @@ namespace sh {
 		playerAudioURL.clear();
 		[NSNotificationCenter.defaultCenter removeObserver:playerEventHandler name:AVPlayerItemDidPlayToEndTimeNotification object:deadPlayer.currentItem];
 		[deadPlayer removeObserver:playerEventHandler forKeyPath:@"timeControlStatus"];
-		lock.unlock();
 		[deadPlayer pause];
 		[deadPlayer replaceCurrentItemWithPlayerItem:nil];
 	}
 
 	void StreamPlayer::destroyPreparedPlayer() {
-		std::unique_lock<std::recursive_mutex> lock(playerMutex);
 		if(preparedPlayer == nil) {
 			return;
 		}
@@ -98,37 +91,40 @@ namespace sh {
 
 	Promise<void> StreamPlayer::prepare(String audioURL) {
 		if(audioURL.empty()) {
-			return Promise<void>::reject(std::invalid_argument("audioURL cannot be empty"));
+			return rejectWith(std::invalid_argument("audioURL cannot be empty"));
 		}
-		std::unique_lock<std::recursive_mutex> lock(playerMutex);
 		if(preparedAudioURL == audioURL || playerAudioURL == audioURL) {
-			return Promise<void>::resolve();
+			return resolveVoid();
 		}
-		lock.unlock();
 		auto runOptions = AsyncQueue::RunOptions{
 			.tag = "prepare",
 			.cancelMatchingTags = true
 		};
+		w$<StreamPlayer> weakSelf = shared_from_this();
 		return playQueue.run(runOptions, [=](auto task) {
-			std::unique_lock<std::recursive_mutex> lock(playerMutex);
-			if(preparedAudioURL == audioURL || playerAudioURL == audioURL) {
+			// ensure strong reference
+			auto slf = weakSelf.lock();
+			if(!slf) {
 				return;
 			}
-			destroyPreparedPlayer();
-			preparedPlayer = createPlayer(audioURL);
-			preparedAudioURL = audioURL;
-			lock.unlock();
-			preparedPlayer.muted = YES;
-			[preparedPlayer play];
-			[preparedPlayer pause];
-			preparedPlayer.muted = NO;
+			if(slf->preparedAudioURL == audioURL || slf->playerAudioURL == audioURL) {
+				return;
+			}
+			slf->destroyPreparedPlayer();
+			slf->preparedPlayer = slf->createPlayer(audioURL);
+			slf->preparedAudioURL = audioURL;
+			slf->preparedPlayer.muted = YES;
+			[slf->preparedPlayer play];
+			[slf->preparedPlayer pause];
+			slf->preparedPlayer.muted = NO;
 		}).promise;
 	}
 
 	Promise<void> StreamPlayer::play(String audioURL, PlayOptions options) {
 		if(audioURL.empty()) {
-			return Promise<void>::reject(std::invalid_argument("audioURL cannot be empty"));
+			return rejectWith(std::invalid_argument("audioURL cannot be empty"));
 		}
+		w$<StreamPlayer> weakSelf = shared_from_this();
 		auto runOptions = AsyncQueue::RunOptions{
 			.tag = "play",
 			.cancelMatchingTags = true
@@ -136,44 +132,46 @@ namespace sh {
 		return playQueue.run(runOptions, coLambda([=](auto task) -> Generator<void> {
 			co_yield setGenResumeQueue(DispatchQueue::main());
 			co_yield initialGenNext();
-			if(playerAudioURL == audioURL) {
-				FGL_ASSERT(player != nil, "player is nil but playerAudioURL is not empty");
-				if(player.currentTime.value != 0) {
+			// ensure strong reference
+			auto slf = weakSelf.lock();
+			if(!slf) {
+				co_return;
+			}
+			// check if audio URL matches
+			if(slf->playerAudioURL == audioURL) {
+				FGL_ASSERT(slf->player != nil, "player is nil but playerAudioURL is not empty");
+				if(slf->player.currentTime.value != 0) {
 					bool finished = co_await Promise<bool>([=](auto resolve, auto reject) {
-						[player seekToTime:CMTimeMake(0, 1000) completionHandler:^(BOOL finished) {
+						[slf->player seekToTime:CMTimeMake(0, 1000) completionHandler:^(BOOL finished) {
 							resolve(finished);
 						}];
 					});
 					if(!finished) {
 						throw std::runtime_error("Failed to reset playback");
 					}
-					if(player.timeControlStatus != AVPlayerTimeControlStatusPlaying && player.timeControlStatus != AVPlayerTimeControlStatusWaitingToPlayAtSpecifiedRate) {
-						[player play];
+					if(slf->player.timeControlStatus != AVPlayerTimeControlStatusPlaying && slf->player.timeControlStatus != AVPlayerTimeControlStatusWaitingToPlayAtSpecifiedRate) {
+						[slf->player play];
 					}
 				}
 				co_return;
-			} else if(preparedAudioURL == audioURL) {
-				std::unique_lock<std::recursive_mutex> lock(playerMutex);
-				auto newPlayer = preparedPlayer;
-				preparedPlayer = nil;
-				preparedAudioURL.clear();
-				setPlayer(newPlayer, audioURL);
-				lock.unlock();
+			} else if(slf->preparedAudioURL == audioURL) {
+				auto newPlayer = slf->preparedPlayer;
+				slf->preparedPlayer = nil;
+				slf->preparedAudioURL.clear();
+				slf->setPlayer(newPlayer, audioURL);
 			} else {
-				std::unique_lock<std::recursive_mutex> lock(playerMutex);
-				destroyPreparedPlayer();
-				setPlayer(createPlayer(audioURL), audioURL);
-				lock.unlock();
+				slf->destroyPreparedPlayer();
+				slf->setPlayer(slf->createPlayer(audioURL), audioURL);
 			}
 			co_yield {};
 			if(options.beforePlay) {
 				options.beforePlay();
 			}
-			FGL_ASSERT(player != nil, "player is nil after setting up for playback");
-			double playerCurrentPos = ((double)player.currentTime.value / (double)player.currentTime.timescale);
+			FGL_ASSERT(slf->player != nil, "player is nil after setting up for playback");
+			double playerCurrentPos = ((double)slf->player.currentTime.value / (double)slf->player.currentTime.timescale);
 			if(playerCurrentPos != options.position) {
 				co_await Promise<void>([=](auto resolve, auto reject) {
-					[player seekToTime:CMTimeMake(0, 1000) completionHandler:^(BOOL finished) {
+					[slf->player seekToTime:CMTimeMake(0, 1000) completionHandler:^(BOOL finished) {
 						if(!finished) {
 							reject(std::runtime_error("Failed to reset playback"));
 							return;
@@ -182,38 +180,48 @@ namespace sh {
 					}];
 				});
 			}
-			[player play];
+			[slf->player play];
 		})).promise;
 	}
 
 	Promise<void> StreamPlayer::setPlaying(bool playing) {
+		w$<StreamPlayer> weakSelf = shared_from_this();
 		auto runOptions = AsyncQueue::RunOptions{
 			.tag = "setPlaying",
 			.cancelMatchingTags = true
 		};
 		return playQueue.run(runOptions, [=](auto task) {
-			if(player == nil) {
+			auto slf = weakSelf.lock();
+			if(!slf) {
+				return;
+			}
+			if(slf->player == nil) {
 				return;
 			}
 			if(playing) {
-				[player play];
+				[slf->player play];
 			} else {
-				[player pause];
+				[slf->player pause];
 			}
 		}).promise;
 	}
 
 	Promise<void> StreamPlayer::seek(double position) {
+		w$<StreamPlayer> weakSelf = shared_from_this();
 		auto runOptions = AsyncQueue::RunOptions{
 			.tag = "seek",
 			.cancelMatchingTags = true
 		};
-		return playQueue.run(runOptions, [=](auto task) {
-			if(player == nil) {
-				return Promise<void>::resolve();
+		return playQueue.run(runOptions, [=](auto task) -> Promise<void> {
+			auto slf = weakSelf.lock();
+			if(!slf) {
+				return resolveVoid();
+			}
+			if(slf->player == nil) {
+				return resolveVoid();
 			}
 			return Promise<void>([=](auto resolve, auto reject) {
-				[player seekToTime:CMTimeMake((CMTimeValue)(position * 1000.0), 1000) completionHandler:^(BOOL finished) {
+				[slf->player seekToTime:CMTimeMake((CMTimeValue)(position * 1000.0), 1000) completionHandler:^(BOOL finished) {
 					resolve();
 				}];
 			});
@@ -221,20 +229,23 @@ namespace sh {
 	}
 
 	Promise<void> StreamPlayer::stop() {
+		w$<StreamPlayer> weakSelf = shared_from_this();
 		auto runOptions = AsyncQueue::RunOptions{
 			.tag = "stop",
 			.cancelMatchingTags = true
 		};
 		playQueue.cancelAllTasks();
 		return playQueue.run(runOptions, [=](auto task) {
-			std::unique_lock<std::recursive_mutex> lock(playerMutex);
-			destroyPlayer();
-			destroyPreparedPlayer();
+			auto slf = weakSelf.lock();
+			if(!slf) {
+				return;
+			}
+			slf->destroyPlayer();
+			slf->destroyPreparedPlayer();
 		}).promise;
 	}
 
 	StreamPlayer::PlaybackState StreamPlayer::getState() const {
-		std::unique_lock<std::recursive_mutex> lock(playerMutex);
 		AVPlayer* player = this->player;
 		if(player == nil) {
 			return {

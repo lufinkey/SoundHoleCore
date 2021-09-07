@@ -40,8 +40,8 @@ namespace sh {
 		MediaLibrary* mediaLibrary();
 		const MediaLibrary* mediaLibrary() const;
 		
-		StreamPlayer* streamPlayer();
-		const StreamPlayer* streamPlayer() const;
+		$<StreamPlayer> streamPlayer();
+		$<const StreamPlayer> streamPlayer() const;
 		
 		$<Player> player();
 		$<const Player> player() const;
@@ -98,7 +98,7 @@ namespace sh {
 	private:
 		MediaLibrary* _mediaLibrary;
 		LinkedList<MediaProvider*> _mediaProviders;
-		StreamPlayer* _streamPlayer;
+		$<StreamPlayer> _streamPlayer;
 		$<Player> _player;
 	};
 

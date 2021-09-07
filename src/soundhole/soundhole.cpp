@@ -15,7 +15,7 @@
 namespace sh {
 	SoundHole::SoundHole(Options options)
 	: _mediaLibrary(nullptr), _streamPlayer(nullptr), _player(nullptr) {
-		_streamPlayer = new StreamPlayer();
+		_streamPlayer = StreamPlayer::new$();
 		
 		if(options.soundhole) {
 			_mediaProviders.pushBack(new SoundHoleMediaProvider(this, options.soundhole.value()));
@@ -24,13 +24,13 @@ namespace sh {
 			_mediaProviders.pushBack(new SpotifyMediaProvider(options.spotify.value()));
 		}
 		if(options.bandcamp) {
-			_mediaProviders.pushBack(new BandcampMediaProvider(options.bandcamp.value(), _streamPlayer));
+			_mediaProviders.pushBack(new BandcampMediaProvider(options.bandcamp.value()));
 		}
 		if(options.youtube) {
 			if(options.youtube->libraryPlaylistName.empty()) {
 				options.youtube->libraryPlaylistName = "SoundHole Library";
 			}
-			_mediaProviders.pushBack(new YoutubeMediaProvider(options.youtube.value(), _streamPlayer));
+			_mediaProviders.pushBack(new YoutubeMediaProvider(options.youtube.value()));
 		}
 		
 		_mediaLibrary = new MediaLibrary({
@@ -39,7 +39,7 @@ namespace sh {
 		});
 		
 		if(options.player) {
-			_player = Player::new$(_mediaLibrary->database(), options.player.value());
+			_player = Player::new$(_mediaLibrary->database(), _streamPlayer, options.player.value());
 		}
 	}
 
@@ -48,7 +48,6 @@ namespace sh {
 			delete provider;
 		}
 		delete _mediaLibrary;
-		delete _streamPlayer;
 	}
 
 
@@ -73,11 +72,11 @@ namespace sh {
 
 
 
-	StreamPlayer* SoundHole::streamPlayer() {
+	$<StreamPlayer> SoundHole::streamPlayer() {
 		return _streamPlayer;
 	}
 
-	const StreamPlayer* SoundHole::streamPlayer() const {
+	$<const StreamPlayer> SoundHole::streamPlayer() const {
 		return _streamPlayer;
 	}
 

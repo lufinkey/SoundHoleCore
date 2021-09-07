@@ -10,9 +10,11 @@
 
 #include <soundhole/common.hpp>
 #include <soundhole/media/MediaProvider.hpp>
+#include <soundhole/media/MediaPlaybackProvider.hpp>
 #include <soundhole/media/PlaybackHistoryItem.hpp>
 #include <soundhole/database/MediaDatabase.hpp>
 #include "PlaybackOrganizer.hpp"
+#include "StreamPlaybackProvider.hpp"
 #include "MediaControls.hpp"
 
 #ifdef __OBJC__
@@ -73,9 +75,9 @@ namespace sh {
 			Optional<double> minDurationRatioForRepeatSongToBeNewHistoryItem = 0.75;
 		};
 		
-		static $<Player> new$(MediaDatabase* database, Options options);
+		static $<Player> new$(MediaDatabase* database, $<StreamPlayer> streamPlayer, Options options);
 		
-		Player(MediaDatabase* database, Options);
+		Player(MediaDatabase* database, $<StreamPlayer> streamPlayer, Options);
 		virtual ~Player();
 		
 		Player(const Player&) = delete;
@@ -180,7 +182,7 @@ namespace sh {
 		
 		Promise<void> prepareItem(PlayerItem item);
 		Promise<void> playItem(PlayerItem item);
-		void setMediaProvider(MediaProvider* provider);
+		void setPlaybackProvider(MediaPlaybackProvider* provider);
 		
 		void startPlayerStateInterval();
 		void stopPlayerStateInterval();
@@ -205,9 +207,10 @@ namespace sh {
 		Preferences prefs;
 		
 		$<PlaybackOrganizer> organizer;
+		StreamPlaybackProvider* streamPlaybackProvider;
 		
-		MediaProvider* mediaProvider;
-		MediaProvider* preparedMediaProvider;
+		MediaPlaybackProvider* playbackProvider;
+		MediaPlaybackProvider* preparedPlaybackProvider;
 		
 		Optional<MediaPlaybackProvider::State> providerPlaybackState;
 		Optional<MediaPlaybackProvider::Metadata> providerPlaybackMetadata;

@@ -46,7 +46,6 @@
 		A52C4713250EE85800131918 /* OAuthSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A52C4710250EE85800131918 /* OAuthSession.cpp */; };
 		A52C4714250EE85800131918 /* OAuthSession.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A52C4711250EE85800131918 /* OAuthSession.hpp */; };
 		A52C4716250EE98B00131918 /* OAuthSession_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A52C4715250EE98B00131918 /* OAuthSession_iOS.mm */; };
-		A538982323CD3D36008638D1 /* BandcampPlaybackProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A538982123CD3D36008638D1 /* BandcampPlaybackProvider.cpp */; };
 		A540D7C02550790D00EE5CA8 /* HttpClient_objc.mm in Sources */ = {isa = PBXBuildFile; fileRef = A540D7BF2550790D00EE5CA8 /* HttpClient_objc.mm */; };
 		A540D7C12550790D00EE5CA8 /* HttpClient_objc.mm in Sources */ = {isa = PBXBuildFile; fileRef = A540D7BF2550790D00EE5CA8 /* HttpClient_objc.mm */; };
 		A540D83325508A1D00EE5CA8 /* SHiOSUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = A540D83125508A1D00EE5CA8 /* SHiOSUtils.h */; };
@@ -290,14 +289,9 @@
 		A5D9F611255E5BD400E4762A /* OAuthSessionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5D9F60E255E5BD400E4762A /* OAuthSessionManager.cpp */; };
 		A5D9F612255E5BD400E4762A /* OAuthSessionManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5D9F60F255E5BD400E4762A /* OAuthSessionManager.hpp */; };
 		A5E51BB523A3EE24006E061F /* StreamPlayer_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5E51BB423A3EE24006E061F /* StreamPlayer_iOS.mm */; };
-		A5E7852323CE70BC00BD1C67 /* YoutubePlaybackProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5E7852123CE70BC00BD1C67 /* YoutubePlaybackProvider.cpp */; };
 		A5E7852623CE73A300BD1C67 /* StreamPlaybackProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5E7852423CE73A300BD1C67 /* StreamPlaybackProvider.cpp */; };
-		A5E7852723CE741800BD1C67 /* YoutubePlaybackProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5E7852123CE70BC00BD1C67 /* YoutubePlaybackProvider.cpp */; };
-		A5E7852823CE741C00BD1C67 /* BandcampPlaybackProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A538982123CD3D36008638D1 /* BandcampPlaybackProvider.cpp */; };
 		A5E7852923CE742300BD1C67 /* StreamPlaybackProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5E7852423CE73A300BD1C67 /* StreamPlaybackProvider.cpp */; };
 		A5E7852A23CE742C00BD1C67 /* StreamPlaybackProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5E7852523CE73A300BD1C67 /* StreamPlaybackProvider.hpp */; };
-		A5E7852B23CE742E00BD1C67 /* YoutubePlaybackProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5E7852223CE70BC00BD1C67 /* YoutubePlaybackProvider.hpp */; };
-		A5E7852C23CE743000BD1C67 /* BandcampPlaybackProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A538982223CD3D36008638D1 /* BandcampPlaybackProvider.hpp */; };
 		A5E851A52357B1660001F74D /* Bandcamp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5E851A32357B1660001F74D /* Bandcamp.cpp */; };
 		A5E851A62357B1660001F74D /* Bandcamp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5E851A32357B1660001F74D /* Bandcamp.cpp */; };
 		A5E851A72357B1660001F74D /* Bandcamp.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5E851A42357B1660001F74D /* Bandcamp.hpp */; };
@@ -407,8 +401,6 @@
 		A52C4710250EE85800131918 /* OAuthSession.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = OAuthSession.cpp; sourceTree = "<group>"; };
 		A52C4711250EE85800131918 /* OAuthSession.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = OAuthSession.hpp; sourceTree = "<group>"; };
 		A52C4715250EE98B00131918 /* OAuthSession_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = OAuthSession_iOS.mm; sourceTree = "<group>"; };
-		A538982123CD3D36008638D1 /* BandcampPlaybackProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BandcampPlaybackProvider.cpp; sourceTree = "<group>"; };
-		A538982223CD3D36008638D1 /* BandcampPlaybackProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BandcampPlaybackProvider.hpp; sourceTree = "<group>"; };
 		A540D7BF2550790D00EE5CA8 /* HttpClient_objc.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HttpClient_objc.mm; sourceTree = "<group>"; };
 		A540D83125508A1D00EE5CA8 /* SHiOSUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SHiOSUtils.h; sourceTree = "<group>"; };
 		A540D83225508A1D00EE5CA8 /* SHiOSUtils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SHiOSUtils.mm; sourceTree = "<group>"; };
@@ -596,8 +588,6 @@
 		A5D9F60F255E5BD400E4762A /* OAuthSessionManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = OAuthSessionManager.hpp; sourceTree = "<group>"; };
 		A5E3615B24082C4200840E28 /* MediaProviderStash.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaProviderStash.hpp; sourceTree = "<group>"; };
 		A5E51BB423A3EE24006E061F /* StreamPlayer_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StreamPlayer_iOS.mm; sourceTree = "<group>"; };
-		A5E7852123CE70BC00BD1C67 /* YoutubePlaybackProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = YoutubePlaybackProvider.cpp; sourceTree = "<group>"; };
-		A5E7852223CE70BC00BD1C67 /* YoutubePlaybackProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = YoutubePlaybackProvider.hpp; sourceTree = "<group>"; };
 		A5E7852423CE73A300BD1C67 /* StreamPlaybackProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = StreamPlaybackProvider.cpp; sourceTree = "<group>"; };
 		A5E7852523CE73A300BD1C67 /* StreamPlaybackProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = StreamPlaybackProvider.hpp; sourceTree = "<group>"; };
 		A5E851A32357B1660001F74D /* Bandcamp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Bandcamp.cpp; sourceTree = "<group>"; };
@@ -800,7 +790,6 @@
 				A5C6CCE22597DADC00596878 /* storage */,
 				A54F2544239DA9B800C81E1C /* playback */,
 				A5BA4A4626E6FF3400139269 /* scrobble */,
-				A5BA4A2526E6847D00139269 /* external */,
 				A513DB76232DA1F8000DCAC7 /* scripts */,
 				A571E16223332CC600603E14 /* utils */,
 			);
@@ -814,6 +803,7 @@
 				A571E12F2332C5AC00603E14 /* bandcamp */,
 				A571E1312332C5D000603E14 /* spotify */,
 				A571E1302332C5BC00603E14 /* youtube */,
+				A5BA4A5726E7FC3200139269 /* lastfm */,
 			);
 			path = providers;
 			sourceTree = "<group>";
@@ -934,8 +924,6 @@
 				A5C0A8EC23D1713300CDB59E /* mutators */,
 				A513DB72232DA1F8000DCAC7 /* BandcampMediaProvider.hpp */,
 				A513DB73232DA1F8000DCAC7 /* BandcampMediaProvider.cpp */,
-				A538982223CD3D36008638D1 /* BandcampPlaybackProvider.hpp */,
-				A538982123CD3D36008638D1 /* BandcampPlaybackProvider.cpp */,
 			);
 			path = bandcamp;
 			sourceTree = "<group>";
@@ -947,8 +935,6 @@
 				A573789F23D25A2F00EEA533 /* mutators */,
 				A513DB71232DA1F8000DCAC7 /* YoutubeMediaProvider.hpp */,
 				A513DB75232DA1F8000DCAC7 /* YoutubeMediaProvider.cpp */,
-				A5E7852223CE70BC00BD1C67 /* YoutubePlaybackProvider.hpp */,
-				A5E7852123CE70BC00BD1C67 /* YoutubePlaybackProvider.cpp */,
 			);
 			path = youtube;
 			sourceTree = "<group>";
@@ -1143,7 +1129,7 @@
 			path = playbackhistory;
 			sourceTree = "<group>";
 		};
-		A5BA49EF26E56E7800139269 /* lastfm */ = {
+		A5BA49EF26E56E7800139269 /* api */ = {
 			isa = PBXGroup;
 			children = (
 				A5BA49F226E56EA300139269 /* LastFM.hpp */,
@@ -1158,15 +1144,7 @@
 				A5BA4A0226E5A41000139269 /* LastFMTypes.hpp */,
 				A5BA4A0126E5A41000139269 /* LastFMTypes.cpp */,
 			);
-			path = lastfm;
-			sourceTree = "<group>";
-		};
-		A5BA4A2526E6847D00139269 /* external */ = {
-			isa = PBXGroup;
-			children = (
-				A5BA49EF26E56E7800139269 /* lastfm */,
-			);
-			path = external;
+			path = api;
 			sourceTree = "<group>";
 		};
 		A5BA4A4626E6FF3400139269 /* scrobble */ = {
@@ -1184,6 +1162,14 @@
 			children = (
 				A5BA4A4E26E70F7C00139269 /* LastFMScrobbler.hpp */,
 				A5BA4A4D26E70F7C00139269 /* LastFMScrobbler.cpp */,
+			);
+			path = lastfm;
+			sourceTree = "<group>";
+		};
+		A5BA4A5726E7FC3200139269 /* lastfm */ = {
+			isa = PBXGroup;
+			children = (
+				A5BA49EF26E56E7800139269 /* api */,
 			);
 			path = lastfm;
 			sourceTree = "<group>";
@@ -1354,7 +1340,6 @@
 				A5AE3F44248728F600FB9AFF /* MediaLibrary.hpp in Headers */,
 				A5BA49D626DDB93C00139269 /* PlayerHistoryManager.hpp in Headers */,
 				A5B2BBFC2360F1E900ED010C /* SpotifyMediaTypes.impl.hpp in Headers */,
-				A5E7852B23CE742E00BD1C67 /* YoutubePlaybackProvider.hpp in Headers */,
 				A5B9736223822BA300FB3F1C /* Album.hpp in Headers */,
 				A5BA49E326E4543000139269 /* PlaybackHistoryTrackCollection.hpp in Headers */,
 				A5B973532381F16A00FB3F1C /* JSWrapClass.hpp in Headers */,
@@ -1420,7 +1405,6 @@
 				A513ED9D232DA20C000DCAC7 /* soundhole.hpp in Headers */,
 				A5C6CDEF259860BC00596878 /* SoundHoleMediaProvider.hpp in Headers */,
 				A571E16C2333305D00603E14 /* Scripts.hpp in Headers */,
-				A5E7852C23CE743000BD1C67 /* BandcampPlaybackProvider.hpp in Headers */,
 				A5E851CA235A56BD0001F74D /* YoutubeError.hpp in Headers */,
 				A5BA49C526D2F9A400139269 /* PlaybackHistoryItem.hpp in Headers */,
 				A5C6CF0325A250B800596878 /* AuthedProviderIdentityStore.impl.hpp in Headers */,
@@ -1778,7 +1762,6 @@
 				A5B7A79D2336C28B00301FC0 /* SpotifyError_iOS.mm in Sources */,
 				A5AE3F23247C937400FB9AFF /* MediaDatabaseSQLOperations.cpp in Sources */,
 				A5E51BB523A3EE24006E061F /* StreamPlayer_iOS.mm in Sources */,
-				A538982323CD3D36008638D1 /* BandcampPlaybackProvider.cpp in Sources */,
 				A5B9736A23823BFE00FB3F1C /* Playlist.cpp in Sources */,
 				A5B9735B2381FBA700FB3F1C /* Artist.cpp in Sources */,
 				A5B973512381F16A00FB3F1C /* JSWrapClass.cpp in Sources */,
@@ -1796,7 +1779,6 @@
 				A5B7A7C1233EA76C00301FC0 /* SHWebViewController_iOS.mm in Sources */,
 				A5B7A7AB2337F1DE00301FC0 /* SpotifyPlayer.cpp in Sources */,
 				A578785023DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp in Sources */,
-				A5E7852323CE70BC00BD1C67 /* YoutubePlaybackProvider.cpp in Sources */,
 				A5C6D17525AD697900596878 /* MediaProviderStash.cpp in Sources */,
 				A5BA49D426DDB93C00139269 /* PlayerHistoryManager.cpp in Sources */,
 				A58189A326961A5A007BFD82 /* MediaDatabaseSQLTransformations.cpp in Sources */,
@@ -1939,7 +1921,6 @@
 				A540D7C12550790D00EE5CA8 /* HttpClient_objc.mm in Sources */,
 				A5485A2E239432CE00CB7749 /* SpotifyPlaybackProvider.cpp in Sources */,
 				A5C0A8F023D1735F00CDB59E /* BandcampAlbumMutatorDelegate.cpp in Sources */,
-				A5E7852823CE741C00BD1C67 /* BandcampPlaybackProvider.cpp in Sources */,
 				A5485A2923942EB800CB7749 /* MediaPlaybackProvider.cpp in Sources */,
 				A5D9F556255E0BA200E4762A /* YoutubeAuth_iOS.mm in Sources */,
 				A5485A24238DFB1300CB7749 /* Utils.cpp in Sources */,
@@ -1974,7 +1955,6 @@
 				A5B1B9012548EB2300DACA2D /* SHKeychainUtils_objc.mm in Sources */,
 				A5B7A79E2336C29200301FC0 /* SpotifyError.cpp in Sources */,
 				A513ED8E232DA20B000DCAC7 /* MediaProvider.cpp in Sources */,
-				A5E7852723CE741800BD1C67 /* YoutubePlaybackProvider.cpp in Sources */,
 				A5D9F439255DC77300E4762A /* Utils_apple.mm in Sources */,
 				A5B7A7DE233F126800301FC0 /* Spotify.cpp in Sources */,
 				A5F07D75254383FF00C41A36 /* YoutubeMediaTypes.cpp in Sources */,

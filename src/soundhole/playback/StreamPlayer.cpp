@@ -9,6 +9,10 @@
 #include "StreamPlayer.hpp"
 
 namespace sh {
+	$<StreamPlayer> StreamPlayer::new$() {
+		return fgl::new$<StreamPlayer>();
+	}
+
 	void StreamPlayer::addListener(Listener* listener) {
 		std::unique_lock<std::mutex> lock(listenersMutex);
 		this->listeners.pushBack(listener);
@@ -22,9 +26,6 @@ namespace sh {
 	}
 
 	String StreamPlayer::getAudioURL() const {
-		std::unique_lock<std::recursive_mutex> lock(playerMutex);
-		String audioURL = playerAudioURL;
-		lock.unlock();
-		return audioURL;
+		return playerAudioURL;
 	}
 }

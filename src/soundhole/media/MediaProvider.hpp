@@ -127,8 +127,8 @@ namespace sh {
 		virtual Promise<void> deletePlaylist(String playlistURI);
 		
 		
-		virtual MediaPlaybackProvider* player() = 0;
-		virtual const MediaPlaybackProvider* player() const = 0;
+		virtual MediaPlaybackProvider* player();
+		virtual const MediaPlaybackProvider* player() const;
 		
 		virtual $<Track> track(const Track::Data& data);
 		virtual $<Artist> artist(const Artist::Data& data);

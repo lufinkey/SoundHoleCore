@@ -10,7 +10,7 @@
 #include <soundhole/utils/SoundHoleError.hpp>
 
 namespace sh {
-	StreamPlaybackProvider::StreamPlaybackProvider(StreamPlayer* streamPlayer)
+	StreamPlaybackProvider::StreamPlaybackProvider($<StreamPlayer> streamPlayer)
 	: player(streamPlayer) {
 		player->addListener(this);
 	}
@@ -29,12 +29,17 @@ namespace sh {
 	Promise<void> StreamPlaybackProvider::prepare($<Track> track) {
 		std::unique_lock<std::mutex> lock(currentTrackMutex);
 		if(currentTrack != nullptr && currentTrack->uri() == track->uri()) {
-			return Promise<void>::resolve();
+			return resolveVoid();
 		}
 		lock.unlock();
+		w$<StreamPlayer> weakPlayer = this->player;
 		return prepareQueue.run({.cancelAll=true}, coLambda([=](auto task) -> Generator<void> {
 			co_yield setGenResumeQueue(DispatchQueue::main());
 			co_yield initialGenNext();
+			auto player = weakPlayer.lock();
+			if(!player) {
+				co_return;
+			}
 			co_await track->fetchDataIfNeeded();
 			co_yield {};
 			if(!track->audioSources().has_value() || track->audioSources()->size() == 0) {
@@ -49,9 +54,14 @@ namespace sh {
 	}
 
 	Promise<void> StreamPlaybackProvider::play($<Track> track, double position) {
+		w$<StreamPlayer> weakPlayer = this->player;
 		return playQueue.run({.cancelAll=true}, coLambda([=](auto task) -> Generator<void> {
 			co_yield setGenResumeQueue(DispatchQueue::main());
 			co_yield initialGenNext();
+			auto player = weakPlayer.lock();
+			if(!player) {
+				co_return;
+			}
 			co_await track->fetchDataIfNeeded();
 			co_yield {};
 			if(!track->audioSources().has_value() || track->audioSources()->size() == 0) {
@@ -115,7 +125,7 @@ namespace sh {
 
 #pragma mark StreamPlayer::Listener
 	
-	void StreamPlaybackProvider::onStreamPlayerPlay(StreamPlayer* player) {
+	void StreamPlaybackProvider::onStreamPlayerPlay($<StreamPlayer> player) {
 		std::unique_lock<std::mutex> lock(currentTrackMutex);
 		if(currentTrackAudioURL.empty() || player->getAudioURL() != currentTrackAudioURL) {
 			currentTrack = nullptr;
@@ -126,7 +136,7 @@ namespace sh {
 		callListenerEvent(&EventListener::onMediaPlaybackProviderPlay, this);
 	}
 
-	void StreamPlaybackProvider::onStreamPlayerPause(StreamPlayer* player) {
+	void StreamPlaybackProvider::onStreamPlayerPause($<StreamPlayer> player) {
 		std::unique_lock<std::mutex> lock(currentTrackMutex);
 		if(currentTrackAudioURL.empty() || player->getAudioURL() != currentTrackAudioURL) {
 			currentTrack = nullptr;
@@ -137,7 +147,7 @@ namespace sh {
 		callListenerEvent(&EventListener::onMediaPlaybackProviderPause, this);
 	}
 
-	void StreamPlaybackProvider::onStreamPlayerTrackFinish(StreamPlayer* player, String audioURL) {
+	void StreamPlaybackProvider::onStreamPlayerTrackFinish($<StreamPlayer> player, String audioURL) {
 		std::unique_lock<std::mutex> lock(currentTrackMutex);
 		if(currentTrackAudioURL.empty() || audioURL != currentTrackAudioURL) {
 			currentTrack = nullptr;

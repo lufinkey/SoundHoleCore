@@ -12,7 +12,6 @@
 #include <soundhole/common.hpp>
 #include <soundhole/media/MediaProvider.hpp>
 #include <soundhole/media/AuthedProviderIdentityStore.hpp>
-#include "BandcampPlaybackProvider.hpp"
 #include "api/Bandcamp.hpp"
 
 namespace sh {
@@ -22,7 +21,7 @@ namespace sh {
 		static constexpr auto NAME = "bandcamp";
 		using Options = Bandcamp::Options;
 		
-		BandcampMediaProvider(Options options, StreamPlayer* streamPlayer);
+		BandcampMediaProvider(Options options);
 		virtual ~BandcampMediaProvider();
 		
 		virtual String name() const override;
@@ -94,9 +93,6 @@ namespace sh {
 		virtual Promise<void> savePlaylist(String playlistURI) override;
 		virtual Promise<void> unsavePlaylist(String playlistURI) override;
 		
-		virtual BandcampPlaybackProvider* player() override;
-		virtual const BandcampPlaybackProvider* player() const override;
-		
 		Track::Data createTrackData(BandcampTrack track, bool partial);
 		Track::Data createTrackData(BandcampFan::CollectionTrack track);
 		Artist::Data createArtistData(BandcampArtist artist, bool partial);
@@ -126,6 +122,5 @@ namespace sh {
 		ArrayList<$<Artist>> createArtists(String artistURL, String artistName, Optional<BandcampArtist> artist, bool partial);
 		
 		Bandcamp* bandcamp;
-		BandcampPlaybackProvider* _player;
 	};
 }

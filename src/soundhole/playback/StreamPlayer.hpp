@@ -21,15 +21,15 @@
 #endif
 
 namespace sh {
-	class StreamPlayer {
+	class StreamPlayer: public std::enable_shared_from_this<StreamPlayer> {
 	public:
 		class Listener {
 		public:
 			virtual ~Listener() {}
 			
-			virtual void onStreamPlayerPlay(StreamPlayer* player) {}
-			virtual void onStreamPlayerPause(StreamPlayer* player) {}
-			virtual void onStreamPlayerTrackFinish(StreamPlayer* player, String audioURL) {}
+			virtual void onStreamPlayerPlay($<StreamPlayer> player) {}
+			virtual void onStreamPlayerPause($<StreamPlayer> player) {}
+			virtual void onStreamPlayerTrackFinish($<StreamPlayer> player, String audioURL) {}
 		};
 		
 		struct PlaybackState {
@@ -37,6 +37,8 @@ namespace sh {
 			double position;
 			double duration;
 		};
+		
+		static $<StreamPlayer> new$();
 		
 		StreamPlayer();
 		~StreamPlayer();
@@ -81,7 +83,6 @@ namespace sh {
 		#endif
 		String playerAudioURL;
 		String preparedAudioURL;
-		mutable std::recursive_mutex playerMutex;
 		
 		AsyncQueue playQueue;
 		

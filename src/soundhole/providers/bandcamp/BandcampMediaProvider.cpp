@@ -14,14 +14,12 @@
 #include <regex>
 
 namespace sh {
-	BandcampMediaProvider::BandcampMediaProvider(Options options, StreamPlayer* streamPlayer)
-	: bandcamp(new Bandcamp(options)),
-	_player(new BandcampPlaybackProvider(this, streamPlayer)) {
+	BandcampMediaProvider::BandcampMediaProvider(Options options)
+	: bandcamp(new Bandcamp(options)) {
 		//
 	}
 
 	BandcampMediaProvider::~BandcampMediaProvider() {
-		delete _player;
 		delete bandcamp;
 	}
 
@@ -1086,17 +1084,5 @@ namespace sh {
 
 	Promise<void> BandcampMediaProvider::unsavePlaylist(String playlistURI) {
 		return Promise<void>::reject(std::logic_error("bandcamp does not have playlists"));
-	}
-
-
-
-	#pragma mark Player
-
-	BandcampPlaybackProvider* BandcampMediaProvider::player() {
-		return _player;
-	}
-
-	const BandcampPlaybackProvider* BandcampMediaProvider::player() const {
-		return _player;
 	}
 }

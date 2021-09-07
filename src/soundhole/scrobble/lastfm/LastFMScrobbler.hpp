@@ -10,7 +10,7 @@
 
 #include <soundhole/common.hpp>
 #include <soundhole/scrobble/Scrobbler.hpp>
-#include <soundhole/external/lastfm/LastFM.hpp>
+#include <soundhole/providers/lastfm/api/LastFM.hpp>
 
 namespace sh {
 	class LastFMScrobbler: public Scrobbler {
@@ -19,8 +19,8 @@ namespace sh {
 		
 		virtual Promise<ArrayList<ScrobbleResponse>> scrobble(ArrayList<ScrobbleRequest> scrobbles) override;
 		
-		virtual Promise<void> loveTrack(String track, String artist);
-		virtual Promise<void> unloveTrack(String track, String artist);
+		virtual Promise<void> loveTrack(String track, String artist) override;
+		virtual Promise<void> unloveTrack(String track, String artist) override;
 		
 	private:
 		static ScrobbleIgnored::Code ignoredScrobbleCodeFromString(const String&);

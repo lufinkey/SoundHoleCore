@@ -11,7 +11,6 @@
 #include <soundhole/common.hpp>
 #include <soundhole/media/MediaProvider.hpp>
 #include <soundhole/media/AuthedProviderIdentityStore.hpp>
-#include "YoutubePlaybackProvider.hpp"
 #include "api/Youtube.hpp"
 
 namespace sh {
@@ -35,7 +34,7 @@ namespace sh {
 			String libraryPlaylistDescription;
 		};
 		
-		YoutubeMediaProvider(Options options, StreamPlayer* streamPlayer);
+		YoutubeMediaProvider(Options options);
 		virtual ~YoutubeMediaProvider();
 		
 		virtual String name() const override;
@@ -112,9 +111,6 @@ namespace sh {
 		virtual Promise<bool> isPlaylistEditable($<Playlist> playlist) override;
 		virtual Promise<void> deletePlaylist(String playlistURI) override;
 		
-		virtual YoutubePlaybackProvider* player() override;
-		virtual const YoutubePlaybackProvider* player() const override;
-		
 		Track::Data createTrackData(YoutubeVideo video);
 		Track::Data createTrackData(YoutubeVideoInfo video);
 		Artist::Data createArtistData(YoutubeChannel channel);
@@ -144,7 +140,6 @@ namespace sh {
 		static MediaItem::Image createImage(YoutubeImage image);
 		
 		Youtube* youtube;
-		YoutubePlaybackProvider* _player;
 		String libraryPlaylistName;
 		String libraryPlaylistDescription;
 	};

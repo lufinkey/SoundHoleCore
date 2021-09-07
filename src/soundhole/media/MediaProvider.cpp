@@ -24,6 +24,16 @@ namespace sh {
 
 
 
+	MediaPlaybackProvider* MediaProvider::player() {
+		return nullptr;
+	}
+
+	const MediaPlaybackProvider* MediaProvider::player() const {
+		return nullptr;
+	}
+
+
+
 	Promise<ArrayList<Track::Data>> MediaProvider::getTracksData(ArrayList<String> uris) {
 		// TODO handle 429 responses and try again
 		ArrayList<Track::Data> items;

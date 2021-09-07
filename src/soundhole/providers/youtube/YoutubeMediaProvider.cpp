@@ -13,18 +13,16 @@
 #include <soundhole/utils/Utils.hpp>
 
 namespace sh {
-	YoutubeMediaProvider::YoutubeMediaProvider(Options options, StreamPlayer* streamPlayer)
+	YoutubeMediaProvider::YoutubeMediaProvider(Options options)
 	: youtube(new Youtube({
 		.auth = options.auth
 	})),
-	_player(new YoutubePlaybackProvider(this, streamPlayer)),
 	libraryPlaylistName(options.libraryPlaylistName),
 	libraryPlaylistDescription(options.libraryPlaylistDescription) {
 		//
 	}
 
 	YoutubeMediaProvider::~YoutubeMediaProvider() {
-		delete _player;
 		delete youtube;
 	}
 	
@@ -1127,18 +1125,6 @@ namespace sh {
 	Promise<void> YoutubeMediaProvider::deletePlaylist(String playlistURI) {
 		auto uriParts = parseURI(playlistURI);
 		return youtube->deletePlaylist(uriParts.id);
-	}
-
-
-
-	#pragma mark Player
-
-	YoutubePlaybackProvider* YoutubeMediaProvider::player() {
-		return _player;
-	}
-
-	const YoutubePlaybackProvider* YoutubeMediaProvider::player() const {
-		return _player;
 	}
 
 
