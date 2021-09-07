@@ -789,6 +789,7 @@
 				A513DB6F232DA1F8000DCAC7 /* providers */,
 				A5C6CCE22597DADC00596878 /* storage */,
 				A54F2544239DA9B800C81E1C /* playback */,
+				A5BA4A4626E6FF3400139269 /* scrobble */,
 				A5BA4A2526E6847D00139269 /* external */,
 				A513DB76232DA1F8000DCAC7 /* scripts */,
 				A571E16223332CC600603E14 /* utils */,
@@ -1156,6 +1157,21 @@
 				A5BA49EF26E56E7800139269 /* lastfm */,
 			);
 			path = external;
+			sourceTree = "<group>";
+		};
+		A5BA4A4626E6FF3400139269 /* scrobble */ = {
+			isa = PBXGroup;
+			children = (
+				A5BA4A4726E6FF4400139269 /* lastfm */,
+			);
+			path = scrobble;
+			sourceTree = "<group>";
+		};
+		A5BA4A4726E6FF4400139269 /* lastfm */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = lastfm;
 			sourceTree = "<group>";
 		};
 		A5C0A8E523CFE28600CDB59E /* mutators */ = {

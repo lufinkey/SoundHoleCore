@@ -18,16 +18,20 @@
 namespace sh {
 	bool LastFMAuth::isWebLoggedIn() const {
 		NSHTTPCookieStorage* cookieStorage = NSHTTPCookieStorage.sharedHTTPCookieStorage;
-		NSArray<NSHTTPCookie*>* cookies = [cookieStorage cookiesForURL:[NSURL URLWithString:@"https://www.last.fm/home"]];
+		NSArray<NSHTTPCookie*>* cookies = [cookieStorage cookiesForURL:[NSURL URLWithString:_apiConfig.webLoginBaseURL().toNSString()]];
+		auto webLoginHost = _apiConfig.webLoginBaseHost().toNSString();
+		auto webLoginSubHost = [@"." stringByAppendingString:webLoginHost];
+		auto sessCookieName = _apiConfig.webSessionCookieName.toNSString();
 		for(NSHTTPCookie* cookie in cookies) {
-			if(([cookie.domain isEqualToString:@"last.fm"] || [cookie.domain isEqualToString:@".last.fm"]) && [cookie.name isEqualToString:@"sessionid"]) {
-				return [cookie.value hasPrefix:@"."];
+			if(([cookie.domain isEqualToString:webLoginHost] || [cookie.domain isEqualToString:webLoginSubHost]) && [cookie.name isEqualToString:sessCookieName]) {
+				return _apiConfig.checkSessionCookieLoggedIn == nullptr || _apiConfig.checkSessionCookieLoggedIn(String(cookie.value));
 			}
 		}
 		return NO;
 	}
 	
 	Promise<Optional<LastFMWebAuthResult>> LastFMAuth::authenticateWeb(Function<Promise<void>(LastFMWebAuthResult)> beforeDismiss) const {
+		auto webLoginURL = _apiConfig.webLogin;
 		return Promise<Optional<LastFMWebAuthResult>>([=](auto resolve, auto reject) {
 			dispatch_async(dispatch_get_main_queue(), ^{
 				SHWebAuthNavigationController* viewController = [[SHWebAuthNavigationController alloc] init];
@@ -40,7 +44,7 @@ namespace sh {
 				
 				viewController.handleNavigationAction = ^(SHWebAuthNavigationController* viewController, WKNavigationAction* action, void(^decisionHandler)(WKNavigationActionPolicy)) {
 					// check for username / password request
-					if(action.request.URL != nil && [action.request.URL isEqual:[NSURL URLWithString:@"https://last.fm/login"]]
+					if(action.request.URL != nil && [action.request.URL isEqual:[NSURL URLWithString:webLoginURL.toNSString()]]
 					   && [action.request.HTTPMethod isEqualToString:@"POST"]) {
 						auto httpBody = action.request.HTTPBody ? [[NSString alloc] initWithData:action.request.HTTPBody encoding:NSUTF8StringEncoding] : nil;
 						if(httpBody != nil) {
@@ -62,11 +66,17 @@ namespace sh {
 					[cookieStore getAllCookies:^(NSArray<NSHTTPCookie*>* cookies) {
 						// look for client_id and identity cookies
 						BOOL isAuthenticated = NO;
+						auto webLoginHost = _apiConfig.webLoginHost().toNSString();
+						auto webLoginBaseHost = _apiConfig.webLoginBaseHost().toNSString();
+						auto webLoginSubHost = [@"." stringByAppendingString:webLoginBaseHost];
+						auto sessCookieName = _apiConfig.webSessionCookieName.toNSString();
 						for(NSHTTPCookie* cookie in cookies) {
-							if([cookie.domain isEqualToString:@"last.fm"] || [cookie.domain isEqualToString:@".last.fm"]) {
-								if([cookie.name isEqualToString:@"sessionid"] && [cookie.value hasPrefix:@"."]) {
-									isAuthenticated = YES;
-									break;
+							if([cookie.domain isEqualToString:webLoginBaseHost] || [cookie.domain isEqualToString:webLoginSubHost]) {
+								if([cookie.name isEqualToString:sessCookieName]) {
+									if(_apiConfig.checkSessionCookieLoggedIn == nullptr || _apiConfig.checkSessionCookieLoggedIn(String(cookie.value))) {
+										isAuthenticated = YES;
+										break;
+									}
 								}
 							}
 						}
@@ -80,7 +90,7 @@ namespace sh {
 						ArrayList<String> cookiesArray;
 						cookiesArray.reserve((size_t)cookies.count);
 						for(NSHTTPCookie* cookie in cookies) {
-							if([cookie.domain isEqualToString:@"last.fm"] || [cookie.domain isEqualToString:@".last.fm"] || [cookie.domain isEqualToString:@"www.last.fm"]) {
+							if([cookie.domain isEqualToString:webLoginBaseHost] || [cookie.domain isEqualToString:webLoginSubHost] || [cookie.domain isEqualToString:webLoginHost]) {
 								cookiesArray.pushBack(String([SHObjcUtils stringFromCookie:cookie]));
 							}
 						}
@@ -125,7 +135,7 @@ namespace sh {
 				[viewController loadViewIfNeeded];
 				[viewController.webViewController loadViewIfNeeded];
 				viewController.webView.configuration.websiteDataStore = [WKWebsiteDataStore nonPersistentDataStore];
-				NSURL* url = [NSURL URLWithString:@"https://last.fm/login"];
+				NSURL* url = [NSURL URLWithString:_apiConfig.webLogin.toNSString()];
 				NSURLRequest* request = [NSURLRequest requestWithURL:url];
 				[viewController.webView loadRequest:request];
 				
@@ -138,7 +148,7 @@ namespace sh {
 	
 	void LastFMAuth::applyWebAuthResult(LastFMWebAuthResult webResult) {
 		// parse cookies
-		NSURL* lastFMURL = [NSURL URLWithString:@"https://www.last.fm/login"];
+		NSURL* lastFMURL = [NSURL URLWithString:_apiConfig.webLogin.toNSString()];
 		NSMutableArray<NSHTTPCookie*>* cookies = [NSMutableArray array];
 		for(auto cookie : webResult.cookies) {
 			NSArray<NSHTTPCookie*>* nsCookies = [NSHTTPCookie cookiesWithResponseHeaderFields:@{

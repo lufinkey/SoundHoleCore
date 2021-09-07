@@ -12,7 +12,16 @@
 #include <soundhole/utils/SecureStore.hpp>
 
 namespace sh {
-	LastFM::LastFM(Options options): auth(new LastFMAuth(options.auth)) {
+	const LastFM::APIConfig LastFM::APICONFIG_LASTFM = LastFM::APIConfig{
+		.apiRoot = "https://ws.audioscrobbler.com/2.0",
+		.webLogin = "https://www.last.fm/login",
+		.webSessionCookieName = "sessionid",
+		.checkSessionCookieLoggedIn = [](String sessionCookie) -> bool {
+			return sessionCookie.startsWith(".");
+		}
+	};
+
+	LastFM::LastFM(Options options, APIConfig apiConfig): auth(new LastFMAuth(options.auth, apiConfig)) {
 		auth->load();
 	}
 
@@ -20,8 +29,9 @@ namespace sh {
 		delete auth;
 	}
 
-	Promise<Json> LastFM::sendRequest(utils::HttpMethod httpMethod, String apiMethod, std::map<String,String> params, bool usesAuth) {
+	Promise<Json> LastFM::sendRequest(utils::HttpMethod httpMethod, String apiMethod, Map<String,String> params, bool usesAuth) {
 		return LastFMAPIRequest{
+			.apiRoot = auth->apiConfig().apiRoot,
 			.apiMethod = apiMethod,
 			.httpMethod = httpMethod,
 			.params = params,

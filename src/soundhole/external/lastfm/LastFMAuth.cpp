@@ -9,14 +9,37 @@
 #include "LastFMAuth.hpp"
 #include "LastFMAPIRequest.hpp"
 #include <soundhole/utils/SecureStore.hpp>
+#include <cxxurl/url.hpp>
 
 namespace sh {
-	LastFMAuth::LastFMAuth(Options options): options(options) {
+	String LastFMAuth::APIConfig::webLoginBaseURL() const {
+		auto url = Url(webLogin);
+		url.path("/");
+		return url.str();
+	}
+
+	String LastFMAuth::APIConfig::webLoginHost() const {
+		return Url(webLogin).host();
+	}
+
+	String LastFMAuth::APIConfig::webLoginBaseHost() const {
+		auto webLoginHost = this->webLoginHost();
+		if(webLoginHost.startsWith("www.")) {
+			webLoginHost = webLoginHost.substr(4);
+		}
+		return webLoginHost;
+	}
+
+	LastFMAuth::LastFMAuth(Options options, APIConfig apiConfig): _options(options), _apiConfig(apiConfig) {
 		//
 	}
 
+	const LastFMAuth::APIConfig& LastFMAuth::apiConfig() const {
+		return _apiConfig;
+	}
+
 	const LastFMAPICredentials& LastFMAuth::apiCredentials() const {
-		return options.apiCredentials;
+		return _options.apiCredentials;
 	}
 
 	Optional<LastFMSession> LastFMAuth::session() const {
@@ -28,10 +51,10 @@ namespace sh {
 	}
 
 	void LastFMAuth::load() {
-		if(options.sessionPersistKey.empty()) {
+		if(_options.sessionPersistKey.empty()) {
 			return;
 		}
-		auto sessionData = SecureStore::getSecureData(options.sessionPersistKey).toString();
+		auto sessionData = SecureStore::getSecureData(_options.sessionPersistKey).toString();
 		std::string parseError;
 		auto sessionJson = Json::parse(sessionData, parseError);
 		auto session = sessionJson.is_null() ? std::nullopt : maybeTry([&]() { return LastFMSession::fromJson(sessionJson); });
@@ -39,18 +62,26 @@ namespace sh {
 	}
 
 	void LastFMAuth::save() {
-		//
+		if(_options.sessionPersistKey.empty()) {
+			return;
+		}
+		if(_session) {
+			SecureStore::setSecureData(_options.sessionPersistKey, Data(_session->toJson().dump()));
+		} else {
+			SecureStore::deleteSecureData(_options.sessionPersistKey);
+		}
 	}
 
 	Promise<LastFMSession> LastFMAuth::getMobileSession(String username, String password) const {
 		return LastFMAPIRequest{
+			.apiRoot = _apiConfig.apiRoot,
 			.apiMethod = "auth.getMobileSession",
 			.httpMethod = utils::HttpMethod::POST,
 			.params = {
 				{ "username", username },
 				{ "password", password }
 			},
-			.credentials = options.apiCredentials,
+			.credentials = _options.apiCredentials,
 			.session = std::nullopt
 		}.perform().map(nullptr, [](Json response) {
 			return LastFMSession::fromJson(response["session"]);

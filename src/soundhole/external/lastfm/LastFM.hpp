@@ -16,13 +16,17 @@
 namespace sh {
 	class LastFM {
 	public:
+		using APIConfig = LastFMAuth::APIConfig;
+		
+		static const APIConfig APICONFIG_LASTFM;
+		
 		struct Options {
 			LastFMAuth::Options auth;
 		};
-		LastFM(Options);
+		LastFM(Options options, APIConfig apiConfig = APICONFIG_LASTFM);
 		~LastFM();
 		
-		Promise<Json> sendRequest(utils::HttpMethod httpMethod, String apiMethod, std::map<String,String> params = {}, bool usesAuth = true);
+		Promise<Json> sendRequest(utils::HttpMethod httpMethod, String apiMethod, Map<String,String> params = {}, bool usesAuth = true);
 		
 		Promise<bool> login();
 		void logout();

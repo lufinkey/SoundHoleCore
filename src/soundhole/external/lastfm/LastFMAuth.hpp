@@ -19,8 +19,20 @@ namespace sh {
 			String sessionPersistKey;
 		};
 		
-		LastFMAuth(Options);
+		struct APIConfig {
+			String apiRoot;
+			String webLogin;
+			String webSessionCookieName;
+			Function<bool(String)> checkSessionCookieLoggedIn;
+			
+			String webLoginBaseURL() const;
+			String webLoginHost() const;
+			String webLoginBaseHost() const;
+		};
 		
+		LastFMAuth(Options options, APIConfig apiConfig);
+		
+		const APIConfig& apiConfig() const;
 		const LastFMAPICredentials& apiCredentials() const;
 		Optional<LastFMSession> session() const;
 		bool isLoggedIn() const;
@@ -39,7 +51,8 @@ namespace sh {
 	private:
 		void applyWebAuthResult(LastFMWebAuthResult);
 		
-		Options options;
+		Options _options;
+		APIConfig _apiConfig;
 		Optional<LastFMSession> _session;
 	};
 }

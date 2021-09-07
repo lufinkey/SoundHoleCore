@@ -15,7 +15,7 @@
 namespace sh {
 	class LastFMAPIRequest {
 	public:
-		String apiRoot = "https://ws.audioscrobbler.com/2.0";
+		String apiRoot;
 		String apiMethod;
 		utils::HttpMethod httpMethod;
 		Map<String,String> params;
