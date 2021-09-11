@@ -38,8 +38,8 @@ namespace sh {
 	OmniTrack::OmniTrack(MediaProvider* provider, const Data& data)
 	: Track(provider, data), _musicBrainzID(data.musicBrainzID), _linkedTracks(data.linkedTracks) {
 		for(auto& track : _linkedTracks) {
-			if(std::dynamic_pointer_cast<OmniTrack>(track)) {
-				throw std::logic_error("Linked track of OmniTrack cannot be an omniTrack");
+			if(track.as<OmniTrack>() != nullptr) {
+				throw std::logic_error("Linked track of OmniTrack cannot be an OmniTrack");
 			}
 		}
 	}
@@ -95,6 +95,11 @@ namespace sh {
 
 	void OmniTrack::applyData(const Data& data) {
 		Track::applyData(data);
+		for(auto& track : data.linkedTracks) {
+			if(track.as<OmniTrack>() != nullptr) {
+				throw std::invalid_argument("Linked track for OmniTrack cannot also be an OmniTrack");
+			}
+		}
 		if(!data.musicBrainzID.empty()) {
 			_musicBrainzID = data.musicBrainzID;
 		}
@@ -103,18 +108,26 @@ namespace sh {
 			auto newTracks = _linkedTracks;
 			newTracks.reserve(std::max(_linkedTracks.size(), data.linkedTracks.size()));
 			// go through data.linkedTracks and apply data to any existing tracks where needed
-			for(auto& track : data.linkedTracks) {
-				auto existingTrack = _linkedTracks.firstWhere([&](auto& cmpTrack) {
-					return (track->mediaProvider() == cmpTrack->mediaProvider() && track->uri() == cmpTrack->uri()
-						&& (!track->uri().empty() || track->name() == cmpTrack->name()));
-				}, nullptr);
-				if(existingTrack) {
-					// check if we need data or new track isn't partial
-					if(existingTrack->needsData() || !track->needsData()) {
-						existingTrack->applyData(track->toData());
+			for(auto& newTrack : data.linkedTracks) {
+				auto existingTrackIt = _linkedTracks.findWhere([&](auto& cmpTrack) {
+					return (newTrack->mediaProvider()->name() == cmpTrack->mediaProvider()->name()
+						&& ((cmpTrack->uri().empty() && newTrack->name() == cmpTrack->name())
+							|| (!cmpTrack->uri().empty() && newTrack->uri() == cmpTrack->uri())));
+				});
+				if(existingTrackIt != _linkedTracks.end()) {
+					auto& existingTrack = *existingTrackIt;
+					// if new track encapsulates the existing track
+					if(newTrack->isSameClassAs(existingTrack)) {
+						// apply data only if we need data or new track isn't partial
+						if(existingTrack->needsData() || !newTrack->needsData()) {
+							existingTrack->applyDataFrom(newTrack);
+						}
+					} else {
+						// new track is a different type, so just use new track
+						existingTrack = newTrack;
 					}
 				} else {
-					newTracks.pushBack(track);
+					newTracks.pushBack(newTrack);
 				}
 			}
 			// apply new tracks
@@ -122,13 +135,28 @@ namespace sh {
 		}
 		// if a linked track matches this current track, apply the data there too
 		if(!data.uri.empty()) {
-			auto matchedTrack = linkedTrackWhere([&](auto& cmpTrack) {
-				return cmpTrack->uri() == data.uri && cmpTrack->mediaProvider()->name() == this->mediaProvider()->name();
-			});
+			auto matchedTrack = _linkedTracks.firstWhere([&](auto& cmpTrack) {
+				return cmpTrack->mediaProvider()->name() == this->mediaProvider()->name() && cmpTrack->uri() == data.uri;
+			}, nullptr);
 			if(matchedTrack) {
-				matchedTrack->applyData(Track::Data(data));
+				matchedTrack->applyDataFrom(_$(shared_from_this()).forceAs<Track>());
 			}
 		}
+	}
+
+	void OmniTrack::applyDataFrom($<const Track> track) {
+		if(auto omniTrack = track.as<const OmniTrack>()) {
+			applyData(omniTrack->toData());
+		} else {
+			Track::applyDataFrom(track);
+		}
+	}
+
+	bool OmniTrack::isSameClassAs($<const Track> track) const {
+		if(track.as<const OmniTrack>() == nullptr) {
+			return false;
+		}
+		return true;
 	}
 
 	OmniTrack::Data OmniTrack::toData() const {

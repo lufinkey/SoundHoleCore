@@ -643,7 +643,7 @@ namespace sh {
 			// get track playback provider
 			auto provider = track->mediaProvider();
 			auto playbackProvider = provider->player();
-			// if track has no playback provider, fall back to stream provider
+			// if track has no playback provider, fallback to stream provider
 			if(playbackProvider == nullptr) {
 				playbackProvider = streamPlaybackProvider;
 			}

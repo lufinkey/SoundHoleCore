@@ -59,7 +59,13 @@ namespace sh {
 		}
 	}
 
+	void Artist::applyDataFrom($<const Artist> artist) {
+		applyData(artist->toData());
+	}
 
+	bool Artist::isSameClassAs($<const Artist> artist) const {
+		return true;
+	}
 
 	Artist::Data Artist::toData() const {
 		return Artist::Data{

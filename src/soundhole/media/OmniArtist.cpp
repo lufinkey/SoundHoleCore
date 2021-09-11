@@ -7,6 +7,7 @@
 //
 
 #include "OmniArtist.hpp"
+#include "MediaProvider.hpp"
 
 namespace sh {
 	OmniArtist::Data OmniArtist::Data::fromJson(const Json& json, MediaProviderStash* stash) {
@@ -61,6 +62,11 @@ namespace sh {
 
 	void OmniArtist::applyData(const Data& data) {
 		Artist::applyData(data);
+		for(auto& artist : data.linkedArtists) {
+			if(artist.as<OmniArtist>() != nullptr) {
+				throw std::invalid_argument("Linked artist for OmniArtist cannot also be an OmniArtist");
+			}
+		}
 		if(!data.musicBrainzID.empty()) {
 			_musicBrainzID = data.musicBrainzID;
 		}
@@ -68,24 +74,62 @@ namespace sh {
 			// combine artist arrays
 			auto newArtists = _linkedArtists;
 			newArtists.reserve(std::max(_linkedArtists.size(), data.linkedArtists.size()));
-			// go through data.linkedTracks and apply data to any existing tracks where needed
-			for(auto& artist : data.linkedArtists) {
-				auto existingArtist = _linkedArtists.firstWhere([&](auto& cmpArtist) {
-					return (artist->mediaProvider() == cmpArtist->mediaProvider() && artist->uri() == cmpArtist->uri()
-						&& (!artist->uri().empty() || artist->name() == cmpArtist->name()));
-				}, nullptr);
-				if(existingArtist) {
-					// check if we need data or new track isn't partial
-					if(existingArtist->needsData() || !artist->needsData()) {
-						existingArtist->applyData(artist->toData());
+			// go through data.linkedArtists and apply data to any existing artists where needed
+			for(auto& newArtist : data.linkedArtists) {
+				auto existingArtistIt = _linkedArtists.findWhere([&](auto& cmpArtist) {
+					return (newArtist->mediaProvider()->name() == cmpArtist->mediaProvider()->name()
+						&& ((cmpArtist->uri().empty() && newArtist->name() == cmpArtist->name())
+							|| (!cmpArtist->uri().empty() && newArtist->uri() == cmpArtist->uri())));
+				});
+				if(existingArtistIt != _linkedArtists.end()) {
+					auto& existingArtist = *existingArtistIt;
+					// if new artist encapsulates the existing artist
+					if(newArtist->isSameClassAs(existingArtist)) {
+						// apply data only if we need data or new artist isn't partial
+						if(existingArtist->needsData() || !newArtist->needsData()) {
+							existingArtist->applyDataFrom(newArtist);
+						}
+					} else {
+						// new artist is a different type, so just use new artist
+						existingArtist = newArtist;
 					}
 				} else {
-					newArtists.pushBack(artist);
+					newArtists.pushBack(newArtist);
 				}
 			}
 			// apply new artists
 			_linkedArtists = newArtists;
 		}
+		// if a linked artist matches this current artist, apply the data there too
+		auto matchedArtist = data.uri.empty() ?
+			// match artist by name
+			_linkedArtists.firstWhere([&](auto& cmpArtist) {
+				return (cmpArtist->mediaProvider()->name() == this->mediaProvider()->name() && cmpArtist->uri().empty() && cmpArtist->name() == data.name);
+			}, nullptr)
+			// match artist by URI (or fallback to name if cmpArtist is missing URI)
+			: _linkedArtists.firstWhere([&](auto& cmpArtist) {
+				return cmpArtist->mediaProvider()->name() == this->mediaProvider()->name()
+				&& (cmpArtist->uri() == data.uri
+					|| (cmpArtist->uri().empty() && cmpArtist->name() == data.name));
+			}, nullptr);
+		if(matchedArtist) {
+			matchedArtist->applyDataFrom(_$(shared_from_this()).forceAs<Artist>());
+		}
+	}
+
+	void OmniArtist::applyDataFrom($<const Artist> artist) {
+		if(auto omniArtist = artist.as<const OmniArtist>()) {
+			applyData(omniArtist->toData());
+		} else {
+			Artist::applyDataFrom(artist);
+		}
+	}
+
+	bool OmniArtist::isSameClassAs($<const Artist> artist) const {
+		if(artist.as<const OmniArtist>() == nullptr) {
+			return false;
+		}
+		return true;
 	}
 
 	OmniArtist::Data OmniArtist::toData() const {

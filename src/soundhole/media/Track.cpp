@@ -127,15 +127,15 @@ namespace sh {
 	}
 
 	bool Track::matches(const Track* cmp) const {
-		return _uri == cmp->_uri
+		return mediaProvider()->name() == cmp->mediaProvider()->name()
+			&& _uri == cmp->_uri
 			&& (!_uri.empty()
 				|| (_name == cmp->_name
 					&& ((_artists.size() == 0 && cmp->_artists.size() == 0)
 						|| (_artists.size() > 0 && cmp->_artists.size() > 0
 							&& _artists.front()->uri() == cmp->_artists.front()->uri()
 							&& (!_artists.front()->uri().empty() || _artists.front()->name() == cmp->_artists.front()->name())
-							&& _artists.front()->mediaProvider()->name() == cmp->_artists.front()->mediaProvider()->name()))))
-			&& mediaProvider()->name() == cmp->mediaProvider()->name();
+							&& _artists.front()->mediaProvider()->name() == cmp->_artists.front()->mediaProvider()->name()))));
 	}
 	
 	const String& Track::albumName() const {
@@ -252,23 +252,23 @@ namespace sh {
 		if(data.tags && (!data.tags->empty() || !_tags || _tags->empty())) {
 			_tags = data.tags;
 		}
-		if(data.artists.size() > 0) {
+		if(!data.artists.empty()) {
 			auto newArtists = data.artists;
 			for(auto& newArtist : newArtists) {
-				if(newArtist->uri().empty()) {
-					auto existingArtist = _artists.firstWhere([&](auto& item){
+				auto existingArtist = newArtist->uri().empty() ?
+					// match artist by name
+					_artists.firstWhere([&](auto& item) {
 						return !item->name().empty() && item->name() == newArtist->name();
+					}, nullptr)
+					// match artist by URI
+					: _artists.firstWhere([&](auto& item) {
+						return item->uri() == newArtist->uri() || (item->uri().empty() && !item->name().empty() && item->name() == newArtist->name());
 					}, nullptr);
-					if(existingArtist != nullptr && !existingArtist->needsData()) {
-						newArtist = existingArtist;
-					}
-				} else {
-					auto existingArtist = _artists.firstWhere([&](auto& item){
-						return !item->uri().empty() && item->uri() == newArtist->uri();
-					}, nullptr);
-					if(existingArtist != nullptr && !existingArtist->needsData()) {
-						newArtist = existingArtist;
-					}
+				// if the artist exists, and the existing type can cast to the new type
+				if(existingArtist && newArtist->isSameClassAs(existingArtist)) {
+					// apply the new data to the existing artist, replace new artist with existing
+					existingArtist->applyDataFrom(newArtist);
+					newArtist = existingArtist;
 				}
 			}
 			_artists = newArtists;
@@ -290,7 +290,13 @@ namespace sh {
 		}
 	}
 
+	void Track::applyDataFrom($<const Track> track) {
+		applyData(track->toData());
+	}
 
+	bool Track::isSameClassAs($<const Track> track) const {
+		return true;
+	}
 
 	Track::Data Track::toData() const {
 		return Track::Data{

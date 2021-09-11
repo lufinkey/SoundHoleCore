@@ -71,6 +71,9 @@ namespace sh {
 		
 		virtual Promise<void> fetchData() override;
 		void applyData(const Data& data);
+		virtual void applyDataFrom($<const Track> track);
+		
+		virtual bool isSameClassAs($<const Track> track) const;
 		
 		Data toData() const;
 		virtual Json toJson() const override;

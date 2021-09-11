@@ -240,10 +240,19 @@ namespace sh {
 	}
 
 	void MediaItem::applyData(const Data& data) {
-		_partial = data.partial;
-		_type = data.type;
-		_name = data.name;
-		_uri = data.uri;
+		bool wasPartial = _partial;
+		if(!_partial) {
+			_partial = false;
+		}
+		if(_type.empty() && !data.type.empty()) {
+			_type = data.type;
+		}
+		if((wasPartial || !data.partial) && !data.name.empty()) {
+			_name = data.name;
+		}
+		if(!data.uri.empty()) {
+			_uri = data.uri;
+		}
 		if(data.images) {
 			_images = data.images;
 		}

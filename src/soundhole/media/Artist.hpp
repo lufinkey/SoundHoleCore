@@ -27,6 +27,9 @@ namespace sh {
 		
 		virtual Promise<void> fetchData() override;
 		void applyData(const Data& data);
+		virtual void applyDataFrom($<const Artist> artist);
+		
+		virtual bool isSameClassAs($<const Artist> artist) const;
 		
 		Data toData() const;
 		virtual Json toJson() const override;
