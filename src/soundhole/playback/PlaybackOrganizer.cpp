@@ -38,15 +38,14 @@ namespace sh {
 	Promise<void> PlaybackOrganizer::save(String path) {
 		auto currentItem = getCurrentItem();
 		if(currentItem.hasValue()) {
-			if(auto contextItemPtr = std::get_if<$<TrackCollectionItem>>(&currentItem.value())) {
-				auto contextItem = *contextItemPtr;
-				if(auto shuffledItem = std::dynamic_pointer_cast<ShuffledTrackCollectionItem>(contextItem)) {
+			if(auto contextItem = currentItem->asCollectionItem()) {
+				if(auto shuffledItem = contextItem.as<ShuffledTrackCollectionItem>()) {
 					currentItem = shuffledItem->sourceItem();
 				}
 			}
 		}
 		auto context = this->context;
-		if(auto shuffledContext = std::dynamic_pointer_cast<ShuffledTrackCollection>(context)) {
+		if(auto shuffledContext = context.as<ShuffledTrackCollection>()) {
 			context = shuffledContext->source();
 		}
 		size_t tracksOffset = 0;
@@ -63,8 +62,8 @@ namespace sh {
 			.itemsLimit = tracksLimit
 		}) : Json();
 		// add current item to context if needed
-		if(!contextJson.is_null() && sourceContextIndex && currentItem.hasValue() && std::get_if<$<TrackCollectionItem>>(&currentItem.value())) {
-			auto contextItem = std::get<$<TrackCollectionItem>>(currentItem.value());
+		if(!contextJson.is_null() && sourceContextIndex && currentItem.hasValue() && currentItem->isCollectionItem()) {
+			auto contextItem = currentItem->asCollectionItem();
 			auto itemsJson = contextJson["items"].object_items();
 			itemsJson.insert_or_assign(std::to_string(sourceContextIndex->index), contextItem->toJson());
 			auto contextMap = contextJson.object_items();
@@ -76,8 +75,8 @@ namespace sh {
 		if(prefs.savePastQueueToDisk) {
 			// get past queue items
 			size_t queuePastItemsEndIndex = queue.pastItems.size();
-			if(currentItem.hasValue() && std::get_if<$<QueueItem>>(&currentItem.value())
-			   && queue.pastItems.size() > 0 && std::get<$<QueueItem>>(currentItem.value()) == queue.pastItems.back()) {
+			if(currentItem.hasValue() && currentItem->isQueueItem()
+			   && queue.pastItems.size() > 0 && currentItem->asQueueItem()->matches(queue.pastItems.back().get())) {
 				// since current item is the last queue item, disclude that item from queuePast
 				queuePastItemsEndIndex -= 1;
 			}
@@ -168,8 +167,8 @@ namespace sh {
 			}
 			if(currentItem.hasValue()) {
 				// if current item is queue item, add to past items
-				if(auto queueItemPtr = std::get_if<$<QueueItem>>(&currentItem.value())) {
-					queuePastItems.pushBack(*queueItemPtr);
+				if(auto queueItem = currentItem->asQueueItem()) {
+					queuePastItems.pushBack(queueItem);
 				}
 			}
 			this->queue = PlaybackQueue{
@@ -480,36 +479,14 @@ namespace sh {
 
 
 
-	$<Track> PlaybackOrganizer::getCurrentTrack() const {
-		auto item = getCurrentItem();
-		if(!item.hasValue()) {
-			return nullptr;
-		}
-		return item->track();
-	}
-
-	Promise<$<Track>> PlaybackOrganizer::getPreviousTrack() {
-		return getPreviousItem().map(nullptr, [](auto item) -> $<Track> {
-			return item ? item->track() : nullptr;
-		});
-	}
-
-	Promise<$<Track>> PlaybackOrganizer::getNextTrack() {
-		return getNextItem().map(nullptr, [](auto item) -> $<Track> {
-			return item ? item->track() : nullptr;
-		});
-	}
-
-
-
 	$<QueueItem> PlaybackOrganizer::getPreviousInQueue() const {
 		if(queue.pastItems.size() == 0) {
 			return nullptr;
 		}
 		auto currentItem = getCurrentItem();
 		if(currentItem.hasValue()) {
-			if(auto queueItemPtr = std::get_if<$<QueueItem>>(&currentItem.value());
-			   queueItemPtr != nullptr && queue.pastItems.size() > 0 && *queueItemPtr == queue.pastItems.back()) {
+			if(auto queueItem = currentItem->asQueueItem();
+			   queueItem != nullptr && queue.pastItems.size() > 0 && queueItem->matches(queue.pastItems.back().get())) {
 				// current item is the last item in queue.pastItems, so get the item before that
 				if(queue.pastItems.size() > 1) {
 					return *std::prev(queue.pastItems.end(), 2);
@@ -595,8 +572,7 @@ namespace sh {
 			return std::nullopt;
 		}
 		auto currentItem = getCurrentItem();
-		if(auto contextItemPtr = std::get_if<$<TrackCollectionItem>>(&currentItem.value());
-		   contextItemPtr != nullptr && *contextItemPtr == contextItem) {
+		if(auto cmpContextItem = (currentItem ? currentItem->asCollectionItem() : nullptr); cmpContextItem != nullptr && cmpContextItem == contextItem) {
 			// current item is context item
 			if(contextIndex == 0) {
 				return std::nullopt;
@@ -652,8 +628,7 @@ namespace sh {
 		}
 		auto currentItem = getCurrentItem();
 		if(currentItem.hasValue()) {
-			if(auto queueItemPtr = std::get_if<$<QueueItem>>(&currentItem.value());
-			   queueItemPtr != nullptr && *queueItemPtr == queue.pastItems.back()) {
+			if(auto queueItem = currentItem->asQueueItem(); queueItem != nullptr && queueItem->matches(queue.pastItems.back().get())) {
 				return ArrayList<$<QueueItem>>(queue.pastItems.begin(), std::prev(queue.pastItems.end(), 1));
 			}
 		}
@@ -683,8 +658,7 @@ namespace sh {
 		if(count > 0) {
 			auto currentItem = getCurrentItem();
 			if(currentItem.hasValue()) {
-				if(auto queueItemPtr = std::get_if<$<QueueItem>>(&currentItem.value());
-				   queueItemPtr != nullptr && *queueItemPtr == queue.pastItems.back()) {
+				if(auto queueItem = currentItem->asQueueItem(); queueItem != nullptr && queueItem->matches(queue.pastItems.back().get())) {
 					count -= 1;
 				}
 			}
@@ -742,16 +716,15 @@ namespace sh {
 				
 				auto oldItem = self->getCurrentItem();
 				auto oldContext = self->context;
-				if(auto oldShuffledContext = std::dynamic_pointer_cast<ShuffledTrackCollection>(oldContext)) {
+				if(auto oldShuffledContext = oldContext.as<ShuffledTrackCollection>()) {
 					oldContext = oldShuffledContext->source();
 				}
 				
 				bool queueChanged = false;
-				if(auto queueItemPtr = std::get_if<$<QueueItem>>(&item)) {
-					auto queueItem = *queueItemPtr;
+				if(auto queueItem = item.asQueueItem()) {
 					// check if we've backed out of a context into the past queue
-					if(oldItem.hasValue() && std::get_if<$<TrackCollectionItem>>(&oldItem.value())) {
-						auto oldCollectionItem = std::get<$<TrackCollectionItem>>(oldItem.value());
+					if(oldItem.hasValue() && oldItem->isCollectionItem()) {
+						auto oldCollectionItem = oldItem->asCollectionItem();
 						if(oldCollectionItem && oldCollectionItem->context().lock() == oldContext
 						   && queue.isPastItem(queueItem) && options.trigger != SetPlayingOptions::Trigger::NEXT) {
 							// move to previous context item or set index state to "removed"
@@ -784,8 +757,7 @@ namespace sh {
 					}
 					queueChanged = true;
 				}
-				else if(auto collectionItemPtr = std::get_if<$<TrackCollectionItem>>(&item)) {
-					auto collectionItem = *collectionItemPtr;
+				else if(auto collectionItem = item.asCollectionItem()) {
 					auto collection = collectionItem->context().lock();
 					if(!collection) {
 						throw std::logic_error("TrackCollectionItem has null context");
@@ -796,21 +768,21 @@ namespace sh {
 					FGL_ASSERT(contextItem != nullptr, "contextItem should not be null after call to updateMainContext");
 					item = contextItem;
 				}
-				else if(auto trackPtr = std::get_if<$<Track>>(&item)) {
+				else if(auto track = item.asTrack()) {
 					self->updateMainContext(nullptr, nullptr, self->shuffling);
 				}
 				
 				auto newContext = self->context;
-				if(auto newShuffledContext = std::dynamic_pointer_cast<ShuffledTrackCollection>(newContext)) {
+				if(auto newShuffledContext = newContext.as<ShuffledTrackCollection>()) {
 					newContext = newShuffledContext->source();
 				}
 				
 				// handle specific trigger cases
 				if(options.trigger == SetPlayingOptions::Trigger::NEXT) {
 					// clear past queue if queue exited
-					if(oldItem.hasValue() && std::get_if<$<QueueItem>>(&oldItem.value())) {
+					if(oldItem.hasValue() && oldItem->isQueueItem()) {
 						// previous item was queue item
-						if(!std::get_if<$<QueueItem>>(&item) && queue.items.empty()) {
+						if(!item.isQueueItem() && queue.items.empty()) {
 							// new item is not queue item and we have no more queue items
 							if(prefs.clearPastQueueOnExitQueue && !queue.pastItems.empty()) {
 								queue.clearPastItems();
@@ -818,7 +790,7 @@ namespace sh {
 							}
 						}
 					}
-					else if(!std::get_if<$<QueueItem>>(&item) && queue.items.empty()) {
+					else if(!item.isQueueItem() && queue.items.empty()) {
 						// previous item and current item are not queue items, and we have no more queue items
 						if(prefs.clearPastQueueOnNextAfterExitQueue && !queue.pastItems.empty()) {
 							queue.clearPastItems();
@@ -829,10 +801,8 @@ namespace sh {
 				else if(options.trigger == SetPlayingOptions::Trigger::PREVIOUS) {
 					// shift queue if we've backed out of it
 					if(oldItem.hasValue()) {
-						if(auto queueItemPtr = std::get_if<$<QueueItem>>(&oldItem.value());
-						   queueItemPtr != nullptr && !std::get_if<$<QueueItem>>(&item)) {
+						if(auto queueItem = oldItem->asQueueItem(); queueItem != nullptr && !item.isQueueItem()) {
 							// previous item was queue item, new item is not
-							auto queueItem = *queueItemPtr;
 							if(queue.shiftBehindItem(queueItem)) {
 								queueChanged = true;
 							}
@@ -841,7 +811,7 @@ namespace sh {
 				}
 				else if(options.trigger == SetPlayingOptions::Trigger::PLAY) {
 					// clear past queue if context changed and we had an item previously
-					if(!std::get_if<$<QueueItem>>(&item) && oldItem.hasValue() && oldContext != newContext) {
+					if(!item.isQueueItem() && oldItem.hasValue() && oldContext != newContext) {
 						if(prefs.clearPastQueueOnContextChange && !queue.pastItems.empty()) {
 							queue.clearPastItems();
 							queueChanged = true;
@@ -850,7 +820,7 @@ namespace sh {
 				}
 				
 				// if old item was queue item and new item is not, ensure a queue changed event
-				if(!std::get_if<$<QueueItem>>(&item) && oldItem.hasValue() && std::get_if<$<QueueItem>>(&oldItem.value())) {
+				if(!item.isQueueItem() && oldItem.hasValue() && oldItem->isQueueItem()) {
 					queueChanged = true;
 				}
 				

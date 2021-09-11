@@ -19,15 +19,13 @@ namespace sh {
 		auto addedByJson = json["addedBy"];
 		$<UserAccount> addedBy;
 		if(!addedByJson.is_null()) {
-			auto userProviderName = addedByJson["provider"].string_value();
-			if(userProviderName.empty()) {
-				throw std::invalid_argument("addedBy User json is missing provider");
+			auto mediaItem = stash->parseMediaItem(addedByJson);
+			if(mediaItem) {
+				addedBy = std::dynamic_pointer_cast<UserAccount>(mediaItem);
+				if(!addedBy) {
+					throw std::invalid_argument("Invalid json for PlaylistItem: parsed "+mediaItem->type()+" instead of expected type user in 'addedBy'");
+				}
 			}
-			auto provider = stash->getMediaProvider(userProviderName);
-			if(provider == nullptr) {
-				throw std::invalid_argument("invalid provider name for user: "+userProviderName);
-			}
-			addedBy = provider->userAccount(UserAccount::Data::fromJson(addedByJson, stash));
 		}
 		return PlaylistItem::Data{
 			collectionItemData,
@@ -137,15 +135,13 @@ namespace sh {
 		auto ownerJson = json["owner"];
 		$<UserAccount> owner;
 		if(!ownerJson.is_null()) {
-			auto userProviderName = ownerJson["provider"].string_value();
-			if(userProviderName.empty()) {
-				throw std::invalid_argument("owner User json is missing provider");
+			auto mediaItem = stash->parseMediaItem(ownerJson);
+			if(mediaItem) {
+				owner = std::dynamic_pointer_cast<UserAccount>(mediaItem);
+				if(!owner) {
+					throw std::invalid_argument("Invalid json for Playlist: parsed "+mediaItem->type()+" instead of expected type user in 'owner'");
+				}
 			}
-			auto provider = stash->getMediaProvider(userProviderName);
-			if(provider == nullptr) {
-				throw std::invalid_argument("invalid provider name for user: "+userProviderName);
-			}
-			owner = provider->userAccount(UserAccount::Data::fromJson(ownerJson, stash));
 		}
 		auto privacyJson = json["privacy"];
 		if(!privacyJson.is_string()) {

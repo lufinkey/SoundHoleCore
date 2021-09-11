@@ -153,8 +153,8 @@ namespace sh {
 
 	Promise<void> Player::performSave(SaveOptions options) {
 		auto self = shared_from_this();
-		auto currentTrack = organizer->getCurrentTrack();
-		auto playbackState = providerPlaybackState;
+		auto currentTrack = this->currentTrack();
+		auto playbackState = this->providerPlaybackState;
 		auto metadataPromise = Promise<void>::resolve();
 		if(options.includeMetadata) {
 			auto metadataPath = getMetadataFilePath();
@@ -165,6 +165,7 @@ namespace sh {
 			if(currentTrack && playbackState) {
 				auto progressData = ProgressData{
 					.uri = currentTrack->uri(),
+					.name = currentTrack->name(),
 					.providerName = currentTrack->mediaProvider()->name(),
 					.position = playbackState->position
 				};
@@ -299,8 +300,12 @@ namespace sh {
 		auto resumableProgress = this->resumableProgress;
 		if(resumableProgress && this->playbackProvider == nullptr && playing) {
 			auto currentItem = organizer->getCurrentItem();
-			auto currentTrack = currentItem ? currentItem->track() : nullptr;
-			if(currentTrack && resumableProgress->uri == currentTrack->uri() && resumableProgress->providerName == currentTrack->mediaProvider()->name()) {
+			auto resumingTrack = currentItem ? currentItem->linkedTrackWhere([&](auto& cmpTrack) {
+				return (cmpTrack->uri() == resumableProgress->uri
+					&& (!cmpTrack->uri().empty() || cmpTrack->name() == resumableProgress->name)
+					&& cmpTrack->mediaProvider()->name() == resumableProgress->providerName);
+			}) : nullptr;
+			if(resumingTrack) {
 				return organizer->play(currentItem.value());
 			}
 		}
@@ -330,15 +335,17 @@ namespace sh {
 	#pragma mark Metadata / State / Context / Queue
 
 	Player::Metadata Player::metadata() {
-		auto previousTrackPromise = organizer->getPreviousTrack();
+		auto previousItemPromise = organizer->getPreviousItem();
 		$<Track> previousTrack;
-		if(previousTrackPromise.isComplete()) {
-			previousTrack = previousTrackPromise.get();
+		if(previousItemPromise.isComplete()) {
+			auto previousItem = previousItemPromise.get();
+			previousTrack = previousItem ? previousItem->track() : nullptr;
 		}
-		auto nextTrackPromise = organizer->getNextTrack();
+		auto nextItemPromise = organizer->getNextItem();
 		$<Track> nextTrack;
-		if(nextTrackPromise.isComplete()) {
-			nextTrack = nextTrackPromise.get();
+		if(nextItemPromise.isComplete()) {
+			auto nextItem = nextItemPromise.get();
+			nextTrack = nextItem ? nextItem->track() : nullptr;
 		}
 		auto currentItem = this->currentItem();
 		auto currentTrack = currentItem ? currentItem->track() : nullptr;
@@ -353,9 +360,14 @@ namespace sh {
 		auto playbackState = providerPlaybackState;
 		double position = playbackState ? playbackState->position : 0.0;
 		auto resumableProgress = this->resumableProgress;
-		if(resumableProgress) {
-			auto currentTrack = organizer->getCurrentTrack();
-			if(currentTrack && resumableProgress->uri == currentTrack->uri() && resumableProgress->providerName == currentTrack->mediaProvider()->name()) {
+		if(resumableProgress && !playbackState->playing) {
+			auto currentItem = organizer->getCurrentItem();
+			auto resumingTrack = currentItem ? currentItem->linkedTrackWhere([&](auto& cmpTrack) {
+				return (cmpTrack->uri() == resumableProgress->uri
+					&& (!cmpTrack->uri().empty() || cmpTrack->name() == resumableProgress->name)
+					&& cmpTrack->mediaProvider()->name() == resumableProgress->providerName);
+			}) : nullptr;
+			if(resumingTrack != nullptr) {
 				position = resumableProgress->position;
 			}
 		}
@@ -368,16 +380,21 @@ namespace sh {
 	
 	Optional<PlayerItem> Player::currentItem() const {
 		auto organizerItem = organizer->getCurrentItem();
-		auto organizerTrack = organizerItem ? organizerItem->track() : nullptr;
 		if(playingItem.hasValue()) {
-			auto playingTrack = playingItem->track();
-			// check if playing track doesn't match organizer track
-			if(playingTrack == nullptr || !organizerTrack || playingTrack->uri() != organizerTrack->uri() || playingItem->type() != organizerItem->type()) {
-				// since playing track is different than organizer track, return playing item
-				return playingItem;
+			if(organizerItem->matches(playingItem.value()) || (playingItem->isTrack() && organizerItem->linksTrack(playingItem->asTrack()))) {
+				return organizerItem;
 			}
+			return playingItem;
 		}
 		return organizerItem;
+	}
+
+	$<Track> Player::currentTrack() const {
+		if(playingTrack) {
+			return playingTrack;
+		}
+		auto organizerItem = organizer->getCurrentItem();
+		return organizerItem ? organizerItem->track() : nullptr;
 	}
 	
 	$<PlaybackHistoryItem> Player::currentHistoryItem() const {
@@ -491,23 +508,138 @@ namespace sh {
 
 	#pragma mark Preparing / Playing Track
 
+	$<Track> Player::preferredTrackForItem(const PlayerItem& item) const {
+		auto track = item.track();
+		if(auto omniTrack = track.as<OmniTrack>(); omniTrack != nullptr && !omniTrack->linkedTracks().empty()) {
+			// check each preferred provider for a playable track
+			for(auto& providerName : prefs.preferredProviders) {
+				auto providerTrack = omniTrack->linkedTrackWhere([&](auto& cmpTrack) {
+					return cmpTrack->mediaProvider()->name() == providerName;
+				});
+				if(providerTrack && providerTrack->isPlayable()) {
+					return providerTrack;
+				}
+				if(omniTrack->mediaProvider()->name() == providerName && omniTrack->isPlayable()) {
+					return omniTrack;
+				}
+			}
+			// look for first confirmed playable track
+			auto playableTrack = omniTrack->linkedTrackWhere([](auto& cmpTrack) {
+				auto playable = cmpTrack->playable();
+				return playable.hasValue() && playable.value();
+			});
+			if(playableTrack) {
+				return playableTrack;
+			}
+			// look for the first potentially playable track
+			playableTrack = item.linkedTrackWhere([](auto& cmpTrack) {
+				return cmpTrack->isPlayable();
+			});
+			if(playableTrack) {
+				return playableTrack;
+			}
+			// look for first preferred track, playable or not
+			for(auto& providerName : prefs.preferredProviders) {
+				auto providerTrack = item.linkedTrackWhere([&](auto& cmpTrack) {
+					return cmpTrack->mediaProvider()->name() == providerName;
+				});
+				if(providerTrack) {
+					return providerTrack;
+				}
+			}
+			// get first track
+			return omniTrack->linkedTracks().front();
+		}
+		return track;
+	}
+
+	Generator<void> Player::preparePreferredTrack(const PlayerItem& item) {
+		auto track = item.track();
+		if(!track) {
+			// TODO maybe some items will need to load their track asynchronously?
+			co_return;
+		}
+		// get full track data
+		auto mainTrackDataPromise = track->fetchDataIfNeeded();
+		// handle omni-track
+		if(auto omniTrack = track.as<OmniTrack>(); omniTrack != nullptr && !omniTrack->linkedTracks().empty()) {
+			// check if a preferred playable track is available
+			auto preferredTrack = preferredTrackForItem(item);
+			if(preferredTrack && preferredTrack->isPlayable() && preferredTrack->playable().hasValue()
+			   && prefs.preferredProviders.containsWhere([&](auto& provName) { return preferredTrack->name() == provName; })) {
+				co_return;
+			}
+			// load track data for preferred providers
+			auto fetchedTracks = LinkedList<$<Track>>();
+			auto trackDataPromises = LinkedList<Promise<void>>();
+			for(auto& providerName : prefs.preferredProviders) {
+				auto providerTrack = omniTrack->linkedTrackWhere([&](auto& cmpTrack) {
+					return cmpTrack->mediaProvider()->name() == providerName;
+				});
+				// if track URI / provider name is the same as the root track, the root track will apply the fetched data, so we don't need to fetch the data
+				if(providerTrack && (providerTrack->uri() != omniTrack->uri() || providerTrack->mediaProvider()->name() != omniTrack->mediaProvider()->name())) {
+					trackDataPromises.pushBack(providerTrack->fetchDataIfNeeded());
+					fetchedTracks.pushBack(providerTrack);
+				}
+			}
+			// wait for all track data promises so far, then clear
+			co_await mainTrackDataPromise;
+			for(auto& promise : trackDataPromises) {
+				co_await promise;
+				co_yield {};
+			}
+			trackDataPromises.clear();
+			// check if a preferred playable track is available
+			preferredTrack = preferredTrackForItem(item);
+			if(preferredTrack && preferredTrack->isPlayable()
+			   && prefs.preferredProviders.containsWhere([&](auto& provName) { return preferredTrack->name() == provName; })) {
+				co_return;
+			}
+			// couldn't find a preferred or playable track, so load remaining tracks
+			// load remaining tracks
+			for(auto& linkedTrack : omniTrack->linkedTracks()) {
+				auto matchIt = fetchedTracks.findEqual(linkedTrack);
+				if(matchIt != fetchedTracks.end()) {
+					// we already fetched this track, so remove and continue
+					fetchedTracks.erase(matchIt);
+					continue;
+				}
+				trackDataPromises.pushBack(linkedTrack->fetchDataIfNeeded());
+			}
+			// wait for remaining tracks to finish loading
+			for(auto& promise : trackDataPromises) {
+				co_await promise;
+				co_yield {};
+			}
+		} else {
+			co_await mainTrackDataPromise;
+		}
+	}
+
 	Promise<void> Player::prepareItem(PlayerItem item) {
 		auto runOptions = AsyncQueue::RunOptions{
-			.tag="prepare",
-			.cancelMatchingTags=true
+			.tag = "prepare",
+			.cancelMatchingTags = true
 		};
 		w$<Player> weakSelf = shared_from_this();
-		return playQueue.run(runOptions, [=](auto task) -> Promise<void> {
+		return playQueue.run(runOptions, [=](auto task) -> Generator<void> {
+			co_yield setGenResumeQueue(DispatchQueue::main());
+			co_yield initialGenNext();
 			auto self = weakSelf.lock();
 			if(!self) {
-				return resolveVoid();
+				co_return;
 			}
-			auto track = item.track();
-			if(!track) {
-				// TODO maybe some items will need to load their track asynchronously?
-				return resolveVoid();
+			{ // load preferred track
+				auto gen = preparePreferredTrack(item);
+				while(true) {
+					auto yieldResult = co_await gen.next();
+					co_yield {};
+					if(yieldResult.done) {
+						break;
+					}
+				}
 			}
-			// TODO handle omni track
+			auto track = preferredTrackForItem(item);
 			// get track playback provider
 			auto provider = track->mediaProvider();
 			auto playbackProvider = provider->player();
@@ -522,27 +654,35 @@ namespace sh {
 				self->preparedPlaybackProvider = nullptr;
 			}
 			// prepare track and update prepared provider
-			return playbackProvider->prepare(track).then([=]() {
-				self->preparedPlaybackProvider = playbackProvider;
-			});
+			co_await playbackProvider->prepare(track);
+			self->preparedPlaybackProvider = playbackProvider;
 		}).promise;
 	}
 
 	Promise<void> Player::playItem(PlayerItem item) {
 		auto runOptions = AsyncQueue::RunOptions{
-			.tag="play",
-			.cancelMatchingTags=true
+			.tag = "play",
+			.cancelTags = { "play", "prepare" }
 		};
 		w$<Player> weakSelf = shared_from_this();
-		return playQueue.run(runOptions, [=](auto task) -> Promise<void> {
+		return playQueue.run(runOptions, [=](auto task) -> Generator<void> {
 			auto self = weakSelf.lock();
 			if(!self) {
-				return resolveVoid();
+				co_return;
 			}
-			auto track = item.track();
+			{ // load preferred track
+				auto gen = preparePreferredTrack(item);
+				while(true) {
+					auto yieldResult = co_await gen.next();
+					co_yield {};
+					if(yieldResult.done) {
+						break;
+					}
+				}
+			}
+			auto track = preferredTrackForItem(item);
 			// TODO maybe some items will need to load their tracks asynchronously?
 			FGL_ASSERT(track != nullptr, "item cannot have a null track");
-			// TODO handle omni track
 			// get track playback provider
 			auto provider = track->mediaProvider();
 			auto playbackProvider = provider->player();
@@ -573,11 +713,10 @@ namespace sh {
 					resumableProgress = std::nullopt;
 				}
 			}
-			return playbackProvider->play(track, position).then([=]() {
-				self->resumableProgress = std::nullopt;
-				self->updateMediaControls();
-				self->saveInBackground({.includeMetadata=true});
-			});
+			co_await playbackProvider->play(track, position);
+			self->resumableProgress = std::nullopt;
+			self->updateMediaControls();
+			self->saveInBackground({.includeMetadata=true});
 		}).promise;
 	}
 
@@ -672,8 +811,8 @@ namespace sh {
 		auto self = shared_from_this();
 		
 		auto currentItem = organizer->getCurrentItem();
-		auto prevTrackPromise = organizer->getPreviousTrack();
-		auto nextTrackPromise = organizer->getNextTrack();
+		auto prevItemPromise = organizer->getPreviousItem();
+		auto nextItemPromise = organizer->getNextItem();
 		
 		// emit organizer item change event
 		if(currentItem) {
@@ -683,9 +822,9 @@ namespace sh {
 		// emit metadata change event
 		callPlayerListenerEvent(&EventListener::onPlayerMetadataChange, self, createEvent());
 		
-		if(!prevTrackPromise.isComplete()) {
+		if(!prevItemPromise.isComplete()) {
 			w$<Player> weakSelf = shared_from_this();
-			prevTrackPromise.then([=]($<Track> track) {
+			prevItemPromise.then([=](auto item) {
 				auto self = weakSelf.lock();
 				if(!self) {
 					return;
@@ -698,9 +837,9 @@ namespace sh {
 				console::error("Unable to load previous track from organizer: ", utils::getExceptionDetails(error).fullDescription);
 			});
 		}
-		if(!nextTrackPromise.isComplete()) {
+		if(!nextItemPromise.isComplete()) {
 			w$<Player> weakSelf = shared_from_this();
-			nextTrackPromise.then([=]($<Track> track) {
+			nextItemPromise.then([=](auto item) {
 				auto self = weakSelf.lock();
 				if(!self) {
 					return;
@@ -801,28 +940,30 @@ namespace sh {
 		auto providerMetadata = (playbackProvider != nullptr) ? maybe(playbackProvider->metadata()) : std::nullopt;
 		auto providerTrack = (providerMetadata) ? providerMetadata->currentTrack : nullptr;
 		auto prevPlayingItem = this->playingItem;
-		auto prevPlayingTrack = prevPlayingItem ? prevPlayingItem->track() : nullptr;
 		auto organizerItem = organizer->getCurrentItem();
-		auto organizerTrack = organizerItem ? organizerItem->track() : nullptr;
 		
 		this->providerPlaybackState = providerState;
 		this->providerPlaybackMetadata = providerMetadata;
 		
-		if(organizerTrack != nullptr && providerTrack != nullptr && organizerTrack->uri() == providerTrack->uri()) {
+		if(organizerItem && providerTrack && organizerItem->linksTrack(providerTrack)) {
 			this->playingItem = organizerItem;
-		} else if(prevPlayingTrack != nullptr && providerTrack != nullptr && prevPlayingTrack->uri() == providerTrack->uri()) {
+		} else if(prevPlayingItem && providerTrack && prevPlayingItem->linksTrack(providerTrack)) {
 			this->playingItem = prevPlayingItem;
 		} else {
-			if(providerTrack == nullptr) {
-				if(organizerItem.hasValue()) {
+			if(providerTrack) {
+				this->playingItem = providerTrack;
+			} else {
+				if(organizerItem) {
 					this->playingItem = organizerItem;
 				} else {
 					this->playingItem = std::nullopt;
 				}
-			} else {
-				this->playingItem = providerTrack;
 			}
 		}
+		auto matchedTrack = (providerTrack && this->playingItem) ? this->playingItem->linkedTrackWhere([&](auto& cmpTrack) {
+			return providerTrack->matches(cmpTrack.get());
+		}) : nullptr;
+		this->playingTrack = matchedTrack ? matchedTrack : providerTrack;
 		
 		/*if(this->playingTrack != nullptr && this->playingTrack != prevPlayingTrack) {
 			// TODO update now playing
@@ -906,6 +1047,7 @@ namespace sh {
 	Json Player::ProgressData::toJson() const {
 		return Json::object{
 			{ "uri", (std::string)uri },
+			{ "name", (std::string)name },
 			{ "providerName", (std::string)providerName },
 			{ "position", position }
 		};
@@ -914,6 +1056,7 @@ namespace sh {
 	Player::ProgressData Player::ProgressData::fromJson(Json json) {
 		return ProgressData{
 			.uri = json["uri"].string_value(),
+			.name = json["name"].string_value(),
 			.providerName = json["providerName"].string_value(),
 			.position = json["position"].number_value()
 		};

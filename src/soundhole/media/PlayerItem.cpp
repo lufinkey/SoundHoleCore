@@ -7,6 +7,8 @@
 //
 
 #include "PlayerItem.hpp"
+#include "OmniTrack.hpp"
+#include "MediaProvider.hpp"
 
 namespace sh {
 	$<Track> PlayerItem::track() const {
@@ -55,17 +57,35 @@ namespace sh {
 		throw std::logic_error("invalid state for PlayerItem");
 	}
 
-	bool PlayerItem::matchesItem(const PlayerItem& cmp) const {
+	bool PlayerItem::matches(const PlayerItem& cmp) const {
 		if(type() != cmp.type()) {
 			return false;
 		}
 		if(isTrack()) {
-			return asTrack()->uri() == cmp.asTrack()->uri();
+			return asTrack()->matches(cmp.asTrack().get());
 		} else if(isCollectionItem()) {
-			return asCollectionItem()->matchesItem(cmp.asCollectionItem().get());
+			auto collectionItem = asCollectionItem();
+			auto cmpCollectionItem = cmp.asCollectionItem();
+			if(!collectionItem && !cmpCollectionItem) {
+				return true;
+			} else if(!collectionItem || !cmpCollectionItem) {
+				return false;
+			}
+			auto context = collectionItem ? collectionItem->context().lock() : nullptr;
+			auto cmpContext = cmpCollectionItem ? cmpCollectionItem->context().lock() : nullptr;
+			if(context && cmpContext && (context->uri() != cmpContext->uri() || context->mediaProvider()->name() != cmpContext->mediaProvider()->name())) {
+				return false;
+			}
+			return collectionItem->matchesItem(cmpCollectionItem.get());
 		} else if(isQueueItem()) {
-			return asQueueItem()->track()->uri() == cmp.asQueueItem()->track()->uri();
+			return asQueueItem()->matches(cmp.asQueueItem().get());
 		}
 		throw std::logic_error("invalid state for PlayerItem");
+	}
+
+	bool PlayerItem::linksTrack($<const Track> track) const {
+		return linkedTrackWhere([&](auto& cmpTrack) {
+			return track->matches(cmpTrack.get());
+		}) != nullptr;
 	}
 }

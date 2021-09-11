@@ -96,8 +96,10 @@ namespace sh {
 	bool PlaybackHistoryItem::matchesItem(const PlayerItem& cmpItem) const {
 		auto cmpContext = cmpItem.isCollectionItem() ? cmpItem.asCollectionItem()->context().lock() : nullptr;
 		auto cmpContextURI = cmpContext ? cmpContext->uri() : String();
-		auto cmpTrackURI = cmpItem.track()->uri();
-		if(_track->uri() == cmpTrackURI && _contextURI == cmpContextURI) {
+		auto matchingTrack = cmpItem.linkedTrackWhere([&](auto& cmpTrack) {
+			return _track->uri() == cmpTrack->uri();
+		});
+		if(matchingTrack != nullptr && _contextURI == cmpContextURI) {
 			return true;
 		}
 		return false;

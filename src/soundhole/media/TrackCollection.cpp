@@ -14,20 +14,16 @@ namespace sh {
 	#pragma mark TrackCollectionItem::Data
 
 	TrackCollectionItem::Data TrackCollectionItem::Data::fromJson(const Json& json, MediaProviderStash* stash) {
-		auto trackJson = json["track"];
-		if(trackJson.is_null() || !trackJson.is_object()) {
-			throw std::invalid_argument("track json cannot be null");
+		auto mediaItem = stash->parseMediaItem(json["track"]);
+		if(!mediaItem) {
+			throw std::invalid_argument("Invalid json for TrackCollectionItem: 'track' cannot be null");
 		}
-		auto trackProviderName = trackJson["provider"].string_value();
-		if(trackProviderName.empty()) {
-			throw std::invalid_argument("track json is missing provider");
-		}
-		auto provider = stash->getMediaProvider(trackProviderName);
-		if(provider == nullptr) {
-			throw std::invalid_argument("invalid provider name for track: "+trackProviderName);
+		auto track = std::dynamic_pointer_cast<Track>(mediaItem);
+		if(!track) {
+			throw std::logic_error("Invalid json for TrackCollectionItem: 'track' property was type "+mediaItem->type()+" instead of expected type track");
 		}
 		return TrackCollectionItem::Data{
-			.track = provider->track(Track::Data::fromJson(trackJson, stash))
+			.track = track
 		};
 	}
 

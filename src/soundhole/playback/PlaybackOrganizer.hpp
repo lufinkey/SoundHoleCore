@@ -78,10 +78,6 @@ namespace sh {
 		Promise<Optional<PlayerItem>> getPreviousItem();
 		Promise<Optional<PlayerItem>> getNextItem();
 		
-		$<Track> getCurrentTrack() const;
-		Promise<$<Track>> getPreviousTrack();
-		Promise<$<Track>> getNextTrack();
-		
 		$<QueueItem> getPreviousInQueue() const;
 		$<QueueItem> getNextInQueue() const;
 		Promise<$<TrackCollectionItem>> getPreviousInContext();

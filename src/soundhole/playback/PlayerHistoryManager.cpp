@@ -38,12 +38,9 @@ namespace sh {
 		auto currentDate = Date::now();
 		auto currentSteadyTime = SteadyClock::now();
 		auto currentItem = player->currentItem();
-		auto currentTrack = currentItem->track();
+		auto currentTrack = player->currentTrack();
 		auto playerState = player->state();
-		auto collectionItem =
-			(currentItem && std::get_if<$<TrackCollectionItem>>(&currentItem.value())) ?
-				std::get<$<TrackCollectionItem>>(currentItem.value())
-				: nullptr;
+		auto collectionItem = currentItem ? currentItem->asCollectionItem() : nullptr;
 		auto context = collectionItem ? collectionItem->context().lock() : nullptr;
 		auto& playerPrefs = player->getPreferences();
 		
@@ -60,6 +57,13 @@ namespace sh {
 			// update active history item if matches
 			if(historyItem && historyItem->matchesItem(currentItem.value())) {
 				// current item hasn't changed
+				if(historyItem->track()->uri() != currentTrack->uri() && historyItem->duration().valueOr(0) == 0) {
+					// track URI changed, so delete the old history item and update the track
+					deleteFromHistory(historyItem);
+					historyItem->_track = currentTrack;
+					updatedItem = historyItem;
+					historyItemNeedsDBUpdate = true;
+				}
 				double trackDuration = currentTrack->duration().valueOr(PlaybackHistoryItem::FALLBACK_DURATION);
 				// get current player position
 				double playerPosition = playerState.position;
@@ -193,6 +197,10 @@ namespace sh {
 				console::error("Error caching history item: ", utils::getExceptionDetails(error).fullDescription);
 			});
 		}
+	}
+
+	void PlayerHistoryManager::deleteFromHistory($<PlaybackHistoryItem> item) {
+		database->deletePlaybackHistoryItem(item->startTime(), item->track()->uri());
 	}
 
 	void PlayerHistoryManager::onPlayerStateChange($<Player> player, const Player::Event& event) {

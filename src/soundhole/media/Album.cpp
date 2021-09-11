@@ -43,15 +43,15 @@ namespace sh {
 		ArrayList<$<Artist>> artists;
 		artists.reserve(artistsJson.array_items().size());
 		for(auto& artistJson : artistsJson.array_items()) {
-			auto providerName = artistJson["provider"];
-			if(!providerName.is_string()) {
-				throw std::invalid_argument("artist provider must be a string");
+			auto mediaItem = stash->parseMediaItem(artistJson);
+			if(!mediaItem) {
+				throw std::invalid_argument("Invalid json for Album: elements of artists cannot be null");
 			}
-			auto provider = stash->getMediaProvider(providerName.string_value());
-			if(provider == nullptr) {
-				throw std::invalid_argument("invalid provider name for artist: "+providerName.string_value());
+			auto artist = std::dynamic_pointer_cast<Artist>(mediaItem);
+			if(!artist) {
+				throw std::invalid_argument("Invalid json for Album: parsed "+mediaItem->type()+" instead of expected type artist in artists");
 			}
-			artists.pushBack(provider->artist(Artist::Data::fromJson(artistJson, stash)));
+			artists.pushBack(artist);
 		}
 		return Album::Data{
 			collectionData,

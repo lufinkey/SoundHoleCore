@@ -48,27 +48,27 @@ namespace sh {
 		auto albumURI = json["albumURI"];
 		auto artists = json["artists"];
 		if(!artists.is_array()) {
-			throw std::invalid_argument("invalid json for Track: 'artists' is required");
+			throw std::invalid_argument("Invalid json for Track: 'artists' is required");
 		}
 		auto tags = json["tags"];
 		if(!tags.is_null() && !tags.is_array()) {
-			throw std::invalid_argument("invalid json for Track: 'tags' must be an array or null");
+			throw std::invalid_argument("Invalid json for Track: 'tags' must be an array or null");
 		}
 		auto discNumber = json["discNumber"];
 		if(!discNumber.is_null() && !discNumber.is_number()) {
-			throw std::invalid_argument("invalid json for Track: 'discNumber' must be a numnber or null");
+			throw std::invalid_argument("Invalid json for Track: 'discNumber' must be a numnber or null");
 		}
 		auto trackNumber = json["trackNumber"];
 		if(!trackNumber.is_null() && !trackNumber.is_number()) {
-			throw std::invalid_argument("invalid json for Track: 'trackNumber' must be a number or null");
+			throw std::invalid_argument("Invalid json for Track: 'trackNumber' must be a number or null");
 		}
 		auto duration = json["duration"];
 		if(!duration.is_null() && !duration.is_number()) {
-			throw std::invalid_argument("invalid json for Track: 'duration' must be a number or null");
+			throw std::invalid_argument("Invalid json for Track: 'duration' must be a number or null");
 		}
 		auto audioSources = json["audioSources"];
 		if(!audioSources.is_null() && !audioSources.is_array()) {
-			throw std::invalid_argument("invalid json for Track: 'audioSources' must be an array or null");
+			throw std::invalid_argument("Invalid json for Track: 'audioSources' must be an array or null");
 		}
 		auto playable = json["playable"];
 		return Track::Data{
@@ -76,15 +76,15 @@ namespace sh {
 			.albumName = albumName.string_value(),
 			.albumURI = albumURI.string_value(),
 			.artists = ArrayList<Json>(artists.array_items()).map([=](auto& artistJson) -> $<Artist> {
-				auto providerName = artistJson["provider"];
-				if(!providerName.is_string()) {
-					throw std::invalid_argument("artist provider must be a string");
+				auto mediaItem = stash->parseMediaItem(artistJson);
+				if(!mediaItem) {
+					throw std::invalid_argument("Invalid json for Track: elements of artists cannot be null");
 				}
-				auto provider = stash->getMediaProvider(providerName.string_value());
-				if(provider == nullptr) {
-					throw std::invalid_argument("invalid provider name for artist: "+providerName.string_value());
+				auto artist = std::dynamic_pointer_cast<Artist>(mediaItem);
+				if(!artist) {
+					throw std::invalid_argument("Invalid json for Track: parsed "+mediaItem->type()+" instead of expected type artist");
 				}
-				return provider->artist(Artist::Data::fromJson(artistJson, stash));
+				return artist;
 			}),
 			.tags = ArrayList<Json>(tags.array_items()).map([](auto& tagJson) -> String {
 				return tagJson.string_value();
@@ -124,6 +124,18 @@ namespace sh {
 	_audioSources(data.audioSources),
 	_playable(data.playable) {
 		//
+	}
+
+	bool Track::matches(const Track* cmp) const {
+		return _uri == cmp->_uri
+			&& (!_uri.empty()
+				|| (_name == cmp->_name
+					&& ((_artists.size() == 0 && cmp->_artists.size() == 0)
+						|| (_artists.size() > 0 && cmp->_artists.size() > 0
+							&& _artists.front()->uri() == cmp->_artists.front()->uri()
+							&& (!_artists.front()->uri().empty() || _artists.front()->name() == cmp->_artists.front()->name())
+							&& _artists.front()->mediaProvider()->name() == cmp->_artists.front()->mediaProvider()->name()))))
+			&& mediaProvider()->name() == cmp->mediaProvider()->name();
 	}
 	
 	const String& Track::albumName() const {
@@ -231,9 +243,15 @@ namespace sh {
 
 	void Track::applyData(const Data& data) {
 		MediaItem::applyData(data);
-		_albumName = data.albumName;
-		_albumURI = data.albumURI;
-		_tags = data.tags;
+		if(!data.albumName.empty()) {
+			_albumName = data.albumName;
+		}
+		if(!data.albumURI.empty()) {
+			_albumURI = data.albumURI;
+		}
+		if(data.tags && (!data.tags->empty() || !_tags || _tags->empty())) {
+			_tags = data.tags;
+		}
 		if(data.artists.size() > 0) {
 			auto newArtists = data.artists;
 			for(auto& newArtist : newArtists) {

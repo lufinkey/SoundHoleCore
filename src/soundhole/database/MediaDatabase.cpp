@@ -930,4 +930,10 @@ namespace sh {
 			sql::deleteFollowedUserAccount(tx, uri);
 		}).toVoid();
 	}
+
+	Promise<void> MediaDatabase::deletePlaybackHistoryItem(Date startTime, String trackURI) {
+		return transaction({}, [=](auto& tx) {
+			sql::deletePlaybackHistoryItem(tx, startTime, trackURI);
+		}).toVoid();
+	}
 }

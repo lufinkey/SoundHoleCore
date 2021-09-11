@@ -69,7 +69,8 @@ namespace sh {
 		};
 		
 		struct Preferences {
-			double nextTrackPreloadTime = 10.0;
+			ArrayList<String> preferredProviders;
+			double nextTrackPreloadTime = 20.0;
 			double progressSaveInterval = 1.0;
 			Optional<double> minDurationForHistory = 0.5;
 			Optional<double> minDurationRatioForRepeatSongToBeNewHistoryItem = 0.75;
@@ -126,6 +127,7 @@ namespace sh {
 		State state() const;
 		
 		Optional<PlayerItem> currentItem() const;
+		$<Track> currentTrack() const;
 		$<PlaybackHistoryItem> currentHistoryItem() const;
 		
 		$<TrackCollection> context() const;
@@ -139,6 +141,8 @@ namespace sh {
 		void setMediaControls(MediaControls*);
 		MediaControls* getMediaControls();
 		const MediaControls* getMediaControls() const;
+		
+		$<Track> preferredTrackForItem(const PlayerItem& item) const;
 		
 	protected:
 		virtual Promise<void> onPlaybackOrganizerPrepareItem($<PlaybackOrganizer> organizer, PlayerItem item) override;
@@ -163,8 +167,11 @@ namespace sh {
 		String getProgressFilePath() const;
 		String getMetadataFilePath() const;
 		
+		Generator<void> preparePreferredTrack(const PlayerItem& item);
+		
 		struct ProgressData {
 			String uri;
+			String name;
 			String providerName;
 			double position;
 			
@@ -214,7 +221,9 @@ namespace sh {
 		
 		Optional<MediaPlaybackProvider::State> providerPlaybackState;
 		Optional<MediaPlaybackProvider::Metadata> providerPlaybackMetadata;
+		
 		Optional<PlayerItem> playingItem;
+		$<Track> playingTrack;
 		
 		$<Timer> providerPlayerStateTimer;
 		

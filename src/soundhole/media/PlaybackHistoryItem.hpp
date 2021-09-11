@@ -14,6 +14,7 @@
 
 namespace sh {
 	class PlaybackHistoryItem: public std::enable_shared_from_this<PlaybackHistoryItem> {
+		friend class PlayerHistoryManager;
 	public:
 		static constexpr double FALLBACK_DURATION = 120.0;
 		

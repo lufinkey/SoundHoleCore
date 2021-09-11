@@ -193,6 +193,7 @@ namespace sh {
 		Promise<void> deleteSavedPlaylist(String uri);
 		Promise<void> deleteFollowedArtist(String uri);
 		Promise<void> deleteFollowedUserAccount(String uri);
+		Promise<void> deletePlaybackHistoryItem(Date startTime, String trackURI);
 		
 	private:
 		static void applyDBState(SQLiteTransaction& tx, std::map<String,String> state);

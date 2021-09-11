@@ -35,6 +35,7 @@ namespace sh {
 		using SteadyClock = std::chrono::steady_clock;
 		
 		void updateFromPlayer($<Player> player, bool finishedItem);
+		void deleteFromHistory($<PlaybackHistoryItem> item);
 		void updateHistoryDBIfNeeded($<PlaybackHistoryItem> item);
 		
 		Player* player;

@@ -1406,25 +1406,29 @@ void updateTrackCollectionVersionId(SQLiteTransaction& tx, String collectionURI,
 
 
 void deleteSavedTrack(SQLiteTransaction& tx, String trackURI) {
-	tx.addSQL("DELETE FROM SavedTrack AS tr WHERE trackURI = ?", {
+	tx.addSQL("DELETE FROM SavedTrack WHERE trackURI = ?", {
 		trackURI
 	});
 }
 
 void deleteSavedAlbum(SQLiteTransaction& tx, String albumURI) {
-	tx.addSQL("DELETE FROM SavedAlbum AS tr WHERE albumURI = ?", { albumURI });
+	tx.addSQL("DELETE FROM SavedAlbum WHERE albumURI = ?", { albumURI });
 }
 
 void deleteSavedPlaylist(SQLiteTransaction& tx, String playlistURI) {
-	tx.addSQL("DELETE FROM SavedPlaylist AS tr WHERE playlistURI = ?", { playlistURI });
+	tx.addSQL("DELETE FROM SavedPlaylist WHERE playlistURI = ?", { playlistURI });
 }
 
 void deleteFollowedArtist(SQLiteTransaction& tx, String artistURI) {
-	tx.addSQL("DELETE FROM FollowedArtist AS tr WHERE artistURI = ?", { artistURI });
+	tx.addSQL("DELETE FROM FollowedArtist WHERE artistURI = ?", { artistURI });
 }
 
 void deleteFollowedUserAccount(SQLiteTransaction& tx, String userURI) {
-	tx.addSQL("DELETE FROM FollowedUserAccount AS tr WHERE userURI = ?", { userURI });
+	tx.addSQL("DELETE FROM FollowedUserAccount WHERE userURI = ?", { userURI });
+}
+
+void deletePlaybackHistoryItem(SQLiteTransaction& tx, Date startTime, String trackURI) {
+	tx.addSQL("DELETE FROM PlaybackHistoryItem WHERE startTime = ? AND trackURI = ?", { startTime, trackURI });
 }
 
 void deleteNonLibraryCollectionItems(SQLiteTransaction& tx) {

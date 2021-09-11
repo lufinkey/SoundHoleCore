@@ -10,6 +10,7 @@
 
 #include <soundhole/common.hpp>
 #include "Track.hpp"
+#include "OmniTrack.hpp"
 #include "QueueItem.hpp"
 #include "TrackCollection.hpp"
 
@@ -30,8 +31,32 @@ namespace sh {
 		bool isQueueItem() const;
 		$<QueueItem> asQueueItem() const;
 		
+		template<typename Predicate>
+		$<Track> linkedTrackWhere(Predicate predicate) const;
+		
+		bool matches(const PlayerItem&) const;
+		bool linksTrack($<const Track> track) const;
+		
 		Json toJson() const;
 		
 		bool matchesItem(const PlayerItem& item) const;
 	};
+
+
+
+	#pragma mark PlayerItem implementation
+
+	template<typename Predicate>
+	$<Track> PlayerItem::linkedTrackWhere(Predicate predicate) const {
+		auto track = this->track();
+		if(auto omniTrack = track.as<OmniTrack>()) {
+			if(auto linkedTrack = omniTrack->linkedTrackWhere(predicate)) {
+				return linkedTrack;
+			}
+		}
+		if(predicate(track)) {
+			return track;
+		}
+		return nullptr;
+	}
 }

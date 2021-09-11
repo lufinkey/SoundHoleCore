@@ -227,6 +227,12 @@
 		A5BA4A4F26E70F7C00139269 /* LastFMScrobbler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A4D26E70F7C00139269 /* LastFMScrobbler.cpp */; };
 		A5BA4A5026E70F7C00139269 /* LastFMScrobbler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A4D26E70F7C00139269 /* LastFMScrobbler.cpp */; };
 		A5BA4A5126E70F7C00139269 /* LastFMScrobbler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5BA4A4E26E70F7C00139269 /* LastFMScrobbler.hpp */; };
+		A5BA4A6B26E81D7000139269 /* OmniTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A6926E81D7000139269 /* OmniTrack.cpp */; };
+		A5BA4A6C26E81D7000139269 /* OmniTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A6926E81D7000139269 /* OmniTrack.cpp */; };
+		A5BA4A6D26E81D7000139269 /* OmniTrack.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5BA4A6A26E81D7000139269 /* OmniTrack.hpp */; };
+		A5BA4A7026E82F7300139269 /* OmniArtist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A6E26E82F7300139269 /* OmniArtist.cpp */; };
+		A5BA4A7126E82F7300139269 /* OmniArtist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A6E26E82F7300139269 /* OmniArtist.cpp */; };
+		A5BA4A7226E82F7300139269 /* OmniArtist.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5BA4A6F26E82F7300139269 /* OmniArtist.hpp */; };
 		A5C0A8E123CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5C0A8DF23CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.cpp */; };
 		A5C0A8E223CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5C0A8DF23CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.cpp */; };
 		A5C0A8E323CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5C0A8E023CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.hpp */; };
@@ -542,6 +548,10 @@
 		A5BA4A4926E70CDA00139269 /* Scrobbler.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Scrobbler.hpp; sourceTree = "<group>"; };
 		A5BA4A4D26E70F7C00139269 /* LastFMScrobbler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LastFMScrobbler.cpp; sourceTree = "<group>"; };
 		A5BA4A4E26E70F7C00139269 /* LastFMScrobbler.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = LastFMScrobbler.hpp; sourceTree = "<group>"; };
+		A5BA4A6926E81D7000139269 /* OmniTrack.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = OmniTrack.cpp; sourceTree = "<group>"; };
+		A5BA4A6A26E81D7000139269 /* OmniTrack.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = OmniTrack.hpp; sourceTree = "<group>"; };
+		A5BA4A6E26E82F7300139269 /* OmniArtist.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = OmniArtist.cpp; sourceTree = "<group>"; };
+		A5BA4A6F26E82F7300139269 /* OmniArtist.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = OmniArtist.hpp; sourceTree = "<group>"; };
 		A5C0A8DF23CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyAlbumMutatorDelegate.cpp; sourceTree = "<group>"; };
 		A5C0A8E023CFE27700CDB59E /* SpotifyAlbumMutatorDelegate.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpotifyAlbumMutatorDelegate.hpp; sourceTree = "<group>"; };
 		A5C0A8E623CFE59100CDB59E /* SpotifyPlaylistMutatorDelegate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpotifyPlaylistMutatorDelegate.cpp; sourceTree = "<group>"; };
@@ -829,8 +839,12 @@
 				A513ED84232DA20A000DCAC7 /* MediaItem.cpp */,
 				A5B973552381F91900FB3F1C /* Track.hpp */,
 				A5B973542381F91900FB3F1C /* Track.cpp */,
+				A5BA4A6A26E81D7000139269 /* OmniTrack.hpp */,
+				A5BA4A6926E81D7000139269 /* OmniTrack.cpp */,
 				A5B9735A2381FBA700FB3F1C /* Artist.hpp */,
 				A5B973592381FBA700FB3F1C /* Artist.cpp */,
+				A5BA4A6F26E82F7300139269 /* OmniArtist.hpp */,
+				A5BA4A6E26E82F7300139269 /* OmniArtist.cpp */,
 				A5B9736423822C0100FB3F1C /* TrackCollection.hpp */,
 				A50F74B5238B223F0061D9FD /* TrackCollection.impl.hpp */,
 				A5B9736323822C0100FB3F1C /* TrackCollection.cpp */,
@@ -1337,6 +1351,7 @@
 				A57378A423D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.hpp in Headers */,
 				A5B9736723822C0100FB3F1C /* TrackCollection.hpp in Headers */,
 				A5E851BE235A4AE90001F74D /* JSUtils.hpp in Headers */,
+				A5BA4A7226E82F7300139269 /* OmniArtist.hpp in Headers */,
 				A5AE3F44248728F600FB9AFF /* MediaLibrary.hpp in Headers */,
 				A5BA49D626DDB93C00139269 /* PlayerHistoryManager.hpp in Headers */,
 				A5B2BBFC2360F1E900ED010C /* SpotifyMediaTypes.impl.hpp in Headers */,
@@ -1351,6 +1366,7 @@
 				A5F081622543CFAE00C41A36 /* SystemMediaControls.hpp in Headers */,
 				A5C6CEFD25A24FE800596878 /* AuthedProviderIdentityStore.hpp in Headers */,
 				A5485A25238DFB1300CB7749 /* Utils.hpp in Headers */,
+				A5BA4A6D26E81D7000139269 /* OmniTrack.hpp in Headers */,
 				A5C0A8F123D1735F00CDB59E /* BandcampAlbumMutatorDelegate.hpp in Headers */,
 				A5AE3F2E247DCF3600FB9AFF /* SQLIndexRange.hpp in Headers */,
 				A5C0A8EA23CFE59100CDB59E /* SpotifyPlaylistMutatorDelegate.hpp in Headers */,
@@ -1813,6 +1829,7 @@
 				A513ED94232DA20B000DCAC7 /* YoutubeMediaProvider.cpp in Sources */,
 				A563A5CB24AFF3600036A842 /* SQLOrderBy.cpp in Sources */,
 				A5E851AA2357BECD0001F74D /* BandcampError.cpp in Sources */,
+				A5BA4A6B26E81D7000139269 /* OmniTrack.cpp in Sources */,
 				A5F081602543CFAE00C41A36 /* SystemMediaControls.cpp in Sources */,
 				A5BA49DC26E076FA00139269 /* PlayerItem.cpp in Sources */,
 				A5E851C4235A505B0001F74D /* Youtube.cpp in Sources */,
@@ -1840,6 +1857,7 @@
 				A52826E223F09B6200360508 /* Player.cpp in Sources */,
 				A5F9F63F244AB6CE00E80C7A /* Player_objc.mm in Sources */,
 				A513ED8D232DA20B000DCAC7 /* MediaProvider.cpp in Sources */,
+				A5BA4A7026E82F7300139269 /* OmniArtist.cpp in Sources */,
 				A571E12E2332C5A300603E14 /* SpotifyMediaProvider.cpp in Sources */,
 				A5D9F555255E0BA200E4762A /* YoutubeAuth_iOS.mm in Sources */,
 				A5BA4A0326E5A41000139269 /* LastFMTypes.cpp in Sources */,
@@ -1951,6 +1969,7 @@
 				A5C6CE2D259C176300596878 /* GoogleDriveStorageProvider_iOS.mm in Sources */,
 				A513ED9B232DA20C000DCAC7 /* MediaItem.cpp in Sources */,
 				A5BA49C926D407A800139269 /* PlaybackQueue.cpp in Sources */,
+				A5BA4A6C26E81D7000139269 /* OmniTrack.cpp in Sources */,
 				A5B9736123822BA300FB3F1C /* Album.cpp in Sources */,
 				A5B1B9012548EB2300DACA2D /* SHKeychainUtils_objc.mm in Sources */,
 				A5B7A79E2336C29200301FC0 /* SpotifyError.cpp in Sources */,
@@ -1960,6 +1979,7 @@
 				A5F07D75254383FF00C41A36 /* YoutubeMediaTypes.cpp in Sources */,
 				A54F2548239DAA2700C81E1C /* StreamPlayer.cpp in Sources */,
 				A5EDB8EE249ADC1200885BC2 /* MediaLibraryTracksCollection.cpp in Sources */,
+				A5BA4A7126E82F7300139269 /* OmniArtist.cpp in Sources */,
 				A5C6CDEE259860BC00596878 /* SoundHoleMediaProvider.cpp in Sources */,
 				A5F081612543CFAE00C41A36 /* SystemMediaControls.cpp in Sources */,
 				A5E851CF235DFEBC0001F74D /* BandcampMediaTypes.cpp in Sources */,

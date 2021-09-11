@@ -287,7 +287,7 @@ namespace sh {
 	}
 
 	Promise<void> PlaybackHistoryTrackCollection::loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) {
-		auto self = std::static_pointer_cast<PlaybackHistoryTrackCollection>(shared_from_this());
+		auto self = _$(shared_from_this()).forceAs<PlaybackHistoryTrackCollection>();
 		auto db = database();
 		if(options.database != nullptr) {
 			db = options.database;
@@ -310,9 +310,8 @@ namespace sh {
 			},
 			.order = _filters.order
 		}).then([=](auto results) {
-			mutator->applyAndResize(index, results.total, results.items.map([=](auto& json) {
-				return std::static_pointer_cast<PlaybackHistoryTrackCollectionItem>(
-					self->createCollectionItem(json, db->getProviderStash()));
+			mutator->applyAndResize(index, results.total, results.items.map([=](const Json& json) {
+				return self->createCollectionItem(json, db->getProviderStash()).forceAs<PlaybackHistoryTrackCollectionItem>();
 			}));
 		});
 	}

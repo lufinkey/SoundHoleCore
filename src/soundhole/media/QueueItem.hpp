@@ -14,18 +14,29 @@
 namespace sh {
 	class QueueItem: std::enable_shared_from_this<QueueItem> {
 	public:
-		static $<QueueItem> new$($<Track> track);
+		struct Data {
+			$<Track> track;
+			Date addedAt;
+		};
 		
-		QueueItem($<Track> track);
+		static $<QueueItem> new$($<Track> track);
+		static $<QueueItem> new$(const Data& data);
+		
+		QueueItem(const Data& data);
 		virtual ~QueueItem();
+		
+		bool matches(const QueueItem*) const;
 		
 		$<Track> track();
 		$<const Track> track() const;
+		
+		const Date& addedAt() const;
 		
 		static $<QueueItem> fromJson(const Json& json, MediaProviderStash* stash);
 		virtual Json toJson() const;
 		
 	private:
 		$<Track> _track;
+		Date _addedAt;
 	};
 }

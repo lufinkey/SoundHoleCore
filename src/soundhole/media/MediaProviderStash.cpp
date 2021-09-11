@@ -36,6 +36,10 @@ namespace sh {
 			return provider->playlist(Playlist::Data::fromJson(json,this));
 		} else if(type == "user") {
 			return provider->userAccount(UserAccount::Data::fromJson(json,this));
+		} else if(type == "omni-track") {
+			return provider->omniTrack(OmniTrack::Data::fromJson(json,this));
+		} else if(type == "omni-artist") {
+			return provider->omniArtist(OmniArtist::Data::fromJson(json,this));
 		}
 		throw std::invalid_argument("invalid media item type "+type);
 	}

@@ -106,6 +106,7 @@ void deleteSavedAlbum(SQLiteTransaction& tx, String albumURI);
 void deleteSavedPlaylist(SQLiteTransaction& tx, String playlistURI);
 void deleteFollowedArtist(SQLiteTransaction& tx, String artistURI);
 void deleteFollowedUserAccount(SQLiteTransaction& tx, String userURI);
+void deletePlaybackHistoryItem(SQLiteTransaction& tx, Date startTime, String trackURI);
 
 void deleteNonLibraryCollectionItems(SQLiteTransaction& tx);
 void deleteNonLibraryTracks(SQLiteTransaction& tx);
