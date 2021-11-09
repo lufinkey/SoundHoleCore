@@ -167,7 +167,7 @@ namespace sh {
 		String getProgressFilePath() const;
 		String getMetadataFilePath() const;
 		
-		Generator<void> preparePreferredTrack(const PlayerItem& item);
+		Generator<void> preparePreferredTrack(PlayerItem item);
 		
 		struct ProgressData {
 			String uri;
