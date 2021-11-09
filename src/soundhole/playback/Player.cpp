@@ -553,7 +553,8 @@ namespace sh {
 		return track;
 	}
 
-	Generator<void> Player::preparePreferredTrack(const PlayerItem& item) {
+	Generator<void> Player::preparePreferredTrack(PlayerItem item) {
+		co_yield initialGenNext();
 		auto track = item.track();
 		if(!track) {
 			// TODO maybe some items will need to load their track asynchronously?
