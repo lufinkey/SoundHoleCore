@@ -153,7 +153,7 @@ namespace sh {
 				historyItem = PlaybackHistoryItem::new$({
 					.track = currentTrack,
 					.startTime = currentDate,
-					.contextURI = context ? context->uri() : nullptr,
+					.contextURI = context ? context->uri() : String(),
 					.duration = 0,
 					.chosenByUser = true // TODO < this needs to be changed!!! check if player is playing from radio context, autoplay, etc
 				});

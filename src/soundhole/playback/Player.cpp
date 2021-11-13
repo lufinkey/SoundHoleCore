@@ -554,6 +554,7 @@ namespace sh {
 	}
 
 	Generator<void> Player::preparePreferredTrack(PlayerItem item) {
+		co_yield setGenResumeQueue(DispatchQueue::main());
 		co_yield initialGenNext();
 		auto track = item.track();
 		if(!track) {
@@ -667,6 +668,8 @@ namespace sh {
 		};
 		w$<Player> weakSelf = shared_from_this();
 		return playQueue.run(runOptions, [=](auto task) -> Generator<void> {
+			co_yield setGenResumeQueue(DispatchQueue::main());
+			co_yield initialGenNext();
 			auto self = weakSelf.lock();
 			if(!self) {
 				co_return;
