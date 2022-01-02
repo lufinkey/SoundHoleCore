@@ -94,8 +94,8 @@ export class AsyncQueueTask {
 		try {
 			await task;
 		}
-		catch(error) {
-			taskError = error;
+		catch(error: any) {
+			taskError = error as Error;
 		}
 		this.events.removeListener('cancel', onCancel);
 		if(taskError != null) {
@@ -249,7 +249,7 @@ export default class AsyncQueue {
 				return;
 			}
 			// run task
-			let taskError = null;
+			let taskError: Error | null = null;
 			let taskResult = undefined;
 			try {
 				const retVal = func(task);
@@ -278,8 +278,8 @@ export default class AsyncQueue {
 					taskResult = retVal;
 				}
 			}
-			catch(error) {
-				taskError = error;
+			catch(error: any) {
+				taskError = error as Error;
 			}
 			// remove task from queue
 			this._removeTask(task);
