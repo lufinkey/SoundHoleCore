@@ -21,6 +21,7 @@ namespace sh {
 		Map<String,String> params;
 		Optional<LastFMAPICredentials> credentials;
 		Optional<LastFMSession> session;
+        bool includeSignature = false;
 		
 		utils::HttpRequest toHttpRequest() const;
 		Promise<Json> perform() const;

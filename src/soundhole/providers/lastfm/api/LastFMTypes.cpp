@@ -8,17 +8,19 @@
 
 #include "LastFMTypes.hpp"
 #include "LastFMError.hpp"
+#include <soundhole/utils/js/JSUtils.hpp>
 
 namespace sh {
+	#pragma mark Session
+
 	LastFMSession LastFMSession::fromJson(const Json& json) {
 		auto keyJson = json["key"];
 		if(keyJson.string_value().empty()) {
 			throw LastFMError(LastFMError::Code::BAD_DATA, "Missing required property 'key'");
 		}
-		auto subscriberJson = json["subscriber"];
 		return LastFMSession{
 			.name = json["name"].string_value(),
-			.subscriber = subscriberJson.is_bool() ? subscriberJson.bool_value() : subscriberJson.is_number() ? (subscriberJson.number_value() != 0) : false,
+			.subscriber = jsutils::badlyFormattedBoolFromJson(json["subscriber"]).valueOr(false),
 			.key = keyJson.string_value()
 		};
 	}
@@ -32,6 +34,8 @@ namespace sh {
 	}
 
 
+
+	#pragma mark ScrobbleRequest
 
 	std::map<String,String> LastFMScrobbleRequest::toQueryItems() const {
 		std::map<String,String> queryItems;
@@ -68,6 +72,9 @@ namespace sh {
 		}
 	}
 
+
+
+	#pragma mark ScrobbleResponse
 
 	LastFMScrobbleResponse LastFMScrobbleResponse::fromJson(const Json& json) {
 		auto scrobblesJson = json["scrobbles"];
@@ -139,6 +146,410 @@ namespace sh {
 						: std::to_string(codeJson.number_value())
 				: String(),
 			.text = textJson.string_value()
+		};
+	}
+
+
+
+	#pragma mark Image
+
+    LastFMImage LastFMImage::fromJson(const Json& json) {
+		return LastFMImage{
+			.size = json["size"].string_value(),
+			.url = json["#text"].string_value()
+		};
+	}
+
+	#pragma mark Tag
+
+	LastFMTag LastFMTag::fromJson(const Json& json) {
+		return LastFMTag{
+			.name = json["name"].string_value(),
+			.url = json["url"].string_value()
+		};
+	}
+
+	#pragma mark Link
+
+	LastFMLink LastFMLink::fromJson(const Json& json) {
+		return LastFMLink{
+			.text = json["#text"].string_value(),
+			.rel = json["rel"].string_value(),
+			.href = json["href"].string_value()
+		};
+	}
+
+
+
+	#pragma mark UserInfo
+
+    LastFMUserInfo LastFMUserInfo::fromJson(const Json& json) {
+		return LastFMUserInfo{
+			.type = json["type"].string_value(),
+			.url = json["url"].string_value(),
+			.name = json["name"].string_value(),
+			.realname = json["realname"].string_value(),
+			.country = json["country"].string_value(),
+			.age = jsutils::stringFromJson(json["age"]),
+			.gender = json["gender"].string_value(),
+			.playCount = jsutils::badlyFormattedSizeFromJson(json["playcount"]),
+			.subscriber = jsutils::stringFromJson(json["subscriber"]),
+			.playlists = jsutils::stringFromJson(json["playlists"]),
+			.bootstrap = jsutils::stringFromJson(json["bootstrap"]),
+			.image = jsutils::singleOrArrayListFromJson(json["image"], [](const Json& imageJson) {
+				return LastFMImage::fromJson(imageJson);
+			}),
+			.registeredTime = jsutils::stringFromJson(json["registered"]["#text"]),
+			.registeredUnixTime = jsutils::stringFromJson(json["registered"]["unixtime"])
+		};
+    }
+
+	#pragma mark ArtistInfo
+
+	LastFMArtistInfo LastFMArtistInfo::fromJson(const Json& json) {
+		auto statsJson = json["stats"];
+		return LastFMArtistInfo{
+			.mbid = json["mbid"].string_value(),
+			.url = json["url"].string_value(),
+			.name = json["name"].string_value(),
+			.image = jsutils::singleOrArrayListFromJson(json["image"], [](const Json& imageJson) {
+				return LastFMImage::fromJson(imageJson);
+			}),
+			.streamable = jsutils::badlyFormattedBoolFromJson(json["streamable"]),
+			.onTour = jsutils::badlyFormattedBoolFromJson(json["ontour"]),
+			.stats = Stats{
+				.listeners = jsutils::badlyFormattedSizeFromJson(statsJson["listeners"]),
+				.playCount = jsutils::badlyFormattedSizeFromJson(statsJson["playcount"]),
+				.userPlayCount = jsutils::badlyFormattedSizeFromJson(statsJson["userplaycount"])
+			},
+			.similarArtists = jsutils::singleOrArrayListFromJson(json["similar"]["artist"], [](const Json& artistJson) {
+				return SimilarArtist::fromJson(artistJson);
+			}),
+			.tags = jsutils::singleOrArrayListFromJson(json["tags"]["tag"], [](const Json& artistJson) {
+				return LastFMTag::fromJson(artistJson);
+			}),
+			.bio = Bio{
+				.published = DateFormatter{
+					.format = "%d %b %Y, %H:%M",
+					.timeZone = TimeZone::gmt()
+				}.dateFromString(json["published"].string_value()),
+				.summary = json["summary"].string_value(),
+				.content = json["content"].string_value(),
+				.links = jsutils::singleOrArrayListFromJson(json["links"]["link"], [](const Json& linkJson) {
+					return LastFMLink::fromJson(linkJson);
+				})
+			}
+		};
+	}
+
+	#pragma mark TrackInfo
+
+    LastFMTrackInfo LastFMTrackInfo::fromJson(const Json& json) {
+        auto streamableJson = json["streamable"];
+        return LastFMTrackInfo{
+            .name = json["name"].string_value(),
+            .url = json["url"].string_value(),
+			.duration = ([&]() -> Optional<double> {
+				auto val = jsutils::badlyFormattedDoubleFromJson(json["duration"]);
+				if(val == 0.0) {
+					return std::nullopt;
+				}
+				return val;
+			})(),
+            .isStreamable = jsutils::badlyFormattedBoolFromJson(streamableJson["#text"]),
+			.isFullTrackStreamable = jsutils::badlyFormattedBoolFromJson(streamableJson["fulltrack"]),
+			.listeners = jsutils::stringFromJson(json["listeners"]),
+			.playcount = jsutils::stringFromJson(json["playcount"]),
+			.userplaycount = jsutils::stringFromJson(json["userplaycount"]),
+			.userloved = jsutils::stringFromJson(json["userloved"]),
+			.artist = Artist::fromJson(json["artist"]),
+			.album = Album::maybeFromJson(json["album"]),
+			.topTags = jsutils::singleOrArrayListFromJson(json["toptags"]["tag"], [](const Json& tagJson) {
+				return LastFMTag::fromJson(tagJson);
+			}),
+			.wiki = Wiki::maybeFromJson(json["wiki"])
+        };
+    }
+
+	LastFMTrackInfo::Artist LastFMTrackInfo::Artist::fromJson(const Json& json) {
+		return Artist{
+			.mbid = json["mbid"].string_value(),
+			.name = json["name"].string_value(),
+			.url = json["url"].string_value(),
+		};
+	}
+
+	LastFMTrackInfo::Album LastFMTrackInfo::Album::fromJson(const Json& json) {
+		return Album{
+			.artist = json["artist"].string_value(),
+			.title = json["title"].string_value(),
+			.url = json["url"].string_value(),
+			.image = jsutils::singleOrArrayListFromJson(json["image"], [](const Json& json) {
+				return LastFMImage::fromJson(json);
+			})
+		};
+	}
+
+	Optional<LastFMTrackInfo::Album> LastFMTrackInfo::Album::maybeFromJson(const Json& json) {
+		if(json.is_null()) {
+			return std::nullopt;
+		}
+		return LastFMTrackInfo::Album::fromJson(json);
+	}
+
+	LastFMTrackInfo::Wiki LastFMTrackInfo::Wiki::fromJson(const Json& json) {
+		return Wiki{
+			.published = DateFormatter{
+				.format = "%d %b %Y, %H:%M",
+				.timeZone = TimeZone::gmt()
+			}.dateFromString(json["published"].string_value()),
+			.summary = json["summary"].string_value(),
+			.content = json["content"].string_value()
+		};
+	}
+
+	Optional<LastFMTrackInfo::Wiki> LastFMTrackInfo::Wiki::maybeFromJson(const Json& json) {
+		if(json.is_null()) {
+			return std::nullopt;
+		}
+		return LastFMTrackInfo::Wiki::fromJson(json);
+	}
+
+
+
+	#pragma mark AlbumInfo
+
+	LastFMAlbumInfo LastFMAlbumInfo::fromJson(const Json& json) {
+		return LastFMAlbumInfo{
+			.mbid = json["mbid"].string_value(),
+			.url = json["url"].string_value(),
+			.name = json["name"].string_value(),
+			.artist = json["artist"].string_value(),
+			.tags = jsutils::singleOrArrayListFromJson(json["tags"]["tag"], [](const Json& tagJson) {
+				return LastFMTag::fromJson(tagJson);
+			}),
+			.image = jsutils::singleOrArrayListFromJson(json["image"], [](const Json& imageJson) {
+				return LastFMImage::fromJson(imageJson);
+			}),
+			.listeners = jsutils::badlyFormattedSizeFromJson(json["listeners"]),
+			.playCount = jsutils::badlyFormattedSizeFromJson(json["playCount"]),
+			.userPlayCount = jsutils::badlyFormattedSizeFromJson(json["userPlayCount"]),
+			.tracks = jsutils::singleOrArrayListFromJson(json["tracks"]["track"], [](const Json& trackJson) {
+				return Track::fromJson(trackJson);
+			})
+		};
+	}
+
+	LastFMAlbumInfo::Track LastFMAlbumInfo::Track::fromJson(const Json& json) {
+		auto streamableJson = json["streamable"];
+		auto artistJson = json["artist"];
+		return Track{
+			.url = json["url"].string_value(),
+			.name = json["name"].string_value(),
+			.duration = ([&]() -> Optional<double> {
+				auto val = jsutils::badlyFormattedDoubleFromJson(json["duration"]);
+				if(val == 0.0) {
+					return std::nullopt;
+				}
+				return val;
+			})(),
+			.rank = jsutils::badlyFormattedSizeFromJson(json["rank"]),
+			.isStreamable = jsutils::badlyFormattedBoolFromJson(streamableJson["#text"]),
+			.isFullTrackStreamable = jsutils::badlyFormattedBoolFromJson(streamableJson["fulltrack"]),
+			.artist = Artist{
+				.mbid = artistJson["mbid"].string_value(),
+				.url = artistJson["url"].string_value(),
+				.name = artistJson["name"].string_value()
+			}
+		};
+	}
+
+
+
+	#pragma mark CorrectedArtist
+
+	LastFMCorrectedArtist LastFMCorrectedArtist::fromJson(const Json& json) {
+		return LastFMCorrectedArtist{
+			.mbid = json["mbid"].string_value(),
+			.name = json["name"].string_value(),
+			.url = json["url"].string_value()
+		};
+	}
+
+	#pragma mark CorrectedTrack
+
+	LastFMCorrectedTrack LastFMCorrectedTrack::fromJson(const Json& json) {
+		return LastFMCorrectedTrack{
+			.mbid = json["mbid"].string_value(),
+			.name = json["name"].string_value(),
+			.url = json["url"].string_value(),
+			.artist = LastFMCorrectedArtist::fromJson(json["artist"])
+		};
+	}
+
+	#pragma mark TrackCorrectionResponse
+
+	LastFMTrackCorrectionResponse LastFMTrackCorrectionResponse::fromJson(const Json& json) {
+		ArrayList<Correction> corrections;
+		auto correctionsJson = json["corrections"]["correction"];
+		if(correctionsJson.is_array()) {
+			corrections.reserve(correctionsJson.array_items().size());
+			for(auto& correctionJson : correctionsJson.array_items()) {
+				corrections.pushBack(Correction::fromJson(correctionJson));
+			}
+		} else if(correctionsJson.is_object()) {
+			corrections.pushBack(Correction::fromJson(correctionsJson));
+		}
+		return LastFMTrackCorrectionResponse{
+			.corrections = corrections
+		};
+	}
+
+	LastFMTrackCorrectionResponse::Correction LastFMTrackCorrectionResponse::Correction::fromJson(const Json& json) {
+		auto attrsJson = json["@attr"];
+		return Correction{
+			.track = LastFMCorrectedTrack::fromJson(json["track"]),
+			.index = jsutils::badlyFormattedSizeFromJson(attrsJson["index"]),
+			.artistCorrected = jsutils::badlyFormattedSizeFromJson(attrsJson["artistcorrected"]),
+			.trackCorrected = jsutils::badlyFormattedSizeFromJson(attrsJson["trackcorrected"])
+		};
+	}
+
+	#pragma mark ArtistCorrectionResponse
+
+	LastFMArtistCorrectionResponse LastFMArtistCorrectionResponse::fromJson(const Json& json) {
+		ArrayList<Correction> corrections;
+		auto correctionsJson = json["corrections"]["correction"];
+		if(correctionsJson.is_array()) {
+			corrections.reserve(correctionsJson.array_items().size());
+			for(auto& correctionJson : correctionsJson.array_items()) {
+				corrections.pushBack(Correction::fromJson(correctionJson));
+			}
+		} else if(correctionsJson.is_object()) {
+			corrections.pushBack(Correction::fromJson(correctionsJson));
+		}
+		return LastFMArtistCorrectionResponse{
+			.corrections = corrections
+		};
+	}
+
+	LastFMArtistCorrectionResponse::Correction LastFMArtistCorrectionResponse::Correction::fromJson(const Json& json) {
+		auto attrsJson = json["@attr"];
+		return Correction{
+			.artist = LastFMCorrectedArtist::fromJson(json["artist"]),
+			.index = jsutils::badlyFormattedSizeFromJson(attrsJson["index"])
+		};
+	}
+
+
+
+	#pragma mark TrackSearchResults
+
+	LastFMTrackSearchResults LastFMTrackSearchResults::fromJson(const Json& json) {
+		return LastFMTrackSearchResults{
+			.startPage =
+				jsutils::badlyFormattedSizeFromJson(json["opensearch:Query"]["startPage"])
+				.valueOrThrow(std::runtime_error("invalid value for 'opensearch:Query'.startPage")),
+			.startIndex =
+				jsutils::badlyFormattedSizeFromJson(json["opensearch:startIndex"])
+				.valueOrThrow(std::runtime_error("invalid value for 'opensearch:startIndex'")),
+			.itemsPerPage =
+				jsutils::badlyFormattedSizeFromJson(json["opensearch:itemsPerPage"])
+				.valueOrThrow(std::runtime_error("invalid value for 'opensearch:itemsPerPage'")),
+			.totalResults =
+				jsutils::badlyFormattedSizeFromJson(json["opensearch:totalResults"])
+				.valueOrThrow(std::runtime_error("invalid value for 'opensearch.totalResults'")),
+			.items = jsutils::singleOrArrayListFromJson(json["trackmatches"]["track"], [](const Json& itemJson) {
+				return Item::fromJson(itemJson);
+			})
+		};
+	}
+
+	LastFMTrackSearchResults::Item LastFMTrackSearchResults::Item::fromJson(const Json& json) {
+		return Item{
+			.mbid = json["mbid"].string_value(),
+			.name = json["name"].string_value(),
+			.artist = json["artist"].string_value(),
+			.url = json["url"].string_value(),
+			.streamable = jsutils::badlyFormattedBoolFromJson(json["streamable"]),
+			.listeners = jsutils::stringFromJson(json["listeners"]),
+			.image = jsutils::singleOrArrayListFromJson(json["image"], [](const Json& imageJson) {
+				return LastFMImage::fromJson(imageJson);
+			})
+		};
+	}
+
+
+
+	#pragma mark ArtistSearchResults
+
+	LastFMArtistSearchResults LastFMArtistSearchResults::fromJson(const Json& json) {
+		return LastFMArtistSearchResults{
+			.startPage =
+				jsutils::badlyFormattedSizeFromJson(json["opensearch:Query"]["startPage"])
+				.valueOrThrow(std::runtime_error("invalid value for 'opensearch:Query'.startPage")),
+			.startIndex =
+				jsutils::badlyFormattedSizeFromJson(json["opensearch:startIndex"])
+				.valueOrThrow(std::runtime_error("invalid value for 'opensearch:startIndex'")),
+			.itemsPerPage =
+				jsutils::badlyFormattedSizeFromJson(json["opensearch:itemsPerPage"])
+				.valueOrThrow(std::runtime_error("invalid value for 'opensearch:itemsPerPage'")),
+			.totalResults =
+				jsutils::badlyFormattedSizeFromJson(json["opensearch:totalResults"])
+				.valueOrThrow(std::runtime_error("invalid value for 'opensearch.totalResults'")),
+			.items = jsutils::singleOrArrayListFromJson(json["artistmatches"]["artist"], [](const Json& itemJson) {
+				return Item::fromJson(itemJson);
+			})
+		};
+	}
+
+	LastFMArtistSearchResults::Item LastFMArtistSearchResults::Item::fromJson(const Json& json) {
+		return Item{
+			.mbid = json["mbid"].string_value(),
+			.name = json["name"].string_value(),
+			.url = json["url"].string_value(),
+			.streamable = jsutils::badlyFormattedBoolFromJson(json["streamable"]),
+			.listeners = jsutils::stringFromJson(json["listeners"]),
+			.image = jsutils::singleOrArrayListFromJson(json["image"], [](const Json& imageJson) {
+				return LastFMImage::fromJson(imageJson);
+			})
+		};
+	}
+
+
+
+	#pragma mark AlbumSearchResults
+
+	LastFMAlbumSearchResults LastFMAlbumSearchResults::fromJson(const Json& json) {
+		return LastFMAlbumSearchResults{
+			.startPage =
+				jsutils::badlyFormattedSizeFromJson(json["opensearch:Query"]["startPage"])
+				.valueOrThrow(std::runtime_error("invalid value for 'opensearch:Query'.startPage")),
+			.startIndex =
+				jsutils::badlyFormattedSizeFromJson(json["opensearch:startIndex"])
+				.valueOrThrow(std::runtime_error("invalid value for 'opensearch:startIndex'")),
+			.itemsPerPage =
+				jsutils::badlyFormattedSizeFromJson(json["opensearch:itemsPerPage"])
+				.valueOrThrow(std::runtime_error("invalid value for 'opensearch:itemsPerPage'")),
+			.totalResults =
+				jsutils::badlyFormattedSizeFromJson(json["opensearch:totalResults"])
+				.valueOrThrow(std::runtime_error("invalid value for 'opensearch.totalResults'")),
+			.items = jsutils::singleOrArrayListFromJson(json["albummatches"]["album"], [](const Json& itemJson) {
+				return Item::fromJson(itemJson);
+			}),
+			.streamable = jsutils::badlyFormattedBoolFromJson(json["streamable"])
+		};
+	}
+
+	LastFMAlbumSearchResults::Item LastFMAlbumSearchResults::Item::fromJson(const Json& json) {
+		return Item{
+			.mbid = json["mbid"].string_value(),
+			.name = json["name"].string_value(),
+			.artist = json["artist"].string_value(),
+			.url = json["url"].string_value(),
+			.image = jsutils::singleOrArrayListFromJson(json["image"], [](const Json& imageJson) {
+				return LastFMImage::fromJson(imageJson);
+			})
 		};
 	}
 }

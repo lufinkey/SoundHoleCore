@@ -8,16 +8,16 @@ PODS:
   - NodeJSEmbed (0.1.0):
     - NodeMobile
   - NodeMobile (0.3.0)
-  - sqlite3 (3.36.0):
-    - sqlite3/common (= 3.36.0)
-  - sqlite3/common (3.36.0)
+  - sqlite3 (3.37.1):
+    - sqlite3/common (= 3.37.1)
+  - sqlite3/common (3.37.1)
 
 DEPENDENCIES:
   - "AsyncCpp (from `git@github.com:lufinkey/async-cpp.git`)"
   - "DataCpp (from `git@github.com:lufinkey/data-cpp.git`)"
   - "IOCpp (from `git@github.com:lufinkey/io-cpp.git`)"
   - "NodeJSEmbed (from `git@github.com:lufinkey/nodejs-embed.git`)"
-  - NodeMobile (from `https://github.com/janeasystems/nodejs-mobile.git`)
+  - NodeMobile (from `https://github.com/nodejs-mobile/nodejs-mobile.git`)
   - sqlite3
 
 SPEC REPOS:
@@ -34,14 +34,14 @@ EXTERNAL SOURCES:
   NodeJSEmbed:
     :git: "git@github.com:lufinkey/nodejs-embed.git"
   NodeMobile:
-    :git: https://github.com/janeasystems/nodejs-mobile.git
+    :git: https://github.com/nodejs-mobile/nodejs-mobile.git
 
 CHECKOUT OPTIONS:
   AsyncCpp:
     :commit: 1f8935cd0ba935bfecc704eb0076335a82063664
     :git: "git@github.com:lufinkey/async-cpp.git"
   DataCpp:
-    :commit: 128a7f962d0cece89f33bfbffab055f6aba5add2
+    :commit: b59db6f5fbbf07b948b19f12f0bf9a070ccce17c
     :git: "git@github.com:lufinkey/data-cpp.git"
   IOCpp:
     :commit: f877ecf9dd58e69920885cdcac47e5a904fcc8b6
@@ -50,8 +50,8 @@ CHECKOUT OPTIONS:
     :commit: 9276255f7517a1277f96fc01d01c2250a0c539da
     :git: "git@github.com:lufinkey/nodejs-embed.git"
   NodeMobile:
-    :commit: d4af0e6bdaf753d1f0d69db13627dcdffc90c436
-    :git: https://github.com/janeasystems/nodejs-mobile.git
+    :commit: e64924271a509a2808ae8010b4c6ddc93688bdbe
+    :git: https://github.com/nodejs-mobile/nodejs-mobile.git
 
 SPEC CHECKSUMS:
   AsyncCpp: 341837bd6e5288df38a6fb73187ca73425b05c33
@@ -59,8 +59,8 @@ SPEC CHECKSUMS:
   IOCpp: a95fd129f975109513d16e4c7a347f7d91651f83
   NodeJSEmbed: f59b85116d857e06f09c0c3f56b6ad638b963bd2
   NodeMobile: d6a5a252d4774c89c360f627f166b727b07b9aee
-  sqlite3: 797b1b1f92baf74716a3179f69d9652ce4a5df3f
+  sqlite3: f596ccdf63786af17b93d1723ef41d1151892841
 
-PODFILE CHECKSUM: 8681d1186736b894c8ae9510757890e6ed5bb398
+PODFILE CHECKSUM: 31f3cfc2f3e1f4279f325f996d1b77f0494a5170
 
-COCOAPODS: 1.10.0
+COCOAPODS: 1.11.2

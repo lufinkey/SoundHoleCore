@@ -26,7 +26,7 @@ namespace sh {
 			// add api key
 			params["api_key"] = credentials->key;
 		}
-		{ // create signature
+		if(includeSignature) { // create signature
 			String requestSig;
 			auto ignoredParams = ArrayList<String>{ "api_sig", "format" };
 			for(auto& pair : params) {
@@ -82,6 +82,10 @@ namespace sh {
 			if(response->statusCode >= 300 || errorJson.number_value() != 0) {
 				// handle error
 				auto messageJson = json["message"];
+				if(messageJson.is_null()
+				   || (messageJson.is_string() && messageJson.string_value().empty())) {
+					messageJson = Json((std::string)response->statusMessage);
+				}
 				throw LastFMError(LastFMError::Code::REQUEST_FAILED,
 					messageJson.is_string() ?
 						messageJson.string_value()

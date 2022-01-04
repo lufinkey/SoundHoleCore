@@ -26,6 +26,88 @@ namespace sh::jsutils {
 		return (size_t)json.number_value();
 	}
 
+	Optional<size_t> badlyFormattedSizeFromJson(const Json& json) {
+		if(json.is_number()) {
+			if(json.number_value() < 0) {
+				return std::nullopt;
+			}
+			return (size_t)json.number_value();
+		}
+		else if(json.is_string()) {
+			if(json.string_value().empty()) {
+				return std::nullopt;
+			}
+			return String(json.string_value()).maybeToArithmeticValue<size_t>();
+		}
+		else {
+			return std::nullopt;
+		}
+	}
+
+	Optional<bool> badlyFormattedBoolFromJson(const Json& json) {
+		if(json.is_bool()) {
+			return json.bool_value();
+		}
+		else if(json.is_number()) {
+			if(json.number_value() == 0) {
+				return false;
+			}
+			else if(json.number_value() > 0) {
+				return true;
+			}
+			return std::nullopt;
+		}
+		else if(json.is_string()) {
+			if(json.string_value().empty()) {
+				return std::nullopt;
+			}
+			else if(json.string_value() == "0") {
+				return false;
+			}
+			else if(json.string_value() == "1") {
+				return true;
+			}
+			return std::nullopt;
+		}
+		else {
+			return std::nullopt;
+		}
+	}
+
+	Optional<double> badlyFormattedDoubleFromJson(const Json& json) {
+		if(json.is_number()) {
+			return json.number_value();
+		}
+		else if(json.is_string()) {
+			if(json.string_value().empty()) {
+				return std::nullopt;
+			}
+			return String(json.string_value()).maybeToArithmeticValue<double>();
+		}
+		else {
+			return std::nullopt;
+		}
+	}
+
+    String stringFromJson(const Json& json) {
+        if(json.is_string()) {
+            return json.string_value();
+        }
+        else if(json.is_number()) {
+            if(floatIsIntegral(json.number_value())) {
+                return std::to_string(numeric_cast<long long>(json.number_value()));
+            } else {
+                return std::to_string(json.number_value());
+            }
+        } else if(json.is_bool()) {
+            return json.bool_value() ? "true" : "false";
+        } else if(json.is_null()) {
+            return String();
+        } else {
+            return json.dump();
+        }
+    }
+
 	Json jsonFromNapiValue(napi_env env, napi_value value) {
 		auto jsExports = scripts::getJSExports(env);
 		auto resultJson = jsExports.Get("json_encode").As<Napi::Function>().Call({ value }).As<Napi::String>();

@@ -29,14 +29,15 @@ namespace sh {
 		delete auth;
 	}
 
-	Promise<Json> LastFM::sendRequest(utils::HttpMethod httpMethod, String apiMethod, Map<String,String> params, bool usesAuth) {
+	Promise<Json> LastFM::sendRequest(utils::HttpMethod httpMethod, String apiMethod, Map<String,String> params, bool usesAuth, bool includeSignature) {
 		return LastFMAPIRequest{
 			.apiRoot = auth->apiConfig().apiRoot,
 			.apiMethod = apiMethod,
 			.httpMethod = httpMethod,
 			.params = params,
 			.credentials = auth->apiCredentials(),
-			.session = usesAuth ? auth->session() : std::nullopt
+			.session = usesAuth ? auth->session() : std::nullopt,
+            .includeSignature = includeSignature
 		}.perform();
 	}
 
@@ -53,9 +54,84 @@ namespace sh {
 	}
 
 
+
 	Promise<LastFMScrobbleResponse> LastFM::scrobble(LastFMScrobbleRequest request) {
 		return sendRequest(utils::HttpMethod::POST, "track.scrobble", request.toQueryItems()).map(nullptr, [](Json response) {
 			return LastFMScrobbleResponse::fromJson(response);
+		});
+	}
+
+
+
+	Promise<LastFMArtistSearchResults> LastFM::searchArtist(LastFMArtistSearchRequest request) {
+		auto params = Map<String,String>{
+			{ "artist", request.artist }
+		};
+		if(request.page.hasValue()) {
+			params["page"] = std::to_string(request.page.value());
+		}
+		if(request.limit.hasValue()) {
+			params["limit"] = std::to_string(request.limit.value());
+		}
+		return sendRequest(utils::HttpMethod::GET, "artist.search", params).map([](Json json) {
+			return LastFMArtistSearchResults::fromJson(json["results"]);
+		});
+	}
+
+	Promise<LastFMArtistInfo> LastFM::getArtistInfo(LastFMArtistInfoRequest request) {
+		auto params = Map<String,String>{
+			{ "artist", request.artist }
+		};
+		if(!request.mbid.empty()) {
+			params["mbid"] = request.mbid;
+		}
+		if(!request.username.empty()) {
+			params["username"] = request.username;
+		}
+		if(!request.lang.empty()) {
+			params["lang"] = request.lang;
+		}
+		if(request.autocorrect.hasValue()) {
+			params["autocorrect"] = request.autocorrect.value() ? "1" : "0";
+		}
+		return sendRequest(utils::HttpMethod::GET, "artist.getInfo", params).map([](Json json) {
+			return LastFMArtistInfo::fromJson(json["artist"]);
+		});
+	}
+
+
+
+	Promise<LastFMTrackSearchResults> LastFM::searchTrack(LastFMTrackSearchRequest request) {
+		auto params = Map<String,String>{
+			{ "track", request.track }
+		};
+		if(!request.artist.empty()) {
+			params["artist"] = request.artist;
+		}
+		if(request.page.hasValue()) {
+			params["page"] = std::to_string(request.page.value());
+		}
+		if(request.limit.hasValue()) {
+			params["limit"] = std::to_string(request.limit.value());
+		}
+		return sendRequest(utils::HttpMethod::GET, "track.search", params).map([](Json json) {
+			return LastFMTrackSearchResults::fromJson(json["results"]);
+		});
+	}
+
+	Promise<LastFMTrackInfo> LastFM::getTrackInfo(LastFMTrackInfoRequest request) {
+		auto params = Map<String,String>{
+			{ "track", request.track },
+			{ "artist", request.artist }
+		};
+		if(!request.username.empty()) {
+			params["username"] = request.username;
+		}
+		if(request.autocorrect.hasValue()) {
+			params["autocorrect"] = request.autocorrect.value() ? "1" : "0";
+		}
+		return sendRequest(utils::HttpMethod::GET, "track.getInfo", params).map([](Json json) {
+			return LastFMTrackInfo::fromJson(json["track"]);
 		});
 	}
 
@@ -65,4 +141,71 @@ namespace sh {
 			{ "artist", artist }
 		}).toVoid();
 	}
+
+    Promise<void> LastFM::unloveTrack(String track, String artist) {
+        return sendRequest(utils::HttpMethod::POST, "track.unlove", {
+            { "track", track },
+            { "artist", artist }
+        }).toVoid();
+    }
+
+
+
+	Promise<LastFMAlbumSearchResults> LastFM::searchAlbum(LastFMAlbumSearchRequest request) {
+		auto params = Map<String,String>{
+			{ "album", request.album }
+		};
+		if(!request.artist.empty()) {
+			params["artist"] = request.artist;
+		}
+		if(request.page.hasValue()) {
+			params["page"] = std::to_string(request.page.value());
+		}
+		if(request.limit.hasValue()) {
+			params["limit"] = std::to_string(request.limit.value());
+		}
+		return sendRequest(utils::HttpMethod::GET, "album.search", params).map([](Json json) {
+			return LastFMAlbumSearchResults::fromJson(json["results"]);
+		});
+	}
+
+	Promise<LastFMAlbumInfo> LastFM::getAlbumInfo(LastFMAlbumInfoRequest request) {
+		auto params = Map<String,String>{
+			{ "album", request.album }
+		};
+		if(!request.artist.empty()) {
+			params["artist"] = request.artist;
+		}
+		if(!request.mbid.empty()) {
+			params["mbid"] = request.mbid;
+		}
+		if(!request.username.empty()) {
+			params["username"] = request.username;
+		}
+		if(!request.lang.empty()) {
+			params["lang"] = request.lang;
+		}
+		if(request.autocorrect.hasValue()) {
+			params["autocorrect"] = request.autocorrect.value() ? "1" : "0";
+		}
+		return sendRequest(utils::HttpMethod::GET, "album.getInfo", params).map([](Json json) {
+			return LastFMAlbumInfo::fromJson(json["album"]);
+		});
+	}
+
+	
+
+
+
+    Promise<LastFMUserInfo> LastFM::getUserInfo(String user) {
+        auto params = Map<String,String>();
+        if(!user.empty()) {
+            params["user"] = user;
+        }
+        return sendRequest(utils::HttpMethod::GET, "user.getInfo", params).map([](Json json) {
+            return LastFMUserInfo::fromJson(json["user"]);
+        });
+    }
+
+    
 }

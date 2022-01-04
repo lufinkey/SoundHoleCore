@@ -24,6 +24,23 @@ namespace sh::jsutils {
 		}
 		return list;
 	}
+
+	template<typename Transform>
+	auto singleOrArrayListFromJson(const Json& json, Transform transform) {
+		using ReturnType = decltype(transform(std::declval<const Json>()));
+		auto list = ArrayList<ReturnType>();
+		if(!json.is_array()) {
+			if(!json.is_null()) {
+				list.pushBack(transform(json));
+			}
+			return list;
+		}
+		list.reserve(json.array_items().size());
+		for(auto& jsonItem : json.array_items()) {
+			list.pushBack(transform(jsonItem));
+		}
+		return list;
+	}
 	
 	template<typename Transform>
 	auto optArrayListFromJson(const Json& json, Transform transform) {
@@ -55,6 +72,12 @@ namespace sh::jsutils {
 
 	Optional<bool> optBoolFromJson(const Json&);
 	Optional<size_t> optSizeFromJson(const Json&);
+
+	Optional<size_t> badlyFormattedSizeFromJson(const Json& json);
+	Optional<bool> badlyFormattedBoolFromJson(const Json& json);
+	Optional<double> badlyFormattedDoubleFromJson(const Json& json);
+
+    String stringFromJson(const Json& json);
 	
 	#ifdef NODE_API_MODULE
 

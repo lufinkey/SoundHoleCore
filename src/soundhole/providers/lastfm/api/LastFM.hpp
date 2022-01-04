@@ -26,17 +26,31 @@ namespace sh {
 		LastFM(Options options, APIConfig apiConfig = APICONFIG_LASTFM);
 		~LastFM();
 		
-		Promise<Json> sendRequest(utils::HttpMethod httpMethod, String apiMethod, Map<String,String> params = {}, bool usesAuth = true);
+		Promise<Json> sendRequest(utils::HttpMethod httpMethod, String apiMethod, Map<String,String> params = {}, bool usesAuth = true, bool includeSignature = true);
 		
 		Promise<bool> login();
 		void logout();
 		
 		bool isLoggedIn() const;
 		
+		
 		Promise<LastFMScrobbleResponse> scrobble(LastFMScrobbleRequest request);
 		
+		Promise<LastFMArtistSearchResults> searchArtist(LastFMArtistSearchRequest request);
+		Promise<LastFMArtistInfo> getArtistInfo(LastFMArtistInfoRequest request);
+		
+		
+		Promise<LastFMTrackSearchResults> searchTrack(LastFMTrackSearchRequest request);
+		Promise<LastFMTrackInfo> getTrackInfo(LastFMTrackInfoRequest request);
 		Promise<void> loveTrack(String track, String artist);
 		Promise<void> unloveTrack(String track, String artist);
+		
+		
+		Promise<LastFMAlbumSearchResults> searchAlbum(LastFMAlbumSearchRequest request);
+		Promise<LastFMAlbumInfo> getAlbumInfo(LastFMAlbumInfoRequest request);
+		
+        
+        Promise<LastFMUserInfo> getUserInfo(String user);
 		
 	private:
 		LastFMAuth* auth;
