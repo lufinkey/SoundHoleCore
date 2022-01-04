@@ -154,12 +154,22 @@ namespace sh {
 		return Promise<void>::reject(std::runtime_error("MediaLibraryProxyProvider cannot unfollow users"));
 	}
 
+	bool MediaLibraryProxyProvider::canSaveTracks() const {
+		// return true to ensure code doesn't attempt to save local media library playlists elsewhere successfully
+		return true;
+	}
+
 	Promise<void> MediaLibraryProxyProvider::saveTrack(String trackURI) {
 		return Promise<void>::reject(std::runtime_error("MediaLibraryProxyProvider cannot save tracks"));
 	}
 
 	Promise<void> MediaLibraryProxyProvider::unsaveTrack(String trackURI) {
 		return Promise<void>::reject(std::runtime_error("MediaLibraryProxyProvider cannot unsave tracks"));
+	}
+
+	bool MediaLibraryProxyProvider::canSaveAlbums() const {
+		// return true to ensure code doesn't attempt to save local media library playlists elsewhere successfully
+		return true;
 	}
 
 	Promise<void> MediaLibraryProxyProvider::saveAlbum(String albumURI) {

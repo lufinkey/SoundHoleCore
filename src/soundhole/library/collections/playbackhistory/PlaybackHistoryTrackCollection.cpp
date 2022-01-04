@@ -288,7 +288,7 @@ namespace sh {
 
 	Promise<void> PlaybackHistoryTrackCollection::loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) {
 		auto self = _$(shared_from_this()).forceAs<PlaybackHistoryTrackCollection>();
-		auto db = database();
+		auto db = this->database();
 		if(options.database != nullptr) {
 			db = options.database;
 		}

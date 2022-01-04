@@ -203,7 +203,7 @@ namespace sh {
 
 	Promise<void> MediaLibraryTracksCollection::loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) {
 		auto self = std::static_pointer_cast<MediaLibraryTracksCollection>(shared_from_this());
-		auto db = database();
+		auto db = this->database();
 		if(options.database != nullptr) {
 			db = options.database;
 		}

@@ -1068,7 +1068,7 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 		if(!this._libraryDB) {
 			throw new Error("No library DB available");
 		}
-		return this._libraryDB.checkFollowedPlaylists(uris);
+		return await this._libraryDB.checkFollowedPlaylists(uris);
 	}
 
 	async getFollowedPlaylists(options: {offset: number, limit: number}): Promise<GoogleSheetPage<FollowedItem>> {
@@ -1108,7 +1108,7 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 		if(!this._libraryDB) {
 			throw new Error("No library DB available");
 		}
-		return this._libraryDB.checkFollowedUsers(uris);
+		return await this._libraryDB.checkFollowedUsers(uris);
 	}
 
 	async getFollowedUsers(options: {offset: number, limit: number}): Promise<GoogleSheetPage<FollowedItem>> {
@@ -1148,7 +1148,7 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 		if(!this._libraryDB) {
 			throw new Error("No library DB available");
 		}
-		return this._libraryDB.checkFollowedArtists(uris);
+		return await this._libraryDB.checkFollowedArtists(uris);
 	}
 
 	async getFollowedArtists(options: {offset: number, limit: number}): Promise<GoogleSheetPage<FollowedItem>> {
@@ -1157,5 +1157,85 @@ export default class GoogleDriveStorageProvider implements StorageProvider {
 			throw new Error("No library DB available");
 		}
 		return await this._libraryDB.getFollowedArtistsInRange(options);
+	}
+
+
+
+	async saveTracks(tracks: NewFollowedItem[]): Promise<FollowedItemRow[]> {
+		await this._prepareForRequest();
+		if(!this._libraryDB) {
+			throw new Error("No library DB available");
+		}
+		return await this._libraryDB.addSavedTracks(tracks.map((track): FollowedItem => {
+			return {
+				uri: track.uri,
+				provider: track.provider,
+				addedAt: (new Date()).getTime()
+			};
+		}));
+	}
+
+	async unsaveTracks(trackURIs: string[]): Promise<void> {
+		await this._prepareForRequest();
+		if(!this._libraryDB) {
+			throw new Error("No library DB available");
+		}
+		await this._libraryDB.removeSavedTracks(trackURIs);
+	}
+
+	async checkSavedTracks(uris: string[]): Promise<boolean[]> {
+		await this._prepareForRequest();
+		if(!this._libraryDB) {
+			throw new Error("No library DB available");
+		}
+		return await this._libraryDB.checkSavedTracks(uris);
+	}
+
+	async getSavedTracks(options: {offset: number, limit: number}): Promise<GoogleSheetPage<FollowedItem>> {
+		await this._prepareForRequest();
+		if(!this._libraryDB) {
+			throw new Error("No library DB available");
+		}
+		return await this._libraryDB.getSavedTracksInRange(options);
+	}
+
+
+
+	async saveAlbums(albums: NewFollowedItem[]): Promise<FollowedItemRow[]> {
+		await this._prepareForRequest();
+		if(!this._libraryDB) {
+			throw new Error("No library DB available");
+		}
+		return await this._libraryDB.addSavedAlbums(albums.map((album): FollowedItem => {
+			return {
+				uri: album.uri,
+				provider: album.provider,
+				addedAt: (new Date()).getTime()
+			};
+		}));
+	}
+
+	async unsaveAlbums(albumURIs: string[]): Promise<void> {
+		await this._prepareForRequest();
+		if(!this._libraryDB) {
+			throw new Error("No library DB available");
+		}
+		await this._libraryDB.removeSavedAlbums(albumURIs);
+	}
+
+	async checkSavedAlbums(uris: string[]): Promise<boolean[]> {
+		await this._prepareForRequest();
+		if(!this._libraryDB) {
+			throw new Error("No library DB available");
+		}
+		return await this._libraryDB.checkSavedAlbums(uris);
+	}
+
+	async getSavedAlbums(options: {offset: number, limit: number}): Promise<GoogleSheetPage<FollowedItem>> {
+		await this._prepareForRequest();
+		if(!this._libraryDB) {
+			throw new Error("No library DB available");
+		}
+		return await this._libraryDB.getSavedAlbumsInRange(options);
 	}
 }

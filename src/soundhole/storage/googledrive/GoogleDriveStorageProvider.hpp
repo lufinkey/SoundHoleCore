@@ -61,6 +61,8 @@ namespace sh {
 			Optional<Date> mostRecentPlaylistFollow;
 			Optional<Date> mostRecentArtistFollow;
 			Optional<Date> mostRecentUserFollow;
+			Optional<Date> mostRecentTrackSave;
+			Optional<Date> mostRecentAlbumSave;
 			
 			String syncCurrentType;
 			String syncPageToken;
@@ -74,6 +76,12 @@ namespace sh {
 		virtual LibraryItemGenerator generateLibrary(GenerateLibraryOptions options) override;
 		
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) override;
+		
+		virtual Promise<void> saveTracks(ArrayList<NewFollowedItem> tracks) override;
+		virtual Promise<void> unsaveTracks(ArrayList<String> trackURIs) override;
+		
+		virtual Promise<void> saveAlbums(ArrayList<NewFollowedItem> albums) override;
+		virtual Promise<void> unsaveAlbums(ArrayList<String> albumURIs) override;
 		
 		virtual Promise<void> followPlaylists(ArrayList<NewFollowedItem> playlists) override;
 		virtual Promise<void> unfollowPlaylists(ArrayList<String> playlistURIs) override;
@@ -111,6 +119,8 @@ namespace sh {
 		Promise<GoogleSheetDBPage<FollowedItem>> getFollowedPlaylists(size_t offset, size_t limit);
 		Promise<GoogleSheetDBPage<FollowedItem>> getFollowedArtists(size_t offset, size_t limit);
 		Promise<GoogleSheetDBPage<FollowedItem>> getFollowedUsers(size_t offset, size_t limit);
+		Promise<GoogleSheetDBPage<FollowedItem>> getSavedTracks(size_t offset, size_t limit);
+		Promise<GoogleSheetDBPage<FollowedItem>> getSavedAlbums(size_t offset, size_t limit);
 		
 		Promise<void> handleOAuthRedirect(std::map<String,String> params, String codeVerifier);
 		Json sessionFromJS(napi_env env);

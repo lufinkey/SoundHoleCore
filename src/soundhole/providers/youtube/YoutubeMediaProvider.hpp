@@ -96,8 +96,11 @@ namespace sh {
 		virtual Promise<void> followUser(String userURI) override;
 		virtual Promise<void> unfollowUser(String userURI) override;
 		
+		virtual bool canSaveTracks() const override;
 		virtual Promise<void> saveTrack(String trackURI) override;
 		virtual Promise<void> unsaveTrack(String trackURI) override;
+		
+		virtual bool canSaveAlbums() const override;
 		virtual Promise<void> saveAlbum(String albumURI) override;
 		virtual Promise<void> unsaveAlbum(String albumURI) override;
 		
@@ -118,6 +121,7 @@ namespace sh {
 		PlaylistItem::Data createPlaylistItemData(YoutubePlaylistItem playlistItem);
 		UserAccount::Data createUserData(YoutubeChannel channel);
 		$<MediaItem> createMediaItem(YoutubeSearchResult searchResult);
+		static MediaItem::Image createImage(YoutubeImage image);
 		
 		struct URI {
 			String provider;
@@ -136,8 +140,6 @@ namespace sh {
 	private:
 		String createURI(String type, String id) const;
 		URI parseURL(String url) const;
-		
-		static MediaItem::Image createImage(YoutubeImage image);
 		
 		Youtube* youtube;
 		String libraryPlaylistName;

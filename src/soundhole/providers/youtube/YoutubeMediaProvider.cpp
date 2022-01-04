@@ -1021,6 +1021,10 @@ namespace sh {
 		return Promise<void>::reject(std::runtime_error("not implemented"));
 	}
 
+	bool YoutubeMediaProvider::canSaveTracks() const {
+		return true;
+	}
+
 	Promise<void> YoutubeMediaProvider::saveTrack(String trackURI) {
 		auto uriParts = parseURI(trackURI);
 		return getLibraryTracksPlaylistID().then([=](auto libraryPlaylistId) {
@@ -1063,6 +1067,10 @@ namespace sh {
 				}));
 			});
 		});
+	}
+
+	bool YoutubeMediaProvider::canSaveAlbums() const {
+		return true;
 	}
 
 	Promise<void> YoutubeMediaProvider::saveAlbum(String albumURI) {

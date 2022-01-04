@@ -1054,6 +1054,10 @@ namespace sh {
 		return bandcamp->unfollowFan(uriParts.url);
 	}
 
+	bool BandcampMediaProvider::canSaveTracks() const {
+		return true;
+	}
+
 	Promise<void> BandcampMediaProvider::saveTrack(String trackURI) {
 		auto uriParts = parseURI(trackURI);
 		return bandcamp->saveItem(uriParts.url);
@@ -1062,6 +1066,10 @@ namespace sh {
 	Promise<void> BandcampMediaProvider::unsaveTrack(String trackURI) {
 		auto uriParts = parseURI(trackURI);
 		return bandcamp->unsaveItem(uriParts.url);
+	}
+
+	bool BandcampMediaProvider::canSaveAlbums() const {
+		return true;
 	}
 
 	Promise<void> BandcampMediaProvider::saveAlbum(String albumURI) {

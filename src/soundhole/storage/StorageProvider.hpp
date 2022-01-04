@@ -93,6 +93,12 @@ namespace sh {
 		
 		virtual Playlist::MutatorDelegate* createPlaylistMutatorDelegate($<Playlist> playlist) = 0;
 		
+		virtual Promise<void> saveTracks(ArrayList<NewFollowedItem> tracks) = 0;
+		virtual Promise<void> unsaveTracks(ArrayList<String> trackURIs) = 0;
+		
+		virtual Promise<void> saveAlbums(ArrayList<NewFollowedItem> albums) = 0;
+		virtual Promise<void> unsaveAlbums(ArrayList<String> albumURIs) = 0;
+		
 		virtual Promise<void> followPlaylists(ArrayList<NewFollowedItem> playlists) = 0;
 		virtual Promise<void> unfollowPlaylists(ArrayList<String> playlistURIs) = 0;
 		

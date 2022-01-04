@@ -45,6 +45,12 @@ export default class GoogleDriveLibraryDB extends GoogleSheetsDBWrapper {
 	static get TABLENAME_FOLLOWED_ARTISTS(): string {
 		return 'followed_artists';
 	}
+	static get TABLENAME_SAVED_TRACKS(): string {
+		return 'saved_tracks';
+	}
+	static get TABLENAME_SAVED_ALBUMS(): string {
+		return 'saved_albums';
+	}
 	static dbInfo({ appKey }: KeyingOptions): GSDBInfo {
 		return {
 			tables: [
@@ -100,6 +106,56 @@ export default class GoogleDriveLibraryDB extends GoogleSheetsDBWrapper {
 				},
 				{ // Followed Artists
 					name: this.TABLENAME_FOLLOWED_ARTISTS,
+					columnInfo: [
+						{
+							name: 'uri',
+							type: 'rawstring',
+							nonnull: true
+						}, {
+							name: 'provider',
+							type: 'rawstring',
+							nonnull: true
+						}, {
+							name: 'addedAt',
+							type: 'timestamp',
+							nonnull: true
+						}
+					],
+					rowMetadataInfo: [
+						{
+							name: 'uri',
+							type: 'rawstring'
+						}
+					],
+					metadata: {}
+				},
+				{ // Saved Tracks
+					name: this.TABLENAME_SAVED_TRACKS,
+					columnInfo: [
+						{
+							name: 'uri',
+							type: 'rawstring',
+							nonnull: true
+						}, {
+							name: 'provider',
+							type: 'rawstring',
+							nonnull: true
+						}, {
+							name: 'addedAt',
+							type: 'timestamp',
+							nonnull: true
+						}
+					],
+					rowMetadataInfo: [
+						{
+							name: 'uri',
+							type: 'rawstring'
+						}
+					],
+					metadata: {}
+				},
+				{ // Saved Albums
+					name: this.TABLENAME_SAVED_ALBUMS,
 					columnInfo: [
 						{
 							name: 'uri',
@@ -492,5 +548,63 @@ export default class GoogleDriveLibraryDB extends GoogleSheetsDBWrapper {
 	async removeFollowedArtists(uris: string[]): Promise<void> {
 		const cls = GoogleDriveLibraryDB;
 		return await this._removeFollowedItems(cls.TABLENAME_FOLLOWED_ARTISTS, uris);
+	}
+
+
+
+	// Saved Tracks
+
+	async getSavedTracksInRange(options: {offset: number, limit: number}): Promise<GoogleSheetPage<FollowedItemRow>> {
+		const cls = GoogleDriveLibraryDB;
+		return await this._getFollowedItemsInRange(cls.TABLENAME_SAVED_TRACKS, options);
+	}
+	
+	async checkSavedTracks(uris: string[]): Promise<boolean[]> {
+		const cls = GoogleDriveLibraryDB;
+		return await this._checkFollowedItems(cls.TABLENAME_SAVED_TRACKS, uris);
+	}
+
+	async getSavedTracksWithURIs(uris: string[]): Promise<FollowedItemRow[]> {
+		const cls = GoogleDriveLibraryDB;
+		return await this._getFollowedItemsWithURIs(cls.TABLENAME_SAVED_TRACKS, uris);
+	}
+
+	async addSavedTracks(playlists: FollowedItem[]): Promise<FollowedItemRow[]> {
+		const cls = GoogleDriveLibraryDB;
+		return await this._addFollowedItems(cls.TABLENAME_SAVED_TRACKS, playlists);
+	}
+
+	async removeSavedTracks(uris: string[]): Promise<void> {
+		const cls = GoogleDriveLibraryDB;
+		return await this._removeFollowedItems(cls.TABLENAME_SAVED_TRACKS, uris);
+	}
+
+
+
+	// Saved Albums
+
+	async getSavedAlbumsInRange(options: {offset: number, limit: number}): Promise<GoogleSheetPage<FollowedItemRow>> {
+		const cls = GoogleDriveLibraryDB;
+		return await this._getFollowedItemsInRange(cls.TABLENAME_SAVED_ALBUMS, options);
+	}
+	
+	async checkSavedAlbums(uris: string[]): Promise<boolean[]> {
+		const cls = GoogleDriveLibraryDB;
+		return await this._checkFollowedItems(cls.TABLENAME_SAVED_ALBUMS, uris);
+	}
+
+	async getSavedAlbumsWithURIs(uris: string[]): Promise<FollowedItemRow[]> {
+		const cls = GoogleDriveLibraryDB;
+		return await this._getFollowedItemsWithURIs(cls.TABLENAME_SAVED_ALBUMS, uris);
+	}
+
+	async addSavedAlbums(playlists: FollowedItem[]): Promise<FollowedItemRow[]> {
+		const cls = GoogleDriveLibraryDB;
+		return await this._addFollowedItems(cls.TABLENAME_SAVED_ALBUMS, playlists);
+	}
+
+	async removeSavedAlbums(uris: string[]): Promise<void> {
+		const cls = GoogleDriveLibraryDB;
+		return await this._removeFollowedItems(cls.TABLENAME_SAVED_ALBUMS, uris);
 	}
 }

@@ -104,8 +104,11 @@ namespace sh {
 		virtual Promise<void> followUser(String userURI) override;
 		virtual Promise<void> unfollowUser(String userURI) override;
 		
+		virtual bool canSaveTracks() const override;
 		virtual Promise<void> saveTrack(String trackURI) override;
 		virtual Promise<void> unsaveTrack(String trackURI) override;
+		
+		virtual bool canSaveAlbums() const override;
 		virtual Promise<void> saveAlbum(String albumURI) override;
 		virtual Promise<void> unsaveAlbum(String albumURI) override;
 		

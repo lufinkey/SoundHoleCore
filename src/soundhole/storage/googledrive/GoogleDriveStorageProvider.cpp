@@ -460,7 +460,7 @@ namespace sh {
 	
 
 
-	#pragma mark Get Followed Items
+	#pragma mark Get Followed/Saved Items
 
 	Promise<GoogleSheetDBPage<StorageProvider::FollowedItem>> GoogleDriveStorageProvider::getFollowedPlaylists(size_t offset, size_t limit) {
 		return performAsyncJSAPIFunc<GoogleSheetDBPage<FollowedItem>>("getFollowedPlaylists", [=](napi_env env) {
@@ -501,11 +501,37 @@ namespace sh {
 		});
 	}
 
+	Promise<GoogleSheetDBPage<StorageProvider::FollowedItem>> GoogleDriveStorageProvider::getSavedTracks(size_t offset, size_t limit) {
+		return performAsyncJSAPIFunc<GoogleSheetDBPage<FollowedItem>>("getSavedTracks", [=](napi_env env) {
+			auto optionsObj = Napi::Object::New(env);
+			optionsObj.Set("offset", Napi::Number::New(env, offset));
+			optionsObj.Set("limit", Napi::Number::New(env, offset));
+			return std::vector<napi_value>{
+				optionsObj
+			};
+		}, [=](napi_env env, Napi::Value value) {
+			return GoogleSheetDBPage<FollowedItem>::fromNapiObject(value.As<Napi::Object>());
+		});
+	}
+
+	Promise<GoogleSheetDBPage<StorageProvider::FollowedItem>> GoogleDriveStorageProvider::getSavedAlbums(size_t offset, size_t limit) {
+		return performAsyncJSAPIFunc<GoogleSheetDBPage<FollowedItem>>("getSavedAlbums", [=](napi_env env) {
+			auto optionsObj = Napi::Object::New(env);
+			optionsObj.Set("offset", Napi::Number::New(env, offset));
+			optionsObj.Set("limit", Napi::Number::New(env, offset));
+			return std::vector<napi_value>{
+				optionsObj
+			};
+		}, [=](napi_env env, Napi::Value value) {
+			return GoogleSheetDBPage<FollowedItem>::fromNapiObject(value.As<Napi::Object>());
+		});
+	}
+
 
 
 	#pragma mark User Library
 
-	const auto GoogleDriveStorageProvider_syncLibraryTypes = ArrayList<String>{ "my-playlists", "followed-playlists", "followed-artists", "followed_users" };
+	const auto GoogleDriveStorageProvider_syncLibraryTypes = ArrayList<String>{ "my-playlists", "followed-playlists", "followed-artists", "followed-users", "saved-tracks", "saved-albums" };
 
 	Json GoogleDriveStorageProvider::GenerateLibraryResumeData::toJson() const {
 		return Json::object{
@@ -513,6 +539,8 @@ namespace sh {
 			{ "mostRecentPlaylistFollow", mostRecentPlaylistFollow ? (std::string)mostRecentPlaylistFollow->toISOString() : Json() },
 			{ "mostRecentArtistFollow", mostRecentArtistFollow ? (std::string)mostRecentArtistFollow->toISOString() : Json() },
 			{ "mostRecentUserFollow", mostRecentUserFollow ? (std::string)mostRecentUserFollow->toISOString() : Json() },
+			{ "mostRecentTrackSave", mostRecentTrackSave ? (std::string)mostRecentTrackSave->toISOString() : Json() },
+			{ "mostRecentAlbumSave", mostRecentAlbumSave ? (std::string)mostRecentAlbumSave->toISOString() : Json() },
 			{ "syncCurrentType", (std::string)syncCurrentType },
 			{ "syncPageToken", (std::string)syncPageToken },
 			{ "syncMostRecentSave", syncMostRecentSave ? (std::string)syncMostRecentSave->toISOString() : Json() },
@@ -526,6 +554,8 @@ namespace sh {
 		auto mostRecentPlaylistFollow = json["mostRecentPlaylistFollow"];
 		auto mostRecentArtistFollow = json["mostRecentArtistFollow"];
 		auto mostRecentUserFollow = json["mostRecentUserFollow"];
+		auto mostRecentTrackSave = json["mostRecentTrackSave"];
+		auto mostRecentAlbumSave = json["mostRecentAlbumSave"];
 		auto syncMostRecentSave = json["syncMostRecentSave"];
 		auto syncLastItemOffset = json["syncLastItemOffset"];
 		auto resumeData = GenerateLibraryResumeData{
@@ -533,6 +563,8 @@ namespace sh {
 			.mostRecentPlaylistFollow = mostRecentPlaylistFollow.is_string() ? Date::maybeFromISOString(mostRecentPlaylistFollow.string_value()) : std::nullopt,
 			.mostRecentArtistFollow = mostRecentArtistFollow.is_string() ? Date::maybeFromISOString(mostRecentArtistFollow.string_value()) : std::nullopt,
 			.mostRecentUserFollow = mostRecentUserFollow.is_string() ? Date::maybeFromISOString(mostRecentUserFollow.string_value()) : std::nullopt,
+			.mostRecentTrackSave = mostRecentTrackSave.is_string() ? Date::maybeFromISOString(mostRecentTrackSave.string_value()) : std::nullopt,
+			.mostRecentAlbumSave = mostRecentAlbumSave.is_string() ? Date::maybeFromISOString(mostRecentAlbumSave.string_value()) : std::nullopt,
 			.syncCurrentType = json["syncCurrentType"].string_value(),
 			.syncPageToken = json["syncPageToken"].string_value(),
 			.syncMostRecentSave = syncMostRecentSave.is_string() ? Date::maybeFromISOString(syncMostRecentSave.string_value()) : std::nullopt,
@@ -683,7 +715,7 @@ namespace sh {
 				};
 			}
 			else {
-				// sync items followed by the current user
+				// sync items followed/saved by the current user
 				auto generateFollowedItems = [=](
 						Optional<Date>* mostRecentSave,
 						auto itemsGetter,
@@ -878,6 +910,24 @@ namespace sh {
 						return provider->getArtist(uri);
 					});
 				}
+				else if(resumeData.syncCurrentType == "saved-tracks") {
+					co_return co_await generateFollowedItems(&resumeData.mostRecentTrackSave, [=](size_t offset, size_t limit) {
+						return getSavedTracks(offset, limit);
+					}, [](MediaProvider* provider, ArrayList<String> uris) {
+						return provider->getTracks(uris);
+					}, [](MediaProvider* provider, String uri) {
+						return provider->getTrack(uri);
+					});
+				}
+				else if(resumeData.syncCurrentType == "saved-albums") {
+					co_return co_await generateFollowedItems(&resumeData.mostRecentAlbumSave, [=](size_t offset, size_t limit) {
+						return getSavedAlbums(offset, limit);
+					}, [](MediaProvider* provider, ArrayList<String> uris) {
+						return provider->getAlbums(uris);
+					}, [](MediaProvider* provider, String uri) {
+						return provider->getAlbum(uri);
+					});
+				}
 				else {
 					throw std::runtime_error("invalid sync type "+resumeData.syncCurrentType);
 				}
@@ -1069,6 +1119,54 @@ namespace sh {
 		return performAsyncJSAPIFunc<void>("unfollowUsers", [=](napi_env env) {
 			auto objs = Napi::Array::New(env);
 			for(auto uri : userURIs) {
+				objs.Get("push").As<Napi::Function>().Call(objs, { uri.toNodeJSValue(env) });
+			}
+			return std::vector<napi_value>{ objs };
+		}, nullptr);
+	}
+
+
+
+	#pragma mark Track Saving / Unsaving
+
+	Promise<void> GoogleDriveStorageProvider::saveTracks(ArrayList<NewFollowedItem> tracks) {
+		return performAsyncJSAPIFunc<void>("saveTracks", [=](napi_env env) {
+			auto objs = Napi::Array::New(env);
+			for(auto& track : tracks) {
+				objs.Get("push").As<Napi::Function>().Call(objs, { track.toNapiObject(env) });
+			}
+			return std::vector<napi_value>{ objs };
+		}, nullptr);
+	}
+
+	Promise<void> GoogleDriveStorageProvider::unsaveTracks(ArrayList<String> trackURIs) {
+		return performAsyncJSAPIFunc<void>("unsaveTracks", [=](napi_env env) {
+			auto objs = Napi::Array::New(env);
+			for(auto uri : trackURIs) {
+				objs.Get("push").As<Napi::Function>().Call(objs, { uri.toNodeJSValue(env) });
+			}
+			return std::vector<napi_value>{ objs };
+		}, nullptr);
+	}
+
+
+
+	#pragma mark Album Saving / Unsaving
+
+	Promise<void> GoogleDriveStorageProvider::saveAlbums(ArrayList<NewFollowedItem> albums) {
+		return performAsyncJSAPIFunc<void>("saveAlbums", [=](napi_env env) {
+			auto objs = Napi::Array::New(env);
+			for(auto& album : albums) {
+				objs.Get("push").As<Napi::Function>().Call(objs, { album.toNapiObject(env) });
+			}
+			return std::vector<napi_value>{ objs };
+		}, nullptr);
+	}
+
+	Promise<void> GoogleDriveStorageProvider::unsaveAlbums(ArrayList<String> albumURIs) {
+		return performAsyncJSAPIFunc<void>("unsaveAlbums", [=](napi_env env) {
+			auto objs = Napi::Array::New(env);
+			for(auto uri : albumURIs) {
 				objs.Get("push").As<Napi::Function>().Call(objs, { uri.toNodeJSValue(env) });
 			}
 			return std::vector<napi_value>{ objs };
