@@ -55,6 +55,7 @@ namespace sh {
 		}
 		return Album::Data{
 			collectionData,
+			.musicBrainzID=json["musicBrainzId"].string_value(),
 			.artists=artists
 		};
 	}
@@ -69,8 +70,13 @@ namespace sh {
 
 	Album::Album(MediaProvider* provider, const Data& data)
 	: SpecialTrackCollection<AlbumItem>(provider, data),
+	_musicBrainzID(data.musicBrainzID),
 	_artists(data.artists) {
 		//
+	}
+
+	const String& Album::musicBrainzID() const {
+		return _musicBrainzID;
 	}
 	
 	const ArrayList<$<Artist>>& Album::artists() {
@@ -90,6 +96,9 @@ namespace sh {
 
 	void Album::applyData(const Data& data) {
 		SpecialTrackCollection<AlbumItem>::applyData(data);
+		if(!data.musicBrainzID.empty()) {
+			_musicBrainzID = data.musicBrainzID;
+		}
 		_artists = data.artists.map([&](auto& artist) -> $<Artist> {
 			auto cmpArtist = _artists.firstWhere([&](auto& cmpArtist) { return artist->uri() == cmpArtist->uri(); }, nullptr);
 			if(cmpArtist) {
@@ -102,6 +111,7 @@ namespace sh {
 	Album::Data Album::toData(const DataOptions& options) const {
 		return Album::Data{
 			SpecialTrackCollection<AlbumItem>::toData(options),
+			.musicBrainzID=_musicBrainzID,
 			.artists=_artists
 		};
 	}
@@ -109,6 +119,7 @@ namespace sh {
 	Json Album::toJson(const ToJsonOptions& options) const {
 		auto json = SpecialTrackCollection<AlbumItem>::toJson(options).object_items();
 		json.merge(Json::object{
+			{ "musicBrainzID", _musicBrainzID.empty() ? Json() : Json((std::string)_musicBrainzID) },
 			{ "artists", _artists.map([&](auto& artist) -> Json {
 				return artist->toJson();
 			}) }

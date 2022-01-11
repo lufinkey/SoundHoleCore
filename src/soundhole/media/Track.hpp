@@ -28,6 +28,7 @@ namespace sh {
 		};
 		
 		struct Data: public MediaItem::Data {
+			String musicBrainzID;
 			String albumName;
 			String albumURI;
 			ArrayList<$<Artist>> artists;
@@ -45,6 +46,8 @@ namespace sh {
 		Track(MediaProvider* provider, const Data& data);
 		
 		bool matches(const Track*) const;
+		
+		const String& musicBrainzID() const;
 		
 		const String& albumName() const;
 		const String& albumURI() const;
@@ -79,6 +82,7 @@ namespace sh {
 		virtual Json toJson() const override;
 		
 	protected:
+		String _musicBrainzID;
 		String _albumName;
 		String _albumURI;
 		ArrayList<$<Artist>> _artists;

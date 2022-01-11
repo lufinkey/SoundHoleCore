@@ -73,6 +73,7 @@ namespace sh {
 		auto playable = json["playable"];
 		return Track::Data{
 			mediaItemData,
+			.musicBrainzID = json["musicBrainzID"].string_value(),
 			.albumName = albumName.string_value(),
 			.albumURI = albumURI.string_value(),
 			.artists = ArrayList<Json>(artists.array_items()).map([=](auto& artistJson) -> $<Artist> {
@@ -114,6 +115,7 @@ namespace sh {
 	
 	Track::Track(MediaProvider* provider, const Data& data)
 	: MediaItem(provider, data),
+	_musicBrainzID(data.musicBrainzID),
 	_albumName(data.albumName),
 	_albumURI(data.albumURI),
 	_artists(data.artists),
@@ -136,6 +138,10 @@ namespace sh {
 							&& _artists.front()->uri() == cmp->_artists.front()->uri()
 							&& (!_artists.front()->uri().empty() || _artists.front()->name() == cmp->_artists.front()->name())
 							&& _artists.front()->mediaProvider()->name() == cmp->_artists.front()->mediaProvider()->name()))));
+	}
+
+	const String& Track::musicBrainzID() const {
+		return _musicBrainzID;
 	}
 	
 	const String& Track::albumName() const {
@@ -243,6 +249,9 @@ namespace sh {
 
 	void Track::applyData(const Data& data) {
 		MediaItem::applyData(data);
+		if(!data.musicBrainzID.empty()) {
+			_musicBrainzID = data.musicBrainzID;
+		}
 		if(!data.albumName.empty()) {
 			_albumName = data.albumName;
 		}
@@ -301,6 +310,7 @@ namespace sh {
 	Track::Data Track::toData() const {
 		return Track::Data{
 			MediaItem::toData(),
+			.musicBrainzID = _musicBrainzID,
 			.albumName=_albumName,
 			.albumURI=_albumURI,
 			.artists=_artists,
@@ -316,6 +326,7 @@ namespace sh {
 	Json Track::toJson() const {
 		auto json = MediaItem::toJson().object_items();
 		json.merge(Json::object{
+			{"musicBrainzID", _musicBrainzID.empty() ? Json() : Json((std::string)_musicBrainzID)},
 			{"albumName", (std::string)_albumName},
 			{"albumURI", (std::string)_albumURI},
 			{"artists", Json(_artists.map([&](auto& artist) -> Json {

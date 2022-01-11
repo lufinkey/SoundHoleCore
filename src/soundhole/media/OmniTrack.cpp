@@ -13,7 +13,6 @@ namespace sh {
 	OmniTrack::Data OmniTrack::Data::fromJson(const Json& json, MediaProviderStash* stash) {
 		return Data{
 			Track::Data::fromJson(json, stash),
-			.musicBrainzID = json["musicBrainzID"].string_value(),
 			.linkedTracks = ArrayList<$<Track>>(json["linkedTracks"].array_items(), [&](auto& json) {
 				auto mediaItem = stash->parseMediaItem(json);
 				if(!mediaItem) {
@@ -36,7 +35,7 @@ namespace sh {
 	}
 
 	OmniTrack::OmniTrack(MediaProvider* provider, const Data& data)
-	: Track(provider, data), _musicBrainzID(data.musicBrainzID), _linkedTracks(data.linkedTracks) {
+	: Track(provider, data), _linkedTracks(data.linkedTracks) {
 		for(auto& track : _linkedTracks) {
 			if(track.as<OmniTrack>() != nullptr) {
 				throw std::logic_error("Linked track of OmniTrack cannot be an OmniTrack");
@@ -71,10 +70,6 @@ namespace sh {
 		return false;
 	}
 
-	const String& OmniTrack::musicBrainzID() const {
-		return _musicBrainzID;
-	}
-
 	const ArrayList<$<Track>>& OmniTrack::linkedTracks() {
 		return _linkedTracks;
 	}
@@ -84,7 +79,7 @@ namespace sh {
 	}
 
 	Promise<void> OmniTrack::fetchData() {
-		// TODO fetch omni track data (get music brainz ID, link other tracks, etc)
+		// TODO fetch omni track data (link other tracks, etc)
 		/*return Promise<void>::all(_linkedTracks.map([](auto& track) {
 			return track->fetchDataIfNeeded();
 		})).then([]() {
@@ -99,9 +94,6 @@ namespace sh {
 			if(track.as<OmniTrack>() != nullptr) {
 				throw std::invalid_argument("Linked track for OmniTrack cannot also be an OmniTrack");
 			}
-		}
-		if(!data.musicBrainzID.empty()) {
-			_musicBrainzID = data.musicBrainzID;
 		}
 		if(!data.linkedTracks.empty()) {
 			// combine track arrays
@@ -162,14 +154,12 @@ namespace sh {
 	OmniTrack::Data OmniTrack::toData() const {
 		return Data{
 			Track::toData(),
-			.musicBrainzID = _musicBrainzID,
 			.linkedTracks = _linkedTracks
 		};
 	}
 
 	Json OmniTrack::toJson() const {
 		Json::object json = Track::toJson().object_items();
-		json["musicBrainzID"] = _musicBrainzID;
 		json["linkedTracks"] = _linkedTracks.map([](auto& track) {
 			return track->toJson();
 		});

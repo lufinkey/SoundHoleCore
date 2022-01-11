@@ -15,7 +15,6 @@ namespace sh {
 	class OmniTrack: public Track {
 	public:
 		struct Data: public Track::Data {
-			String musicBrainzID;
 			ArrayList<$<Track>> linkedTracks;
 			
 			static Data fromJson(const Json& json, MediaProviderStash* stash);
@@ -25,8 +24,6 @@ namespace sh {
 		OmniTrack(MediaProvider* provider, const Data& data);
 		
 		virtual bool isPlayable() const override;
-		
-		const String& musicBrainzID() const;
 		
 		const ArrayList<$<Track>>& linkedTracks();
 		const ArrayList<$<const Track>>& linkedTracks() const;
@@ -45,7 +42,6 @@ namespace sh {
 		virtual Json toJson() const override;
 		
 	private:
-		String _musicBrainzID;
 		ArrayList<$<Track>> _linkedTracks;
 	};
 

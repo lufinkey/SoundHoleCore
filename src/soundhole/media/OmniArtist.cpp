@@ -13,7 +13,6 @@ namespace sh {
 	OmniArtist::Data OmniArtist::Data::fromJson(const Json& json, MediaProviderStash* stash) {
 		return OmniArtist::Data{
 			Artist::Data::fromJson(json, stash),
-			.musicBrainzID = json["musicBrainzID"].string_value(),
 			.linkedArtists = ArrayList<$<Artist>>(json["linkedArtists"].array_items(), [&](auto& json) {
 				auto mediaItem = stash->parseMediaItem(json);
 				if(!mediaItem) {
@@ -36,12 +35,8 @@ namespace sh {
 	}
 
 	OmniArtist::OmniArtist(MediaProvider* provider, const Data& data)
-	: Artist(provider, data), _musicBrainzID(data.musicBrainzID), _linkedArtists(data.linkedArtists) {
+	: Artist(provider, data), _linkedArtists(data.linkedArtists) {
 		//
-	}
-
-	const String& OmniArtist::musicBrainzID() const {
-		return _musicBrainzID;
 	}
 
 	const ArrayList<$<Artist>>& OmniArtist::linkedArtists() {
@@ -66,9 +61,6 @@ namespace sh {
 			if(artist.as<OmniArtist>() != nullptr) {
 				throw std::invalid_argument("Linked artist for OmniArtist cannot also be an OmniArtist");
 			}
-		}
-		if(!data.musicBrainzID.empty()) {
-			_musicBrainzID = data.musicBrainzID;
 		}
 		if(!data.linkedArtists.empty()) {
 			// combine artist arrays
@@ -135,14 +127,12 @@ namespace sh {
 	OmniArtist::Data OmniArtist::toData() const {
 		return Data{
 			Artist::toData(),
-			.musicBrainzID = _musicBrainzID,
 			.linkedArtists = _linkedArtists
 		};
 	}
 
 	Json OmniArtist::toJson() const {
 		Json::object json = Artist::toJson().object_items();
-		json["musicBrainzID"] = _musicBrainzID;
 		json["linkedArtists"] = _linkedArtists.map([](auto& artist) {
 			return artist->toJson();
 		});

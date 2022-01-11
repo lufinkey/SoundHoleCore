@@ -21,6 +21,7 @@ namespace sh {
 		}
 		return Artist::Data{
 			mediaItemData,
+			.musicBrainzID = json["musicBrainzID"].string_value(),
 			.description = (!description.is_null()) ? maybe((String)description.string_value()) : std::nullopt
 		};
 	}
@@ -35,8 +36,13 @@ namespace sh {
 
 	Artist::Artist(MediaProvider* provider, const Data& data)
 	: MediaItem(provider, data),
+	_musicBrainzID(data.musicBrainzID),
 	_description(data.description) {
 		//
+	}
+
+	const String& Artist::musicBrainzID() const {
+		return _musicBrainzID;
 	}
 	
 	const Optional<String>& Artist::description() const {
@@ -54,6 +60,9 @@ namespace sh {
 
 	void Artist::applyData(const Data& data) {
 		MediaItem::applyData(data);
+		if(!data.musicBrainzID.empty()) {
+			_musicBrainzID = data.musicBrainzID;
+		}
 		if(data.description) {
 			_description = data.description;
 		}
@@ -70,6 +79,7 @@ namespace sh {
 	Artist::Data Artist::toData() const {
 		return Artist::Data{
 			MediaItem::toData(),
+			.musicBrainzID = _musicBrainzID,
 			.description=_description
 		};
 	}
@@ -77,7 +87,8 @@ namespace sh {
 	Json Artist::toJson() const {
 		auto json = MediaItem::toJson().object_items();
 		json.merge(Json::object{
-			{"description", (_description ? (std::string)_description.value() : Json())}
+			{ "musicBrainzID", _musicBrainzID.empty() ? Json() : Json((std::string)_musicBrainzID) },
+			{ "description", (_description ? (std::string)_description.value() : Json()) }
 		});
 		return json;
 	}

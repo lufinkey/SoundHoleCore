@@ -15,7 +15,6 @@ namespace sh {
 	class OmniArtist: public Artist {
 	public:
 		struct Data: public Artist::Data {
-			String musicBrainzID;
 			ArrayList<$<Artist>> linkedArtists;
 			
 			static Data fromJson(const Json& json, MediaProviderStash* stash);
@@ -23,8 +22,6 @@ namespace sh {
 		
 		static $<OmniArtist> new$(MediaProvider* provider, const Data& data);
 		OmniArtist(MediaProvider* provider, const Data& data);
-		
-		const String& musicBrainzID() const;
 		
 		const ArrayList<$<Artist>>& linkedArtists();
 		const ArrayList<$<const Artist>>& linkedArtists() const;
@@ -43,7 +40,6 @@ namespace sh {
 		virtual Json toJson() const override;
 		
 	private:
-		String _musicBrainzID;
 		ArrayList<$<Artist>> _linkedArtists;
 	};
 

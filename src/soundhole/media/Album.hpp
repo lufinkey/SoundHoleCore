@@ -27,6 +27,7 @@ namespace sh {
 	class Album: public SpecialTrackCollection<AlbumItem> {
 	public:
 		struct Data: public SpecialTrackCollection<AlbumItem>::Data {
+			String musicBrainzID;
 			ArrayList<$<Artist>> artists;
 			
 			static Data fromJson(const Json& json, MediaProviderStash* stash);
@@ -35,6 +36,8 @@ namespace sh {
 		static $<Album> new$(MediaProvider* provider, const Data& data);
 		
 		Album(MediaProvider* provider, const Data& data);
+		
+		const String& musicBrainzID() const;
 		
 		const ArrayList<$<Artist>>& artists();
 		const ArrayList<$<const Artist>>& artists() const;
@@ -48,6 +51,7 @@ namespace sh {
 	protected:
 		virtual MutatorDelegate* createMutatorDelegate() override;
 		
+		String _musicBrainzID;
 		ArrayList<$<Artist>> _artists;
 	};
 }

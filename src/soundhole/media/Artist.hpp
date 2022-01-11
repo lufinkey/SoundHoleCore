@@ -15,6 +15,7 @@ namespace sh {
 	class Artist: public MediaItem {
 	public:
 		struct Data: public MediaItem::Data {
+			String musicBrainzID;
 			Optional<String> description;
 			
 			static Data fromJson(const Json& json, MediaProviderStash* stash);
@@ -22,6 +23,8 @@ namespace sh {
 		
 		static $<Artist> new$(MediaProvider* provider, const Data& data);
 		Artist(MediaProvider* provider, const Data& data);
+		
+		const String& musicBrainzID() const;
 		
 		const Optional<String>& description() const;
 		
@@ -35,6 +38,7 @@ namespace sh {
 		virtual Json toJson() const override;
 		
 	protected:
+		String _musicBrainzID;
 		Optional<String> _description;
 	};
 }
