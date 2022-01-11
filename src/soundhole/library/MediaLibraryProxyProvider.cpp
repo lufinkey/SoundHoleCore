@@ -87,16 +87,16 @@ namespace sh {
 		return Promise<UserAccount::Data>::reject(std::runtime_error("MediaLibraryProxyProvider cannot fetch users"));
 	}
 
-	Promise<ArrayList<$<Track>>> MediaLibraryProxyProvider::getArtistTopTracks(String artistURI) {
-		return Promise<ArrayList<$<Track>>>::reject(std::runtime_error("MediaLibraryProxyProvider cannot fetch artist top tracks"));
-	}
-
 	Promise<Playlist::Data> MediaLibraryProxyProvider::getPlaylistData(String uri) {
 		// TODO get playlists
 		return Promise<Playlist::Data>::reject(std::runtime_error("MediaLibraryProxyProvider cannot fetch playlists"));
 	}
 
 
+
+	Promise<ArrayList<$<Track>>> MediaLibraryProxyProvider::getArtistTopTracks(String artistURI) {
+		return Promise<ArrayList<$<Track>>>::reject(std::runtime_error("MediaLibraryProxyProvider cannot fetch artist top tracks"));
+	}
 
 	MediaLibraryProxyProvider::ArtistAlbumsGenerator MediaLibraryProxyProvider::getArtistAlbums(String artistURI) {
 		throw std::runtime_error("MediaLibraryProxyProvider cannot fetch artist albums");

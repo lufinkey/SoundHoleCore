@@ -9,6 +9,7 @@
 #pragma once
 
 #include <soundhole/common.hpp>
+#include <soundhole/media/Track.hpp>
 
 namespace sh {
 	struct ScrobbleRequest {
@@ -16,11 +17,11 @@ namespace sh {
 		String artist;
 		String album;
 		String albumArtist;
+		Optional<size_t> trackNumber;
+		Optional<double> duration;
+		String musicBrainzId;
 		Date timestamp;
 		Optional<bool> chosenByUser;
-		Optional<size_t> trackNumber;
-		String mbid;
-		Optional<double> duration;
 	};
 
 	struct ScrobbleIgnored {
@@ -52,13 +53,22 @@ namespace sh {
 		Optional<ScrobbleIgnored> ignored;
 	};
 
+	struct TrackLoveRequest {
+		String track;
+		String artist;
+		String musicBrainzId;
+	};
+
 	class Scrobbler {
 	public:
 		virtual ~Scrobbler() {}
 		
+		virtual String name() const = 0;
+		virtual String displayName() const = 0;
+		
 		virtual Promise<ArrayList<ScrobbleResponse>> scrobble(ArrayList<ScrobbleRequest> scrobbles) = 0;
 		
-		virtual Promise<void> loveTrack(String track, String artist) = 0;
-		virtual Promise<void> unloveTrack(String track, String artist) = 0;
+		virtual Promise<void> loveTrack(TrackLoveRequest) = 0;
+		virtual Promise<void> unloveTrack(TrackLoveRequest) = 0;
 	};
 }

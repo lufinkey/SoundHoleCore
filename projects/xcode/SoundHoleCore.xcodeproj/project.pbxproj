@@ -9,6 +9,12 @@
 /* Begin PBXBuildFile section */
 		806FE0F8B91D795108D7E457 /* libPods-SoundHoleCoreTest-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 92C87D0F488E86DFB8CAA6B3 /* libPods-SoundHoleCoreTest-iOS.a */; };
 		9F6E54C94F2BE7E674A394B1 /* libPods-SoundHoleCore-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 372339DD86DA7BC3DC0B9252 /* libPods-SoundHoleCore-macOS.a */; };
+		A0018CBA278B76210092F1A0 /* Scrobbler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A0018CB8278B76210092F1A0 /* Scrobbler.hpp */; };
+		A0018CBB278B76210092F1A0 /* Scrobbler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A0018CB9278B76210092F1A0 /* Scrobbler.cpp */; };
+		A0018CBC278B76210092F1A0 /* Scrobbler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A0018CB9278B76210092F1A0 /* Scrobbler.cpp */; };
+		A0C8D7CB278B7E08007485E4 /* LastFMMediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A0C8D7C9278B7E08007485E4 /* LastFMMediaProvider.cpp */; };
+		A0C8D7CC278B7E08007485E4 /* LastFMMediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A0C8D7C9278B7E08007485E4 /* LastFMMediaProvider.cpp */; };
+		A0C8D7CD278B7E08007485E4 /* LastFMMediaProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A0C8D7CA278B7E08007485E4 /* LastFMMediaProvider.hpp */; };
 		A50F74B6238B223F0061D9FD /* TrackCollection.impl.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A50F74B5238B223F0061D9FD /* TrackCollection.impl.hpp */; };
 		A513DB34232DA191000DCAC7 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = A513DB33232DA191000DCAC7 /* AppDelegate.mm */; };
 		A513DB37232DA191000DCAC7 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A513DB36232DA191000DCAC7 /* ViewController.mm */; };
@@ -221,12 +227,6 @@
 		A5BA4A4026E6B26200139269 /* LastFMAPIRequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A3D26E6B26200139269 /* LastFMAPIRequest.cpp */; };
 		A5BA4A4126E6B26200139269 /* LastFMAPIRequest.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5BA4A3E26E6B26200139269 /* LastFMAPIRequest.hpp */; };
 		A5BA4A4326E6BA4B00139269 /* LastFMAuth_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A4226E6BA4B00139269 /* LastFMAuth_iOS.mm */; };
-		A5BA4A4A26E70CDA00139269 /* Scrobbler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A4826E70CDA00139269 /* Scrobbler.cpp */; };
-		A5BA4A4B26E70CDA00139269 /* Scrobbler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A4826E70CDA00139269 /* Scrobbler.cpp */; };
-		A5BA4A4C26E70CDA00139269 /* Scrobbler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5BA4A4926E70CDA00139269 /* Scrobbler.hpp */; };
-		A5BA4A4F26E70F7C00139269 /* LastFMScrobbler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A4D26E70F7C00139269 /* LastFMScrobbler.cpp */; };
-		A5BA4A5026E70F7C00139269 /* LastFMScrobbler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A4D26E70F7C00139269 /* LastFMScrobbler.cpp */; };
-		A5BA4A5126E70F7C00139269 /* LastFMScrobbler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5BA4A4E26E70F7C00139269 /* LastFMScrobbler.hpp */; };
 		A5BA4A6B26E81D7000139269 /* OmniTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A6926E81D7000139269 /* OmniTrack.cpp */; };
 		A5BA4A6C26E81D7000139269 /* OmniTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5BA4A6926E81D7000139269 /* OmniTrack.cpp */; };
 		A5BA4A6D26E81D7000139269 /* OmniTrack.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A5BA4A6A26E81D7000139269 /* OmniTrack.hpp */; };
@@ -358,6 +358,10 @@
 		92C87D0F488E86DFB8CAA6B3 /* libPods-SoundHoleCoreTest-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SoundHoleCoreTest-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		96CEDFDA87ECADACE17A7C82 /* Pods-SoundHoleCoreTest-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-iOS.release.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-iOS/Pods-SoundHoleCoreTest-iOS.release.xcconfig"; sourceTree = "<group>"; };
 		9EB0D982F4B0A13669D4FD62 /* Pods-SoundHoleCore-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCore-macOS.release.xcconfig"; path = "Target Support Files/Pods-SoundHoleCore-macOS/Pods-SoundHoleCore-macOS.release.xcconfig"; sourceTree = "<group>"; };
+		A0018CB8278B76210092F1A0 /* Scrobbler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Scrobbler.hpp; sourceTree = "<group>"; };
+		A0018CB9278B76210092F1A0 /* Scrobbler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Scrobbler.cpp; sourceTree = "<group>"; };
+		A0C8D7C9278B7E08007485E4 /* LastFMMediaProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LastFMMediaProvider.cpp; sourceTree = "<group>"; };
+		A0C8D7CA278B7E08007485E4 /* LastFMMediaProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = LastFMMediaProvider.hpp; sourceTree = "<group>"; };
 		A372CA273104C573CAEC4617 /* Pods-SoundHoleCoreTest-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-macOS.release.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-macOS/Pods-SoundHoleCoreTest-macOS.release.xcconfig"; sourceTree = "<group>"; };
 		A50F74B5238B223F0061D9FD /* TrackCollection.impl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TrackCollection.impl.hpp; sourceTree = "<group>"; };
 		A513DB23232DA15C000DCAC7 /* libSoundHoleCore-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSoundHoleCore-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -544,10 +548,6 @@
 		A5BA4A3D26E6B26200139269 /* LastFMAPIRequest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LastFMAPIRequest.cpp; sourceTree = "<group>"; };
 		A5BA4A3E26E6B26200139269 /* LastFMAPIRequest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = LastFMAPIRequest.hpp; sourceTree = "<group>"; };
 		A5BA4A4226E6BA4B00139269 /* LastFMAuth_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = LastFMAuth_iOS.mm; sourceTree = "<group>"; };
-		A5BA4A4826E70CDA00139269 /* Scrobbler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Scrobbler.cpp; sourceTree = "<group>"; };
-		A5BA4A4926E70CDA00139269 /* Scrobbler.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Scrobbler.hpp; sourceTree = "<group>"; };
-		A5BA4A4D26E70F7C00139269 /* LastFMScrobbler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LastFMScrobbler.cpp; sourceTree = "<group>"; };
-		A5BA4A4E26E70F7C00139269 /* LastFMScrobbler.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = LastFMScrobbler.hpp; sourceTree = "<group>"; };
 		A5BA4A6926E81D7000139269 /* OmniTrack.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = OmniTrack.cpp; sourceTree = "<group>"; };
 		A5BA4A6A26E81D7000139269 /* OmniTrack.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = OmniTrack.hpp; sourceTree = "<group>"; };
 		A5BA4A6E26E82F7300139269 /* OmniArtist.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = OmniArtist.cpp; sourceTree = "<group>"; };
@@ -695,6 +695,13 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		A0C9531F2788EDA30032F296 /* mutators */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = mutators;
+			sourceTree = "<group>";
+		};
 		A513DB0F232DA149000DCAC7 = {
 			isa = PBXGroup;
 			children = (
@@ -799,7 +806,6 @@
 				A513DB6F232DA1F8000DCAC7 /* providers */,
 				A5C6CCE22597DADC00596878 /* storage */,
 				A54F2544239DA9B800C81E1C /* playback */,
-				A5BA4A4626E6FF3400139269 /* scrobble */,
 				A513DB76232DA1F8000DCAC7 /* scripts */,
 				A571E16223332CC600603E14 /* utils */,
 			);
@@ -873,6 +879,8 @@
 				A5BA49C126D2F9A400139269 /* PlaybackHistoryItem.cpp */,
 				A5BA49D926E072EB00139269 /* PlayerItem.hpp */,
 				A5BA49DB26E076FA00139269 /* PlayerItem.cpp */,
+				A0018CB9278B76210092F1A0 /* Scrobbler.cpp */,
+				A0018CB8278B76210092F1A0 /* Scrobbler.hpp */,
 			);
 			path = media;
 			sourceTree = "<group>";
@@ -1161,29 +1169,13 @@
 			path = api;
 			sourceTree = "<group>";
 		};
-		A5BA4A4626E6FF3400139269 /* scrobble */ = {
-			isa = PBXGroup;
-			children = (
-				A5BA4A4926E70CDA00139269 /* Scrobbler.hpp */,
-				A5BA4A4826E70CDA00139269 /* Scrobbler.cpp */,
-				A5BA4A4726E6FF4400139269 /* lastfm */,
-			);
-			path = scrobble;
-			sourceTree = "<group>";
-		};
-		A5BA4A4726E6FF4400139269 /* lastfm */ = {
-			isa = PBXGroup;
-			children = (
-				A5BA4A4E26E70F7C00139269 /* LastFMScrobbler.hpp */,
-				A5BA4A4D26E70F7C00139269 /* LastFMScrobbler.cpp */,
-			);
-			path = lastfm;
-			sourceTree = "<group>";
-		};
 		A5BA4A5726E7FC3200139269 /* lastfm */ = {
 			isa = PBXGroup;
 			children = (
 				A5BA49EF26E56E7800139269 /* api */,
+				A0C9531F2788EDA30032F296 /* mutators */,
+				A0C8D7CA278B7E08007485E4 /* LastFMMediaProvider.hpp */,
+				A0C8D7C9278B7E08007485E4 /* LastFMMediaProvider.cpp */,
 			);
 			path = lastfm;
 			sourceTree = "<group>";
@@ -1370,6 +1362,7 @@
 				A5C0A8F123D1735F00CDB59E /* BandcampAlbumMutatorDelegate.hpp in Headers */,
 				A5AE3F2E247DCF3600FB9AFF /* SQLIndexRange.hpp in Headers */,
 				A5C0A8EA23CFE59100CDB59E /* SpotifyPlaylistMutatorDelegate.hpp in Headers */,
+				A0018CBA278B76210092F1A0 /* Scrobbler.hpp in Headers */,
 				A5BA49F526E56EA300139269 /* LastFM.hpp in Headers */,
 				A571E1A8233440A800603E14 /* HttpClient.hpp in Headers */,
 				A5C6DA5125B616D300596878 /* MediaControls.hpp in Headers */,
@@ -1384,7 +1377,6 @@
 				A5E851AC2357BECD0001F74D /* BandcampError.hpp in Headers */,
 				A5B9735D2381FBA700FB3F1C /* Artist.hpp in Headers */,
 				A5485A2A23942EB800CB7749 /* MediaPlaybackProvider.hpp in Headers */,
-				A5BA4A5126E70F7C00139269 /* LastFMScrobbler.hpp in Headers */,
 				A5C6CCF22598013D00596878 /* GoogleDriveStorageProvider.hpp in Headers */,
 				A5BA4A0F26E5A82800139269 /* SecureStore.hpp in Headers */,
 				A52C4714250EE85800131918 /* OAuthSession.hpp in Headers */,
@@ -1400,10 +1392,10 @@
 				A513ED9C232DA20C000DCAC7 /* MediaItem.hpp in Headers */,
 				A56325D7256A3BDD00C005AE /* BandcampMediaTypes.impl.hpp in Headers */,
 				A5BA49CA26D407A800139269 /* PlaybackQueue.hpp in Headers */,
+				A0C8D7CD278B7E08007485E4 /* LastFMMediaProvider.hpp in Headers */,
 				A5485A2F239432CE00CB7749 /* SpotifyPlaybackProvider.hpp in Headers */,
 				A5C6CF1125A252C700596878 /* AuthedProvider.hpp in Headers */,
 				A5EDB8EF249ADC1200885BC2 /* MediaLibraryTracksCollection.hpp in Headers */,
-				A5BA4A4C26E70CDA00139269 /* Scrobbler.hpp in Headers */,
 				A5D9F601255E4DD400E4762A /* OAuthError.hpp in Headers */,
 				A513ED8C232DA20B000DCAC7 /* common.hpp in Headers */,
 				A54F252823975BF400C81E1C /* SpotifyAuthEventListener.hpp in Headers */,
@@ -1769,8 +1761,6 @@
 			files = (
 				A5B1B9002548EB2300DACA2D /* SHKeychainUtils_objc.mm in Sources */,
 				A5B7A7A32337DA5700301FC0 /* SpotifyAuth_iOS.mm in Sources */,
-				A5BA4A4A26E70CDA00139269 /* Scrobbler.cpp in Sources */,
-				A5BA4A4F26E70F7C00139269 /* LastFMScrobbler.cpp in Sources */,
 				A571E16A2333305D00603E14 /* Scripts.cpp in Sources */,
 				A5D9F438255DC77300E4762A /* Utils_apple.mm in Sources */,
 				A52C4708250EB6B000131918 /* SHWebAuthNavigationController_iOS.mm in Sources */,
@@ -1789,6 +1779,7 @@
 				A58189A826A1DD18007BFD82 /* JSError.cpp in Sources */,
 				A5AE3F42248728F600FB9AFF /* MediaLibrary.cpp in Sources */,
 				A5BA49C326D2F9A400139269 /* PlaybackHistoryItem.cpp in Sources */,
+				A0C8D7CB278B7E08007485E4 /* LastFMMediaProvider.cpp in Sources */,
 				A52C4712250EE85800131918 /* OAuthSession.cpp in Sources */,
 				A5B7A78E2335C91800301FC0 /* SoundHoleError.cpp in Sources */,
 				A5C6CDED259860BC00596878 /* SoundHoleMediaProvider.cpp in Sources */,
@@ -1873,6 +1864,7 @@
 				A5AE3F3D247DFFE400FB9AFF /* MediaLibraryProxyProvider.cpp in Sources */,
 				A563A60A24B633CF0036A842 /* soundhole.cpp in Sources */,
 				A5B9736023822BA300FB3F1C /* Album.cpp in Sources */,
+				A0018CBB278B76210092F1A0 /* Scrobbler.cpp in Sources */,
 				A563A5CE24AFF43E0036A842 /* SQLOrder.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1901,7 +1893,6 @@
 				A5BA49C426D2F9A400139269 /* PlaybackHistoryItem.cpp in Sources */,
 				A571E16B2333305D00603E14 /* Scripts.cpp in Sources */,
 				A571E15E23331C6600603E14 /* SpotifyAuth.cpp in Sources */,
-				A5BA4A4B26E70CDA00139269 /* Scrobbler.cpp in Sources */,
 				A578785B23E37A7B00B6B0A5 /* QueueItem.cpp in Sources */,
 				A563A5CF24AFF43E0036A842 /* SQLOrder.cpp in Sources */,
 				A5E851C5235A505B0001F74D /* Youtube.cpp in Sources */,
@@ -1911,6 +1902,7 @@
 				A563A60B24B633CF0036A842 /* soundhole.cpp in Sources */,
 				A57378A323D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp in Sources */,
 				A5BA49E226E4543000139269 /* PlaybackHistoryTrackCollection.cpp in Sources */,
+				A0018CBC278B76210092F1A0 /* Scrobbler.cpp in Sources */,
 				A578785123DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp in Sources */,
 				A58189A426961A5A007BFD82 /* MediaDatabaseSQLTransformations.cpp in Sources */,
 				A5F9F640244AB6CE00E80C7A /* Player_objc.mm in Sources */,
@@ -1923,7 +1915,6 @@
 				A5B9736B23823BFE00FB3F1C /* Playlist.cpp in Sources */,
 				A5B7A7AC2337F1DE00301FC0 /* SpotifyPlayer.cpp in Sources */,
 				A5BA4A0426E5A41000139269 /* LastFMTypes.cpp in Sources */,
-				A5BA4A5026E70F7C00139269 /* LastFMScrobbler.cpp in Sources */,
 				A5C6DB0D25BCDCA600596878 /* GoogleDriveStorageMediaTypes.cpp in Sources */,
 				A5C0A8E923CFE59100CDB59E /* SpotifyPlaylistMutatorDelegate.cpp in Sources */,
 				A5B2BBF92360E84C00ED010C /* SpotifyMediaTypes.cpp in Sources */,
@@ -1941,6 +1932,7 @@
 				A5C0A8F023D1735F00CDB59E /* BandcampAlbumMutatorDelegate.cpp in Sources */,
 				A5485A2923942EB800CB7749 /* MediaPlaybackProvider.cpp in Sources */,
 				A5D9F556255E0BA200E4762A /* YoutubeAuth_iOS.mm in Sources */,
+				A0C8D7CC278B7E08007485E4 /* LastFMMediaProvider.cpp in Sources */,
 				A5485A24238DFB1300CB7749 /* Utils.cpp in Sources */,
 				A55F55CD24CDD74700DF2825 /* TrackCollection.mm in Sources */,
 				A5BA49FF26E599DC00139269 /* LastFMError.cpp in Sources */,
@@ -2038,7 +2030,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -2111,7 +2103,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;

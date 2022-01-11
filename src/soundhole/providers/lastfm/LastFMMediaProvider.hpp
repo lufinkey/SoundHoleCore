@@ -1,37 +1,34 @@
 //
-//  MediaLibraryProxyProvider.hpp
+//  LastFMMediaProvider.hpp
 //  SoundHoleCore
 //
-//  Created by Luis Finke on 5/26/20.
-//  Copyright © 2020 Luis Finke. All rights reserved.
+//  Created by Luis Finke on 1/9/22.
+//  Copyright © 2022 Luis Finke. All rights reserved.
 //
 
 #pragma once
 
 #include <soundhole/common.hpp>
 #include <soundhole/media/MediaProvider.hpp>
-#include "collections/librarytracks/MediaLibraryTracksCollection.hpp"
-#include "collections/playbackhistory/PlaybackHistoryTrackCollection.hpp"
+#include <soundhole/media/AuthedProviderIdentityStore.hpp>
+#include <soundhole/media/Scrobbler.hpp>
+#include "api/LastFM.hpp"
 
 namespace sh {
-	class MediaLibrary;
-
-
-	class MediaLibraryProxyProvider: public MediaProvider {
+	class LastFMMediaProvider: public MediaProvider, public AuthedProviderIdentityStore<LastFMUserInfo>, public Scrobbler {
 	public:
-		static constexpr auto NAME = "localmedialibrary";
+		static constexpr auto NAME = "lastfm";
 		
-		MediaLibraryProxyProvider(MediaLibrary* mediaLibrary);
-		virtual ~MediaLibraryProxyProvider();
+		using Options = LastFM::Options;
 		
-		MediaLibrary* library();
-		const MediaLibrary* library() const;
-		
-		MediaDatabase* database();
-		const MediaDatabase* database() const;
+		LastFMMediaProvider(Options options);
+		virtual ~LastFMMediaProvider();
 		
 		virtual String name() const override;
 		virtual String displayName() const override;
+		
+		LastFM* api();
+		const LastFM* api() const;
 		
 		virtual Promise<bool> login() override;
 		virtual void logout() override;
@@ -74,34 +71,43 @@ namespace sh {
 		virtual Promise<void> savePlaylist(String playlistURI) override;
 		virtual Promise<void> unsavePlaylist(String playlistURI) override;
 		
-		virtual MediaPlaybackProvider* player() override;
-		virtual const MediaPlaybackProvider* player() const override;
+		Artist::Data createArtistData(LastFMArtistInfo);
+		Artist::Data createArtistData(LastFMPartialArtistInfo);
+		Artist::Data createArtistData(LastFMArtistSearchResults::Item);
+		Track::Data createTrackData(LastFMTrackInfo);
+		Track::Data createTrackData(LastFMTrackSearchResults::Item);
+		Album::Data createAlbumData(LastFMAlbumInfo);
+		Album::Data createAlbumData(LastFMArtistTopAlbum);
+		UserAccount::Data createUserAccountData(LastFMUserInfo);
+		static MediaItem::Image createImage(LastFMImage);
 		
-		
-		using LibraryTracksFilters = MediaLibraryTracksCollection::Filters;
-		struct GetLibraryTracksCollectionOptions {
-			Optional<size_t> itemsStartIndex;
-			Optional<size_t> itemsLimit;
-			LibraryTracksFilters filters;
+		struct URI {
+			String provider;
+			String type;
+			String id;
+			
+			String toString() const;
 		};
-		Promise<$<MediaLibraryTracksCollection>> getLibraryTracksCollection(GetLibraryTracksCollectionOptions options = GetLibraryTracksCollectionOptions());
+		URI parseURI(const String&) const;
+		String createURI(const String& type, const String& id);
 		
-		$<MediaLibraryTracksCollection> libraryTracksCollection(const MediaLibraryTracksCollection::Data& data);
-		$<MediaLibraryTracksCollection> libraryTracksCollection(const LibraryTracksFilters& filters, Optional<size_t> itemCount, Map<size_t,MediaLibraryTracksCollectionItem::Data> items);
+		URI parseArtistURL(const String&) const;
+		URI parseTrackURL(const String&) const;
+		URI parseAlbumURL(const String&) const;
+		URI parseUserURL(const String&) const;
 		
+		virtual Promise<ArrayList<ScrobbleResponse>> scrobble(ArrayList<ScrobbleRequest> scrobbles) override;
 		
-		using PlaybackHistoryFilters = PlaybackHistoryTrackCollection::Filters;
-		struct GetPlaybackHistoryCollectionOptions {
-			Optional<size_t> itemsStartIndex;
-			Optional<size_t> itemsLimit;
-			PlaybackHistoryFilters filters;
-		};
-		Promise<$<PlaybackHistoryTrackCollection>> getPlaybackHistoryCollection(GetPlaybackHistoryCollectionOptions options);
+		virtual Promise<void> loveTrack(TrackLoveRequest) override;
+		virtual Promise<void> unloveTrack(TrackLoveRequest) override;
 		
-		$<PlaybackHistoryTrackCollection> playbackHistoryCollection(const PlaybackHistoryTrackCollection::Data& data);
-		$<PlaybackHistoryTrackCollection> playbackHistoryCollection(const PlaybackHistoryFilters& filters, Optional<size_t> itemCount, Map<size_t,PlaybackHistoryTrackCollectionItem::Data> items);
+	protected:
+		virtual Promise<Optional<LastFMUserInfo>> fetchIdentity() override;
+		virtual String getIdentityFilePath() const override;
 		
 	private:
-		MediaLibrary* _library;
+		static ScrobbleIgnored::Code ignoredScrobbleCodeFromString(const String&);
+		
+		LastFM* lastfm;
 	};
 }

@@ -94,7 +94,9 @@ namespace sh {
 		return LastFMScrobbleResponse{
 			.accepted = acceptedJson.is_number() ? (size_t)acceptedJson.number_value() : std::stol(acceptedJson.string_value()),
 			.ignored = ignoredJson.is_number() ? (size_t)ignoredJson.number_value() : std::stol(ignoredJson.string_value()),
-			.scrobbles = scrobblesListJson.is_array() ? Item::arrayFromJson(scrobblesListJson) : ArrayList<Item>{ Item::fromJson(scrobblesListJson) }
+			.scrobbles = jsutils::singleOrArrayListFromJson(scrobblesListJson, [&](auto& itemJson) {
+				return Item::fromJson(itemJson);
+			})
 		};
 	}
 
@@ -155,8 +157,15 @@ namespace sh {
 
     LastFMImage LastFMImage::fromJson(const Json& json) {
 		return LastFMImage{
-			.size = json["size"].string_value(),
-			.url = json["#text"].string_value()
+			.url = json["#text"].string_value(),
+			.size = json["size"].string_value()
+		};
+	}
+
+	Json LastFMImage::toJson() const {
+		return Json::object{
+			{ "#text", (std::string)url },
+			{ "size", (std::string)size }
 		};
 	}
 
@@ -181,6 +190,29 @@ namespace sh {
 
 
 
+	#pragma mark PartialArtistInfo
+
+	LastFMPartialArtistInfo LastFMPartialArtistInfo::fromJson(const Json& json) {
+		if(json.is_string()) {
+			return LastFMPartialArtistInfo{
+				.name = json.string_value(),
+				.url = "https://www.last.fm/music/"+URL::encodeQueryValue(json.string_value())
+			};
+		}
+		return LastFMPartialArtistInfo{
+			.name = json["name"].string_value(),
+			.mbid = json["mbid"].string_value(),
+			.url = json["url"].string_value(),
+			.image = jsutils::optSingleOrArrayListFromJson(json["image"], [](auto& imageJson) {
+				return LastFMImage::fromJson(imageJson);
+			}),
+			.listeners = jsutils::badlyFormattedSizeFromJson(json["listeners"]),
+			.streamable = jsutils::badlyFormattedBoolFromJson(json["streamable"])
+		};
+	}
+
+
+
 	#pragma mark UserInfo
 
     LastFMUserInfo LastFMUserInfo::fromJson(const Json& json) {
@@ -193,7 +225,7 @@ namespace sh {
 			.age = jsutils::stringFromJson(json["age"]),
 			.gender = json["gender"].string_value(),
 			.playCount = jsutils::badlyFormattedSizeFromJson(json["playcount"]),
-			.subscriber = jsutils::stringFromJson(json["subscriber"]),
+			.subscriber = jsutils::badlyFormattedBoolFromJson(json["subscriber"]),
 			.playlists = jsutils::stringFromJson(json["playlists"]),
 			.bootstrap = jsutils::stringFromJson(json["bootstrap"]),
 			.image = jsutils::singleOrArrayListFromJson(json["image"], [](const Json& imageJson) {
@@ -203,6 +235,34 @@ namespace sh {
 			.registeredUnixTime = jsutils::stringFromJson(json["registered"]["unixtime"])
 		};
     }
+
+	Json LastFMUserInfo::toJson() const {
+		auto json = Json::object{
+			{ "type", (std::string)type },
+			{ "url", (std::string)url },
+			{ "name", (std::string)name },
+			{ "realname", (std::string)realname },
+			{ "country", (std::string)country },
+			{ "age", (std::string)age },
+			{ "gender", (std::string)gender },
+			{ "playcount", playCount.hasValue() ? Json((double)playCount.value()) : Json() },
+			{ "subscriber", subscriber.hasValue() ? Json(subscriber.value()) : Json() },
+			{ "playlists", (std::string)playlists },
+			{ "bootstrap", (std::string)bootstrap },
+			{ "image", Json(image.map([](auto& img) {
+				return img.toJson();
+			})) }
+		};
+		auto registered = Json::object{};
+		if(!registeredTime.empty()) {
+			registered["#text"] = (std::string)registeredTime;
+		}
+		if(!registeredUnixTime.empty()) {
+			registered["unixtime"] = (std::string)registeredUnixTime;
+		}
+		json["registered"] = registered;
+		return json;
+	}
 
 	#pragma mark ArtistInfo
 
@@ -223,7 +283,7 @@ namespace sh {
 				.userPlayCount = jsutils::badlyFormattedSizeFromJson(statsJson["userplaycount"])
 			},
 			.similarArtists = jsutils::singleOrArrayListFromJson(json["similar"]["artist"], [](const Json& artistJson) {
-				return SimilarArtist::fromJson(artistJson);
+				return LastFMPartialArtistInfo::fromJson(artistJson);
 			}),
 			.tags = jsutils::singleOrArrayListFromJson(json["tags"]["tag"], [](const Json& artistJson) {
 				return LastFMTag::fromJson(artistJson);
@@ -248,6 +308,7 @@ namespace sh {
         auto streamableJson = json["streamable"];
         return LastFMTrackInfo{
             .name = json["name"].string_value(),
+			.mbid = json["mbid"].string_value(),
             .url = json["url"].string_value(),
 			.duration = ([&]() -> Optional<double> {
 				auto val = jsutils::badlyFormattedDoubleFromJson(json["duration"]);
@@ -258,26 +319,18 @@ namespace sh {
 			})(),
             .isStreamable = jsutils::badlyFormattedBoolFromJson(streamableJson["#text"]),
 			.isFullTrackStreamable = jsutils::badlyFormattedBoolFromJson(streamableJson["fulltrack"]),
-			.listeners = jsutils::stringFromJson(json["listeners"]),
-			.playcount = jsutils::stringFromJson(json["playcount"]),
-			.userplaycount = jsutils::stringFromJson(json["userplaycount"]),
-			.userloved = jsutils::stringFromJson(json["userloved"]),
-			.artist = Artist::fromJson(json["artist"]),
+			.listeners = jsutils::badlyFormattedSizeFromJson(json["listeners"]),
+			.playCount = jsutils::badlyFormattedSizeFromJson(json["playcount"]),
+			.userPlayCount = jsutils::badlyFormattedSizeFromJson(json["userplaycount"]),
+			.userLoved = jsutils::badlyFormattedBoolFromJson(json["userloved"]),
+			.artist = LastFMPartialArtistInfo::fromJson(json["artist"]),
 			.album = Album::maybeFromJson(json["album"]),
-			.topTags = jsutils::singleOrArrayListFromJson(json["toptags"]["tag"], [](const Json& tagJson) {
+			.topTags = jsutils::optSingleOrArrayListFromJson(json["toptags"]["tag"], [](const Json& tagJson) {
 				return LastFMTag::fromJson(tagJson);
 			}),
 			.wiki = Wiki::maybeFromJson(json["wiki"])
         };
     }
-
-	LastFMTrackInfo::Artist LastFMTrackInfo::Artist::fromJson(const Json& json) {
-		return Artist{
-			.mbid = json["mbid"].string_value(),
-			.name = json["name"].string_value(),
-			.url = json["url"].string_value(),
-		};
-	}
 
 	LastFMTrackInfo::Album LastFMTrackInfo::Album::fromJson(const Json& json) {
 		return Album{
@@ -342,7 +395,6 @@ namespace sh {
 
 	LastFMAlbumInfo::Track LastFMAlbumInfo::Track::fromJson(const Json& json) {
 		auto streamableJson = json["streamable"];
-		auto artistJson = json["artist"];
 		return Track{
 			.url = json["url"].string_value(),
 			.name = json["name"].string_value(),
@@ -356,11 +408,7 @@ namespace sh {
 			.rank = jsutils::badlyFormattedSizeFromJson(json["rank"]),
 			.isStreamable = jsutils::badlyFormattedBoolFromJson(streamableJson["#text"]),
 			.isFullTrackStreamable = jsutils::badlyFormattedBoolFromJson(streamableJson["fulltrack"]),
-			.artist = Artist{
-				.mbid = artistJson["mbid"].string_value(),
-				.url = artistJson["url"].string_value(),
-				.name = artistJson["name"].string_value()
-			}
+			.artist = LastFMPartialArtistInfo::fromJson(json["artist"])
 		};
 	}
 
@@ -550,6 +598,60 @@ namespace sh {
 			.image = jsutils::singleOrArrayListFromJson(json["image"], [](const Json& imageJson) {
 				return LastFMImage::fromJson(imageJson);
 			})
+		};
+	}
+
+
+
+	#pragma mark ArtistTopItemsRequest
+
+	Map<String,String> LastFMArtistTopItemsRequest::toQueryParams() const {
+		auto params = Map<String,String>{
+			{ "artist", artist }
+		};
+		if(!mbid.empty()) {
+			params["mbid"] = mbid;
+		}
+		if(autocorrect.hasValue()) {
+			params["autocorrect"] = autocorrect.value() ? "1" : "0";
+		}
+		if(page) {
+			params["page"] = std::to_string(page.value());
+		}
+		if(limit) {
+			params["limit"] = std::to_string(limit.value());
+		}
+		return params;
+	}
+
+
+
+	#pragma mark ArtistTopAlbum
+
+	LastFMArtistTopAlbum LastFMArtistTopAlbum::fromJson(const Json& json) {
+		return LastFMArtistTopAlbum{
+			.mbid = json["mbid"].string_value(),
+			.name = json["name"].string_value(),
+			.url = json["url"].string_value(),
+			.artist = LastFMPartialArtistInfo::fromJson(json["artist"]),
+			.image = jsutils::singleOrArrayListFromJson(json["image"], [](auto& imageJson) {
+				return LastFMImage::fromJson(imageJson);
+			}),
+			.playCount = jsutils::badlyFormattedSizeFromJson(json["playcount"])
+		};
+	}
+
+	LastFMArtistTopItemsPageAttrs LastFMArtistTopItemsPageAttrs::fromJson(const Json& json) {
+		return LastFMArtistTopItemsPageAttrs{
+			.artist = json["artist"].string_value(),
+			.page = jsutils::badlyFormattedSizeFromJson(json["page"])
+				.valueOrThrow(std::runtime_error("invalid valid for @attr.page")),
+			.perPage = jsutils::badlyFormattedSizeFromJson(json["perPage"])
+				.valueOrThrow(std::runtime_error("invalid value for @attr.perPage")),
+			.totalPages = jsutils::badlyFormattedSizeFromJson(json["totalPages"])
+				.valueOrThrow(std::runtime_error("invalid value for @attr.totalPages")),
+			.total = jsutils::badlyFormattedSizeFromJson(json["total"])
+				.valueOrThrow(std::runtime_error("invalid value for @attr.total"))
 		};
 	}
 }

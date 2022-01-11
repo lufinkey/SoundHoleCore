@@ -63,7 +63,6 @@ namespace sh {
 		
 		virtual Promise<ArrayList<$<Track>>> getArtistTopTracks(String artistURI) override;
 		virtual ArtistAlbumsGenerator getArtistAlbums(String artistURI) override;
-		
 		virtual UserPlaylistsGenerator getUserPlaylists(String userURI) override;
 		
 		virtual Album::MutatorDelegate* createAlbumMutatorDelegate($<Album> album) override;
@@ -133,21 +132,20 @@ namespace sh {
 		Playlist::Data createPlaylistData(SpotifyPlaylist playlist, bool partial);
 		PlaylistItem::Data createPlaylistItemData(SpotifyPlaylist::Item playlistItem);
 		UserAccount::Data createUserAccountData(SpotifyUser user, bool partial);
+		static MediaItem::Image createImage(SpotifyImage image);
 		
 		struct URI {
 			String provider;
 			String type;
 			String id;
 		};
-		URI parseURI(String uri);
+		URI parseURI(String uri) const;
 		
 	protected:
 		virtual Promise<Optional<SpotifyUser>> fetchIdentity() override;
 		virtual String getIdentityFilePath() const override;
 		
 	private:
-		static MediaItem::Image createImage(SpotifyImage image);
-		
 		Spotify* spotify;
 		SpotifyPlaybackProvider* _player;
 	};

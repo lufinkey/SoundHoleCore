@@ -48,7 +48,7 @@ namespace sh {
 
 	#pragma mark URI parsing
 
-	SpotifyMediaProvider::URI SpotifyMediaProvider::parseURI(String uri) {
+	SpotifyMediaProvider::URI SpotifyMediaProvider::parseURI(String uri) const {
 		if(uri.empty()) {
 			throw std::invalid_argument("Empty string is not a valid Spotify uri");
 		}
@@ -205,7 +205,7 @@ namespace sh {
 				}))
 				: std::nullopt)
 			},
-			.description = ""
+			.description = std::nullopt
 		};
 	}
 

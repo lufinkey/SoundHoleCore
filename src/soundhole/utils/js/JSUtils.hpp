@@ -52,6 +52,15 @@ namespace sh::jsutils {
 	}
 
 	template<typename Transform>
+	auto optSingleOrArrayListFromJson(const Json& json, Transform transform) {
+		using ReturnType = decltype(transform(std::declval<const Json>()));
+		if(json.is_null()) {
+			return Optional<ArrayList<ReturnType>>();
+		}
+		return maybe(singleOrArrayListFromJson(json, transform));
+	}
+
+	template<typename Transform>
 	auto mapFromJson(const Json& json, Transform transform) {
 		using ReturnType = decltype(transform(std::declval<const std::string>(), std::declval<const Json>()));
 		std::map<String,ReturnType> map;

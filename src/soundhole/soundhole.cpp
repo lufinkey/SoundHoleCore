@@ -32,6 +32,11 @@ namespace sh {
 			}
 			_mediaProviders.pushBack(new YoutubeMediaProvider(options.youtube.value()));
 		}
+		if(options.lastfm) {
+			auto lastfm = new LastFMMediaProvider(options.lastfm.value());
+			_mediaProviders.pushBack(lastfm);
+			_scrobblers.pushBack(lastfm);
+		}
 		
 		_mediaLibrary = new MediaLibrary({
 			.dbPath = options.dbPath,
@@ -45,7 +50,14 @@ namespace sh {
 
 	SoundHole::~SoundHole() {
 		for(auto provider : _mediaProviders) {
+			auto scrobbler = dynamic_cast<Scrobbler*>(provider);
+			if(scrobbler != nullptr) {
+				_scrobblers.removeFirstEqual(scrobbler);
+			}
 			delete provider;
+		}
+		for(auto scrobbler : _scrobblers) {
+			delete scrobbler;
 		}
 		delete _mediaLibrary;
 	}
@@ -144,6 +156,12 @@ namespace sh {
 	ArrayList<MediaProvider*> SoundHole::getMediaProviders() {
 		return _mediaProviders;
 	}
+
+
+	ArrayList<Scrobbler*> SoundHole::getScrobblers() {
+		return _scrobblers;
+	}
+
 
 	bool SoundHole::isSynchronizingLibrary(const String& libraryProviderName) {
 		return _mediaLibrary->isSynchronizingLibrary(libraryProviderName);

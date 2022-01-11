@@ -10,6 +10,7 @@
 
 #include <soundhole/common.hpp>
 #include "LastFMAuth.hpp"
+#include "LastFMError.hpp"
 #include "LastFMTypes.hpp"
 #include <soundhole/utils/HttpClient.hpp>
 
@@ -28,6 +29,9 @@ namespace sh {
 		
 		Promise<Json> sendRequest(utils::HttpMethod httpMethod, String apiMethod, Map<String,String> params = {}, bool usesAuth = true, bool includeSignature = true);
 		
+		LastFMAuth* getAuth();
+		const LastFMAuth* getAuth() const;
+		
 		Promise<bool> login();
 		void logout();
 		
@@ -38,6 +42,8 @@ namespace sh {
 		
 		Promise<LastFMArtistSearchResults> searchArtist(LastFMArtistSearchRequest request);
 		Promise<LastFMArtistInfo> getArtistInfo(LastFMArtistInfoRequest request);
+		Promise<LastFMArtistTopItemsPage<LastFMTrackInfo>> getArtistTopTracks(LastFMArtistTopItemsRequest request);
+		Promise<LastFMArtistTopItemsPage<LastFMArtistTopAlbum>> getArtistTopAlbums(LastFMArtistTopItemsRequest request);
 		
 		
 		Promise<LastFMTrackSearchResults> searchTrack(LastFMTrackSearchRequest request);
@@ -50,7 +56,7 @@ namespace sh {
 		Promise<LastFMAlbumInfo> getAlbumInfo(LastFMAlbumInfoRequest request);
 		
         
-        Promise<LastFMUserInfo> getUserInfo(String user);
+        Promise<LastFMUserInfo> getUserInfo(String user = String());
 		
 	private:
 		LastFMAuth* auth;

@@ -168,7 +168,7 @@ namespace sh {
 
 
 
-#pragma mark SpotifyPlayerEventListener
+	#pragma mark SpotifyPlayerEventListener
 
 	void SpotifyPlaybackProvider::onSpotifyPlaybackEvent(SpotifyPlayer* player, SpotifyPlaybackEvent event) {
 		if(event == SpotifyPlaybackEvent::PLAY) {

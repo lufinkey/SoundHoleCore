@@ -32,6 +32,7 @@ namespace sh {
 		
 		LastFMAuth(Options options, APIConfig apiConfig);
 		
+		const Options& options() const;
 		const APIConfig& apiConfig() const;
 		const LastFMAPICredentials& apiCredentials() const;
 		Optional<LastFMSession> session() const;

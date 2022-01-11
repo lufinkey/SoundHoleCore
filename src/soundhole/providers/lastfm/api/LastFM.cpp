@@ -7,8 +7,8 @@
 //
 
 #include "LastFM.hpp"
-#include "LastFMError.hpp"
 #include "LastFMAPIRequest.hpp"
+#include <soundhole/utils/js/JSUtils.hpp>
 #include <soundhole/utils/SecureStore.hpp>
 
 namespace sh {
@@ -39,6 +39,14 @@ namespace sh {
 			.session = usesAuth ? auth->session() : std::nullopt,
             .includeSignature = includeSignature
 		}.perform();
+	}
+
+	LastFMAuth* LastFM::getAuth() {
+		return auth;
+	}
+
+	const LastFMAuth* LastFM::getAuth() const {
+		return auth;
 	}
 
 	Promise<bool> LastFM::login() {
@@ -97,6 +105,32 @@ namespace sh {
 		return sendRequest(utils::HttpMethod::GET, "artist.getInfo", params).map([](Json json) {
 			return LastFMArtistInfo::fromJson(json["artist"]);
 		});
+	}
+
+	Promise<LastFMArtistTopItemsPage<LastFMArtistTopAlbum>> LastFM::getArtistTopAlbums(LastFMArtistTopItemsRequest request) {
+		return sendRequest(utils::HttpMethod::GET, "artist.getTopAlbums", request.toQueryParams())
+			.map([](Json json) {
+				json = json["topalbums"];
+				return LastFMArtistTopItemsPage<LastFMArtistTopAlbum>{
+					.items = jsutils::singleOrArrayListFromJson(json["album"], [](auto& itemJson) {
+						return LastFMArtistTopAlbum::fromJson(itemJson);
+					}),
+					.attrs = LastFMArtistTopItemsPageAttrs::fromJson(json["@attr"])
+				};
+			});
+	}
+
+	Promise<LastFMArtistTopItemsPage<LastFMTrackInfo>> LastFM::getArtistTopTracks(LastFMArtistTopItemsRequest request) {
+		return sendRequest(utils::HttpMethod::GET, "artist.getTopTracks", request.toQueryParams())
+			.map([](Json json) {
+				json = json["toptracks"];
+				return LastFMArtistTopItemsPage<LastFMTrackInfo>{
+					.items = jsutils::singleOrArrayListFromJson(json["track"], [](auto& itemJson) {
+						return LastFMTrackInfo::fromJson(itemJson);
+					}),
+					.attrs = LastFMArtistTopItemsPageAttrs::fromJson(json["@attr"])
+				};
+			});
 	}
 
 
@@ -206,6 +240,4 @@ namespace sh {
             return LastFMUserInfo::fromJson(json["user"]);
         });
     }
-
-    
 }

@@ -34,6 +34,10 @@ namespace sh {
 		//
 	}
 
+	const LastFMAuth::Options& LastFMAuth::options() const {
+		return _options;
+	}
+
 	const LastFMAuth::APIConfig& LastFMAuth::apiConfig() const {
 		return _apiConfig;
 	}
