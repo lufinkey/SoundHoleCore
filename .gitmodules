@@ -4,3 +4,6 @@
 [submodule "external/spotify-android-streaming-sdk"]
 	path = external/spotify-android-streaming-sdk
 	url = https://github.com/lufinkey/spotify-android-streaming-sdk
+[submodule "external/stduuid"]
+	path = external/stduuid
+	url = https://github.com/mariusbancila/stduuid
