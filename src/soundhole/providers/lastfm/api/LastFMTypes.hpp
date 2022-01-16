@@ -42,9 +42,9 @@ namespace sh {
 			String albumArtist;
 			Date timestamp;
 			Optional<bool> chosenByUser;
+			Optional<double> duration;
 			Optional<size_t> trackNumber;
 			String mbid;
-			Optional<double> duration;
 			
 			void appendQueryItems(std::map<String,String>& queryItems, size_t index) const;
 		};

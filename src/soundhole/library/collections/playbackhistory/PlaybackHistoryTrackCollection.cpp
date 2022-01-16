@@ -311,7 +311,7 @@ namespace sh {
 			.order = _filters.order
 		}).then([=](auto results) {
 			mutator->applyAndResize(index, results.total, results.items.map([=](const Json& json) {
-				return self->createCollectionItem(json, db->getProviderStash()).forceAs<PlaybackHistoryTrackCollectionItem>();
+				return self->createCollectionItem(json, db->mediaProviderStash()).forceAs<PlaybackHistoryTrackCollectionItem>();
 			}));
 		});
 	}

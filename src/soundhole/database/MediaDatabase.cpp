@@ -28,13 +28,24 @@ namespace sh {
 		}
 	}
 
-	MediaProviderStash* MediaDatabase::getProviderStash() {
-		return options.stash;
+	MediaProviderStash* MediaDatabase::mediaProviderStash() {
+		return options.mediaProviderStash;
 	}
 
-	const MediaProviderStash* MediaDatabase::getProviderStash() const {
-		return options.stash;
+	const MediaProviderStash* MediaDatabase::mediaProviderStash() const {
+		return options.mediaProviderStash;
 	}
+
+	ScrobblerStash* MediaDatabase::scrobblerStash() {
+		return options.scrobblerStash;
+	}
+
+	const ScrobblerStash* MediaDatabase::scrobblerStash() const {
+		return options.scrobblerStash;
+	}
+
+
+	#pragma mark DB operations
 
 	void MediaDatabase::open() {
 		std::unique_lock<std::recursive_mutex> lock(dbMutex);
@@ -387,6 +398,16 @@ namespace sh {
 		}
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
 			sql::insertOrReplacePlaybackHistoryItems(tx, historyItems);
+			sql::applyDBState(tx, options.dbState);
+		}).toVoid();
+	}
+
+	Promise<void> MediaDatabase::cacheScrobbles(ArrayList<$<Scrobble>> scrobbles, CacheOptions options) {
+		if(scrobbles.size() == 0 && options.dbState.size() == 0) {
+			return Promise<void>::resolve();
+		}
+		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
+			sql::insertOrReplaceScrobbles(tx, scrobbles);
 			sql::applyDBState(tx, options.dbState);
 		}).toVoid();
 	}
@@ -805,6 +826,70 @@ namespace sh {
 
 
 
+	Promise<size_t> MediaDatabase::getScrobbleCount(ScrobbleFilters filters) {
+		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
+			sql::selectScrobbleCount(tx, "count", {
+				.scrobbler = filters.scrobbler,
+				.startTimes = filters.startTimes,
+				.minStartTime = filters.minStartTime,
+				.minStartTimeInclusive = filters.minStartTimeInclusive,
+				.maxStartTime = filters.maxStartTime,
+				.maxStartTimeInclusive = filters.maxStartTimeInclusive
+			});
+		}).map(nullptr, [=](auto results) {
+			auto items = results["count"];
+			if(items.size() == 0) {
+				return (size_t)0;
+			}
+			return (size_t)items.front().number_value();
+		});
+	}
+
+	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getScrobblesJson(GetScrobblesOptions options) {
+		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
+			auto& filters = options.filters;
+			auto sqlFilters = sql::ScrobbleSelectFilters{
+				.scrobbler = filters.scrobbler,
+				.startTimes = filters.startTimes,
+				.minStartTime = filters.minStartTime,
+				.minStartTimeInclusive = filters.minStartTimeInclusive,
+				.maxStartTime = filters.maxStartTime,
+				.maxStartTimeInclusive = filters.maxStartTimeInclusive,
+				.uploaded = filters.uploaded
+			};
+			sql::selectScrobbleCount(tx, "count", sqlFilters);
+			sql::selectScrobbles(tx, "items", sqlFilters, {
+				.range = options.range,
+				.order = options.order
+			});
+		}).map(nullptr, [=](auto results) {
+			auto countItems = results["count"];
+			if(countItems.size() == 0) {
+				throw std::runtime_error("failed to get items count");
+			}
+			size_t total = (size_t)countItems.front().number_value();
+			auto rows = LinkedList<Json>(results["items"]);
+			return GetJsonItemsListResult{
+				.items = rows,
+				.total = total
+			};
+		});
+	}
+
+	Promise<MediaDatabase::GetItemsListResult<$<Scrobble>>> MediaDatabase::getScrobbles(GetScrobblesOptions options) {
+		return getScrobblesJson(options).map([=](auto results) {
+			auto scrobblerStash = this->scrobblerStash();
+			return GetItemsListResult<$<Scrobble>>{
+				.items = results.items.map([&](auto& json) {
+					return Scrobble::fromJson(json, scrobblerStash);
+				}),
+				.total = results.total
+			};
+		});
+	}
+
+
+
 	Promise<void> MediaDatabase::setState(std::map<String,String> state) {
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
 			sql::applyDBState(tx, state);
@@ -861,7 +946,7 @@ namespace sh {
 					if(albumItems.size() == 0) {
 						albumItemsStartIndex = pair.first;
 					}
-					albumItems.pushBack(std::static_pointer_cast<AlbumItem>(album->createCollectionItem(pair.second, options.stash)));
+					albumItems.pushBack(std::static_pointer_cast<AlbumItem>(album->createCollectionItem(pair.second, options.mediaProviderStash)));
 					nextIndex = pair.first + 1;
 				}
 				if(albumItems.size() > 0) {
@@ -888,7 +973,7 @@ namespace sh {
 					if(playlistItems.size() == 0) {
 						playlistItemsStartIndex = pair.first;
 					}
-					playlistItems.pushBack(std::static_pointer_cast<PlaylistItem>(playlist->createCollectionItem(pair.second, options.stash)));
+					playlistItems.pushBack(std::static_pointer_cast<PlaylistItem>(playlist->createCollectionItem(pair.second, options.mediaProviderStash)));
 					nextIndex = pair.first + 1;
 				}
 				if(playlistItems.size() > 0) {
@@ -934,6 +1019,12 @@ namespace sh {
 	Promise<void> MediaDatabase::deletePlaybackHistoryItem(Date startTime, String trackURI) {
 		return transaction({}, [=](auto& tx) {
 			sql::deletePlaybackHistoryItem(tx, startTime, trackURI);
+		}).toVoid();
+	}
+
+	Promise<void> MediaDatabase::deleteScrobble(String localID) {
+		return transaction({}, [=](auto& tx) {
+			sql::deleteScrobble(tx, localID);
 		}).toVoid();
 	}
 }

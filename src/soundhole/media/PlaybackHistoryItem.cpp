@@ -40,7 +40,7 @@ namespace sh {
 		};
 	}
 
-	$<PlaybackHistoryItem> PlaybackHistoryItem::new$(const Data& data) {
+	$<PlaybackHistoryItem> PlaybackHistoryItem::new$(Data data) {
 		return fgl::new$<PlaybackHistoryItem>(data);
 	}
 
@@ -48,7 +48,7 @@ namespace sh {
 		return fgl::new$<PlaybackHistoryItem>(Data::fromJson(json, stash));
 	}
 
-	PlaybackHistoryItem::PlaybackHistoryItem(const Data& data)
+	PlaybackHistoryItem::PlaybackHistoryItem(Data data)
 		: _track(data.track),
 		_startTime(data.startTime),
 		_contextURI(data.contextURI),
@@ -103,6 +103,11 @@ namespace sh {
 			return true;
 		}
 		return false;
+	}
+
+	bool PlaybackHistoryItem::matches(const PlaybackHistoryItem* historyItem) const {
+		return _track->uri() == historyItem->track()->uri()
+			&& _startTime == historyItem->startTime();
 	}
 
 	PlaybackHistoryItem::Data PlaybackHistoryItem::toData() const {

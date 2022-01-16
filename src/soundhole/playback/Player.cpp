@@ -10,6 +10,7 @@
 #include <soundhole/utils/Utils.hpp>
 #include "Player_objc_private.hpp"
 #include "PlayerHistoryManager.hpp"
+#include "ScrobbleManager.hpp"
 
 namespace sh {
 	$<Player> Player::new$(MediaDatabase* database, $<StreamPlayer> streamPlayer, Options options) {
@@ -23,16 +24,21 @@ namespace sh {
 	streamPlaybackProvider(new StreamPlaybackProvider(streamPlayer)),
 	playbackProvider(nullptr),
 	preparedPlaybackProvider(nullptr),
-	historyManager(nullptr) {
+	historyManager(nullptr),
+	scrobbleManager(nullptr) {
 		organizer->addEventListener(this);
 		if(options.mediaControls != nullptr) {
 			options.mediaControls->addListener(this);
 		}
-		historyManager = new PlayerHistoryManager(database);
-		historyManager->setPlayer(this);
+		historyManager = new PlayerHistoryManager(this, database);
+		scrobbleManager = new ScrobbleManager(this, database);
 	}
 
 	Player::~Player() {
+		if(scrobbleManager != nullptr) {
+			delete scrobbleManager;
+			scrobbleManager = nullptr;
+		}
 		if(historyManager != nullptr) {
 			delete historyManager;
 			historyManager = nullptr;
@@ -55,6 +61,7 @@ namespace sh {
 
 	void Player::setPreferences(Preferences prefs) {
 		this->prefs = prefs;
+		// TODO queue background save
 	}
 
 	const Player::Preferences& Player::getPreferences() const {
@@ -67,6 +74,15 @@ namespace sh {
 
 	const PlaybackOrganizer::Preferences& Player::getOrganizerPreferences() const {
 		return organizer->getPreferences();
+	}
+
+	void Player::setScrobblePreferences(ScrobblePreferences scrobblePrefs) {
+		this->scrobblePrefs = scrobblePrefs;
+		// TODO queue background save
+	}
+
+	const Player::ScrobblePreferences& Player::getScrobblePreferences() const {
+		return this->scrobblePrefs;
 	}
 
 
@@ -777,6 +793,7 @@ namespace sh {
 		this->providerPlaybackState = playbackState;
 		
 		// TODO maybe compare state with previous state? in case of buffering track?
+		// TODO maybe have a separate event for the state change vs position change
 		// emit state change event
 		callPlayerListenerEvent(&EventListener::onPlayerStateChange, self, createEvent());
 		
@@ -794,6 +811,7 @@ namespace sh {
 		// save player state if needed
 		auto currentTime = std::chrono::steady_clock::now();
 		if(!lastSaveTime || (currentTime - lastSaveTime.value()) >= std::chrono::milliseconds((size_t)(prefs.progressSaveInterval * 1000))) {
+			// TODO ensure there is no save currently happening, so the save queue doesn't get overloaded
 			lastSaveTime = currentTime;
 			saveInBackground({.includeMetadata=false});
 		}

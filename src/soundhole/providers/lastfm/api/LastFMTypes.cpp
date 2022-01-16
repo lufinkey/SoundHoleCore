@@ -61,14 +61,14 @@ namespace sh {
 		if(chosenByUser) {
 			queryItems["chosenByUser["+indexStr+"]"] = chosenByUser.value() ? "1" : "0";
 		}
+		if(duration) {
+			queryItems["duration["+indexStr+"]"] = std::to_string(duration.value());
+		}
 		if(trackNumber) {
 			queryItems["trackNumber["+indexStr+"]"] = std::to_string(trackNumber.value());
 		}
 		if(!mbid.empty()) {
 			queryItems["mbid["+indexStr+"]"] = mbid;
-		}
-		if(duration) {
-			queryItems["duration["+indexStr+"]"] = std::to_string(duration.value());
 		}
 	}
 

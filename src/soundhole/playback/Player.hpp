@@ -24,6 +24,7 @@
 
 namespace sh {
 	class PlayerHistoryManager;
+	class ScrobbleManager;
 
 	class Player: public std::enable_shared_from_this<Player>, protected PlaybackOrganizer::Delegate, protected PlaybackOrganizer::EventListener, protected MediaPlaybackProvider::EventListener, protected MediaControls::Listener {
 		friend class PlayerHistoryManager;
@@ -76,6 +77,24 @@ namespace sh {
 			Optional<double> minDurationRatioForRepeatSongToBeNewHistoryItem = 0.75;
 		};
 		
+		enum class ScrobblerProviderMode {
+			DISABLED,
+			ENABLED_ELSEWHERE,
+			ENABLED
+		};
+		
+		struct ScrobblerPreferences {
+			bool enabled;
+			Map<String,ScrobblerProviderMode> providerModes;
+		};
+		
+		struct ScrobblePreferences {
+			bool enabled = true;
+			Optional<double> scrobbleAtElapsedRatio = 0.5;
+			Optional<double> scrobbleAtElapsed;
+			Map<String,ScrobblerPreferences> scrobblers;
+		};
+		
 		static $<Player> new$(MediaDatabase* database, $<StreamPlayer> streamPlayer, Options options);
 		
 		Player(MediaDatabase* database, $<StreamPlayer> streamPlayer, Options);
@@ -89,6 +108,9 @@ namespace sh {
 		
 		void setOrganizerPreferences(PlaybackOrganizer::Preferences);
 		const PlaybackOrganizer::Preferences& getOrganizerPreferences() const;
+		
+		void setScrobblePreferences(ScrobblePreferences);
+		const ScrobblePreferences& getScrobblePreferences() const;
 		
 		void addEventListener(EventListener* listener);
 		void removeEventListener(EventListener* listener);
@@ -212,6 +234,7 @@ namespace sh {
 		
 		Options options;
 		Preferences prefs;
+		ScrobblePreferences scrobblePrefs;
 		
 		$<PlaybackOrganizer> organizer;
 		StreamPlaybackProvider* streamPlaybackProvider;
@@ -237,6 +260,7 @@ namespace sh {
 		LinkedList<EventListener*> listeners;
 		
 		PlayerHistoryManager* historyManager;
+		ScrobbleManager* scrobbleManager;
 	};
 
 

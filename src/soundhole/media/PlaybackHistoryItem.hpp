@@ -16,7 +16,7 @@ namespace sh {
 	class PlaybackHistoryItem: public std::enable_shared_from_this<PlaybackHistoryItem> {
 		friend class PlayerHistoryManager;
 	public:
-		static constexpr double FALLBACK_DURATION = 120.0;
+		static constexpr double FALLBACK_DURATION = 240.0;
 		
 		struct Data {
 			$<Track> track;
@@ -28,10 +28,10 @@ namespace sh {
 			static Data fromJson(const Json& json, MediaProviderStash* stash);
 		};
 		
-		static $<PlaybackHistoryItem> new$(const Data& data);
+		static $<PlaybackHistoryItem> new$(Data data);
 		static $<PlaybackHistoryItem> fromJson(const Json& json, MediaProviderStash* stash);
 		
-		PlaybackHistoryItem(const Data& data);
+		PlaybackHistoryItem(Data data);
 		virtual ~PlaybackHistoryItem();
 		
 		$<Track> track();
@@ -46,6 +46,7 @@ namespace sh {
 		void setDuration(Optional<double> duration);
 		
 		bool matchesItem(const PlayerItem&) const;
+		bool matches(const PlaybackHistoryItem*) const;
 		
 		Data toData() const;
 		Json toJson() const;

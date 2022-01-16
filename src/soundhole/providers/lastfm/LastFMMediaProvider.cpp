@@ -618,24 +618,24 @@ namespace sh {
 
 	#pragma mark Scrobbler
 
-	Promise<ArrayList<ScrobbleResponse>> LastFMMediaProvider::scrobble(ArrayList<ScrobbleRequest> scrobbles) {
+	Promise<ArrayList<Scrobble::Response>> LastFMMediaProvider::scrobble(ArrayList<$<Scrobble>> scrobbles) {
 		return lastfm->scrobble({
-			.items = scrobbles.map([](auto& req) {
+			.items = scrobbles.map([](auto& scrobble) {
 				return LastFMScrobbleRequest::Item{
-					.track = req.track,
-					.artist = req.artist,
-					.album = req.album,
-					.albumArtist = req.albumArtist,
-					.timestamp = req.timestamp,
-					.chosenByUser = req.chosenByUser,
-					.trackNumber = req.trackNumber,
-					.mbid = req.musicBrainzId,
-					.duration = req.duration
+					.track = scrobble->trackName(),
+					.artist = scrobble->artistName(),
+					.album = scrobble->albumName(),
+					.albumArtist = scrobble->albumArtistName(),
+					.timestamp = scrobble->startTime(),
+					.chosenByUser = scrobble->chosenByUser(),
+					.duration = scrobble->duration(),
+					.trackNumber = scrobble->trackNumber(),
+					.mbid = scrobble->musicBrainzID()
 				};
 			})
 		}).map(nullptr, [=](auto results) {
 			return results.scrobbles.map([](auto& result) {
-				return ScrobbleResponse{
+				return Scrobble::Response{
 					.track = {
 						.text = result.track.text,
 						.corrected = result.track.corrected
@@ -653,7 +653,7 @@ namespace sh {
 						.corrected = result.albumArtist.corrected
 					},
 					.timestamp = result.timestamp,
-					.ignored = (result.ignoredMessage.code != "0" && !result.ignoredMessage.code.trim().empty()) ? maybe(ScrobbleIgnored{
+					.ignored = (result.ignoredMessage.code != "0" && !result.ignoredMessage.code.trim().empty()) ? maybe(Scrobble::IgnoredReason{
 						.code = ignoredScrobbleCodeFromString(result.ignoredMessage.code),
 						.message = result.ignoredMessage.text
 					}) : std::nullopt
@@ -662,8 +662,8 @@ namespace sh {
 		});
 	}
 
-	ScrobbleIgnored::Code LastFMMediaProvider::ignoredScrobbleCodeFromString(const String& str) {
-		using Code = ScrobbleIgnored::Code;
+	Scrobble::IgnoredReason::Code LastFMMediaProvider::ignoredScrobbleCodeFromString(const String& str) {
+		using Code = Scrobble::IgnoredReason::Code;
 		if(str == "1") {
 			return Code::IGNORED_ARTIST;
 		} else if(str == "2") {
@@ -679,11 +679,13 @@ namespace sh {
 	}
 
 
-	Promise<void> LastFMMediaProvider::loveTrack(TrackLoveRequest request) {
-		return lastfm->loveTrack(request.track, request.artist);
+	Promise<void> LastFMMediaProvider::loveTrack($<Track> track) {
+		auto& artists = track->artists();
+		return lastfm->loveTrack(track->name(), artists.empty() ? String() : artists.front()->name());
 	}
 
-	Promise<void> LastFMMediaProvider::unloveTrack(TrackLoveRequest request) {
-		return lastfm->unloveTrack(request.track, request.artist);
+	Promise<void> LastFMMediaProvider::unloveTrack($<Track> track) {
+		auto& artists = track->artists();
+		return lastfm->unloveTrack(track->name(), artists.empty() ? String() : artists.front()->name());
 	}
 }

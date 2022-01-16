@@ -17,8 +17,9 @@ namespace sh {
 	: libraryProxyProvider(nullptr), db(nullptr), mediaProviderStash(options.mediaProviderStash) {
 		libraryProxyProvider = new MediaLibraryProxyProvider(this);
 		db = new MediaDatabase({
-		   .path=options.dbPath,
-		   .stash=options.mediaProviderStash
+			.path = options.dbPath,
+			.mediaProviderStash = options.mediaProviderStash,
+			.scrobblerStash = options.scrobblerStash
 		});
 	}
 

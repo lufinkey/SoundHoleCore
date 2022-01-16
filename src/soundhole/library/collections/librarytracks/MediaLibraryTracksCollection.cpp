@@ -224,7 +224,7 @@ namespace sh {
 					jsonObj["track"] = trackJson;
 				}
 				return std::static_pointer_cast<MediaLibraryTracksCollectionItem>(
-					self->createCollectionItem(jsonObj, db->getProviderStash()));
+					self->createCollectionItem(jsonObj, db->mediaProviderStash()));
 			}));
 		});
 	}

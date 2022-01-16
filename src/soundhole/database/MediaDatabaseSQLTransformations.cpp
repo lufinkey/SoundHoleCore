@@ -148,4 +148,14 @@ Json transformDBPlaybackHistoryItem(Json historyItemJson, Json trackJson) {
 	return obj;
 }
 
+Json transformDBScrobble(Json scrobbleJson) {
+	auto obj = scrobbleJson.object_items();
+	if(obj.contains("ignoredReason")) {
+		auto ignoredReasonJson = obj["ignoredReason"];
+		std::string parseError;
+		obj["ignoredReason"] = ignoredReasonJson.is_null() ? Json() : Json::parse(ignoredReasonJson.string_value(), parseError);
+	}
+	return obj;
+}
+
 }

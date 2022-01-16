@@ -11,6 +11,8 @@
 
 namespace sh::sql {
 
+#pragma mark Helper functions
+
 struct JoinTable {
 	String name;
 	String prefix;
@@ -61,6 +63,8 @@ String sqlOffsetAndLimitFromRange(Optional<sql::IndexRange> range, LinkedList<An
 }
 
 
+
+#pragma mark Insert
 
 void insertOrReplaceArtists(SQLiteTransaction& tx, const ArrayList<$<Artist>>& artists) {
 	if(artists.size() == 0) {
@@ -509,6 +513,22 @@ void insertOrReplacePlaybackHistoryItems(SQLiteTransaction& tx, const ArrayList<
 	}
 }
 
+void insertOrReplaceScrobbles(SQLiteTransaction& tx, const ArrayList<$<Scrobble>>& scrobbles) {
+	LinkedList<String> scrobbleTuples;
+	LinkedList<Any> scrobbleParams;
+	for(auto& scrobble : scrobbles) {
+		scrobbleTuples.pushBack(scrobbleTuple(scrobbleParams, scrobble));
+	}
+	if(scrobbleTuples.size() > 0) {
+		tx.addSQL(String::join({
+			"INSERT OR REPLACE INTO Scrobble (",
+			String::join(scrobbleTupleColumns(), ", "),
+			") VALUES ",
+			String::join(scrobbleTuples, ", ")
+		}), scrobbleParams);
+	}
+}
+
 void insertOrReplaceDBStates(SQLiteTransaction& tx, const ArrayList<DBState>& states) {
 	LinkedList<String> dbStateTuples;
 	LinkedList<Any> dbStateParams;
@@ -539,6 +559,10 @@ void applyDBState(SQLiteTransaction& tx, std::map<String,String> state) {
 	}
 	insertOrReplaceDBStates(tx, states);
 }
+
+
+
+#pragma mark Select
 
 void selectTrack(SQLiteTransaction& tx, String outKey, String uri) {
 	tx.addSQL("SELECT * FROM Track WHERE uri = ?", { uri }, {
@@ -1391,12 +1415,107 @@ void selectPlaybackHistoryItemCount(SQLiteTransaction& tx, String outKey, const 
 
 
 
+void selectScrobble(SQLiteTransaction& tx, String outKey, String localID) {
+	tx.addSQL("SELECT * FROM Scrobble WHERE localID = ?", { localID }, {
+		.outKey = outKey,
+		.mapper = [](auto row) {
+			return transformDBScrobble(row);
+		}
+	});
+}
+
+String ScrobbleSelectFilters::sql(LinkedList<Any>& params) const {
+	return String::join(ArrayList<String>{
+		// scrobbler
+		(!scrobbler.empty()) ?
+			String::join({ "Scrobble.scrobbler = ",sqlParam(params, scrobbler) })
+			: String(),
+		// startTimes
+		(!startTimes.empty()) ?
+			String::join({
+				"(",
+				String::join(startTimes.map([&](auto& startTime) {
+					return String::join({ "Scrobble.startTime = ",sqlParam(params, startTime) });
+				}), " OR "),
+				")"
+			})
+			: String(),
+		// minStartTime
+		(minStartTime.hasValue()) ?
+			String::join({ "Scrobble.startTime >",(minStartTimeInclusive ? "=" : "")," ",sqlParam(params, minStartTime->toISOString()) })
+			: String(),
+		// maxStartTime
+		(maxStartTime.hasValue()) ?
+			String::join({ "Scrobble.startTime <",(maxStartTimeInclusive ? "=" : "")," ",sqlParam(params, maxStartTime->toISOString()) })
+			: String(),
+		// uploaded
+		(uploaded.hasValue()) ?
+			String::join({ "Scrobble.uploaded = ",sqlParam(params, uploaded.value()) })
+			: String()
+	}.where([](auto& str) {return !str.empty();}), " AND ");
+}
+
+void selectScrobbles(SQLiteTransaction& tx, String outKey, const ScrobbleSelectFilters& filters, const ScrobbleSelectOptions& options) {
+	LinkedList<Any> params;
+	auto query = String::join({
+		"SELECT * FROM Scrobble",
+		([&]() {
+			auto sql = filters.sql(params);
+			if(sql.empty()) {
+				return String();
+			}
+			return " WHERE " + sql;
+		})(),
+		" ORDER BY Scrobble.startTime",([&]() -> String {
+			switch(options.order) {
+				case Order::DEFAULT:
+					return "";
+				case Order::ASC:
+					return " ASC";
+				case Order::DESC:
+					return " DESC";
+			}
+			throw std::invalid_argument("invalid value for options.order");
+		})(),
+		sqlOffsetAndLimitFromRange(options.range, params)
+	});
+	tx.addSQL(query, params, {
+		.outKey=outKey,
+		.mapper=[=](auto row) {
+			return transformDBScrobble(row);
+		}
+	});
+}
+
+void selectScrobbleCount(SQLiteTransaction& tx, String outKey, const ScrobbleSelectFilters& filters) {
+	LinkedList<Any> params;
+	auto query = String::join({
+		"SELECT count(*) AS total FROM Scrobble",
+		([&]() {
+			auto sql = filters.sql(params);
+			if(sql.empty()) {
+				return String();
+			}
+			return " WHERE " + sql;
+		})()
+	});
+	tx.addSQL(query, params, {
+		.outKey=outKey,
+		.mapper=[=](auto row) {
+			return row["total"];
+		}
+	});
+}
+
+
+
 void selectDBState(SQLiteTransaction& tx, String outKey, String stateKey) {
 	tx.addSQL("SELECT * FROM DBState WHERE stateKey = ?", { stateKey }, { .outKey=outKey });
 }
 
 
 
+#pragma mark Update
 
 void updateTrackCollectionVersionId(SQLiteTransaction& tx, String collectionURI, String versionId) {
 	LinkedList<Any> params;
@@ -1405,10 +1524,10 @@ void updateTrackCollectionVersionId(SQLiteTransaction& tx, String collectionURI,
 
 
 
+#pragma mark Delete
+
 void deleteSavedTrack(SQLiteTransaction& tx, String trackURI) {
-	tx.addSQL("DELETE FROM SavedTrack WHERE trackURI = ?", {
-		trackURI
-	});
+	tx.addSQL("DELETE FROM SavedTrack WHERE trackURI = ?", { trackURI });
 }
 
 void deleteSavedAlbum(SQLiteTransaction& tx, String albumURI) {
@@ -1431,7 +1550,26 @@ void deletePlaybackHistoryItem(SQLiteTransaction& tx, Date startTime, String tra
 	tx.addSQL("DELETE FROM PlaybackHistoryItem WHERE startTime = ? AND trackURI = ?", { startTime, trackURI });
 }
 
-void deleteNonLibraryCollectionItems(SQLiteTransaction& tx) {
+void deleteScrobble(SQLiteTransaction& tx, String localID) {
+	tx.addSQL("DELETE FROM Scrobble WHERE localID = ?", { localID });
+}
+
+void deleteScrobbles(SQLiteTransaction& tx, const ScrobbleSelectFilters& filters) {
+	LinkedList<Any> params;
+	auto query = String::join({
+		"DELETE FROM Scrobble",
+		([&]() {
+			auto sql = filters.sql(params);
+			if(sql.empty()) {
+				return String();
+			}
+			return " WHERE " + sql;
+		})()
+	});
+	tx.addSQL(query, params);
+}
+
+void deleteUnreferencedCollectionItems(SQLiteTransaction& tx) {
 	tx.addSQL(
 		"DELETE FROM TrackCollectionItem AS tci "
 		"WHERE NOT EXISTS("
@@ -1444,7 +1582,7 @@ void deleteNonLibraryCollectionItems(SQLiteTransaction& tx) {
 		")", {});
 }
 
-void deleteNonLibraryTracks(SQLiteTransaction& tx) {
+void deleteUnreferencedTracks(SQLiteTransaction& tx) {
 	// delete from track artists
 	tx.addSQL(
 		"DELETE FROM TrackArtist AS ta "
@@ -1467,6 +1605,14 @@ void deleteNonLibraryTracks(SQLiteTransaction& tx) {
 		"AND NOT EXISTS("
 			// check if track is from a saved album
 			"SELECT Track.uri FROM Track, SavedAlbum WHERE Track.uri = ta.trackURI AND Track.albumURI = SavedAlbum.albumURI"
+		") "
+		"AND NOT EXISTS("
+			// check if track is referenced by a PlaybackHistoryItem
+			"SELECT PlaybackHistoryItem.trackURI FROM PlaybackHistoryItem WHERE ta.trackURI = PlaybackHistoryItem.trackURI"
+		") "
+		"AND NOT EXISTS("
+			// check if track is referenced by a Scrobble
+			"SELECT Scrobble.trackURI FROM Scrobble WHERE ta.trackURI = Scrobble.trackURI"
 		")", {});
 	// delete from tracks
 	tx.addSQL(
@@ -1490,10 +1636,18 @@ void deleteNonLibraryTracks(SQLiteTransaction& tx) {
 		"AND NOT EXISTS("
 			// check if track is from a saved album
 			"SELECT SavedAlbum.uri FROM SavedAlbum WHERE t.albumURI = SavedAlbum.albumURI"
+		") "
+		"AND NOT EXISTS("
+			// check if track is referenced by a PlaybackHistoryItem
+			"SELECT PlaybackHistoryItem.trackURI FROM PlaybackHistoryItem WHERE t.uri = PlaybackHistoryItem.trackURI"
+		") "
+		"AND NOT EXISTS("
+			// check if track is referenced by a Scrobble
+			"SELECT Scrobble.trackURI FROM Scrobble WHERE t.uri = Scrobble.trackURI"
 		")", {});
 }
 
-void deleteNonLibraryCollections(SQLiteTransaction& tx) {
+void deleteUnreferencedCollections(SQLiteTransaction& tx) {
 	// delete from collection artists
 	tx.addSQL(
 		"DELETE FROM TrackCollectionArtist AS tca "
@@ -1508,6 +1662,10 @@ void deleteNonLibraryCollections(SQLiteTransaction& tx) {
 		"AND NOT EXISTS("
 			// check if collection is the album of a saved track
 			"SELECT Track.albumURI FROM Track WHERE Track.albumURI = tca.collectionURI"
+		") "
+		"AND NOT EXISTS("
+			// check if collection is referenced by PlaybackHistoryItem.contextURI
+			"SELECT PlaybackHistoryItem.contextURI FROM PlaybackHistoryItem WHERE tca.collectionURI = PlaybackHistoryItem.contextURI"
 		")", {});
 	tx.addSQL(
 		"DELETE FROM TrackCollection AS tc "
@@ -1522,10 +1680,14 @@ void deleteNonLibraryCollections(SQLiteTransaction& tx) {
 		"AND NOT EXISTS("
 			// check if collection is the album of a saved track
 			"SELECT Track.albumURI FROM Track WHERE Track.albumURI = tc.uri"
+		") "
+		"AND NOT EXISTS("
+			// check if collection is referenced by PlaybackHistoryItem.contextURI
+			"SELECT PlaybackHistoryItem.contextURI FROM PlaybackHistoryItem WHERE tc.collectionURI = PlaybackHistoryItem.contextURI"
 		")", {});
 }
 
-void deleteNonLibraryArtists(SQLiteTransaction& tx) {
+void deleteUnreferencedArtists(SQLiteTransaction& tx) {
 	tx.addSQL(
 		"DELETE FROM Artist AS a "
 		"WHERE NOT EXISTS("
@@ -1539,10 +1701,10 @@ void deleteNonLibraryArtists(SQLiteTransaction& tx) {
 		"AND NOT EXISTS("
 			// check if artist is a followed artist
 			"SELECT artistURI FROM FollowedArtist WHERE FollowedArtist.artistURI = a.uri"
-		") ", {});
+		")", {});
 }
 
-void deleteNonLibraryUserAccounts(SQLiteTransaction& tx) {
+void deleteUnreferencedUserAccounts(SQLiteTransaction& tx) {
 	tx.addSQL(
 		"DELETE FROM UserAccount AS u "
 		"WHERE NOT EXISTS("
@@ -1552,7 +1714,7 @@ void deleteNonLibraryUserAccounts(SQLiteTransaction& tx) {
 		"AND NOT EXISTS("
 			  // check if user is a followed user
 			  "SELECT userURI FROM FollowedUserAccount WHERE FollowedUserAccount.userURI = u.uri"
-		") ", {});
+		")", {});
 }
 
 }

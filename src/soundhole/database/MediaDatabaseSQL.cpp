@@ -83,6 +83,9 @@ ArrayList<String> savedPlaylistColumns() {
 ArrayList<String> playbackHistoryItemColumns() {
 	return { "startTime", "trackURI", "contextURI", "duration", "chosenByUser", "updateTime" };
 }
+ArrayList<String> scrobbleColumns() {
+	return { "localID", "scrobbler", "startTime", "trackURI", "musicBrainzID", "trackName", "artistName", "albumName", "albumArtistName", "duration", "trackNumber", "chosenByUser", "historyItemStartTime", "uploaded", "ignoredReason", "updateTime" };
+}
 
 
 
@@ -211,6 +214,27 @@ CREATE TABLE IF NOT EXISTS PlaybackHistoryItem (
 	PRIMARY KEY(startTime, trackURI),
 	FOREIGN KEY(trackURI) REFERENCES Track(uri)
 );
+CREATE TABLE IF NOT EXISTS Scrobble (
+	localID TEXT NOT NULL UNIQUE,
+	scrobbler TEXT NOT NULL,
+	startTime TIMESTAMP NOT NULL,
+	trackURI TEXT,
+	musicBrainzID TEXT,
+	trackName TEXT NOT NULL,
+	artistName TEXT NOT NULL,
+	albumName TEXT,
+	albumArtistName TEXT,
+	duration REAL,
+	trackNumber INT,
+	chosenByUser INT(1),
+	historyItemStartTime TIMESTAMP,
+	uploaded INT(1) NOT NULL,
+	ignoredReason TEXT,
+	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY(localID),
+	FOREIGN KEY(trackURI) REFERENCES Track(uri),
+	FOREIGN KEY(historyItemStartTime, trackURI) REFERENCES PlaybackHistoryItem(startTime, trackURI)
+);
 CREATE TABLE IF NOT EXISTS DBState (
 	stateKey TEXT NOT NULL,
 	stateValue TEXT NOT NULL,
@@ -222,6 +246,7 @@ CREATE TABLE IF NOT EXISTS DBState (
 
 String purgeDB() {
 	return R"SQL(
+DROP TABLE IF EXISTS Scrobble;
 DROP TABLE IF EXISTS PlaybackHistoryItem;
 DROP TABLE IF EXISTS FollowedUserAccount;
 DROP TABLE IF EXISTS FollowedArtist;
@@ -297,7 +322,7 @@ String trackTuple(LinkedList<Any>& params, $<Track> track, const TupleOptions& o
 		// playable
 		MAYBE_COALESCE_FIELD(options.coalesce, params, "playable", "Track", track, track->playable().toAny()),",",
 		// updateTime
-		"CURRENT_TIMESTAMP",
+		"CURRENT_TIMESTAMP"
 	")" });
 }
 
@@ -328,7 +353,7 @@ String albumTupleFromTrack(LinkedList<Any>& params, $<Track> track, const TupleO
 		// images
 		COALESCE_FIELD(params, "images", "TrackCollection", track->albumURI()),",",
 		// updateTime
-		"CURRENT_TIMESTAMP",
+		"CURRENT_TIMESTAMP"
 	")" });
 }
 
@@ -342,7 +367,7 @@ String trackArtistTuple(LinkedList<Any>& params, const TrackArtist& trackArtist)
 		// artistURI
 		sqlParam(params, trackArtist.artistURI),",",
 		// updateTime
-		"CURRENT_TIMESTAMP",
+		"CURRENT_TIMESTAMP"
 	")" });
 }
 
@@ -407,7 +432,7 @@ String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collecti
 		// images
 		MAYBE_COALESCE_FIELD(options.coalesce, params, "images", "TrackCollection", collection, imagesJson(collection->images())),",",
 		// updateTime
-		"CURRENT_TIMESTAMP",
+		"CURRENT_TIMESTAMP"
 	")" });
 }
 
@@ -445,7 +470,7 @@ String trackCollectionItemTuple(LinkedList<Any>& params, $<TrackCollectionItem> 
 		// addedBy
 		sqlParam(params, addedBy ? String(addedBy->toJson().dump()) : Any()),",",
 		// updateTime
-		"CURRENT_TIMESTAMP",
+		"CURRENT_TIMESTAMP"
 	")" });
 }
 
@@ -471,7 +496,7 @@ String albumItemTupleFromTrack(LinkedList<Any>& params, $<Track> track) {
 		// trackURI
 		sqlParam(params, track->uri()),",",
 		// updateTime
-		"CURRENT_TIMESTAMP",
+		"CURRENT_TIMESTAMP"
 	")" });
 }
 
@@ -485,7 +510,7 @@ String trackCollectionArtistTuple(LinkedList<Any>& params, const TrackCollection
 		// artistURI
 		sqlParam(params, collectionArtist.artistURI),",",
 		// updateTime
-		"CURRENT_TIMESTAMP",
+		"CURRENT_TIMESTAMP"
 	")" });
 }
 
@@ -505,7 +530,7 @@ String artistTuple(LinkedList<Any>& params, $<Artist> artist, const TupleOptions
 		// images
 		MAYBE_COALESCE_FIELD(options.coalesce, params, "images", "Artist", artist, imagesJson(artist->images())),",",
 		// updateTime
-		"CURRENT_TIMESTAMP",
+		"CURRENT_TIMESTAMP"
 	")" });
 }
 
@@ -521,7 +546,7 @@ String followedArtistTuple(LinkedList<Any>& params, const FollowedArtist& artist
 		// addedAt
 		EXISTING_FIELD_OR(params, sqlStringOrNull(artist.addedAt), "SELECT addedAt FROM FollowedArtist WHERE artistURI = " COMMA sqlParam(params COMMA sqlStringOrNull(artist.addedAt))),",",
 		// updateTime
-		"CURRENT_TIMESTAMP",
+		"CURRENT_TIMESTAMP"
 	")" });
 }
 
@@ -543,7 +568,7 @@ String userAccountTuple(LinkedList<Any>& params, $<UserAccount> userAccount, con
 		// images
 		MAYBE_COALESCE_FIELD(options.coalesce, params, "images", "UserAccount", userAccount, imagesJson(userAccount->images())),",",
 		// updateTime
-		"CURRENT_TIMESTAMP",
+		"CURRENT_TIMESTAMP"
 	")" });
 }
 
@@ -559,7 +584,7 @@ String followedUserAccountTuple(LinkedList<Any>& params, const FollowedUserAccou
 		// addedAt
 		EXISTING_FIELD_OR(params, sqlStringOrNull(user.addedAt), "SELECT addedAt FROM FollowedUserAccount WHERE userURI = " COMMA sqlParam(params COMMA sqlStringOrNull(user.addedAt))),",",
 		// updateTime
-		"CURRENT_TIMESTAMP",
+		"CURRENT_TIMESTAMP"
 	")" });
 }
 
@@ -577,7 +602,7 @@ String savedTrackTuple(LinkedList<Any>& params, const SavedTrack& track) {
 		// addedAt
 		EXISTING_FIELD_OR(params, sqlStringOrNull(track.addedAt), "SELECT addedAt FROM SavedTrack WHERE trackURI = " COMMA sqlParam(params COMMA sqlStringOrNull(track.addedAt))),",",
 		// updateTime
-		"CURRENT_TIMESTAMP",
+		"CURRENT_TIMESTAMP"
 	")" });
 }
 
@@ -593,7 +618,7 @@ String savedAlbumTuple(LinkedList<Any>& params, const SavedAlbum& album) {
 		// addedAt
 		EXISTING_FIELD_OR(params, sqlStringOrNull(album.addedAt), "SELECT addedAt FROM SavedAlbum WHERE albumURI = " COMMA sqlParam(params COMMA sqlStringOrNull(album.addedAt))),",",
 		// updateTime
-		"CURRENT_TIMESTAMP",
+		"CURRENT_TIMESTAMP"
 	")" });
 }
 
@@ -609,7 +634,7 @@ String savedPlaylistTuple(LinkedList<Any>& params, const SavedPlaylist& playlist
 		// addedAt
 		EXISTING_FIELD_OR(params, sqlStringOrNull(playlist.addedAt), "SELECT addedAt FROM SavedPlaylist WHERE playlistURI = " COMMA sqlParam(params COMMA sqlStringOrNull(playlist.addedAt))),",",
 		// updateTime
-		"CURRENT_TIMESTAMP",
+		"CURRENT_TIMESTAMP"
 	")" });
 }
 
@@ -619,16 +644,64 @@ ArrayList<String> playbackHistoryItemTupleColumns() {
 String playbackHistoryItemTuple(LinkedList<Any>& params, $<PlaybackHistoryItem> item) {
 	return String::join({ "(",
 		// startTime
-		sqlParam(params, item->startTime().toISOString()),
+		sqlParam(params, item->startTime().toISOString()),",",
 		// trackURI
 		sqlParam(params, item->track()->uri()),",",
 		// contextURI
-		sqlParam(params, sqlStringOrNull(item->contextURI())),
+		sqlParam(params, sqlStringOrNull(item->contextURI())),",",
 		// duration
-		sqlParam(params, item->duration() ? Any(item->duration().value()) : Any()),
+		sqlParam(params, item->duration() ? Any(item->duration().value()) : Any()),",",
 		// chosenByUser
-		sqlParam(params, item->chosenByUser()),
+		sqlParam(params, item->chosenByUser()),",",
+		// updateTime
+		"CURRENT_TIMESTAMP"
 	")" });
+}
+
+ArrayList<String> scrobbleTupleColumns() {
+	return { "localID", "scrobbler", "startTime", "trackURI", "musicBrainzID", "trackName", "artistName", "albumName", "albumArtistName", "duration", "trackNumber", "chosenByUser", "historyItemStartTime", "uploaded", "ignoredReason", "updateTime" };
+}
+String scrobbleTuple(LinkedList<Any>& params, $<Scrobble> scrobble) {
+	auto& trackURI = scrobble->trackURI();
+	auto& musicBrainzID = scrobble->musicBrainzID();
+	auto& album = scrobble->albumName();
+	auto& albumArtist = scrobble->albumArtistName();
+	auto& ignoredReason = scrobble->ignoredReason();
+	auto& historyItemStartTime = scrobble->historyItemStartTime();
+	return String::join({ "{",
+		// localID
+		sqlParam(params, scrobble->localID()),",",
+		// scrobbler
+		sqlParam(params, scrobble->scrobbler()->name()),",",
+		// startTime
+		sqlParam(params, scrobble->startTime().toISOString()),",",
+		// trackURI
+		sqlParam(params, trackURI.empty() ? Any() : Any(trackURI)),",",
+		// musicBrainzID
+		sqlParam(params, musicBrainzID.empty() ? Any() : Any(musicBrainzID)),",",
+		// trackName
+		sqlParam(params, scrobble->trackName()),",",
+		// artistName
+		sqlParam(params, scrobble->artistName()),",",
+		// albumName
+		sqlParam(params, album.empty() ? Any() : Any(album)),",",
+		// albumArtistName
+		sqlParam(params, albumArtist.empty() ? Any() : Any(albumArtist)),",",
+		// duration
+		sqlParam(params, scrobble->duration().toAny()),",",
+		// trackNumber
+		sqlParam(params, scrobble->trackNumber().toAny()),",",
+		// chosenByUser
+		sqlParam(params, scrobble->chosenByUser().toAny()),",",
+		// historyItemStartTime
+		sqlParam(params, historyItemStartTime ? Any(historyItemStartTime->toISOString()) : Any()),",",
+		// uploaded
+		sqlParam(params, scrobble->isUploaded()),",",
+		// ignoredReason
+		sqlParam(params, ignoredReason ? Any(ignoredReason->toJson().dump()) : Any()),",",
+		// updateTime
+		"CURRENT_TIMESTAMP"
+	"}" });
 }
 
 ArrayList<String> dbStateTupleColumns() {
@@ -641,7 +714,7 @@ String dbStateTuple(LinkedList<Any>& params, const DBState& state) {
 		// stateValue
 		sqlParam(params, state.stateValue),",",
 		// updateTime
-		"CURRENT_TIMESTAMP",
+		"CURRENT_TIMESTAMP"
 	")" });
 }
 

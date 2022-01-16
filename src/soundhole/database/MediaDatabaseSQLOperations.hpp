@@ -31,6 +31,7 @@ void insertOrReplaceSavedTracks(SQLiteTransaction& tx, const ArrayList<SavedTrac
 void insertOrReplaceSavedAlbums(SQLiteTransaction& tx, const ArrayList<SavedAlbum>& savedAlbums);
 void insertOrReplaceSavedPlaylists(SQLiteTransaction& tx, const ArrayList<SavedPlaylist>& savedPlaylists);
 void insertOrReplacePlaybackHistoryItems(SQLiteTransaction& tx, const ArrayList<$<PlaybackHistoryItem>>& items);
+void insertOrReplaceScrobbles(SQLiteTransaction& tx, const ArrayList<$<Scrobble>>& scrobbles);
 void insertOrReplaceDBStates(SQLiteTransaction& tx, const ArrayList<DBState>& states);
 void applyDBState(SQLiteTransaction& tx, std::map<String,String> state);
 
@@ -95,6 +96,25 @@ struct PlaybackHistorySelectOptions {
 void selectPlaybackHistoryItemsWithTracks(SQLiteTransaction& tx, String outKey, const PlaybackHistorySelectFilters& filters, const PlaybackHistorySelectOptions& options);
 void selectPlaybackHistoryItemCount(SQLiteTransaction& tx, String outKey, const PlaybackHistorySelectFilters& filters);
 
+void selectScrobble(SQLiteTransaction& tx, String outKey, String localID);
+struct ScrobbleSelectFilters {
+	String scrobbler;
+	ArrayList<Date> startTimes;
+	Optional<Date> minStartTime;
+	bool minStartTimeInclusive = true;
+	Optional<Date> maxStartTime;
+	bool maxStartTimeInclusive = false;
+	Optional<bool> uploaded;
+	
+	String sql(LinkedList<Any>& params) const;
+};
+struct ScrobbleSelectOptions {
+	Optional<IndexRange> range;
+	Order order = Order::DEFAULT;
+};
+void selectScrobbles(SQLiteTransaction& tx, String outKey, const ScrobbleSelectFilters& filters, const ScrobbleSelectOptions& options);
+void selectScrobbleCount(SQLiteTransaction& tx, String outKey, const ScrobbleSelectFilters& filters);
+
 void selectDBState(SQLiteTransaction& tx, String outKey, String stateKey);
 
 
@@ -107,11 +127,14 @@ void deleteSavedPlaylist(SQLiteTransaction& tx, String playlistURI);
 void deleteFollowedArtist(SQLiteTransaction& tx, String artistURI);
 void deleteFollowedUserAccount(SQLiteTransaction& tx, String userURI);
 void deletePlaybackHistoryItem(SQLiteTransaction& tx, Date startTime, String trackURI);
+void deleteScrobble(SQLiteTransaction& tx, String localID);
+void deleteScrobbles(SQLiteTransaction& tx, const ScrobbleSelectFilters& filters);
 
-void deleteNonLibraryCollectionItems(SQLiteTransaction& tx);
-void deleteNonLibraryTracks(SQLiteTransaction& tx);
-void deleteNonLibraryCollections(SQLiteTransaction& tx);
-void deleteNonLibraryArtists(SQLiteTransaction& tx);
-void deleteNonLibraryUserAccounts(SQLiteTransaction& tx);
+void deleteUnreferencedCollectionItems(SQLiteTransaction& tx);
+void deleteUnreferencedTracks(SQLiteTransaction& tx);
+void deleteUnreferencedCollections(SQLiteTransaction& tx);
+void deleteUnreferencedArtists(SQLiteTransaction& tx);
+void deleteUnreferencedUserAccounts(SQLiteTransaction& tx);
+void deleteUnreferencedScrobbles(SQLiteTransaction& tx);
 
 }

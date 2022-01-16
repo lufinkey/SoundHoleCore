@@ -21,7 +21,7 @@
 #include <soundhole/utils/SoundHoleError.hpp>
 
 namespace sh {
-	class SoundHole: public MediaProviderStash {
+	class SoundHole: public MediaProviderStash, public ScrobblerStash {
 	public:
 		struct Options {
 			String dbPath;
@@ -57,10 +57,10 @@ namespace sh {
 		MediaProviderType* getMediaProvider();
 		virtual ArrayList<MediaProvider*> getMediaProviders() override;
 		
-		ArrayList<Scrobbler*> getScrobblers();
-		Scrobbler* getScrobbler(const String& name);
+		virtual Scrobbler* getScrobbler(const String& name) override;
 		template<typename ScrobblerType>
 		ScrobblerType* getScrobbler();
+		virtual ArrayList<Scrobbler*> getScrobblers() override;
 		
 		bool isSynchronizingLibrary(const String& libraryProviderName);
 		bool isSynchronizingLibraries();

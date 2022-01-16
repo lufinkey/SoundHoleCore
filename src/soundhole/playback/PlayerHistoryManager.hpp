@@ -17,9 +17,8 @@ namespace sh {
 	class PlayerHistoryManager: protected Player::EventListener {
 		friend class Player;
 	public:
-		PlayerHistoryManager(MediaDatabase* database);
-		
-		void setPlayer(Player* player);
+		PlayerHistoryManager(Player* player, MediaDatabase* database);
+		~PlayerHistoryManager();
 		
 		$<PlaybackHistoryItem> currentItem() const;
 		

@@ -16,7 +16,9 @@
 #include <soundhole/media/Playlist.hpp>
 #include <soundhole/media/MediaProvider.hpp>
 #include <soundhole/media/PlaybackHistoryItem.hpp>
+#include <soundhole/media/Scrobble.hpp>
 #include <soundhole/media/MediaProviderStash.hpp>
+#include <soundhole/media/ScrobblerStash.hpp>
 #include "SQLIndexRange.hpp"
 #include "SQLOrder.hpp"
 #include "SQLOrderBy.hpp"
@@ -30,14 +32,18 @@ namespace sh {
 	public:
 		struct Options {
 			String path;
-			MediaProviderStash* stash;
+			MediaProviderStash* mediaProviderStash;
+			ScrobblerStash* scrobblerStash;
 		};
 		
 		MediaDatabase(Options);
 		~MediaDatabase();
 		
-		MediaProviderStash* getProviderStash();
-		const MediaProviderStash* getProviderStash() const;
+		MediaProviderStash* mediaProviderStash();
+		const MediaProviderStash* mediaProviderStash() const;
+		
+		ScrobblerStash* scrobblerStash();
+		const ScrobblerStash* scrobblerStash() const;
 		
 		void open();
 		bool isOpen() const;
@@ -56,10 +62,19 @@ namespace sh {
 		
 		struct CacheOptions {
 			std::map<String,String> dbState;
+			
+			bool empty() const;
+			void apply(SQLiteTransaction& tx) const;
 		};
 		
 		struct GetJsonItemsListResult {
 			LinkedList<Json> items;
+			size_t total;
+		};
+		
+		template<typename T>
+		struct GetItemsListResult {
+			ArrayList<T> items;
 			size_t total;
 		};
 		
@@ -83,6 +98,7 @@ namespace sh {
 		Promise<void> cacheLibraryItems(ArrayList<MediaProvider::LibraryItem> items, CacheOptions options = CacheOptions());
 		
 		Promise<void> cachePlaybackHistoryItems(ArrayList<$<PlaybackHistoryItem>> historyItems, CacheOptions options = CacheOptions());
+		Promise<void> cacheScrobbles(ArrayList<$<Scrobble>> scrobbles, CacheOptions options = CacheOptions());
 		
 		struct GetSavedItemsCountOptions {
 			String libraryProvider;
@@ -180,6 +196,39 @@ namespace sh {
 			.order = sql::Order::DESC
 		});
 		
+		struct ScrobbleFilters {
+			String scrobbler;
+			ArrayList<Date> startTimes;
+			Optional<Date> minStartTime;
+			bool minStartTimeInclusive = true;
+			Optional<Date> maxStartTime;
+			bool maxStartTimeInclusive = false;
+			Optional<bool> uploaded;
+		};
+		Promise<size_t> getScrobbleCount(ScrobbleFilters filters = ScrobbleFilters{
+			.minStartTimeInclusive = true,
+			.maxStartTimeInclusive = false
+		});
+		struct GetScrobblesOptions {
+			ScrobbleFilters filters;
+			Optional<sql::IndexRange> range;
+			sql::Order order = sql::Order::DESC;
+		};
+		Promise<GetJsonItemsListResult> getScrobblesJson(GetScrobblesOptions options = GetScrobblesOptions{
+			.filters = ScrobbleFilters{
+				.minStartTimeInclusive = true,
+				.maxStartTimeInclusive = false
+			},
+			.order = sql::Order::DESC
+		});
+		Promise<GetItemsListResult<$<Scrobble>>> getScrobbles(GetScrobblesOptions options = GetScrobblesOptions{
+			.filters = ScrobbleFilters{
+				.minStartTimeInclusive = true,
+				.maxStartTimeInclusive = false
+			},
+			.order = sql::Order::DESC
+		});
+		
 		Promise<void> setState(std::map<String,String> state);
 		Promise<std::map<String,String>> getState(ArrayList<String> keys);
 		Promise<String> getStateValue(String key, String defaultValue);
@@ -194,6 +243,7 @@ namespace sh {
 		Promise<void> deleteFollowedArtist(String uri);
 		Promise<void> deleteFollowedUserAccount(String uri);
 		Promise<void> deletePlaybackHistoryItem(Date startTime, String trackURI);
+		Promise<void> deleteScrobble(String localID);
 		
 	private:
 		static void applyDBState(SQLiteTransaction& tx, std::map<String,String> state);

@@ -24,7 +24,7 @@ Pod::Spec.new do |s|
 	s.source_files = 'src/soundhole/**/*.{c,cc,cpp,m,mm,h,hpp}', 'external/cxxurl/url.cpp', 'external/json11/json11.cpp'
 	s.ios.frameworks = 'SpotifyAudioPlayback', 'MediaPlayer', 'WebKit'
 
-	s.public_header_files = 'src/soundhole/**/*.{h,hpp}', 'external/cxxurl/*.{h,hpp}', 'external/json11/*.{h,hpp}'
+	s.public_header_files = 'src/soundhole/**/*.{h,hpp}', 'external/cxxurl/*.{h,hpp}', 'external/json11/*.{h,hpp}', 'external/stduuid/include/*.{h,hpp}'
 	s.preserve_paths = 'external/**/*', 'src/soundhole/scripts/**/*', 'tools/**/*'
 	s.header_mappings_dir = 'src/soundhole'
 	s.pod_target_xcconfig = {
@@ -38,7 +38,9 @@ Pod::Spec.new do |s|
 			"$(PODS_ROOT)/NodeJSEmbed/external/nodejs/build/addon-api",
 			"$(PODS_ROOT)/dtl",
 			"$(PODS_ROOT)/SoundHoleCore/external",
-			"$(PODS_ROOT)/../external/SoundHoleCore/external"
+			"$(PODS_ROOT)/../external/SoundHoleCore/external",
+			"$(PODS_ROOT)/SoundHoleCore/external/stduuid/include",
+			"$(PODS_ROOT)/../external/SoundHoleCore/external/stduuid/include"
 		],
 		'CLANG_CXX_LANGUAGE_STANDARD' => 'gnu++20',
 		'GCC_OPTIMIZATION_LEVEL[config=Release]' => 's'

@@ -25,6 +25,7 @@ namespace sh {
 		struct Options {
 			String dbPath;
 			MediaProviderStash* mediaProviderStash;
+			ScrobblerStash* scrobblerStash;
 		};
 		MediaLibrary(Options);
 		~MediaLibrary();
@@ -171,6 +172,7 @@ namespace sh {
 	private:
 		MediaDatabase* db;
 		MediaProviderStash* mediaProviderStash;
+		ScrobblerStash* scrobblerStash;
 		MediaLibraryProxyProvider* libraryProxyProvider;
 		AsyncQueue synchronizeQueue;
 		AsyncQueue synchronizeAllQueue;

@@ -24,5 +24,6 @@ Json transformDBSavedPlaylist(Json savedPlaylistJson, Json playlistJson, Json ow
 Json transformDBFollowedArtist(Json followedArtistJson, Json artistJson);
 Json transformDBFollowedUserAccount(Json followedUserAccountJson, Json userAccountJson);
 Json transformDBPlaybackHistoryItem(Json historyItemJson, Json trackJson);
+Json transformDBScrobble(Json scrobbleJson);
 
 }

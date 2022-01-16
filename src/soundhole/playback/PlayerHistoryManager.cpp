@@ -10,23 +10,18 @@
 #include <soundhole/utils/Utils.hpp>
 
 namespace sh {
-	PlayerHistoryManager::PlayerHistoryManager(MediaDatabase* database)
-	: player(nullptr),
+	PlayerHistoryManager::PlayerHistoryManager(Player* player, MediaDatabase* database)
+	: player(player),
 	database(database),
 	wasPlaying(false) {
-		//
-	}
-
-	void PlayerHistoryManager::setPlayer(Player* player) {
-		if(this->player == player) {
-			return;
-		}
-		if(this->player != nullptr) {
-			this->player->removeEventListener(this);
-		}
-		this->player = player;
 		if(this->player != nullptr) {
 			this->player->addEventListener(this);
+		}
+	}
+
+	PlayerHistoryManager::~PlayerHistoryManager() {
+		if(this->player != nullptr) {
+			this->player->removeEventListener(this);
 		}
 	}
 

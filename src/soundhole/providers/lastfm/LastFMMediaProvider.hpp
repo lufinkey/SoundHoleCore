@@ -96,17 +96,17 @@ namespace sh {
 		URI parseAlbumURL(const String&) const;
 		URI parseUserURL(const String&) const;
 		
-		virtual Promise<ArrayList<ScrobbleResponse>> scrobble(ArrayList<ScrobbleRequest> scrobbles) override;
+		virtual Promise<ArrayList<Scrobble::Response>> scrobble(ArrayList<$<Scrobble>> scrobbles) override;
 		
-		virtual Promise<void> loveTrack(TrackLoveRequest) override;
-		virtual Promise<void> unloveTrack(TrackLoveRequest) override;
+		virtual Promise<void> loveTrack($<Track>) override;
+		virtual Promise<void> unloveTrack($<Track>) override;
 		
 	protected:
 		virtual Promise<Optional<LastFMUserInfo>> fetchIdentity() override;
 		virtual String getIdentityFilePath() const override;
 		
 	private:
-		static ScrobbleIgnored::Code ignoredScrobbleCodeFromString(const String&);
+		static Scrobble::IgnoredReason::Code ignoredScrobbleCodeFromString(const String&);
 		
 		LastFM* lastfm;
 	};

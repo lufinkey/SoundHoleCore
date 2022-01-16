@@ -40,7 +40,8 @@ namespace sh {
 		
 		_mediaLibrary = new MediaLibrary({
 			.dbPath = options.dbPath,
-			.mediaProviderStash = this
+			.mediaProviderStash = this,
+			.scrobblerStash = this
 		});
 		
 		if(options.player) {
@@ -157,6 +158,15 @@ namespace sh {
 		return _mediaProviders;
 	}
 
+
+	Scrobbler* SoundHole::getScrobbler(const String& name) {
+		for(auto scrobbler : _scrobblers) {
+			if(scrobbler->name() == name) {
+				return scrobbler;
+			}
+		}
+		return nullptr;
+	}
 
 	ArrayList<Scrobbler*> SoundHole::getScrobblers() {
 		return _scrobblers;
