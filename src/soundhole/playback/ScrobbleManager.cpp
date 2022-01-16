@@ -28,6 +28,20 @@ namespace sh {
 		}
 	}
 
+	bool ScrobbleManager::ScrobblerData::currentlyAbleToUpload() const {
+		return !dailyScrobbleLimitExceeded();
+	}
+
+	bool ScrobbleManager::ScrobblerData::dailyScrobbleLimitExceeded() const {
+		if(!dailyScrobbleLimitExceededDate) {
+			return false;
+		}
+		auto now = Date::now();
+		// check that date is in the past (if it's in the future, the system clock probably changed)
+		//  and that less than a day has passed since the date/time when the limit was exceeded
+		return dailyScrobbleLimitExceededDate.value() <= now && ((now - dailyScrobbleLimitExceededDate.value()) <= std::chrono::days(1));
+	}
+
 	Function<String()> ScrobbleManager::createUUIDGenerator() {
 		std::random_device rd;
 		auto seed_data = std::array<int, std::mt19937::state_size> {};
@@ -167,19 +181,19 @@ namespace sh {
 		return uploadBatch.hasValue();
 	}
 
-	Promise<bool> ScrobbleManager::uploadPendingScrobbles() {
-		const bool DoneState = true;
-		const bool NotDoneState = false;
+	Promise<ScrobbleUploadResult> ScrobbleManager::uploadPendingScrobbles() {
 		if(uploadBatch) {
 			return uploadBatch->promise;
 		}
+		// find scrobbler that has pending scrobbles and is currently able to perform uploads
 		auto scrobblerDataIt = scrobblersData.findWhere([](auto& pair) {
-			return !pair.second.pendingScrobbles.empty();
+			return !pair.second.pendingScrobbles.empty()
+				&& pair.second.currentlyAbleToUpload();
 		});
 		if(scrobblerDataIt == scrobblersData.end()) {
-			return resolveWith(DoneState);
+			return resolveWith(ScrobbleUploadResult::DONE);
 		}
-		auto scrobblerStash = database->scrobblerStash();
+		auto scrobblerStash = this->database->scrobblerStash();
 		auto scrobblerName = scrobblerDataIt->first;
 		auto scrobbler = scrobblerStash->getScrobbler(scrobblerName);
 		if(scrobbler == nullptr) {
@@ -198,26 +212,49 @@ namespace sh {
 			return ArrayList<$<Scrobble>>(beginIt, endIt);
 		})();
 		// upload the pending scrobbles
-		auto promise = ([=]() -> Promise<bool> {
+		auto promise = ([=]() -> Promise<ScrobbleUploadResult> {
+			co_await resumeOnQueue(DispatchQueue::main());
 			auto responses = co_await scrobbler->scrobble(uploadingScrobbles);
 			// apply responses to scrobbles
+			auto scrobblerDataIt = this->scrobblersData.find(scrobblerName);
+			if(scrobblerDataIt == this->scrobblersData.end()) {
+				scrobblerDataIt = std::get<0>(this->scrobblersData.insert(std::make_pair(scrobblerName, ScrobblerData())));
+			}
 			for(auto [i, scrobble] : enumerate(uploadingScrobbles)) {
 				auto response = responses[i];
 				scrobble->applyResponse(response);
+				if(response.ignored && response.ignored->code == Scrobble::IgnoredReason::Code::DAILY_SCROBBLE_LIMIT_EXCEEDED
+				   && !scrobblerDataIt->second.dailyScrobbleLimitExceeded()) {
+					scrobblerDataIt->second.dailyScrobbleLimitExceededDate = Date::now();
+					// TODO probably set flag to update limit exceeded date in database
+				}
 			}
 			// cache updated scrobbles
 			co_await this->database->cacheScrobbles(uploadingScrobbles);
-			// remove scrobbles from pending scrobbles
-			auto scrobblerDataIt = this->scrobblersData.find(scrobblerName);
-			for(auto& scrobble : uploadingScrobbles) {
-				scrobblerDataIt->second.pendingScrobbles.removeFirstEqual(scrobble);
+			// remove each uploaded scrobble from the pending scrobbles list
+			scrobblerDataIt = this->scrobblersData.find(scrobblerName);
+			if(scrobblerDataIt != this->scrobblersData.end()) {
+				for(auto& scrobble : uploadingScrobbles) {
+					scrobblerDataIt->second.pendingScrobbles.removeFirstEqual(scrobble);
+				}
 			}
-			// check if there are still any pending scrobbles
-			if(!this->scrobblersData.containsWhere([](auto& pair) {
-				return !pair.second.pendingScrobbles.empty();
-			})) {
+			// search database for any pending scrobbles for each scrobbler
+			auto scrobblerStash = this->database->scrobblerStash();
+			for(auto scrobbler : scrobblerStash->getScrobblers()) {
+				// get scrobbler data
+				auto scrobblerName = scrobbler->name();
+				auto scrobblerDataIt = this->scrobblersData.find(scrobblerName);
+				if(scrobblerDataIt == this->scrobblersData.end()) {
+					scrobblerDataIt = std::get<0>(this->scrobblersData.insert(std::make_pair(scrobblerName, ScrobblerData())));
+				}
+				// if there are already pending scrobbles for this scrobbler, ignore and continue
+				if(!scrobblerDataIt->second.pendingScrobbles.empty()) {
+					continue;
+				}
+				// query scrobbles from DB
 				auto newPendingScrobbles = (co_await this->database->getScrobbles({
 					.filters = {
+						.scrobbler = scrobblerName,
 						.uploaded = false
 					},
 					.range = sql::IndexRange{
@@ -226,24 +263,22 @@ namespace sh {
 					},
 					.order = sql::Order::ASC
 				})).items;
-				if(newPendingScrobbles.empty()) {
-					// no pending scrobbles, so we're done here
-					co_return DoneState;
-				}
-				for(auto& scrobble : newPendingScrobbles) {
-					auto scrobblerName = scrobble->scrobbler()->name();
+				if(!newPendingScrobbles.empty()) {
+					// we have pending scrobbles, so add them to the list of pending scrobbles
 					auto scrobblerDataIt = this->scrobblersData.find(scrobblerName);
 					if(scrobblerDataIt == this->scrobblersData.end()) {
-						this->scrobblersData.insert(std::make_pair(scrobblerName, ScrobblerData{
-							.pendingScrobbles = LinkedList<$<Scrobble>>{ scrobble }
-						}));
-					} else {
-						scrobblerDataIt->second.pendingScrobbles.pushBack(scrobble);
+						scrobblerDataIt = std::get<0>(this->scrobblersData.insert(std::make_pair(scrobblerName, ScrobblerData())));
 					}
+					scrobblerDataIt->second.pendingScrobbles.pushBackList(newPendingScrobbles);
 				}
-				co_return NotDoneState;
 			}
-			co_return NotDoneState;
+			co_await resumeOnQueue(DispatchQueue::main());
+			// check if there are still any pending scrobbles for scrobblers that are currently able to upload
+			bool hasPendingScrobbles = this->scrobblersData.containsWhere([](auto& pair) {
+				return !pair.second.pendingScrobbles.empty() && pair.second.currentlyAbleToUpload();
+			});
+			// if there are no pending scrobbles, uploading is finished for now
+			co_return hasPendingScrobbles ? ScrobbleUploadResult::HAS_MORE_UPLOADS : ScrobbleUploadResult::DONE;
 		})();
 		// apply current upload task
 		this->uploadBatch = UploadBatch{
@@ -252,9 +287,9 @@ namespace sh {
 			.promise = promise
 		};
 		// handle promise finishing
-		promise.then([=](bool isDone) {
+		promise.then([=](ScrobbleUploadResult uploadResult) {
 			this->uploadBatch = std::nullopt;
-			if(!isDone) {
+			if(uploadResult != ScrobbleUploadResult::DONE) {
 				uploadPendingScrobbles();
 			}
 		}, [=](std::exception_ptr error) {

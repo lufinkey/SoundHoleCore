@@ -15,6 +15,11 @@
 #include "Player.hpp"
 
 namespace sh {
+	enum class ScrobbleUploadResult {
+		DONE,
+		HAS_MORE_UPLOADS
+	};
+
 	class ScrobbleManager: protected Player::EventListener {
 	public:
 		ScrobbleManager(Player* player, MediaDatabase* database);
@@ -26,10 +31,7 @@ namespace sh {
 		ArrayList<$<const Scrobble>> getUploadingScrobbles() const;
 		
 		bool isUploadingScrobbles() const;
-		/// Uploads any pending scrobbles.
-		/// If `false` is returned, there are still more scrobbles to be uploaded.
-		/// If `true` is returned, all pending scrobbles have been uploaded
-		Promise<bool> uploadPendingScrobbles();
+		Promise<ScrobbleUploadResult> uploadPendingScrobbles();
 		
 	protected:
 		virtual void onPlayerStateChange($<Player> player, const Player::Event& event) override;
@@ -61,13 +63,17 @@ namespace sh {
 		struct ScrobblerData {
 			LinkedList<$<Scrobble>> pendingScrobbles;
 			LinkedList<UnmatchedScrobble> unmatchedScrobbles;
+			Optional<Date> dailyScrobbleLimitExceededDate;
+			
+			bool currentlyAbleToUpload() const;
+			bool dailyScrobbleLimitExceeded() const;
 		};
 		Map<String,ScrobblerData> scrobblersData;
 		
 		struct UploadBatch {
 			String scrobbler;
 			ArrayList<$<Scrobble>> scrobbles;
-			Promise<bool> promise;
+			Promise<ScrobbleUploadResult> promise;
 		};
 		Optional<UploadBatch> uploadBatch;
 	};
