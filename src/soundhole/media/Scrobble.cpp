@@ -60,7 +60,7 @@ namespace sh {
 
 	Json Scrobble::IgnoredReason::toJson() const {
 		return Json::object{
-			{ "code", Code_toString(code) },
+			{ "code", (std::string)Code_toString(code) },
 			{ "message", (std::string)message }
 		};
 	}
