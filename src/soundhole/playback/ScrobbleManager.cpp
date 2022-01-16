@@ -181,7 +181,7 @@ namespace sh {
 		return uploadBatch.hasValue();
 	}
 
-	Promise<ScrobbleUploadResult> ScrobbleManager::uploadPendingScrobbles() {
+	Promise<ScrobbleBatchResult> ScrobbleManager::uploadPendingScrobbles() {
 		if(uploadBatch) {
 			return uploadBatch->promise;
 		}
@@ -191,7 +191,7 @@ namespace sh {
 				&& pair.second.currentlyAbleToUpload();
 		});
 		if(scrobblerDataIt == scrobblersData.end()) {
-			return resolveWith(ScrobbleUploadResult::DONE);
+			return resolveWith(ScrobbleBatchResult::DONE);
 		}
 		auto scrobblerStash = this->database->scrobblerStash();
 		auto scrobblerName = scrobblerDataIt->first;
@@ -212,7 +212,7 @@ namespace sh {
 			return ArrayList<$<Scrobble>>(beginIt, endIt);
 		})();
 		// upload the pending scrobbles
-		auto promise = ([=]() -> Promise<ScrobbleUploadResult> {
+		auto promise = ([=]() -> Promise<ScrobbleBatchResult> {
 			co_await resumeOnQueue(DispatchQueue::main());
 			auto responses = co_await scrobbler->scrobble(uploadingScrobbles);
 			// apply responses to scrobbles
@@ -278,18 +278,18 @@ namespace sh {
 				return !pair.second.pendingScrobbles.empty() && pair.second.currentlyAbleToUpload();
 			});
 			// if there are no pending scrobbles, uploading is finished for now
-			co_return hasPendingScrobbles ? ScrobbleUploadResult::HAS_MORE_UPLOADS : ScrobbleUploadResult::DONE;
+			co_return hasPendingScrobbles ? ScrobbleBatchResult::HAS_MORE : ScrobbleBatchResult::DONE;
 		})();
 		// apply current upload task
-		this->uploadBatch = UploadBatch{
+		this->uploadBatch = ScrobbleBatch{
 			.scrobbler = scrobbler->name(),
 			.scrobbles = uploadingScrobbles,
 			.promise = promise
 		};
 		// handle promise finishing
-		promise.then([=](ScrobbleUploadResult uploadResult) {
+		promise.then([=](ScrobbleBatchResult uploadResult) {
 			this->uploadBatch = std::nullopt;
-			if(uploadResult != ScrobbleUploadResult::DONE) {
+			if(uploadResult != ScrobbleBatchResult::DONE) {
 				uploadPendingScrobbles();
 			}
 		}, [=](std::exception_ptr error) {

@@ -15,9 +15,9 @@
 #include "Player.hpp"
 
 namespace sh {
-	enum class ScrobbleUploadResult {
+	enum class ScrobbleBatchResult {
 		DONE,
-		HAS_MORE_UPLOADS
+		HAS_MORE
 	};
 
 	class ScrobbleManager: protected Player::EventListener {
@@ -31,7 +31,7 @@ namespace sh {
 		ArrayList<$<const Scrobble>> getUploadingScrobbles() const;
 		
 		bool isUploadingScrobbles() const;
-		Promise<ScrobbleUploadResult> uploadPendingScrobbles();
+		Promise<ScrobbleBatchResult> uploadPendingScrobbles();
 		
 	protected:
 		virtual void onPlayerStateChange($<Player> player, const Player::Event& event) override;
@@ -70,11 +70,11 @@ namespace sh {
 		};
 		Map<String,ScrobblerData> scrobblersData;
 		
-		struct UploadBatch {
+		struct ScrobbleBatch {
 			String scrobbler;
 			ArrayList<$<Scrobble>> scrobbles;
-			Promise<ScrobbleUploadResult> promise;
+			Promise<ScrobbleBatchResult> promise;
 		};
-		Optional<UploadBatch> uploadBatch;
+		Optional<ScrobbleBatch> uploadBatch;
 	};
 }
