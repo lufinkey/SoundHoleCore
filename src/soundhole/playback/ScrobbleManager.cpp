@@ -15,7 +15,8 @@ namespace sh {
 	ScrobbleManager::ScrobbleManager(Player* player, MediaDatabase* database)
 	: player(player),
 	database(database),
-	uuidGenerator(createUUIDGenerator()) {
+	uuidGenerator(createUUIDGenerator()),
+	currentHistoryItemScrobbled(false) {
 		if(this->player != nullptr) {
 			this->player->addEventListener(this);
 		}
@@ -43,6 +44,10 @@ namespace sh {
 	$<Scrobble> ScrobbleManager::createScrobble(Scrobbler* scrobbler, $<PlaybackHistoryItem> historyItem, $<Album> album) {
 		auto track = historyItem->track();
 		auto artists = track->artists();
+		if(album && track->albumURI() != album->uri()) {
+			console::error("Warning: passed non-matching album to ScrobbleManager::createScrobble");
+			album = nullptr;
+		}
 		auto albumArtists = album ? album->artists() : ArrayList<$<Artist>>();
 		return Scrobble::new$(Scrobble::Data{
 			.localID = uuidGenerator(),
@@ -66,7 +71,7 @@ namespace sh {
 
 
 	void ScrobbleManager::scrobble($<PlaybackHistoryItem> historyItem) {
-		if(this->historyItemScrobbled &&this->historyItem && this->historyItem->matches(historyItem.get())) {
+		if(this->currentHistoryItemScrobbled && this->currentHistoryItem && this->currentHistoryItem->matches(historyItem.get())) {
 			if(!uploadBatch) {
 				uploadPendingScrobbles();
 			}
@@ -78,7 +83,7 @@ namespace sh {
 		if(!track->albumURI().empty()) {
 			if(player != nullptr) {
 				auto playerContext = std::dynamic_pointer_cast<Album>(player->context());
-				if(playerContext != nullptr && playerContext->uri() == track->albumURI()) {
+				if(playerContext && playerContext->uri() == track->albumURI()) {
 					album = playerContext;
 				}
 			}
@@ -101,37 +106,34 @@ namespace sh {
 			if(!prefs.enabled) {
 				continue;
 			}
+			auto scrobblerDataIt = scrobblersData.find(scrobblerName);
+			if(scrobblerDataIt == scrobblersData.end()) {
+				scrobblerDataIt = std::get<0>(scrobblersData.insert(std::make_pair(scrobblerName, ScrobblerData())));
+			}
 			auto providerMode = prefs.providerModes.get(provider->name(), Player::ScrobblerProviderMode::ENABLED);
 			switch(providerMode) {
 				case Player::ScrobblerProviderMode::ENABLED: {
 					// add pending scrobble
-					auto pendingScrobblesIt = pendingScrobbles.find(scrobblerName);
-					if(pendingScrobblesIt == pendingScrobbles.end()) {
-						pendingScrobblesIt = std::get<0>(pendingScrobbles.insert(std::make_pair(scrobblerName, LinkedList<$<Scrobble>>())));
-					}
 					auto scrobble = createScrobble(scrobbler, historyItem, album);
 					scrobblesToCache.pushBack(scrobble);
-					pendingScrobblesIt->second.pushBack(scrobble);
+					scrobblerDataIt->second.pendingScrobbles.pushBack(scrobble);
 				} break;
 				
 				case Player::ScrobblerProviderMode::ENABLED_ELSEWHERE: {
 					// add unmatched scrobble
-					auto unmatchedScrobblesIt = unmatchedScrobbles.find(scrobblerName);
-					if(unmatchedScrobblesIt == unmatchedScrobbles.end()) {
-						unmatchedScrobblesIt = std::get<0>(unmatchedScrobbles.insert(std::make_pair(scrobblerName, LinkedList<UnmatchedScrobble>())));
-					}
-					unmatchedScrobblesIt->second.pushBack(UnmatchedScrobble{
+					auto unmatchedScrobble = UnmatchedScrobble{
 						.startTime = historyItem->startTime(),
 						.trackURI = track->uri()
-					});
+					};
+					scrobblerDataIt->second.unmatchedScrobbles.pushBack(unmatchedScrobble);
 				} break;
 				
 				case Player::ScrobblerProviderMode::DISABLED:
 				break;
 			}
 		}
-		if(this->historyItem && this->historyItem->matches(historyItem.get())) {
-			historyItemScrobbled = true;
+		if(this->currentHistoryItem && this->currentHistoryItem->matches(historyItem.get())) {
+			this->currentHistoryItemScrobbled = true;
 		}
 		// cache new scrobbles in DB
 		if(!scrobblesToCache.empty()) {
@@ -171,28 +173,27 @@ namespace sh {
 		if(uploadBatch) {
 			return uploadBatch->promise;
 		}
-		auto pendingScrobblesIt = pendingScrobbles.findWhere([](auto& pair) {
-			return !pair.second.empty();
+		auto scrobblerDataIt = scrobblersData.findWhere([](auto& pair) {
+			return !pair.second.pendingScrobbles.empty();
 		});
-		if(pendingScrobblesIt == pendingScrobbles.end()) {
+		if(scrobblerDataIt == scrobblersData.end()) {
 			return resolveWith(DoneState);
 		}
 		auto scrobblerStash = database->scrobblerStash();
-		auto scrobblerName = pendingScrobblesIt->first;
+		auto scrobblerName = scrobblerDataIt->first;
 		auto scrobbler = scrobblerStash->getScrobbler(scrobblerName);
 		if(scrobbler == nullptr) {
-			pendingScrobbles.erase(scrobblerName);
-			// no scrobbler available, so remove pending scrobbles and
+			// no scrobbler available, so remove pending scrobbles and try uploading any remaining scrobbles for other scrobblers
+			scrobblersData.erase(scrobblerName);
 			return uploadPendingScrobbles();
 		}
 		size_t maxScrobblesForUpload = 50;
 		auto uploadingScrobbles = ([&]() {
-			auto beginIt = pendingScrobblesIt->second.begin();
-			auto endIt = beginIt;
-			if(pendingScrobblesIt->second.size() <= maxScrobblesForUpload) {
-				endIt = pendingScrobblesIt->second.end();
-			} else {
-				endIt = std::next(endIt, maxScrobblesForUpload);
+			auto& pendingScrobbles = scrobblerDataIt->second.pendingScrobbles;
+			auto beginIt = pendingScrobbles.begin();
+			auto endIt = pendingScrobbles.end();
+			if(pendingScrobbles.size() > maxScrobblesForUpload) {
+				endIt = std::next(beginIt, maxScrobblesForUpload);
 			}
 			return ArrayList<$<Scrobble>>(beginIt, endIt);
 		})();
@@ -207,13 +208,13 @@ namespace sh {
 			// cache updated scrobbles
 			co_await this->database->cacheScrobbles(uploadingScrobbles);
 			// remove scrobbles from pending scrobbles
-			auto pendingScrobblesIt = this->pendingScrobbles.find(scrobblerName);
+			auto scrobblerDataIt = this->scrobblersData.find(scrobblerName);
 			for(auto& scrobble : uploadingScrobbles) {
-				pendingScrobblesIt->second.removeFirstEqual(scrobble);
+				scrobblerDataIt->second.pendingScrobbles.removeFirstEqual(scrobble);
 			}
 			// check if there are still any pending scrobbles
-			if(!this->pendingScrobbles.containsWhere([](auto& pair) {
-				return !pair.second.empty();
+			if(!this->scrobblersData.containsWhere([](auto& pair) {
+				return !pair.second.pendingScrobbles.empty();
 			})) {
 				auto newPendingScrobbles = (co_await this->database->getScrobbles({
 					.filters = {
@@ -231,17 +232,20 @@ namespace sh {
 				}
 				for(auto& scrobble : newPendingScrobbles) {
 					auto scrobblerName = scrobble->scrobbler()->name();
-					auto pendingScrobblesIt = this->pendingScrobbles.find(scrobblerName);
-					if(pendingScrobblesIt == this->pendingScrobbles.end()) {
-						this->pendingScrobbles.insert(std::make_pair(scrobblerName, LinkedList<$<Scrobble>>{ scrobble }));
+					auto scrobblerDataIt = this->scrobblersData.find(scrobblerName);
+					if(scrobblerDataIt == this->scrobblersData.end()) {
+						this->scrobblersData.insert(std::make_pair(scrobblerName, ScrobblerData{
+							.pendingScrobbles = LinkedList<$<Scrobble>>{ scrobble }
+						}));
 					} else {
-						pendingScrobblesIt->second.pushBack(scrobble);
+						scrobblerDataIt->second.pendingScrobbles.pushBack(scrobble);
 					}
 				}
 				co_return NotDoneState;
 			}
 			co_return NotDoneState;
 		})();
+		// apply current upload task
 		this->uploadBatch = UploadBatch{
 			.scrobbler = scrobbler->name(),
 			.scrobbles = uploadingScrobbles,
@@ -264,20 +268,22 @@ namespace sh {
 	void ScrobbleManager::updateFromPlayer($<Player> player, bool finishedItem) {
 		// update current history item
 		auto historyItem = player->currentHistoryItem();
-		if(!historyItem || !this->historyItem || !this->historyItem->matches(historyItem.get())) {
-			this->historyItemScrobbled = false;
+		if(!historyItem || !this->currentHistoryItem || !this->currentHistoryItem->matches(historyItem.get())) {
+			this->currentHistoryItemScrobbled = false;
 		}
-		this->historyItem = historyItem;
-		// calculate elapsed point
-		double elapsed = historyItem->duration().valueOr(0);
-		double elapsedRatio = elapsed / historyItem->track()->duration().valueOr(PlaybackHistoryItem::FALLBACK_DURATION);
-		// scrobble if needed
-		auto scrobblePrefs = player->getScrobblePreferences();
-		if(!historyItemScrobbled &&
-		   ((scrobblePrefs.scrobbleAtElapsed && elapsed >= scrobblePrefs.scrobbleAtElapsed.value())
-		   || (scrobblePrefs.scrobbleAtElapsedRatio && elapsedRatio >= scrobblePrefs.scrobbleAtElapsedRatio.value())
-		   || (!scrobblePrefs.scrobbleAtElapsed && !scrobblePrefs.scrobbleAtElapsedRatio && finishedItem))) {
-			scrobble(historyItem);
+		this->currentHistoryItem = historyItem;
+		if(historyItem) {
+			// calculate elapsed point
+			double elapsed = historyItem->duration().valueOr(0);
+			double elapsedRatio = elapsed / historyItem->track()->duration().valueOr(PlaybackHistoryItem::FALLBACK_DURATION);
+			// scrobble if needed
+			auto scrobblePrefs = player->getScrobblePreferences();
+			if(!currentHistoryItemScrobbled &&
+			   ((scrobblePrefs.scrobbleAtElapsed && elapsed >= scrobblePrefs.scrobbleAtElapsed.value())
+			   || (scrobblePrefs.scrobbleAtElapsedRatio && elapsedRatio >= scrobblePrefs.scrobbleAtElapsedRatio.value())
+			   || (!scrobblePrefs.scrobbleAtElapsed && !scrobblePrefs.scrobbleAtElapsedRatio && finishedItem))) {
+				scrobble(historyItem);
+			}
 		}
 	}
 

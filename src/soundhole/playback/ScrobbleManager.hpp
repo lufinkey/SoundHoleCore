@@ -50,16 +50,19 @@ namespace sh {
 		
 		Function<String()> uuidGenerator;
 		
-		$<PlaybackHistoryItem> historyItem;
-		bool historyItemScrobbled;
+		$<PlaybackHistoryItem> currentHistoryItem;
+		bool currentHistoryItemScrobbled;
 		
 		struct UnmatchedScrobble {
 			Date startTime;
 			String trackURI;
 		};
 		
-		Map<String,LinkedList<$<Scrobble>>> pendingScrobbles;
-		Map<String,LinkedList<UnmatchedScrobble>> unmatchedScrobbles;
+		struct ScrobblerData {
+			LinkedList<$<Scrobble>> pendingScrobbles;
+			LinkedList<UnmatchedScrobble> unmatchedScrobbles;
+		};
+		Map<String,ScrobblerData> scrobblersData;
 		
 		struct UploadBatch {
 			String scrobbler;
