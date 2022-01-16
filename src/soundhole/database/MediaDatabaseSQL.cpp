@@ -51,40 +51,40 @@ Any sqlStringOrNull(String str) {
 
 
 ArrayList<String> artistColumns() {
-	return { "uri", "provider", "type", "name", "images", "updateTime" };
+	return { "uri", "provider", "type", "name", "images", "lastRowUpdateTime" };
 }
 ArrayList<String> followedArtistColumns() {
-	return { "artistURI", "libraryProvider", "updateTime" };
+	return { "artistURI", "libraryProvider", "lastRowUpdateTime" };
 }
 ArrayList<String> userAccountColumns() {
-	return { "uri", "provider", "type", "name", "images", "updateTime" };
+	return { "uri", "provider", "type", "name", "images", "lastRowUpdateTime" };
 }
 ArrayList<String> followedUserAccountColumns() {
-	return { "userURI", "libraryProvider", "updateTime" };
+	return { "userURI", "libraryProvider", "lastRowUpdateTime" };
 }
 ArrayList<String> trackColumns() {
-	return { "uri", "provider", "name", "albumName", "albumURI", "artists", "images", "duration", "playable", "updateTime" };
+	return { "uri", "provider", "name", "albumName", "albumURI", "artists", "images", "duration", "playable", "lastRowUpdateTime" };
 }
 ArrayList<String> trackCollectionColumns() {
-	return { "uri", "provider", "type", "name", "versionId", "itemCount", "ownerURI", "privacy", "artists", "images", "updateTime" };
+	return { "uri", "provider", "type", "name", "versionId", "itemCount", "ownerURI", "privacy", "artists", "images", "lastRowUpdateTime" };
 }
 ArrayList<String> trackCollectionItemColumns() {
-	return { "collectionURI", "indexNum", "trackURI", "uniqueId", "addedAt", "addedBy", "updateTime" };
+	return { "collectionURI", "indexNum", "trackURI", "uniqueId", "addedAt", "addedBy", "lastRowUpdateTime" };
 }
 ArrayList<String> savedTrackColumns() {
-	return { "trackURI", "libraryProvider", "addedAt", "updateTime" };
+	return { "trackURI", "libraryProvider", "addedAt", "lastRowUpdateTime" };
 }
 ArrayList<String> savedAlbumColumns() {
-	return { "albumURI", "libraryProvider", "addedAt", "updateTime" };
+	return { "albumURI", "libraryProvider", "addedAt", "lastRowUpdateTime" };
 }
 ArrayList<String> savedPlaylistColumns() {
-	return { "playlistURI", "libraryProvider", "addedAt", "updateTime" };
+	return { "playlistURI", "libraryProvider", "addedAt", "lastRowUpdateTime" };
 }
 ArrayList<String> playbackHistoryItemColumns() {
-	return { "startTime", "trackURI", "contextURI", "duration", "chosenByUser", "updateTime" };
+	return { "startTime", "trackURI", "contextURI", "duration", "chosenByUser", "lastRowUpdateTime" };
 }
 ArrayList<String> scrobbleColumns() {
-	return { "localID", "scrobbler", "startTime", "trackURI", "musicBrainzID", "trackName", "artistName", "albumName", "albumArtistName", "duration", "trackNumber", "chosenByUser", "historyItemStartTime", "uploaded", "ignoredReason", "updateTime" };
+	return { "localID", "scrobbler", "startTime", "trackURI", "musicBrainzID", "trackName", "artistName", "albumName", "albumArtistName", "duration", "trackNumber", "chosenByUser", "historyItemStartTime", "uploaded", "ignoredReason", "lastRowUpdateTime" };
 }
 
 
@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS Artist (
 	type TEXT NOT NULL,
 	name TEXT NOT NULL,
 	images TEXT,
-	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	lastRowUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(uri)
 );
 CREATE TABLE IF NOT EXISTS UserAccount (
@@ -106,7 +106,7 @@ CREATE TABLE IF NOT EXISTS UserAccount (
 	type TEXT NOT NULL,
 	name TEXT NOT NULL,
 	images TEXT,
-	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	lastRowUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(uri)
 );
 CREATE TABLE IF NOT EXISTS TrackCollection (
@@ -120,14 +120,14 @@ CREATE TABLE IF NOT EXISTS TrackCollection (
 	privacy TEXT,
 	artists TEXT,
 	images TEXT,
-	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	lastRowUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(uri),
 	FOREIGN KEY(ownerURI) REFERENCES UserAccount(uri)
 );
 CREATE TABLE IF NOT EXISTS TrackCollectionArtist (
 	collectionURI TEXT NOT NULL,
 	artistURI TEXT NOT NULL,
-	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	lastRowUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(collectionURI, artistURI),
 	FOREIGN KEY(collectionURI) REFERENCES TrackCollection(uri),
 	FOREIGN KEY(artistURI) REFERENCES Artist(uri)
@@ -142,14 +142,14 @@ CREATE TABLE IF NOT EXISTS Track (
 	images TEXT,
 	duration REAL,
 	playable INT(1),
-	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	lastRowUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(uri),
 	FOREIGN KEY(albumURI) REFERENCES TrackCollection(uri)
 );
 CREATE TABLE IF NOT EXISTS TrackArtist (
 	trackURI TEXT NOT NULL,
 	artistURI TEXT NOT NULL,
-	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	lastRowUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(trackURI, artistURI),
 	FOREIGN KEY(trackURI) REFERENCES Track(uri),
 	FOREIGN KEY(artistURI) REFERENCES Artist(uri)
@@ -161,7 +161,7 @@ CREATE TABLE IF NOT EXISTS TrackCollectionItem (
 	uniqueId TEXT,
 	addedAt TEXT,
 	addedBy TEXT,
-	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	lastRowUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(collectionURI, indexNum),
 	FOREIGN KEY(collectionURI) REFERENCES TrackCollection(uri),
 	FOREIGN KEY(trackURI) REFERENCES Track(uri)
@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS SavedTrack (
 	trackURI TEXT NOT NULL UNIQUE,
 	libraryProvider TEXT NOT NULL,
 	addedAt TEXT,
-	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	lastRowUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(trackURI),
 	FOREIGN KEY(trackURI) REFERENCES Track(uri)
 );
@@ -178,7 +178,7 @@ CREATE TABLE IF NOT EXISTS SavedAlbum (
 	albumURI TEXT NOT NULL UNIQUE,
 	libraryProvider TEXT NOT NULL,
 	addedAt TEXT,
-	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	lastRowUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(albumURI),
 	FOREIGN KEY(albumURI) REFERENCES TrackCollection(uri)
 );
@@ -186,21 +186,21 @@ CREATE TABLE IF NOT EXISTS SavedPlaylist (
 	playlistURI TEXT NOT NULL UNIQUE,
 	libraryProvider TEXT NOT NULL,
 	addedAt TEXT,
-	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	lastRowUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(playlistURI),
 	FOREIGN KEY(playlistURI) REFERENCES TrackCollection(uri)
 );
 CREATE TABLE IF NOT EXISTS FollowedArtist (
 	artistURI TEXT NOT NULL UNIQUE,
 	libraryProvider TEXT NOT NULL UNIQUE,
-	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	lastRowUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(artistURI),
 	FOREIGN KEY(artistURI) REFERENCES Artist(uri)
 );
 CREATE TABLE IF NOT EXISTS FollowedUserAccount (
 	userURI TEXT NOT NULL UNIQUE,
 	libraryProvider TEXT NOT NULL UNIQUE,
-	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	lastRowUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(userURI),
 	FOREIGN KEY(userURI) REFERENCES UserAccount(uri)
 );
@@ -210,7 +210,7 @@ CREATE TABLE IF NOT EXISTS PlaybackHistoryItem (
 	contextURI TEXT,
 	duration REAL,
 	chosenByUser INT(1) NOT NULL,
-	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	lastRowUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(startTime, trackURI),
 	FOREIGN KEY(trackURI) REFERENCES Track(uri)
 );
@@ -230,15 +230,16 @@ CREATE TABLE IF NOT EXISTS Scrobble (
 	historyItemStartTime TIMESTAMP,
 	uploaded INT(1) NOT NULL,
 	ignoredReason TEXT,
-	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	lastRowUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(localID),
 	FOREIGN KEY(trackURI) REFERENCES Track(uri),
 	FOREIGN KEY(historyItemStartTime, trackURI) REFERENCES PlaybackHistoryItem(startTime, trackURI)
 );
+
 CREATE TABLE IF NOT EXISTS DBState (
 	stateKey TEXT NOT NULL,
 	stateValue TEXT NOT NULL,
-	updateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	lastRowUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(stateKey)
 );
 )SQL";
@@ -299,7 +300,7 @@ Any imagesJson(Optional<ArrayList<MediaItem::Image>> images) {
 
 
 ArrayList<String> trackTupleColumns() {
-	return { "uri", "provider", "name", "albumName", "albumURI", "artists", "images", "duration", "playable", "updateTime" };
+	return { "uri", "provider", "name", "albumName", "albumURI", "artists", "images", "duration", "playable", "lastRowUpdateTime" };
 }
 String trackTuple(LinkedList<Any>& params, $<Track> track, const TupleOptions& options) {
 	return String::join({ "(",
@@ -321,7 +322,7 @@ String trackTuple(LinkedList<Any>& params, $<Track> track, const TupleOptions& o
 		MAYBE_COALESCE_FIELD(options.coalesce, params, "duration", "Track", track, track->duration().toAny()),",",
 		// playable
 		MAYBE_COALESCE_FIELD(options.coalesce, params, "playable", "Track", track, track->playable().toAny()),",",
-		// updateTime
+		// lastRowUpdateTime
 		"CURRENT_TIMESTAMP"
 	")" });
 }
@@ -329,7 +330,7 @@ String trackTuple(LinkedList<Any>& params, $<Track> track, const TupleOptions& o
 
 
 ArrayList<String> albumTupleFromTrackColumns() {
-	return { "uri", "provider", "type", "name", "versionId", "itemCount", "artists", "images", "updateTime" };
+	return { "uri", "provider", "type", "name", "versionId", "itemCount", "artists", "images", "lastRowUpdateTime" };
 }
 String albumTupleFromTrack(LinkedList<Any>& params, $<Track> track, const TupleOptions& options) {
 	if(track->albumURI().empty()) {
@@ -352,13 +353,13 @@ String albumTupleFromTrack(LinkedList<Any>& params, $<Track> track, const TupleO
 		COALESCE_FIELD(params, "artists", "TrackCollection", track->albumURI()),",",
 		// images
 		COALESCE_FIELD(params, "images", "TrackCollection", track->albumURI()),",",
-		// updateTime
+		// lastRowUpdateTime
 		"CURRENT_TIMESTAMP"
 	")" });
 }
 
 ArrayList<String> trackArtistTupleColumns() {
-	return { "trackURI", "artistURI", "updateTime" };
+	return { "trackURI", "artistURI", "lastRowUpdateTime" };
 }
 String trackArtistTuple(LinkedList<Any>& params, const TrackArtist& trackArtist) {
 	return String::join({ "(",
@@ -366,7 +367,7 @@ String trackArtistTuple(LinkedList<Any>& params, const TrackArtist& trackArtist)
 		sqlParam(params, trackArtist.trackURI),",",
 		// artistURI
 		sqlParam(params, trackArtist.artistURI),",",
-		// updateTime
+		// lastRowUpdateTime
 		"CURRENT_TIMESTAMP"
 	")" });
 }
@@ -400,7 +401,7 @@ Optional<Playlist::Privacy> trackCollectionPrivacy($<TrackCollection> collection
 
 
 ArrayList<String> trackCollectionTupleColumns() {
-	return { "uri", "provider", "type", "name", "versionId", "itemCount", "ownerURI", "privacy", "artists", "images", "updateTime" };
+	return { "uri", "provider", "type", "name", "versionId", "itemCount", "ownerURI", "privacy", "artists", "images", "lastRowUpdateTime" };
 }
 String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collection, const TrackCollectionTupleOptions& options) {
 	auto artists = trackCollectionArtists(collection);
@@ -431,13 +432,13 @@ String trackCollectionTuple(LinkedList<Any>& params, $<TrackCollection> collecti
 		MAYBE_COALESCE_FIELD(options.coalesce, params, "artists", "TrackCollection", collection, artists ? nonEmptyArtistsJson(artists.value()) : Any()),",",
 		// images
 		MAYBE_COALESCE_FIELD(options.coalesce, params, "images", "TrackCollection", collection, imagesJson(collection->images())),",",
-		// updateTime
+		// lastRowUpdateTime
 		"CURRENT_TIMESTAMP"
 	")" });
 }
 
 ArrayList<String> trackCollectionItemTupleColumns() {
-	return { "collectionURI", "indexNum", "trackURI", "uniqueId", "addedAt", "addedBy", "updateTime" };
+	return { "collectionURI", "indexNum", "trackURI", "uniqueId", "addedAt", "addedBy", "lastRowUpdateTime" };
 }
 String trackCollectionItemTuple(LinkedList<Any>& params, $<TrackCollectionItem> item) {
 	auto collection = item->context().lock();
@@ -469,13 +470,13 @@ String trackCollectionItemTuple(LinkedList<Any>& params, $<TrackCollectionItem> 
 		sqlParam(params, sqlStringOrNull(addedAt)),",",
 		// addedBy
 		sqlParam(params, addedBy ? String(addedBy->toJson().dump()) : Any()),",",
-		// updateTime
+		// lastRowUpdateTime
 		"CURRENT_TIMESTAMP"
 	")" });
 }
 
 ArrayList<String> albumItemTupleFromTrackColumns() {
-	return { "collectionURI", "indexNum", "trackURI", "updateTime" };
+	return { "collectionURI", "indexNum", "trackURI", "lastRowUpdateTime" };
 }
 String albumItemTupleFromTrack(LinkedList<Any>& params, $<Track> track) {
 	auto albumURI = track->albumURI();
@@ -495,13 +496,13 @@ String albumItemTupleFromTrack(LinkedList<Any>& params, $<Track> track) {
 		sqlParam(params, trackNum.value() - 1),",",
 		// trackURI
 		sqlParam(params, track->uri()),",",
-		// updateTime
+		// lastRowUpdateTime
 		"CURRENT_TIMESTAMP"
 	")" });
 }
 
 ArrayList<String> trackCollectionArtistTupleColumns() {
-	return { "collectionURI", "artistURI", "updateTime" };
+	return { "collectionURI", "artistURI", "lastRowUpdateTime" };
 }
 String trackCollectionArtistTuple(LinkedList<Any>& params, const TrackCollectionArtist& collectionArtist) {
 	return String::join({ "(",
@@ -509,13 +510,13 @@ String trackCollectionArtistTuple(LinkedList<Any>& params, const TrackCollection
 		sqlParam(params, collectionArtist.collectionURI),",",
 		// artistURI
 		sqlParam(params, collectionArtist.artistURI),",",
-		// updateTime
+		// lastRowUpdateTime
 		"CURRENT_TIMESTAMP"
 	")" });
 }
 
 ArrayList<String> artistTupleColumns() {
-	return { "uri", "provider", "type", "name", "images", "updateTime" };
+	return { "uri", "provider", "type", "name", "images", "lastRowUpdateTime" };
 }
 String artistTuple(LinkedList<Any>& params, $<Artist> artist, const TupleOptions& options) {
 	return String::join({ "(",
@@ -529,13 +530,13 @@ String artistTuple(LinkedList<Any>& params, $<Artist> artist, const TupleOptions
 		sqlParam(params, artist->name()),",",
 		// images
 		MAYBE_COALESCE_FIELD(options.coalesce, params, "images", "Artist", artist, imagesJson(artist->images())),",",
-		// updateTime
+		// lastRowUpdateTime
 		"CURRENT_TIMESTAMP"
 	")" });
 }
 
 ArrayList<String> followedArtistTupleColumns() {
-	return { "artistURI", "libraryProvider", "updateTime" };
+	return { "artistURI", "libraryProvider", "lastRowUpdateTime" };
 }
 String followedArtistTuple(LinkedList<Any>& params, const FollowedArtist& artist) {
 	return String::join({ "(",
@@ -545,7 +546,7 @@ String followedArtistTuple(LinkedList<Any>& params, const FollowedArtist& artist
 		sqlParam(params, artist.libraryProvider),",",
 		// addedAt
 		EXISTING_FIELD_OR(params, sqlStringOrNull(artist.addedAt), "SELECT addedAt FROM FollowedArtist WHERE artistURI = " COMMA sqlParam(params COMMA sqlStringOrNull(artist.addedAt))),",",
-		// updateTime
+		// lastRowUpdateTime
 		"CURRENT_TIMESTAMP"
 	")" });
 }
@@ -553,7 +554,7 @@ String followedArtistTuple(LinkedList<Any>& params, const FollowedArtist& artist
 
 
 ArrayList<String> userAccountTupleColumns() {
-	return { "uri", "provider", "type", "name", "images", "updateTime" };
+	return { "uri", "provider", "type", "name", "images", "lastRowUpdateTime" };
 }
 String userAccountTuple(LinkedList<Any>& params, $<UserAccount> userAccount, const TupleOptions& options) {
 	return String::join({ "(",
@@ -567,13 +568,13 @@ String userAccountTuple(LinkedList<Any>& params, $<UserAccount> userAccount, con
 		sqlParam(params, userAccount->name()),",",
 		// images
 		MAYBE_COALESCE_FIELD(options.coalesce, params, "images", "UserAccount", userAccount, imagesJson(userAccount->images())),",",
-		// updateTime
+		// lastRowUpdateTime
 		"CURRENT_TIMESTAMP"
 	")" });
 }
 
 ArrayList<String> followedUserAccountTupleColumns() {
-	return { "userURI", "libraryProvider", "updateTime" };
+	return { "userURI", "libraryProvider", "lastRowUpdateTime" };
 }
 String followedUserAccountTuple(LinkedList<Any>& params, const FollowedUserAccount& user) {
 	return String::join({ "(",
@@ -583,7 +584,7 @@ String followedUserAccountTuple(LinkedList<Any>& params, const FollowedUserAccou
 		sqlParam(params, user.libraryProvider),",",
 		// addedAt
 		EXISTING_FIELD_OR(params, sqlStringOrNull(user.addedAt), "SELECT addedAt FROM FollowedUserAccount WHERE userURI = " COMMA sqlParam(params COMMA sqlStringOrNull(user.addedAt))),",",
-		// updateTime
+		// lastRowUpdateTime
 		"CURRENT_TIMESTAMP"
 	")" });
 }
@@ -591,7 +592,7 @@ String followedUserAccountTuple(LinkedList<Any>& params, const FollowedUserAccou
 
 
 ArrayList<String> savedTrackTupleColumns() {
-	return { "trackURI", "libraryProvider", "addedAt", "updateTime" };
+	return { "trackURI", "libraryProvider", "addedAt", "lastRowUpdateTime" };
 }
 String savedTrackTuple(LinkedList<Any>& params, const SavedTrack& track) {
 	return String::join({ "(",
@@ -601,13 +602,13 @@ String savedTrackTuple(LinkedList<Any>& params, const SavedTrack& track) {
 		sqlParam(params, track.libraryProvider),",",
 		// addedAt
 		EXISTING_FIELD_OR(params, sqlStringOrNull(track.addedAt), "SELECT addedAt FROM SavedTrack WHERE trackURI = " COMMA sqlParam(params COMMA sqlStringOrNull(track.addedAt))),",",
-		// updateTime
+		// lastRowUpdateTime
 		"CURRENT_TIMESTAMP"
 	")" });
 }
 
 ArrayList<String> savedAlbumTupleColumns() {
-	return { "albumURI", "libraryProvider", "addedAt", "updateTime" };
+	return { "albumURI", "libraryProvider", "addedAt", "lastRowUpdateTime" };
 }
 String savedAlbumTuple(LinkedList<Any>& params, const SavedAlbum& album) {
 	return String::join({ "(",
@@ -617,13 +618,13 @@ String savedAlbumTuple(LinkedList<Any>& params, const SavedAlbum& album) {
 		sqlParam(params, album.libraryProvider),",",
 		// addedAt
 		EXISTING_FIELD_OR(params, sqlStringOrNull(album.addedAt), "SELECT addedAt FROM SavedAlbum WHERE albumURI = " COMMA sqlParam(params COMMA sqlStringOrNull(album.addedAt))),",",
-		// updateTime
+		// lastRowUpdateTime
 		"CURRENT_TIMESTAMP"
 	")" });
 }
 
 ArrayList<String> savedPlaylistTupleColumns() {
-	return { "playlistURI", "libraryProvider", "addedAt", "updateTime" };
+	return { "playlistURI", "libraryProvider", "addedAt", "lastRowUpdateTime" };
 }
 String savedPlaylistTuple(LinkedList<Any>& params, const SavedPlaylist& playlist) {
 	return String::join({ "(",
@@ -633,13 +634,13 @@ String savedPlaylistTuple(LinkedList<Any>& params, const SavedPlaylist& playlist
 		sqlParam(params, playlist.libraryProvider),",",
 		// addedAt
 		EXISTING_FIELD_OR(params, sqlStringOrNull(playlist.addedAt), "SELECT addedAt FROM SavedPlaylist WHERE playlistURI = " COMMA sqlParam(params COMMA sqlStringOrNull(playlist.addedAt))),",",
-		// updateTime
+		// lastRowUpdateTime
 		"CURRENT_TIMESTAMP"
 	")" });
 }
 
 ArrayList<String> playbackHistoryItemTupleColumns() {
-	return { "startTime", "trackURI", "contextURI", "duration", "chosenByUser", "updateTime" };
+	return { "startTime", "trackURI", "contextURI", "duration", "chosenByUser", "lastRowUpdateTime" };
 }
 String playbackHistoryItemTuple(LinkedList<Any>& params, $<PlaybackHistoryItem> item) {
 	return String::join({ "(",
@@ -653,13 +654,13 @@ String playbackHistoryItemTuple(LinkedList<Any>& params, $<PlaybackHistoryItem> 
 		sqlParam(params, item->duration() ? Any(item->duration().value()) : Any()),",",
 		// chosenByUser
 		sqlParam(params, item->chosenByUser()),",",
-		// updateTime
+		// lastRowUpdateTime
 		"CURRENT_TIMESTAMP"
 	")" });
 }
 
 ArrayList<String> scrobbleTupleColumns() {
-	return { "localID", "scrobbler", "startTime", "trackURI", "musicBrainzID", "trackName", "artistName", "albumName", "albumArtistName", "duration", "trackNumber", "chosenByUser", "historyItemStartTime", "uploaded", "ignoredReason", "updateTime" };
+	return { "localID", "scrobbler", "startTime", "trackURI", "musicBrainzID", "trackName", "artistName", "albumName", "albumArtistName", "duration", "trackNumber", "chosenByUser", "historyItemStartTime", "uploaded", "ignoredReason", "lastRowUpdateTime" };
 }
 String scrobbleTuple(LinkedList<Any>& params, $<Scrobble> scrobble) {
 	auto& trackURI = scrobble->trackURI();
@@ -699,13 +700,13 @@ String scrobbleTuple(LinkedList<Any>& params, $<Scrobble> scrobble) {
 		sqlParam(params, scrobble->isUploaded()),",",
 		// ignoredReason
 		sqlParam(params, ignoredReason ? Any(ignoredReason->toJson().dump()) : Any()),",",
-		// updateTime
+		// lastRowUpdateTime
 		"CURRENT_TIMESTAMP"
 	"}" });
 }
 
 ArrayList<String> dbStateTupleColumns() {
-	return { "stateKey", "stateValue", "updateTime" };
+	return { "stateKey", "stateValue", "lastRowUpdateTime" };
 }
 String dbStateTuple(LinkedList<Any>& params, const DBState& state) {
 	return String::join({ "(",
@@ -713,7 +714,7 @@ String dbStateTuple(LinkedList<Any>& params, const DBState& state) {
 		sqlParam(params, state.stateKey),",",
 		// stateValue
 		sqlParam(params, state.stateValue),",",
-		// updateTime
+		// lastRowUpdateTime
 		"CURRENT_TIMESTAMP"
 	")" });
 }
