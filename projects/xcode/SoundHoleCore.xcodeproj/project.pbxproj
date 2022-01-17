@@ -22,6 +22,9 @@
 		A0C8D7D6278FDF40007485E4 /* ScrobbleManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A0C8D7D3278FDF40007485E4 /* ScrobbleManager.cpp */; };
 		A0C8D7D7278FDF40007485E4 /* ScrobbleManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A0C8D7D4278FDF40007485E4 /* ScrobbleManager.hpp */; };
 		A0C8D7D927938584007485E4 /* ScrobblerStash.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A0C8D7D827938584007485E4 /* ScrobblerStash.hpp */; };
+		A0C8D7E127949F0B007485E4 /* UnmatchedScrobble.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A0C8D7DE27949F0B007485E4 /* UnmatchedScrobble.hpp */; };
+		A0C8D7E227962C62007485E4 /* UnmatchedScrobble.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A0C8D7DD27949F0B007485E4 /* UnmatchedScrobble.cpp */; };
+		A0C8D7E327962C63007485E4 /* UnmatchedScrobble.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A0C8D7DD27949F0B007485E4 /* UnmatchedScrobble.cpp */; };
 		A50F74B6238B223F0061D9FD /* TrackCollection.impl.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A50F74B5238B223F0061D9FD /* TrackCollection.impl.hpp */; };
 		A513DB34232DA191000DCAC7 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = A513DB33232DA191000DCAC7 /* AppDelegate.mm */; };
 		A513DB37232DA191000DCAC7 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A513DB36232DA191000DCAC7 /* ViewController.mm */; };
@@ -374,6 +377,8 @@
 		A0C8D7D3278FDF40007485E4 /* ScrobbleManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ScrobbleManager.cpp; sourceTree = "<group>"; };
 		A0C8D7D4278FDF40007485E4 /* ScrobbleManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ScrobbleManager.hpp; sourceTree = "<group>"; };
 		A0C8D7D827938584007485E4 /* ScrobblerStash.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ScrobblerStash.hpp; sourceTree = "<group>"; };
+		A0C8D7DD27949F0B007485E4 /* UnmatchedScrobble.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UnmatchedScrobble.cpp; sourceTree = "<group>"; };
+		A0C8D7DE27949F0B007485E4 /* UnmatchedScrobble.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = UnmatchedScrobble.hpp; sourceTree = "<group>"; };
 		A372CA273104C573CAEC4617 /* Pods-SoundHoleCoreTest-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-macOS.release.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-macOS/Pods-SoundHoleCoreTest-macOS.release.xcconfig"; sourceTree = "<group>"; };
 		A50F74B5238B223F0061D9FD /* TrackCollection.impl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TrackCollection.impl.hpp; sourceTree = "<group>"; };
 		A513DB23232DA15C000DCAC7 /* libSoundHoleCore-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSoundHoleCore-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -896,6 +901,8 @@
 				A0C8D7D827938584007485E4 /* ScrobblerStash.hpp */,
 				A0C8D7CF278FD45C007485E4 /* Scrobble.hpp */,
 				A0C8D7CE278FD45C007485E4 /* Scrobble.cpp */,
+				A0C8D7DE27949F0B007485E4 /* UnmatchedScrobble.hpp */,
+				A0C8D7DD27949F0B007485E4 /* UnmatchedScrobble.cpp */,
 			);
 			path = media;
 			sourceTree = "<group>";
@@ -1442,6 +1449,7 @@
 				A5C6DB0E25BCDCA600596878 /* GoogleDriveStorageMediaTypes.hpp in Headers */,
 				A5D9E1192550BC0B00E4762A /* BandcampSession.hpp in Headers */,
 				A578785C23E37A7B00B6B0A5 /* QueueItem.hpp in Headers */,
+				A0C8D7E127949F0B007485E4 /* UnmatchedScrobble.hpp in Headers */,
 				A5B973582381F91900FB3F1C /* Track.hpp in Headers */,
 				A52826E423F09B6200360508 /* Player.hpp in Headers */,
 				A513ED90232DA20B000DCAC7 /* BandcampMediaProvider.hpp in Headers */,
@@ -1850,6 +1858,7 @@
 				A5AE3F1C247C593100FB9AFF /* SQLiteTransaction.cpp in Sources */,
 				A5E7852623CE73A300BD1C67 /* StreamPlaybackProvider.cpp in Sources */,
 				A5F60C2F255F3E4700A0D4E3 /* Base64.cpp in Sources */,
+				A0C8D7E227962C62007485E4 /* UnmatchedScrobble.cpp in Sources */,
 				A5C0A8E823CFE59100CDB59E /* SpotifyPlaylistMutatorDelegate.cpp in Sources */,
 				A5C6CCFC2598178200596878 /* StorageProvider.cpp in Sources */,
 				A5BA49FE26E599DC00139269 /* LastFMError.cpp in Sources */,
@@ -1929,6 +1938,7 @@
 				A58189A426961A5A007BFD82 /* MediaDatabaseSQLTransformations.cpp in Sources */,
 				A5F9F640244AB6CE00E80C7A /* Player_objc.mm in Sources */,
 				A5B9736623822C0100FB3F1C /* TrackCollection.cpp in Sources */,
+				A0C8D7E327962C63007485E4 /* UnmatchedScrobble.cpp in Sources */,
 				A5C6CCF12598013D00596878 /* GoogleDriveStorageProvider.cpp in Sources */,
 				A5BA4A0E26E5A82800139269 /* SecureStore.cpp in Sources */,
 				A5485A1F238CCB5F00CB7749 /* UserAccount.cpp in Sources */,

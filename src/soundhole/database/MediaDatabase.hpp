@@ -17,6 +17,7 @@
 #include <soundhole/media/MediaProvider.hpp>
 #include <soundhole/media/PlaybackHistoryItem.hpp>
 #include <soundhole/media/Scrobble.hpp>
+#include <soundhole/media/UnmatchedScrobble.hpp>
 #include <soundhole/media/MediaProviderStash.hpp>
 #include <soundhole/media/ScrobblerStash.hpp>
 #include "SQLIndexRange.hpp"
@@ -178,6 +179,7 @@ namespace sh {
 			Optional<double> minDuration;
 			Optional<double> minDurationRatio;
 			Optional<bool> includeNullDuration;
+			Optional<PlaybackHistoryItem::Visibility> visibility;
 		};
 		Promise<size_t> getPlaybackHistoryItemCount(PlaybackHistoryItemFilters filters = PlaybackHistoryItemFilters{
 			.minDateInclusive = true,
@@ -228,6 +230,19 @@ namespace sh {
 			},
 			.order = sql::Order::DESC
 		});
+		
+		Promise<size_t> getUnmatchedScrobbleCount();
+		struct GetUnmatchedScrobblesOptions {
+			Optional<sql::IndexRange> range;
+			sql::Order order = sql::Order::ASC;
+		};
+		Promise<GetJsonItemsListResult> getUnmatchedScrobblesJson(GetUnmatchedScrobblesOptions options = GetUnmatchedScrobblesOptions{
+			.order = sql::Order::ASC
+		});
+		Promise<GetItemsListResult<UnmatchedScrobble>> getUnmatchedScrobbles(GetUnmatchedScrobblesOptions options = GetUnmatchedScrobblesOptions{
+			.order = sql::Order::ASC
+		});
+		
 		
 		Promise<void> setState(std::map<String,String> state);
 		Promise<std::map<String,String>> getState(ArrayList<String> keys);

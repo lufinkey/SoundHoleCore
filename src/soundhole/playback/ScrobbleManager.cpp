@@ -12,19 +12,30 @@
 #include <uuid.h>
 
 namespace sh {
-	ScrobbleManager::ScrobbleManager(Player* player, MediaDatabase* database)
-	: player(player),
+	ScrobbleManager::ScrobbleManager(MediaDatabase* database)
+	: player(nullptr),
 	database(database),
 	uuidGenerator(createUUIDGenerator()),
 	currentHistoryItemScrobbled(false) {
-		if(this->player != nullptr) {
-			this->player->addEventListener(this);
-		}
+		//
 	}
 
 	ScrobbleManager::~ScrobbleManager() {
 		if(this->player != nullptr) {
+			setPlayer(nullptr);
+		}
+	}
+
+	void ScrobbleManager::setPlayer(Player* player) {
+		if(this->player == player) {
+			return;
+		}
+		if(this->player != nullptr) {
 			this->player->removeEventListener(this);
+		}
+		this->player = player;
+		if(this->player != nullptr) {
+			this->player->addEventListener(this);
 		}
 	}
 
@@ -84,6 +95,15 @@ namespace sh {
 
 
 
+	bool ScrobbleManager::readyToScrobble($<PlaybackHistoryItem> historyItem, bool finishedItem) const {
+		auto scrobblePrefs = player->scrobblePrefs;
+		double elapsed = historyItem->duration().valueOr(0);
+		double elapsedRatio = elapsed / historyItem->track()->duration().valueOr(PlaybackHistoryItem::FALLBACK_DURATION);
+		return ((scrobblePrefs.scrobbleAtElapsed && elapsed >= scrobblePrefs.scrobbleAtElapsed.value())
+			|| (scrobblePrefs.scrobbleAtElapsedRatio && elapsedRatio >= scrobblePrefs.scrobbleAtElapsedRatio.value())
+			|| (!scrobblePrefs.scrobbleAtElapsed && !scrobblePrefs.scrobbleAtElapsedRatio && finishedItem));
+	}
+
 	void ScrobbleManager::scrobble($<PlaybackHistoryItem> historyItem) {
 		if(this->currentHistoryItemScrobbled && this->currentHistoryItem && this->currentHistoryItem->matches(historyItem.get())) {
 			if(!uploadBatch) {
@@ -111,6 +131,7 @@ namespace sh {
 		auto& scrobblePrefs = player->getScrobblePreferences();
 		// add scrobble for each available scrobbler
 		LinkedList<$<Scrobble>> scrobblesToCache;
+		LinkedList<UnmatchedScrobble> unmatchedScrobblesToCache;
 		for(auto scrobbler : scrobblerStash->getScrobblers()) {
 			if(!scrobbler->isLoggedIn()) {
 				continue;
@@ -130,15 +151,20 @@ namespace sh {
 					// add pending scrobble
 					auto scrobble = createScrobble(scrobbler, historyItem, album);
 					scrobblesToCache.pushBack(scrobble);
-					scrobblerDataIt->second.pendingScrobbles.pushBack(scrobble);
+					// only add to pendingScrobbles if less than the size of a single upload
+					if(scrobblerDataIt->second.pendingScrobbles.size() < scrobbler->maxScrobblesPerRequest()) {
+						scrobblerDataIt->second.pendingScrobbles.pushBack(scrobble);
+					}
 				} break;
 				
 				case Player::ScrobblerProviderMode::ENABLED_ELSEWHERE: {
 					// add unmatched scrobble
 					auto unmatchedScrobble = UnmatchedScrobble{
-						.startTime = historyItem->startTime(),
-						.trackURI = track->uri()
+						.scrobbler = scrobbler,
+						.historyItem = historyItem
 					};
+					unmatchedScrobblesToCache.pushBack(unmatchedScrobble);
+					// TODO don't add to unmatchedScrobbles if too large
 					scrobblerDataIt->second.unmatchedScrobbles.pushBack(unmatchedScrobble);
 				} break;
 				
@@ -155,6 +181,7 @@ namespace sh {
 				console::error("Error caching scrobbles: ", utils::getExceptionDetails(error).fullDescription);
 			});
 		}
+		// TODO cache unmatched scrobbles
 		// upload scrobbles if needed
 		if(!uploadBatch) {
 			uploadPendingScrobbles();
@@ -201,7 +228,7 @@ namespace sh {
 			scrobblersData.erase(scrobblerName);
 			return uploadPendingScrobbles();
 		}
-		size_t maxScrobblesForUpload = 50;
+		size_t maxScrobblesForUpload = scrobbler->maxScrobblesPerRequest();
 		auto uploadingScrobbles = ([&]() {
 			auto& pendingScrobbles = scrobblerDataIt->second.pendingScrobbles;
 			auto beginIt = pendingScrobbles.begin();
@@ -281,7 +308,7 @@ namespace sh {
 			co_return hasPendingScrobbles ? ScrobbleBatchResult::HAS_MORE : ScrobbleBatchResult::DONE;
 		})();
 		// apply current upload task
-		this->uploadBatch = ScrobbleBatch{
+		this->uploadBatch = UploadBatch{
 			.scrobbler = scrobbler->name(),
 			.scrobbles = uploadingScrobbles,
 			.promise = promise
@@ -307,18 +334,8 @@ namespace sh {
 			this->currentHistoryItemScrobbled = false;
 		}
 		this->currentHistoryItem = historyItem;
-		if(historyItem) {
-			// calculate elapsed point
-			double elapsed = historyItem->duration().valueOr(0);
-			double elapsedRatio = elapsed / historyItem->track()->duration().valueOr(PlaybackHistoryItem::FALLBACK_DURATION);
-			// scrobble if needed
-			auto scrobblePrefs = player->getScrobblePreferences();
-			if(!currentHistoryItemScrobbled &&
-			   ((scrobblePrefs.scrobbleAtElapsed && elapsed >= scrobblePrefs.scrobbleAtElapsed.value())
-			   || (scrobblePrefs.scrobbleAtElapsedRatio && elapsedRatio >= scrobblePrefs.scrobbleAtElapsedRatio.value())
-			   || (!scrobblePrefs.scrobbleAtElapsed && !scrobblePrefs.scrobbleAtElapsedRatio && finishedItem))) {
-				scrobble(historyItem);
-			}
+		if(historyItem && !currentHistoryItemScrobbled && readyToScrobble(historyItem, finishedItem)) {
+			scrobble(historyItem);
 		}
 	}
 

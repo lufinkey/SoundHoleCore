@@ -28,6 +28,7 @@ namespace sh {
 
 	class Player: public std::enable_shared_from_this<Player>, protected PlaybackOrganizer::Delegate, protected PlaybackOrganizer::EventListener, protected MediaPlaybackProvider::EventListener, protected MediaControls::Listener {
 		friend class PlayerHistoryManager;
+		friend class ScrobbleManager;
 	public:
 		struct State {
 			bool playing;

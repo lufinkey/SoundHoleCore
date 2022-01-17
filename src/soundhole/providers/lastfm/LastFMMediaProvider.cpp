@@ -618,6 +618,10 @@ namespace sh {
 
 	#pragma mark Scrobbler
 
+	size_t LastFMMediaProvider::maxScrobblesPerRequest() const {
+		return 50;
+	}
+
 	Promise<ArrayList<Scrobble::Response>> LastFMMediaProvider::scrobble(ArrayList<$<Scrobble>> scrobbles) {
 		return lastfm->scrobble({
 			.items = scrobbles.map([](auto& scrobble) {

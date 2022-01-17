@@ -16,6 +16,14 @@ namespace sh {
 	class PlaybackHistoryItem: public std::enable_shared_from_this<PlaybackHistoryItem> {
 		friend class PlayerHistoryManager;
 	public:
+		enum class Visibility: uint8_t {
+			UNSAVED,
+			SCROBBLES,
+			HISTORY
+		};
+		static Visibility Visibility_fromString(const String&);
+		static String Visibility_toString(Visibility);
+		
 		static constexpr double FALLBACK_DURATION = 240.0;
 		
 		struct Data {
@@ -24,6 +32,7 @@ namespace sh {
 			String contextURI;
 			Optional<double> duration;
 			bool chosenByUser;
+			Visibility visibility;
 			
 			static Data fromJson(const Json& json, MediaProviderStash* stash);
 		};
@@ -41,6 +50,7 @@ namespace sh {
 		const String& contextURI() const;
 		const Optional<double>& duration() const;
 		bool chosenByUser() const;
+		Visibility visibility() const;
 		
 		void increaseDuration(double amount);
 		void setDuration(Optional<double> duration);
@@ -57,5 +67,6 @@ namespace sh {
 		String _contextURI;
 		Optional<double> _duration;
 		bool _chosenByUser;
+		Visibility _visibility;
 	};
 }

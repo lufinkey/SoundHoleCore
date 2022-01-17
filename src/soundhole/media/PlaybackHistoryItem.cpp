@@ -36,8 +36,34 @@ namespace sh {
 					(chosenByUser.number_value() == 0) ? false
 					: (chosenByUser.number_value() == 1) ? true
 					: true
-				: true
+				: true,
+			.visibility = PlaybackHistoryItem::Visibility_fromString(json["visibility"].string_value())
 		};
+	}
+
+	PlaybackHistoryItem::Visibility PlaybackHistoryItem::Visibility_fromString(const String& str) {
+		if(str == "UNSAVED") {
+			return Visibility::UNSAVED;
+		} else if(str == "SCROBBLES") {
+			return Visibility::SCROBBLES;
+		} else if(str == "HISTORY") {
+			return Visibility::HISTORY;
+		}
+		throw std::invalid_argument("invalid value for PlaybackHistoryItem::Visibility "+str);
+	}
+
+	String PlaybackHistoryItem::Visibility_toString(Visibility visibility) {
+		switch(visibility) {
+			case Visibility::UNSAVED:
+				return "UNSAVED";
+				
+			case Visibility::SCROBBLES:
+				return "SCROBBLES";
+				
+			case Visibility::HISTORY:
+				return "HISTORY";
+		}
+		throw std::invalid_argument("invalid PlaybackHistoryItem::Visibility value "+std::to_string((long)visibility));
 	}
 
 	$<PlaybackHistoryItem> PlaybackHistoryItem::new$(Data data) {
@@ -53,7 +79,8 @@ namespace sh {
 		_startTime(data.startTime),
 		_contextURI(data.contextURI),
 		_duration(data.duration),
-		_chosenByUser(data.chosenByUser) {
+		_chosenByUser(data.chosenByUser),
+		_visibility(data.visibility) {
 		//
 	}
 
@@ -83,6 +110,10 @@ namespace sh {
 
 	bool PlaybackHistoryItem::chosenByUser() const {
 		return _chosenByUser;
+	}
+
+	PlaybackHistoryItem::Visibility PlaybackHistoryItem::visibility() const {
+		return _visibility;
 	}
 
 	void PlaybackHistoryItem::increaseDuration(double amount) {
@@ -116,7 +147,8 @@ namespace sh {
 			.startTime = _startTime,
 			.contextURI = _contextURI,
 			.duration = _duration,
-			.chosenByUser = _chosenByUser
+			.chosenByUser = _chosenByUser,
+			.visibility = _visibility,
 		};
 	}
 
@@ -127,7 +159,8 @@ namespace sh {
 			{ "startTime", (std::string)_startTime.toISOString() },
 			{ "contextURI", (std::string)_contextURI },
 			{ "duration", _duration ? _duration.value() : Json() },
-			{ "chosenByUser", _chosenByUser }
+			{ "chosenByUser", _chosenByUser },
+			{ "visibility", (std::string)Visibility_toString(_visibility) }
 		};
 	}
 }

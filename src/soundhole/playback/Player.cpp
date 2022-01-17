@@ -30,19 +30,17 @@ namespace sh {
 		if(options.mediaControls != nullptr) {
 			options.mediaControls->addListener(this);
 		}
-		historyManager = new PlayerHistoryManager(this, database);
-		scrobbleManager = new ScrobbleManager(this, database);
+		historyManager = new PlayerHistoryManager(database);
+		historyManager->setPlayer(this);
+		scrobbleManager = new ScrobbleManager(database);
+		scrobbleManager->setPlayer(this);
 	}
 
 	Player::~Player() {
-		if(scrobbleManager != nullptr) {
-			delete scrobbleManager;
-			scrobbleManager = nullptr;
-		}
-		if(historyManager != nullptr) {
-			delete historyManager;
-			historyManager = nullptr;
-		}
+		scrobbleManager->setPlayer(nullptr);
+		historyManager->setPlayer(nullptr);
+		delete scrobbleManager;
+		delete historyManager;
 		if(options.mediaControls != nullptr) {
 			options.mediaControls->setNowPlaying(MediaControls::NowPlaying{});
 			options.mediaControls->removeListener(this);
@@ -701,7 +699,6 @@ namespace sh {
 				}
 			}
 			auto track = preferredTrackForItem(item);
-			// TODO maybe some items will need to load their tracks asynchronously?
 			FGL_ASSERT(track != nullptr, "item cannot have a null track");
 			// get track playback provider
 			auto provider = track->mediaProvider();

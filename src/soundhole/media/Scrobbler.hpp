@@ -24,6 +24,7 @@ namespace sh {
 		virtual void logout() = 0;
 		virtual bool isLoggedIn() const = 0;
 		
+		virtual size_t maxScrobblesPerRequest() const = 0;
 		virtual Promise<ArrayList<Scrobble::Response>> scrobble(ArrayList<$<Scrobble>> scrobbles) = 0;
 		
 		virtual Promise<void> loveTrack($<Track>) = 0;

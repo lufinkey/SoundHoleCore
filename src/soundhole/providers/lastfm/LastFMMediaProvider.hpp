@@ -96,6 +96,7 @@ namespace sh {
 		URI parseAlbumURL(const String&) const;
 		URI parseUserURL(const String&) const;
 		
+		virtual size_t maxScrobblesPerRequest() const override;
 		virtual Promise<ArrayList<Scrobble::Response>> scrobble(ArrayList<$<Scrobble>> scrobbles) override;
 		
 		virtual Promise<void> loveTrack($<Track>) override;

@@ -7,21 +7,33 @@
 //
 
 #include "PlayerHistoryManager.hpp"
+#include "ScrobbleManager.hpp"
 #include <soundhole/utils/Utils.hpp>
 
 namespace sh {
-	PlayerHistoryManager::PlayerHistoryManager(Player* player, MediaDatabase* database)
-	: player(player),
+	PlayerHistoryManager::PlayerHistoryManager(MediaDatabase* database)
+	: player(nullptr),
 	database(database),
 	wasPlaying(false) {
-		if(this->player != nullptr) {
-			this->player->addEventListener(this);
-		}
+		//
 	}
 
 	PlayerHistoryManager::~PlayerHistoryManager() {
 		if(this->player != nullptr) {
+			setPlayer(nullptr);
+		}
+	}
+
+	void PlayerHistoryManager::setPlayer(Player* player) {
+		if(this->player == player) {
+			return;
+		}
+		if(this->player != nullptr) {
 			this->player->removeEventListener(this);
+		}
+		this->player = player;
+		if(this->player != nullptr) {
+			this->player->addEventListener(this);
 		}
 	}
 
@@ -105,7 +117,7 @@ namespace sh {
 						if(restartedDurationRatio >= playerPrefs.minDurationRatioForRepeatSongToBeNewHistoryItem.value()) {
 							// cache current item with old duration
 							historyItem->setDuration(nonRestartedHistoryItem->duration());
-							updateHistoryDBIfNeeded(historyItem);
+							updateHistoryDBIfNeeded(historyItem, false);
 							updatedItem = historyItem;
 							// update current history item to restarted item
 							historyItem = restartedHistoryItem;
@@ -135,7 +147,8 @@ namespace sh {
 							.startTime = currentDate,
 							.contextURI = context ? context->uri() : nullptr,
 							.duration = 0,
-							.chosenByUser = true // TODO < this needs to be changed!!! check if player is playing from radio context, autoplay, etc
+							.chosenByUser = true, // TODO < this needs to be changed!!! check if player is playing from radio context, autoplay, etc
+							.visibility = PlaybackHistoryItem::Visibility::UNSAVED
 						});
 						// copy current history item into the non-restarted item
 						nonRestartedHistoryItem = PlaybackHistoryItem::new$(historyItem->toData());
@@ -150,7 +163,8 @@ namespace sh {
 					.startTime = currentDate,
 					.contextURI = context ? context->uri() : String(),
 					.duration = 0,
-					.chosenByUser = true // TODO < this needs to be changed!!! check if player is playing from radio context, autoplay, etc
+					.chosenByUser = true, // TODO < this needs to be changed!!! check if player is playing from radio context, autoplay, etc
+					.visibility = PlaybackHistoryItem::Visibility::UNSAVED
 				});
 				restartedHistoryItem = nullptr;
 				nonRestartedHistoryItem = nullptr;
@@ -163,7 +177,7 @@ namespace sh {
 		if(historyItem) {
 			// update current history item in DB
 			if(historyItemNeedsDBUpdate) {
-				updateHistoryDBIfNeeded(historyItem);
+				updateHistoryDBIfNeeded(historyItem, finishedItem);
 			}
 			// update state
 			position = playerState.position;
@@ -185,9 +199,21 @@ namespace sh {
 		}
 	}
 
-	void PlayerHistoryManager::updateHistoryDBIfNeeded($<PlaybackHistoryItem> historyItem) {
-		auto& playerPrefs = player->getPreferences();
-		if(!playerPrefs.minDurationForHistory || playerPrefs.minDurationForHistory.value() <= historyItem->duration().valueOr(0)) {
+	bool PlayerHistoryManager::canSaveItem($<PlaybackHistoryItem> historyItem) const {
+		auto prefs = player->getPreferences();
+		return !prefs.minDurationForHistory || prefs.minDurationForHistory.value() <= historyItem->duration().valueOr(0);
+	}
+
+	void PlayerHistoryManager::updateHistoryDBIfNeeded($<PlaybackHistoryItem> historyItem, bool finishedItem) {
+		bool canSaveInHistory = this->canSaveItem(historyItem);
+		bool canScrobble = player->scrobbleManager->readyToScrobble(historyItem, finishedItem);
+		if(canSaveInHistory) {
+			historyItem->_visibility = PlaybackHistoryItem::Visibility::HISTORY;
+		}
+		else if(canScrobble) {
+			historyItem->_visibility = PlaybackHistoryItem::Visibility::SCROBBLES;
+		}
+		if(historyItem->visibility() != PlaybackHistoryItem::Visibility::UNSAVED) {
 			database->cachePlaybackHistoryItems({ historyItem }).except([](std::exception_ptr error) {
 				console::error("Error caching history item: ", utils::getExceptionDetails(error).fullDescription);
 			});

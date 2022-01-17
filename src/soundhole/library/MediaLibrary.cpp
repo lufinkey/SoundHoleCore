@@ -535,7 +535,8 @@ namespace sh {
 				.maxDateInclusive = options.filters.maxDateInclusive,
 				.minDuration = options.filters.minDuration,
 				.minDurationRatio = options.filters.minDurationRatio,
-				.includeNullDuration = options.filters.includeNullDuration
+				.includeNullDuration = options.filters.includeNullDuration,
+				.visibility = options.filters.visibility
 			},
 			.range = sql::IndexRange{
 				.startIndex = options.offset,

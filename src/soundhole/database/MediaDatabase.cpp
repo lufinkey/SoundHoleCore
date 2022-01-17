@@ -803,7 +803,8 @@ namespace sh {
 				.maxDateInclusive = filters.maxDateInclusive,
 				.minDuration = filters.minDuration,
 				.minDurationRatio = filters.minDurationRatio,
-				.includeNullDuration = filters.includeNullDuration
+				.includeNullDuration = filters.includeNullDuration,
+				.visibility = filters.visibility
 			};
 			sql::selectPlaybackHistoryItemCount(tx, "count", sqlFilters);
 			sql::selectPlaybackHistoryItemsWithTracks(tx, "items", sqlFilters, {
@@ -834,7 +835,8 @@ namespace sh {
 				.minStartTime = filters.minStartTime,
 				.minStartTimeInclusive = filters.minStartTimeInclusive,
 				.maxStartTime = filters.maxStartTime,
-				.maxStartTimeInclusive = filters.maxStartTimeInclusive
+				.maxStartTimeInclusive = filters.maxStartTimeInclusive,
+				.uploaded = filters.uploaded
 			});
 		}).map(nullptr, [=](auto results) {
 			auto items = results["count"];
@@ -882,6 +884,53 @@ namespace sh {
 			return GetItemsListResult<$<Scrobble>>{
 				.items = results.items.map([&](auto& json) {
 					return Scrobble::fromJson(json, scrobblerStash);
+				}),
+				.total = results.total
+			};
+		});
+	}
+
+
+	Promise<size_t> MediaDatabase::getUnmatchedScrobbleCount() {
+		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
+			sql::selectUnmatchedScrobbleCount(tx, "count");
+		}).map(nullptr, [=](auto results) {
+			auto items = results["count"];
+			if(items.size() == 0) {
+				return (size_t)0;
+			}
+			return (size_t)items.front().number_value();
+		});
+	}
+
+	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getUnmatchedScrobblesJson(GetUnmatchedScrobblesOptions options) {
+		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
+			sql::selectUnmatchedScrobbleCount(tx, "count");
+			sql::selectUnmatchedScrobbles(tx, "items", {
+				.range = options.range,
+				.order = options.order
+			});
+		}).map(nullptr, [=](auto results) {
+			auto countItems = results["count"];
+			if(countItems.size() == 0) {
+				throw std::runtime_error("failed to get items count");
+			}
+			size_t total = (size_t)countItems.front().number_value();
+			auto rows = LinkedList<Json>(results["items"]);
+			return GetJsonItemsListResult{
+				.items = rows,
+				.total = total
+			};
+		});
+	}
+
+	Promise<MediaDatabase::GetItemsListResult<UnmatchedScrobble>> MediaDatabase::getUnmatchedScrobbles(GetUnmatchedScrobblesOptions options) {
+		return getUnmatchedScrobblesJson(options).map([=](auto results) {
+			auto providerStash = this->mediaProviderStash();
+			auto scrobblerStash = this->scrobblerStash();
+			return GetItemsListResult<UnmatchedScrobble>{
+				.items = results.items.map([&](auto& json) {
+					return UnmatchedScrobble::fromJson(json, providerStash, scrobblerStash);
 				}),
 				.total = results.total
 			};

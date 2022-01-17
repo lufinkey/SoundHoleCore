@@ -529,6 +529,22 @@ void insertOrReplaceScrobbles(SQLiteTransaction& tx, const ArrayList<$<Scrobble>
 	}
 }
 
+void insertOrReplaceScrobbles(SQLiteTransaction& tx, const ArrayList<UnmatchedScrobble>& scrobbles) {
+	LinkedList<String> scrobbleTuples;
+	LinkedList<Any> scrobbleParams;
+	for(auto& scrobble : scrobbles) {
+		scrobbleTuples.pushBack(unmatchedScrobbleTuple(scrobbleParams, scrobble));
+	}
+	if(scrobbleTuples.size() > 0) {
+		tx.addSQL(String::join({
+			"INSERT OR REPLACE INTO UnmatchedScrobble (",
+			String::join(unmatchedScrobbleTupleColumns(), ", "),
+			") VALUES ",
+			String::join(scrobbleTuples, ", ")
+		}), scrobbleParams);
+	}
+}
+
 void insertOrReplaceDBStates(SQLiteTransaction& tx, const ArrayList<DBState>& states) {
 	LinkedList<String> dbStateTuples;
 	LinkedList<Any> dbStateParams;
@@ -1344,7 +1360,11 @@ String PlaybackHistorySelectFilters::sql(LinkedList<Any>& params) const {
 					")"
 				")"
 		   })
-		   : String()
+		   : String(),
+		// visibility
+		visibility.hasValue() ?
+			String::join({ "(PlaybackHistoryItem.visibility = ",sqlParam(params, PlaybackHistoryItem::Visibility_toString(visibility.value())),")" })
+			: String()
 	}.where([](auto& str) {return !str.empty();}), " AND ");
 }
 
@@ -1396,7 +1416,7 @@ void selectPlaybackHistoryItemsWithTracks(SQLiteTransaction& tx, String outKey, 
 void selectPlaybackHistoryItemCount(SQLiteTransaction& tx, String outKey, const PlaybackHistorySelectFilters& filters) {
 	LinkedList<Any> params;
 	auto query = String::join({
-		"SELECT count(*) AS total FROM FollowedUserAccount",
+		"SELECT count(*) AS total FROM PlaybackHistoryItem",
 		([&]() {
 			auto sql = filters.sql(params);
 			if(sql.empty()) {
@@ -1414,15 +1434,6 @@ void selectPlaybackHistoryItemCount(SQLiteTransaction& tx, String outKey, const 
 }
 
 
-
-void selectScrobble(SQLiteTransaction& tx, String outKey, String localID) {
-	tx.addSQL("SELECT * FROM Scrobble WHERE localID = ?", { localID }, {
-		.outKey = outKey,
-		.mapper = [](auto row) {
-			return transformDBScrobble(row);
-		}
-	});
-}
 
 String ScrobbleSelectFilters::sql(LinkedList<Any>& params) const {
 	return String::join(ArrayList<String>{
@@ -1453,6 +1464,15 @@ String ScrobbleSelectFilters::sql(LinkedList<Any>& params) const {
 			String::join({ "Scrobble.uploaded = ",sqlParam(params, uploaded.value()) })
 			: String()
 	}.where([](auto& str) {return !str.empty();}), " AND ");
+}
+
+void selectScrobble(SQLiteTransaction& tx, String outKey, String localID) {
+	tx.addSQL("SELECT * FROM Scrobble WHERE localID = ?", { localID }, {
+		.outKey = outKey,
+		.mapper = [](auto row) {
+			return transformDBScrobble(row);
+		}
+	});
 }
 
 void selectScrobbles(SQLiteTransaction& tx, String outKey, const ScrobbleSelectFilters& filters, const ScrobbleSelectOptions& options) {
@@ -1498,6 +1518,66 @@ void selectScrobbleCount(SQLiteTransaction& tx, String outKey, const ScrobbleSel
 			}
 			return " WHERE " + sql;
 		})()
+	});
+	tx.addSQL(query, params, {
+		.outKey=outKey,
+		.mapper=[=](auto row) {
+			return row["total"];
+		}
+	});
+}
+
+
+
+void selectUnmatchedScrobbles(SQLiteTransaction& tx, String outKey, const ScrobbleSelectOptions& options) {
+	auto joinTables = ArrayList<JoinTable>{
+		{
+			.name = "UnmatchedScrobble",
+			.prefix = "r1_",
+			.columns = unmatchedScrobbleColumns()
+		}, {
+			.name = "PlaybackHistoryItem",
+			.prefix = "r2_",
+			.columns = playbackHistoryItemColumns()
+		}, {
+			.name = "Track",
+			.prefix = "r3_",
+			.columns = trackColumns()
+		}
+	};
+	auto columns = joinedTableColumns(joinTables);
+	LinkedList<Any> params;
+	auto query = String::join({
+		"SELECT ",columns," FROM UnmatchedScrobble, PlaybackHistoryItem, Track WHERE"
+		" UnmatchedScrobble.startTime = PlaybackHistoryItem.startTime"
+		" UnmatchedScrobble.trackURI = PlaybackHistoryItem.trackURI"
+		" UnmatchedScrobble.trackURI = Track.uri"
+		" ORDER BY PlaybackHistoryItem.startTime",([&]() -> String {
+			switch(options.order) {
+				case Order::DEFAULT:
+					return "";
+				case Order::ASC:
+					return " ASC";
+				case Order::DESC:
+					return " DESC";
+			}
+			throw std::invalid_argument("invalid value for options.order");
+		})(),
+		sqlOffsetAndLimitFromRange(options.range, params)
+	});
+	tx.addSQL(query, params, {
+		.outKey=outKey,
+		.mapper=[=](auto row) {
+			auto results = splitJoinedResults(joinTables, row);
+			return transformDBUnmatchedScrobble(results[0], results[1], results[2]);
+		}
+	});
+}
+
+void selectUnmatchedScrobbleCount(SQLiteTransaction& tx, String outKey) {
+	LinkedList<Any> params;
+	auto query = String::join({
+		"SELECT count(*) AS total FROM UnmatchedScrobble",
 	});
 	tx.addSQL(query, params, {
 		.outKey=outKey,
@@ -1567,6 +1647,10 @@ void deleteScrobbles(SQLiteTransaction& tx, const ScrobbleSelectFilters& filters
 		})()
 	});
 	tx.addSQL(query, params);
+}
+
+void deleteUnmatchedScrobble(SQLiteTransaction& tx, String scrobbler, Date startTime, String trackURI) {
+	tx.addSQL("DELETE FROM UnmatchedScrobble WHERE scrobbler = ? AND startTime = ? AND trackURI = ?", { scrobbler, startTime, trackURI });
 }
 
 void deleteUnreferencedCollectionItems(SQLiteTransaction& tx) {

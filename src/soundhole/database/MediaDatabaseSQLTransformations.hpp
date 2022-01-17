@@ -25,5 +25,6 @@ Json transformDBFollowedArtist(Json followedArtistJson, Json artistJson);
 Json transformDBFollowedUserAccount(Json followedUserAccountJson, Json userAccountJson);
 Json transformDBPlaybackHistoryItem(Json historyItemJson, Json trackJson);
 Json transformDBScrobble(Json scrobbleJson);
+Json transformDBUnmatchedScrobble(Json scrobbleJson, Json historyItemJson, Json trackJson);
 
 }

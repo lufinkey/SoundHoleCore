@@ -17,6 +17,7 @@
 #include <soundhole/media/MediaProvider.hpp>
 #include <soundhole/media/PlaybackHistoryItem.hpp>
 #include <soundhole/media/Scrobble.hpp>
+#include <soundhole/media/UnmatchedScrobble.hpp>
 #include <soundhole/media/Scrobbler.hpp>
 
 namespace sh::sql {
@@ -37,6 +38,7 @@ ArrayList<String> savedAlbumColumns();
 ArrayList<String> savedPlaylistColumns();
 ArrayList<String> playbackHistoryItemColumns();
 ArrayList<String> scrobbleColumns();
+ArrayList<String> unmatchedScrobbleColumns();
 
 String createDB();
 String purgeDB();
@@ -130,6 +132,9 @@ String playbackHistoryItemTuple(LinkedList<Any>& params, $<PlaybackHistoryItem> 
 
 ArrayList<String> scrobbleTupleColumns();
 String scrobbleTuple(LinkedList<Any>& params, $<Scrobble> scrobble);
+
+ArrayList<String> unmatchedScrobbleTupleColumns();
+String unmatchedScrobbleTuple(LinkedList<Any>& params, const UnmatchedScrobble& scrobble);
 
 struct DBState {
 	String stateKey;

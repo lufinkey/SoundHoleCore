@@ -146,6 +146,7 @@ namespace sh {
 			{ "minDuration", minDuration ? minDuration.value() : Json() },
 			{ "minDurationRatio", minDurationRatio ? minDurationRatio.value() : Json() },
 			{ "includeNullDuration", includeNullDuration.hasValue() ? includeNullDuration.value() : Json() },
+			{ "visibility", visibility.hasValue() ? PlaybackHistoryItem::Visibility_toString(visibility.value()) : Json() },
 			{ "order", sql::Order_toString(order) }
 		};
 	}
@@ -178,6 +179,9 @@ namespace sh {
 		}
 		if(filters.includeNullDuration.hasValue()) {
 			query["includeNullDuration"] = filters.includeNullDuration.value() ? "true" : "false";
+		}
+		if(filters.visibility.hasValue()) {
+			query["visibility"] = PlaybackHistoryItem::Visibility_toString(filters.visibility.value());
 		}
 		query["order"] = sql::Order_toString(filters.order);
 		return String::join({
@@ -302,7 +306,8 @@ namespace sh {
 				.maxDateInclusive = _filters.maxDateInclusive,
 				.minDuration = _filters.minDuration,
 				.minDurationRatio = _filters.minDurationRatio,
-				.includeNullDuration = _filters.includeNullDuration
+				.includeNullDuration = _filters.includeNullDuration,
+				.visibility = _filters.visibility
 			},
 			.range = sql::IndexRange{
 				.startIndex = index,

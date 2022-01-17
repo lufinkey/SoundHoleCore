@@ -12,6 +12,7 @@
 #include <soundhole/media/PlaybackHistoryItem.hpp>
 #include <soundhole/media/Scrobble.hpp>
 #include <soundhole/media/Scrobbler.hpp>
+#include <soundhole/media/UnmatchedScrobble.hpp>
 #include "Player.hpp"
 
 namespace sh {
@@ -22,9 +23,12 @@ namespace sh {
 
 	class ScrobbleManager: protected Player::EventListener {
 	public:
-		ScrobbleManager(Player* player, MediaDatabase* database);
+		ScrobbleManager(MediaDatabase* database);
 		~ScrobbleManager();
 		
+		void setPlayer(Player*);
+
+		bool readyToScrobble($<PlaybackHistoryItem> historyItem, bool finishedItem) const;
 		void scrobble($<PlaybackHistoryItem>);
 		
 		ArrayList<$<Scrobble>> getUploadingScrobbles();
@@ -55,11 +59,6 @@ namespace sh {
 		$<PlaybackHistoryItem> currentHistoryItem;
 		bool currentHistoryItemScrobbled;
 		
-		struct UnmatchedScrobble {
-			Date startTime;
-			String trackURI;
-		};
-		
 		struct ScrobblerData {
 			LinkedList<$<Scrobble>> pendingScrobbles;
 			LinkedList<UnmatchedScrobble> unmatchedScrobbles;
@@ -70,11 +69,11 @@ namespace sh {
 		};
 		Map<String,ScrobblerData> scrobblersData;
 		
-		struct ScrobbleBatch {
+		struct UploadBatch {
 			String scrobbler;
 			ArrayList<$<Scrobble>> scrobbles;
 			Promise<ScrobbleBatchResult> promise;
 		};
-		Optional<ScrobbleBatch> uploadBatch;
+		Optional<UploadBatch> uploadBatch;
 	};
 }

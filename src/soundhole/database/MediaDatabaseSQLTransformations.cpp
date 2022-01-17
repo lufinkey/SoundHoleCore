@@ -158,4 +158,10 @@ Json transformDBScrobble(Json scrobbleJson) {
 	return obj;
 }
 
+Json transformDBUnmatchedScrobble(Json scrobbleJson, Json historyItemJson, Json trackJson) {
+	auto obj = scrobbleJson.object_items();
+	obj["historyItem"] = transformDBPlaybackHistoryItem(historyItemJson, trackJson);
+	return obj;
+}
+
 }

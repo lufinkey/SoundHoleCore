@@ -81,10 +81,13 @@ ArrayList<String> savedPlaylistColumns() {
 	return { "playlistURI", "libraryProvider", "addedAt", "lastRowUpdateTime" };
 }
 ArrayList<String> playbackHistoryItemColumns() {
-	return { "startTime", "trackURI", "contextURI", "duration", "chosenByUser", "lastRowUpdateTime" };
+	return { "startTime", "trackURI", "contextURI", "duration", "chosenByUser", "visibility", "lastRowUpdateTime" };
 }
 ArrayList<String> scrobbleColumns() {
 	return { "localID", "scrobbler", "startTime", "trackURI", "musicBrainzID", "trackName", "artistName", "albumName", "albumArtistName", "duration", "trackNumber", "chosenByUser", "historyItemStartTime", "uploaded", "ignoredReason", "lastRowUpdateTime" };
+}
+ArrayList<String> unmatchedScrobbleColumns() {
+	return { "scrobbler", "startTime", "trackURI", "lastRowUpdateTime" };
 }
 
 
@@ -210,6 +213,7 @@ CREATE TABLE IF NOT EXISTS PlaybackHistoryItem (
 	contextURI TEXT,
 	duration REAL,
 	chosenByUser INT(1) NOT NULL,
+	visibility TEXT NOT NULL,
 	lastRowUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(startTime, trackURI),
 	FOREIGN KEY(trackURI) REFERENCES Track(uri)
@@ -235,7 +239,14 @@ CREATE TABLE IF NOT EXISTS Scrobble (
 	FOREIGN KEY(trackURI) REFERENCES Track(uri),
 	FOREIGN KEY(historyItemStartTime, trackURI) REFERENCES PlaybackHistoryItem(startTime, trackURI)
 );
-
+CREATE TABLE IF NOT EXISTS UnmatchedScrobble (
+	scrobbler TEXT NOT NULL,
+	startTime TIMESTAMP NOT NULL,
+	trackURI TEXT NOT NULL
+	lastRowUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY(scrobbler, startTime, trackURI),
+	FOREIGN KEY(startTime, trackURI) REFERENCES PlaybackHistoryItem(startTime, trackURI)
+);
 CREATE TABLE IF NOT EXISTS DBState (
 	stateKey TEXT NOT NULL,
 	stateValue TEXT NOT NULL,
@@ -247,6 +258,7 @@ CREATE TABLE IF NOT EXISTS DBState (
 
 String purgeDB() {
 	return R"SQL(
+DROP TABLE IF EXISTS UnmatchedScrobble;
 DROP TABLE IF EXISTS Scrobble;
 DROP TABLE IF EXISTS PlaybackHistoryItem;
 DROP TABLE IF EXISTS FollowedUserAccount;
@@ -640,7 +652,7 @@ String savedPlaylistTuple(LinkedList<Any>& params, const SavedPlaylist& playlist
 }
 
 ArrayList<String> playbackHistoryItemTupleColumns() {
-	return { "startTime", "trackURI", "contextURI", "duration", "chosenByUser", "lastRowUpdateTime" };
+	return { "startTime", "trackURI", "contextURI", "duration", "chosenByUser", "visibility", "lastRowUpdateTime" };
 }
 String playbackHistoryItemTuple(LinkedList<Any>& params, $<PlaybackHistoryItem> item) {
 	return String::join({ "(",
@@ -654,6 +666,8 @@ String playbackHistoryItemTuple(LinkedList<Any>& params, $<PlaybackHistoryItem> 
 		sqlParam(params, item->duration() ? Any(item->duration().value()) : Any()),",",
 		// chosenByUser
 		sqlParam(params, item->chosenByUser()),",",
+		// visibility
+		sqlParam(params, PlaybackHistoryItem::Visibility_toString(item->visibility())),",",
 		// lastRowUpdateTime
 		"CURRENT_TIMESTAMP"
 	")" });
@@ -669,7 +683,7 @@ String scrobbleTuple(LinkedList<Any>& params, $<Scrobble> scrobble) {
 	auto& albumArtist = scrobble->albumArtistName();
 	auto& ignoredReason = scrobble->ignoredReason();
 	auto& historyItemStartTime = scrobble->historyItemStartTime();
-	return String::join({ "{",
+	return String::join({ "(",
 		// localID
 		sqlParam(params, scrobble->localID()),",",
 		// scrobbler
@@ -702,7 +716,23 @@ String scrobbleTuple(LinkedList<Any>& params, $<Scrobble> scrobble) {
 		sqlParam(params, ignoredReason ? Any(ignoredReason->toJson().dump()) : Any()),",",
 		// lastRowUpdateTime
 		"CURRENT_TIMESTAMP"
-	"}" });
+	")" });
+}
+
+ArrayList<String> unmatchedScrobbleTupleColumns() {
+	return { "scrobbler", "startTime", "trackURI", "lastRowUpdateTime" };
+}
+String unmatchedScrobbleTuple(LinkedList<Any>& params, const UnmatchedScrobble& scrobble) {
+	return String::join({ "(",
+		// scrobbler
+		sqlParam(params, scrobble.scrobbler->name()),",",
+		// startTime
+		sqlParam(params, scrobble.historyItem->startTime().toISOString()),",",
+		// trackURI
+		sqlParam(params, scrobble.historyItem->track()->uri()),",",
+		// lastRowUpdateTime
+		"CURRENT_TIMESTAMP"
+	")" });
 }
 
 ArrayList<String> dbStateTupleColumns() {
