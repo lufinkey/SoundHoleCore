@@ -13,6 +13,9 @@ io_cpp=false
 json11=false
 cxxurl=false
 sqlite=false
+neon=false
+xml2=false
+musicbrainz=false
 if [ $# -eq 0 ]; then
 	nodejs_embed=true
 	data_cpp=true
@@ -21,6 +24,9 @@ if [ $# -eq 0 ]; then
 	json11=true
 	cxxurl=true
 	sqlite=true
+	neon=true
+	xml2=true
+	musicbrainz=true
 else
 	for arg; do
 		if [ "$arg" == "nodejs_embed" ]; then
@@ -37,6 +43,12 @@ else
 			cxxurl=true
 		elif [ "$arg" == "sqlite" ]; then
 			sqlite=true
+		elif [ "$arg" == "neon" ]; then
+			neon=true
+		elif [ "$arg" == "xml2" ]; then
+			xml2=true
+		elif [ "$arg" == "musicbrainz" ]; then
+			musicbrainz=true
 		else
 			>&2 echo "unknown dependency $arg"
 		fi
@@ -96,5 +108,26 @@ if $sqlite; then
 		mv "sqlite-amalgamation-3360000" "sqlite"
 		rm -rf "sqlite.zip"
 		cd "$base_dir"
+	fi
+fi
+# clone neon
+if $neon; then
+	if [ ! -e "external/neon/.git" ]; then
+		echo "fetching neon"
+		git clone --recursive "https://github.com/notroj/neon.git" "external/neon" || exit $?
+	fi
+fi
+# clone xml2
+if $xml2; then
+	if [ ! -e "external/xml2/.git" ]; then
+		echo "fetching xml2"
+		git clone --recursive "https://gitlab.gnome.org/GNOME/libxml2.git" "external/xml2" || exit $?
+	fi
+fi
+# clone musicbrainz
+if $musicbrainz; then
+	if [ ! -e "external/musicbrainz/.git" ]; then
+		echo "fetching musicbrainz"
+		git clone --recursive "https://github.com/metabrainz/libmusicbrainz.git" "external/musicbrainz" || exit $?
 	fi
 fi

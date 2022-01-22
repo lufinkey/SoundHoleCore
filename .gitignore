@@ -94,3 +94,7 @@ py_prefix
 /external/dtl
 /external/*.aar
 /external/sqlite
+/external/neon
+/external/xml2
+/external/musicbrainz
+
