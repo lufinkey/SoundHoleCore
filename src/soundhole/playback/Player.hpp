@@ -170,6 +170,7 @@ namespace sh {
 	protected:
 		virtual Promise<void> onPlaybackOrganizerPrepareItem($<PlaybackOrganizer> organizer, PlayerItem item) override;
 		virtual Promise<void> onPlaybackOrganizerPlayItem($<PlaybackOrganizer> organizer, PlayerItem item) override;
+		virtual void onPlaybackOrganizerStateChange($<PlaybackOrganizer> organizer) override;
 		virtual void onPlaybackOrganizerItemChange($<PlaybackOrganizer> organizer) override;
 		virtual void onPlaybackOrganizerQueueChange($<PlaybackOrganizer> organizer) override;
 		

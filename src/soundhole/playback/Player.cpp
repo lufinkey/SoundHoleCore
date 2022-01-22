@@ -7,6 +7,7 @@
 //
 
 #include "Player.hpp"
+#include <soundhole/media/ShuffledTrackCollection.hpp>
 #include <soundhole/utils/Utils.hpp>
 #include "Player_objc_private.hpp"
 #include "PlayerHistoryManager.hpp"
@@ -126,7 +127,7 @@ namespace sh {
 				return self->organizer->load(metadataPath, stash).then([=](bool loaded) {
 					// apply progress data
 					self->resumableProgress = progressData;
-					// TODO possibly update media controls?
+					// TODO possibly update media controls/state?
 				});
 			});
 		}).promise;
@@ -824,6 +825,27 @@ namespace sh {
 
 	Promise<void> Player::onPlaybackOrganizerPlayItem($<PlaybackOrganizer> organizer, PlayerItem item) {
 		return playItem(item);
+	}
+
+	void Player::onPlaybackOrganizerStateChange($<PlaybackOrganizer> organizer) {
+		// update playingItem
+		auto organizerItem = organizer->getCurrentItem();
+		if(organizerItem && playingItem) {
+			auto organizerCollectionItem = organizerItem->asCollectionItem();
+			auto playingCollectionItem = playingItem->asCollectionItem();
+			
+			if(organizerCollectionItem && playingCollectionItem) {
+				auto organizerShuffledItem = organizerCollectionItem.as<ShuffledTrackCollectionItem>();
+				auto playingShuffledItem = playingCollectionItem.as<ShuffledTrackCollectionItem>();
+				
+				auto organizerSourceItem = organizerShuffledItem ? organizerShuffledItem->sourceItem() : organizerCollectionItem;
+				auto playingSourceItem = playingShuffledItem ? playingShuffledItem->sourceItem() : playingCollectionItem;
+				
+				if(organizerSourceItem && playingSourceItem->matchesItem(organizerSourceItem.get())) {
+					playingItem = organizerItem;
+				}
+			}
+		}
 	}
 
 	void Player::onPlaybackOrganizerItemChange($<PlaybackOrganizer> organizer) {

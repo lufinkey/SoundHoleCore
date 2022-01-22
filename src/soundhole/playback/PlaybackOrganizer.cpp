@@ -674,6 +674,15 @@ namespace sh {
 
 	void PlaybackOrganizer::setShuffling(bool shuffling) {
 		updateMainContext(context, contextItem, shuffling);
+		{// emit state change event
+			auto self = this->shared_from_this();
+			std::unique_lock<std::mutex> lock(self->listenersMutex);
+			auto listeners = self->listeners;
+			lock.unlock();
+			for(auto listener : listeners) {
+				listener->onPlaybackOrganizerStateChange(self);
+			}
+		}
 	}
 
 	bool PlaybackOrganizer::isShuffling() const {

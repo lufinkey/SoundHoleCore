@@ -30,6 +30,7 @@ namespace sh {
 		public:
 			virtual ~EventListener() {}
 			
+			virtual void onPlaybackOrganizerStateChange($<PlaybackOrganizer> organizer) {}
 			virtual void onPlaybackOrganizerItemChange($<PlaybackOrganizer> organizer) {}
 			virtual void onPlaybackOrganizerQueueChange($<PlaybackOrganizer> organizer) {}
 		};
@@ -40,8 +41,11 @@ namespace sh {
 			bool pastQueueEnabled = true;
 			bool savePastQueueToDisk = false;
 			
+			/// Tells whether the past queue is cleared when pressing "next" at the last item of the queue
 			bool clearPastQueueOnExitQueue = false;
+			/// Tells whether the past queue is cleared when pressing "next" at the first non-queue item after pressing "next" to exit the queue
 			bool clearPastQueueOnNextAfterExitQueue = true;
+			/// Tells whether the past queue is cleared when the playing context changes
 			bool clearPastQueueOnContextChange = false;
 		};
 		
