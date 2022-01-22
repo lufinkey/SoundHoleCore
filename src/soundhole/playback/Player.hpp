@@ -12,6 +12,7 @@
 #include <soundhole/media/MediaProvider.hpp>
 #include <soundhole/media/MediaPlaybackProvider.hpp>
 #include <soundhole/media/PlaybackHistoryItem.hpp>
+#include <soundhole/media/ShuffledTrackCollection.hpp>
 #include <soundhole/database/MediaDatabase.hpp>
 #include "PlaybackOrganizer.hpp"
 #include "StreamPlaybackProvider.hpp"

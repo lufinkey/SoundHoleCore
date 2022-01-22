@@ -7,7 +7,6 @@
 //
 
 #include "Player.hpp"
-#include <soundhole/media/ShuffledTrackCollection.hpp>
 #include <soundhole/utils/Utils.hpp>
 #include "Player_objc_private.hpp"
 #include "PlayerHistoryManager.hpp"
