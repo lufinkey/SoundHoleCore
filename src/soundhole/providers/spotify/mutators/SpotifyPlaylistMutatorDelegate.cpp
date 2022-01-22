@@ -117,6 +117,10 @@ namespace sh {
 
 
 
+	bool SpotifyPlaylistMutatorDelegate::canInsertItem($<Track> track) const {
+		return dynamic_cast<SpotifyMediaProvider*>(track->mediaProvider()) != nullptr;
+	}
+
 	Promise<void> SpotifyPlaylistMutatorDelegate::insertItems(Mutator* mutator, size_t index, LinkedList<$<Track>> tracks, InsertItemOptions options) {
 		size_t chunkSize = getChunkSize();
 		size_t halfChunkSize = chunkSize / 2;

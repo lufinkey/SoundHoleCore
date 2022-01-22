@@ -233,6 +233,10 @@ namespace sh {
 
 
 
+	bool YoutubePlaylistMutatorDelegate::canInsertItem($<Track> item) const {
+		return dynamic_cast<YoutubeMediaProvider*>(item->mediaProvider()) != nullptr;
+	}
+
 	Promise<void> YoutubePlaylistMutatorDelegate::insertItems(Mutator* mutator, size_t index, LinkedList<$<Track>> tracks, InsertItemOptions options) {
 		auto playlist = this->playlist.lock();
 		auto provider = (YoutubeMediaProvider*)playlist->mediaProvider();

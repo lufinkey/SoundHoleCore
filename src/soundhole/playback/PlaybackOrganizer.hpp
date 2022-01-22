@@ -38,7 +38,9 @@ namespace sh {
 		struct Preferences {
 			size_t contextLoadBuffer = 5;
 			
+			/// Controls whether the player should keep track of a "past queue" or items from the queue that have been played already or skipped]
 			bool pastQueueEnabled = true;
+			/// Tells whether the past queue gets saved with the organizer data
 			bool savePastQueueToDisk = false;
 			
 			/// Tells whether the past queue is cleared when pressing "next" at the last item of the queue

@@ -69,6 +69,7 @@ namespace sh {
 		public:
 			using InsertItemOptions = Playlist::InsertItemOptions;
 			
+			virtual bool canInsertItem($<Track> track) const = 0;
 			virtual Promise<void> insertItems(Mutator* mutator, size_t index, LinkedList<$<Track>> tracks, InsertItemOptions options) = 0;
 			virtual Promise<void> appendItems(Mutator* mutator, LinkedList<$<Track>> tracks, InsertItemOptions options) = 0;
 			virtual Promise<void> removeItems(Mutator* mutator, size_t index, size_t count) = 0;
@@ -99,6 +100,8 @@ namespace sh {
 		Data toData(const DataOptions& options = DataOptions()) const;
 		virtual Json toJson(const ToJsonOptions& options) const override;
 		
+		bool canInsertItem($<Track> item) const;
+		bool canInsertItems(const LinkedList<$<Track>>& items) const;
 		Promise<void> insertItems(size_t index, LinkedList<$<Track>> items, InsertItemOptions options = InsertItemOptions::defaultOptions());
 		Promise<void> appendItems(LinkedList<$<Track>> items, InsertItemOptions options = InsertItemOptions::defaultOptions());
 		Promise<void> removeItems(size_t index, size_t count);

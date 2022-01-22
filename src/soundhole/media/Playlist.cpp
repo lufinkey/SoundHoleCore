@@ -273,12 +273,28 @@ namespace sh {
 
 
 
+	bool Playlist::canInsertItem($<Track> item) const {
+		auto delegate = const_cast<Playlist*>(this)->mutatorDelegate();
+		return delegate->canInsertItem(item);
+	}
+
+	bool Playlist::canInsertItems(const LinkedList<$<Track>>& items) const {
+		auto delegate = const_cast<Playlist*>(this)->mutatorDelegate();
+		return !items.containsWhere([&](auto& item) { return !delegate->canInsertItem(item); });
+	}
+
 	Promise<void> Playlist::insertItems(size_t index, LinkedList<$<Track>> items, InsertItemOptions options) {
+		if(!canInsertItems(items)) {
+			return rejectWith(std::invalid_argument("Cannot insert one or more of the given items"));
+		}
 		makeTracksAsync();
 		return asyncItemsList()->insertItems(index, items, options.toMap());
 	}
 
 	Promise<void> Playlist::appendItems(LinkedList<$<Track>> items, InsertItemOptions options) {
+		if(!canInsertItems(items)) {
+			return rejectWith(std::invalid_argument("Cannot append one or more of the given items"));
+		}
 		makeTracksAsync();
 		return asyncItemsList()->appendItems(items, options.toMap());
 	}

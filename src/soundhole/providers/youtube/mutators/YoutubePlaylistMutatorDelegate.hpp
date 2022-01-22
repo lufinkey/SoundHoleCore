@@ -19,6 +19,8 @@ namespace sh {
 	public:
 		virtual size_t getChunkSize() const override;
 		virtual Promise<void> loadItems(Mutator* mutator, size_t index, size_t count, LoadItemOptions options) override;
+		
+		virtual bool canInsertItem($<Track> item) const override;
 		virtual Promise<void> insertItems(Mutator* mutator, size_t index, LinkedList<$<Track>> tracks, InsertItemOptions options) override;
 		virtual Promise<void> appendItems(Mutator* mutator, LinkedList<$<Track>> tracks, InsertItemOptions options) override;
 		virtual Promise<void> removeItems(Mutator* mutator, size_t index, size_t count) override;

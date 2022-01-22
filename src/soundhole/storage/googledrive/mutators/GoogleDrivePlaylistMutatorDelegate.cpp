@@ -51,6 +51,10 @@ namespace sh {
 
 
 
+	bool GoogleDrivePlaylistMutatorDelegate::canInsertItem($<Track> item) const {
+		return true;
+	}
+
 	Promise<void> GoogleDrivePlaylistMutatorDelegate::insertItems(Mutator* mutator, size_t index, LinkedList<$<Track>> tracks, InsertItemOptions options) {
 		size_t chunkSize = getChunkSize();
 		size_t halfChunkSize = chunkSize / 2;
