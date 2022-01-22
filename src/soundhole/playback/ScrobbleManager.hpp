@@ -26,6 +26,8 @@ namespace sh {
 		ScrobbleManager(MediaDatabase* database);
 		~ScrobbleManager();
 		
+		Promise<void> initializeIfNeeded();
+		
 		void setPlayer(Player*);
 
 		bool readyToScrobble($<PlaybackHistoryItem> historyItem, bool finishedItem) const;
@@ -52,12 +54,17 @@ namespace sh {
 		static Function<String()> createUUIDGenerator();
 		$<Scrobble> createScrobble(Scrobbler* scrobbler, $<PlaybackHistoryItem> historyItem, $<Album> album);
 		
+		Promise<void> fetchPendingScrobblesFromDB();
+		Promise<void> fetchUnmatchedScrobblesFromDB();
+		
 		void updateFromPlayer($<Player> player, bool finishedItem);
 		
 		Player* player;
 		MediaDatabase* database;
-		
 		Function<String()> uuidGenerator;
+		
+		Optional<Promise<void>> initializePromise;
+		bool initialized;
 		
 		$<PlaybackHistoryItem> currentHistoryItem;
 		bool currentHistoryItemScrobbled;

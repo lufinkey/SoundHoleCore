@@ -13,9 +13,7 @@
 namespace sh {
 	bool UnmatchedScrobble::equals(const UnmatchedScrobble& cmp) const {
 		return scrobbler == cmp.scrobbler
-			&& (historyItem == cmp.historyItem
-				|| (historyItem->startTime() == cmp.historyItem->startTime()
-					&& historyItem->track()->uri() == cmp.historyItem->track()->uri()));
+			&& (historyItem == cmp.historyItem || historyItem->matches(cmp.historyItem.get()));
 	}
 
 	bool UnmatchedScrobble::matchesInexactly($<Scrobble> scrobble) const {

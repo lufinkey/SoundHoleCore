@@ -16,6 +16,7 @@ namespace sh {
 	: player(nullptr),
 	database(database),
 	uuidGenerator(createUUIDGenerator()),
+	initialized(false),
 	currentHistoryItemScrobbled(false) {
 		//
 	}
@@ -37,6 +38,25 @@ namespace sh {
 		if(this->player != nullptr) {
 			this->player->addEventListener(this);
 		}
+	}
+
+	Promise<void> ScrobbleManager::initializeIfNeeded() {
+		if(initialized) {
+			return resolveVoid();
+		}
+		if(initializePromise) {
+			return initializePromise.value();
+		}
+		auto promise = ([=]() -> Promise<void> {
+			co_await fetchPendingScrobblesFromDB();
+			co_await fetchUnmatchedScrobblesFromDB();
+		})();
+		this->initializePromise = promise;
+		promise.finally([=]() {
+			this->initialized = true;
+			this->initializePromise = std::nullopt;
+		});
+		return promise;
 	}
 
 	// TODO add function to load any unmatched/unuploaded scrobbles from DB
@@ -217,6 +237,11 @@ namespace sh {
 		if(uploadBatch) {
 			return uploadBatch->promise;
 		}
+		if(!initialized) {
+			return initializeIfNeeded().then([=]() {
+				return uploadScrobbles();
+			});
+		}
 		// find scrobbler that has pending scrobbles and is currently able to perform uploads
 		auto scrobblerDataIt = scrobblersData.findWhere([](auto& pair) {
 			return !pair.second.pendingScrobbles.empty()
@@ -270,40 +295,7 @@ namespace sh {
 					scrobblerDataIt->second.pendingScrobbles.removeFirstEqual(scrobble);
 				}
 			}
-			// search database for any pending scrobbles for each scrobbler
-			auto scrobblerStash = this->database->scrobblerStash();
-			for(auto scrobbler : scrobblerStash->getScrobblers()) {
-				// get scrobbler data
-				auto scrobblerName = scrobbler->name();
-				auto scrobblerDataIt = this->scrobblersData.find(scrobblerName);
-				if(scrobblerDataIt == this->scrobblersData.end()) {
-					scrobblerDataIt = std::get<0>(this->scrobblersData.insert(std::make_pair(scrobblerName, ScrobblerData())));
-				}
-				// if there are already pending scrobbles for this scrobbler, ignore and continue
-				if(!scrobblerDataIt->second.pendingScrobbles.empty()) {
-					continue;
-				}
-				// query scrobbles from DB
-				auto newPendingScrobbles = (co_await this->database->getScrobbles({
-					.filters = {
-						.scrobbler = scrobblerName,
-						.uploaded = false
-					},
-					.range = sql::IndexRange{
-						.startIndex = 0,
-						.endIndex = maxScrobblesForUpload
-					},
-					.order = sql::Order::ASC
-				})).items;
-				if(!newPendingScrobbles.empty()) {
-					// we have pending scrobbles, so add them to the list of pending scrobbles
-					auto scrobblerDataIt = this->scrobblersData.find(scrobblerName);
-					if(scrobblerDataIt == this->scrobblersData.end()) {
-						scrobblerDataIt = std::get<0>(this->scrobblersData.insert(std::make_pair(scrobblerName, ScrobblerData())));
-					}
-					scrobblerDataIt->second.pendingScrobbles.pushBackList(newPendingScrobbles);
-				}
-			}
+			co_await fetchPendingScrobblesFromDB();
 			co_await resumeOnQueue(DispatchQueue::main());
 			// check if there are still any pending scrobbles for scrobblers that are currently able to upload
 			bool hasPendingScrobbles = this->scrobblersData.containsWhere([](auto& pair) {
@@ -331,6 +323,44 @@ namespace sh {
 		return promise;
 	}
 
+	Promise<void> ScrobbleManager::fetchPendingScrobblesFromDB() {
+		// search database for any pending scrobbles for each scrobbler
+		auto scrobblerStash = this->database->scrobblerStash();
+		for(auto scrobbler : scrobblerStash->getScrobblers()) {
+			// get scrobbler data
+			auto scrobblerName = scrobbler->name();
+			auto scrobblerDataIt = this->scrobblersData.find(scrobblerName);
+			if(scrobblerDataIt == this->scrobblersData.end()) {
+				scrobblerDataIt = std::get<0>(this->scrobblersData.insert(std::make_pair(scrobblerName, ScrobblerData())));
+			}
+			// if there are already pending scrobbles for this scrobbler, ignore and continue
+			if(!scrobblerDataIt->second.pendingScrobbles.empty()) {
+				continue;
+			}
+			size_t maxScrobblesForUpload = scrobbler->maxScrobblesPerRequest();
+			// query scrobbles from DB
+			auto newPendingScrobbles = (co_await this->database->getScrobbles({
+				.filters = {
+					.scrobbler = scrobblerName,
+					.uploaded = false
+				},
+				.range = sql::IndexRange{
+					.startIndex = 0,
+					.endIndex = maxScrobblesForUpload
+				},
+				.order = sql::Order::ASC
+			})).items;
+			if(!newPendingScrobbles.empty()) {
+				// we have pending scrobbles, so add them to the list of pending scrobbles
+				auto scrobblerDataIt = this->scrobblersData.find(scrobblerName);
+				if(scrobblerDataIt == this->scrobblersData.end()) {
+					scrobblerDataIt = std::get<0>(this->scrobblersData.insert(std::make_pair(scrobblerName, ScrobblerData())));
+				}
+				scrobblerDataIt->second.pendingScrobbles.pushBackList(newPendingScrobbles);
+			}
+		}
+	}
+
 
 
 	#pragma mark Scrobble Matches
@@ -349,6 +379,11 @@ namespace sh {
 	Promise<ScrobbleBatchResult> ScrobbleManager::matchScrobbles() {
 		if(matchBatch) {
 			return matchBatch->promise;
+		}
+		if(!initialized) {
+			return initializeIfNeeded().then([=]() {
+				return matchScrobbles();
+			});
 		}
 		// find a scrobbler that has unmatched scrobbles
 		auto scrobblerDataIt = scrobblersData.findWhere([](auto& pair) {
@@ -502,39 +537,7 @@ namespace sh {
 				// loop again, to look for more matching scrobbles
 			}
 			// done looping through date range
-			// search database for any unmatched scrobbles for each scrobbler
-			auto scrobblerStash = this->database->scrobblerStash();
-			for(auto scrobbler : scrobblerStash->getScrobblers()) {
-				// get scrobbler data
-				auto scrobblerName = scrobbler->name();
-				auto scrobblerDataIt = this->scrobblersData.find(scrobblerName);
-				if(scrobblerDataIt == this->scrobblersData.end()) {
-					scrobblerDataIt = std::get<0>(this->scrobblersData.insert(std::make_pair(scrobblerName, ScrobblerData())));
-				}
-				// if there are already unmatched scrobbles for this scrobbler, ignore and continue
-				if(!scrobblerDataIt->second.unmatchedScrobbles.empty()) {
-					continue;
-				}
-				// query unmatched scrobbles from DB
-				auto newUnmatchedScrobbles = (co_await this->database->getUnmatchedScrobbles({
-					.filters = {
-						.scrobbler = scrobblerName
-					},
-					.range = sql::IndexRange{
-						.startIndex = 0,
-						.endIndex = maxScrobblesToFetch
-					},
-					.order = sql::Order::ASC
-				})).items;
-				if(!newUnmatchedScrobbles.empty()) {
-					// we have pending scrobbles, so add them to the list of pending scrobbles
-					auto scrobblerDataIt = this->scrobblersData.find(scrobblerName);
-					if(scrobblerDataIt == this->scrobblersData.end()) {
-						scrobblerDataIt = std::get<0>(this->scrobblersData.insert(std::make_pair(scrobblerName, ScrobblerData())));
-					}
-					scrobblerDataIt->second.unmatchedScrobbles.pushBackList(newUnmatchedScrobbles);
-				}
-			}
+			co_await fetchUnmatchedScrobblesFromDB();
 			co_await resumeOnQueue(DispatchQueue::main());
 			// check if there are still any pending scrobbles for scrobblers that are currently able to upload
 			bool hasUnmatchedScrobbles = this->scrobblersData.containsWhere([](auto& pair) {
@@ -560,6 +563,43 @@ namespace sh {
 			console::error("Error fetching scrobbles to match: ", utils::getExceptionDetails(error).fullDescription);
 		});
 		return promise;
+	}
+
+	Promise<void> ScrobbleManager::fetchUnmatchedScrobblesFromDB() {
+		// search database for any unmatched scrobbles for each scrobbler
+		auto scrobblerStash = this->database->scrobblerStash();
+		for(auto scrobbler : scrobblerStash->getScrobblers()) {
+			// get scrobbler data
+			auto scrobblerName = scrobbler->name();
+			auto scrobblerDataIt = this->scrobblersData.find(scrobblerName);
+			if(scrobblerDataIt == this->scrobblersData.end()) {
+				scrobblerDataIt = std::get<0>(this->scrobblersData.insert(std::make_pair(scrobblerName, ScrobblerData())));
+			}
+			// if there are already unmatched scrobbles for this scrobbler, ignore and continue
+			if(!scrobblerDataIt->second.unmatchedScrobbles.empty()) {
+				continue;
+			}
+			size_t maxScrobblesToFetch = scrobbler->maxFetchedScrobblesPerRequest();
+			// query unmatched scrobbles from DB
+			auto newUnmatchedScrobbles = (co_await this->database->getUnmatchedScrobbles({
+				.filters = {
+					.scrobbler = scrobblerName
+				},
+				.range = sql::IndexRange{
+					.startIndex = 0,
+					.endIndex = maxScrobblesToFetch
+				},
+				.order = sql::Order::ASC
+			})).items;
+			if(!newUnmatchedScrobbles.empty()) {
+				// we have pending scrobbles, so add them to the list of pending scrobbles
+				auto scrobblerDataIt = this->scrobblersData.find(scrobblerName);
+				if(scrobblerDataIt == this->scrobblersData.end()) {
+					scrobblerDataIt = std::get<0>(this->scrobblersData.insert(std::make_pair(scrobblerName, ScrobblerData())));
+				}
+				scrobblerDataIt->second.unmatchedScrobbles.pushBackList(newUnmatchedScrobbles);
+			}
+		}
 	}
 
 
