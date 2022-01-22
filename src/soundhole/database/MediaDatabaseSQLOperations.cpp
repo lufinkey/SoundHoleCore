@@ -517,6 +517,9 @@ void insertOrReplaceScrobbles(SQLiteTransaction& tx, const ArrayList<$<Scrobble>
 	LinkedList<String> scrobbleTuples;
 	LinkedList<Any> scrobbleParams;
 	for(auto& scrobble : scrobbles) {
+		if(scrobble->localID().empty()) {
+			throw std::invalid_argument("Can't insert scrobble with empty localID into database");
+		}
 		scrobbleTuples.pushBack(scrobbleTuple(scrobbleParams, scrobble));
 	}
 	if(scrobbleTuples.size() > 0) {
@@ -529,7 +532,7 @@ void insertOrReplaceScrobbles(SQLiteTransaction& tx, const ArrayList<$<Scrobble>
 	}
 }
 
-void insertOrReplaceScrobbles(SQLiteTransaction& tx, const ArrayList<UnmatchedScrobble>& scrobbles) {
+void insertOrReplaceUnmatchedScrobbles(SQLiteTransaction& tx, const ArrayList<UnmatchedScrobble>& scrobbles) {
 	LinkedList<String> scrobbleTuples;
 	LinkedList<Any> scrobbleParams;
 	for(auto& scrobble : scrobbles) {
@@ -1364,6 +1367,20 @@ String PlaybackHistorySelectFilters::sql(LinkedList<Any>& params) const {
 		// visibility
 		visibility.hasValue() ?
 			String::join({ "(PlaybackHistoryItem.visibility = ",sqlParam(params, PlaybackHistoryItem::Visibility_toString(visibility.value())),")" })
+			: String(),
+		// scrobbledBy
+		(!scrobbledBy.empty()) ?
+			String::join(scrobbledBy.map([](auto& scrobblerName) -> String {
+				return "EXISTS (SELECT startTime, historyItemTrackURI FROM Scrobble as s "
+					"WHERE s.startTime = PlaybackHistoryItem.startTime AND s.historyItemTrackURI = PlaybackHistoryItem.trackURI)";
+			}), " AND ")
+			: String(),
+		// notScrobbledBy
+		(!notScrobbledBy.empty()) ?
+			String::join(notScrobbledBy.map([](auto& scrobblerName) -> String {
+				return "NOT EXISTS (SELECT startTime, historyItemTrackURI FROM Scrobble as s "
+					"WHERE s.startTime = PlaybackHistoryItem.startTime AND s.historyItemTrackURI = PlaybackHistoryItem.trackURI)";
+			}), " AND ")
 			: String()
 	}.where([](auto& str) {return !str.empty();}), " AND ");
 }
@@ -1527,9 +1544,53 @@ void selectScrobbleCount(SQLiteTransaction& tx, String outKey, const ScrobbleSel
 	});
 }
 
+void selectMatchingScrobbleLocalID(SQLiteTransaction& tx, String outKey, $<Scrobble> scrobble) {
+	LinkedList<Any> params;
+	auto query = String::join({
+		"SELECT localID FROM Scrobble "
+		"WHERE scrobbler = ",sqlParam(params, scrobble->scrobbler()->name()),
+		" AND startTime = ",sqlParam(params, scrobble->startTime().toISOString()),
+		" AND trackName = ",sqlParam(params, scrobble->trackName()),
+		" AND artistName = ",sqlParam(params, scrobble->artistName())
+	});
+	tx.addSQL(query, params, {
+		.outKey=outKey,
+		.mapper=[=](auto row) {
+			return row["localID"];
+		}
+	});
+}
 
 
-void selectUnmatchedScrobbles(SQLiteTransaction& tx, String outKey, const ScrobbleSelectOptions& options) {
+
+String UnmatchedScrobbleSelectFilters::sql(LinkedList<Any>& params) const {
+	return String::join(ArrayList<String>{
+		// scrobbler
+		(!scrobbler.empty()) ?
+			String::join({ "UnmatchedScrobble.scrobbler = ",sqlParam(params, scrobbler) })
+			: String(),
+		// startTimes
+		(!startTimes.empty()) ?
+			String::join({
+				"(",
+				String::join(startTimes.map([&](auto& startTime) {
+					return String::join({ "UnmatchedScrobble.startTime = ",sqlParam(params, startTime) });
+				}), " OR "),
+				")"
+			})
+			: String(),
+		// minStartTime
+		(minStartTime.hasValue()) ?
+			String::join({ "UnmatchedScrobble.startTime >",(minStartTimeInclusive ? "=" : "")," ",sqlParam(params, minStartTime->toISOString()) })
+			: String(),
+		// maxStartTime
+		(maxStartTime.hasValue()) ?
+			String::join({ "UnmatchedScrobble.startTime <",(maxStartTimeInclusive ? "=" : "")," ",sqlParam(params, maxStartTime->toISOString()) })
+			: String()
+	}.where([](auto& str) {return !str.empty();}), " AND ");
+}
+
+void selectUnmatchedScrobbles(SQLiteTransaction& tx, String outKey, const UnmatchedScrobbleSelectFilters& filters, const UnmatchedScrobbleSelectOptions& options) {
 	auto joinTables = ArrayList<JoinTable>{
 		{
 			.name = "UnmatchedScrobble",
@@ -1548,10 +1609,17 @@ void selectUnmatchedScrobbles(SQLiteTransaction& tx, String outKey, const Scrobb
 	auto columns = joinedTableColumns(joinTables);
 	LinkedList<Any> params;
 	auto query = String::join({
-		"SELECT ",columns," FROM UnmatchedScrobble, PlaybackHistoryItem, Track WHERE"
+		"SELECT ",columns," FROM UnmatchedScrobble, PlaybackHistoryItem, Track",
+		([&]() -> String {
+			auto sql = filters.sql(params);
+			if(sql.empty()) {
+				return " WHERE";
+			}
+			return " WHERE " + sql + " AND";
+		})(),
 		" UnmatchedScrobble.startTime = PlaybackHistoryItem.startTime"
-		" UnmatchedScrobble.trackURI = PlaybackHistoryItem.trackURI"
-		" UnmatchedScrobble.trackURI = Track.uri"
+		" AND UnmatchedScrobble.trackURI = PlaybackHistoryItem.trackURI"
+		" AND UnmatchedScrobble.trackURI = Track.uri"
 		" ORDER BY PlaybackHistoryItem.startTime",([&]() -> String {
 			switch(options.order) {
 				case Order::DEFAULT:
@@ -1574,10 +1642,17 @@ void selectUnmatchedScrobbles(SQLiteTransaction& tx, String outKey, const Scrobb
 	});
 }
 
-void selectUnmatchedScrobbleCount(SQLiteTransaction& tx, String outKey) {
+void selectUnmatchedScrobbleCount(SQLiteTransaction& tx, String outKey, const UnmatchedScrobbleSelectFilters& filters) {
 	LinkedList<Any> params;
 	auto query = String::join({
 		"SELECT count(*) AS total FROM UnmatchedScrobble",
+		([&]() -> String {
+			auto sql = filters.sql(params);
+			if(sql.empty()) {
+				return String();
+			}
+			return " WHERE " + sql;
+		})(),
 	});
 	tx.addSQL(query, params, {
 		.outKey=outKey,
@@ -1649,8 +1724,16 @@ void deleteScrobbles(SQLiteTransaction& tx, const ScrobbleSelectFilters& filters
 	tx.addSQL(query, params);
 }
 
+void deleteHistoryItemScrobbles(SQLiteTransaction& tx, Date historyItemStartTime, String trackURI) {
+	tx.addSQL("DELETE FROM Scrobble WHERE historyItemStartTime = ? AND trackURI = ?", { historyItemStartTime.toISOString(), trackURI });
+}
+
 void deleteUnmatchedScrobble(SQLiteTransaction& tx, String scrobbler, Date startTime, String trackURI) {
-	tx.addSQL("DELETE FROM UnmatchedScrobble WHERE scrobbler = ? AND startTime = ? AND trackURI = ?", { scrobbler, startTime, trackURI });
+	tx.addSQL("DELETE FROM UnmatchedScrobble WHERE scrobbler = ? AND startTime = ? AND trackURI = ?", { scrobbler, startTime.toISOString(), trackURI });
+}
+
+void deleteUnmatchedScrobbles(SQLiteTransaction& tx, Date startTime, String trackURI) {
+	tx.addSQL("DELETE FROM UnmatchedScrobble WHERE startTime = ? AND trackURI = ?", { startTime.toISOString(), trackURI });
 }
 
 void deleteUnreferencedCollectionItems(SQLiteTransaction& tx) {

@@ -14,8 +14,11 @@
 namespace sh {
 	class Scrobbler;
 	class ScrobblerStash;
+	class ScrobbleManager;
+	struct UnmatchedScrobble;
 
 	class Scrobble: public std::enable_shared_from_this<Scrobble> {
+		friend class ScrobbleManager;
 	public:
 		struct IgnoredReason {
 			enum Code {
@@ -97,6 +100,7 @@ namespace sh {
 		
 		void applyData(Data);
 		void applyResponse(const Response&);
+		void matchWith(const UnmatchedScrobble&);
 		
 		Data toData() const;
 		

@@ -8,6 +8,7 @@
 
 #include "PlaybackHistoryTrackCollection.hpp"
 #include <soundhole/library/MediaLibraryProxyProvider.hpp>
+#include <soundhole/database/MediaDatabase.hpp>
 #include <soundhole/utils/HttpClient.hpp>
 
 namespace sh {
@@ -147,6 +148,12 @@ namespace sh {
 			{ "minDurationRatio", minDurationRatio ? minDurationRatio.value() : Json() },
 			{ "includeNullDuration", includeNullDuration.hasValue() ? includeNullDuration.value() : Json() },
 			{ "visibility", visibility.hasValue() ? PlaybackHistoryItem::Visibility_toString(visibility.value()) : Json() },
+			{ "scrobbledBy", Json::array(scrobbledBy.map([](auto& scrobblerName) {
+				return Json((std::string)scrobblerName);
+			})) },
+			{ "notScrobbledBy", Json::array(notScrobbledBy.map([](auto& scrobblerName) {
+				return Json((std::string)scrobblerName);
+			})) },
 			{ "order", sql::Order_toString(order) }
 		};
 	}
@@ -182,6 +189,12 @@ namespace sh {
 		}
 		if(filters.visibility.hasValue()) {
 			query["visibility"] = PlaybackHistoryItem::Visibility_toString(filters.visibility.value());
+		}
+		if(!filters.scrobbledBy.empty()) {
+			query["scrobbledBy"] = String::join(filters.scrobbledBy, ",");
+		}
+		if(!filters.notScrobbledBy.empty()) {
+			query["notScrobbledBy"] = String::join(filters.notScrobbledBy, ",");
 		}
 		query["order"] = sql::Order_toString(filters.order);
 		return String::join({
@@ -307,7 +320,9 @@ namespace sh {
 				.minDuration = _filters.minDuration,
 				.minDurationRatio = _filters.minDurationRatio,
 				.includeNullDuration = _filters.includeNullDuration,
-				.visibility = _filters.visibility
+				.visibility = _filters.visibility,
+				.scrobbledBy = _filters.scrobbledBy,
+				.notScrobbledBy = _filters.notScrobbledBy
 			},
 			.range = sql::IndexRange{
 				.startIndex = index,

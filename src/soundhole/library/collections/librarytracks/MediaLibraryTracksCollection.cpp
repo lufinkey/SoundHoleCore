@@ -8,6 +8,7 @@
 
 #include "MediaLibraryTracksCollection.hpp"
 #include <soundhole/library/MediaLibraryProxyProvider.hpp>
+#include <soundhole/database/MediaDatabase.hpp>
 
 namespace sh {
 

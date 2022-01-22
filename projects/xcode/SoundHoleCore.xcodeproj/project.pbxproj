@@ -25,6 +25,9 @@
 		A0C8D7E127949F0B007485E4 /* UnmatchedScrobble.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A0C8D7DE27949F0B007485E4 /* UnmatchedScrobble.hpp */; };
 		A0C8D7E227962C62007485E4 /* UnmatchedScrobble.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A0C8D7DD27949F0B007485E4 /* UnmatchedScrobble.cpp */; };
 		A0C8D7E327962C63007485E4 /* UnmatchedScrobble.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A0C8D7DD27949F0B007485E4 /* UnmatchedScrobble.cpp */; };
+		A0D40378279633BB0010C8AE /* ItemsPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A0D40376279633BB0010C8AE /* ItemsPage.cpp */; };
+		A0D40379279633BB0010C8AE /* ItemsPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A0D40376279633BB0010C8AE /* ItemsPage.cpp */; };
+		A0D4037A279633BB0010C8AE /* ItemsPage.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A0D40377279633BB0010C8AE /* ItemsPage.hpp */; };
 		A50F74B6238B223F0061D9FD /* TrackCollection.impl.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A50F74B5238B223F0061D9FD /* TrackCollection.impl.hpp */; };
 		A513DB34232DA191000DCAC7 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = A513DB33232DA191000DCAC7 /* AppDelegate.mm */; };
 		A513DB37232DA191000DCAC7 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A513DB36232DA191000DCAC7 /* ViewController.mm */; };
@@ -379,6 +382,8 @@
 		A0C8D7D827938584007485E4 /* ScrobblerStash.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ScrobblerStash.hpp; sourceTree = "<group>"; };
 		A0C8D7DD27949F0B007485E4 /* UnmatchedScrobble.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UnmatchedScrobble.cpp; sourceTree = "<group>"; };
 		A0C8D7DE27949F0B007485E4 /* UnmatchedScrobble.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = UnmatchedScrobble.hpp; sourceTree = "<group>"; };
+		A0D40376279633BB0010C8AE /* ItemsPage.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ItemsPage.cpp; sourceTree = "<group>"; };
+		A0D40377279633BB0010C8AE /* ItemsPage.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ItemsPage.hpp; sourceTree = "<group>"; };
 		A372CA273104C573CAEC4617 /* Pods-SoundHoleCoreTest-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCoreTest-macOS.release.xcconfig"; path = "Target Support Files/Pods-SoundHoleCoreTest-macOS/Pods-SoundHoleCoreTest-macOS.release.xcconfig"; sourceTree = "<group>"; };
 		A50F74B5238B223F0061D9FD /* TrackCollection.impl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TrackCollection.impl.hpp; sourceTree = "<group>"; };
 		A513DB23232DA15C000DCAC7 /* libSoundHoleCore-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSoundHoleCore-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -882,6 +887,8 @@
 				A5485A1C238CCB5F00CB7749 /* UserAccount.cpp */,
 				A578785923E37A7B00B6B0A5 /* QueueItem.hpp */,
 				A578785823E37A7B00B6B0A5 /* QueueItem.cpp */,
+				A0D40377279633BB0010C8AE /* ItemsPage.hpp */,
+				A0D40376279633BB0010C8AE /* ItemsPage.cpp */,
 				A5C6CF1025A252C700596878 /* AuthedProvider.hpp */,
 				A5C6CF1625A2575000596878 /* NamedProvider.hpp */,
 				A5C6CEFC25A24FE800596878 /* AuthedProviderIdentityStore.hpp */,
@@ -1397,6 +1404,7 @@
 				A50F74B6238B223F0061D9FD /* TrackCollection.impl.hpp in Headers */,
 				A5BA49DA26E072EB00139269 /* PlayerItem.hpp in Headers */,
 				A5AE3F06247B890000FB9AFF /* MediaDatabase.hpp in Headers */,
+				A0D4037A279633BB0010C8AE /* ItemsPage.hpp in Headers */,
 				A5E7852A23CE742C00BD1C67 /* StreamPlaybackProvider.hpp in Headers */,
 				A5E851AC2357BECD0001F74D /* BandcampError.hpp in Headers */,
 				A5B9735D2381FBA700FB3F1C /* Artist.hpp in Headers */,
@@ -1890,6 +1898,7 @@
 				A5B7A79F2336C29200301FC0 /* SpotifyError.cpp in Sources */,
 				A5F07D7E2543840100C41A36 /* YoutubeMediaTypes.cpp in Sources */,
 				A5C6D08025A28DE500596878 /* SoundHoleMediaProvider_iOS.mm in Sources */,
+				A0D40378279633BB0010C8AE /* ItemsPage.cpp in Sources */,
 				A5AE3F09247BA5B700FB9AFF /* MediaDatabaseSQL.cpp in Sources */,
 				A5BA4A0D26E5A82800139269 /* SecureStore.cpp in Sources */,
 				A5AE3F3D247DFFE400FB9AFF /* MediaLibraryProxyProvider.cpp in Sources */,
@@ -1978,6 +1987,7 @@
 				A5AE3F0A247BA5B700FB9AFF /* MediaDatabaseSQL.cpp in Sources */,
 				A5AE3F3E247DFFE400FB9AFF /* MediaLibraryProxyProvider.cpp in Sources */,
 				A5D9F600255E4DD400E4762A /* OAuthError.cpp in Sources */,
+				A0D40379279633BB0010C8AE /* ItemsPage.cpp in Sources */,
 				A5C6DAFA25BCD9B100596878 /* GoogleDrivePlaylistMutatorDelegate.cpp in Sources */,
 				A5AE3F1D247C593100FB9AFF /* SQLiteTransaction.cpp in Sources */,
 				A5E851AB2357BECD0001F74D /* BandcampError.cpp in Sources */,

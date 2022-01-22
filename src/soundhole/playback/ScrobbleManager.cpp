@@ -106,8 +106,9 @@ namespace sh {
 
 	void ScrobbleManager::scrobble($<PlaybackHistoryItem> historyItem) {
 		if(this->currentHistoryItemScrobbled && this->currentHistoryItem && this->currentHistoryItem->matches(historyItem.get())) {
+			// current history item is already scrobbled, so just upload any pending scrobbles
 			if(!uploadBatch) {
-				uploadPendingScrobbles();
+				uploadScrobbles();
 			}
 			return;
 		}
@@ -184,11 +185,13 @@ namespace sh {
 		// TODO cache unmatched scrobbles
 		// upload scrobbles if needed
 		if(!uploadBatch) {
-			uploadPendingScrobbles();
+			uploadScrobbles();
 		}
 	}
 
 
+
+	#pragma mark Scrobble Uploads
 
 	ArrayList<$<Scrobble>> ScrobbleManager::getUploadingScrobbles() {
 		if(uploadBatch) {
@@ -208,7 +211,7 @@ namespace sh {
 		return uploadBatch.hasValue();
 	}
 
-	Promise<ScrobbleBatchResult> ScrobbleManager::uploadPendingScrobbles() {
+	Promise<ScrobbleBatchResult> ScrobbleManager::uploadScrobbles() {
 		if(uploadBatch) {
 			return uploadBatch->promise;
 		}
@@ -226,7 +229,7 @@ namespace sh {
 		if(scrobbler == nullptr) {
 			// no scrobbler available, so remove pending scrobbles and try uploading any remaining scrobbles for other scrobblers
 			scrobblersData.erase(scrobblerName);
-			return uploadPendingScrobbles();
+			return uploadScrobbles();
 		}
 		size_t maxScrobblesForUpload = scrobbler->maxScrobblesPerRequest();
 		auto uploadingScrobbles = ([&]() {
@@ -317,7 +320,7 @@ namespace sh {
 		promise.then([=](ScrobbleBatchResult uploadResult) {
 			this->uploadBatch = std::nullopt;
 			if(uploadResult != ScrobbleBatchResult::DONE) {
-				uploadPendingScrobbles();
+				uploadScrobbles();
 			}
 		}, [=](std::exception_ptr error) {
 			this->uploadBatch = std::nullopt;
@@ -325,6 +328,238 @@ namespace sh {
 		});
 		return promise;
 	}
+
+
+
+	#pragma mark Scrobble Matches
+
+	ArrayList<UnmatchedScrobble> ScrobbleManager::getMatchingScrobbles() const {
+		if(matchBatch) {
+			return matchBatch->scrobbles;
+		}
+		return {};
+	}
+
+	bool ScrobbleManager::isMatchingScrobbles() const {
+		return matchBatch.hasValue();
+	}
+
+	Promise<ScrobbleBatchResult> ScrobbleManager::matchScrobbles() {
+		if(matchBatch) {
+			return matchBatch->promise;
+		}
+		// find a scrobbler that has unmatched scrobbles
+		auto scrobblerDataIt = scrobblersData.findWhere([](auto& pair) {
+			return !pair.second.unmatchedScrobbles.empty();
+		});
+		if(scrobblerDataIt == scrobblersData.end()) {
+			return resolveWith(ScrobbleBatchResult::DONE);
+		}
+		auto scrobblerStash = this->database->scrobblerStash();
+		auto scrobblerName = scrobblerDataIt->first;
+		auto scrobbler = scrobblerStash->getScrobbler(scrobblerName);
+		if(scrobbler == nullptr) {
+			// no scrobbler available, so remove pending scrobbles and try uploading any remaining scrobbles for other scrobblers
+			scrobblersData.erase(scrobblerName);
+			return matchScrobbles();
+		}
+		auto maxTimeToHoldUnmatchedScrobbles = std::chrono::days(7);
+		auto maxTimeToHoldUnmatchedScrobblesInMemory = std::chrono::minutes(2);
+		size_t maxScrobblesToFetch = scrobbler->maxFetchedScrobblesPerRequest();
+		auto unmatchedScrobblesList = scrobblerDataIt->second.unmatchedScrobbles.slice(0, maxScrobblesToFetch);
+		// get recent scrobbles and match against unmatched scrobbles
+		auto promise = ([=]() -> Promise<ScrobbleBatchResult> {
+			co_await resumeOnQueue(DispatchQueue::main());
+			auto unmatchedScrobbles = LinkedList<UnmatchedScrobble>(unmatchedScrobblesList);
+			auto lowerBoundTime = unmatchedScrobbles.front().historyItem->startTime() - std::chrono::minutes(1);
+			auto upperBoundTime = unmatchedScrobbles.back().historyItem->startTime() + std::chrono::minutes(1);
+			// loop until all scrobbles in date range are fetched
+			while(true) {
+				// recentTracks is sorted from newest to oldest
+				auto recentTracks = co_await scrobbler->getScrobbles({
+					.from = lowerBoundTime,
+					.to = upperBoundTime,
+					.limit = maxScrobblesToFetch
+				});
+				if(recentTracks.items.empty()) {
+					// no tracks in this date range
+					break;
+				}
+				auto recentTracksLowerBound = recentTracks.items.back()->startTime();
+				{ // remove any scrobbles that already exist in the DB
+					auto recentTracksExists = co_await this->database->hasMatchingScrobbles(recentTracks.items);
+					for(size_t i=(recentTracks.items.size() - 1); i != (size_t)-1; i--) {
+						bool exists = recentTracksExists[i];
+						if(exists) {
+							recentTracks.items.removeAt(i);
+						}
+					}
+				}
+				// match against existing scrobbles
+				LinkedList<Tuple<UnmatchedScrobble,$<Scrobble>>> scrobbleMatchesToCache;
+				LinkedList<UnmatchedScrobble> unmatchedScrobblesToDelete;
+				LinkedList<UnmatchedScrobble> unmatchedScrobblesToRemoveFromList;
+				// iterate through matchingScrobbles from newest to oldest and look for matches in recentTracks
+				for(auto& unmatchedScrobble : reversed(unmatchedScrobbles)) {
+					// if unmatched scrobble is too far older than any of the items in recentTracks, stop here
+					if(unmatchedScrobble.historyItem->startTime() < (recentTracksLowerBound - std::chrono::minutes(1))) {
+						break;
+					}
+					auto lowestMatchDateThreshold = unmatchedScrobble.historyItem->startTime() - std::chrono::minutes(1);
+					size_t matchIndex = (size_t)-1;
+					TimeInterval matchDateDiff;
+					// find matching Scrobble in recentTracks
+					for(size_t i=0; i<recentTracks.items.size(); i++) {
+						auto& scrobble = recentTracks.items[i];
+						if(unmatchedScrobble.matchesInexactly(scrobble)) {
+							if(matchIndex != (size_t)-1) {
+								// there's already a match for this scrobble, so check if this is a closer match
+								auto cmpMatchDateDiff = std::chrono::abs(unmatchedScrobble.historyItem->startTime() - scrobble->startTime());
+								if(cmpMatchDateDiff <= matchDateDiff) {
+									matchIndex = i;
+									matchDateDiff = cmpMatchDateDiff;
+								} else {
+									// since the date difference is increasing, we're getting further away from the likely match, so stop
+									break;
+								}
+							}
+							else {
+								matchIndex = i;
+								matchDateDiff = std::chrono::abs(unmatchedScrobble.historyItem->startTime() - scrobble->startTime());
+							}
+						}
+						else if(scrobble->startTime() < lowestMatchDateThreshold) {
+							break;
+						}
+					}
+					// handle match result
+					if(matchIndex == (size_t)-1) {
+						// no matching scrobble found
+						// if scrobble is older than the max time that we should be holding older UnmatchedScrobbles, then delete it
+						auto oldness = Date::now() - unmatchedScrobble.historyItem->startTime();
+						if(oldness > maxTimeToHoldUnmatchedScrobbles) {
+							// UnmatchedScrobble is too old, so delete it
+							unmatchedScrobblesToDelete.pushBack(unmatchedScrobble);
+							unmatchedScrobblesToRemoveFromList.pushBack(unmatchedScrobble);
+						}
+						else if(oldness > maxTimeToHoldUnmatchedScrobblesInMemory) {
+							// UnmatchedScrobble is older than 2 minutes, so remove from in-memory match list for now
+							unmatchedScrobblesToRemoveFromList.pushBack(unmatchedScrobble);
+						}
+					}
+					else {
+						// found a matching scrobble
+						auto matchingScrobble = recentTracks.items[matchIndex];
+						recentTracks.items.removeAt(matchIndex);
+						// found matching scrobble, apply match and give a local ID
+						matchingScrobble->matchWith(unmatchedScrobble);
+						if(matchingScrobble->_localID.empty()) {
+							matchingScrobble->_localID = this->uuidGenerator();
+						}
+						scrobbleMatchesToCache.pushBack({ unmatchedScrobble, matchingScrobble });
+						unmatchedScrobblesToRemoveFromList.pushBack(unmatchedScrobble);
+					}
+				}
+				// cache matching scrobbles
+				co_await this->database->replaceUnmatchedScrobbles(scrobbleMatchesToCache);
+				// delete unmatched scrobbles that are too old or no longer relevant
+				co_await this->database->deleteUnmatchedScrobbles(unmatchedScrobblesToDelete);
+				// remove matched/deleted scrobbles from unmatched scrobbles list
+				auto scrobblerDataIt = this->scrobblersData.find(scrobblerName);
+				if(scrobblerDataIt != this->scrobblersData.end()) {
+					for(auto& unmatchedScrobble : unmatchedScrobblesToRemoveFromList) {
+						scrobblerDataIt->second.unmatchedScrobbles.removeFirstWhere([&](auto& cmpUnmatchedScrobble) {
+							return unmatchedScrobble.equals(cmpUnmatchedScrobble);
+						});
+					}
+				}
+				// remove scrobbles outside the date bounds from the unmatchedScrobbles list
+				unmatchedScrobbles.removeWhere([=](auto& unmatchedScrobble) {
+					return unmatchedScrobble.historyItem->startTime() > (recentTracksLowerBound + std::chrono::minutes(1));
+				});
+				// check if we could still look for more scrobbles
+				if(unmatchedScrobbles.empty()) {
+					// no more scrobbles to fetch
+					break;
+				}
+				// update the list of scrobbles being matched
+				if(this->matchBatch) {
+					this->matchBatch->scrobbles = unmatchedScrobbles;
+				}
+				// update the upper bound to look for matching scrobbles again in a new range
+				if(upperBoundTime == recentTracksLowerBound) {
+					// the upper bound already matches the new lower bound, so decrease by a second
+					upperBoundTime = recentTracksLowerBound - std::chrono::seconds(1);
+				} else {
+					upperBoundTime = recentTracksLowerBound;
+				}
+				// if we're gone through the whole date range, stop here
+				if(upperBoundTime <= lowerBoundTime) {
+					break;
+				}
+				// loop again, to look for more matching scrobbles
+			}
+			// done looping through date range
+			// search database for any unmatched scrobbles for each scrobbler
+			auto scrobblerStash = this->database->scrobblerStash();
+			for(auto scrobbler : scrobblerStash->getScrobblers()) {
+				// get scrobbler data
+				auto scrobblerName = scrobbler->name();
+				auto scrobblerDataIt = this->scrobblersData.find(scrobblerName);
+				if(scrobblerDataIt == this->scrobblersData.end()) {
+					scrobblerDataIt = std::get<0>(this->scrobblersData.insert(std::make_pair(scrobblerName, ScrobblerData())));
+				}
+				// if there are already unmatched scrobbles for this scrobbler, ignore and continue
+				if(!scrobblerDataIt->second.unmatchedScrobbles.empty()) {
+					continue;
+				}
+				// query unmatched scrobbles from DB
+				auto newUnmatchedScrobbles = (co_await this->database->getUnmatchedScrobbles({
+					.filters = {
+						.scrobbler = scrobblerName
+					},
+					.range = sql::IndexRange{
+						.startIndex = 0,
+						.endIndex = maxScrobblesToFetch
+					},
+					.order = sql::Order::ASC
+				})).items;
+				if(!newUnmatchedScrobbles.empty()) {
+					// we have pending scrobbles, so add them to the list of pending scrobbles
+					auto scrobblerDataIt = this->scrobblersData.find(scrobblerName);
+					if(scrobblerDataIt == this->scrobblersData.end()) {
+						scrobblerDataIt = std::get<0>(this->scrobblersData.insert(std::make_pair(scrobblerName, ScrobblerData())));
+					}
+					scrobblerDataIt->second.unmatchedScrobbles.pushBackList(newUnmatchedScrobbles);
+				}
+			}
+			co_await resumeOnQueue(DispatchQueue::main());
+			// check if there are still any pending scrobbles for scrobblers that are currently able to upload
+			bool hasUnmatchedScrobbles = this->scrobblersData.containsWhere([](auto& pair) {
+				return !pair.second.unmatchedScrobbles.empty();
+			});
+			// if there are no pending scrobbles, uploading is finished for now
+			co_return hasUnmatchedScrobbles ? ScrobbleBatchResult::HAS_MORE : ScrobbleBatchResult::DONE;
+		})();
+		// apply current match task
+		this->matchBatch = MatchBatch{
+			.scrobbler = scrobbler->name(),
+			.scrobbles = unmatchedScrobblesList,
+			.promise = promise
+		};
+		// handle promise finishing
+		promise.then([=](ScrobbleBatchResult uploadResult) {
+			this->matchBatch = std::nullopt;
+			if(uploadResult != ScrobbleBatchResult::DONE) {
+				matchScrobbles();
+			}
+		}, [=](std::exception_ptr error) {
+			this->matchBatch = std::nullopt;
+			console::error("Error fetching scrobbles to match: ", utils::getExceptionDetails(error).fullDescription);
+		});
+		return promise;
+	}
+
 
 
 	void ScrobbleManager::updateFromPlayer($<Player> player, bool finishedItem) {

@@ -79,6 +79,7 @@ namespace sh {
 		Album::Data createAlbumData(LastFMAlbumInfo);
 		Album::Data createAlbumData(LastFMArtistTopAlbum);
 		UserAccount::Data createUserAccountData(LastFMUserInfo);
+		Scrobble::Data createScrobbleData(LastFMUserRecentTrack);
 		static MediaItem::Image createImage(LastFMImage);
 		
 		struct URI {
@@ -101,6 +102,10 @@ namespace sh {
 		
 		virtual Promise<void> loveTrack($<Track>) override;
 		virtual Promise<void> unloveTrack($<Track>) override;
+		
+		virtual size_t maxFetchedScrobblesPerRequest() const override;
+		virtual Promise<ItemsPage<$<Scrobble>>> getScrobbles(GetScrobblesOptions options) override;
+		virtual Promise<ItemsPage<$<Scrobble>>> getUserScrobbles(String user, GetScrobblesOptions options) override;
 		
 	protected:
 		virtual Promise<Optional<LastFMUserInfo>> fetchIdentity() override;

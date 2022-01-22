@@ -79,27 +79,30 @@ namespace sh {
 			size_t total;
 		};
 		
+		
 		Promise<void> cacheTracks(ArrayList<$<Track>> tracks, CacheOptions options = CacheOptions());
 		Promise<LinkedList<Json>> getTracksJson(ArrayList<String> uris);
 		Promise<Json> getTrackJson(String uri);
 		Promise<size_t> getTrackCount();
 		
+		
 		Promise<void> cacheTrackCollections(ArrayList<$<TrackCollection>> collections, CacheOptions options = CacheOptions());
 		Promise<LinkedList<Json>> getTrackCollectionsJson(ArrayList<String> uris);
 		Promise<Json> getTrackCollectionJson(String uri, Optional<sql::IndexRange> itemsRange = std::nullopt);
+		
 		
 		Promise<void> cacheTrackCollectionItems($<TrackCollection> collection, Optional<sql::IndexRange> itemsRange = std::nullopt, CacheOptions options = CacheOptions());
 		Promise<void> updateTrackCollectionVersionId($<TrackCollection> collection, CacheOptions options = CacheOptions());
 		Promise<std::map<size_t,Json>> getTrackCollectionItemsJson(String collectionURI, sql::IndexRange range);
 		
+		
 		Promise<void> cacheArtists(ArrayList<$<Artist>> artists, CacheOptions options = CacheOptions());
 		Promise<LinkedList<Json>> getArtistsJson(ArrayList<String> uris);
 		Promise<Json> getArtistJson(String uri);
 		
+		
 		Promise<void> cacheLibraryItems(ArrayList<MediaProvider::LibraryItem> items, CacheOptions options = CacheOptions());
 		
-		Promise<void> cachePlaybackHistoryItems(ArrayList<$<PlaybackHistoryItem>> historyItems, CacheOptions options = CacheOptions());
-		Promise<void> cacheScrobbles(ArrayList<$<Scrobble>> scrobbles, CacheOptions options = CacheOptions());
 		
 		struct GetSavedItemsCountOptions {
 			String libraryProvider;
@@ -116,6 +119,8 @@ namespace sh {
 			.order=sql::Order::DESC});
 		Promise<Json> getSavedTrackJson(String uri);
 		Promise<ArrayList<bool>> hasSavedTracks(ArrayList<String> uris);
+		Promise<void> deleteSavedTrack(String uri);
+		
 		
 		Promise<size_t> getSavedAlbumsCount(GetSavedItemsCountOptions options = GetSavedItemsCountOptions());
 		struct GetSavedAlbumsOptions {
@@ -129,6 +134,8 @@ namespace sh {
 			.order=sql::Order::DESC});
 		Promise<Json> getSavedAlbumJson(String uri);
 		Promise<ArrayList<bool>> hasSavedAlbums(ArrayList<String> uris);
+		Promise<void> deleteSavedAlbum(String uri);
+		
 		
 		Promise<size_t> getSavedPlaylistsCount(GetSavedItemsCountOptions options = GetSavedItemsCountOptions());
 		struct GetSavedPlaylistsOptions {
@@ -142,6 +149,8 @@ namespace sh {
 			.order=sql::Order::ASC});
 		Promise<Json> getSavedPlaylistJson(String uri);
 		Promise<ArrayList<bool>> hasSavedPlaylists(ArrayList<String> uris);
+		Promise<void> deleteSavedPlaylist(String uri);
+		
 		
 		Promise<size_t> getFollowedArtistsCount(GetSavedItemsCountOptions options = GetSavedItemsCountOptions());
 		struct GetFollowedArtistsOptions {
@@ -155,6 +164,8 @@ namespace sh {
 			.order=sql::Order::ASC});
 		Promise<Json> getFollowedArtistJson(String uri);
 		Promise<ArrayList<bool>> hasFollowedArtists(ArrayList<String> uris);
+		Promise<void> deleteFollowedArtist(String uri);
+		
 		
 		Promise<size_t> getFollowedUserAccountsCount(GetSavedItemsCountOptions options = GetSavedItemsCountOptions());
 		struct GetFollowedUserAccountsOptions {
@@ -168,7 +179,10 @@ namespace sh {
 			.order = sql::Order::ASC});
 		Promise<Json> getFollowedUserAccountJson(String uri);
 		Promise<ArrayList<bool>> hasFollowedUserAccounts(ArrayList<String> uris);
+		Promise<void> deleteFollowedUserAccount(String uri);
 		
+		
+		Promise<void> cachePlaybackHistoryItems(ArrayList<$<PlaybackHistoryItem>> historyItems, CacheOptions options = CacheOptions());
 		struct PlaybackHistoryItemFilters {
 			String provider;
 			ArrayList<String> trackURIs;
@@ -180,6 +194,8 @@ namespace sh {
 			Optional<double> minDurationRatio;
 			Optional<bool> includeNullDuration;
 			Optional<PlaybackHistoryItem::Visibility> visibility;
+			ArrayList<String> scrobbledBy;
+			ArrayList<String> notScrobbledBy;
 		};
 		Promise<size_t> getPlaybackHistoryItemCount(PlaybackHistoryItemFilters filters = PlaybackHistoryItemFilters{
 			.minDateInclusive = true,
@@ -197,7 +213,10 @@ namespace sh {
 			},
 			.order = sql::Order::DESC
 		});
+		Promise<void> deletePlaybackHistoryItem(Date startTime, String trackURI);
 		
+		
+		Promise<void> cacheScrobbles(ArrayList<$<Scrobble>> scrobbles, CacheOptions options = CacheOptions());
 		struct ScrobbleFilters {
 			String scrobbler;
 			ArrayList<Date> startTimes;
@@ -230,35 +249,58 @@ namespace sh {
 			},
 			.order = sql::Order::DESC
 		});
+		Promise<ArrayList<bool>> hasMatchingScrobbles(ArrayList<$<Scrobble>> scrobbles);
+		Promise<void> deleteScrobble(String localID);
 		
-		Promise<size_t> getUnmatchedScrobbleCount();
+		
+		Promise<void> cacheUnmatchedScrobbles(ArrayList<UnmatchedScrobble> scrobbles, CacheOptions options = CacheOptions());
+		struct UnmatchedScrobbleFilters {
+			String scrobbler;
+			ArrayList<Date> startTimes;
+			Optional<Date> minStartTime;
+			bool minStartTimeInclusive = true;
+			Optional<Date> maxStartTime;
+			bool maxStartTimeInclusive = false;
+		};
+		Promise<size_t> getUnmatchedScrobbleCount(UnmatchedScrobbleFilters filters = UnmatchedScrobbleFilters{
+			.minStartTimeInclusive = true,
+			.maxStartTimeInclusive = false
+		});
 		struct GetUnmatchedScrobblesOptions {
+			UnmatchedScrobbleFilters filters;
 			Optional<sql::IndexRange> range;
 			sql::Order order = sql::Order::ASC;
 		};
 		Promise<GetJsonItemsListResult> getUnmatchedScrobblesJson(GetUnmatchedScrobblesOptions options = GetUnmatchedScrobblesOptions{
+			.filters = UnmatchedScrobbleFilters{
+				.minStartTimeInclusive = true,
+				.maxStartTimeInclusive = false
+			},
 			.order = sql::Order::ASC
 		});
 		Promise<GetItemsListResult<UnmatchedScrobble>> getUnmatchedScrobbles(GetUnmatchedScrobblesOptions options = GetUnmatchedScrobblesOptions{
+			.filters = UnmatchedScrobbleFilters{
+				.minStartTimeInclusive = true,
+				.maxStartTimeInclusive = false
+			},
 			.order = sql::Order::ASC
 		});
+		Promise<void> replaceUnmatchedScrobbles(ArrayList<Tuple<UnmatchedScrobble,$<Scrobble>>> scrobbleTuples, CacheOptions options = CacheOptions());
+		Promise<void> deleteUnmatchedScrobbles(ArrayList<UnmatchedScrobble> scrobbles, CacheOptions options = CacheOptions());
+		
+		
+		Promise<void> loadAlbumItems($<Album> album, Album::MutatorDelegate::Mutator* mutator, size_t index, size_t count);
+		Promise<void> loadPlaylistItems($<Playlist> playlist, Playlist::MutatorDelegate::Mutator* mutator, size_t index, size_t count);
 		
 		
 		Promise<void> setState(std::map<String,String> state);
 		Promise<std::map<String,String>> getState(ArrayList<String> keys);
 		Promise<String> getStateValue(String key, String defaultValue);
 		
-		Promise<void> loadAlbumItems($<Album> album, Album::MutatorDelegate::Mutator* mutator, size_t index, size_t count);
-		Promise<void> loadPlaylistItems($<Playlist> playlist, Playlist::MutatorDelegate::Mutator* mutator, size_t index, size_t count);
-		
-		
-		Promise<void> deleteSavedTrack(String uri);
-		Promise<void> deleteSavedAlbum(String uri);
-		Promise<void> deleteSavedPlaylist(String uri);
-		Promise<void> deleteFollowedArtist(String uri);
-		Promise<void> deleteFollowedUserAccount(String uri);
-		Promise<void> deletePlaybackHistoryItem(Date startTime, String trackURI);
-		Promise<void> deleteScrobble(String localID);
+		/// The DBState key used for resuming syncing a provider's library, without having to resync the entire library
+		String stateKey_syncLibraryResumeData(const MediaProvider*) const;
+		/// The DBState key used for the last date a scrobbler has matched against the user's playback history
+		String stateKey_scrobblerMatchHistoryDate(const Scrobbler*) const;
 		
 	private:
 		static void applyDBState(SQLiteTransaction& tx, std::map<String,String> state);

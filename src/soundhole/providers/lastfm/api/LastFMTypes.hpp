@@ -92,13 +92,13 @@ namespace sh {
 
 
 
-    struct LastFMImage {
+	struct LastFMImage {
 		String url;
-        String size;
-        
-        static LastFMImage fromJson(const Json& json);
+		String size;
+		
+		static LastFMImage fromJson(const Json& json);
 		Json toJson() const;
-    };
+	};
 
 	struct LastFMTag {
 		String name;
@@ -131,35 +131,27 @@ namespace sh {
 
 
 
-    struct LastFMUserInfo {
-        String type;
-        String url;
-        String name;
-        String realname;
-        String country;
-        String age;
-        String gender;
-        Optional<size_t> playCount;
-        Optional<bool> subscriber;
-        String playlists;
-        String bootstrap;
-        ArrayList<LastFMImage> image;
-        String registeredTime;
-        String registeredUnixTime;
-        
-        static LastFMUserInfo fromJson(const Json&);
+	struct LastFMUserInfo {
+		String type;
+		String url;
+		String name;
+		String realname;
+		String country;
+		String age;
+		String gender;
+		Optional<size_t> playCount;
+		Optional<bool> subscriber;
+		String playlists;
+		String bootstrap;
+		ArrayList<LastFMImage> image;
+		String registeredTime;
+		String registeredUnixTime;
+
+		static LastFMUserInfo fromJson(const Json&);
 		Json toJson() const;
-    };
-
-
-
-	struct LastFMArtistInfoRequest {
-		String artist;
-		String mbid;
-		String username;
-		String lang;
-		Optional<bool> autocorrect;
 	};
+
+
 
 	struct LastFMArtistInfo {
 		struct Stats {
@@ -191,14 +183,6 @@ namespace sh {
 	};
 
 
-
-	struct LastFMTrackInfoRequest {
-		String track;
-		String artist;
-		String mbid;
-		String username;
-		Optional<bool> autocorrect;
-	};
 
     struct LastFMTrackInfo {
         struct Album {
@@ -239,15 +223,6 @@ namespace sh {
     };
 
 
-
-	struct LastFMAlbumInfoRequest {
-		String album;
-		String artist;
-		String mbid;
-		String username;
-		String lang;
-		Optional<bool> autocorrect;
-	};
 
 	struct LastFMAlbumInfo {
 		struct Track {
@@ -326,13 +301,6 @@ namespace sh {
 
 
 
-	struct LastFMTrackSearchRequest {
-		String track;
-		String artist;
-		Optional<size_t> page;
-		Optional<size_t> limit;
-	};
-
 	struct LastFMTrackSearchResults {
 		struct Item {
 			String mbid;
@@ -358,12 +326,6 @@ namespace sh {
 
 
 
-	struct LastFMArtistSearchRequest {
-		String artist;
-		Optional<size_t> page;
-		Optional<size_t> limit;
-	};
-
 	struct LastFMArtistSearchResults {
 		struct Item {
 			String mbid;
@@ -387,13 +349,6 @@ namespace sh {
 	};
 
 
-
-	struct LastFMAlbumSearchRequest {
-		String album;
-		String artist;
-		Optional<size_t> page;
-		Optional<size_t> limit;
-	};
 
 	struct LastFMAlbumSearchResults {
 		struct Item {
@@ -419,17 +374,6 @@ namespace sh {
 
 
 
-	struct LastFMArtistTopItemsRequest {
-		String artist;
-		String mbid;
-		Optional<bool> autocorrect;
-		Optional<size_t> page;
-		Optional<size_t> limit;
-		
-		Map<String,String> toQueryParams() const;
-	};
-
-
 	struct LastFMArtistTopAlbum {
 		String mbid;
 		String name;
@@ -441,21 +385,56 @@ namespace sh {
 		static LastFMArtistTopAlbum fromJson(const Json&);
 	};
 
-
-
-	struct LastFMArtistTopItemsPageAttrs {
+	struct LastFMArtistItemsPageAttrs {
 		String artist;
 		size_t page;
 		size_t perPage;
 		size_t totalPages;
 		size_t total;
 		
-		static LastFMArtistTopItemsPageAttrs fromJson(const Json&);
+		static LastFMArtistItemsPageAttrs fromJson(const Json&);
 	};
 
 	template<typename T>
-	struct LastFMArtistTopItemsPage {
+	struct LastFMArtistItemsPage {
 		ArrayList<T> items;
-		LastFMArtistTopItemsPageAttrs attrs;
+		LastFMArtistItemsPageAttrs attrs;
+	};
+
+
+
+	struct LastFMUserRecentTrack {
+		struct Album {
+			String mbid;
+			String name;
+		};
+		String mbid;
+		String name;
+		String url;
+		ArrayList<LastFMImage> image;
+		LastFMPartialArtistInfo artist;
+		Optional<Album> album;
+		Optional<bool> streamable;
+		Optional<bool> loved;
+		Optional<bool> nowPlaying;
+		Date date;
+		
+		static LastFMUserRecentTrack fromJson(const Json& json);
+	};
+
+	struct LastFMUserItemsPageAttrs {
+		String user;
+		size_t page;
+		size_t perPage;
+		size_t totalPages;
+		size_t total;
+		
+		static LastFMUserItemsPageAttrs fromJson(const Json&);
+	};
+
+	template<typename T>
+	struct LastFMUserItemsPage {
+		ArrayList<T> items;
+		LastFMUserItemsPageAttrs attrs;
 	};
 }

@@ -32,7 +32,7 @@ void insertOrReplaceSavedAlbums(SQLiteTransaction& tx, const ArrayList<SavedAlbu
 void insertOrReplaceSavedPlaylists(SQLiteTransaction& tx, const ArrayList<SavedPlaylist>& savedPlaylists);
 void insertOrReplacePlaybackHistoryItems(SQLiteTransaction& tx, const ArrayList<$<PlaybackHistoryItem>>& items);
 void insertOrReplaceScrobbles(SQLiteTransaction& tx, const ArrayList<$<Scrobble>>& scrobbles);
-void insertOrReplaceUnmatchedScrobble(SQLiteTransaction& tx, const ArrayList<UnmatchedScrobble> scrobbles);
+void insertOrReplaceUnmatchedScrobbles(SQLiteTransaction& tx, const ArrayList<UnmatchedScrobble>& scrobbles);
 void insertOrReplaceDBStates(SQLiteTransaction& tx, const ArrayList<DBState>& states);
 void applyDBState(SQLiteTransaction& tx, std::map<String,String> state);
 
@@ -88,6 +88,8 @@ struct PlaybackHistorySelectFilters {
 	Optional<double> minDurationRatio;
 	Optional<bool> includeNullDuration;
 	Optional<PlaybackHistoryItem::Visibility> visibility;
+	ArrayList<String> scrobbledBy;
+	ArrayList<String> notScrobbledBy;
 	
 	String sql(LinkedList<Any>& params) const;
 };
@@ -116,9 +118,23 @@ struct ScrobbleSelectOptions {
 void selectScrobble(SQLiteTransaction& tx, String outKey, String localID);
 void selectScrobbles(SQLiteTransaction& tx, String outKey, const ScrobbleSelectFilters& filters, const ScrobbleSelectOptions& options);
 void selectScrobbleCount(SQLiteTransaction& tx, String outKey, const ScrobbleSelectFilters& filters);
+void selectMatchingScrobbleLocalID(SQLiteTransaction& tx, String outKey, $<Scrobble> scrobble);
 
-void selectUnmatchedScrobbles(SQLiteTransaction& tx, String outKey, const ScrobbleSelectOptions& options);
-void selectUnmatchedScrobbleCount(SQLiteTransaction& tx, String outKey);
+struct UnmatchedScrobbleSelectFilters {
+	String scrobbler;
+	ArrayList<Date> startTimes;
+	Optional<Date> minStartTime;
+	bool minStartTimeInclusive = true;
+	Optional<Date> maxStartTime;
+	bool maxStartTimeInclusive = false;
+	String sql(LinkedList<Any>& params) const;
+};
+struct UnmatchedScrobbleSelectOptions {
+	Optional<IndexRange> range;
+	Order order = Order::DEFAULT;
+};
+void selectUnmatchedScrobbles(SQLiteTransaction& tx, String outKey, const UnmatchedScrobbleSelectFilters& filters, const UnmatchedScrobbleSelectOptions& options);
+void selectUnmatchedScrobbleCount(SQLiteTransaction& tx, String outKey, const UnmatchedScrobbleSelectFilters& filters);
 
 void selectDBState(SQLiteTransaction& tx, String outKey, String stateKey);
 
@@ -134,7 +150,9 @@ void deleteFollowedUserAccount(SQLiteTransaction& tx, String userURI);
 void deletePlaybackHistoryItem(SQLiteTransaction& tx, Date startTime, String trackURI);
 void deleteScrobble(SQLiteTransaction& tx, String localID);
 void deleteScrobbles(SQLiteTransaction& tx, const ScrobbleSelectFilters& filters);
+void deleteHistoryItemScrobbles(SQLiteTransaction& tx, Date historyItemStartTime, String trackURI);
 void deleteUnmatchedScrobble(SQLiteTransaction& tx, String scrobbler, Date startTime, String trackURI);
+void deleteUnmatchedScrobbles(SQLiteTransaction& tx, Date startTime, String trackURI);
 
 void deleteUnreferencedCollectionItems(SQLiteTransaction& tx);
 void deleteUnreferencedTracks(SQLiteTransaction& tx);

@@ -113,8 +113,8 @@ namespace sh {
 					Date::fromSecondsSince1970(timestampJson.number_value())
 				: timestampJson.is_string() ?
 					(String(timestampJson.string_value()).containsWhere([](auto c) { return !std::isdigit(c, std::locale()) && c != '.'; })) ?
-						Date::fromSecondsSince1970(std::stod(timestampJson.string_value()))
-						: Date::parse(timestampJson.string_value())
+						Date::parse(timestampJson.string_value())
+						: Date::fromSecondsSince1970(std::stod(timestampJson.string_value()))
 					: throw std::invalid_argument("missing required property 'timestamp'")
 		};
 	}
@@ -603,29 +603,6 @@ namespace sh {
 
 
 
-	#pragma mark ArtistTopItemsRequest
-
-	Map<String,String> LastFMArtistTopItemsRequest::toQueryParams() const {
-		auto params = Map<String,String>{
-			{ "artist", artist }
-		};
-		if(!mbid.empty()) {
-			params["mbid"] = mbid;
-		}
-		if(autocorrect.hasValue()) {
-			params["autocorrect"] = autocorrect.value() ? "1" : "0";
-		}
-		if(page) {
-			params["page"] = std::to_string(page.value());
-		}
-		if(limit) {
-			params["limit"] = std::to_string(limit.value());
-		}
-		return params;
-	}
-
-
-
 	#pragma mark ArtistTopAlbum
 
 	LastFMArtistTopAlbum LastFMArtistTopAlbum::fromJson(const Json& json) {
@@ -641,9 +618,91 @@ namespace sh {
 		};
 	}
 
-	LastFMArtistTopItemsPageAttrs LastFMArtistTopItemsPageAttrs::fromJson(const Json& json) {
-		return LastFMArtistTopItemsPageAttrs{
+	LastFMArtistItemsPageAttrs LastFMArtistItemsPageAttrs::fromJson(const Json& json) {
+		return LastFMArtistItemsPageAttrs{
 			.artist = json["artist"].string_value(),
+			.page = jsutils::badlyFormattedSizeFromJson(json["page"])
+				.valueOrThrow(std::runtime_error("invalid valid for @attr.page")),
+			.perPage = jsutils::badlyFormattedSizeFromJson(json["perPage"])
+				.valueOrThrow(std::runtime_error("invalid value for @attr.perPage")),
+			.totalPages = jsutils::badlyFormattedSizeFromJson(json["totalPages"])
+				.valueOrThrow(std::runtime_error("invalid value for @attr.totalPages")),
+			.total = jsutils::badlyFormattedSizeFromJson(json["total"])
+				.valueOrThrow(std::runtime_error("invalid value for @attr.total"))
+		};
+	}
+
+
+
+	#pragma mark UserRecentTrack
+
+	LastFMUserRecentTrack LastFMUserRecentTrack::fromJson(const Json& json) {
+		auto trackURL = json["url"].string_value();
+		return LastFMUserRecentTrack{
+			.mbid = json["mbid"].string_value(),
+			.name = json["name"].string_value(),
+			.url = trackURL,
+			.image = jsutils::singleOrArrayListFromJson(json["image"], [](auto& imageJson) {
+				return LastFMImage::fromJson(imageJson);
+			}),
+			.artist = ([&]() {
+				auto artistJson = json["artist"];
+				auto textJson = artistJson["#text"];
+				auto artist = LastFMPartialArtistInfo::fromJson(artistJson);
+				if(artistJson["name"].is_null() && !textJson.is_null() && artist.name.empty()) {
+					artist.name = textJson.string_value();
+				}
+				if(artist.url.empty()) {
+					if(!trackURL.empty()) {
+						auto url = URL(trackURL);
+						auto pathParts = url.pathParts();
+						while(pathParts.size() > 2) {
+							pathParts.popBack();
+						}
+						url.setPathParts(pathParts, false);
+						artist.url = url.toString();
+					}
+					else if(!artist.name.empty()) {
+						artist.url = "https://www.last.fm/music/"+URL::encodeQueryValue(artist.name);
+					}
+				}
+				return artist;
+			})(),
+			.album = ([&]() -> Optional<Album> {
+				auto albumJson = json["album"];
+				if(albumJson.is_null()) {
+					return std::nullopt;
+				}
+				auto album = Album{
+					.mbid = albumJson["mbid"].string_value(),
+					.name = albumJson["text"].string_value()
+				};
+				if(album.mbid.empty() && album.name.empty()) {
+					return std::nullopt;
+				}
+				return album;
+			})(),
+			.streamable = jsutils::badlyFormattedBoolFromJson(json["streamable"]),
+			.loved = jsutils::badlyFormattedBoolFromJson(json["loved"]),
+			.nowPlaying = jsutils::badlyFormattedBoolFromJson(json["@attr"]["nowplaying"]),
+			.date = ([&]() {
+				auto dateJson = json["date"];
+				auto unixTimestamp = jsutils::badlyFormattedDoubleFromJson(dateJson["uts"]);
+				if(unixTimestamp.hasValue()) {
+					return Date::fromSecondsSince1970(unixTimestamp.value());
+				}
+				return DateFormatter{
+					.format = "%d %b %Y, %H:%M",
+					.timeZone = TimeZone::gmt()
+				}.dateFromString(dateJson["#text"].string_value())
+					.valueOrThrow(std::invalid_argument("invalid date for recent track"));
+			})()
+		};
+	}
+
+	LastFMUserItemsPageAttrs LastFMUserItemsPageAttrs::fromJson(const Json& json) {
+		return LastFMUserItemsPageAttrs{
+			.user = json["user"].string_value(),
 			.page = jsutils::badlyFormattedSizeFromJson(json["page"])
 				.valueOrThrow(std::runtime_error("invalid valid for @attr.page")),
 			.perPage = jsutils::badlyFormattedSizeFromJson(json["perPage"])

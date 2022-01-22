@@ -209,7 +209,7 @@ namespace sh {
 		if(!isLoggedIn()) {
 			return Promise<Optional<LastFMUserInfo>>::resolve(std::nullopt);
 		}
-		return lastfm->getUserInfo().map([=](LastFMUserInfo user) -> Optional<LastFMUserInfo> {
+		return lastfm->getCurrentUserInfo().map([=](LastFMUserInfo user) -> Optional<LastFMUserInfo> {
 			return maybe(user);
 		});
 	}
@@ -403,6 +403,26 @@ namespace sh {
 			.images = user.image.map([&](LastFMImage& image) -> MediaItem::Image {
 				return createImage(std::move(image));
 			})
+		};
+	}
+
+	Scrobble::Data LastFMMediaProvider::createScrobbleData(LastFMUserRecentTrack track) {
+		return Scrobble::Data{
+			.localID = String(),
+			.scrobbler = this,
+			.startTime = track.date,
+			.trackURI = parseTrackURL(track.url).toString(),
+			.musicBrainzID = track.mbid,
+			.trackName = track.name,
+			.artistName = track.artist.name,
+			.albumName = track.album ? track.album->name : String(),
+			.albumArtistName = String(),
+			.duration = std::nullopt,
+			.trackNumber = std::nullopt,
+			.chosenByUser = std::nullopt,
+			.historyItemStartTime = std::nullopt,
+			.uploaded = true,
+			.ignoredReason = std::nullopt
 		};
 	}
 
@@ -691,5 +711,48 @@ namespace sh {
 	Promise<void> LastFMMediaProvider::unloveTrack($<Track> track) {
 		auto& artists = track->artists();
 		return lastfm->unloveTrack(track->name(), artists.empty() ? String() : artists.front()->name());
+	}
+
+
+	size_t LastFMMediaProvider::maxFetchedScrobblesPerRequest() const {
+		return 200;
+	}
+
+	Promise<ItemsPage<$<Scrobble>>> LastFMMediaProvider::getScrobbles(GetScrobblesOptions options) {
+		return lastfm->getCurrentUserRecentTracks({
+			.from = options.from,
+			.to = options.to,
+			.page = options.page,
+			.limit = options.limit,
+			.extended = true
+		}).map([=](auto results) {
+			return ItemsPage<$<Scrobble>>{
+				.items = results.items.map([&](auto& item) {
+					return Scrobble::new$(createScrobbleData(item));
+				}),
+				.total = results.attrs.total
+			};
+		});
+	}
+
+	Promise<ItemsPage<$<Scrobble>>> LastFMMediaProvider::getUserScrobbles(String userURI, GetScrobblesOptions options) {
+		auto uriParts = parseURI(userURI);
+		if(uriParts.type != "user") {
+			return rejectWith(std::invalid_argument("invalid "+displayName()+" user URI "+userURI));
+		}
+		return lastfm->getUserRecentTracks(uriParts.id, {
+			.from = options.from,
+			.to = options.to,
+			.page = options.page,
+			.limit = options.limit,
+			.extended = true
+		}).map([=](auto results) -> ItemsPage<$<Scrobble>> {
+			return ItemsPage<$<Scrobble>>{
+				.items = results.items.map([&](auto& item) {
+					return Scrobble::new$(createScrobbleData(item));
+				}),
+				.total = results.attrs.total
+			};
+		});
 	}
 }

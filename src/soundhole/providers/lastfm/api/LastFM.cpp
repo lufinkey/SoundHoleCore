@@ -71,100 +71,130 @@ namespace sh {
 
 
 
-	Promise<LastFMArtistSearchResults> LastFM::searchArtist(LastFMArtistSearchRequest request) {
+	Promise<LastFMArtistSearchResults> LastFM::searchArtist(SearchArtistOptions options) {
 		auto params = Map<String,String>{
-			{ "artist", request.artist }
+			{ "artist", options.artist }
 		};
-		if(request.page.hasValue()) {
-			params["page"] = std::to_string(request.page.value());
+		if(options.page.hasValue()) {
+			params["page"] = std::to_string(options.page.value());
 		}
-		if(request.limit.hasValue()) {
-			params["limit"] = std::to_string(request.limit.value());
+		if(options.limit.hasValue()) {
+			params["limit"] = std::to_string(options.limit.value());
 		}
-		return sendRequest(utils::HttpMethod::GET, "artist.search", params).map([](Json json) {
+		return sendRequest(utils::HttpMethod::GET, "artist.search", params).map(nullptr, [](Json json) {
 			return LastFMArtistSearchResults::fromJson(json["results"]);
 		});
 	}
 
-	Promise<LastFMArtistInfo> LastFM::getArtistInfo(LastFMArtistInfoRequest request) {
+	Promise<LastFMArtistInfo> LastFM::getArtistInfo(GetArtistInfoOptions options) {
 		auto params = Map<String,String>{
-			{ "artist", request.artist }
+			{ "artist", options.artist }
 		};
-		if(!request.mbid.empty()) {
-			params["mbid"] = request.mbid;
+		if(!options.mbid.empty()) {
+			params["mbid"] = options.mbid;
 		}
-		if(!request.username.empty()) {
-			params["username"] = request.username;
+		if(!options.username.empty()) {
+			params["username"] = options.username;
 		}
-		if(!request.lang.empty()) {
-			params["lang"] = request.lang;
+		if(!options.lang.empty()) {
+			params["lang"] = options.lang;
 		}
-		if(request.autocorrect.hasValue()) {
-			params["autocorrect"] = request.autocorrect.value() ? "1" : "0";
+		if(options.autocorrect.hasValue()) {
+			params["autocorrect"] = options.autocorrect.value() ? "1" : "0";
 		}
-		return sendRequest(utils::HttpMethod::GET, "artist.getInfo", params).map([](Json json) {
+		return sendRequest(utils::HttpMethod::GET, "artist.getInfo", params).map(nullptr, [](Json json) {
 			return LastFMArtistInfo::fromJson(json["artist"]);
 		});
 	}
 
-	Promise<LastFMArtistTopItemsPage<LastFMArtistTopAlbum>> LastFM::getArtistTopAlbums(LastFMArtistTopItemsRequest request) {
-		return sendRequest(utils::HttpMethod::GET, "artist.getTopAlbums", request.toQueryParams())
-			.map([](Json json) {
+	Promise<LastFMArtistItemsPage<LastFMArtistTopAlbum>> LastFM::getArtistTopAlbums(GetArtistTopItemsOptions options) {
+		auto params = Map<String,String>{
+			{ "artist", options.artist }
+		};
+		if(!options.mbid.empty()) {
+			params["mbid"] = options.mbid;
+		}
+		if(options.autocorrect.hasValue()) {
+			params["autocorrect"] = options.autocorrect.value() ? "1" : "0";
+		}
+		if(options.page) {
+			params["page"] = std::to_string(options.page.value());
+		}
+		if(options.limit) {
+			params["limit"] = std::to_string(options.limit.value());
+		}
+		return sendRequest(utils::HttpMethod::GET, "artist.getTopAlbums", params)
+			.map(nullptr, [](Json json) {
 				json = json["topalbums"];
-				return LastFMArtistTopItemsPage<LastFMArtistTopAlbum>{
+				return LastFMArtistItemsPage<LastFMArtistTopAlbum>{
 					.items = jsutils::singleOrArrayListFromJson(json["album"], [](auto& itemJson) {
 						return LastFMArtistTopAlbum::fromJson(itemJson);
 					}),
-					.attrs = LastFMArtistTopItemsPageAttrs::fromJson(json["@attr"])
+					.attrs = LastFMArtistItemsPageAttrs::fromJson(json["@attr"])
 				};
 			});
 	}
 
-	Promise<LastFMArtistTopItemsPage<LastFMTrackInfo>> LastFM::getArtistTopTracks(LastFMArtistTopItemsRequest request) {
-		return sendRequest(utils::HttpMethod::GET, "artist.getTopTracks", request.toQueryParams())
-			.map([](Json json) {
+	Promise<LastFMArtistItemsPage<LastFMTrackInfo>> LastFM::getArtistTopTracks(GetArtistTopItemsOptions options) {
+		auto params = Map<String,String>{
+			{ "artist", options.artist }
+		};
+		if(!options.mbid.empty()) {
+			params["mbid"] = options.mbid;
+		}
+		if(options.autocorrect.hasValue()) {
+			params["autocorrect"] = options.autocorrect.value() ? "1" : "0";
+		}
+		if(options.page) {
+			params["page"] = std::to_string(options.page.value());
+		}
+		if(options.limit) {
+			params["limit"] = std::to_string(options.limit.value());
+		}
+		return sendRequest(utils::HttpMethod::GET, "artist.getTopTracks", params)
+			.map(nullptr, [](Json json) {
 				json = json["toptracks"];
-				return LastFMArtistTopItemsPage<LastFMTrackInfo>{
+				return LastFMArtistItemsPage<LastFMTrackInfo>{
 					.items = jsutils::singleOrArrayListFromJson(json["track"], [](auto& itemJson) {
 						return LastFMTrackInfo::fromJson(itemJson);
 					}),
-					.attrs = LastFMArtistTopItemsPageAttrs::fromJson(json["@attr"])
+					.attrs = LastFMArtistItemsPageAttrs::fromJson(json["@attr"])
 				};
 			});
 	}
 
 
 
-	Promise<LastFMTrackSearchResults> LastFM::searchTrack(LastFMTrackSearchRequest request) {
+	Promise<LastFMTrackSearchResults> LastFM::searchTrack(SearchTrackOptions options) {
 		auto params = Map<String,String>{
-			{ "track", request.track }
+			{ "track", options.track }
 		};
-		if(!request.artist.empty()) {
-			params["artist"] = request.artist;
+		if(!options.artist.empty()) {
+			params["artist"] = options.artist;
 		}
-		if(request.page.hasValue()) {
-			params["page"] = std::to_string(request.page.value());
+		if(options.page.hasValue()) {
+			params["page"] = std::to_string(options.page.value());
 		}
-		if(request.limit.hasValue()) {
-			params["limit"] = std::to_string(request.limit.value());
+		if(options.limit.hasValue()) {
+			params["limit"] = std::to_string(options.limit.value());
 		}
-		return sendRequest(utils::HttpMethod::GET, "track.search", params).map([](Json json) {
+		return sendRequest(utils::HttpMethod::GET, "track.search", params).map(nullptr, [](Json json) {
 			return LastFMTrackSearchResults::fromJson(json["results"]);
 		});
 	}
 
-	Promise<LastFMTrackInfo> LastFM::getTrackInfo(LastFMTrackInfoRequest request) {
+	Promise<LastFMTrackInfo> LastFM::getTrackInfo(GetTrackInfoOptions options) {
 		auto params = Map<String,String>{
-			{ "track", request.track },
-			{ "artist", request.artist }
+			{ "track", options.track },
+			{ "artist", options.artist }
 		};
-		if(!request.username.empty()) {
-			params["username"] = request.username;
+		if(!options.username.empty()) {
+			params["username"] = options.username;
 		}
-		if(request.autocorrect.hasValue()) {
-			params["autocorrect"] = request.autocorrect.value() ? "1" : "0";
+		if(options.autocorrect.hasValue()) {
+			params["autocorrect"] = options.autocorrect.value() ? "1" : "0";
 		}
-		return sendRequest(utils::HttpMethod::GET, "track.getInfo", params).map([](Json json) {
+		return sendRequest(utils::HttpMethod::GET, "track.getInfo", params).map(nullptr, [](Json json) {
 			return LastFMTrackInfo::fromJson(json["track"]);
 		});
 	}
@@ -185,44 +215,44 @@ namespace sh {
 
 
 
-	Promise<LastFMAlbumSearchResults> LastFM::searchAlbum(LastFMAlbumSearchRequest request) {
+	Promise<LastFMAlbumSearchResults> LastFM::searchAlbum(SearchAlbumOptions options) {
 		auto params = Map<String,String>{
-			{ "album", request.album }
+			{ "album", options.album }
 		};
-		if(!request.artist.empty()) {
-			params["artist"] = request.artist;
+		if(!options.artist.empty()) {
+			params["artist"] = options.artist;
 		}
-		if(request.page.hasValue()) {
-			params["page"] = std::to_string(request.page.value());
+		if(options.page.hasValue()) {
+			params["page"] = std::to_string(options.page.value());
 		}
-		if(request.limit.hasValue()) {
-			params["limit"] = std::to_string(request.limit.value());
+		if(options.limit.hasValue()) {
+			params["limit"] = std::to_string(options.limit.value());
 		}
-		return sendRequest(utils::HttpMethod::GET, "album.search", params).map([](Json json) {
+		return sendRequest(utils::HttpMethod::GET, "album.search", params).map(nullptr, [](Json json) {
 			return LastFMAlbumSearchResults::fromJson(json["results"]);
 		});
 	}
 
-	Promise<LastFMAlbumInfo> LastFM::getAlbumInfo(LastFMAlbumInfoRequest request) {
+	Promise<LastFMAlbumInfo> LastFM::getAlbumInfo(GetAlbumInfoOptions options) {
 		auto params = Map<String,String>{
-			{ "album", request.album }
+			{ "album", options.album }
 		};
-		if(!request.artist.empty()) {
-			params["artist"] = request.artist;
+		if(!options.artist.empty()) {
+			params["artist"] = options.artist;
 		}
-		if(!request.mbid.empty()) {
-			params["mbid"] = request.mbid;
+		if(!options.mbid.empty()) {
+			params["mbid"] = options.mbid;
 		}
-		if(!request.username.empty()) {
-			params["username"] = request.username;
+		if(!options.username.empty()) {
+			params["username"] = options.username;
 		}
-		if(!request.lang.empty()) {
-			params["lang"] = request.lang;
+		if(!options.lang.empty()) {
+			params["lang"] = options.lang;
 		}
-		if(request.autocorrect.hasValue()) {
-			params["autocorrect"] = request.autocorrect.value() ? "1" : "0";
+		if(options.autocorrect.hasValue()) {
+			params["autocorrect"] = options.autocorrect.value() ? "1" : "0";
 		}
-		return sendRequest(utils::HttpMethod::GET, "album.getInfo", params).map([](Json json) {
+		return sendRequest(utils::HttpMethod::GET, "album.getInfo", params).map(nullptr, [](Json json) {
 			return LastFMAlbumInfo::fromJson(json["album"]);
 		});
 	}
@@ -232,12 +262,81 @@ namespace sh {
 
 
     Promise<LastFMUserInfo> LastFM::getUserInfo(String user) {
-        auto params = Map<String,String>();
-        if(!user.empty()) {
-            params["user"] = user;
-        }
+		auto params = Map<String,String>{
+			{ "user", user }
+		};
         return sendRequest(utils::HttpMethod::GET, "user.getInfo", params).map([](Json json) {
             return LastFMUserInfo::fromJson(json["user"]);
         });
     }
+
+	Promise<LastFMUserInfo> LastFM::getCurrentUserInfo() {
+		return sendRequest(utils::HttpMethod::GET, "user.getInfo", {}).map(nullptr, [](Json json) {
+			return LastFMUserInfo::fromJson(json["user"]);
+		});
+	}
+
+	Promise<LastFMUserItemsPage<LastFMUserRecentTrack>> LastFM::getUserRecentTracks(String user, GetRecentTracksOptions options) {
+		auto params = Map<String,String>{
+			{ "user", user }
+		};
+		if(options.from.hasValue()) {
+			params["from"] = std::to_string((long long)options.from->secondsSince1970());
+		}
+		if(options.to.hasValue()) {
+			params["to"] = std::to_string((long long)options.to->secondsSince1970());
+		}
+		if(options.page.hasValue()) {
+			params["page"] = std::to_string(options.page.value());
+		}
+		if(options.limit.hasValue()) {
+			params["limit"] = std::to_string(options.limit.value());
+		}
+		if(options.extended.hasValue()) {
+			params["extended"] = options.extended.value() ? "1" : "0";
+		}
+		return sendRequest(utils::HttpMethod::GET, "user.getRecentTrack", params).map(nullptr, [](Json json) {
+			json = json["recenttracks"];
+			return LastFMUserItemsPage<LastFMUserRecentTrack>{
+				.items = jsutils::singleOrArrayListFromJson(json["track"], [](auto& itemJson) {
+					return LastFMUserRecentTrack::fromJson(itemJson);
+				}),
+				.attrs = LastFMUserItemsPageAttrs::fromJson(json["@attr"])
+			};
+		});
+	}
+
+	Promise<LastFMUserItemsPage<LastFMUserRecentTrack>> LastFM::getCurrentUserRecentTracks(GetRecentTracksOptions options) {
+		auto session = auth->session();
+		if(!session.hasValue()) {
+			return rejectWith(LastFMError(LastFMError::Code::NOT_LOGGED_IN, "User is not logged in"));
+		}
+		auto params = Map<String,String>{
+			{ "user", session->name }
+		};
+		if(options.from.hasValue()) {
+			params["from"] = std::to_string((long long)options.from->secondsSince1970());
+		}
+		if(options.to.hasValue()) {
+			params["to"] = std::to_string((long long)options.to->secondsSince1970());
+		}
+		if(options.page.hasValue()) {
+			params["page"] = std::to_string(options.page.value());
+		}
+		if(options.limit.hasValue()) {
+			params["limit"] = std::to_string(options.limit.value());
+		}
+		if(options.extended.hasValue()) {
+			params["extended"] = options.extended.value() ? "1" : "0";
+		}
+		return sendRequest(utils::HttpMethod::GET, "user.getRecentTrack", params).map(nullptr, [](Json json) {
+			json = json["recenttracks"];
+			return LastFMUserItemsPage<LastFMUserRecentTrack>{
+				.items = jsutils::singleOrArrayListFromJson(json["track"], [](auto& itemJson) {
+					return LastFMUserRecentTrack::fromJson(itemJson);
+				}),
+				.attrs = LastFMUserItemsPageAttrs::fromJson(json["@attr"])
+			};
+		});
+	}
 }

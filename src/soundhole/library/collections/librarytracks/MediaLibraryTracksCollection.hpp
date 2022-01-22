@@ -10,7 +10,6 @@
 
 #include <soundhole/common.hpp>
 #include <soundhole/media/TrackCollection.hpp>
-#include <soundhole/database/MediaDatabase.hpp>
 #include <soundhole/database/SQLOrder.hpp>
 #include <soundhole/database/SQLOrderBy.hpp>
 

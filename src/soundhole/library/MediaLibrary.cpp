@@ -125,7 +125,8 @@ namespace sh {
 				.text = "Checking "+libraryProvider->displayName()+" library sync state"
 			});
 			// begin generator
-			auto syncResumeStr = co_await db->getStateValue("syncResumeData_"+libraryProvider->name(), "");
+			auto syncResumeDBKey = db->stateKey_syncLibraryResumeData(libraryProvider);
+			auto syncResumeStr = co_await db->getStateValue(syncResumeDBKey, "");
 			Json syncResumeData;
 			if(syncResumeStr.length() > 0) {
 				std::string syncResumeError;
@@ -249,7 +250,7 @@ namespace sh {
 					// sync library items to database
 					auto cacheOptions = MediaDatabase::CacheOptions{
 						.dbState = {
-							{ ("syncResumeData_"+libraryProvider->name()), yieldResult.value->resumeData.dump() }
+							{ syncResumeDBKey, yieldResult.value->resumeData.dump() }
 						}
 					};
 					co_await db->cacheLibraryItems(yieldResult.value->items, cacheOptions);
@@ -536,7 +537,9 @@ namespace sh {
 				.minDuration = options.filters.minDuration,
 				.minDurationRatio = options.filters.minDurationRatio,
 				.includeNullDuration = options.filters.includeNullDuration,
-				.visibility = options.filters.visibility
+				.visibility = options.filters.visibility,
+				.scrobbledBy = options.filters.scrobbledBy,
+				.notScrobbledBy = options.filters.notScrobbledBy
 			},
 			.range = sql::IndexRange{
 				.startIndex = options.offset,

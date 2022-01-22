@@ -18,6 +18,9 @@ namespace sh {
 		Scrobbler* scrobbler;
 		$<PlaybackHistoryItem> historyItem;
 		
+		bool equals(const UnmatchedScrobble&) const;
+		bool matchesInexactly($<Scrobble> scrobble) const;
+		
 		static UnmatchedScrobble fromJson(const Json& json, MediaProviderStash* mediaProviderStash, ScrobblerStash* scrobblerStash);
 	};
 }

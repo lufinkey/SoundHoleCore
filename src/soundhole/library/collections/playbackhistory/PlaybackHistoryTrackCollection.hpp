@@ -61,6 +61,8 @@ namespace sh {
 			Optional<double> minDurationRatio;
 			Optional<bool> includeNullDuration;
 			Optional<PlaybackHistoryItem::Visibility> visibility;
+			ArrayList<String> scrobbledBy;
+			ArrayList<String> notScrobbledBy;
 			sql::Order order = sql::Order::DESC;
 			
 			static Filters fromJson(const Json& json, MediaProviderStash* stash);

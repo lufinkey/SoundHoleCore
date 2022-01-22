@@ -34,6 +34,9 @@ namespace sh {
 	}
 
 	std::map<String,LinkedList<Json>> SQLiteTransaction::execute() {
+		if(blocks.size() == 0) {
+			return {};
+		}
 		if(options.useSQLTransaction) {
 			executeSQL("BEGIN TRANSACTION;", {});
 		}

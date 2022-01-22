@@ -202,6 +202,8 @@ namespace sh {
 
 
 
+	#pragma mark Track
+
 	Promise<void> MediaDatabase::cacheTracks(ArrayList<$<Track>> tracks, CacheOptions options) {
 		if(tracks.size() == 0 && options.dbState.size() == 0) {
 			return Promise<void>::resolve();
@@ -257,6 +259,8 @@ namespace sh {
 
 
 
+	#pragma mark TrackCollection
+
 	Promise<void> MediaDatabase::cacheTrackCollections(ArrayList<$<TrackCollection>> collections, CacheOptions options) {
 		if(collections.size() == 0 && options.dbState.size() == 0) {
 			return Promise<void>::resolve();
@@ -310,6 +314,8 @@ namespace sh {
 
 
 
+	#pragma mark TrackCollectionItem
+
 	Promise<void> MediaDatabase::cacheTrackCollectionItems($<TrackCollection> collection, Optional<sql::IndexRange> itemsRange, CacheOptions options) {
 		bool includeTrackAlbums = (std::dynamic_pointer_cast<Album>(collection) == nullptr);
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
@@ -339,6 +345,8 @@ namespace sh {
 	}
 
 
+
+	#pragma mark Artist
 
 	Promise<void> MediaDatabase::cacheArtists(ArrayList<$<Artist>> artists, CacheOptions options) {
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
@@ -380,6 +388,8 @@ namespace sh {
 
 
 
+	#pragma mark LibraryItem
+
 	Promise<void> MediaDatabase::cacheLibraryItems(ArrayList<MediaProvider::LibraryItem> items, CacheOptions options) {
 		if(items.size() == 0 && options.dbState.size() == 0) {
 			return Promise<void>::resolve();
@@ -392,28 +402,8 @@ namespace sh {
 
 
 
-	Promise<void> MediaDatabase::cachePlaybackHistoryItems(ArrayList<$<PlaybackHistoryItem>> historyItems, CacheOptions options) {
-		if(historyItems.size() == 0 && options.dbState.size() == 0) {
-			return Promise<void>::resolve();
-		}
-		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
-			sql::insertOrReplacePlaybackHistoryItems(tx, historyItems);
-			sql::applyDBState(tx, options.dbState);
-		}).toVoid();
-	}
+	#pragma mark SavedTrack
 
-	Promise<void> MediaDatabase::cacheScrobbles(ArrayList<$<Scrobble>> scrobbles, CacheOptions options) {
-		if(scrobbles.size() == 0 && options.dbState.size() == 0) {
-			return Promise<void>::resolve();
-		}
-		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
-			sql::insertOrReplaceScrobbles(tx, scrobbles);
-			sql::applyDBState(tx, options.dbState);
-		}).toVoid();
-	}
-
-
-	
 	Promise<size_t> MediaDatabase::getSavedTracksCount(GetSavedItemsCountOptions options) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
 			sql::selectSavedTrackCount(tx, "count", options.libraryProvider);
@@ -483,7 +473,15 @@ namespace sh {
 		});
 	}
 
+	Promise<void> MediaDatabase::deleteSavedTrack(String uri) {
+		return transaction({}, [=](auto& tx) {
+			sql::deleteSavedTrack(tx, uri);
+		}).toVoid();
+	}
 
+
+
+	#pragma mark SavedAlbum
 
 	Promise<size_t> MediaDatabase::getSavedAlbumsCount(GetSavedItemsCountOptions options) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
@@ -554,7 +552,15 @@ namespace sh {
 		});
 	}
 
+	Promise<void> MediaDatabase::deleteSavedAlbum(String uri) {
+		return transaction({}, [=](auto& tx) {
+			sql::deleteSavedAlbum(tx, uri);
+		}).toVoid();
+	}
 
+
+
+	#pragma mark SavedPlaylist
 
 	Promise<size_t> MediaDatabase::getSavedPlaylistsCount(GetSavedItemsCountOptions options) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
@@ -625,7 +631,15 @@ namespace sh {
 		});
 	}
 
+	Promise<void> MediaDatabase::deleteSavedPlaylist(String uri) {
+		return transaction({}, [=](auto& tx) {
+			sql::deleteSavedPlaylist(tx, uri);
+		}).toVoid();
+	}
 
+
+
+	#pragma mark FollowedArtist
 
 	Promise<size_t> MediaDatabase::getFollowedArtistsCount(GetSavedItemsCountOptions options) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
@@ -696,7 +710,15 @@ namespace sh {
 		});
 	}
 
+	Promise<void> MediaDatabase::deleteFollowedArtist(String uri) {
+		return transaction({}, [=](auto& tx) {
+			sql::deleteFollowedArtist(tx, uri);
+		}).toVoid();
+	}
 
+
+
+	#pragma mark FollowedUserAccount
 
 	Promise<size_t> MediaDatabase::getFollowedUserAccountsCount(GetSavedItemsCountOptions options) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
@@ -767,7 +789,25 @@ namespace sh {
 		});
 	}
 
+	Promise<void> MediaDatabase::deleteFollowedUserAccount(String uri) {
+		return transaction({}, [=](auto& tx) {
+			sql::deleteFollowedUserAccount(tx, uri);
+		}).toVoid();
+	}
 
+
+
+	#pragma mark PlaybackHistoryItem
+
+	Promise<void> MediaDatabase::cachePlaybackHistoryItems(ArrayList<$<PlaybackHistoryItem>> historyItems, CacheOptions options) {
+		if(historyItems.size() == 0 && options.dbState.size() == 0) {
+			return Promise<void>::resolve();
+		}
+		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
+			sql::insertOrReplacePlaybackHistoryItems(tx, historyItems);
+			sql::applyDBState(tx, options.dbState);
+		}).toVoid();
+	}
 
 	Promise<size_t> MediaDatabase::getPlaybackHistoryItemCount(PlaybackHistoryItemFilters filters) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
@@ -780,7 +820,10 @@ namespace sh {
 				.maxDateInclusive = filters.maxDateInclusive,
 				.minDuration = filters.minDuration,
 				.minDurationRatio = filters.minDurationRatio,
-				.includeNullDuration = filters.includeNullDuration
+				.includeNullDuration = filters.includeNullDuration,
+				.visibility = filters.visibility,
+				.scrobbledBy = filters.scrobbledBy,
+				.notScrobbledBy = filters.notScrobbledBy
 			});
 		}).map(nullptr, [=](auto results) {
 			auto items = results["count"];
@@ -804,7 +847,9 @@ namespace sh {
 				.minDuration = filters.minDuration,
 				.minDurationRatio = filters.minDurationRatio,
 				.includeNullDuration = filters.includeNullDuration,
-				.visibility = filters.visibility
+				.visibility = filters.visibility,
+				.scrobbledBy = filters.scrobbledBy,
+				.notScrobbledBy = filters.notScrobbledBy
 			};
 			sql::selectPlaybackHistoryItemCount(tx, "count", sqlFilters);
 			sql::selectPlaybackHistoryItemsWithTracks(tx, "items", sqlFilters, {
@@ -825,7 +870,27 @@ namespace sh {
 		});
 	}
 
+	Promise<void> MediaDatabase::deletePlaybackHistoryItem(Date startTime, String trackURI) {
+		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
+			sql::deleteUnmatchedScrobbles(tx, startTime, trackURI);
+			sql::deleteHistoryItemScrobbles(tx, startTime, trackURI);
+			sql::deletePlaybackHistoryItem(tx, startTime, trackURI);
+		}).toVoid();
+	}
 
+
+
+	#pragma mark Scrobble
+
+	Promise<void> MediaDatabase::cacheScrobbles(ArrayList<$<Scrobble>> scrobbles, CacheOptions options) {
+		if(scrobbles.size() == 0 && options.dbState.size() == 0) {
+			return Promise<void>::resolve();
+		}
+		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
+			sql::insertOrReplaceScrobbles(tx, scrobbles);
+			sql::applyDBState(tx, options.dbState);
+		}).toVoid();
+	}
 
 	Promise<size_t> MediaDatabase::getScrobbleCount(ScrobbleFilters filters) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
@@ -890,10 +955,56 @@ namespace sh {
 		});
 	}
 
+	Promise<ArrayList<bool>> MediaDatabase::hasMatchingScrobbles(ArrayList<$<Scrobble>> scrobbles) {
+		size_t scrobbleCount = scrobbles.size();
+		if(scrobbleCount == 0) {
+			return resolveWith(ArrayList<bool>());
+		}
+		return transaction({}, [=](auto& tx) {
+			for(auto [i, scrobble] : enumerate(scrobbles)) {
+				sql::selectMatchingScrobbleLocalID(tx, std::to_string(i), scrobble);
+			}
+		}).map(nullptr, [=](auto results) {
+			ArrayList<bool> boolResults;
+			boolResults.reserve(scrobbleCount);
+			for(size_t i=0; i<scrobbleCount; i++) {
+				auto& rows = results[std::to_string(i)];
+				boolResults.pushBack(rows.size() > 0);
+			}
+			return boolResults;
+		});
+	}
 
-	Promise<size_t> MediaDatabase::getUnmatchedScrobbleCount() {
+	Promise<void> MediaDatabase::deleteScrobble(String localID) {
+		return transaction({}, [=](auto& tx) {
+			sql::deleteScrobble(tx, localID);
+		}).toVoid();
+	}
+
+
+
+	#pragma mark UnmatchedScrobble
+
+	Promise<void> MediaDatabase::cacheUnmatchedScrobbles(ArrayList<UnmatchedScrobble> scrobbles, CacheOptions options) {
+		if(scrobbles.size() == 0 && options.dbState.size() == 0) {
+			return Promise<void>::resolve();
+		}
+		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
+			sql::insertOrReplaceUnmatchedScrobbles(tx, scrobbles);
+			sql::applyDBState(tx, options.dbState);
+		}).toVoid();
+	}
+
+	Promise<size_t> MediaDatabase::getUnmatchedScrobbleCount(UnmatchedScrobbleFilters filters) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
-			sql::selectUnmatchedScrobbleCount(tx, "count");
+			sql::selectUnmatchedScrobbleCount(tx, "count", {
+				.scrobbler = filters.scrobbler,
+				.startTimes = filters.startTimes,
+				.minStartTime = filters.minStartTime,
+				.minStartTimeInclusive = filters.minStartTimeInclusive,
+				.maxStartTime = filters.maxStartTime,
+				.maxStartTimeInclusive = filters.maxStartTimeInclusive
+			});
 		}).map(nullptr, [=](auto results) {
 			auto items = results["count"];
 			if(items.size() == 0) {
@@ -905,8 +1016,17 @@ namespace sh {
 
 	Promise<MediaDatabase::GetJsonItemsListResult> MediaDatabase::getUnmatchedScrobblesJson(GetUnmatchedScrobblesOptions options) {
 		return transaction({.useSQLTransaction=false}, [=](auto& tx) {
-			sql::selectUnmatchedScrobbleCount(tx, "count");
-			sql::selectUnmatchedScrobbles(tx, "items", {
+			auto& filters = options.filters;
+			auto sqlSelectFilters = sql::UnmatchedScrobbleSelectFilters{
+				.scrobbler = filters.scrobbler,
+				.startTimes = filters.startTimes,
+				.minStartTime = filters.minStartTime,
+				.minStartTimeInclusive = filters.minStartTimeInclusive,
+				.maxStartTime = filters.maxStartTime,
+				.maxStartTimeInclusive = filters.maxStartTimeInclusive
+			};
+			sql::selectUnmatchedScrobbleCount(tx, "count", sqlSelectFilters);
+			sql::selectUnmatchedScrobbles(tx, "items", sqlSelectFilters, {
 				.range = options.range,
 				.order = options.order
 			});
@@ -937,7 +1057,100 @@ namespace sh {
 		});
 	}
 
+	Promise<void> MediaDatabase::replaceUnmatchedScrobbles(ArrayList<Tuple<UnmatchedScrobble, $<Scrobble>>> scrobbleTuples, CacheOptions options) {
+		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
+			// delete all unmatched scrobbles
+			for(auto& scrobbleTuple : scrobbleTuples) {
+				auto& unmatchedScrobble = std::get<UnmatchedScrobble>(scrobbleTuple);
+				sql::deleteUnmatchedScrobble(tx,
+					unmatchedScrobble.scrobbler->name(),
+					unmatchedScrobble.historyItem->startTime(),
+					unmatchedScrobble.historyItem->track()->uri());
+			}
+			// insert new scrobbles
+			sql::insertOrReplaceScrobbles(tx, scrobbleTuples.map([](auto& tuple) {
+				return std::get<$<Scrobble>>(tuple);
+			}));
+			// apply DB state
+			sql::applyDBState(tx, options.dbState);
+		}).toVoid();
+	}
 
+	Promise<void> MediaDatabase::deleteUnmatchedScrobbles(ArrayList<UnmatchedScrobble> scrobbles, CacheOptions options) {
+		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
+			for(auto& scrobble : scrobbles) {
+				sql::deleteUnmatchedScrobble(tx,
+					scrobble.scrobbler->name(),
+					scrobble.historyItem->startTime(),
+					scrobble.historyItem->track()->uri());
+			}
+			sql::applyDBState(tx, options.dbState);
+		}).toVoid();
+	}
+
+
+
+	#pragma mark AlbumItem
+
+	Promise<void> MediaDatabase::loadAlbumItems($<Album> album, Album::MutatorDelegate::Mutator* mutator, size_t index, size_t count) {
+		return getTrackCollectionItemsJson(album->uri(), {
+			.startIndex=index,
+			.endIndex=(index+count)
+		}).then([=](std::map<size_t,Json> items) {
+			mutator->lock([&]() {
+				LinkedList<$<AlbumItem>> albumItems;
+				size_t albumItemsStartIndex = index;
+				size_t nextIndex = index;
+				for(auto& pair : items) {
+					if(pair.first != nextIndex && albumItems.size() > 0) {
+						mutator->apply(albumItemsStartIndex, albumItems);
+						albumItems.clear();
+					}
+					if(albumItems.size() == 0) {
+						albumItemsStartIndex = pair.first;
+					}
+					albumItems.pushBack(std::static_pointer_cast<AlbumItem>(album->createCollectionItem(pair.second, options.mediaProviderStash)));
+					nextIndex = pair.first + 1;
+				}
+				if(albumItems.size() > 0) {
+					mutator->apply(albumItemsStartIndex, albumItems);
+				}
+			});
+		});
+	}
+
+	#pragma mark PlaylistItem
+
+	Promise<void> MediaDatabase::loadPlaylistItems($<Playlist> playlist, Playlist::MutatorDelegate::Mutator* mutator, size_t index, size_t count) {
+		return getTrackCollectionItemsJson(playlist->uri(), {
+			.startIndex=index,
+			.endIndex=(index+count)
+		}).then([=](std::map<size_t,Json> items) {
+			mutator->lock([&]() {
+				LinkedList<$<PlaylistItem>> playlistItems;
+				size_t playlistItemsStartIndex = index;
+				size_t nextIndex = index;
+				for(auto& pair : items) {
+					if(pair.first != nextIndex && playlistItems.size() > 0) {
+						mutator->apply(playlistItemsStartIndex, playlistItems);
+						playlistItems.clear();
+					}
+					if(playlistItems.size() == 0) {
+						playlistItemsStartIndex = pair.first;
+					}
+					playlistItems.pushBack(std::static_pointer_cast<PlaylistItem>(playlist->createCollectionItem(pair.second, options.mediaProviderStash)));
+					nextIndex = pair.first + 1;
+				}
+				if(playlistItems.size() > 0) {
+					mutator->apply(playlistItemsStartIndex, playlistItems);
+				}
+			});
+		});
+	}
+
+
+
+	#pragma mark DBState
 
 	Promise<void> MediaDatabase::setState(std::map<String,String> state) {
 		return transaction({.useSQLTransaction=true}, [=](auto& tx) {
@@ -977,103 +1190,11 @@ namespace sh {
 	}
 
 
-
-	Promise<void> MediaDatabase::loadAlbumItems($<Album> album, Album::MutatorDelegate::Mutator* mutator, size_t index, size_t count) {
-		return getTrackCollectionItemsJson(album->uri(), {
-			.startIndex=index,
-			.endIndex=(index+count)
-		}).then([=](std::map<size_t,Json> items) {
-			mutator->lock([&]() {
-				LinkedList<$<AlbumItem>> albumItems;
-				size_t albumItemsStartIndex = index;
-				size_t nextIndex = index;
-				for(auto& pair : items) {
-					if(pair.first != nextIndex && albumItems.size() > 0) {
-						mutator->apply(albumItemsStartIndex, albumItems);
-						albumItems.clear();
-					}
-					if(albumItems.size() == 0) {
-						albumItemsStartIndex = pair.first;
-					}
-					albumItems.pushBack(std::static_pointer_cast<AlbumItem>(album->createCollectionItem(pair.second, options.mediaProviderStash)));
-					nextIndex = pair.first + 1;
-				}
-				if(albumItems.size() > 0) {
-					mutator->apply(albumItemsStartIndex, albumItems);
-				}
-			});
-		});
+	String MediaDatabase::stateKey_syncLibraryResumeData(const MediaProvider* provider) const {
+		return "syncLibraryResumeData_"+provider->name();
 	}
 
-	Promise<void> MediaDatabase::loadPlaylistItems($<Playlist> playlist, Playlist::MutatorDelegate::Mutator* mutator, size_t index, size_t count) {
-		return getTrackCollectionItemsJson(playlist->uri(), {
-			.startIndex=index,
-			.endIndex=(index+count)
-		}).then([=](std::map<size_t,Json> items) {
-			mutator->lock([&]() {
-				LinkedList<$<PlaylistItem>> playlistItems;
-				size_t playlistItemsStartIndex = index;
-				size_t nextIndex = index;
-				for(auto& pair : items) {
-					if(pair.first != nextIndex && playlistItems.size() > 0) {
-						mutator->apply(playlistItemsStartIndex, playlistItems);
-						playlistItems.clear();
-					}
-					if(playlistItems.size() == 0) {
-						playlistItemsStartIndex = pair.first;
-					}
-					playlistItems.pushBack(std::static_pointer_cast<PlaylistItem>(playlist->createCollectionItem(pair.second, options.mediaProviderStash)));
-					nextIndex = pair.first + 1;
-				}
-				if(playlistItems.size() > 0) {
-					mutator->apply(playlistItemsStartIndex, playlistItems);
-				}
-			});
-		});
-	}
-
-
-
-
-	Promise<void> MediaDatabase::deleteSavedTrack(String uri) {
-		return transaction({}, [=](auto& tx) {
-			sql::deleteSavedTrack(tx, uri);
-		}).toVoid();
-	}
-
-	Promise<void> MediaDatabase::deleteSavedAlbum(String uri) {
-		return transaction({}, [=](auto& tx) {
-			sql::deleteSavedAlbum(tx, uri);
-		}).toVoid();
-	}
-
-	Promise<void> MediaDatabase::deleteSavedPlaylist(String uri) {
-		return transaction({}, [=](auto& tx) {
-			sql::deleteSavedPlaylist(tx, uri);
-		}).toVoid();
-	}
-
-	Promise<void> MediaDatabase::deleteFollowedArtist(String uri) {
-		return transaction({}, [=](auto& tx) {
-			sql::deleteFollowedArtist(tx, uri);
-		}).toVoid();
-	}
-
-	Promise<void> MediaDatabase::deleteFollowedUserAccount(String uri) {
-		return transaction({}, [=](auto& tx) {
-			sql::deleteFollowedUserAccount(tx, uri);
-		}).toVoid();
-	}
-
-	Promise<void> MediaDatabase::deletePlaybackHistoryItem(Date startTime, String trackURI) {
-		return transaction({}, [=](auto& tx) {
-			sql::deletePlaybackHistoryItem(tx, startTime, trackURI);
-		}).toVoid();
-	}
-
-	Promise<void> MediaDatabase::deleteScrobble(String localID) {
-		return transaction({}, [=](auto& tx) {
-			sql::deleteScrobble(tx, localID);
-		}).toVoid();
+	String MediaDatabase::stateKey_scrobblerMatchHistoryDate(const Scrobbler* scrobbler) const {
+		return "scrobblerMatchHistoryDate_"+scrobbler->name();
 	}
 }

@@ -40,23 +40,79 @@ namespace sh {
 		
 		Promise<LastFMScrobbleResponse> scrobble(LastFMScrobbleRequest request);
 		
-		Promise<LastFMArtistSearchResults> searchArtist(LastFMArtistSearchRequest request);
-		Promise<LastFMArtistInfo> getArtistInfo(LastFMArtistInfoRequest request);
-		Promise<LastFMArtistTopItemsPage<LastFMTrackInfo>> getArtistTopTracks(LastFMArtistTopItemsRequest request);
-		Promise<LastFMArtistTopItemsPage<LastFMArtistTopAlbum>> getArtistTopAlbums(LastFMArtistTopItemsRequest request);
+		struct SearchArtistOptions {
+			String artist;
+			Optional<size_t> page;
+			Optional<size_t> limit;
+		};
+		Promise<LastFMArtistSearchResults> searchArtist(SearchArtistOptions options);
+		struct GetArtistInfoOptions {
+			String artist;
+			String mbid;
+			String username;
+			String lang;
+			Optional<bool> autocorrect;
+		};
+		Promise<LastFMArtistInfo> getArtistInfo(GetArtistInfoOptions options);
+		struct GetArtistTopItemsOptions {
+			String artist;
+			String mbid;
+			Optional<bool> autocorrect;
+			Optional<size_t> page;
+			Optional<size_t> limit;
+		};
+		Promise<LastFMArtistItemsPage<LastFMTrackInfo>> getArtistTopTracks(GetArtistTopItemsOptions options);
+		Promise<LastFMArtistItemsPage<LastFMArtistTopAlbum>> getArtistTopAlbums(GetArtistTopItemsOptions options);
 		
 		
-		Promise<LastFMTrackSearchResults> searchTrack(LastFMTrackSearchRequest request);
-		Promise<LastFMTrackInfo> getTrackInfo(LastFMTrackInfoRequest request);
+		struct SearchTrackOptions {
+			String track;
+			String artist;
+			Optional<size_t> page;
+			Optional<size_t> limit;
+		};
+		Promise<LastFMTrackSearchResults> searchTrack(SearchTrackOptions options);
+		struct GetTrackInfoOptions {
+			String track;
+			String artist;
+			String mbid;
+			String username;
+			Optional<bool> autocorrect;
+		};
+		Promise<LastFMTrackInfo> getTrackInfo(GetTrackInfoOptions options);
 		Promise<void> loveTrack(String track, String artist);
 		Promise<void> unloveTrack(String track, String artist);
 		
 		
-		Promise<LastFMAlbumSearchResults> searchAlbum(LastFMAlbumSearchRequest request);
-		Promise<LastFMAlbumInfo> getAlbumInfo(LastFMAlbumInfoRequest request);
+		struct SearchAlbumOptions {
+			String album;
+			String artist;
+			Optional<size_t> page;
+			Optional<size_t> limit;
+		};
+		Promise<LastFMAlbumSearchResults> searchAlbum(SearchAlbumOptions options);
+		struct GetAlbumInfoOptions {
+			String album;
+			String artist;
+			String mbid;
+			String username;
+			String lang;
+			Optional<bool> autocorrect;
+		};
+		Promise<LastFMAlbumInfo> getAlbumInfo(GetAlbumInfoOptions options);
 		
         
-        Promise<LastFMUserInfo> getUserInfo(String user = String());
+		Promise<LastFMUserInfo> getUserInfo(String user);
+        Promise<LastFMUserInfo> getCurrentUserInfo();
+		struct GetRecentTracksOptions {
+			Optional<Date> from;
+			Optional<Date> to;
+			Optional<size_t> page;
+			Optional<size_t> limit;
+			Optional<bool> extended;
+		};
+		Promise<LastFMUserItemsPage<LastFMUserRecentTrack>> getUserRecentTracks(String user, GetRecentTracksOptions options);
+		Promise<LastFMUserItemsPage<LastFMUserRecentTrack>> getCurrentUserRecentTracks(GetRecentTracksOptions options);
 		
 	private:
 		LastFMAuth* auth;

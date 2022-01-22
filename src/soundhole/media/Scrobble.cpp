@@ -7,6 +7,7 @@
 //
 
 #include "Scrobble.hpp"
+#include "UnmatchedScrobble.hpp"
 #include <soundhole/media/Scrobbler.hpp>
 #include <soundhole/media/ScrobblerStash.hpp>
 
@@ -232,7 +233,25 @@ namespace sh {
 		} else {
 			_uploaded = true;
 		}
+		if(response.track.corrected && !String::isNullOrEmpty(response.track.text)) {
+			_trackName = response.track.text.value();
+		}
+		if(response.artist.corrected && !String::isNullOrEmpty(response.artist.text)) {
+			_artistName = response.track.text.value();
+		}
+		if(response.album.corrected && !String::isNullOrEmpty(response.album.text)) {
+			_albumName = response.album.text.value();
+		}
+		if(response.albumArtist.corrected && !String::isNullOrEmpty(response.albumArtist.text)) {
+			_albumArtistName = response.albumArtist.text.value();
+		}
+		_startTime = response.timestamp;
 		_ignoredReason = response.ignored;
+	}
+
+	void Scrobble::matchWith(const UnmatchedScrobble& scrobble) {
+		_trackURI = scrobble.historyItem->track()->uri();
+		_historyItemStartTime = scrobble.historyItem->startTime();
 	}
 
 	Scrobble::Data Scrobble::toData() const {

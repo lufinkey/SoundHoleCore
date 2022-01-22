@@ -15,7 +15,8 @@ namespace sh {
 	public:
 		enum class Code {
 			REQUEST_FAILED,
-			BAD_DATA
+			BAD_DATA,
+			NOT_LOGGED_IN
 		};
 		static String Code_toString(Code code);
 		

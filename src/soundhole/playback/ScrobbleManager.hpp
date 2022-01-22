@@ -33,9 +33,12 @@ namespace sh {
 		
 		ArrayList<$<Scrobble>> getUploadingScrobbles();
 		ArrayList<$<const Scrobble>> getUploadingScrobbles() const;
-		
 		bool isUploadingScrobbles() const;
-		Promise<ScrobbleBatchResult> uploadPendingScrobbles();
+		Promise<ScrobbleBatchResult> uploadScrobbles();
+		
+		ArrayList<UnmatchedScrobble> getMatchingScrobbles() const;
+		bool isMatchingScrobbles() const;
+		Promise<ScrobbleBatchResult> matchScrobbles();
 		
 	protected:
 		virtual void onPlayerStateChange($<Player> player, const Player::Event& event) override;
@@ -75,5 +78,12 @@ namespace sh {
 			Promise<ScrobbleBatchResult> promise;
 		};
 		Optional<UploadBatch> uploadBatch;
+		
+		struct MatchBatch {
+			String scrobbler;
+			ArrayList<UnmatchedScrobble> scrobbles;
+			Promise<ScrobbleBatchResult> promise;
+		};
+		Optional<MatchBatch> matchBatch;
 	};
 }
