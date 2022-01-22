@@ -242,7 +242,7 @@ CREATE TABLE IF NOT EXISTS Scrobble (
 CREATE TABLE IF NOT EXISTS UnmatchedScrobble (
 	scrobbler TEXT NOT NULL,
 	startTime TIMESTAMP NOT NULL,
-	trackURI TEXT NOT NULL
+	trackURI TEXT NOT NULL,
 	lastRowUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY(scrobbler, startTime, trackURI),
 	FOREIGN KEY(startTime, trackURI) REFERENCES PlaybackHistoryItem(startTime, trackURI)

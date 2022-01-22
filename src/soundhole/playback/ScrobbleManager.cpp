@@ -39,6 +39,8 @@ namespace sh {
 		}
 	}
 
+	// TODO add function to load any unmatched/unuploaded scrobbles from DB
+
 	bool ScrobbleManager::ScrobblerData::currentlyAbleToUpload() const {
 		return !dailyScrobbleLimitExceeded();
 	}
