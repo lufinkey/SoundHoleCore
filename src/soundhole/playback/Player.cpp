@@ -830,7 +830,7 @@ namespace sh {
 	void Player::onPlaybackOrganizerStateChange($<PlaybackOrganizer> organizer) {
 		// update playingItem
 		auto organizerItem = organizer->getCurrentItem();
-		if(organizerItem && playingItem) {
+		if(organizerItem.hasValue() && playingItem.hasValue()) {
 			auto organizerCollectionItem = organizerItem->asCollectionItem();
 			auto playingCollectionItem = playingItem->asCollectionItem();
 			
