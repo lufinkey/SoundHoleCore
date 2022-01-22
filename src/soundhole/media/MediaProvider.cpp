@@ -168,14 +168,6 @@ namespace sh {
 		return UserAccount::new$(this, data);
 	}
 
-	$<OmniTrack> MediaProvider::omniTrack(const OmniTrack::Data& data) {
-		return OmniTrack::new$(this, data);
-	}
-
-	$<OmniArtist> MediaProvider::omniArtist(const OmniArtist::Data& data) {
-		return OmniArtist::new$(this, data);
-	}
-
 
 
 	bool MediaProvider::handlesUsersAsArtists() const {

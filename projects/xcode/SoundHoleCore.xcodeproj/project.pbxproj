@@ -12,6 +12,9 @@
 		A0018CBA278B76210092F1A0 /* Scrobbler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A0018CB8278B76210092F1A0 /* Scrobbler.hpp */; };
 		A0018CBB278B76210092F1A0 /* Scrobbler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A0018CB9278B76210092F1A0 /* Scrobbler.cpp */; };
 		A0018CBC278B76210092F1A0 /* Scrobbler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A0018CB9278B76210092F1A0 /* Scrobbler.cpp */; };
+		A09252AB279BA68300783EDA /* MediaMatcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A09252A9279BA68300783EDA /* MediaMatcher.cpp */; };
+		A09252AC279BA68300783EDA /* MediaMatcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A09252A9279BA68300783EDA /* MediaMatcher.cpp */; };
+		A09252AD279BA68300783EDA /* MediaMatcher.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A09252AA279BA68300783EDA /* MediaMatcher.hpp */; };
 		A0C8D7CB278B7E08007485E4 /* LastFMMediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A0C8D7C9278B7E08007485E4 /* LastFMMediaProvider.cpp */; };
 		A0C8D7CC278B7E08007485E4 /* LastFMMediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A0C8D7C9278B7E08007485E4 /* LastFMMediaProvider.cpp */; };
 		A0C8D7CD278B7E08007485E4 /* LastFMMediaProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A0C8D7CA278B7E08007485E4 /* LastFMMediaProvider.hpp */; };
@@ -373,6 +376,8 @@
 		9EB0D982F4B0A13669D4FD62 /* Pods-SoundHoleCore-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCore-macOS.release.xcconfig"; path = "Target Support Files/Pods-SoundHoleCore-macOS/Pods-SoundHoleCore-macOS.release.xcconfig"; sourceTree = "<group>"; };
 		A0018CB8278B76210092F1A0 /* Scrobbler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Scrobbler.hpp; sourceTree = "<group>"; };
 		A0018CB9278B76210092F1A0 /* Scrobbler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Scrobbler.cpp; sourceTree = "<group>"; };
+		A09252A9279BA68300783EDA /* MediaMatcher.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MediaMatcher.cpp; sourceTree = "<group>"; };
+		A09252AA279BA68300783EDA /* MediaMatcher.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaMatcher.hpp; sourceTree = "<group>"; };
 		A0C8D7C9278B7E08007485E4 /* LastFMMediaProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LastFMMediaProvider.cpp; sourceTree = "<group>"; };
 		A0C8D7CA278B7E08007485E4 /* LastFMMediaProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = LastFMMediaProvider.hpp; sourceTree = "<group>"; };
 		A0C8D7CE278FD45C007485E4 /* Scrobble.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Scrobble.cpp; sourceTree = "<group>"; };
@@ -910,6 +915,8 @@
 				A0C8D7CE278FD45C007485E4 /* Scrobble.cpp */,
 				A0C8D7DE27949F0B007485E4 /* UnmatchedScrobble.hpp */,
 				A0C8D7DD27949F0B007485E4 /* UnmatchedScrobble.cpp */,
+				A09252AA279BA68300783EDA /* MediaMatcher.hpp */,
+				A09252A9279BA68300783EDA /* MediaMatcher.cpp */,
 			);
 			path = media;
 			sourceTree = "<group>";
@@ -1406,6 +1413,7 @@
 				A5AE3F06247B890000FB9AFF /* MediaDatabase.hpp in Headers */,
 				A0D4037A279633BB0010C8AE /* ItemsPage.hpp in Headers */,
 				A5E7852A23CE742C00BD1C67 /* StreamPlaybackProvider.hpp in Headers */,
+				A09252AD279BA68300783EDA /* MediaMatcher.hpp in Headers */,
 				A5E851AC2357BECD0001F74D /* BandcampError.hpp in Headers */,
 				A5B9735D2381FBA700FB3F1C /* Artist.hpp in Headers */,
 				A5485A2A23942EB800CB7749 /* MediaPlaybackProvider.hpp in Headers */,
@@ -1816,6 +1824,7 @@
 				A5AE3F42248728F600FB9AFF /* MediaLibrary.cpp in Sources */,
 				A5BA49C326D2F9A400139269 /* PlaybackHistoryItem.cpp in Sources */,
 				A0C8D7CB278B7E08007485E4 /* LastFMMediaProvider.cpp in Sources */,
+				A09252AB279BA68300783EDA /* MediaMatcher.cpp in Sources */,
 				A52C4712250EE85800131918 /* OAuthSession.cpp in Sources */,
 				A5B7A78E2335C91800301FC0 /* SoundHoleError.cpp in Sources */,
 				A5C6CDED259860BC00596878 /* SoundHoleMediaProvider.cpp in Sources */,
@@ -1943,6 +1952,7 @@
 				A57378A323D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp in Sources */,
 				A5BA49E226E4543000139269 /* PlaybackHistoryTrackCollection.cpp in Sources */,
 				A0018CBC278B76210092F1A0 /* Scrobbler.cpp in Sources */,
+				A09252AC279BA68300783EDA /* MediaMatcher.cpp in Sources */,
 				A578785123DD4E4200B6B0A5 /* ShuffledTrackCollection.cpp in Sources */,
 				A58189A426961A5A007BFD82 /* MediaDatabaseSQLTransformations.cpp in Sources */,
 				A5F9F640244AB6CE00E80C7A /* Player_objc.mm in Sources */,

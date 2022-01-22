@@ -8,6 +8,7 @@
 
 #include "MediaProviderStash.hpp"
 #include "MediaProvider.hpp"
+#include "MediaMatcher.hpp"
 
 namespace sh {
 	$<MediaItem> MediaProviderStash::parseMediaItem(const Json& json) {
@@ -37,9 +38,17 @@ namespace sh {
 		} else if(type == "user") {
 			return provider->userAccount(UserAccount::Data::fromJson(json,this));
 		} else if(type == "omni-track") {
-			return provider->omniTrack(OmniTrack::Data::fromJson(json,this));
+			auto matcher = dynamic_cast<MediaMatcher*>(provider);
+			if(matcher == nullptr) {
+				throw std::invalid_argument("Provider \""+provider->name()+"\" is not a MediaMatcher");
+			}
+			return matcher->omniTrack(OmniTrack::Data::fromJson(json,this));
 		} else if(type == "omni-artist") {
-			return provider->omniArtist(OmniArtist::Data::fromJson(json,this));
+			auto matcher = dynamic_cast<MediaMatcher*>(provider);
+			if(matcher == nullptr) {
+				throw std::invalid_argument("Provider \""+provider->name()+"\" is not a MediaMatcher");
+			}
+			return matcher->omniArtist(OmniArtist::Data::fromJson(json,this));
 		}
 		throw std::invalid_argument("invalid media item type "+type);
 	}

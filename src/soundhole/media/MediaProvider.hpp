@@ -18,8 +18,6 @@
 #include "Album.hpp"
 #include "Playlist.hpp"
 #include "UserAccount.hpp"
-#include "OmniTrack.hpp"
-#include "OmniArtist.hpp"
 
 namespace sh {
 	class MediaProviderStash;
@@ -140,7 +138,5 @@ namespace sh {
 		virtual $<Album> album(const Album::Data& data);
 		virtual $<Playlist> playlist(const Playlist::Data& data);
 		virtual $<UserAccount> userAccount(const UserAccount::Data& data);
-		virtual $<OmniTrack> omniTrack(const OmniTrack::Data& data);
-		virtual $<OmniArtist> omniArtist(const OmniArtist::Data& data);
 	};
 }
