@@ -41,7 +41,7 @@ CHECKOUT OPTIONS:
     :commit: d5ebaa8602e70a2fb75651a987821bbfcab4525e
     :git: "git@github.com:lufinkey/async-cpp.git"
   DataCpp:
-    :commit: 1dda64e99e06fed275d9d524b866fe00d02f0bfc
+    :commit: aeda8d7881a49ef0f080a887893d6adccd7d36bd
     :git: "git@github.com:lufinkey/data-cpp.git"
   IOCpp:
     :commit: f877ecf9dd58e69920885cdcac47e5a904fcc8b6

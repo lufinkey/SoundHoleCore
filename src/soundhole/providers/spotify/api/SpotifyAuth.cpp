@@ -38,7 +38,7 @@ namespace sh {
 		if(!xssState.empty()) {
 			params.insert_or_assign("state", xssState);
 		}
-		return "https://accounts.spotify.com/authorize?" + utils::makeQueryString(params);
+		return "https://accounts.spotify.com/authorize?" + URL::makeQueryString(params);
 	}
 	
 	

@@ -21,10 +21,10 @@ Pod::Spec.new do |s|
 
 	s.static_framework = true
 
-	s.source_files = 'src/soundhole/**/*.{c,cc,cpp,m,mm,h,hpp}', 'external/cxxurl/url.cpp', 'external/json11/json11.cpp'
+	s.source_files = 'src/soundhole/**/*.{c,cc,cpp,m,mm,h,hpp}', 'external/json11/json11.cpp'
 	s.ios.frameworks = 'SpotifyAudioPlayback', 'MediaPlayer', 'WebKit'
 
-	s.public_header_files = 'src/soundhole/**/*.{h,hpp}', 'external/cxxurl/*.{h,hpp}', 'external/json11/*.{h,hpp}', 'external/stduuid/include/*.{h,hpp}'
+	s.public_header_files = 'src/soundhole/**/*.{h,hpp}', 'external/json11/*.{h,hpp}', 'external/stduuid/include/*.{h,hpp}'
 	s.preserve_paths = 'external/**/*', 'src/soundhole/scripts/**/*', 'tools/**/*'
 	s.header_mappings_dir = 'src/soundhole'
 	s.pod_target_xcconfig = {
@@ -77,5 +77,5 @@ Pod::Spec.new do |s|
 	s.dependency 'NodeJSEmbed' # git@github.com:lufinkey/nodejs-embed.git
 	s.dependency 'sqlite3'
 	
-	s.prepare_command = "./tools/fetch_shared_dependencies.sh json11 cxxurl && ./tools/fetch_header_dependencies.sh && ./src/soundhole/scripts/build.sh && rm -rf src/soundhole/scripts/js/node_modules"
+	s.prepare_command = "./tools/fetch_shared_dependencies.sh json11 && ./tools/fetch_header_dependencies.sh && ./src/soundhole/scripts/build.sh && rm -rf src/soundhole/scripts/js/node_modules"
 end

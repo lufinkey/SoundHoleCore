@@ -34,7 +34,7 @@ namespace sh {
 			query.insert_or_assign("code_challenge", codeChallenge);
 			query.insert_or_assign("code_challenge_method", "plain");
 		}
-		return "https://accounts.google.com/o/oauth2/v2/auth?" + utils::makeQueryString(query);
+		return "https://accounts.google.com/o/oauth2/v2/auth?" + URL::makeQueryString(query);
 	}
 	
 	

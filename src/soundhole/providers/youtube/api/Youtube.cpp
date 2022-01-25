@@ -128,7 +128,7 @@ namespace sh {
 			headers.set("Authorization", session->getTokenType()+" "+session->getAccessToken());
 		}
 		auto request = utils::HttpRequest{
-			.url = Url(YOUTUBE_API_URL+'/'+endpoint+'?'+utils::makeQueryString(query)),
+			.url = URL(YOUTUBE_API_URL+'/'+endpoint+'?'+URL::makeQueryString(query)),
 			.method = method,
 			.headers = headers,
 			.data = bodyData

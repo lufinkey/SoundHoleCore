@@ -9,17 +9,16 @@
 #include "LastFMAuth.hpp"
 #include "LastFMAPIRequest.hpp"
 #include <soundhole/utils/SecureStore.hpp>
-#include <cxxurl/url.hpp>
 
 namespace sh {
 	String LastFMAuth::APIConfig::webLoginBaseURL() const {
-		auto url = Url(webLogin);
-		url.path("/");
-		return url.str();
+		auto urlParts = URL::Components(webLogin);
+		urlParts.path = "/";
+		return URL(urlParts).toString();
 	}
 
 	String LastFMAuth::APIConfig::webLoginHost() const {
-		return Url(webLogin).host();
+		return URL(webLogin).host().valueOr(String());
 	}
 
 	String LastFMAuth::APIConfig::webLoginBaseHost() const {

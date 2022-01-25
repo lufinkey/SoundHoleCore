@@ -62,7 +62,7 @@ namespace sh {
 	}
 
 	YoutubeMediaProvider::URI YoutubeMediaProvider::parseURL(String url) const {
-		auto urlObj = Url(url);
+		auto urlObj = URL(url);
 		if(urlObj.host() != "www.youtube.com" && urlObj.host() != "youtube.com" && urlObj.host() != "youtu.be" && urlObj.host() != "www.youtu.be") {
 			throw SoundHoleError(SoundHoleError::Code::PARSE_FAILED, "invalid youtube URL");
 		}
@@ -126,10 +126,12 @@ namespace sh {
 		}
 		if(path.empty() || path == "/" || path == "/watch" || path == "/watch/") {
 			String videoId;
-			for(auto& queryItem : urlObj.query()) {
-				if(queryItem.key() == "v") {
-					videoId = queryItem.val();
-					break;
+			for(auto& queryItem : urlObj.queryItems()) {
+				if(queryItem.key == "v") {
+					videoId = queryItem.value.valueOr(String());
+					if(!videoId.empty()) {
+						break;
+					}
 				}
 			}
 			if(videoId.empty()) {
@@ -143,10 +145,12 @@ namespace sh {
 		}
 		if(path == "/playlist" || path=="/playlist") {
 			String playlistId;
-			for(auto& queryItem : urlObj.query()) {
-				if(queryItem.key() == "list") {
-					playlistId = queryItem.val();
-					break;
+			for(auto& queryItem : urlObj.queryItems()) {
+				if(queryItem.key == "list") {
+					playlistId = queryItem.value.valueOr(String());
+					if(!playlistId.empty()) {
+						break;
+					}
 				}
 			}
 			if(playlistId.empty()) {

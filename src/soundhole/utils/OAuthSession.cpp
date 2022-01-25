@@ -59,12 +59,13 @@ namespace sh {
 	
 
 	Promise<Json> OAuthSession::performTokenRequest(String url, std::map<String,String> params, std::map<String,String> headers) {
-		utils::HttpRequest request;
-		request.url = Url(url);
-		request.method = utils::HttpMethod::POST;
-		request.headers = utils::HttpHeaders(headers);
+		auto request = utils::HttpRequest{
+			.url = URL(url),
+			.method = utils::HttpMethod::POST,
+			.headers = utils::HttpHeaders(headers)
+		};
 		request.headers.set("Content-Type", "application/x-www-form-urlencoded");
-		request.data = utils::makeQueryString(params);
+		request.data = URL::makeQueryString(params);
 		return utils::performHttpRequest(request)
 		.except([=](std::exception& error) -> utils::SharedHttpResponse {
 			throw OAuthError(OAuthError::Code::REQUEST_NOT_SENT, error.what(), {

@@ -231,7 +231,7 @@ namespace sh {
 		return prepareForRequest().then([=]() -> Promise<Json> {
 			String url = "https://api.spotify.com/" + endpoint;
 			if(queryParams.size() > 0) {
-				url += "?" + utils::makeQueryString(queryParams);
+				url += "?" + URL::makeQueryString(queryParams);
 			}
 			utils::HttpHeaders headers;
 			String body = (!bodyParams.is_null()) ? bodyParams.dump() : String();
@@ -244,7 +244,7 @@ namespace sh {
 				headers.set("Authorization", session->getTokenType()+" "+session->getAccessToken());
 			}
 			auto request = utils::HttpRequest{
-				.url = Url(url),
+				.url = URL(url),
 				.method = method,
 				.headers = headers,
 				.data = body

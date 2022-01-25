@@ -103,7 +103,7 @@ namespace sh::utils {
 							Napi::Object exports = exportsRef.Value();
 							Napi::Function performRequest = exports.Get("performHttpRequest").As<Napi::Function>();
 							auto jsRequest = Napi::Object::New(env);
-							jsRequest.Set("url", Napi::String::New(env, request.url.str()));
+							jsRequest.Set("url", Napi::String::New(env, (const std::string&)request.url.toString()));
 							jsRequest.Set("method", Napi::String::New(env, (const std::string&)HttpMethod_toString(request.method)));
 							if(request.headers.size() > 0) {
 								auto headers = Napi::Object::New(env);
@@ -173,82 +173,13 @@ namespace sh::utils {
 	}
 	#endif
 
-	
 
-	String encodeURLComponent(String urlComponent) {
-		std::ostringstream escaped;
-		escaped.fill('0');
-		escaped << std::hex;
 
-		for (size_t i=0; i<urlComponent.length(); i++) {
-			char c = urlComponent[i];
-
-			// Keep alphanumeric and other accepted characters intact
-			if (std::isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
-				escaped << c;
-				continue;
-			}
-
-			// Any other characters are percent-encoded
-			escaped << std::uppercase;
-			escaped << '%' << std::setw(2) << int((unsigned char)c);
-			escaped << std::nouppercase;
-		}
-
-		return escaped.str();
-	}
-
-	String decodeURLComponent(String urlComponent) {
-		std::ostringstream escaped;
-		escaped.fill('0');
-		auto from_hex = [](char ch) -> char {
-			return isdigit(ch) ? ch - '0' : tolower(ch) - 'a' + 10;
-		};
-		for (auto it=urlComponent.begin(), end=urlComponent.end(); it != end; it++) {
-			char c = (*it);
-			if (c == '+') {
-				escaped << ' ';
-			} else if (c == '%' && it[1] && it[2]) {
-				char h = from_hex(it[1]) << 4 | from_hex(it[2]);
-				escaped << h;
-				it += 2;
-			} else {
-				escaped << c;
-			}
-		}
-		return escaped.str();
-	}
-
-	String makeQueryString(std::map<String,String> params) {
-		LinkedList<String> items;
-		for(auto& pair : params) {
-			items.pushBack(
-				encodeURLComponent(pair.first) + "=" + encodeURLComponent(pair.second));
-		}
-		return String::join(items, "&");
-	}
-
-	Map<String,String> parseQueryString(const String& queryString) {
-		Map<String,String> obj;
-		if(queryString.empty()) {
-			return obj;
-		}
-		for(auto part : queryString.split('&')) {
-			size_t equalsIndex = part.indexOf('=');
-			if(equalsIndex == String::npos) {
-				obj[decodeURLComponent(part)] = String();
-			} else {
-				obj[decodeURLComponent(part.substring(0, equalsIndex))] = decodeURLComponent(part.substring(equalsIndex+1));
-			}
-		}
-		return obj;
-	}
-
-	std::map<String,String> parseURLQueryParams(String urlString) {
-		auto params = std::map<String,String>();
-		auto query = Url(urlString).query();
-		for(auto& pair : query) {
-			params.insert_or_assign(pair.key(), pair.val());
+	Map<String,String> parseURLQueryParams(String urlString) {
+		auto params = Map<String,String>();
+		auto queryItems = URL(urlString).queryItems();
+		for(auto& item : queryItems) {
+			params.insert_or_assign(item.key, item.value.valueOr((String())));
 		}
 		return params;
 	}
@@ -260,8 +191,8 @@ namespace sh::utils {
 		if(!urlString.startsWith(baseURLString)) {
 			return false;
 		}
-		auto baseURL = Url(baseURLString);
-		auto url = Url(urlString);
+		auto baseURL = URL(baseURLString);
+		auto url = URL(urlString);
 		auto path = baseURL.path();
 		if(path == "/") {
 			path = "";

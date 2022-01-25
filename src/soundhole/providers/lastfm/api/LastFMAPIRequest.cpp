@@ -48,11 +48,11 @@ namespace sh {
 		if(httpMethod == utils::HttpMethod::GET) {
 			if(params.size() > 0) {
 				url += "?";
-				url += utils::makeQueryString(params);
+				url += URL::makeQueryString(params);
 			}
 		} else {
 			if(params.size() > 0) {
-				body = utils::makeQueryString(params);
+				body = URL::makeQueryString(params);
 			}
 		}
 		
@@ -65,7 +65,7 @@ namespace sh {
 		
 		// build request
 		return utils::HttpRequest{
-			.url = Url(url),
+			.url = URL(url),
 			.method = httpMethod,
 			.headers = headers,
 			.data = body

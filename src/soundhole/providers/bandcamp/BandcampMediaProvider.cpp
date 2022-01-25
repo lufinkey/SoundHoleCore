@@ -10,7 +10,6 @@
 #include "mutators/BandcampAlbumMutatorDelegate.hpp"
 #include <soundhole/utils/SoundHoleError.hpp>
 #include <soundhole/utils/Utils.hpp>
-#include <cxxurl/url.hpp>
 #include <regex>
 
 namespace sh {
@@ -58,19 +57,17 @@ namespace sh {
 		}
 		// validate url
 		String urlString = uri.substring(colonIndex+1);
-		Url(urlString).str();
 		return URI{
-			.provider=providerName,
-			.url=urlString
+			.provider = providerName,
+			.url = URL(urlString).toString()
 		};
 	}
 
 	BandcampMediaProvider::URI BandcampMediaProvider::parseURL(String url) const {
 		// validate url
-		Url(url).str();
 		return URI{
-			.provider=name(),
-			.url=url
+			.provider = name(),
+			.url = URL(url).toString()
 		};
 	}
 
@@ -85,7 +82,7 @@ namespace sh {
 		if(url.empty()) {
 			throw std::invalid_argument("Invalid empty user url");
 		}
-		auto urlObj = Url(url);
+		auto urlObj = URL(url);
 		if(urlObj.host() == "bandcamp.com" || urlObj.host() == "www.bandcamp.com") {
 			String id = urlObj.path();
 			while(id.startsWith("/")) {

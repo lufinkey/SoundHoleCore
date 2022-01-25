@@ -10,7 +10,6 @@
 
 #include <soundhole/common.hpp>
 #include <map>
-#include <cxxurl/url.hpp>
 
 namespace sh::utils {
 	enum class HttpMethod {
@@ -43,7 +42,7 @@ namespace sh::utils {
 	};
 	
 	struct HttpRequest {
-		Url url;
+		URL url;
 		HttpMethod method;
 		HttpHeaders headers;
 		String data;
@@ -59,11 +58,7 @@ namespace sh::utils {
 	
 	Promise<SharedHttpResponse> performHttpRequest(HttpRequest request);
 
-	String encodeURLComponent(String);
-	String decodeURLComponent(String);
-	String makeQueryString(std::map<String,String> params);
-	Map<String,String> parseQueryString(const String& queryString);
-	std::map<String,String> parseURLQueryParams(String url);
+	Map<String,String> parseURLQueryParams(String url);
 
 	bool checkURLMatch(const String& baseURL, const String& url);
 }

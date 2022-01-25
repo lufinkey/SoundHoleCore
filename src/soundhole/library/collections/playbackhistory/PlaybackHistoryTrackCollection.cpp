@@ -198,7 +198,7 @@ namespace sh {
 		}
 		query["order"] = sql::Order_toString(filters.order);
 		return String::join({
-			MediaLibraryProxyProvider::NAME,":collection:playbackhistory","?",utils::makeQueryString(query)
+			MediaLibraryProxyProvider::NAME,":collection:playbackhistory","?",URL::makeQueryString(query)
 		});
 	}
 

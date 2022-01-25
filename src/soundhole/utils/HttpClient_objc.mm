@@ -14,7 +14,7 @@
 namespace sh::utils {
 	#if defined(TARGETPLATFORM_IOS) || defined(TARGETPLATFORM_MAC)
 	Promise<SharedHttpResponse> performHttpRequest(HttpRequest req) {
-		NSURL* url = [NSURL URLWithString:[NSString stringWithUTF8String:req.url.str().c_str()]];
+		NSURL* url = [NSURL URLWithString:[NSString stringWithUTF8String:req.url.toString().c_str()]];
 		if(url == nil) {
 			return Promise<SharedHttpResponse>::reject(std::logic_error("Invalid URL"));
 		}

@@ -654,13 +654,13 @@ namespace sh {
 				}
 				if(artist.url.empty()) {
 					if(!trackURL.empty()) {
-						auto url = URL(trackURL);
-						auto pathParts = url.pathParts();
+						auto urlParts = URL::Components(trackURL);
+						auto pathParts = urlParts.pathParts();
 						while(pathParts.size() > 2) {
 							pathParts.popBack();
 						}
-						url.setPathParts(pathParts, false);
-						artist.url = url.toString();
+						urlParts.setPathParts(pathParts, false);
+						artist.url = URL(urlParts).toString();
 					}
 					else if(!artist.name.empty()) {
 						artist.url = "https://www.last.fm/music/"+URL::encodeQueryValue(artist.name);

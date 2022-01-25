@@ -118,8 +118,6 @@
 		A571E16A2333305D00603E14 /* Scripts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E1682333305D00603E14 /* Scripts.cpp */; };
 		A571E16B2333305D00603E14 /* Scripts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E1682333305D00603E14 /* Scripts.cpp */; };
 		A571E16C2333305D00603E14 /* Scripts.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A571E1692333305D00603E14 /* Scripts.hpp */; };
-		A571E19C2334121500603E14 /* url.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E19A2334121500603E14 /* url.cpp */; };
-		A571E19D2334121500603E14 /* url.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E19A2334121500603E14 /* url.cpp */; };
 		A571E1A6233440A800603E14 /* HttpClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E1A4233440A800603E14 /* HttpClient.cpp */; };
 		A571E1A7233440A800603E14 /* HttpClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A571E1A4233440A800603E14 /* HttpClient.cpp */; };
 		A571E1A8233440A800603E14 /* HttpClient.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A571E1A5233440A800603E14 /* HttpClient.hpp */; };
@@ -476,9 +474,6 @@
 		A571E16F233331B900603E14 /* index.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = index.js; sourceTree = "<group>"; };
 		A571E170233331B900603E14 /* package.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = package.json; sourceTree = "<group>"; };
 		A571E1842333E5D800603E14 /* build */ = {isa = PBXFileReference; lastKnownFileType = folder; path = build; sourceTree = "<group>"; };
-		A571E1992334121500603E14 /* string.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = string.hpp; sourceTree = "<group>"; };
-		A571E19A2334121500603E14 /* url.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = url.cpp; sourceTree = "<group>"; };
-		A571E19B2334121500603E14 /* url.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = url.hpp; sourceTree = "<group>"; };
 		A571E1A4233440A800603E14 /* HttpClient.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = HttpClient.cpp; sourceTree = "<group>"; };
 		A571E1A5233440A800603E14 /* HttpClient.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = HttpClient.hpp; sourceTree = "<group>"; };
 		A57378A023D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = YoutubePlaylistMutatorDelegate.cpp; sourceTree = "<group>"; };
@@ -1084,21 +1079,10 @@
 		A571E197233411CD00603E14 /* external */ = {
 			isa = PBXGroup;
 			children = (
-				A571E198233411D500603E14 /* cxxurl */,
 				A5B7A7912335D56200301FC0 /* json11 */,
 			);
 			name = external;
 			path = ../../external;
-			sourceTree = "<group>";
-		};
-		A571E198233411D500603E14 /* cxxurl */ = {
-			isa = PBXGroup;
-			children = (
-				A571E1992334121500603E14 /* string.hpp */,
-				A571E19B2334121500603E14 /* url.hpp */,
-				A571E19A2334121500603E14 /* url.cpp */,
-			);
-			path = cxxurl;
 			sourceTree = "<group>";
 		};
 		A573789F23D25A2F00EEA533 /* mutators */ = {
@@ -1740,7 +1724,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "../../tools/fetch_header_dependencies.sh\n../../tools/fetch_shared_dependencies.sh json11 cxxurl\n";
+			shellScript = "../../tools/fetch_header_dependencies.sh\n../../tools/fetch_shared_dependencies.sh json11\n";
 		};
 		A555789F267FCEBF006C9B88 /* [Script] Build JS Dependencies */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1776,7 +1760,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "../../tools/fetch_header_dependencies.sh\n../../tools/fetch_shared_dependencies.sh json11 cxxurl\n";
+			shellScript = "../../tools/fetch_header_dependencies.sh\n../../tools/fetch_shared_dependencies.sh json11\n";
 		};
 		A5F07D832543847C00C41A36 /* [Script] Build JS Dependencies */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1927,7 +1911,6 @@
 				A513DB42232DA192000DCAC7 /* main.mm in Sources */,
 				A5B7A7942335D57B00301FC0 /* json11.cpp in Sources */,
 				A513DB34232DA191000DCAC7 /* AppDelegate.mm in Sources */,
-				A571E19C2334121500603E14 /* url.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2044,7 +2027,6 @@
 				A513DB61232DA1D3000DCAC7 /* main.mm in Sources */,
 				A5B7A7952335D57B00301FC0 /* json11.cpp in Sources */,
 				A513DB56232DA1D2000DCAC7 /* AppDelegate.mm in Sources */,
-				A571E19D2334121500603E14 /* url.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

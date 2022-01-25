@@ -49,7 +49,7 @@ namespace sh {
 						auto httpBody = action.request.HTTPBody ? [[NSString alloc] initWithData:action.request.HTTPBody encoding:NSUTF8StringEncoding] : nil;
 						if(httpBody != nil) {
 							// store username / password
-							auto params = utils::parseQueryString(String(httpBody));
+							auto params = URL::parseQueryItemMap(String(httpBody));
 							auto username = params.get("username_or_email", String());
 							auto password = params.get("password", String());
 							if(!username.empty()) {
