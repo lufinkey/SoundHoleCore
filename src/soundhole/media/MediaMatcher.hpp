@@ -19,8 +19,8 @@ namespace sh {
 
 	class MediaMatcher: public virtual MediaProvider {
 	public:
-		virtual Promise<$<OmniTrack>> getOmniTrackFromTrack($<Track> track) = 0;
-		virtual Promise<$<OmniArtist>> getOmniArtistFromArtist($<Artist> artist) = 0;
+		virtual Promise<ArrayList<$<Track>>> findEquivalentTracks($<Track>) = 0;
+		virtual Promise<ArrayList<$<Artist>>> findEquivalentArtists($<Artist>) = 0;
 		
 		virtual $<OmniTrack> omniTrack(const OmniTrack::Data& data);
 		virtual $<OmniArtist> omniArtist(const OmniArtist::Data& data);
