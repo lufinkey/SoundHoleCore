@@ -12,6 +12,116 @@
 
 namespace sh {
 
+	#pragma mark SpecialTrackCollection::Mutator
+
+	template<typename ItemType>
+	SpecialTrackCollection<ItemType>::Mutator::Mutator(AsyncList::Mutator* mutator): mutator(mutator) {
+		//
+	}
+
+	template<typename ItemType>
+	typename SpecialTrackCollection<ItemType>::AsyncList* SpecialTrackCollection<ItemType>::Mutator::getList() {
+		return mutator->getList();
+	}
+
+	template<typename ItemType>
+	const typename SpecialTrackCollection<ItemType>::AsyncList* SpecialTrackCollection<ItemType>::Mutator::getList() const {
+		return mutator->getList();
+	}
+
+	template<typename ItemType>
+	template<typename Work>
+	void SpecialTrackCollection<ItemType>::Mutator::lock(Work work) {
+		mutator->lock(work);
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::Mutator::apply(size_t index, LinkedList<$<ItemType>> items) {
+		mutator->apply(index, items.map([](auto& item) {
+			return item.template forceAs<TrackCollectionItem>();
+		}));
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::Mutator::apply(std::map<size_t,$<ItemType>> items) {
+		std::map<size_t,$<TrackCollectionItem>> castItems;
+		for(auto& pair : items) {
+			castItems.insert(std::make_pair(pair.first, pair.second.template forceAs<TrackCollectionItem>()));
+		}
+		mutator->apply(castItems);
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::Mutator::applyAndResize(size_t index, size_t listSize, LinkedList<$<ItemType>> items) {
+		mutator->applyAndResize(index, listSize, items.map([](auto& item) {
+			return item.template forceAs<TrackCollectionItem>();
+		}));
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::Mutator::applyAndResize(size_t listSize, std::map<size_t,$<ItemType>> items) {
+		std::map<size_t,$<TrackCollectionItem>> castItems;
+		for(auto& pair : items) {
+			castItems.insert(std::make_pair(pair.first, pair.second.template forceAs<TrackCollectionItem>()));
+		}
+		mutator->applyAndResize(listSize, castItems);
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::Mutator::set(size_t index, LinkedList<$<ItemType>> items) {
+		mutator->set(index, items.map([](auto& item) {
+			return item.template forceAs<TrackCollectionItem>();
+		}));
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::Mutator::insert(size_t index, LinkedList<$<ItemType>> items) {
+		mutator->insert(index, items.map([](auto& item) {
+			return item.template forceAs<TrackCollectionItem>();
+		}));
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::Mutator::remove(size_t index, size_t count) {
+		mutator->remove(index, count);
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::Mutator::move(size_t index, size_t count, size_t newIndex) {
+		mutator->move(index, count, newIndex);
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::Mutator::resize(size_t count) {
+		mutator->resize(count);
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::Mutator::invalidate(size_t index, size_t count) {
+		mutator->invalidate(index, count);
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::Mutator::invalidateAll() {
+		mutator->invalidateAll();
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::Mutator::resetItems() {
+		mutator->resetItems();
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::Mutator::resetSize() {
+		mutator->resetSize();
+	}
+
+	template<typename ItemType>
+	void SpecialTrackCollection<ItemType>::Mutator::reset() {
+		mutator->reset();
+	}
+
+
 	#pragma mark SpecialTrackCollection::Data
 
 	template<typename ItemType>
@@ -115,7 +225,7 @@ namespace sh {
 				}
 				return items;
 			} else {
-				auto items = std::map<size_t,$<ItemType>>();
+				auto items = std::map<size_t,$<TrackCollectionItem>>();
 				for(auto& pair : itemDatas) {
 					items.insert_or_assign(pair.first, this->createCollectionItem(pair.second));
 				}
@@ -594,7 +704,7 @@ namespace sh {
 			// apply tracks
 			asyncItemsList()->lock([&](auto mutator) {
 				mutator->lock([&]() {
-					auto items = data.items.mapValues([&](auto index, auto& itemData) -> $<ItemType> {
+					auto items = data.items.mapValues([&](auto index, auto& itemData) -> $<TrackCollectionItem> {
 						return this->createCollectionItem(itemData);
 					});
 					if(data.itemCount) {
@@ -617,12 +727,12 @@ namespace sh {
 	}
 
 	template<typename ItemType>
-	bool SpecialTrackCollection<ItemType>::areAsyncListItemsEqual(const AsyncList* list, const $<ItemType>& item1, const $<ItemType>& item2) const {
+	bool SpecialTrackCollection<ItemType>::areAsyncListItemsEqual(const AsyncList* list, const $<TrackCollectionItem>& item1, const $<TrackCollectionItem>& item2) const {
 		return item1->matchesItem(item2.get());
 	}
 
 	template<typename ItemType>
-	void SpecialTrackCollection<ItemType>::mergeAsyncListItem(const AsyncList* list, $<ItemType>& overwritingItem, $<ItemType>& existingItem) {
+	void SpecialTrackCollection<ItemType>::mergeAsyncListItem(const AsyncList* list, $<TrackCollectionItem>& overwritingItem, $<TrackCollectionItem>& existingItem) {
 		auto newItem = overwritingItem;
 		overwritingItem = existingItem;
 		overwritingItem->merge(newItem.get());
@@ -631,7 +741,10 @@ namespace sh {
 	template<typename ItemType>
 	Promise<void> SpecialTrackCollection<ItemType>::loadAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count, Map<String,Any> options) {
 		auto delegate = mutatorDelegate();
-		return delegate->loadItems(mutator, index, count, LoadItemOptions::fromMap(options));
+		auto castMutator = new Mutator(mutator);
+		return delegate->loadItems(castMutator, index, count, LoadItemOptions::fromMap(options)).finally(nullptr, [=]() {
+			delete castMutator;
+		});
 	}
 
 	template<typename ItemType>
@@ -734,10 +847,10 @@ namespace sh {
 			}
 		} else {
 			auto& tracks = itemsList();
-			std::map<size_t,$<ItemType>> items;
-			for(auto& track : tracks) {
+			std::map<size_t,$<TrackCollectionItem>> items;
+			for(auto& item : tracks) {
 				size_t index = items.size();
-				items.insert_or_assign(index, track);
+				items.insert_or_assign(index, item);
 			}
 			_items = AsyncList::new$({
 				.delegate=this,
@@ -786,7 +899,8 @@ namespace sh {
 						}
 						auto& itemNode = it->second;
 						if(itemNode.valid) {
-							items.insert_or_assign(it->first, itemNode.item->toData());
+							auto castItem = std::static_pointer_cast<ItemType>(itemNode.item);
+							items.insert_or_assign(it->first, castItem->toData());
 						}
 					}
 					return items;

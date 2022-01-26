@@ -301,7 +301,8 @@ namespace sh {
 		}
 		size_t itemIdOffset = 0;
 		auto itemMarkers = items.map([&](auto& item) -> std::tuple<String,AsyncListIndexMarker> {
-			auto itemId = item->uniqueId();
+			auto playlistItem = item.template forceAs<PlaylistItem>();
+			auto itemId = playlistItem->uniqueId();
 			if(itemId.empty()) {
 				throw std::runtime_error("Missing uniqueId prop for item at index "+std::to_string(index+itemIdOffset));
 			}
@@ -373,12 +374,13 @@ namespace sh {
 		}
 		size_t itemOffset = 0;
 		auto itemMarkers = items.map([&](auto& item) -> std::tuple<$<PlaylistItem>,AsyncListIndexMarker> {
-			if(item->uniqueId().empty()) {
+			auto playlistItem = item.template forceAs<PlaylistItem>();
+			if(playlistItem->uniqueId().empty()) {
 				throw std::runtime_error("Missing youtubePlaylistItemId prop for item at index "+std::to_string(index+itemOffset));
 			}
 			itemOffset++;
 			auto indexMarker = list->watchIndex(index+itemOffset);
-			return std::tuple<$<PlaylistItem>,AsyncListIndexMarker>(item, indexMarker);
+			return std::tuple<$<PlaylistItem>,AsyncListIndexMarker>(playlistItem, indexMarker);
 		});
 		// ensure there are no duplicates in moving items
 		{

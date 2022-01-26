@@ -249,22 +249,34 @@ namespace sh {
 
 	Promise<void> Playlist::insertAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, LinkedList<$<Track>> tracks, Map<String,Any> options) {
 		auto delegate = mutatorDelegate();
-		return delegate->insertItems(mutator, index, tracks, InsertItemOptions::fromMap(options));
+		auto castMutator = new Mutator(mutator);
+		return delegate->insertItems(castMutator, index, tracks, InsertItemOptions::fromMap(options)).finally(nullptr, [=]() {
+			delete castMutator;
+		});
 	}
 
 	Promise<void> Playlist::appendAsyncListItems(typename AsyncList::Mutator* mutator, LinkedList<$<Track>> tracks, Map<String,Any> options) {
 		auto delegate = mutatorDelegate();
-		return delegate->appendItems(mutator, tracks, InsertItemOptions::fromMap(options));
+		auto castMutator = new Mutator(mutator);
+		return delegate->appendItems(castMutator, tracks, InsertItemOptions::fromMap(options)).finally(nullptr, [=]() {
+			delete castMutator;
+		});
 	}
 
 	Promise<void> Playlist::removeAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count, Map<String,Any> options) {
 		auto delegate = mutatorDelegate();
-		return delegate->removeItems(mutator, index, count);
+		auto castMutator = new Mutator(mutator);
+		return delegate->removeItems(castMutator, index, count).finally(nullptr, [=]() {
+			delete castMutator;
+		});
 	}
 
 	Promise<void> Playlist::moveAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count, size_t newIndex, Map<String,Any> options) {
 		auto delegate = mutatorDelegate();
-		return delegate->moveItems(mutator, index, count, newIndex);
+		auto castMutator = new Mutator(mutator);
+		return delegate->moveItems(castMutator, index, count, newIndex).finally(nullptr, [=]() {
+			delete castMutator;
+		});
 	}
 
 	Playlist::MutatorDelegate* Playlist::createMutatorDelegate() {

@@ -176,7 +176,8 @@ namespace sh {
 		itemIds.reserve(items.size());
 		LinkedList<AsyncListIndexMarker> indexMarkersList;
 		for(auto& item : items) {
-			auto itemId = item->uniqueId();
+			auto playlistItem = item.template forceAs<PlaylistItem>();
+			auto itemId = playlistItem->uniqueId();
 			if(itemId.empty()) {
 				return Promise<void>::reject(
 					std::runtime_error("Missing uniqueId prop for item at index "+std::to_string(index+itemIds.size())));

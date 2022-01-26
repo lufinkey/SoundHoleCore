@@ -140,14 +140,43 @@ namespace sh {
 
 	template<typename ItemType>
 	class SpecialTrackCollection: public TrackCollection,
-	protected AsyncList<$<ItemType>,$<Track>>::Delegate {
+	private AsyncList<$<TrackCollectionItem>,$<Track>>::Delegate {
 	public:
 		using Item = ItemType;
-		using AsyncList = AsyncList<$<ItemType>,$<Track>>;
+		using AsyncList = AsyncList<$<TrackCollectionItem>,$<Track>>;
+		
+		class Mutator {
+			friend class SpecialTrackCollection<ItemType>;
+		public:
+			Mutator(AsyncList::Mutator*);
+			
+			AsyncList* getList();
+			const AsyncList* getList() const;
+			
+			template<typename Work>
+			void lock(Work work);
+			void apply(size_t index, LinkedList<$<ItemType>> items);
+			void apply(std::map<size_t,$<ItemType>> items);
+			void applyAndResize(size_t index, size_t listSize, LinkedList<$<ItemType>> items);
+			void applyAndResize(size_t listSize, std::map<size_t,$<ItemType>> items);
+			void set(size_t index, LinkedList<$<ItemType>> items);
+			void insert(size_t index, LinkedList<$<ItemType>> items);
+			void remove(size_t index, size_t count);
+			void move(size_t index, size_t count, size_t newIndex);
+			void resize(size_t count);
+			void invalidate(size_t index, size_t count);
+			void invalidateAll();
+			void resetItems();
+			void resetSize();
+			void reset();
+			
+		private:
+			AsyncList::Mutator* mutator;
+		};
 		
 		class MutatorDelegate {
 		public:
-			using Mutator = typename AsyncList::Mutator;
+			using Mutator = Mutator;
 			using LoadItemOptions = TrackCollection::LoadItemOptions;
 			
 			virtual ~MutatorDelegate() {}
@@ -218,8 +247,8 @@ namespace sh {
 		
 	protected:
 		virtual size_t getAsyncListChunkSize(const AsyncList* list) const override;
-		virtual bool areAsyncListItemsEqual(const AsyncList* list, const $<ItemType>& item1, const $<ItemType>& item2) const override;
-		virtual void mergeAsyncListItem(const AsyncList* list, $<ItemType>& overwritingItem, $<ItemType>& existingItem) override;
+		virtual bool areAsyncListItemsEqual(const AsyncList* list, const $<TrackCollectionItem>& item1, const $<TrackCollectionItem>& item2) const override;
+		virtual void mergeAsyncListItem(const AsyncList* list, $<TrackCollectionItem>& overwritingItem, $<TrackCollectionItem>& existingItem) override;
 		virtual Promise<void> loadAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, size_t count, Map<String,Any> options) override;
 		virtual Promise<void> insertAsyncListItems(typename AsyncList::Mutator* mutator, size_t index, LinkedList<$<Track>> tracks, Map<String,Any> options) override;
 		virtual Promise<void> appendAsyncListItems(typename AsyncList::Mutator* mutator, LinkedList<$<Track>> tracks, Map<String,Any> options) override;

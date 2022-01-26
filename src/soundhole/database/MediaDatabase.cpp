@@ -1092,7 +1092,7 @@ namespace sh {
 
 	#pragma mark AlbumItem
 
-	Promise<void> MediaDatabase::loadAlbumItems($<Album> album, Album::MutatorDelegate::Mutator* mutator, size_t index, size_t count) {
+	Promise<void> MediaDatabase::loadAlbumItems($<Album> album, Album::Mutator* mutator, size_t index, size_t count) {
 		return getTrackCollectionItemsJson(album->uri(), {
 			.startIndex=index,
 			.endIndex=(index+count)
@@ -1121,7 +1121,7 @@ namespace sh {
 
 	#pragma mark PlaylistItem
 
-	Promise<void> MediaDatabase::loadPlaylistItems($<Playlist> playlist, Playlist::MutatorDelegate::Mutator* mutator, size_t index, size_t count) {
+	Promise<void> MediaDatabase::loadPlaylistItems($<Playlist> playlist, Playlist::Mutator* mutator, size_t index, size_t count) {
 		return getTrackCollectionItemsJson(playlist->uri(), {
 			.startIndex=index,
 			.endIndex=(index+count)

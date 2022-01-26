@@ -289,8 +289,8 @@ namespace sh {
 		Promise<void> deleteUnmatchedScrobbles(ArrayList<UnmatchedScrobble> scrobbles, CacheOptions options = CacheOptions());
 		
 		
-		Promise<void> loadAlbumItems($<Album> album, Album::MutatorDelegate::Mutator* mutator, size_t index, size_t count);
-		Promise<void> loadPlaylistItems($<Playlist> playlist, Playlist::MutatorDelegate::Mutator* mutator, size_t index, size_t count);
+		Promise<void> loadAlbumItems($<Album> album, Album::Mutator* mutator, size_t index, size_t count);
+		Promise<void> loadPlaylistItems($<Playlist> playlist, Playlist::Mutator* mutator, size_t index, size_t count);
 		
 		
 		Promise<void> setState(std::map<String,String> state);
