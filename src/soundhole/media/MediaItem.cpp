@@ -125,7 +125,8 @@ namespace sh {
 			.uri = uri.string_value(),
 			.images = (!images.is_null()) ? maybe(ArrayList<Json>(images.array_items()).map([](auto& imgJson) -> Image {
 				return Image::fromJson(imgJson);
-			})) : std::nullopt
+			})) : std::nullopt,
+			.additionalInfo = json["additionalInfo"]
 		};
 	}
 
@@ -135,7 +136,7 @@ namespace sh {
 
 	MediaItem::MediaItem(MediaProvider* provider, const Data& data)
 	: provider(provider),
-	_partial(data.partial), _type(data.type), _name(data.name), _uri(data.uri), _images(data.images) {
+	_partial(data.partial), _type(data.type), _name(data.name), _uri(data.uri), _images(data.images), _additionalInfo(data.additionalInfo) {
 		//
 	}
 	
@@ -256,6 +257,11 @@ namespace sh {
 		if(data.images) {
 			_images = data.images;
 		}
+		auto infoObj = _additionalInfo.object_items();
+		for(auto& pair : data.additionalInfo.object_items()) {
+			infoObj[pair.first] = pair.second;
+		}
+		_additionalInfo = infoObj;
 	}
 
 	MediaItem::Data MediaItem::toData() const {
@@ -264,7 +270,8 @@ namespace sh {
 			.type=_type,
 			.name=_name,
 			.uri=_uri,
-			.images=_images
+			.images=_images,
+			.additionalInfo=_additionalInfo
 		};
 	}
 
@@ -277,7 +284,8 @@ namespace sh {
 			{"uri", (std::string)_uri},
 			{"images", (_images ? Json(_images->map([&](auto& image) -> Json {
 				return image.toJson();
-			})) : Json())}
+			})) : Json())},
+			{"additionalInfo", _additionalInfo}
 		};
 	}
 }

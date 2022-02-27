@@ -12,6 +12,16 @@
 		A0018CBA278B76210092F1A0 /* Scrobbler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A0018CB8278B76210092F1A0 /* Scrobbler.hpp */; };
 		A0018CBB278B76210092F1A0 /* Scrobbler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A0018CB9278B76210092F1A0 /* Scrobbler.cpp */; };
 		A0018CBC278B76210092F1A0 /* Scrobbler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A0018CB9278B76210092F1A0 /* Scrobbler.cpp */; };
+		A033991927A37010009933DD /* MusicBrainzMediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A033991727A37010009933DD /* MusicBrainzMediaProvider.cpp */; };
+		A033991A27A37010009933DD /* MusicBrainzMediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A033991727A37010009933DD /* MusicBrainzMediaProvider.cpp */; };
+		A033991B27A37010009933DD /* MusicBrainzMediaProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A033991827A37010009933DD /* MusicBrainzMediaProvider.hpp */; };
+		A04F94A827AA23E4004D91E2 /* MusicBrainz.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A04F94A627AA23E4004D91E2 /* MusicBrainz.cpp */; };
+		A04F94A927AA23E4004D91E2 /* MusicBrainz.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A04F94A627AA23E4004D91E2 /* MusicBrainz.cpp */; };
+		A04F94AA27AA23E4004D91E2 /* MusicBrainz.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A04F94A727AA23E4004D91E2 /* MusicBrainz.hpp */; };
+		A04F94AD27AA241A004D91E2 /* MusicBrainzTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A04F94AB27AA241A004D91E2 /* MusicBrainzTypes.cpp */; };
+		A04F94AE27AA241A004D91E2 /* MusicBrainzTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A04F94AB27AA241A004D91E2 /* MusicBrainzTypes.cpp */; };
+		A04F94AF27AA241A004D91E2 /* MusicBrainzTypes.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A04F94AC27AA241A004D91E2 /* MusicBrainzTypes.hpp */; };
+		A04F94B127B0490A004D91E2 /* MusicBrainzTypes.impl.h in Headers */ = {isa = PBXBuildFile; fileRef = A04F94B027B0490A004D91E2 /* MusicBrainzTypes.impl.h */; };
 		A09252AB279BA68300783EDA /* MediaMatcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A09252A9279BA68300783EDA /* MediaMatcher.cpp */; };
 		A09252AC279BA68300783EDA /* MediaMatcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A09252A9279BA68300783EDA /* MediaMatcher.cpp */; };
 		A09252AD279BA68300783EDA /* MediaMatcher.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A09252AA279BA68300783EDA /* MediaMatcher.hpp */; };
@@ -374,8 +384,17 @@
 		9EB0D982F4B0A13669D4FD62 /* Pods-SoundHoleCore-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoundHoleCore-macOS.release.xcconfig"; path = "Target Support Files/Pods-SoundHoleCore-macOS/Pods-SoundHoleCore-macOS.release.xcconfig"; sourceTree = "<group>"; };
 		A0018CB8278B76210092F1A0 /* Scrobbler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Scrobbler.hpp; sourceTree = "<group>"; };
 		A0018CB9278B76210092F1A0 /* Scrobbler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Scrobbler.cpp; sourceTree = "<group>"; };
+		A033991727A37010009933DD /* MusicBrainzMediaProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MusicBrainzMediaProvider.cpp; sourceTree = "<group>"; };
+		A033991827A37010009933DD /* MusicBrainzMediaProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MusicBrainzMediaProvider.hpp; sourceTree = "<group>"; };
+		A04F94A627AA23E4004D91E2 /* MusicBrainz.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MusicBrainz.cpp; sourceTree = "<group>"; };
+		A04F94A727AA23E4004D91E2 /* MusicBrainz.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MusicBrainz.hpp; sourceTree = "<group>"; };
+		A04F94AB27AA241A004D91E2 /* MusicBrainzTypes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MusicBrainzTypes.cpp; sourceTree = "<group>"; };
+		A04F94AC27AA241A004D91E2 /* MusicBrainzTypes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MusicBrainzTypes.hpp; sourceTree = "<group>"; };
+		A04F94B027B0490A004D91E2 /* MusicBrainzTypes.impl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MusicBrainzTypes.impl.h; sourceTree = "<group>"; };
 		A09252A9279BA68300783EDA /* MediaMatcher.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MediaMatcher.cpp; sourceTree = "<group>"; };
 		A09252AA279BA68300783EDA /* MediaMatcher.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaMatcher.hpp; sourceTree = "<group>"; };
+		A097765A27A8D01F00EC7CAF /* libxml2.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.2.tbd; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/lib/libxml2.2.tbd; sourceTree = DEVELOPER_DIR; };
+		A097765B27A8D03400EC7CAF /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/lib/libxml2.tbd; sourceTree = DEVELOPER_DIR; };
 		A0C8D7C9278B7E08007485E4 /* LastFMMediaProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LastFMMediaProvider.cpp; sourceTree = "<group>"; };
 		A0C8D7CA278B7E08007485E4 /* LastFMMediaProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = LastFMMediaProvider.hpp; sourceTree = "<group>"; };
 		A0C8D7CE278FD45C007485E4 /* Scrobble.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Scrobble.cpp; sourceTree = "<group>"; };
@@ -717,6 +736,28 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		A033991627A36F75009933DD /* musicbrainz */ = {
+			isa = PBXGroup;
+			children = (
+				A04F94A527AA23CD004D91E2 /* api */,
+				A033991827A37010009933DD /* MusicBrainzMediaProvider.hpp */,
+				A033991727A37010009933DD /* MusicBrainzMediaProvider.cpp */,
+			);
+			path = musicbrainz;
+			sourceTree = "<group>";
+		};
+		A04F94A527AA23CD004D91E2 /* api */ = {
+			isa = PBXGroup;
+			children = (
+				A04F94A727AA23E4004D91E2 /* MusicBrainz.hpp */,
+				A04F94A627AA23E4004D91E2 /* MusicBrainz.cpp */,
+				A04F94AC27AA241A004D91E2 /* MusicBrainzTypes.hpp */,
+				A04F94B027B0490A004D91E2 /* MusicBrainzTypes.impl.h */,
+				A04F94AB27AA241A004D91E2 /* MusicBrainzTypes.cpp */,
+			);
+			path = api;
+			sourceTree = "<group>";
+		};
 		A0C9531F2788EDA30032F296 /* mutators */ = {
 			isa = PBXGroup;
 			children = (
@@ -842,6 +883,7 @@
 				A571E1312332C5D000603E14 /* spotify */,
 				A571E1302332C5BC00603E14 /* youtube */,
 				A5BA4A5726E7FC3200139269 /* lastfm */,
+				A033991627A36F75009933DD /* musicbrainz */,
 			);
 			path = providers;
 			sourceTree = "<group>";
@@ -919,6 +961,8 @@
 		A513EDA0232DA2EA000DCAC7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A097765B27A8D03400EC7CAF /* libxml2.tbd */,
+				A097765A27A8D01F00EC7CAF /* libxml2.2.tbd */,
 				A5D9EB172556741500E4762A /* WebKit.framework */,
 				A5F081B62543F2B800C41A36 /* MediaPlayer.framework */,
 				A5F081BC2543F33800C41A36 /* MediaPlayer.framework */,
@@ -1353,11 +1397,13 @@
 			files = (
 				A563A5C924AFEE770036A842 /* SQLOrderBy.hpp in Headers */,
 				A5F60C31255F3E4700A0D4E3 /* Base64.hpp in Headers */,
+				A04F94AF27AA241A004D91E2 /* MusicBrainzTypes.hpp in Headers */,
 				A513ED93232DA20B000DCAC7 /* MediaProvider.hpp in Headers */,
 				A5AE3F0B247BA5B700FB9AFF /* MediaDatabaseSQL.hpp in Headers */,
 				A5E851D0235DFEBC0001F74D /* BandcampMediaTypes.hpp in Headers */,
 				A58189AA26A1DD18007BFD82 /* JSError.hpp in Headers */,
 				A5D9F568255E0BC100E4762A /* YoutubeAuthEventListener.hpp in Headers */,
+				A033991B27A37010009933DD /* MusicBrainzMediaProvider.hpp in Headers */,
 				A5BA4A0526E5A41000139269 /* LastFMTypes.hpp in Headers */,
 				A5D9F54B255E0B4700E4762A /* YoutubeAuth.hpp in Headers */,
 				A5C6DB4A25BE03E600596878 /* GoogleDriveStorageMediaTypes.impl.hpp in Headers */,
@@ -1392,6 +1438,7 @@
 				A5E851A72357B1660001F74D /* Bandcamp.hpp in Headers */,
 				A5B7A7DF233F126800301FC0 /* Spotify.hpp in Headers */,
 				A540D8482550A7B800EE5CA8 /* SHObjcUtils.h in Headers */,
+				A04F94B127B0490A004D91E2 /* MusicBrainzTypes.impl.h in Headers */,
 				A50F74B6238B223F0061D9FD /* TrackCollection.impl.hpp in Headers */,
 				A5BA49DA26E072EB00139269 /* PlayerItem.hpp in Headers */,
 				A5AE3F06247B890000FB9AFF /* MediaDatabase.hpp in Headers */,
@@ -1410,6 +1457,7 @@
 				A5AE3F1E247C593100FB9AFF /* SQLiteTransaction.hpp in Headers */,
 				A5B1B9072548EB3600DACA2D /* SHKeychainUtils_objc.h in Headers */,
 				A5AE3F25247C937400FB9AFF /* MediaDatabaseSQLOperations.hpp in Headers */,
+				A04F94AA27AA23E4004D91E2 /* MusicBrainz.hpp in Headers */,
 				A5C6CCE42597DB0800596878 /* StorageProvider.hpp in Headers */,
 				A571E1332332C65000603E14 /* SpotifyMediaProvider.hpp in Headers */,
 				A540D83325508A1D00EE5CA8 /* SHiOSUtils.h in Headers */,
@@ -1824,10 +1872,12 @@
 				A0C8D7D0278FD45C007485E4 /* Scrobble.cpp in Sources */,
 				A5E851A52357B1660001F74D /* Bandcamp.cpp in Sources */,
 				A54F2547239DAA2700C81E1C /* StreamPlayer.cpp in Sources */,
+				A04F94AD27AA241A004D91E2 /* MusicBrainzTypes.cpp in Sources */,
 				A5C6CE2C259C176300596878 /* GoogleDriveStorageProvider_iOS.mm in Sources */,
 				A5EDB8ED249ADC1200885BC2 /* MediaLibraryTracksCollection.cpp in Sources */,
 				A57378A223D25A4D00EEA533 /* YoutubePlaylistMutatorDelegate.cpp in Sources */,
 				A5485A1E238CCB5F00CB7749 /* UserAccount.cpp in Sources */,
+				A04F94A827AA23E4004D91E2 /* MusicBrainz.cpp in Sources */,
 				A5D9E1372550EC7700E4762A /* BandcampSession_ObjC.mm in Sources */,
 				A5B973562381F91900FB3F1C /* Track.cpp in Sources */,
 				A5B9736523822C0100FB3F1C /* TrackCollection.cpp in Sources */,
@@ -1889,6 +1939,7 @@
 				A5B7A7C5233EA8CC00301FC0 /* SHProgressView_iOS.mm in Sources */,
 				A5BA4A4326E6BA4B00139269 /* LastFMAuth_iOS.mm in Sources */,
 				A5B7A79F2336C29200301FC0 /* SpotifyError.cpp in Sources */,
+				A033991927A37010009933DD /* MusicBrainzMediaProvider.cpp in Sources */,
 				A5F07D7E2543840100C41A36 /* YoutubeMediaTypes.cpp in Sources */,
 				A5C6D08025A28DE500596878 /* SoundHoleMediaProvider_iOS.mm in Sources */,
 				A0D40378279633BB0010C8AE /* ItemsPage.cpp in Sources */,
@@ -1920,6 +1971,7 @@
 			files = (
 				A578785623DE547F00B6B0A5 /* PlaybackOrganizer.cpp in Sources */,
 				A5C6D08125A28DE500596878 /* SoundHoleMediaProvider_iOS.mm in Sources */,
+				A04F94A927AA23E4004D91E2 /* MusicBrainz.cpp in Sources */,
 				A5E851C9235A56BD0001F74D /* YoutubeError.cpp in Sources */,
 				A5D9E1382550EC7700E4762A /* BandcampSession_ObjC.mm in Sources */,
 				A5BA49C426D2F9A400139269 /* PlaybackHistoryItem.cpp in Sources */,
@@ -1974,9 +2026,11 @@
 				A5BA49FF26E599DC00139269 /* LastFMError.cpp in Sources */,
 				A571E1A7233440A800603E14 /* HttpClient.cpp in Sources */,
 				A5D9F611255E5BD400E4762A /* OAuthSessionManager.cpp in Sources */,
+				A04F94AE27AA241A004D91E2 /* MusicBrainzTypes.cpp in Sources */,
 				A513ED95232DA20B000DCAC7 /* YoutubeMediaProvider.cpp in Sources */,
 				A563A5CC24AFF3600036A842 /* SQLOrderBy.cpp in Sources */,
 				A513ED92232DA20B000DCAC7 /* BandcampMediaProvider.cpp in Sources */,
+				A033991A27A37010009933DD /* MusicBrainzMediaProvider.cpp in Sources */,
 				A5AE3F0A247BA5B700FB9AFF /* MediaDatabaseSQL.cpp in Sources */,
 				A5AE3F3E247DFFE400FB9AFF /* MediaLibraryProxyProvider.cpp in Sources */,
 				A5D9F600255E4DD400E4762A /* OAuthError.cpp in Sources */,
@@ -2219,7 +2273,10 @@
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/addon-api",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lxml2",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -2245,7 +2302,10 @@
 					"$(SRCROOT)/Pods/NodeJSEmbed/external/nodejs/build/addon-api",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lxml2",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;

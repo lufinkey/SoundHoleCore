@@ -21,6 +21,7 @@
 		"bandcamp-api": "git+ssh://git@github.com/lufinkey/bandcamp-api.git",
 		"google-sheets-db": "git+ssh://git@github.com:lufinkey/google-sheets-db.git",
 		"googleapis": "^77.0.0",
+		"musicbrainz-api": "^0.7.2",
 		"uuid": "^8.3.2",
 		"ytdl-core": "^4.9.2"
 	},

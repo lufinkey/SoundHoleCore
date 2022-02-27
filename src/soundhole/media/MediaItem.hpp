@@ -51,6 +51,7 @@ namespace sh {
 			String name;
 			String uri;
 			Optional<ArrayList<Image>> images;
+			Json additionalInfo;
 			
 			static Data fromJson(const Json& json, MediaProviderStash* stash);
 		};
@@ -65,6 +66,8 @@ namespace sh {
 		
 		const Optional<ArrayList<Image>>& images() const;
 		Optional<Image> image(Image::Size size, bool allowFallback=true) const;
+		
+		const Json& additionalInfo() const;
 		
 		MediaProvider* mediaProvider() const;
 		
@@ -84,5 +87,6 @@ namespace sh {
 		String _uri;
 		Optional<ArrayList<Image>> _images;
 		Optional<Promise<void>> _itemDataPromise;
+		Json _additionalInfo;
 	};
 }

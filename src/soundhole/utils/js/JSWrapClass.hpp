@@ -9,7 +9,6 @@
 #pragma once
 
 #include <soundhole/common.hpp>
-#include "JSUtils.hpp"
 
 namespace sh {
 	class JSWrapClass {

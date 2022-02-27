@@ -103,6 +103,15 @@ namespace sh::jsutils {
 	Optional<double> optDoubleFromNapiValue(Napi::Value value);
 	bool boolFromNapiValue(Napi::Value value);
 	Optional<bool> optBoolFromNapiValue(Napi::Value value);
+
+	template<typename Transform>
+	inline auto optValueFromNapiValue(Napi::Value value, Transform transform) {
+		using ReturnType = decltype(transform(std::declval<Napi::Value>()));
+		if(value.IsEmpty() || value.IsNull() || value.IsUndefined()) {
+			return Optional<ReturnType>();
+		}
+		return maybe(transform(value));
+	}
 	
 	template<typename Transform>
 	auto arrayListFromNapiArray(Napi::Array array, Transform transform) {
