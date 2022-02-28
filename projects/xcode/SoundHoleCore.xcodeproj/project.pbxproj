@@ -25,6 +25,9 @@
 		A09252AB279BA68300783EDA /* MediaMatcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A09252A9279BA68300783EDA /* MediaMatcher.cpp */; };
 		A09252AC279BA68300783EDA /* MediaMatcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A09252A9279BA68300783EDA /* MediaMatcher.cpp */; };
 		A09252AD279BA68300783EDA /* MediaMatcher.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A09252AA279BA68300783EDA /* MediaMatcher.hpp */; };
+		A092BFC927CC6F6800503E5A /* MusicBrainzError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A092BFC727CC6F6800503E5A /* MusicBrainzError.cpp */; };
+		A092BFCA27CC6F6800503E5A /* MusicBrainzError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A092BFC727CC6F6800503E5A /* MusicBrainzError.cpp */; };
+		A092BFCB27CC6F6800503E5A /* MusicBrainzError.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A092BFC827CC6F6800503E5A /* MusicBrainzError.hpp */; };
 		A0C8D7CB278B7E08007485E4 /* LastFMMediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A0C8D7C9278B7E08007485E4 /* LastFMMediaProvider.cpp */; };
 		A0C8D7CC278B7E08007485E4 /* LastFMMediaProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A0C8D7C9278B7E08007485E4 /* LastFMMediaProvider.cpp */; };
 		A0C8D7CD278B7E08007485E4 /* LastFMMediaProvider.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A0C8D7CA278B7E08007485E4 /* LastFMMediaProvider.hpp */; };
@@ -393,6 +396,8 @@
 		A04F94B027B0490A004D91E2 /* MusicBrainzTypes.impl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MusicBrainzTypes.impl.h; sourceTree = "<group>"; };
 		A09252A9279BA68300783EDA /* MediaMatcher.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MediaMatcher.cpp; sourceTree = "<group>"; };
 		A09252AA279BA68300783EDA /* MediaMatcher.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MediaMatcher.hpp; sourceTree = "<group>"; };
+		A092BFC727CC6F6800503E5A /* MusicBrainzError.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MusicBrainzError.cpp; sourceTree = "<group>"; };
+		A092BFC827CC6F6800503E5A /* MusicBrainzError.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MusicBrainzError.hpp; sourceTree = "<group>"; };
 		A097765A27A8D01F00EC7CAF /* libxml2.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.2.tbd; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/lib/libxml2.2.tbd; sourceTree = DEVELOPER_DIR; };
 		A097765B27A8D03400EC7CAF /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/usr/lib/libxml2.tbd; sourceTree = DEVELOPER_DIR; };
 		A0C8D7C9278B7E08007485E4 /* LastFMMediaProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LastFMMediaProvider.cpp; sourceTree = "<group>"; };
@@ -751,6 +756,8 @@
 			children = (
 				A04F94A727AA23E4004D91E2 /* MusicBrainz.hpp */,
 				A04F94A627AA23E4004D91E2 /* MusicBrainz.cpp */,
+				A092BFC827CC6F6800503E5A /* MusicBrainzError.hpp */,
+				A092BFC727CC6F6800503E5A /* MusicBrainzError.cpp */,
 				A04F94AC27AA241A004D91E2 /* MusicBrainzTypes.hpp */,
 				A04F94B027B0490A004D91E2 /* MusicBrainzTypes.impl.h */,
 				A04F94AB27AA241A004D91E2 /* MusicBrainzTypes.cpp */,
@@ -1498,6 +1505,7 @@
 				A5D9E1192550BC0B00E4762A /* BandcampSession.hpp in Headers */,
 				A578785C23E37A7B00B6B0A5 /* QueueItem.hpp in Headers */,
 				A0C8D7E127949F0B007485E4 /* UnmatchedScrobble.hpp in Headers */,
+				A092BFCB27CC6F6800503E5A /* MusicBrainzError.hpp in Headers */,
 				A5B973582381F91900FB3F1C /* Track.hpp in Headers */,
 				A52826E423F09B6200360508 /* Player.hpp in Headers */,
 				A513ED90232DA20B000DCAC7 /* BandcampMediaProvider.hpp in Headers */,
@@ -1837,6 +1845,7 @@
 			files = (
 				A5B1B9002548EB2300DACA2D /* SHKeychainUtils_objc.mm in Sources */,
 				A5B7A7A32337DA5700301FC0 /* SpotifyAuth_iOS.mm in Sources */,
+				A092BFC927CC6F6800503E5A /* MusicBrainzError.cpp in Sources */,
 				A571E16A2333305D00603E14 /* Scripts.cpp in Sources */,
 				A5D9F438255DC77300E4762A /* Utils_apple.mm in Sources */,
 				A52C4708250EB6B000131918 /* SHWebAuthNavigationController_iOS.mm in Sources */,
@@ -2032,6 +2041,7 @@
 				A513ED92232DA20B000DCAC7 /* BandcampMediaProvider.cpp in Sources */,
 				A033991A27A37010009933DD /* MusicBrainzMediaProvider.cpp in Sources */,
 				A5AE3F0A247BA5B700FB9AFF /* MediaDatabaseSQL.cpp in Sources */,
+				A092BFCA27CC6F6800503E5A /* MusicBrainzError.cpp in Sources */,
 				A5AE3F3E247DFFE400FB9AFF /* MediaLibraryProxyProvider.cpp in Sources */,
 				A5D9F600255E4DD400E4762A /* OAuthError.cpp in Sources */,
 				A0D40379279633BB0010C8AE /* ItemsPage.cpp in Sources */,

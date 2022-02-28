@@ -81,6 +81,10 @@ namespace sh::jsutils {
 
 	Optional<bool> optBoolFromJson(const Json&);
 	Optional<size_t> optSizeFromJson(const Json&);
+	Optional<double> optDoubleFromJson(const Json&);
+	Optional<String> optStringFromJson(const Json&);
+	String nonNullStringPropFromJson(const Json& json, const char* propName);
+	size_t nonNullSizePropFromJson(const Json& json, const char* propName);
 
 	Optional<size_t> badlyFormattedSizeFromJson(const Json& json);
 	Optional<bool> badlyFormattedBoolFromJson(const Json& json);

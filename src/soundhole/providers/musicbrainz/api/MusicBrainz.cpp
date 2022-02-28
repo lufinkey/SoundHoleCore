@@ -8,169 +8,153 @@
 
 #include <napi.h>
 #include "MusicBrainz.hpp"
+#include "MusicBrainzError.hpp"
 #include <soundhole/scripts/Scripts.hpp>
 #include <soundhole/utils/js/JSUtils.hpp>
 #include <soundhole/utils/js/JSWrapClass.impl.hpp>
 
 namespace sh {
 	MusicBrainz::MusicBrainz(Options options)
-	: jsRef(nullptr), options(options) {
+	: options(options) {
 		// TODO load auth
 	}
 
 	MusicBrainz::~MusicBrainz() {
-		auto jsRef = this->jsRef;
-		if(jsRef != nullptr) {
-			queueJSDestruct([=](napi_env env) {
-				auto napiRef = Napi::ObjectReference(env, jsRef);
-				if(napiRef.Unref() == 0) {
-					napiRef.Reset();
-				} else {
-					napiRef.SuppressDestruct();
-				}
-			});
-		}
-		// TODO delete auth object
+		//
 	}
 
-	void MusicBrainz::initializeJS(napi_env env) {
-		if(this->jsRef == nullptr) {
-			// create options
-			auto mbOptions = Napi::Object::New(env);
-			if(!options.appName.empty()) {
-				mbOptions.Set("appName", (std::string)options.appName);
-			}
-			if(!options.appVersion.empty()) {
-				mbOptions.Set("appVersion", (std::string)options.appVersion);
-			}
-			if(!options.appContactInfo.empty()) {
-				mbOptions.Set("appContactInfo", (std::string)options.appContactInfo);
-			}
-			
-			// instantiate bandcamp
-			auto jsExports = scripts::getJSExports(env);
-			auto MusicBrainzApiClass = jsExports.Get("MusicBrainzApi").As<Napi::Function>();
-			auto musicbrainz = MusicBrainzApiClass.New({ mbOptions });
-			auto musicbrainzRef = Napi::ObjectReference::New(musicbrainz, 1);
-			musicbrainzRef.SuppressDestruct();
-			jsRef = musicbrainzRef;
+
+	String MusicBrainz::userAgent() const {
+		String userAgent;
+		userAgent.reserve(options.appName.size() + options.appVersion.size() + options.appContactInfo.size() + 6);
+		if(!options.appName.empty()) {
+			userAgent += options.appName;
 		}
+		if(!options.appVersion.empty()) {
+			if(!userAgent.empty()) {
+				userAgent += '/';
+			}
+			userAgent += options.appVersion;
+		}
+		if(!options.appContactInfo.empty()) {
+			if(!userAgent.empty()) {
+				userAgent += " ( ";
+			}
+			userAgent += options.appContactInfo;
+			userAgent += " )";
+		}
+		return userAgent;
 	}
 
 
 
 	#pragma mark Template helper methods
 
-	template<typename Result>
-	Promise<Result> MusicBrainz::performAsyncMusicBrainzFunc(String funcName, Function<std::vector<napi_value>(napi_env)> createArgs, Function<Result(napi_env,Napi::Value)> mapper) {
-		return performAsyncFunc<Result>([=](napi_env env) {
-			return jsutils::jsValue<Napi::Object>(env, this->jsRef);
-		}, funcName, createArgs, mapper, {
-			.beforeFuncCall = nullptr,
-			.afterFuncFinish = nullptr
+	Promise<Json> MusicBrainz::sendRequest(utils::HttpMethod method, String endpoint, const std::map<String,String>& queryParams) {
+		auto url = URL::parse("https://musicbrainz.org/ws/2/"+endpoint)
+			.valueOrThrow(std::invalid_argument("invalid endpoint "+endpoint));
+		auto queryItems = LinkedList<URL::QueryItem>();
+		for(auto& pair : queryParams) {
+			queryItems.pushBack(URL::QueryItem{
+				.key = pair.first,
+				.value = pair.second
+			});
+		}
+		url.setQueryItems(queryItems);
+		return utils::performHttpRequest(utils::HttpRequest{
+			.url = url,
+			.method = method,
+			.headers = utils::HttpHeaders(Map<String,String>{
+				{ "User-Agent", userAgent() }
+			})
+		}).map(nullptr, [](auto response) {
+			if(response->statusCode < 200 || response->statusCode >= 300) {
+				throw MusicBrainzError(MusicBrainzError::Code::REQUEST_FAILED, response->statusMessage);
+			}
+			std::string parseError;
+			auto json = Json::parse(response->data.toString(), parseError);
+			if(!parseError.empty()) {
+				throw MusicBrainzError(MusicBrainzError::Code::BAD_DATA, "Failed to parse response: "+parseError);
+			}
+			return json;
 		});
 	}
 
 	template<typename T>
 	Promise<T> MusicBrainz::getEntity(String type, String mbid, ArrayList<String> include) {
-		return performAsyncMusicBrainzFunc<T>("getEntity", [=](napi_env env) {
-			auto args = std::vector<napi_value>{
-				Napi::String::New(env, (std::string)type),
-				Napi::String::New(env, (std::string)mbid),
-			};
-			if(!include.empty()) {
-				auto includeArr = Napi::Array::New(env, include.size());
-				for(uint32_t i=0; i<include.size(); i++) {
-					includeArr.Set(i, Napi::String::New(env, include[i]));
-				}
-				args.push_back(includeArr);
-			}
-			return args;
-		}, [](napi_env env, Napi::Value value) {
-			return T::fromNapiObject(value.As<Napi::Object>());
-		});
+		if(type.empty()) {
+			return rejectWith(std::invalid_argument("type cannot be empty"));
+		} else if(mbid.empty()) {
+			return rejectWith(std::invalid_argument("mbid cannot be empty"));
+		}
+		auto queryObj = Map<String,String>();
+		if(!include.empty()) {
+			queryObj.put("inc", String::join(include, " "));
+		}
+		return sendRequest(utils::HttpMethod::GET, type+"/"+mbid, queryObj)
+			.map(nullptr, [](auto json) {
+				return T::fromJson(json);
+			});
 	}
 
 
 	template<typename T>
 	Promise<MusicBrainzSearchResult<T>> MusicBrainz::search(String type, String query, SearchOptions options) {
-		return performAsyncMusicBrainzFunc<MusicBrainzSearchResult<T>>("search", [=](napi_env env) {
-			auto queryObj = Napi::Object::New(env);
-			queryObj.Set("query", query);
-			if(!options.include.empty()) {
-				auto includeArr = Napi::Array::New(env, options.include.size());
-				for(uint32_t i=0; i<options.include.size(); i++) {
-					includeArr.Set(i, Napi::String::New(env, options.include[i]));
-				}
-				queryObj.Set("inc", includeArr);
-			}
-			if(options.offset.hasValue()) {
-				queryObj.Set("offset", Napi::Number::New(env, (double)options.offset.value()));
-			}
-			if(options.limit.hasValue()) {
-				queryObj.Set("limit", Napi::Number::New(env, (double)options.limit.value()));
-			}
-			return std::vector<napi_value>{
-				Napi::String::New(env, (std::string)type),
-				queryObj
-			};
-		}, [=](napi_env env, Napi::Value value) {
-			return MusicBrainzSearchResult<T>::fromNapiObject(value.As<Napi::Object>(), type);
-		});
+		if(query.empty()) {
+			return rejectWith(std::invalid_argument("query cannot be empty"));
+		}
+		auto queryObj = Map<String,String>{
+			{ "query", query }
+		};
+		if(!options.include.empty()) {
+			queryObj.put("inc", String::join(options.include, " "));
+		}
+		if(options.offset.hasValue()) {
+			queryObj.put("offset", std::to_string(options.offset.value()));
+		}
+		if(options.limit.hasValue()) {
+			queryObj.put("limit", std::to_string(options.limit.value()));
+		}
+		return sendRequest(utils::HttpMethod::GET, type, queryObj)
+			.map(nullptr, [=](auto json) {
+				return MusicBrainzSearchResult<T>::fromJson(json, type);
+			});
 	}
 
 
 	template<typename T>
 	Promise<MusicBrainzSearchResult<T>> MusicBrainz::search(String type, QueryMap query, SearchOptions options) {
-		return performAsyncMusicBrainzFunc<MusicBrainzSearchResult<T>>("search", [=](napi_env env) {
-			ArrayList<String> queryIncludes;
-			auto queryObj = Napi::Object::New(env);
-			for(auto& pair : query) {
-				if(pair.first == "inc" && pair.second.is<String>()) {
-					// append query includes
-					queryIncludes = pair.second.get<String>().split(' ');
+		String queryIncludes;
+		auto queryObj = Map<String,String>();
+		for(auto& pair : query) {
+			if(pair.first == "inc" && pair.second.is<String>()) {
+				queryIncludes = pair.second.get<String>();
+			} else {
+				if(pair.second.is<String>()) {
+					queryObj.put(pair.first, pair.second.get<String>());
+				} else if(pair.second.is<long>()) {
+					queryObj.put(pair.first, std::to_string(pair.second.get<long>()));
+				} else if(pair.second.is<double>()) {
+					queryObj.put(pair.first, std::to_string(pair.second.get<double>()));
 				} else {
-					// append query field
-					if(pair.second.is<String>()) {
-						queryObj.Set((std::string)pair.first, Napi::String::New(env, (std::string)pair.second.get<String>()));
-					}
-					else if(pair.second.is<long>()) {
-						queryObj.Set((std::string)pair.first, Napi::Number::New(env, (double)pair.second.get<long>()));
-					}
-					else if(pair.second.is<double>()) {
-						queryObj.Set((std::string)pair.first, Napi::Number::New(env, (double)pair.second.get<double>()));
-					}
-					else {
-						throw std::logic_error("invalid query value type");
-					}
+					throw std::logic_error("invalid query value type");
 				}
 			}
-			if(!options.include.empty() || !queryIncludes.empty()) {
-				auto includes = options.include;
-				for(auto& inc : queryIncludes) {
-					if(!inc.empty() && !includes.contains(inc)) {
-						includes.push_back(inc);
-					}
-				}
-				auto includeArr = Napi::Array::New(env, includes.size());
-				for(uint32_t i=0; i<includes.size(); i++) {
-					includeArr.Set(i, Napi::String::New(env, includes[i]));
-				}
-				queryObj.Set("inc", includeArr);
-			}
-			if(options.offset.hasValue()) {
-				queryObj.Set("offset", Napi::Number::New(env, (double)options.offset.value()));
-			}
-			if(options.limit.hasValue()) {
-				queryObj.Set("limit", Napi::Number::New(env, (double)options.limit.value()));
-			}
-			return std::vector<napi_value>{
-				Napi::String::New(env, (std::string)type),
-				queryObj
-			};
-		}, [=](napi_env env, Napi::Value value) {
-			return MusicBrainzSearchResult<T>::fromNapiObject(value.As<Napi::Object>(), type);
-		});
+		}
+		if(!queryIncludes.empty() || !options.include.empty()) {
+			auto includesStr = options.include.empty() ? queryIncludes : (String::join(options.include, " ") + " " + queryIncludes);
+			queryObj.put("inc", includesStr);
+		}
+		if(options.offset.hasValue()) {
+			queryObj.put("offset", std::to_string(options.offset.value()));
+		}
+		if(options.limit.hasValue()) {
+			queryObj.put("limit", std::to_string(options.limit.value()));
+		}
+		return sendRequest(utils::HttpMethod::GET, type, queryObj)
+			.map(nullptr, [=](const Json& json) {
+				return MusicBrainzSearchResult<T>::fromJson(json, type);
+			});
 	}
 
 

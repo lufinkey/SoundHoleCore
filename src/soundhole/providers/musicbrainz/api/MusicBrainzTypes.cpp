@@ -22,6 +22,19 @@ namespace sh {
 		};
 	}
 
+	MusicBrainzPeriod MusicBrainzPeriod::fromJson(const Json& json) {
+		if(json.is_null() || !json.is_object()) {
+			throw std::invalid_argument("MusicBrainzPeriod::fromJson requires an object");
+		}
+		return MusicBrainzPeriod{
+			.begin = jsutils::stringFromJson(json["begin"]),
+			.end = jsutils::stringFromJson(json["end"]),
+			.ended = jsutils::optBoolFromJson(json["ended"])
+		};
+	}
+
+
+
 	MusicBrainzURL MusicBrainzURL::fromNapiObject(Napi::Object obj) {
 		if(obj.IsEmpty() || obj.IsNull() || obj.IsUndefined() || !obj.IsObject()) {
 			throw std::invalid_argument("MusicBrainzURL::fromNapiObject requires an object");
@@ -31,6 +44,18 @@ namespace sh {
 			.resource = jsutils::nonNullStringPropFromNapiObject(obj, "resource")
 		};
 	}
+
+	MusicBrainzURL MusicBrainzURL::fromJson(const Json& json) {
+		if(json.is_null() || !json.is_object()) {
+			throw std::invalid_argument("MusicBrainzURL::fromJson requires an object");
+		}
+		return MusicBrainzURL{
+			.id = jsutils::nonNullStringPropFromJson(json, "id"),
+			.resource = jsutils::nonNullStringPropFromJson(json, "resource")
+		};
+	}
+
+
 
 	MusicBrainzArea MusicBrainzArea::fromNapiObject(Napi::Object obj) {
 		if(obj.IsEmpty() || obj.IsNull() || obj.IsUndefined() || !obj.IsObject()) {
@@ -49,6 +74,25 @@ namespace sh {
 		};
 	}
 
+	MusicBrainzArea MusicBrainzArea::fromJson(const Json& json) {
+		if(json.is_null() || !json.is_object()) {
+			throw std::invalid_argument("MusicBrainzArea::fromJson requires an object");
+		}
+		return MusicBrainzArea{
+			.id = jsutils::nonNullStringPropFromJson(json, "id"),
+			.typeId = jsutils::stringFromJson(json["type-id"]),
+			.type = jsutils::stringFromJson(json["type"]),
+			.name = jsutils::nonNullStringPropFromJson(json, "name"),
+			.sortName = jsutils::stringFromJson(json["sort-name"]),
+			.disambiguation = jsutils::stringFromJson(json["disambiguation"]),
+			.iso_3166_1_codes = jsutils::optArrayListFromJson(json["iso-3166-1-codes"], [](const Json& code) {
+				return jsutils::stringFromJson(code);
+			})
+		};
+	}
+
+
+
 	MusicBrainzAlias MusicBrainzAlias::fromNapiObject(Napi::Object obj) {
 		if(obj.IsEmpty() || obj.IsNull() || obj.IsUndefined() || !obj.IsObject()) {
 			throw std::invalid_argument("MusicBrainzAlias::fromNapiObject requires an object");
@@ -62,6 +106,22 @@ namespace sh {
 			.ended = jsutils::optBoolFromNapiValue(obj.Get("ended"))
 		};
 	}
+
+	MusicBrainzAlias MusicBrainzAlias::fromJson(const Json& json) {
+		if(json.is_null() || !json.is_object()) {
+			throw std::invalid_argument("MusicBrainzAlias::fromJson requires an object");
+		}
+		return MusicBrainzAlias{
+			.name = jsutils::nonNullStringPropFromJson(json, "name"),
+			.sortName = jsutils::nonNullStringPropFromJson(json, "sort-name"),
+			.type = jsutils::stringFromJson(json["type"]),
+			.locale = jsutils::stringFromJson(json["locale"]),
+			.primary = jsutils::optBoolFromJson(json["primary"]),
+			.ended = jsutils::optBoolFromJson(json["ended"])
+		};
+	}
+
+
 
 	MusicBrainzRelation MusicBrainzRelation::fromNapiObject(Napi::Object obj) {
 		if(obj.IsEmpty() || obj.IsNull() || obj.IsUndefined() || !obj.IsObject()) {
@@ -97,6 +157,42 @@ namespace sh {
 		};
 	}
 
+	MusicBrainzRelation MusicBrainzRelation::fromJson(const Json& json) {
+		if(json.is_null() || !json.is_object()) {
+			throw std::invalid_argument("MusicBrainzRelation::fromJson requires an object");
+		}
+		auto targetType = jsutils::stringFromJson(json["target-type"]);
+		if(targetType.empty()) {
+			throw std::invalid_argument("MusicBrainzRelation.target-type cannot be empty");
+		}
+		auto itemJson = json[targetType];
+		if(itemJson.is_null() || !itemJson.is_object()) {
+			throw std::invalid_argument("missing property '"+targetType+"' for MusicBrainzRelation");
+		}
+		auto item = ItemVariant((std::nullptr_t)nullptr);
+		if(targetType == "url") {
+			item = std::make_shared<MusicBrainzURL>(MusicBrainzURL::fromJson(itemJson));
+		} else if(targetType == "release") {
+			item = std::make_shared<MusicBrainzRelease>(MusicBrainzRelease::fromJson(itemJson));
+		} else if(targetType == "artist") {
+			item = std::make_shared<MusicBrainzArtist>(MusicBrainzArtist::fromJson(itemJson));
+		}
+		return MusicBrainzRelation{
+			.targetType = targetType,
+			.typeId = jsutils::stringFromJson(json["type-id"]),
+			.type = jsutils::nonNullStringPropFromJson(json, "type"),
+			.direction = jsutils::nonNullStringPropFromJson(json, "direction"),
+			.targetCredit = jsutils::stringFromJson(json["target-credit"]),
+			.sourceCredit = jsutils::stringFromJson(json["source-credit"]),
+			.begin = jsutils::stringFromJson(json["begin"]),
+			.end = jsutils::stringFromJson(json["end"]),
+			.ended = jsutils::optBoolFromJson(json["ended"]),
+			.item = item
+		};
+	}
+
+
+
 	MusicBrainzArtist MusicBrainzArtist::fromNapiObject(Napi::Object obj) {
 		if(obj.IsEmpty() || obj.IsNull() || obj.IsUndefined() || !obj.IsObject()) {
 			throw std::invalid_argument("MusicBrainzArtist::fromNapiObject requires an object");
@@ -119,7 +215,7 @@ namespace sh {
 			.endArea = jsutils::optValueFromNapiValue(obj.Get("end-area"), [](Napi::Value areaObj) {
 				return MusicBrainzArea::fromNapiObject(areaObj.As<Napi::Object>());
 			}),
-			.lifeSpan = jsutils::optValueFromNapiValue(obj.Get("end-area"), [](Napi::Value lifeSpanObj) {
+			.lifeSpan = jsutils::optValueFromNapiValue(obj.Get("life-span"), [](Napi::Value lifeSpanObj) {
 				return MusicBrainzPeriod::fromNapiObject(lifeSpanObj.As<Napi::Object>());
 			}),
 			.relations = jsutils::optArrayListFromNapiValue(obj.Get("relations"), [](Napi::Value relationObj) {
@@ -134,6 +230,61 @@ namespace sh {
 		};
 	}
 
+	MusicBrainzArtist MusicBrainzArtist::fromJson(const Json& json) {
+		if(json.is_null() || !json.is_object()) {
+			throw std::invalid_argument("MusicBrainzArtist::fromJson requires an object");
+		}
+		return MusicBrainzArtist{
+			.id = jsutils::nonNullStringPropFromJson(json, "id"),
+			.name = jsutils::nonNullStringPropFromJson(json, "name"),
+			.sortName = jsutils::stringFromJson(json["sort-name"]),
+			.disambiguation = jsutils::stringFromJson(json["disambiguation"]),
+			.country = jsutils::stringFromJson(json["country"]),
+			.aliases = jsutils::optArrayListFromJson(json["aliases"], [](const Json& aliasJson) {
+				return MusicBrainzAlias::fromJson(aliasJson);
+			}),
+			.area = ([&]() -> Optional<MusicBrainzArea> {
+				auto areaJson = json["area"];
+				if(areaJson.is_null()) {
+					return std::nullopt;
+				}
+				return MusicBrainzArea::fromJson(areaJson);
+			})(),
+			.beginArea = ([&]() -> Optional<MusicBrainzArea> {
+				auto areaJson = json["begin-area"];
+				if(areaJson.is_null()) {
+					return std::nullopt;
+				}
+				return MusicBrainzArea::fromJson(areaJson);
+			})(),
+			.endArea = ([&]() -> Optional<MusicBrainzArea> {
+				auto areaJson = json["end-area"];
+				if(areaJson.is_null()) {
+					return std::nullopt;
+				}
+				return MusicBrainzArea::fromJson(areaJson);
+			})(),
+			.lifeSpan = ([&]() -> Optional<MusicBrainzPeriod> {
+				auto spanJson = json["life-span"];
+				if(spanJson.is_null()) {
+					return std::nullopt;
+				}
+				return MusicBrainzPeriod::fromJson(spanJson);
+			})(),
+			.relations = jsutils::optArrayListFromJson(json["relations"], [](const Json& relationJson) {
+				return MusicBrainzRelation::fromJson(relationJson);
+			}),
+			.releases = jsutils::optArrayListFromJson(json["releases"], [](const Json& releaseJson) {
+				return MusicBrainzRelease::fromJson(releaseJson);
+			}),
+			.releaseGroups = jsutils::optArrayListFromJson(json["release-groups"], [](const Json& releaseGroupJson) {
+				return MusicBrainzReleaseGroup::fromJson(releaseGroupJson);
+			})
+		};
+	}
+
+
+
 	MusicBrainzArtistCredit MusicBrainzArtistCredit::fromNapiObject(Napi::Object obj) {
 		if(obj.IsEmpty() || obj.IsNull() || obj.IsUndefined() || !obj.IsObject()) {
 			throw std::invalid_argument("MusicBrainzArtistCredit::fromNapiObject requires an object");
@@ -144,6 +295,19 @@ namespace sh {
 			.name = jsutils::stringFromNapiValue(obj.Get("name"))
 		};
 	}
+
+	MusicBrainzArtistCredit MusicBrainzArtistCredit::fromJson(const Json& json) {
+		if(json.is_null() || !json.is_object()) {
+			throw std::invalid_argument("MusicBrainzArtistCredit::fromJson requires an object");
+		}
+		return MusicBrainzArtistCredit{
+			.artist = MusicBrainzArtist::fromJson(json["artist"]),
+			.joinphrase = jsutils::stringFromJson(json["joinphrase"]),
+			.name = jsutils::stringFromJson(json["name"])
+		};
+	}
+
+
 
 	MusicBrainzRelease MusicBrainzRelease::fromNapiObject(Napi::Object obj) {
 		if(obj.IsEmpty() || obj.IsNull() || obj.IsUndefined() || !obj.IsObject()) {
@@ -182,7 +346,53 @@ namespace sh {
 		};
 	}
 
+	MusicBrainzRelease MusicBrainzRelease::fromJson(const Json& json) {
+		if(json.is_null() || !json.is_object()) {
+			throw std::invalid_argument("MusicBrainzRelease::fromJson requires an object");
+		}
+		return MusicBrainzRelease{
+			.id = jsutils::nonNullStringPropFromJson(json, "id"),
+			.title = jsutils::stringFromJson(json["title"]),
+			.disambiguation = jsutils::stringFromJson(json["disambiguation"]),
+			.asin = jsutils::stringFromJson(json["asin"]),
+			.statusId = jsutils::stringFromJson(json["status-id"]),
+			.status = jsutils::stringFromJson(json["status"]),
+			.date = jsutils::stringFromJson(json["date"]),
+			.country = jsutils::stringFromJson(json["country"]),
+			.quality = jsutils::stringFromJson(json["quality"]),
+			.barcode = jsutils::stringFromJson(json["barcode"]),
+			.media = jsutils::arrayListFromJson(json["media"], [](const Json& mediaJson) {
+				return MusicBrainzMedia::fromJson(mediaJson);
+			}),
+			.coverArtArchive = ([&]() -> Optional<MusicBrainzCoverArtArchive> {
+				auto archiveJson = json["cover-art-archive"];
+				if(archiveJson.is_null()) {
+					return std::nullopt;
+				}
+				return MusicBrainzCoverArtArchive::fromJson(archiveJson);
+			})(),
+			.artistCredit = jsutils::optArrayListFromJson(json["artist-credit"], [](const Json& creditJson) {
+				return MusicBrainzArtistCredit::fromJson(creditJson);
+			}),
+			.releaseEvents = jsutils::optArrayListFromJson(json["release-events"], [](const Json& eventJson) {
+				return MusicBrainzReleaseEvent::fromJson(eventJson);
+			}),
+			.releaseGroup = ([&]() -> std::shared_ptr<MusicBrainzReleaseGroup> {
+				auto groupJson = json["release-group"];
+				if(groupJson.is_null() || !groupJson.is_object()) {
+					return nullptr;
+				}
+				return std::make_shared<MusicBrainzReleaseGroup>(MusicBrainzReleaseGroup::fromJson(groupJson));
+			})()
+		};
+	}
+
+
+
 	MusicBrainzReleaseEvent MusicBrainzReleaseEvent::fromNapiObject(Napi::Object obj) {
+		if(obj.IsEmpty() || obj.IsNull() || obj.IsUndefined() || !obj.IsObject()) {
+			throw std::invalid_argument("MusicBrainzReleaseEvent::fromNapiObject requires an object");
+		}
 		return MusicBrainzReleaseEvent{
 			.area = jsutils::optValueFromNapiValue(obj.Get("area"), [](Napi::Value areaObj) {
 				return MusicBrainzArea::fromNapiObject(areaObj.As<Napi::Object>());
@@ -190,6 +400,24 @@ namespace sh {
 			.date = jsutils::optStringFromNapiValue(obj.Get("date"))
 		};
 	}
+
+	MusicBrainzReleaseEvent MusicBrainzReleaseEvent::fromJson(const Json& json) {
+		if(json.is_null() || !json.is_object()) {
+			throw std::invalid_argument("MusicBrainzReleaseEvent::fromJson requires an object");
+		}
+		return MusicBrainzReleaseEvent{
+			.area = ([&]() -> Optional<MusicBrainzArea> {
+				auto areaJson = json["area"];
+				if(areaJson.is_null()) {
+					return std::nullopt;
+				}
+				return MusicBrainzArea::fromJson(areaJson);
+			})(),
+			.date = jsutils::optStringFromJson(json["date"])
+		};
+	}
+
+
 
 	MusicBrainzRecording MusicBrainzRecording::fromNapiObject(Napi::Object obj) {
 		return MusicBrainzRecording{
@@ -213,6 +441,31 @@ namespace sh {
 		};
 	}
 
+	MusicBrainzRecording MusicBrainzRecording::fromJson(const Json& json) {
+		return MusicBrainzRecording{
+			.id = jsutils::nonNullStringPropFromJson(json, "id"),
+			.title = jsutils::stringFromJson(json["title"]),
+			.disambiguation = jsutils::stringFromJson(json["disambiguation"]),
+			.length = jsutils::optDoubleFromJson(json["length"]),
+			.video = jsutils::optBoolFromJson(json["video"])
+				.valueOrThrow(std::invalid_argument("missing property 'video' for MusicBrainzRecording")),
+			.releases = jsutils::optArrayListFromJson(json["releases"], [](const Json& releaseJson) {
+				return MusicBrainzRelease::fromJson(releaseJson);
+			}),
+			.relations = jsutils::optArrayListFromJson(json["relations"], [](const Json& relationJson) {
+				return MusicBrainzRelation::fromJson(relationJson);
+			}),
+			.artistCredit = jsutils::optArrayListFromJson(json["artist-credit"], [](const Json& creditJson) {
+				return MusicBrainzArtistCredit::fromJson(creditJson);
+			}),
+			.aliases = jsutils::optArrayListFromJson(json["aliases"], [](const Json& aliasJson) {
+				return MusicBrainzAlias::fromJson(aliasJson);
+			})
+		};
+	}
+
+
+
 	MusicBrainzTrack MusicBrainzTrack::fromNapiObject(Napi::Object obj) {
 		return MusicBrainzTrack{
 			.id = jsutils::nonNullStringPropFromNapiObject(obj, "id"),
@@ -225,6 +478,20 @@ namespace sh {
 		};
 	}
 
+	MusicBrainzTrack MusicBrainzTrack::fromJson(const Json& json) {
+		return MusicBrainzTrack{
+			.id = jsutils::nonNullStringPropFromJson(json, "id"),
+			.number = jsutils::nonNullSizePropFromJson(json, "number"),
+			.title = jsutils::stringFromJson(json["title"]),
+			.length = jsutils::optDoubleFromJson(json["length"]),
+			.artistCredit = jsutils::optArrayListFromJson(json["artist-credit"], [](const Json& creditJson) {
+				return MusicBrainzArtistCredit::fromJson(creditJson);
+			})
+		};
+	}
+
+
+
 	MusicBrainzMedia MusicBrainzMedia::fromNapiObject(Napi::Object obj) {
 		return MusicBrainzMedia{
 			.title = jsutils::stringFromNapiValue(obj.Get("title")),
@@ -234,6 +501,18 @@ namespace sh {
 			}),
 			.trackCount = jsutils::nonNullSizePropFromNapiObject(obj, "track-count"),
 			.trackOffset = jsutils::nonNullSizePropFromNapiObject(obj, "track-offset")
+		};
+	}
+
+	MusicBrainzMedia MusicBrainzMedia::fromJson(const Json& json) {
+		return MusicBrainzMedia{
+			.title = jsutils::stringFromJson(json["title"]),
+			.position = jsutils::nonNullSizePropFromJson(json, "position"),
+			.tracks = jsutils::arrayListFromJson(json, [](const Json& trackJson) {
+				return MusicBrainzTrack::fromJson(trackJson);
+			}),
+			.trackCount = jsutils::nonNullSizePropFromJson(json, "track-count"),
+			.trackOffset = jsutils::nonNullSizePropFromJson(json, "track-offset")
 		};
 	}
 }

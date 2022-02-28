@@ -26,6 +26,40 @@ namespace sh::jsutils {
 		return (size_t)json.number_value();
 	}
 
+	Optional<double> optDoubleFromJson(const Json& json) {
+		if(!json.is_number()) {
+			return std::nullopt;
+		}
+		return (double)json.number_value();
+	}
+
+	Optional<String> optStringFromJson(const Json& json) {
+		if(!json.is_string()) {
+			return std::nullopt;
+		}
+		return json.string_value();
+	}
+
+	String nonNullStringPropFromJson(const Json& json, const char* propName) {
+		auto& value = json[propName];
+		if(value.is_null()) {
+			throw std::runtime_error((std::string)"property "+propName+" is null");
+		} else if(!value.is_string()) {
+			throw std::runtime_error((std::string)"property "+propName+" is not expected type 'string'");
+		}
+		return value.string_value();
+	}
+
+	size_t nonNullSizePropFromJson(const Json& json, const char* propName) {
+		auto& value = json[propName];
+		if(value.is_null()) {
+			throw std::runtime_error((std::string)"property "+propName+" is empty");
+		} else if(!value.is_number()) {
+			throw std::runtime_error((std::string)"property "+propName+" is not expected type 'number'");
+		}
+		return (size_t)value.number_value();
+	}
+
 	Optional<size_t> badlyFormattedSizeFromJson(const Json& json) {
 		if(json.is_number()) {
 			if(json.number_value() < 0) {

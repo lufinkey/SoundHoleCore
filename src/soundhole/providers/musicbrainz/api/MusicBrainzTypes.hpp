@@ -33,6 +33,7 @@ namespace sh {
 		#ifdef NODE_API_MODULE
 		static MusicBrainzPeriod fromNapiObject(Napi::Object);
 		#endif
+		static MusicBrainzPeriod fromJson(const Json&);
 	};
 
 	struct MusicBrainzURL {
@@ -42,6 +43,7 @@ namespace sh {
 		#ifdef NODE_API_MODULE
 		static MusicBrainzURL fromNapiObject(Napi::Object);
 		#endif
+		static MusicBrainzURL fromJson(const Json&);
 	};
 
 	struct MusicBrainzArea {
@@ -56,6 +58,7 @@ namespace sh {
 		#ifdef NODE_API_MODULE
 		static MusicBrainzArea fromNapiObject(Napi::Object);
 		#endif
+		static MusicBrainzArea fromJson(const Json&);
 	};
 
 	struct MusicBrainzAlias {
@@ -69,6 +72,7 @@ namespace sh {
 		#ifdef NODE_API_MODULE
 		static MusicBrainzAlias fromNapiObject(Napi::Object);
 		#endif
+		static MusicBrainzAlias fromJson(const Json&);
 	};
 
 	struct MusicBrainzRelation {
@@ -102,6 +106,7 @@ namespace sh {
 		#ifdef NODE_API_MODULE
 		static MusicBrainzRelation fromNapiObject(Napi::Object);
 		#endif
+		static MusicBrainzRelation fromJson(const Json&);
 	};
 
 	struct MusicBrainzArtist {
@@ -122,6 +127,7 @@ namespace sh {
 		#ifdef NODE_API_MODULE
 		static MusicBrainzArtist fromNapiObject(Napi::Object);
 		#endif
+		static MusicBrainzArtist fromJson(const Json&);
 	};
 
 	struct MusicBrainzArtistCredit {
@@ -132,6 +138,7 @@ namespace sh {
 		#ifdef NODE_API_MODULE
 		static MusicBrainzArtistCredit fromNapiObject(Napi::Object);
 		#endif
+		static MusicBrainzArtistCredit fromJson(const Json&);
 	};
 
 	struct MusicBrainzCoverArtArchive {
@@ -144,6 +151,7 @@ namespace sh {
 		#ifdef NODE_API_MODULE
 		static MusicBrainzCoverArtArchive fromNapiObject(Napi::Object);
 		#endif
+		static MusicBrainzCoverArtArchive fromJson(const Json&);
 	};
 
 	struct MusicBrainzReleaseGroup {
@@ -158,6 +166,7 @@ namespace sh {
 		#ifdef NODE_API_MODULE
 		static MusicBrainzReleaseGroup fromNapiObject(Napi::Object);
 		#endif
+		static MusicBrainzReleaseGroup fromJson(const Json&);
 	};
 
 	struct MusicBrainzRelease {
@@ -180,6 +189,7 @@ namespace sh {
 		#ifdef NODE_API_MODULE
 		static MusicBrainzRelease fromNapiObject(Napi::Object);
 		#endif
+		static MusicBrainzRelease fromJson(const Json&);
 	};
 
 	struct MusicBrainzReleaseEvent {
@@ -189,6 +199,7 @@ namespace sh {
 		#ifdef NODE_API_MODULE
 		static MusicBrainzReleaseEvent fromNapiObject(Napi::Object);
 		#endif
+		static MusicBrainzReleaseEvent fromJson(const Json&);
 	};
 
 	struct MusicBrainzRecording {
@@ -205,6 +216,7 @@ namespace sh {
 		#ifdef NODE_API_MODULE
 		static MusicBrainzRecording fromNapiObject(Napi::Object);
 		#endif
+		static MusicBrainzRecording fromJson(const Json&);
 	};
 
 	struct MusicBrainzTrack {
@@ -217,6 +229,7 @@ namespace sh {
 		#ifdef NODE_API_MODULE
 		static MusicBrainzTrack fromNapiObject(Napi::Object);
 		#endif
+		static MusicBrainzTrack fromJson(const Json&);
 	};
 
 	struct MusicBrainzMedia {
@@ -229,6 +242,7 @@ namespace sh {
 		#ifdef NODE_API_MODULE
 		static MusicBrainzMedia fromNapiObject(Napi::Object);
 		#endif
+		static MusicBrainzMedia fromJson(const Json&);
 	};
 
 	template<typename ItemType>
@@ -238,6 +252,7 @@ namespace sh {
 		#ifdef NODE_API_MODULE
 		static MusicBrainzMatch<ItemType> fromNapiObject(Napi::Object);
 		#endif
+		static MusicBrainzMatch<ItemType> fromJson(const Json&);
 	};
 
 	template<typename ItemType>
@@ -248,8 +263,9 @@ namespace sh {
 		ArrayList<ItemType> items;
 		
 		#ifdef NODE_API_MODULE
-		static MusicBrainzSearchResult<ItemType> fromNapiObject(Napi::Object, String type);
+		static MusicBrainzSearchResult<ItemType> fromNapiObject(Napi::Object, std::string type);
 		#endif
+		static MusicBrainzSearchResult<ItemType> fromJson(const Json&, std::string type);
 	};
 }
 
